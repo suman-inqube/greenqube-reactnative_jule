@@ -11,7 +11,7 @@ const App = () => {
 
   const startRecording = async () => {
     try {
-      // Specify the initial file name
+
       const initialFileName = 'recording.mp3';
 
       // Start recording with the initial file name
