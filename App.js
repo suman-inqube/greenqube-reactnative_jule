@@ -14,7 +14,7 @@ const App = () => {
 
       const initialFileName = 'recording.mp3';
 
-      // Start recording with the initial file name
+
       await recorderPlayer.startRecorder(
         `${AudioUtils.DocumentDirectoryPath}/${initialFileName}`
       );
