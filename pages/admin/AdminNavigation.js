@@ -7,6 +7,8 @@ import { getItem, setItem } from '../../config/getDataFromStorage';
 import { fpodetailsDataListAPI } from '../../config/apiHere';
 import UserList from './userlist/UserList';
 import ActivityList from './Activity/ActivityList';
+import ActivityDetail from './Activity/ActivityDetail';
+
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
 
@@ -56,9 +58,9 @@ const AdminNavigation = () => {
                 header: () => <CustomHeader />,
             }}>
         {/* <Drawer.Navigator> */}
+            < Drawer.Screen name="Dashboard" component={Dashboard} />
             < Drawer.Screen name="activityList" component={ActivityList} />
             < Drawer.Screen name="userList" component={UserList} />
-            < Drawer.Screen name="Dashboard" component={Dashboard} />
         </Drawer.Navigator >
     )
 }

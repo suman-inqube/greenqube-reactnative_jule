@@ -194,4 +194,19 @@ export const fpodetailsDataListAPI = async (dbName, languageID, token, userID, c
     }
 
 }
+export const activityListAPI = async (dbName, languageID, token, userID, pageNO) => {
+    const axiosHeaders = {
+        headers: {
+            'authorization': `${token}`,
+            'information': `${dbName},${languageID},${userID}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=&from_date=&to_date=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        return console.log("error in Activity api" + error.response);
+    }
+
+}
 

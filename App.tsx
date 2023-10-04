@@ -34,9 +34,7 @@ function App(): JSX.Element {
         <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} /> */}
       <Stack.Navigator >
         <Stack.Screen name="AdminNavigation" component={AdminNavigation} options={{ headerShown: false }} />
-
         <Stack.Screen name="Login"  component={Login} />
-
         <Stack.Screen name="ProduceInfo" component={ProduceInfo} options={{ title: 'Produce Information' }} />
         <Stack.Screen name="Signup" component={Signup} options={{ title: 'Signup' }} />
         <Stack.Screen name="Persnol" component={Persnol} options={{ title: 'Personal Details' }} />
