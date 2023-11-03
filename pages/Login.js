@@ -9,14 +9,25 @@ import axios from 'axios';
 import { getItem, removeItem, setItem } from '../config/getDataFromStorage'
 import { databaseListAPI } from '../config/apiHere'
 import MessageDialog from './Common/MessageDialog'
+// import i18next from './services/i18next';
+import { useTranslation } from 'react-i18next';
 
-const Login = () => {
+const Login = ({route}) => {
     const navigation = useNavigation();
     const [companyData, setCompanyData] = useState([]);
     const [companyLanguage, setcompanyLanguage] = useState({
         company: "",
         language: ""
     });
+    if(route.params===undefined)
+    {
+        // console.log(route);
+        const { locale } = "en";
+
+    }
+   
+   
+    const { t } = useTranslation();
     const [storeLoginUser, setstoreLoginUser] = useState(
         {
             "FcmUserToken": "654321",
@@ -112,6 +123,27 @@ const Login = () => {
 
 
     const onPageLoad = async () => {
+    // console.warn("login");
+        if(route.params===undefined)
+        {
+            const { locale } = route.params;
+        }
+        if(route)
+        {
+            const { locale } = route.params;
+            // console.log(locale);
+            if (locale ==="en"){
+                i18next.changeLanguage(locale);
+            }
+            else if (locale ==="hi"){
+                i18next.changeLanguage(locale);
+            }
+            else if (locale ==="bng"){
+                i18next.changeLanguage(locale);
+            }
+        }
+       
+
         databaseList();
         await removeItem('storeSignup_data');
         await removeItem('storePersnolInfo_data');
@@ -133,8 +165,8 @@ const Login = () => {
                     <View style={{ paddingHorizontal: 20 }}>
                         <Logo />
                         <View>
-                            <Text style={{ fontSize: 25 }}>Sign In</Text>
-                            <Text>Login with your registered phone number an password</Text>
+                        <Text style={{ fontSize: 25 }}>{t('Sign_In')}</Text>
+                            <Text>{t('Login_with_your_registered_phone_number_an_password')}</Text>
                             <TextInput style={styles.simpleInputTextStyle} placeholder="Enter your Register Phone no." keyboardType="numeric" onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} />
 
                             <TextInput style={styles.simpleInputTextStyle} placeholder="Enter Your Password" secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} />

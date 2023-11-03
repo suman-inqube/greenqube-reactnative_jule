@@ -7,7 +7,7 @@ import {
     ScrollView,
     TextInput,
     Image,
-    StatusBar
+    StatusBar,
 } from 'react-native'
 import React, { useEffect, useState } from 'react';
 import ImageForm from '../../Common/ImageForm';
@@ -19,12 +19,17 @@ import { activityListAPI } from '../../../config/apiHere';
 import { getItem, setItem } from '../../../config/getDataFromStorage';
 import ActivityDetail from './ActivityDetail';
 import ActivityReport from './ActivityReport';
-
-
+import LoadingScreen from '../../Common/LoadingScreen';
+import { useFocusEffect } from '@react-navigation/native';
+import CustomHeader from '../CustomHeader';
+import MessageDialog from '../../Common/MessageDialog';
 const ActivityList = ({ navigation }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [reloadList, setReloadList] = useState(false);
     const [activityAll, setactivityAll] = useState([]);
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");
+    const [filterName, setFilterName] = useState("");
     const [newFromDate, setnewFromDate] = useState(new Date());
     const [newToDate, setnewToDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false)
@@ -37,11 +42,14 @@ const ActivityList = ({ navigation }) => {
     const [currentPage, setcurrentPage] = useState(1);
     const [showMenu, setshowMenu] = useState('');
     const [farmerID, setfarmerID] = useState();
+    const [fromDate, setfromDate] = useState("");
+    const [toDate, setToDate] = useState("");
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         pageNo: 1
     });
+    const [fromDateFilter, setFromDateFilter] = useState('');
 
-    const [dbLanTokUsr1, setdbLanTokUsr1] = useState({});
+
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -50,9 +58,114 @@ const ActivityList = ({ navigation }) => {
         }
     }
     const onchangeFilterItem = (value) => {
+        // console.warn(value);
+        // return;
+        setFilterName(value);
         setFilterItem(value);
         setFilterOption(false);
     }
+
+
+    const handlePage = async (value) => {
+        // console.warn(dbLanTokUsr);
+        const currentPageNo = dbLanTokUsr.pageNo
+        const totalPage = dbLanTokUsr.totalPage
+
+        if (value === 'next') {
+            if (totalPage === currentPageNo) {
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
+                if (response) {
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+
+                }
+
+            }
+            else {
+                const nextPage = currentPageNo + 1
+                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage)
+                if (response) {
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+                }
+            }
+        }
+
+        if (value === 'previous') {
+            if (currentPageNo === 1) {
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
+                if (response) {
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+                }
+            }
+            else {
+                const prePage = currentPageNo - 1
+                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage)
+                if (response) {
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+                }
+            }
+        }
+
+    }
+
+
+    const handleFilter = async (item) => {
+        // return console.warn(item);
+        if (filterName === 'date') {
+            return;
+        }
+        else {
+            const from_date = '';
+            const to_date = '';
+            const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, from_date, to_date)
+            if (response) {
+                setactivityAll(response.data.data.rows);
+                setItem("activity_Data", response.data.data.rows)
+            }
+        }
+    }
+
+    const handleDatePicker = (item) => {
+        const dt = new Date(item);
+        const x = dt.toISOString().split('T');
+        const x1 = x[0].split('-');
+        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        setfromDate(effective_date)
+        setFromDateFilter(effective_date)
+        // console.log(fromAndToDate);
+    }
+    const handleDatePicker2 = async(item) => {
+        const dt = new Date(item);
+        const x = dt.toISOString().split('T');
+        const x1 = x[0].split('-');
+        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        setToDate(fromDateFilter)
+        if(fromDateFilter)
+        {
+            const item='';
+            const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, fromDateFilter, effective_date)
+            if (response) {
+                setactivityAll(response.data.data.rows);
+                setItem("activity_Data", response.data.data.rows)
+            }
+        }else
+        {
+            MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+        }
+
+    }
+
+    const navigateToPages = async (pageName, uact_id) => {
+        setItem("uact_id_data", uact_id)
+        navigation.navigate(pageName);
+        setIsLoading(true)
+
+    };
 
     const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
 
@@ -67,118 +180,82 @@ const ActivityList = ({ navigation }) => {
                 supervisorId: supervisorId,
                 totalPage: totalPage,
             });
-            setactivityAll((prevData) => [...prevData, ...response.data.data.rows]);
-            // setactivityAll(response.data.data)
-            setItem("activity_Data", response.data.data)
+            setactivityAll(response.data.data.rows)
+            setItem("activity_Data", response.data.data.rows)
+            setIsLoading(false)
         }
 
     }
-
-    const handlePage = async (value) => {
-        // console.warn(dbLanTokUsr);
-        const currentPageNo = dbLanTokUsr.pageNo
-        const totalPage = dbLanTokUsr.totalPage
-
-        if (value === 'next') {
-            if (totalPage === currentPageNo) {
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
-                if (response) {
-                    setactivityAll(response.data.data.rows);
-                }
-
-            }
-            else {
-                const nextPage = currentPageNo + 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage)
-                if (response) {
-                    setactivityAll(response.data.data.rows);
-                }
-            }
-        }
-
-        if (value === 'previous') {
-            if (currentPageNo === 1) {
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
-                if (response) {
-                    setactivityAll(response.data.data.rows);
-                }
-            }
-            else {
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage)
-                if (response) {
-                    setactivityAll(response.data.data.rows);
-                }
-            }
-        }
-
-    }
-
-
-
 
     const onPageLoad = async () => {
+
         const loginUser_data = await getItem('loginUser_data');
-        // console.warn(loginUser_data);
+        // return console.log(loginUser_data);
+
         if (loginUser_data) {
             const dbName = loginUser_data.dbname;
             const languageId = loginUser_data.lan_id;
             const token = loginUser_data.token;
             const supervisorId = loginUser_data.user_id;
-
-
-
             fatchActivityListAPI(dbName, languageId, token, supervisorId, 1)
+
         }
-    };
-    const navigateToPages = (pageName, uact_id) => {
-        navigation.navigate(pageName, { uact_id });
     };
 
     useEffect(() => {
         onPageLoad();
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            onPageLoad();
+        }, [])
+    );
+
+
     return (
-
         <>
-            {
-
+            {isLoading ? (
+                <LoadingScreen />
+            ) : (<>
+                <CustomHeader path="Dashboard" />
                 <View style={{ flex: 1 }}>
-                    <StatusBar
-                        barStyle="dark-content"
-                        backgroundColor={"white"}
-                        translucent
-                    />
-
+                   
                     <DatePickerComp
                         openDate={openFromDate}
                         newDate={newFromDate}
                         setOpenDate={setOpenFromDate}
+                        handleDatePicker={handleDatePicker}
                     />
                     <DatePickerComp
                         openDate={openToDate}
                         newDate={newToDate}
                         setOpenDate={setOpenToDate}
+                        handleDatePicker={handleDatePicker2}
                     />
 
-                    <WidgetsSide location={"ActivityReport"} title={"Report Activity"} onPress={() => navigateToPages('activityReport', 123)} />
+                    <WidgetsSide location={"ActivityReport"} title={"Report Activity"} onPress={() => navigateToPages('activityReport', 123)
+
+                    } />
 
                     <Filter
                         filterItem={filterItem}
                         filterOption={filterOption}
                         setOpenToDate={setOpenToDate}
+                        fromDate={fromDate}
+                        newToDate={toDate}
+                        setOpenFromDate={setOpenFromDate}
                         filterOptionShow={filterOptionShow}
                         onchangeFilterItem={onchangeFilterItem}
+                        onChangeText={(item) => handleFilter(item)}
+                        title="Activity List"
                     />
 
                     {
-
                         activityAll ?
                             <FlatList
                                 data={activityAll}
-                                renderItem={({ item }) => {
+                                renderItem={({ item, index }) => {
                                     return (
                                         <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
                                             <View style={styles.activityListContainer}>
@@ -195,7 +272,6 @@ const ActivityList = ({ navigation }) => {
                                             </View>
                                             <Text style={styles.title}>Cycle Start Date : {item.cycle_start_date}</Text>
                                             <Text style={styles.title}>Activity Name :{item.cropActivity ? item.cropActivity.activity.categoryName : ''}</Text>
-
                                         </TouchableOpacity>
                                     )
                                 }}
@@ -214,7 +290,10 @@ const ActivityList = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+            </>)
+
             }
+
 
         </>
     )

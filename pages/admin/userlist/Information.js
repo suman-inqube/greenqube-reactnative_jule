@@ -11,7 +11,7 @@ import { fetchBlockAPI, fetchDistrictAPI, fetchStateAPI } from '../../../config/
 import { launchImageLibrary } from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker'
 import config from '../../../config'
-
+import CustomHeader from '../CustomHeader'
 const Information = ({ sendDataToParent, farmerID }) => {
     const [newdate, setnewDate] = useState(new Date())
     const [open, setOpen] = useState(false)
@@ -174,8 +174,6 @@ const Information = ({ sendDataToParent, farmerID }) => {
 
             }
         }
-
-
     };
     const sendDataToParentOnClick = () => {
         sendDataToParent(null);
@@ -184,18 +182,14 @@ const Information = ({ sendDataToParent, farmerID }) => {
         onPageLoad();
     }, []);
     return (
-        <>
-            <View>
-                <TouchableOpacity onPress={sendDataToParentOnClick}>
-                    <Text style={{ padding: 5, backgroundColor: '#79AC78', width: 50, textAlign: 'center', color: 'white' }}>Back</Text>
-                </TouchableOpacity>
-            </View>
-            <ScrollView style={{ backgroundColor: '' }}>
-                <View style={{ marginBottom: 50 }}>
+        <>   
+        <CustomHeader path='userList' />
+         <ScrollView >
+                <View style={{ marginHorizontal: '10',marginVertical: '10', }}>
                     {
                         farmerData.userName ?
                             <>
-                                <View style={{ backgroundColor: '#D5FFD0', marginTop: 20 }}>
+                                <View style={{ backgroundColor: '#D5FFD0', marginTop: 60 }}>
                                     <View style={{ marginTop: 20, marginHorizontal: 15 }}>
                                         <View style={{ alignItems: 'center' }}>
                                             <ImagePlaceHolderCircle openImagePicker={openImagePicker} selectedImage={selectedImage} />
@@ -346,7 +340,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
 
                             : ''
                     }
-                    <View style={{ marginTop: 10, backgroundColor: '#D5FFD0' }}>
+                    <View style={{backgroundColor: '#D5FFD0' }}>
                         <ButtonForm label='Next' onPress={() => handleUserListUpdate()} />
                     </View>
                 </View>

@@ -7,13 +7,20 @@ const Filter = ({
   setOpenToDate,
   filterOptionShow,
   onchangeFilterItem,
-  setOpenFromDate
+  setOpenFromDate,
+  fromDate,
+  newToDate,
+  onChangeText,
+  title,
+  category,
+  FarmerProductNameValue,
+  FarmerProductPhoneValue
 }) => {
   return (
     <>
       <View style={styles.filterContainer}>
         <View>
-          <Text style={[styles.title, { paddingBottom: 8, paddingTop: 4, fontWeight: '700' }]}>Activity List</Text>
+          <Text style={[styles.title, { paddingBottom: 8, paddingTop: 4, fontWeight: '700' }]}>{title}</Text>
         </View>
         <View style={styles.filterItem}>
           {filterItem === 'Farmer/Product Name' ?
@@ -21,24 +28,44 @@ const Filter = ({
               style={styles.filterInput}
               placeholder='Farmer Name'
               placeholderTextColor="#000"
+              onChangeText={onChangeText}
+              value={FarmerProductNameValue}
             />
+            
             : ""}
           {filterItem === 'PhoneNumber' ?
             <TextInput
               style={styles.filterInput}
               placeholder='Phone Number'
               placeholderTextColor="#000"
+              onChangeText={onChangeText}
+              value={FarmerProductPhoneValue}
+            />
+            : ""}
+            {filterItem === 'Category' ?
+            <TextInput
+              style={styles.filterInput}
+              placeholder='Category'
+              placeholderTextColor="#000"
+              onChangeText={onChangeText}
             />
             : ""}
           {filterItem === 'Date' ?
             <View style={styles.dataSearchContainer}>
-              <TouchableOpacity onPress={() => setOpenFromDate(true)}>
-                <Text style={styles.title}>
-                  From date
+              <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.dateContainer}>
+                <Text style={[styles.title, { marginLeft: 5 }]}>
+                  {fromDate == "" ? "From date" : `${fromDate}`}
                 </Text>
+                <Image source={require('./images/date_sort.png')}
+                  style={{ width: 30, height: 30 }}
+                />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setOpenToDate(true)}>
-                <Text style={styles.title}>To date</Text>
+              <TouchableOpacity onPress={() => setOpenToDate(true)} style={styles.dateContainer}>
+                <Text style={styles.title}>
+                  {newToDate == "" ? "To date" : `${newToDate}`}</Text>
+                <Image source={require('./images/date_sort.png')}
+                  style={{ width: 30, height: 30 }}
+                />
               </TouchableOpacity>
             </View>
             : ""}
@@ -60,6 +87,13 @@ const Filter = ({
             selected={filterItem === 'PhoneNumber'}
             onSelect={() => onchangeFilterItem('PhoneNumber')}
           />
+          {category ==true?
+          <RadioForm label={"Category"}
+            selected={filterItem === 'Category'}
+            onSelect={() => onchangeFilterItem('Category')}
+          />
+          :""
+        }
           <RadioForm label={"Date"}
             selected={filterItem === 'Date'}
             onSelect={() => onchangeFilterItem('Date')}
@@ -138,6 +172,11 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingHorizontal: 20,
     height: 45
+  },
+  dateContainer: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 
 })

@@ -169,6 +169,7 @@ const SignUpViwer = () => {
             };
             const database_res = await axios.post("http://142.93.208.31:4003/farmerRoute/selfFarmerLongRegistration", formData, axiosHeaders);
             // console.log(database_res.data.data);
+            if(database_res)
             {
                 MessageDialog({ title: 'Successful', message: "Successfull SignUp Data" })
                 navigation.navigate('Login', { pagename: 'Login' });

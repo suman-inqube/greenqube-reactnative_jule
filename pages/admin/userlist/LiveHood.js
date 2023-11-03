@@ -13,7 +13,7 @@ import DatePicker from 'react-native-date-picker'
 import config from '../../../config'
 import axios from 'axios'
 import ButtonFormBottom from '../../Common/ButtonFormBottom'
-
+import CustomHeader from '../CustomHeader'
 const LiveHood = ({ sendDataToParent, farmerID }) => {
     const [plotAll, setplotAll] = useState([]);
     const [farmerFoundPlotAll, setfarmerFoundPlotAll] = useState([]);
@@ -233,13 +233,9 @@ const LiveHood = ({ sendDataToParent, farmerID }) => {
     }, []);
     return (
         <>
-            <View>
-                <TouchableOpacity onPress={sendDataToParentOnClick}>
-                    <Text style={{ padding: 5, backgroundColor: '#79AC78', width: 50, textAlign: 'center', color: 'white' }}>Back</Text>
-                </TouchableOpacity>
-            </View>
-            <ScrollView style={{ backgroundColor: '' }}>
-                <View style={{ marginBottom: 80 }}>
+        <CustomHeader path='userList' />
+            <ScrollView style={{ marginHorizontal: 10,marginVertical: 10, }}>
+                <View style={{ marginBottom: 40, }}>
 
                     <>
                         <DropdownForm label="Plot/Site Size" data={plotAll} onChange={(item) => handlePlot(item)} />

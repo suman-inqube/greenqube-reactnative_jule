@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import ButtonForm from '../../Common/ButtonForm';
 import MessageDialog from '../../Common/MessageDialog';
-
+import CustomHeader from '../CustomHeader';
 const ForgotPassword = ({ sendDataToParent }) => {
     const [cpasswordVisibility, setcPasswordVisibility] = useState('');
     const [passwordVisibility, setPasswordVisibility] = useState('');
@@ -48,11 +48,7 @@ const ForgotPassword = ({ sendDataToParent }) => {
     };
     return (
         <>
-            <View>
-                <TouchableOpacity onPress={sendDataToParentOnClick}>
-                    <Text>Back</Text>
-                </TouchableOpacity>
-            </View>
+         <CustomHeader path='userList' />
             <View style={styles.container} >
                 <View style={styles.forgotContainer} >
                     <Text style={styles.titleForgot}>Forgot Password</Text>

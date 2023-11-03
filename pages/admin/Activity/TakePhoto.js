@@ -2,10 +2,10 @@ import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native'
 import React from 'react'
 
 
-const TakePhoto = ({openImagePicker,selectedImage}) => {
+const TakePhoto = ({openImagePicker,selectedImage,title}) => {
     return (
         <>
-            <Text style={styles.title}>Take a photo (Optional)</Text>
+            <Text style={styles.title}>{ title ?title :'Default'}</Text>
             <View style={styles.container}>
                 <TouchableOpacity style={styles.item} onPress={() => openImagePicker("firstItem")}>
                     {selectedImage.firstItem == "" ? <Image

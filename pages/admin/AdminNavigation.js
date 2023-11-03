@@ -10,6 +10,31 @@ import ActivityList from './Activity/ActivityList';
 import ActivityDetail from './Activity/ActivityDetail';
 import ActivityReport from './Activity/ActivityReport';
 
+import ForgotPassword from './userlist/ForgetPassword';
+import Information from './userlist/Information';
+import LiveHood from './userlist/LiveHood';
+
+import InputList from './Inputs/InputList';
+import PastEnquiries from './Inputs/PastEnquiries';
+import Profile from './Menu/Profile';
+import ListProblem from './Problem/ListProblem';
+import CreateProblem from './Problem/CrateProblem';
+import ViewProblem from './Problem/ViewProblem';
+import CustomDrawer from './CustomDrawer';
+import WantToBuy from './Inputs/WantToBuy';
+
+import OutPut from './Output/OutPut';
+import PostNew from './Output/PostNew';
+import ViewPast from './Output/ViewPast';
+
+import LoanEnquiry from './Loan/LoanEnquiry';
+import LoanEnquiryDetail from './Loan/LoanEnquiryDetail';
+import Training from './Training/Training';
+import TrainingList from './Training/TrainingList';
+import UsefulInformation from './Usefullinformation/UsefulInformation';
+import UsefulInformationList from './Usefullinformation/UsefulInformationList';
+
+
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
 
@@ -21,6 +46,7 @@ const AdminNavigation = () => {
 
 
             const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
+            // console.log(foundbotomBannerFind);
             await setItem("bottomBannerData", foundbotomBannerFind.file_path)
 
 
@@ -36,8 +62,10 @@ const AdminNavigation = () => {
 
 
     const onPageLoad = async () => {
+
         const loginUser_data = await getItem('loginUser_data');
         if (loginUser_data) {
+            // console.log(loginUser_data);
             const dbName = loginUser_data.dbname;
             const languageID = loginUser_data.lan_id;
             const token = loginUser_data.token;
@@ -54,16 +82,71 @@ const AdminNavigation = () => {
     }, []);
     return (
         <Drawer.Navigator
-            drawerPosition="right"
+            drawerContent={props => <CustomDrawer />}
             screenOptions={{
-                header: () => <CustomHeader />,
+                headerShown: false,
+                // header: () => <CustomHeader />,
+                drawerPosition: 'right',
+                drawerActiveTintColor: '#f8f8f8',
+                drawerActiveBackgroundColor: '#093514',
+                drawerInactiveTintColor: '#FFF',
+                drawerStatusBarAnimation: 'fade',
+                drawerItemStyle: {
+                    borderBottomWidth: 1.3,
+                    borderBottomColor: '#baffa0',
+                    marginHorizontal: 20
+                },
+                drawerLabelStyle: {
+                    marginLeft: -20
+                },
+                // overlayColor: 'transparent',
+                drawerStyle: {
+                    backgroundColor: '#093514',
+                    width: '80%',
+                    marginTop: 50
+                    // position: 'absolute',
+                    // top: 40,
+
+                },
             }}>
-        {/* <Drawer.Navigator> */}
+
+                
+
+            <Drawer.Screen name="Dashboard" component={Dashboard} />
+
+            <Drawer.Screen name="Trainig" component={Training} />
+            <Drawer.Screen name="TraingList" component={TrainingList} />
+
+            <Drawer.Screen name="UsefulInformation" component={UsefulInformation} />
+            <Drawer.Screen name="UsefulInformationList" component={UsefulInformationList} />
+
+            <Drawer.Screen name="ProblemCreate" component={CreateProblem} />
+            <Drawer.Screen name="ProblemList" component={ListProblem} />
+            <Drawer.Screen name="ProblemView" component={ViewProblem} />
+         
+            <Drawer.Screen name="OutPutList" component={OutPut} />
+            <Drawer.Screen name="PostNew" component={PostNew} /> 
+            <Drawer.Screen name="ViewPast" component={ViewPast} />
+
+            <Drawer.Screen name="Loan" component={LoanEnquiry} />
+            <Drawer.Screen name="LoanEnquiryDetail" component={LoanEnquiryDetail} />    
+
+            <Drawer.Screen name="InputList" component={InputList} />
+            <Drawer.Screen name="WantToBuy" component={WantToBuy} />
+            <Drawer.Screen name="PastEnquiry" component={PastEnquiries} />
+        
             <Drawer.Screen name="activityList" component={ActivityList} />
             <Drawer.Screen name="activityReport" component={ActivityReport} />
-            <Drawer.Screen name="Dashboard" component={Dashboard} />
             <Drawer.Screen name="activityDetail" component={ActivityDetail} />
+
+            <Drawer.Screen name="Profile" component={Profile} />
+
             <Drawer.Screen name="userList" component={UserList} />
+            <Drawer.Screen name="password" component={ForgotPassword} />
+            <Drawer.Screen name="information" component={Information} />
+            <Drawer.Screen name="livehood" component={LiveHood} />
+
+
         </Drawer.Navigator >
     )
 }

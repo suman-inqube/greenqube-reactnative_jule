@@ -3,13 +3,14 @@ import React from 'react'
 
 
 const RecordComp = ({
-    selectedRecord
+    selectedRecord,
+    onPress
 }) => {
     return (
         <>
             <Text style={styles.title}>Record Your comment (Optional)</Text>
             <View style={styles.container}>
-                <TouchableOpacity style={styles.item} >
+                <TouchableOpacity style={styles.item} onPress={onPress}>
                     {selectedRecord.firstItemRecord == "" ? <Image
                         source={require('../../Common/images/microphone.jpeg')}
                         style={{width:100,height:100}}

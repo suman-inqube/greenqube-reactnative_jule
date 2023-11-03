@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Image, ActivityIndicator, ImageBackground } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ButtonForm from './pages/Common/ButtonForm';
 import DropdownForm from './pages/Common/DropdownForm';
 import MessageDialog from './pages/Common/MessageDialog';
 import { databaseListAPI, firstLanguageListAPI } from './config/apiHere';
 import { getItem, removeItem, setItem } from './config/getDataFromStorage';
+import ViewModalPast from './pages/admin/Output/ViewModalPast';
+import SplashScreenModal from './SplashScreenModal';
 const SplashScreen = ({ navigation }) => {
     const [companyData, setCompanyData] = useState([]);
     const [isLoading, setisLoading] = useState(true);
@@ -12,6 +14,7 @@ const SplashScreen = ({ navigation }) => {
         company: "",
         language: ""
     });
+    const [modalVisible, setModalVisible] = useState(true);
     const [languageData, setlanguageData] = useState([]);
     const validationData = () => {
         if (
@@ -54,7 +57,6 @@ const SplashScreen = ({ navigation }) => {
     }
 
     let languageDataList = async (dbName) => {
-
         try {
             let languageArray = [];
             let language_res = await firstLanguageListAPI(dbName);
@@ -82,17 +84,21 @@ const SplashScreen = ({ navigation }) => {
     }
 
     const onPageLoad = async () => {
-
-
         // await removeItem('companyLanguage_data')
-        const storeSignup_data = await getItem('companyLanguage_data');
-        // console.log(storeSignup_data);
-        if (storeSignup_data) {
-            navigation.replace('Login');
+        // await removeItem('loginUser_data')
+        const companyLanguage_data = await getItem('companyLanguage_data');
+        const loginUser_data = await getItem('loginUser_data');
+
+        if (loginUser_data) {
+            navigation.replace('AdminNavigation');
+        } else {
+            if (companyLanguage_data) {
+
+                navigation.replace('Login');
+            }
+
         }
-
-
-    };
+    }
 
     useEffect(() => {
         onPageLoad()
@@ -105,15 +111,23 @@ const SplashScreen = ({ navigation }) => {
                     <View>
                         <ActivityIndicator size="large" color="#007ACC" />
                     </View>) : (
+
                     <View style={styles.container}>
-                        <View style={{ alignItems: 'center' }}>
-                            <Image source={require('./pages/Common/images/logo.png')} style={styles.logo} />
-                            <Text style={{ fontSize: 20 }}>Green Qube</Text>
-                        </View>
-                        <DropdownForm data={companyData} label="Company" color='red' onChange={company => { companyHandle(company) }} val={companyLanguage.company.value} />
-                        <DropdownForm label="language" data={languageData} color='red' onChange={language => setcompanyLanguage({ ...companyLanguage, language: language })} val={companyLanguage.language.value} />
-                        <ButtonForm label="Start App" onPress={handleStart} />
+                        <SplashScreenModal setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle=""
+                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                        />
+                        
+                        <ImageBackground
+                            source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
+                            style={styles.backgroundImage}
+                        >
+                            <View style={styles.content}>
+                                <Image source={require('./pages/Common/images/greenqube_logo.png')} style={styles.logo} />
+                            </View>
+                        </ImageBackground>
                     </View>
+
+
                 )
 
 
@@ -128,13 +142,24 @@ export default SplashScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        marginHorizontal: 40,
+    },
+    backgroundImage: {
+        flex: 1,
+        resizeMode: 'cover',
+    },
+    content: {
+        flex: 1,
+        marginTop: 130,
+        alignItems: 'center',
+    },
+    text: {
+        color: 'white',
+        fontSize: 20,
     },
     logo: {
-        width: 100,
-        height: 100,
-        marginBottom: 10,
+        width: 250,
+        height: 150,
+        resizeMode: 'contain',
     },
 });
 

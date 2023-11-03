@@ -1,0 +1,80 @@
+name= agent_fcm  
+name= farmer_fcm eJ_QQHq1Qq-337QqKYbK4A:APA91bFCGrfq6XPr7dc7UyWMFoPdaY9fGryYS6JSByN5QPY7WlLOIXtmWU1-Z16RfuDhqf7InNwiHIhJh1_
+                 W6J-MYl97s7FA-xodzjza5J_DKKoVodUJfiqLyZIy56Tvicr0vsIbDGAj 
+
+name= photo [] 
+name= audio []
+name= post_meta_info [] 
+name= file_title [] 
+
+name= latitude 23.57543472200632 
+name= longitude 87.22678874619305 
+
+name= question_type crop_problem 
+name= land_unit_id  
+name= affected_area  
+name= category_id  
+
+name= crop_season_id c540375e-bf91-40a6-8823-a44b5e58f87a 
+name= crop_type_id 23faed48-942a-4d85-84cf-2c25cdf4640a 
+name= crop_variety_id a555a329-b535-490c-a096-fd1d17fed401 
+name= crop_name_id 4143d209-ccb7-4e48-91ca-51614645d774 
+
+name= plot_id a9445241-a55b-4ace-9984-ded1db455716 
+name= harvesting_date 2023-12-31 
+name= sowing_date 2023-09-29 
+name= agent_id c8e666ba-5046-48ba-8561-27c3c22be0cc 
+name= growth_stage_id e97f9054-2ee2-4565-9113-7a5abbf23909 
+
+
+
+name= production_system 825b6dd0-87f5-11ec-9d08-3d8c35c8c07b 
+name= problem_type_id 57458fd8-7dfb-40ec-a842-5e0db9084314 
+name= problem_name_id b5bfcb72-e279-46a5-b3d4-e9912ca6245a 
+
+name= affected_date 2023-10-9 
+name= question_title Rose,Disease,Bacillus larvae 
+name= question_desc desc 
+
+
+
+
+
+
+
+{
+  "agent_fcm": "",
+  "farmer_fcm": "eJ_QQHq1Qq-337QqKYbK4A:APA91bFCGrfq6XPr7dc7UyWMFoPdaY9fGryYS6JSByN5QPY7WlLOIXtmWU1-Z16RfuDhqf7InNwiHIhJh1_W6J-MYl97s7FA-xodzjza5J_DKKoVodUJfiqLyZIy56Tvicr0vsIbDGAj ",
+
+  "photo": [],
+  "audio": [],
+  "file_title": [],
+  "post_meta_info": [],
+  
+  "latitude": 28.6475764,
+  "longitude": 77.0433618,
+  
+  "question_type": "crop_problem",
+  "land_unit_id": "",
+  "affected_area": "",
+  "category_id": "",
+
+  "crop_season_id": "c540375e-bf91-40a6-8823-a44b5e58f87a",
+  "crop_type_id": "47711603-6921-4ea8-b769-ed819c142f9d",
+  "crop_variety_id": "766cc139-01e7-4640-b514-3c83d3e62353",
+  "crop_name_id": "d967043a-3d2c-44cb-b6e4-de13185aa984",
+
+  "plot_id": "ebfc997d-2ad2-43bc-a915-bb63c5c8eef6",
+  "harvesting_date": "2024-03-31T00:00:00.000Z",
+  "sowing_date": "2023-05-26",
+  "agent_id": "c8e666ba-5046-48ba-8561-27c3c22be0cc",
+  "growth_stage": "e97f9054-2ee2-4565-9113-7a5abbf23909",
+
+  "production_system": "825b6dd0-87f5-11ec-9d08-3d8c35c8c07b",
+  "problem_type_id": "a79aa98d-bfed-4ec6-aec1-11faae04ad7d",
+  "problem_name_id": "d39dd290-f154-44d5-be2f-0ff6e890e621",
+  
+  "affected_date": "2023-11-03",
+  "question_title": "Test",
+  "question_desc": "Test work "
+}

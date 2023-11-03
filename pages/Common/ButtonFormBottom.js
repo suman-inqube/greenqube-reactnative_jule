@@ -5,7 +5,7 @@ const ButtonFormBottom = ({ label, onPress, tcolor, bcolor }) => {
   const color = 'red';
   return (
     <View style={{
-      bottom: 35,
+      bottom:0,
       left: 0,
       width: '100%',
       position:'absolute'
@@ -14,7 +14,6 @@ const ButtonFormBottom = ({ label, onPress, tcolor, bcolor }) => {
         backgroundColor: bcolor ?? '#003c04',
         padding: 9,
         borderRadius: 0,
-        marginBottom: 5,
       }} onPress={onPress}
 
 

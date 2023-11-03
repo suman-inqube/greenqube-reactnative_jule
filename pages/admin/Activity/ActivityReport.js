@@ -1,6 +1,8 @@
 import {
-    StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, FlatList
+    StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, FlatList, Dimensions,SafeAreaView
 } from 'react-native'
+import { PermissionsAndroid } from 'react-native'
+import Geolocation from '@react-native-community/geolocation';
 import React, { useEffect, useState } from 'react';
 import InputTextForm from '../../Common/InputTextForm';
 import DropdownForm from '../../Common/DropdownForm';
@@ -13,12 +15,12 @@ import RecordComp from './RecordComp';
 import ButtonForm from '../../Common/ButtonForm';
 import DatePickerComp from '../../Common/DatePickerComp';
 import { getItem } from '../../../config/getDataFromStorage';
-import { activityInfoAPI, activityTypeAPI, farmerByNameAPI, plotAgainstFarmerAPI, produceAgainstPlotAPI, productionStageAPI } from '../../../config/apiHere';
+import { activityInfoAPI, activitySaveAPI, activityTypeAPI, farmerByNameAPI, plotAgainstFarmerAPI, produceAgainstPlotAPI, productionStageAPI } from '../../../config/apiHere';
+import axios from 'axios';
 import MessageDialog from '../../Common/MessageDialog';
-
+import CustomHeader from '../CustomHeader';
 
 const ActivityReport = ({ navigation }) => {
-
     const [farmerData, setfarmerData] = useState();
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -38,12 +40,18 @@ const ActivityReport = ({ navigation }) => {
         token: '',
         userID: ''
     });
-    const [cycleStartDate, srtCycleStartDate] = useState(false);
+    const [searchResultsList, setSearchResultsList] = useState(false);
     const [newFromDate, setnewFromDate] = useState(new Date());
+    const [newToDate, setnewToDate] = useState(new Date());
+    const [openFromDate, setOpenFromDate] = useState(false)
+    const [openToDate, setOpenToDate] = useState(false)
+
+    const [cycleStartDate, srtCycleStartDate] = useState(false);
+
     const [activityPreDate, setActivityPreDate] = useState(false);
     const [cycleDtartDate, setCycleStartDate] = useState("");
     const [activityInfoReadio, setactivityInfoReadio] = useState({
-        activityPreFormDate: 'Regular',
+        activityPreFormDate: 'regular',
     });
     const [isActiveMenu, setisActiveMenu] = useState(false);
     const [activityPreFormDate, setActivityPreFormDate] = useState("");
@@ -53,6 +61,9 @@ const ActivityReport = ({ navigation }) => {
         secondItem: "",
         thirdItem: "",
     });
+
+
+
     const [selectedRecord, setSelectedRecord] = useState({
         firstItemRecord: "",
         secondItemRecord: "",
@@ -60,13 +71,27 @@ const ActivityReport = ({ navigation }) => {
     });
 
     const [saveData, setSaveData] = useState({
-        act_title:"",
-        type:"user_activity",
-        act_desc:"",
-        material_used:"",
-        water_used:"",
-        power_used:"",
+        act_title: "",
+        type: "user_activity",
+        act_desc: "",
+        material_used: "",
+        water_used: "",
+        power_used: "",
+        photo: [],
+        audio: [],
+        act_pattern: 'regular',
+        user_id: '',
+        plot_id: '',
+        crop_name: '',
+        crop_variety: '',
+        cycle_start_date: '',
+        growth_stage: '',
+        act_perform_date: ''
     });
+
+
+    const [myphoto, setmyPhoto] = useState(null);
+    const [myphotoAll, setmyPhotoAll] = useState([]);
 
     const openImagePicker = (item) => {
         const options = {
@@ -76,6 +101,10 @@ const ActivityReport = ({ navigation }) => {
             maxWidth: 200,
         };
 
+        const addPhoto = (newPhoto) => {
+            setmyPhotoAll([...myphotoAll, newPhoto]);
+        };
+
         launchCamera(options, response => {
             if (response.didCancel) {
                 console.log('User cancelled camera');
@@ -83,36 +112,36 @@ const ActivityReport = ({ navigation }) => {
                 console.log('Camera Error: ', response.error);
             } else {
                 let imageUri = response.uri || response.assets?.[0]?.uri;
+                const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri }
+                setmyPhoto({ uri: imageUri, type: 'image/jpeg', name: imageUri });
                 setSelectedImage({ ...selectedImage, [item]: imageUri });
+
+                addPhoto(newPhoto);
+
 
             }
         });
+
+
+
     };
 
     const audioRecorderPlayer = new AudioRecorderPlayer();
 
-    const onStartRecord = async () => {
-
-        await audioRecorderPlayer.startRecorder();
-        audioRecorderPlayer.addRecordBackListener(e => {
-            console.log('Recording . . . ', e.currentPosition);
-            setrectime(e.currentPosition)
-            return;
-        });
-    };
-
-    const onStopRecord = async () => {
-        const audio = await audioRecorderPlayer.stopRecorder();
-        audioRecorderPlayer.removeRecordBackListener();
-    };
+    const handleRecord = () => {
+        console.warn("he");
+    }
 
     const handleSearch = (text) => {
+      
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
         const result = farmerData.filter(item =>
             item.label.toLowerCase().includes(text.toLowerCase())
         );
+        
         if (result) {
+            setSearchResultsList(true)
             setSearchResults(result);
         }
     };
@@ -139,6 +168,7 @@ const ActivityReport = ({ navigation }) => {
     }
 
     const handleResultSelect = async (name, currentfarmerId, phone) => {
+        setSearchResultsList(false)
         // console.warn(name, currentfarmerId, phone);
         // console.warn(JSON.stringify(searchResults, null, 2));
         setSearchFarmerPhone(phone)
@@ -184,16 +214,20 @@ const ActivityReport = ({ navigation }) => {
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
-                setSaveData({...saveData,
-                    user_id:farmerID,
+                let cycle_start_date = response.data.data.rows[0].crop_cycl_start_date ? response.data.data.rows[0].crop_cycl_start_date : response.data.data.rows[0].sowing_date
+                setCycleStartDate(cycle_start_date)
+                setSaveData({
+                    ...saveData,
+                    user_id: farmerID,
                     plot_id: relId.value,
                     crop_name: response.data.data.rows[0].crop_name.fid,
                     crop_variety: response.data.data.rows[0].crop_variety.fid,
-                    sowing_date: response.data.data.rows[0].sowing_date,
+                    cycle_start_date: cycle_start_date
                 })
                 setsinglePlot(response.data.data.rows)
                 // console.warn(response.data.data.rows[0].sowing_date);
-                setCycleStartDate(response.data.data.rows[0].sowing_date)
+
+
                 setCropType(response.data.data.rows[0].crop_type.fid)
                 setCropName(response.data.data.rows[0].crop_name.fid)
 
@@ -232,22 +266,79 @@ const ActivityReport = ({ navigation }) => {
         }
 
     }
-    const handleSave =()=>
-    {
-        const res =validationData()
-        if(res)
-        {
-            setSaveData({ ...saveData, photo: selectedImage })
-            // console.warn(JSON.stringify(selectedImage,null,2));
-            console.warn(JSON.stringify(saveData, null, 2));
+    const handleSave = async () => {
+        //    setSaveData({ ...saveData, photo: selectedImage })
+        // return console.warn(JSON.stringify(myphotoAll, null, 2));
+
+
+
+        //   return 
+        // return;
+        // const res = validationData()
+        const formData = new FormData();
+
+        formData.append("act_title", "");
+        myphotoAll.forEach((photo) => {
+            formData.append("photo", photo);
+        });
+        formData.append("type", "user_activity");
+        formData.append("audio", saveData.audio);
+        formData.append("latitude", saveData.latitude);
+        formData.append("longitude", saveData.longitude);
+        formData.append("user_id", saveData.user_id);
+        formData.append("plot_id", saveData.plot_id);
+        formData.append("crop_name", saveData.crop_name);
+        formData.append("crop_variety", saveData.crop_variety);
+        formData.append("cycle_start_date", saveData.cycle_start_date);
+        formData.append("growth_stage", saveData.growth_stage);
+        formData.append("act_perform_date", saveData.act_perform_date);
+        formData.append("act_pattern", saveData.act_pattern);
+
+        if (saveData.act_pattern === 'schedule') {
+            formData.append("act_ref_type", saveData.act_ref_type);
+            formData.append("act_to_date", saveData.act_to_date);
+            formData.append("act_start_date", saveData.act_start_date);
+            formData.append("act_ref", saveData.act_ref);
         }
+        formData.append("act_desc", saveData.act_desc);
+        formData.append("material_used", saveData.material_used);
+        formData.append("water_used", saveData.water_used);
+        formData.append("power_used", saveData.power_used);
+
+        // return console.log(JSON.stringify(formData,null,2))
+        try {
+            const axiosHeaders = {
+                headers: {
+                    'information': `${dbLanTokUsr.dbName},${dbLanTokUsr.languageID},${saveData.user_id}`,
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `${dbLanTokUsr.token}`,
+                },
+            };
+            // console.log(formData);
+            // return;
+            const database_res = await axios.post("http://142.93.208.31:4003/inputOutputRoute/addUserActivity", formData, axiosHeaders);
+            // console.log(database_res);
+
+            if (database_res) {
+                MessageDialog({ title: 'Successful', message: "Successfull Data Submited" })
+                // navigation.goBack();
+                // window.location.href='activityList';
+                navigation.navigate('activityList');
+            }
+        } catch (error) {
+            console.log(JSON.stringify(error, null, 2));
+            // MessageDialog({ title: 'Error', message: error.response})
+            return;
+        }
+
+
 
     }
 
     const handleActivityPattern = (item) => {
         setactivityInfoReadio({ ...activityInfoReadio, activityPreFormDate: item })
         setSaveData({ ...saveData, act_pattern: item })
-        if (item === 'Schedule') {
+        if (item === 'schedule') {
             setisActiveMenu(true)
         }
         else {
@@ -255,9 +346,9 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityType = async (item) => {
-        const response  = await activityInfoAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, CropType, CropName, item.value)
+        const response = await activityInfoAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, CropType, CropName, item.value)
         setSaveData({ ...saveData, act_ref_type: item.value })
-        if (response.data.data.count>0) {
+        if (response.data.data.count > 0) {
             // console.warn("start days :", cycleDtartDate);
             // console.warn(JSON.stringify(response.data.data, null, 2));
             const dataArray = [];
@@ -280,7 +371,7 @@ const ActivityReport = ({ navigation }) => {
                 const eday = edate.getDate();
                 const eyear = edate.getFullYear();
                 const endDate = `${emonth} ${eday}, ${eyear}`;
-                const startDateEndDate =`${startDate}-${endDate}`
+                const startDateEndDate = `${startDate}-${endDate}`
                 dataArray.push({
                     start_date: sdate,
                     end_date: edate,
@@ -293,14 +384,52 @@ const ActivityReport = ({ navigation }) => {
 
     }
     const handleActivityInfo = async (item) => {
-        console.warn(item);
-        setSaveData({ ...saveData,
-            end_date: item.end_date,
-            start_date: item.start_date,
+        // console.warn(item);
+        const act_to_date1 = item.end_date;
+        const date1 = new Date(act_to_date1);
+        const year1 = date1.getFullYear();
+        const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
+        const day1 = date1.getDate().toString().padStart(2, '0');
+        const act_to_date = `${year1}-${month1}-${day1}`;
+
+        const act_start_date1 = item.start_date; ``
+        const date2 = new Date(act_start_date1);
+        const year2 = date2.getFullYear();
+        const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+        const day2 = date2.getDate().toString().padStart(2, '0');
+        const act_start_date = `${year2}-${month2}-${day2}`;
+        setSaveData({
+            ...saveData,
+            // act_to_date: item.end_date,
+            act_to_date: act_to_date,
+            // act_start_date: item.start_date,
+            act_start_date: act_start_date,
             act_ref: item.value,
-         })
+        })
     }
+    const requestLivePermission = async () => {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                Geolocation.getCurrentPosition(data =>
+                    setSaveData({
+                        ...saveData,
+                        latitude: data.coords.latitude,
+                        longitude: data.coords.longitude,
+                    })
+                )
+
+            } else {
+                console.log('Location permission denied');
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    };
+
     const onPageLoad = async () => {
+        requestLivePermission();
         const loginUser_data = await getItem('loginUser_data');
         if (loginUser_data) {
             const dbName = loginUser_data.dbname;
@@ -333,7 +462,15 @@ const ActivityReport = ({ navigation }) => {
         onPageLoad();
     }, []);
     return (
+
+<>
+
+
+
         <View style={styles.container}>
+           
+
+            <CustomHeader path='activityList' />
             <DatePickerComp
                 openDate={cycleStartDate}
                 newDate={newFromDate}
@@ -345,6 +482,7 @@ const ActivityReport = ({ navigation }) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
+
             />
 
 
@@ -353,11 +491,30 @@ const ActivityReport = ({ navigation }) => {
                     Report Activity
                 </Text>
             </View>
+            <SafeAreaView>
+                {
+                    searchResultsList && searchResultsList ?
+                        <View style={styles.flatContainer}>
+                            <FlatList
+                                style={searchResults.length > 8 ? styles.flatlistHeight : ""}
+                                data={searchResults}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
+                                        <Text style={styles.flatlisttitle}>{item.label}</Text>
+                                    </TouchableOpacity>
+                                )}
+                                keyExtractor={(item, index) => index}
+                            />
+                        </View> : ""
+                }
+            </SafeAreaView>
             <ScrollView>
                 <View style={styles.fromContainer}>
                     <InputTextForm label="Farmer/Producer Name" color="red" value={searchFarmerName}
                         onChangeText={(farmerName) => handleSearch(farmerName)} />
-                    <FlatList
+
+
+                    {/* <FlatList
                         style={styles.flatlistcontainercontainer}
                         data={searchResults}
                         renderItem={({ item }) => (
@@ -366,12 +523,12 @@ const ActivityReport = ({ navigation }) => {
                             </TouchableOpacity>
                         )}
                         keyExtractor={(item, index) => index}
-                    />
+                    /> */}
                     <InputTextForm label="Phone Number" color="red" value={searchFarmerPhone} />
 
-                    <DropdownForm label="Plot/Site" data={plotAll} color="red"  onChange={relId => handlePlot(relId)} />
+                    <DropdownForm label="Plot/Site" data={plotAll} color="red" onChange={relId => handlePlot(relId)} />
 
-                    <DropdownForm label="Production Stage" color="red" data={productionStageAll} onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value})} />
+                    <DropdownForm label="Production Stage" color="red" data={productionStageAll} onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value })} />
 
                     <View>
                         <Text style={styles.title}>Cycle Start Date</Text>
@@ -393,10 +550,10 @@ const ActivityReport = ({ navigation }) => {
 
                     <View style={styles.activityPattern} >
                         <Text>Activity Pattern</Text>
-                        <RadioForm label="Schedule" selected={activityInfoReadio.activityPreFormDate === 'Schedule'}
-                            onSelect={() => handleActivityPattern('Schedule')} />
-                        <RadioForm label="Regular" selected={activityInfoReadio.activityPreFormDate === 'Regular'}
-                            onSelect={() => handleActivityPattern('Regular')} />
+                        <RadioForm label="Schedule" selected={activityInfoReadio.activityPreFormDate === 'schedule'}
+                            onSelect={() => handleActivityPattern('schedule')} />
+                        <RadioForm label="Regular" selected={activityInfoReadio.activityPreFormDate === 'regular'}
+                            onSelect={() => handleActivityPattern('regular')} />
                     </View>
                     {
                         isActiveMenu ?
@@ -418,12 +575,18 @@ const ActivityReport = ({ navigation }) => {
                             />
                         </TouchableOpacity>
                     </View>
-                    <InputTextForm label="Your Comment" value={saveData.act_desc} onChangeText={(act_desc)=>setSaveData({ ...saveData, act_desc: act_desc })}/>
-                    <InputTextForm label="Material Used" value={saveData.material_used} onChangeText={(material_used)=>setSaveData({ ...saveData, material_used: material_used })}/>
-                    <InputTextForm label="Water Used" value={saveData.water_used} onChangeText={(water_used)=>setSaveData({ ...saveData, water_used: water_used })}/>
-                    <InputTextForm label="Power Used" value={saveData.power_used} onChangeText={(power_used)=>setSaveData({ ...saveData, power_used: power_used })}/>
+
+                    <InputTextForm label="Your Comment" value={saveData.act_desc} onChangeText={(act_desc) => setSaveData({ ...saveData, act_desc: act_desc })} />
+                    <InputTextForm label="Material Used" value={saveData.material_used} onChangeText={(material_used) => setSaveData({ ...saveData, material_used: material_used })} />
+                    <InputTextForm label="Water Used" value={saveData.water_used} onChangeText={(water_used) => setSaveData({ ...saveData, water_used: water_used })} />
+                    <InputTextForm label="Power Used" value={saveData.power_used} onChangeText={(power_used) => setSaveData({ ...saveData, power_used: power_used })} />
+
+
                     <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} />
-                    <RecordComp selectedRecord={selectedRecord} />
+
+
+
+                    <RecordComp selectedRecord={selectedRecord} onPress={handleRecord} />
                 </View>
             </ScrollView>
 
@@ -431,6 +594,7 @@ const ActivityReport = ({ navigation }) => {
                 <ButtonForm label='Submit' onPress={() => handleSave()} />
             </View>
         </View>
+        </>
     )
 }
 
@@ -498,8 +662,24 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 10
     },
+
+    flatContainer: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        zIndex: 999,
+        bottom: '100%',
+        left: 0,
+        marginHorizontal: '5%',
+        width: '90%',
+        elevation: 10,
+        borderRadius: 10,
+        padding: 10
+    },
     flatlisttitle: {
-        fontSize: 16,
+        padding: 10,
         color: '#000'
+    },
+    flatlistHeight: {
+        height: Dimensions.get('window').height / 2.5
     }
 })

@@ -184,6 +184,7 @@ const Signup = () => {
         // console.log("local data:", storeSignup_data);
     }
     useEffect(() => {
+        // console.warn("singup");
         getDataFromLocalStorage();
         countryDataList();
     }, []);

@@ -7,19 +7,21 @@ import { getItem, setItem } from '../../../config/getDataFromStorage';
 import ForgotPassword from './ForgetPassword';
 import Information from './Information';
 import LiveHood from './LiveHood';
+import CustomHeader from '../CustomHeader';
 
-
-const UserList = () => {
+const UserList = ({ navigation }) => {
     const [userList, setuserList] = useState([]);
     const [expandedItem, setExpandedItem] = useState(null);
-    const [showMenu, setshowMenu] = useState('livehood');
+    const [showMenu, setshowMenu] = useState();
     const [userID, setuserID] = useState();
+    
 
-    function MenuBoxDisplay({ userID }) {
+    function MenuBoxDisplay({ farmarID,menuName }) {
         const handleMenu = (menuName) => {
-            // console.log(userID)
-            setshowMenu(menuName)
-            setuserID(userID)
+            navigation.navigate(menuName, { farmarID });
+            // console.warn(userID,menuName)
+            // setshowMenu(menuName)
+            // setuserID(userID)
         }
 
         return (
@@ -118,57 +120,50 @@ const UserList = () => {
         onPageLoad();
     }, []);
     return (
+        <>
+        <CustomHeader path='Dashboard' />
         <View style={{ marginHorizontal: 7, marginTop: 20, }}>
-            {
-                showMenu === 'password' ?
-                    <ForgotPassword sendDataToParent={receiveDataFromChild} farmerID={userID} />
-                    :
-                    showMenu === 'information' ?
-                        <Information sendDataToParent={receiveDataFromChild} farmerID={userID} />
-                        :
-                        showMenu === 'livehood' ?
-                            <LiveHood sendDataToParent={receiveDataFromChild} farmerID={userID} />
-                        :
-                        <>
-                            <View style={styles.header}>
-                                <Button title='Back' onPress={() => handleBack} />
-                                <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
-                                <Text>{userList.count}</Text>
-                                <Text>User List</Text>
-                            </View>
-                            <View style={{ paddingVertical: 7 }}>
-                                <InputTextFormWithoutLabel />
-                            </View>
-                            <View>
-                                {
-                                    userList ?
-                                        <FlatList
-                                            data={userList.rows}
-                                            keyExtractor={(item) => item.user_id}
-                                            renderItem={({ item, index }) => (
-                                                <View style={{ marginBottom: 10 }}>
-                                                    <TouchableOpacity onPress={() => toggleItem(item.user_id)}>
-                                                        <UserBoxDisplay
-                                                            item={item.userName}
-                                                            item2={item.contactNumber}
-                                                            item3={item.CreateDateTime}
-                                                            item4={"Plot/Site " + item.agri_land_user_rels.length}
-                                                        />
-                                                        {
-                                                            expandedItem === item.user_id && (
-                                                                <MenuBoxDisplay userID={item.user_id} />
-                                                            )
-                                                        }
-                                                    </TouchableOpacity>
-                                                </View>
-                                            )} />
-                                        :
-                                        ""
-                                }
-                            </View>
-                        </>
-            }
+            
+            <>
+                <View style={styles.header}>
+                    <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
+                    <Text>{userList.count}</Text>
+                    <Text>User List</Text>
+                </View>
+                <View style={{ paddingVertical: 7 }}>
+                    <InputTextFormWithoutLabel />
+                </View>
+                <View>
+                    {
+                        userList ?
+                            <FlatList
+                                data={userList.rows}
+                                keyExtractor={(item) => item.user_id}
+                                renderItem={({ item, index }) => (
+                                    <View style={{ marginBottom: 10 }}>
+                                        <TouchableOpacity onPress={() => toggleItem(item.user_id)}>
+                                            <UserBoxDisplay
+                                                item={item.userName}
+                                                item2={item.contactNumber}
+                                                item3={item.CreateDateTime}
+                                                item4={"Plot/Site " + item.agri_land_user_rels.length}
+                                            />
+                                            {
+                                                expandedItem === item.user_id && (
+                                                    <MenuBoxDisplay userID={item.user_id} />
+                                                )
+                                            }
+                                        </TouchableOpacity>
+                                    </View>
+                                )} />
+                            :
+                            ""
+                    }
+                </View>
+            </>
+
         </View>
+        </>
     )
 }
 
