@@ -14,7 +14,7 @@ const SplashScreen = ({ navigation }) => {
         company: "",
         language: ""
     });
-    const [modalVisible, setModalVisible] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
     const [languageData, setlanguageData] = useState([]);
     const validationData = () => {
         if (
@@ -30,6 +30,10 @@ const SplashScreen = ({ navigation }) => {
 
     }
 
+    const handleCompany=()=>
+    {
+
+    }
     let databaseList = async () => {
         try {
             let companyArray = [];
@@ -37,14 +41,9 @@ const SplashScreen = ({ navigation }) => {
             // console.log(company_res);
             if (company_res.data.data) {
                 setisLoading(false)
-                company_res.data.data.forEach(element => {
-                    companyArray.push({
-                        value: element.company_id,
-                        label: element.agri_company.company_name,
-                        dbname: element.db_name,
-                    });
-                });
-                setCompanyData(companyArray);
+                setModalVisible(true)
+                setCompanyData(company_res.data.data);
+
             }
         } catch (error) {
             console.error('company APi error code with :', error.response);
@@ -93,16 +92,20 @@ const SplashScreen = ({ navigation }) => {
             navigation.replace('AdminNavigation');
         } else {
             if (companyLanguage_data) {
-
                 navigation.replace('Login');
             }
+            else
+            {
+                databaseList();
+            }
+
 
         }
     }
 
     useEffect(() => {
         onPageLoad()
-        databaseList();
+       
     }, []);
     return (
         <>
@@ -113,8 +116,8 @@ const SplashScreen = ({ navigation }) => {
                     </View>) : (
 
                     <View style={styles.container}>
-                        <SplashScreenModal setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle=""
-                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                        <SplashScreenModal setModalVisible={setModalVisible} modalVisible={modalVisible} companyData={companyData}
+                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} 
                         />
                         
                         <ImageBackground
