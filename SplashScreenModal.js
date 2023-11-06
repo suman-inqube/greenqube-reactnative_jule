@@ -1,8 +1,17 @@
 import { StyleSheet, Text, View, Modal, TouchableOpacity, FlatList } from 'react-native'
-import React from 'react'
+import React,{useState} from 'react'
+import InputTextForm from './pages/Common/InputTextForm';
 
 
 const SplashScreenModal = (props) => {
+    const [data, setData] = useState(props.companyData);
+    const handleDBName = (db_name, company_id) => {
+        props.sendDataToParent(db_name, company_id);
+
+    }
+    const searchDBName = (text) => {
+       props.searchTextData(text)
+    }
     return (
         <View>
             <Modal
@@ -13,23 +22,29 @@ const SplashScreenModal = (props) => {
                     props.setModalVisible(!props.modalVisible);
                 }}
             >
-                <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} onPress={() => props.setModalVisible(!props.modalVisible)}  >
+                <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} >
+                    
                     <View style={styles.modalView}>
+                        <View style={{ marginHorizontal:20 }}>
+                        < Text style={{ marginLeft: 20, fontWeight: 'bold', fontSize: 20, color: 'black' }}>Company</Text>
+                            <InputTextForm label="" onChangeText={(item) => searchDBName(item)} />
+                        </View>
+                          
                         <View style={styles.modelTitleContainer}>
-                        <FlatList
-                             data={props.companyData}
-                            renderItem={({ item }) => {
-                                return (
-                                    <TouchableOpacity style={styles.wrapper} onPress={() =>     console.log(item.company_id)}>
-                                         <View style={styles.item}>
-                                         <Text style={styles.itemText}>{item.db_name}</Text>
+                            <FlatList
+                                data={props.companyData}
+                                renderItem={({ item }) => {
+                                    return (
+                                        <TouchableOpacity style={styles.wrapper} onPress={() => handleDBName(item.db_name, item.company_id)}>
+                                            <View style={styles.item}>
+                                                <Text style={styles.itemText}>{item.agri_company && item.agri_company.company_name}</Text>
 
-                                         </View>
-                                    </TouchableOpacity>
-                                )
-                            }}
-                            keyExtractor={(item, index) => index}
-                        />
+                                            </View>
+                                        </TouchableOpacity>
+                                    )
+                                }}
+                                keyExtractor={(item, index) => index}
+                            />
 
                         </View>
                     </View>
@@ -50,11 +65,12 @@ const styles = StyleSheet.create({
     },
     modalView: {
         backgroundColor: '#FFF',
-        width: '95%'
+        width: '85%',
+        height: '80%'
     },
     modelTitleContainer: {
-
         width: '95%',
+        height: '80%',
         margin: '2.5%',
         borderRadius: 10
     },

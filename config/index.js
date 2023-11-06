@@ -28,7 +28,7 @@ const produceProductionUnitAPI = BASE_URL + 'unitRoute/list/1/0/5?unit_type=yiel
 
 
 const roleData = [
-  { label: 'Farmer/Producer', value: '2' },
+  // { label: 'Farmer/Producer', value: '2' },
   { label: 'Supervisor', value: '3' }
 ];
 const pensionParMonthData = [

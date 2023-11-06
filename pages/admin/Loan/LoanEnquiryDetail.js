@@ -5,6 +5,7 @@ import FormsTitle from '../../Common/FormsTitle';
 import InputTextForm from '../../Common/InputTextForm';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useRoute } from '@react-navigation/native';
+import ViewPropTypes from 'deprecated-react-native-prop-types';
 const LoanEnquiryDetail = () => {
     const route = useRoute();
     const { agri_files, agri_user, apx_annual_income,

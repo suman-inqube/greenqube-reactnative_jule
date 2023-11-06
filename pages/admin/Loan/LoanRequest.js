@@ -2,6 +2,7 @@ import {
     Image, ScrollView, StyleSheet, Text, View,
     TouchableOpacity, FlatList, Keyboard, SafeAreaView, Dimensions
 } from 'react-native'
+import ViewPropTypes from 'deprecated-react-native-prop-types';
 import React, { useCallback, useState, useEffect } from 'react'
 import InputTextForm from '../../Common/InputTextForm';
 import DropdownForm from '../../Common/DropdownForm';

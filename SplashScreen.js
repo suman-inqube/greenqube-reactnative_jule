@@ -5,16 +5,19 @@ import DropdownForm from './pages/Common/DropdownForm';
 import MessageDialog from './pages/Common/MessageDialog';
 import { databaseListAPI, firstLanguageListAPI } from './config/apiHere';
 import { getItem, removeItem, setItem } from './config/getDataFromStorage';
-import ViewModalPast from './pages/admin/Output/ViewModalPast';
 import SplashScreenModal from './SplashScreenModal';
+import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 const SplashScreen = ({ navigation }) => {
     const [companyData, setCompanyData] = useState([]);
-    const [isLoading, setisLoading] = useState(true);
-    const [companyLanguage, setcompanyLanguage] = useState({
+    const [companyDataRaw, setCompanyDataRaw] = useState([]);
+    const [isLoading, setisLoading] = useState(false);
+    const [companyLanguage, setCompanyLanguage] = useState({
         company: "",
-        language: ""
+        company_id: "",
+        language: "",
     });
     const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisibleLan, setModalVisibleLan] = useState(false);
     const [languageData, setlanguageData] = useState([]);
     const validationData = () => {
         if (
@@ -30,57 +33,65 @@ const SplashScreen = ({ navigation }) => {
 
     }
 
-    const handleCompany=()=>
-    {
 
-    }
     let databaseList = async () => {
         try {
-            let companyArray = [];
             let company_res = await databaseListAPI();
             // console.log(company_res);
             if (company_res.data.data) {
-                setisLoading(false)
-                setModalVisible(true)
-                setCompanyData(company_res.data.data);
+                const delay = 1000; 
+
+                const timeout = setTimeout(() => {
+                    setModalVisible(true)
+                    setCompanyData(company_res.data.data);
+                    setCompanyDataRaw(company_res.data.data);
+
+                }, delay);        
+              
 
             }
         } catch (error) {
             console.error('company APi error code with :', error.response);
         }
     }
-    const companyHandle = async (company) => {
-        setcompanyLanguage({ ...companyLanguage, company: company })
-        languageDataList(company.dbname);
+    const companyHandle = async (dbName,company_id) => {
+        // return console.log(company_id);
+        setCompanyLanguage({ ...companyLanguage, 
+            company: dbName,
+            company_id:company_id}
+            )
+        languageDataList(dbName);
+        setModalVisible(false)
         setisLoading(true);
+    }
+    const languageHandle = async (item) => {
+        // return console.log(companyLanguage);
+        await setItem('companyLanguage_data', 
+        {
+            language:item,
+            company:companyLanguage.company,
+            company_id:companyLanguage.company_id
+        }
+        );
+        navigation.replace('Login');
+
     }
 
     let languageDataList = async (dbName) => {
         try {
-            let languageArray = [];
+          
             let language_res = await firstLanguageListAPI(dbName);
-
+            //  return console.log(language_res.data.data);
             if (language_res.data.data) {
                 setisLoading(false)
-                language_res.data.data.forEach(element => {
-                    languageArray.push({
-                        value: element.id,
-                        label: element.name,
-                    });
-                });
-                setlanguageData(languageArray);
+                setModalVisibleLan(true)
+                setlanguageData(language_res.data.data);
             }
         } catch (error) {
             console.log("Error in language API", error.response);
         }
     }
-    const handleStart = async () => {
-        const validatin_res = validationData();
-        if (validatin_res) {
-            await setItem('companyLanguage_data', companyLanguage);
-            navigation.replace('Login');
-        }
-    }
+
 
     const onPageLoad = async () => {
         // await removeItem('companyLanguage_data')
@@ -97,11 +108,25 @@ const SplashScreen = ({ navigation }) => {
             else
             {
                 databaseList();
+               
+                
             }
 
 
         }
     }
+
+    const searchDBName = (text) => {
+     
+         const result = companyDataRaw.filter(item =>
+             item.db_name.toLowerCase().includes(text.toLowerCase())
+         );
+         if (result) {
+             setCompanyData(result)
+         } else {
+             console.log('Item not found');
+         }
+     }
 
     useEffect(() => {
         onPageLoad()
@@ -109,14 +134,15 @@ const SplashScreen = ({ navigation }) => {
     }, []);
     return (
         <>
-            {
-                isLoading ? (
-                    <View>
-                        <ActivityIndicator size="large" color="#007ACC" />
-                    </View>) : (
+           
 
                     <View style={styles.container}>
-                        <SplashScreenModal setModalVisible={setModalVisible} modalVisible={modalVisible} companyData={companyData}
+
+                        <SplashScreenModal setModalVisible={setModalVisible} modalVisible={modalVisible} companyData={companyData} sendDataToParent={companyHandle} searchTextData={searchDBName}
+                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} 
+                        />
+                        
+                        <SplashScreenModalLanguage setModalVisibleLan={setModalVisibleLan} modalVisibleLan={modalVisibleLan} companyData={languageData} sendDataToParentLan={languageHandle}
                             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} 
                         />
                         
@@ -130,11 +156,6 @@ const SplashScreen = ({ navigation }) => {
                         </ImageBackground>
                     </View>
 
-
-                )
-
-
-            }
 
         </>
     )

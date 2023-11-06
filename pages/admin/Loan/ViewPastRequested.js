@@ -2,6 +2,7 @@ import {
     StyleSheet, Text, View, FlatList, TouchableOpacity,
     Image, Dimensions, ScrollView, KeyboardAvoidingView, Platform, SafeAreaView
 } from 'react-native'
+import ViewPropTypes from 'deprecated-react-native-prop-types';
 import React, { useState, useEffect } from 'react'
 import DatePickerComp from '../../Common/DatePickerComp';
 import Filter from '../../Common/Filter';

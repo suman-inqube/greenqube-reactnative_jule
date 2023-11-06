@@ -9,6 +9,7 @@ import FormsTitle from '../../Common/FormsTitle';
 import LoanRequest from './LoanRequest';
 import ButtonFormBottom from '../../Common/ButtonFormBottom';
 import ViewPastProduce from './ViewPastRequested';
+import ViewPropTypes from 'deprecated-react-native-prop-types';
 const LoanEnquiry = () => {
   const [activeBtn, setActiveBtn] = useState(2);
   return (
