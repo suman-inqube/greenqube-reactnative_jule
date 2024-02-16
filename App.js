@@ -5,7 +5,7 @@ import { AudioRecorderPlayer, AudioUtils } from 'react-native-audio-recorder-pla
 
 const recorderPlayer = new AudioRecorderPlayer();
 
-//test code 1
+//test code 2
 const App = () => {
   const [isRecording, setIsRecording] = useState(false);
 
