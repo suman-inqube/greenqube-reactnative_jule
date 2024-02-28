@@ -7,48 +7,54 @@ import {
     ScrollView,
     TextInput,
     Image,
-    StatusBar
+    StatusBar,
+    BackHandler,
+    Keyboard,
+    Dimensions
 } from 'react-native'
-import React, { useState } from 'react';
-import ImageForm from '../../Common/ImageForm';
-import RadioForm from '../../Common/RadioForm';
+import React, { useEffect, useState } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import WidgetsSide from '../../Common/WidgetsSide';
 import Filter from '../../Common/Filter';
-
-const DATA = [
-    {
-        id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-        title: 'First Item',
-    },
-    {
-        id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-        title: 'Second Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72sdfsfsdfdsf',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d72sdfsfsdsdsdfdsf',
-        title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd96-145571e29d7sdfsdfawerw2sdfsfsdfdsf',
-        title: 'Third Item',
-    },
-];
+import { activityListAPI, farmerByNameAPI } from '../../../config/apiHere';
+import { getItem, setItem } from '../../../config/getDataFromStorage';
+import ActivityDetail from './ActivityDetail';
+import ActivityReport from './ActivityReport';
+import LoadingScreen from '../../Common/LoadingScreen';
+import CustomHeader from '../CustomHeader';
+import MessageDialog from '../../Common/MessageDialog';
+import { useTranslation } from 'react-i18next';
+import { useIsFocused } from '@react-navigation/native';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
+import DeviceInfo from '../../DeviceInfo';
 const ActivityList = ({ navigation }) => {
+    const { netConnection } = DeviceInfo();
+    const { t } = useTranslation();
+    const isFocused = useIsFocused();
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchResultsList, setSearchResultsList] = useState(false);
+    const [activityAll, setactivityAll] = useState([]);
+    const [activityAllRow, setactivityAllRow] = useState([]);
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");
+    const [filterName, setFilterName] = useState("");
     const [newFromDate, setnewFromDate] = useState(new Date());
     const [newToDate, setnewToDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false)
-    const [openToDate, setOpenToDate] = useState(false)
+    const [openToDate, setOpenToDate] = useState(false);
+    const [currentPage, setcurrentPage] = useState(1);
+    const [fromDate, setfromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [searchFarmerName, setSearchFarmerName] = useState('');
+    const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+    const [farmerData, setFarmerData] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [dbLanTokUsr, setdbLanTokUsr] = useState({
+        pageNo: 1
+    });
+    const [fromDateFilter, setFromDateFilter] = useState('');
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -57,75 +63,341 @@ const ActivityList = ({ navigation }) => {
         }
     }
     const onchangeFilterItem = (value) => {
+        setFilterName(value);
         setFilterItem(value);
         setFilterOption(false);
+        setactivityAll(activityAllRow);
+        setfromDate("");
+        setToDate("");
+        setSearchFarmerName("");
+        setSearchFarmerPhone("");
     }
-    return (
-        <View style={{ flex: 1 }}>
-            <StatusBar
-                barStyle="dark-content"
-                backgroundColor={"white"}
-                translucent
-            />
+    const handlePage = async (value) => {
+        const currentPageNo = dbLanTokUsr.pageNo
+        const totalPage = dbLanTokUsr.totalPage
+        if (value === 'next') {
+            setIsLoading(true);
+            if (totalPage === currentPageNo) {
+                setIsLoading(false);
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+                // no_data_found
+                // const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
+                // if (response) {
+                setactivityAll([]);
+                //     setItem("activity_Data", response.data.data.rows)
 
-            <DatePickerComp
-                openDate={openFromDate}
-                newDate={newFromDate}
-                setOpenDate={setOpenFromDate}
-            />
-            <DatePickerComp
-                openDate={openToDate}
-                newDate={newToDate}
-                setOpenDate={setOpenToDate}
-            />
-            <WidgetsSide location={"ActivityReport"} title={"Report Activity"} />
-            <Filter
-                filterItem={filterItem}
-                filterOption={filterOption}
-                setOpenToDate={setOpenToDate}
-                filterOptionShow={filterOptionShow}
-                onchangeFilterItem={onchangeFilterItem}
-            />
-            <View>
-            </View>
-            <FlatList
-                data={DATA}
-                renderItem={({ item }) => {
-                    return (
-                        <TouchableOpacity style={styles.wrapper}>
-                            <View style={styles.activityListContainer}>
-                                <View style={styles.activityListItem}>
-                                    <Text style={styles.title}>Farmer/Product Na...</Text>
-                                    <Text style={styles.title}>Farmer/Product Na...</Text>
-                                    <Text style={styles.title}>Farmer/Product Na...</Text>
+                // }
+            } else {
+                const nextPage = currentPageNo + 1
+                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage)
+                if (response) {
+                    setIsLoading(false);
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+                }
+            }
+        }
+        if (value === 'previous') {
+            if (currentPageNo === 1) {
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
+                if (response) {
+                    setIsLoading(false);
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+                }
+            } else {
+                setIsLoading(true);
+                const prePage = currentPageNo - 1
+                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
+                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage)
+                if (response) {
+                    setIsLoading(false);
+                    setactivityAll(response.data.data.rows);
+                    setItem("activity_Data", response.data.data.rows)
+                }
+            }
+        }
+    }
+    const handleFilter = async (search) => {
+        if (filterName === 'Farmer/Product Name') {
+            setSearchFarmerPhone('');
+            setSearchFarmerName(search);
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(search.toLowerCase())
+            );
+            if (search == "") {
+                setSearchResultsList(false);
+            } else {
+                let tempData = activityAllRow.filter(item => {
+                    return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
+                });
+                // setProblemAll(tempData)
+                setSearchResultsList(true);
+            }
+            if (result) {
+                setSearchResults(result);
+            }
+        } else if (filterName === 'PhoneNumber') {
+            setSearchFarmerName('');
+            setSearchFarmerPhone(search);
+            const result = farmerData.filter(item =>
+                item.phone.toLowerCase().includes(search.toLowerCase())
+            );
+            if (search == "") {
+                setSearchResultsList(false);
+            } else {
+                // let tempData = problemAllRaw.filter(item => {
+                //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;
+                // });
+                // setProblemAll(tempData)
+                setSearchResultsList(true);
+            }
+            if (result) {
+                setSearchResults(result);
+            }
+        }
+
+    }
+    const handleDatePicker = (item) => {
+        const dt = new Date(item);
+        const x = dt.toISOString().split('T');
+        const x1 = x[0].split('-');
+        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        setfromDate(effective_date);
+        setFromDateFilter(effective_date);
+    }
+    const handleDatePicker2 = async (item) => {
+        const dt = new Date(item);
+        const x = dt.toISOString().split('T');
+        const x1 = x[0].split('-');
+        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        setToDate(effective_date)
+        if (fromDateFilter) {
+            const item = '';
+            const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, fromDateFilter, effective_date)
+            if (response) {
+                setactivityAll(response.data.data.rows);
+                setItem("activity_Data", response.data.data.rows)
+            }
+        } else {
+            // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+            Toast.show({ time: 3, text: 'Please Select First data', ...AlertMesg[0] })
+        }
+    }
+    const navigateToPages = async (pageName, uact_id) => {
+        // setItem("uact_id_data", uact_id)
+        navigation.navigate(pageName, uact_id);
+        // setIsLoading(true)
+    };
+    const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
+        setIsLoading(true);
+        if (netConnection) {
+            var [response, farmerByName] = await Promise.all([
+                activityListAPI(dbName, languageId, token, supervisorId, pageNo),
+                farmerByNameAPI(dbName, languageId, token, supervisorId)
+            ]);
+            await Promise.all([
+                setItem('activityList', response),
+                setItem('farmerByNameAPI', farmerByName)
+            ])
+        } else {
+            var [response, farmerByName] = await Promise.all([
+                getItem('activityList'),
+                getItem('farmerByNameAPI')
+            ]);
+        }
+        if (farmerByName) {
+            const dataArray = [];
+            farmerByName.data.data.rows.forEach(element => {
+                dataArray.push({
+                    value: element.user_id,
+                    label: element.userName,
+                    phone: element.contactNumber,
+                });
+            });
+            setFarmerData(dataArray)
+        }
+        if (response.data) {
+            if (response.data.data.count != 0) {
+                const totalPage = Math.ceil(response.data.data.count / 20)
+                setdbLanTokUsr({
+                    ...dbLanTokUsr,
+                    dbName: dbName,
+                    languageId: languageId,
+                    token: token,
+                    supervisorId: supervisorId,
+                    totalPage: totalPage,
+                });
+                setactivityAll(response.data.data.rows)
+                setactivityAllRow(response.data.data.rows)
+                setItem("activity_Data", response.data.data.rows)
+                setIsLoading(false);
+            } else {
+                setIsLoading(false);
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+            }
+        }
+    }
+    const onPageLoad = async () => {
+        const loginUser_data = await getItem('loginUser_data');
+        if (loginUser_data) {
+            const dbName = loginUser_data.dbname;
+            const languageId = loginUser_data.lan_id;
+            const token = loginUser_data.token;
+            const supervisorId = loginUser_data.user_id;
+            fatchActivityListAPI(dbName, languageId, token, supervisorId, 1)
+        }
+    };
+    const filterDataRemove = () => {
+        setFilterItem("");
+        setFilterOption(false);
+        setactivityAll(activityAllRow);
+        setSearchResultsList(false);
+    }
+    const HandlerGoBack = () => {
+        setFilterItem("");
+        setFilterOption(false);
+        setSearchFarmerName("");
+        setSearchFarmerPhone("");
+        setSearchResultsList(false);
+        navigation.navigate('Dashboard');
+    }
+    const handleResultSelect = async (name, user_id1, phone) => {
+        setSearchFarmerName(name);
+        setSearchFarmerPhone(phone);
+        let tempData = activityAllRow.filter(item => {
+            return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;
+        });
+        setactivityAll(tempData)
+        setSearchResultsList(false);
+        if (tempData.length == 0) {
+            Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+        }
+    }
+    useEffect(() => {
+        if (isFocused) {
+            if (openFromDate == "" && openToDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
+                onPageLoad();
+            }
+            const onBackPress = () => {
+                setFilterItem("");
+                setFilterOption(false);
+                setSearchFarmerName("");
+                setSearchFarmerPhone("");
+                setSearchResultsList(false);
+                navigation.navigate('Dashboard');
+                return true;
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        }
+    }, [isFocused, netConnection]);
+    useEffect(() => {
+        if (isFocused) {
+            const keyboardDidShowListener = Keyboard.addListener(
+                'keyboardDidShow', () => { setKeyboardVisible(true); }
+            );
+            const keyboardDidHideListener = Keyboard.addListener(
+                'keyboardDidHide', () => { setKeyboardVisible(false); }
+            );
+            return () => {
+                keyboardDidHideListener.remove();
+                keyboardDidShowListener.remove();
+            };
+        }
+    }, [isFocused]);
+    return (
+        <Root>
+            <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} />
+            <View style={{ flex: 1 }}>
+                <DatePickerComp
+                    openDate={openFromDate}
+                    newDate={newFromDate}
+                    setOpenDate={setOpenFromDate}
+                    handleDatePicker={handleDatePicker}
+                />
+                <DatePickerComp
+                    openDate={openToDate}
+                    newDate={newToDate}
+                    setOpenDate={setOpenToDate}
+                    handleDatePicker={handleDatePicker2}
+                    minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
+                />
+                <WidgetsSide location={"ActivityReport"} title={t('report_activity')} onPress={() => navigateToPages('activityReport', 123)} />
+                <Filter
+                    filterItem={filterItem}
+                    filterOption={filterOption}
+                    setOpenToDate={setOpenToDate}
+                    fromDate={fromDate}
+                    newToDate={toDate}
+                    setOpenFromDate={setOpenFromDate}
+                    filterOptionShow={filterOptionShow}
+                    onchangeFilterItem={onchangeFilterItem}
+                    onChangeText={(item) => handleFilter(item)}
+                    title={t('my_activities')}
+                    filterDataRemove={filterDataRemove}
+                    FarmerProductNameValue={searchFarmerName}
+                    FarmerProductPhoneValue={searchFarmerPhone}
+                />
+                <>
+                    {
+                        searchResultsList && searchResultsList ?
+                            <View View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
+                                <FlatList
+                                    style={searchResults.length > 8 ? styles.flatlistHeight : ""}
+                                    data={searchResults}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
+                                            <Text style={[styles.flatlisttitle, { color: 'black' }]}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    keyExtractor={(item, index) => index}
+                                />
+                            </View> : ""
+                    }
+                </>
+                {
+                    isLoading &&
+                    <View style={styles.loadingScreen}><LoadingScreen /></View>
+                }
+                <FlatList
+                    data={activityAll}
+                    renderItem={({ item, index }) => {
+                        return (
+                            <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
+                                <View style={styles.activityListContainer}>
+                                    <View style={styles.activityListItem}>
+                                        <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item.agri_user.userName.substring(0, 4) + '...'}</Text>
+                                        <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info.plot_no}</Text>
+                                        <Text style={styles.title}>{t('perf_date')} : {item.act_perform_date.substring(0, 4) + '...'}</Text>
+                                    </View>
+                                    <View style={styles.activityListItem}>
+                                        <Text style={styles.title}>{t('farmer_number')} : {item.agri_user.contactNumber.substring(0, 7) + '...'}</Text>
+                                        <Text style={styles.title}>{t('crop_name')} : {item.cropName.name.substring(0, 7) + '..'}</Text>
+                                        <Text style={styles.title}>{t('deviation')} : {item.deviation}{t('days')}</Text>
+                                    </View>
                                 </View>
-                                <View style={styles.activityListItem}>
-                                    <Text style={styles.title}>Farmer/Product Na...</Text>
-                                    <Text style={styles.title}>Farmer/Product Na...</Text>
-                                    <Text style={styles.title}>Farmer/Product Na...</Text>
-                                </View>
-                            </View>
-                            <Text style={styles.title}>Cycle Start Date:Aug29,2023</Text>
-                        </TouchableOpacity>
-                    )
-                }}
-                keyExtractor={item => item.id}
-                showsVerticalScrollIndicator={false}
-            />
-            <View style={styles.prevNextPage}>
-                <TouchableOpacity>
-                    <Text style={styles.title}>Prev Page</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text style={styles.title}>Next Page</Text>
-                </TouchableOpacity>
+                                <Text style={styles.title}>{t('cycle_start_date')} : {item.cycle_start_date}</Text>
+                            </TouchableOpacity>
+                        )
+                    }}
+                    keyExtractor={(item, index) => index}
+                    showsVerticalScrollIndicator={false}
+                />
+                <View style={styles.prevNextPage}>
+                    <TouchableOpacity onPress={() => handlePage('previous')}>
+                        <Text style={styles.title}>{t('prev_page')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handlePage('next')}>
+                        <Text style={styles.title}>{t('next_page')}</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </Root>
     )
 }
-
-export default ActivityList
-
+export default ActivityList;
 const styles = StyleSheet.create({
     wrapper: {
         borderColor: '#efe9e9',
@@ -136,10 +408,10 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         elevation: 3,
         backgroundColor: '#FFFFFF',
-        marginHorizontal: 15,
+        marginHorizontal: '2.5%',
+        paddingHorizontal: 8,
         marginVertical: 7,
-        paddingHorizontal: 20,
-        paddingVertical: 15,
+        paddingVertical: 10,
         // height: 100,
 
     },
@@ -149,7 +421,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     activityListItem: {
-        paddingBottom: 5
+        paddingBottom: 1,
+
+    },
+    title: {
+        color: '#000',
+        lineHeight: 25,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
     },
     prevNextPage: {
         flexDirection: 'row',
@@ -158,10 +437,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         bottom: 0
     },
-    title: {
-        color: '#000',
-        fontSize: 15
-    },
+
     OptionWrapper: {
         borderColor: '#efe9e9',
         shadowColor: '#000',
@@ -175,6 +451,58 @@ const styles = StyleSheet.create({
         marginVertical: 7,
         paddingHorizontal: 20,
         paddingVertical: 10,
-    }
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: 200,
+        zIndex: 999,
+        left: '45%'
+    },
+    flatContainerLengthUp: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        zIndex: 999,
+        left: 0,
+        // top: 100,
+        bottom: '87%',
+        marginHorizontal: '5%',
+        width: '90%',
+        elevation: 10,
+        borderRadius: 10,
+        padding: 10
+    },
+    flatlistHeight: {
+        height: Dimensions.get('window').height / 4
+    },
+    flatContainer: {
+        // backgroundColor: '#ffffff',
+        // position: 'absolute',
+        // zIndex: 999,
+        // bottom: '100%',
+        // left: 0,
+        // marginHorizontal: '5%',
+        // width: '90%',
+        // elevation: 10,
+        // borderRadius: 10,
+        // padding: 10,
+        // bottom:100
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        zIndex: 999,
+        left: 0,
+        // top:30,
+        // marginTop: 60,
+        bottom: '95%',
+        marginHorizontal: '5%',
+        width: '90%',
+        elevation: 10,
+        borderRadius: 10,
+        padding: 10
+    },
+    flatlisttitle: {
+        color: '#000',
+        marginVertical: 6,
+        fontFamily: 'Poppins-Regular'
+    },
 
 })

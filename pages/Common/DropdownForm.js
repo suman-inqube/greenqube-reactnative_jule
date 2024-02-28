@@ -1,32 +1,37 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React, { useState, memo } from 'react';
+import { View, StyleSheet, Text, useColorScheme } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown'
 
-const DropdownForm = ({ color, label, data, onChange, val }) => {
+const DropdownForm = ({ color, label, data, onChange, val, disable }) => {
+    const scheme = useColorScheme();
     const labelString = label.charAt(0).toUpperCase() + label.slice(1);
     const [isFocus, setIsFocus] = useState(false);
     return (
         <>
             <View>
-                <Text style={{ marginHorizontal: 5, marginBottom: 5, color: color ?? 'black' }}>{labelString}</Text>
+                <Text style={{ marginHorizontal: 5, marginBottom: 5, color: color ?? 'black', fontFamily: 'Poppins-Regular' }}>{labelString}</Text>
                 <View style={styles.container}>
                     <Dropdown
                         mode='modal'
-                        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        inputSearchStyle={styles.inputSearchStyle}
+                        style={styles.dropdown}
+                        placeholderStyle={[styles.placeholderStyle, { color: 'black' }]}
+                        selectedTextStyle={[styles.selectedTextStyle, { color: 'black' }]}
+                        inputSearchStyle={[styles.inputSearchStyle, { color: 'black' }]}
+                        itemTextStyle={styles.itemTextStyle}
                         iconStyle={styles.iconStyle}
                         data={data}
                         search
                         maxHeight={300}
                         labelField="label"
                         valueField="value"
-                        placeholder={!isFocus ? "Select " + label : "Select " + label}
+                        placeholder={typeof (val) == "undefined" ? false : val}
                         searchPlaceholder="Search..."
                         onFocus={() => setIsFocus(true)}
                         onChange={onChange}
                         value={val}
+                        disable={disable}
+                        keyboardAvoiding={true}
+                        showsVerticalScrollIndicator={false}
                     />
 
                 </View>
@@ -35,21 +40,25 @@ const DropdownForm = ({ color, label, data, onChange, val }) => {
     );
 };
 
-export default DropdownForm;
+export default memo(DropdownForm);
 
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         marginBottom: 15,
+        backgroundColor: '#e7dbdb',
+        borderRadius: 10,
     },
     dropdown: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 0.5,
+        height: 48,
+        // height: 40,
+        borderColor: '#fcf7f7',
+        borderWidth: 1.3,
         borderRadius: 8,
         paddingHorizontal: 8,
-        backgroundColor: 'white',
+        backgroundColor: '#ffffff',
         width: '100%',
+        elevation: 1
     },
     icon: {
         marginRight: 5,
@@ -61,20 +70,29 @@ const styles = StyleSheet.create({
         top: 8,
         zIndex: 999,
         paddingHorizontal: 8,
-        fontSize: 14,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
     },
     placeholderStyle: {
-        fontSize: 16,
+        color: '#000',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
     },
     selectedTextStyle: {
-        fontSize: 16,
+        color: '#000',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
     },
     iconStyle: {
         width: 20,
         height: 20,
     },
     inputSearchStyle: {
-        height: 40,
-        fontSize: 16,
+        color: '#000',
+        fontFamily: 'Poppins-Regular'
+    },
+    itemTextStyle: {
+        color: '#000',
+        fontFamily: 'Poppins-Regular'
     },
 });

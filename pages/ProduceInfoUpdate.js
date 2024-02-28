@@ -13,7 +13,13 @@ import Geolocation from '@react-native-community/geolocation';
 import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
 import { isNotEmpty } from './Common/ValidationFunctions';
 import MessageDialog from './Common/MessageDialog';
+import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
 const ProduceInfoUpdate = () => {
+    const ForegroundLocationData = useSelector(state => state.locationData);
+    const { t } = useTranslation();
     const route = useRoute();
     const { pagename, arrayIndex } = route.params;
     const navigation = useNavigation();
@@ -31,6 +37,8 @@ const ProduceInfoUpdate = () => {
         soilType: "",
         plotSize: "",
         landUnit: "",
+        landUnitName: "",
+        landUnitSize: "",
         prodctionSeasion: "",
         livelihoodType: "",
         produceName: "",
@@ -53,6 +61,7 @@ const ProduceInfoUpdate = () => {
     const [prodctionSeasionData, setprodctionSeasionData] = useState([]);
     const [livelihoodTypeData, setlivelihoodTypeData] = useState([]);
     const [produceNameData, setproduceNameData] = useState([]);
+    const [produceVarietyData1, setproduceVarietyData1] = useState([]);
     const [produceVarietyData, setproduceVarietyData] = useState([]);
     const [productionProcessData, setproductionProcessData] = useState([]);
     const [produceProductionUnitData, setproduceProductionUnitData] = useState([]);
@@ -62,6 +71,7 @@ const ProduceInfoUpdate = () => {
         setIsChecked(!isChecked);
         // console.log(isChecked);
     };
+
     const allAPIHere = async (dbname, language_id) => {
         const axiosConfig = {
             headers: {
@@ -75,9 +85,19 @@ const ProduceInfoUpdate = () => {
                 'Accept': 'application/json'
             },
         };
-
+        const prodctionSeasionAPI = config.prodctionSeasionAPI1 + language_id + config.prodctionSeasionAPI2;
         try {
-            let soilType_res = await axios.get(config.soiltypeAPI, axiosConfig);
+            const [soilType_res, terraintype_res, landType_res, livelihoodType_res, prodctionSeasion_res,
+                landUnit_res, productionProcess_res, produceProductionUnit_res] = await Promise.all([
+                    axios.get(config.soiltypeAPI, axiosConfig),
+                    axios.get(config.terraintypeAPI, axiosConfig),
+                    axios.get(config.landtypeAPI, axiosConfig),
+                    axios.get(prodctionSeasionAPI, axiosConfig1),
+                    axios.get(prodctionSeasionAPI, axiosConfig1),
+                    axios.get(config.landunitAPI, axiosConfig),
+                    axios.get(config.productionProcessAPI, axiosConfig),
+                    axios.get(config.produceProductionUnitAPI, axiosConfig)
+                ])
             let soilTypeArray = [];
             if (soilType_res.data.data.count > 0) {
                 soilType_res.data.data.rows.forEach(element => {
@@ -88,12 +108,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setsoilTypeData(soilTypeArray);
             }
-        } catch (error) {
-            console.log("Error in soiltypeAPI API", error);
-        }
-
-        try {
-            let terraintype_res = await axios.get(config.terraintypeAPI, axiosConfig);
             let terraintypeArray = [];
             if (terraintype_res.data.data.count > 0) {
                 terraintype_res.data.data.rows.forEach(element => {
@@ -104,12 +118,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setterrainTypeData(terraintypeArray);
             }
-        } catch (error) {
-            console.log("Error in terraintypeAPI API", error);
-        }
-        try {
-            let landType_res = await axios.get(config.landtypeAPI, axiosConfig);
-            // console.log(landType_res.data.data);
             let landTypeArray = [];
             if (landType_res.data.data.count > 0) {
                 landType_res.data.data.rows.forEach(element => {
@@ -120,13 +128,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setlandTypeData(landTypeArray);
             }
-        } catch (error) {
-            console.log("Error in landtypeAPI API", error);
-        }
-
-        try {
-            const prodctionSeasionAPI = config.prodctionSeasionAPI1 + language_id + config.prodctionSeasionAPI2;
-            let livelihoodType_res = await axios.get(prodctionSeasionAPI, axiosConfig1);
             let livelihoodTypeArray = [];
             if (livelihoodType_res.data.data) {
                 livelihoodType_res.data.data.crop_type.forEach(element => {
@@ -137,14 +138,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setlivelihoodTypeData(livelihoodTypeArray);
             }
-        } catch (error) {
-            console.log("Error in livelihoodType API", error);
-        }
-
-        try {
-            const prodctionSeasionAPI = config.prodctionSeasionAPI1 + language_id + config.prodctionSeasionAPI2;
-            let prodctionSeasion_res = await axios.get(prodctionSeasionAPI, axiosConfig1);
-            // console.log(prodctionSeasionAPI);
             let prodctionSeasionArray = [];
             if (prodctionSeasion_res.data.data) {
                 prodctionSeasion_res.data.data.crop_season.forEach(element => {
@@ -155,11 +148,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setprodctionSeasionData(prodctionSeasionArray);
             }
-        } catch (error) {
-            console.log("Error in prodctionSeasion type API", error);
-        }
-        try {
-            let landUnit_res = await axios.get(config.landunitAPI, axiosConfig);
             let landUnitArray = [];
             if (landUnit_res.data.data.count > 0) {
                 landUnit_res.data.data.rows.forEach(element => {
@@ -170,12 +158,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setlandUnitData(landUnitArray);
             }
-        } catch (error) {
-            console.log("Error in landUnit type API", error);
-        }
-
-        try {
-            let productionProcess_res = await axios.get(config.productionProcessAPI, axiosConfig);
             let productionProcessArray = [];
             if (productionProcess_res.data.data.count > 0) {
                 productionProcess_res.data.data.rows.forEach(element => {
@@ -186,11 +168,6 @@ const ProduceInfoUpdate = () => {
                 });
                 setproductionProcessData(productionProcessArray);
             }
-        } catch (error) {
-            console.log("Error in productionProcess type API", error);
-        }
-        try {
-            let produceProductionUnit_res = await axios.get(config.produceProductionUnitAPI, axiosConfig);
             let produceProductionUnitArray = [];
             if (produceProductionUnit_res.data.data) {
                 produceProductionUnit_res.data.data.rows.forEach(element => {
@@ -202,14 +179,16 @@ const ProduceInfoUpdate = () => {
                 setproduceProductionUnitData(produceProductionUnitArray);
             }
         } catch (error) {
-            console.log("Error in produceProductionUnit type API", error);
+            CrashlyticsRecordError(error.response)
         }
+
     }
 
     const HandlelivehoodType = async (livelihoodType) => {
         setstoreProduceInfo({ ...storeProduceInfo, livelihoodType: livelihoodType })
         produceNameDataList(livelihoodType, lanID, dbName);
     }
+
     const produceNameDataList = async (livelihoodType, language_id, dbName) => {
         const axiosConfig1 = {
             headers: {
@@ -232,6 +211,7 @@ const ProduceInfoUpdate = () => {
 
             }
         } catch (error) {
+            CrashlyticsRecordError(error.response)
             console.log("Error in produceName API", error);
         }
     }
@@ -240,6 +220,7 @@ const ProduceInfoUpdate = () => {
         setstoreProduceInfo({ ...storeProduceInfo, produceName: produceName })
         produceVarientyDataList(produceName, lanID, dbName);
     }
+
     const produceVarientyDataList = async (produceName, language_id, dbName) => {
         const axiosConfig1 = {
             headers: {
@@ -261,9 +242,11 @@ const ProduceInfoUpdate = () => {
                 setproduceVarietyData(produceVarietyArray);
             }
         } catch (error) {
+            CrashlyticsRecordError(error.response)
             console.log("Error in produceVariety API", error);
         }
     }
+
     const handlecycleStart = (item) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
@@ -272,29 +255,20 @@ const ProduceInfoUpdate = () => {
         const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
         setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts })
     }
-    const handlecycleEnd = async (item) => {
 
+    const handlecycleEnd = async (item) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
         const x1 = x[0].split('-');
         // console.log(x1[2] + '/' + x1[1] + '/' + x1[0]);
         const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
         setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds })
-
         // console.log(res);
-
     }
     const getLocation = (item) => {
-        Geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                setstoreProduceInfo({ ...storeProduceInfo, lat: latitude, long: longitude })
-            },
-            (error) => {
-                console.error(error);
-            },
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-        );
+        if (ForegroundLocationData != null) {
+            setstoreProduceInfo({ ...storeProduceInfo, lat: ForegroundLocationData.latitude, long: ForegroundLocationData.longitude })
+        }
     }
 
     const validationData = () => {
@@ -324,16 +298,35 @@ const ProduceInfoUpdate = () => {
         }
     }
 
-    const handleSave = async () => {
-
-        await removeItem('storeProduceInfo_data');
-        storeProduceInfoInArray[arrayIndex] = storeProduceInfo;
-        await setItem('storeProduceInfo_data', storeProduceInfoInArray)
-        // console.log(JSON.stringify(storeProduceInfoInArray, null, 2));
-        navigation.navigate(pagename, { pagename: '' });
+    const handleLandUnit = async (item) => {
+        //    return console.log(storeProduceInfo.plotSize);
+        if (item.sizevalue > 0) {
+            const landUnitSize = storeProduceInfo.plotSize * item.sizevalue
+            setstoreProduceInfo({
+                ...storeProduceInfo,
+                landUnit: item.value,
+                landUnitSize: landUnitSize,
+                landUnitName: item.label,
+            })
+        } else {
+            setstoreProduceInfo({
+                ...storeProduceInfo,
+                landUnit: item.value,
+                landUnitSize: storeProduceInfo.plotSize,
+                landUnitName: item.label,
+            })
+        }
 
     }
 
+    const handleSave = async () => {
+        await removeItem('storeProduceInfo_data');
+        storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
+        // return console.log(JSON.stringify(storeProduceInfoInArray, null, 2));
+        await setItem('storeProduceInfo_data', storeProduceInfoInArray)
+        // console.log(JSON.stringify(storeProduceInfoInArray, null, 2));
+        navigation.navigate(pagename, { pagename: '' });
+    }
     const onPageLoad = async () => {
         const storeSignup_data = await getItem('storeSignup_data');
         const storePersnolInfo_data = await getItem('storePersnolInfo_data');
@@ -343,87 +336,111 @@ const ProduceInfoUpdate = () => {
         setlanID(languageID)
         allAPIHere(dbName, languageID);
         const storeProduceInfo_data = await getItem('storeProduceInfo_data');
-        if (storeProduceInfo_data) {
-            setstoreProduceInfoInArray(storeProduceInfo_data);
-            setstoreProduceInfo(storeProduceInfo_data[arrayIndex]);
-            if (storeProduceInfo_data[arrayIndex].livelihoodType) {
-                produceNameDataList(storeProduceInfo_data[arrayIndex].livelihoodType, languageID, dbName);
-
-            }
-            if (storeProduceInfo_data[arrayIndex].produceName && storeProduceInfo_data[arrayIndex].livelihoodType) {
-                produceVarientyDataList(storeProduceInfo_data[arrayIndex].produceName, languageID, dbName);
-
-            }
+        const produceVariety = await getItem('produceVariety');
+        let produceVarietyArray = [];
+        if (produceVariety) {
+            produceVariety.crop_variety.forEach(element => {
+                produceVarietyArray.push({
+                    value: element.crop_variety.fid,
+                    label: element.crop_variety.name,
+                });
+            });
+            setproduceVarietyData(produceVarietyArray);
         }
 
+        //  console.log(JSON.stringify(produceVariety.crop_variety,null,2));
+        if (storeProduceInfo_data) {
+            setstoreProduceInfoInArray(storeProduceInfo_data);
+            setstoreProduceInfo(storeProduceInfo_data[arrayIndex].storeProduceInfo)
 
+            if (storeProduceInfo_data[arrayIndex].storeProduceInfo.livelihoodType) {
+                produceNameDataList(storeProduceInfo_data[arrayIndex].storeProduceInfo.livelihoodType, languageID, dbName);
+                // produceVarientyDataList(storeProduceInfo_data[arrayIndex].storeProduceInfo.produceName, languageID, dbName);
+            }
 
+            // if (storeProduceInfo_data[arrayIndex].storeProduceInfo.produceName && storeProduceInfo_data[arrayIndex].storeProduceInfo.livelihoodType) {
+            //     produceVarientyDataList(storeProduceInfo_data[arrayIndex].storeProduceInfo.produceName, languageID, dbName);
+            // }
+        }
     };
-    useEffect(() => {
-        // console.log(arrayIndex);
-        onPageLoad();
-    }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            onPageLoad();
+        }, [])
+    );
+
+    // useEffect(() => {
+    //     // console.log(arrayIndex);
+    //     onPageLoad();
+    // }, []);
+
     return (
         <>
             <ScrollView style={{ backgroundColor: '#D5FFD0' }}>
-                <View style={{ backgroundColor: '#D5FFD0' }}>
+                <View style={{ backgroundColor: '#D5FFD0', marginBottom: 100 }}>
                     <View style={{ paddingHorizontal: 20 }}>
                         <Logo iheight={100} iwidth={100} />
-                        <InputTextForm label="Plot/Site Name" color="red" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })} value={storeProduceInfo.plotSiteName} />
 
-                        <InputTextForm label="Plot/Site Record Detail (Daag No.)" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })} value={storeProduceInfo.daagNo} />
+                        <DropdownForm label={t('select_crop_name')} color="red" data={produceNameData} onChange={item => HandleproduceName(item)} val={storeProduceInfo.produceName.label} />
 
-                        <InputTextForm label="Plot/Site Record Detail (Khatian No.)" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })} value={storeProduceInfo.khatianNo} />
+                        <DropdownForm label={t('select_crop_variety')} color="red" data={produceVarietyData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, produceVariety: item }) }} val={storeProduceInfo.produceVariety.label} />
 
-                        <InputTextForm label="No. of Plants/Livestock" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })} value={storeProduceInfo.noOfPlants} />
+                        <InputTextForm label={t('pre_plot_name')} color="red" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })} value={storeProduceInfo.plotSiteName} />
 
-                        <DropdownForm label="Terrain Type" color="red" data={terrainTypeData} onChange={item => setstoreProduceInfo({ ...storeProduceInfo, terrainType: item })} val={storeProduceInfo.terrainType} />
+                        <InputTextForm label={t('daag_no')} onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })} value={storeProduceInfo.daagNo} />
 
-                        <DropdownForm label="Land Type" color="red" data={landTypeData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landType: item }) }} val={storeProduceInfo.landType} />
+                        <InputTextForm label={t('khatian_no')} onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })} value={storeProduceInfo.khatianNo} />
 
-                        <DropdownForm label="Soil Type" color="red" data={soilTypeData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, soilType: item }) }} val={storeProduceInfo.soilType} />
+                        <InputTextForm label={t('no_of_plants')} onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })} value={storeProduceInfo.noOfPlants} />
 
-                        <InputTextForm label="Plot/Site Size" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, plotSize: item })} value={storeProduceInfo.plotSize} />
+                        <DropdownForm label={t('addland_terrain_type')} color="red" data={terrainTypeData} onChange={item => setstoreProduceInfo({ ...storeProduceInfo, terrainType: item })} val={storeProduceInfo.terrainType.label} />
 
-                        <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} />
+                        <DropdownForm label={t('addland_soil_type')} color="red" data={landTypeData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landType: item }) }} val={storeProduceInfo.landType.label} />
+
+                        <DropdownForm label={t('select_soil_type')} color="red" data={soilTypeData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, soilType: item }) }} val={storeProduceInfo.soilType.label} />
+
+                        <InputTextForm label={t('addland_landsize')} onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, plotSize: item })} value={storeProduceInfo.plotSize} />
+
+                        <DropdownForm label={t('addland_unit')} color="red" data={landUnitData} onChange={(item) => handleLandUnit(item)} val={storeProduceInfo.landUnit} />
 
                         <View style={{ marginBottom: 4 }}>
                             <TouchableOpacity onPress={getLocation}>
                                 {
                                     storeProduceInfo.lat ?
                                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <Text>{storeProduceInfo.lat}</Text>
-                                            <Text>{storeProduceInfo.long}</Text>
+                                            <Text style={{ color: '#000' }}>{storeProduceInfo.lat}</Text>
+                                            <Text style={{ color: '#000' }}>{storeProduceInfo.long}</Text>
                                         </View>
                                         : ""
                                 }
 
                                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'red' }}>Tap to geo Tag the plot/site</Text>
+                                    <Text style={{ color: 'red' }}>{t('tap_to_get_latitude_and_longitude')}</Text>
                                     <Image source={require('./Common/images/map.png')} style={{ width: 50, height: 50 }} />
                                 </View>
                             </TouchableOpacity>
                         </View>
 
-                        <DropdownForm label="Production Season" color="red" data={prodctionSeasionData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, prodctionSeasion: item }) }} val={storeProduceInfo.prodctionSeasion} />
+                        <DropdownForm label={t('addcrop_cultivating_season')} color="red" data={prodctionSeasionData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, prodctionSeasion: item }) }} val={storeProduceInfo.prodctionSeasion.label} />
 
-                        <DropdownForm label="Livelihood Type" color="red" data={livelihoodTypeData} onChange={item => HandlelivehoodType(item)} val={storeProduceInfo.livelihoodType} />
+                        <DropdownForm label={t('addcrop_croptype')} color="red" data={livelihoodTypeData} onChange={item => HandlelivehoodType(item)} val={storeProduceInfo.livelihoodType.label} />
 
-                        <DropdownForm label="Produce Name" color="red" data={produceNameData} onChange={item => HandleproduceName(item)} val={storeProduceInfo.produceName} />
 
-                        <DropdownForm label="Produce Variety" color="red" data={produceVarietyData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, produceVariety: item }) }} val={storeProduceInfo.produceVariety} />
 
-                        <DropdownForm label="Production Process" color="red" data={productionProcessData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, productionProcess: item }) }} val={storeProduceInfo.productionProcess} />
 
-                        <InputTextForm label="Expected Production" color="red" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, expectedProduction: item })} value={storeProduceInfo.expectedProduction} />
 
-                        <DropdownForm label="Unit" color="red" data={produceProductionUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, produceProductionUnit: item }) }} val={storeProduceInfo.produceProductionUnit} />
+                        <DropdownForm label={t('production_system')} color="red" data={productionProcessData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, productionProcess: item }) }} val={storeProduceInfo.productionProcess.label} />
+
+                        <InputTextForm label={t('expected_yield')} color="red" onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, expectedProduction: item })} value={storeProduceInfo.expectedProduction} />
+
+                        <DropdownForm label={t('select_unit')} color="red" data={produceProductionUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, produceProductionUnit: item }) }} val={storeProduceInfo.produceProductionUnit.label} />
 
                         <View>
                             <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>Cycle Starts</Text>
                             <View style={styles.passwordMainContainer}>
                                 <View style={styles.passwordContainer}>
-                                    <TextInput style={styles.inputTextStyle} value={storeProduceInfo.cycleStarts} />
+                                    <Text style={styles.inputTextStyle} onPress={() => setOpencycleStarts(true)}>{storeProduceInfo.cycleStarts}</Text>
                                     <TouchableOpacity onPress={() => setOpencycleStarts(true)}>
                                         <ImageForm
                                             source={require('./Common/images/date.png')}
@@ -453,7 +470,7 @@ const ProduceInfoUpdate = () => {
                             <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>Cycle Ends</Text>
                             <View style={styles.passwordMainContainer}>
                                 <View style={styles.passwordContainer}>
-                                    <TextInput style={styles.inputTextStyle} value={storeProduceInfo.cycleEnds} />
+                                    <Text style={styles.inputTextStyle} onPress={() => setOpencycleEnds(true)}>{storeProduceInfo.cycleEnds}</Text>
                                     <TouchableOpacity onPress={() => setOpencycleEnds(true)}>
                                         <ImageForm
                                             source={require('./Common/images/date.png')}
@@ -467,6 +484,7 @@ const ProduceInfoUpdate = () => {
                                         mode="date"
                                         open={opencycleEnds}
                                         date={newdate}
+                                        minimumDate={storeProduceInfo.cycleEnds == "" ? "" : new Date(`${new Date(storeProduceInfo.cycleEnds).getFullYear()}-${new Date(storeProduceInfo.cycleEnds).getMonth() + 1}-${new Date(storeProduceInfo.cycleEnds).getDate() + 1}`)}
                                         onConfirm={(item) => {
                                             handlecycleEnd(item)
                                             setOpencycleEnds(false)
@@ -483,7 +501,7 @@ const ProduceInfoUpdate = () => {
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10, backgroundColor: '#D5FFD0' }}>
-                <ButtonForm label='Next' onPress={() => handleSave('SignUpViwer')} />
+                <ButtonForm label={t('next')} onPress={() => handleSave('SignUpViwer')} />
             </View>
         </>
     )
@@ -525,8 +543,10 @@ const styles = StyleSheet.create({
     },
     inputTextStyle: {
         flex: 1,
-        height: 40,
+        paddingHorizontal: 5,
+        paddingVertical: 10,
         marginHorizontal: 10,
         borderColor: 'gray',
+        color: '#000'
     },
 })

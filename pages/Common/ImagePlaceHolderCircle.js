@@ -6,13 +6,23 @@ const ImagePlaceHolderCircle = ({
     selectedImage
 
 }) => {
+    let type = "";
+    let imageUrl = null;
+    if (selectedImage != null) {
+        type = selectedImage.split(';')[0].split('/')[1];
+        if (type == '9j') {
+            imageUrl = `data:image/jpeg;base64,${selectedImage}`;
+        } else {
+            imageUrl = selectedImage;
+        }
+    }
     return (
         <TouchableOpacity style={styles.container} onPress={openImagePicker}>
             {/* Placeholder Image */}
 
             {selectedImage ? (
                 <Image
-                    source={{ uri: `data:image/jpeg;base64,${selectedImage}` }}
+                    source={{ uri: imageUrl }}
                     style={styles.image}
                     resizeMode="contain"
                 />
@@ -20,7 +30,6 @@ const ImagePlaceHolderCircle = ({
                 source={require('./images/avatar.png')} // Replace with your placeholder image source
                 style={styles.image}
             />
-
             }
             {/* Add Symbol */}
             <View style={styles.addSymbol}>

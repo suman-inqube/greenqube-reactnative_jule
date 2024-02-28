@@ -1,25 +1,30 @@
-import { StyleSheet, Text, View, TextInput } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
+import React, { memo } from 'react'
 
-const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname }) => {
+const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname, maxLength, editable }) => {
+  const scheme = useColorScheme();
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
   return (
     <>
-      <Text style={{ marginHorizontal: 5, marginBottom: 5, color: color ?? 'black' }}>{labelString}</Text>
+      <Text style={[styles.title, { color: color ?? 'black' }]}>{labelString}</Text>
       <View style={styles.container}>
-        <TextInput style={styles.simpleInputTextStyle}
+        <TextInput
+          style={[styles.simpleInputTextStyle, { color: 'black', backgroundColor: editable == false ? '#FFF' : "#FFF", borderColor: editable == false ? "#ffffff" : "#FFFF" }]}
+          //  style={[styles.simpleInputTextStyle, { color: 'black' }]} 
           onChangeText={onChangeText}
           onBlur={onBlur}
           value={value}
           keyboardType={keyboardType ?? 'default'}
           ref={refname}
+          maxLength={maxLength}
+          editable={editable}
         />
       </View>
     </>
   )
 }
 
-export default InputTextForm
+export default memo(InputTextForm)
 
 const styles = StyleSheet.create({
   container: {
@@ -28,12 +33,22 @@ const styles = StyleSheet.create({
   },
   simpleInputTextStyle: {
     borderRadius: 8,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    backgroundColor: 'white',
+    height: 45,
+    borderColor: '#fcf7f7',
+    borderWidth: 1.3,
+    borderRadius: 8,
+    backgroundColor: '#FFFF',
     width: '100%',
+    elevation: 1,
     paddingHorizontal: 10,
+    color: '#000',
   },
+  title: {
+    marginHorizontal: 5,
+    marginBottom: 5,
+    color: "#000",
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+  }
 
 })

@@ -1,0 +1,80 @@
+import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native'
+import React from 'react'
+
+
+const RecordComp = ({
+    selectedRecord,
+    soundRecording
+}) => {
+    return (
+        <>
+            <Text style={styles.title_recording}>Record Your comment (Optional)</Text>
+            <View style={styles.container_recording}>
+                <TouchableOpacity style={styles.item_recording} onPress={()=>soundRecording("firstItem")}>
+                    {selectedRecord.firstItemRecord == "" ? <Image
+                        source={require('../../Common/images/microphone.png')}
+                        style={{width:100,height:100}}
+                    />  :
+                        <Image
+                            source={{ uri: `${selectedRecord.firstItemRecord}` }}
+                            // style={styles.image}
+                            style={{ width: "100%", height: 100 }}
+                            resizeMode="contain"
+                        />}
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.item_recording} onPress={()=>soundRecording("secoundItem")}>
+                    {selectedRecord.secondItemRecord == "" ? <Image
+                        source={require('../../Common/images/microphone.png')}
+                        style={{width:100,height:100}}
+                    />  :
+                        <Image
+                            source={{ uri: `${selectedRecord.secondItemRecord}` }}
+                            // style={styles.image}
+                            style={{ width: "100%", height: 100 }}
+                            resizeMode="contain"
+                        />}
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.item_recording} onPress={()=>soundRecording("thirdItem")}>
+                    {selectedRecord.thirdItemRecord == "" ? <Image
+                        source={require('../../Common/images/microphone.png')}
+                        style={{width:100,height:100}}
+                    />  :
+                        <Image
+                            source={{ uri: `${selectedRecord.thirdItemRecord}` }}
+                            // style={styles.image}
+                            style={{ width: "100%", height: 100 }}
+                            resizeMode="contain"
+                        />}
+                </TouchableOpacity>
+
+            </View>
+
+        </>
+    )
+}
+
+export default RecordComp
+
+const styles = StyleSheet.create({
+    container_recording: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingBottom: 10
+    },
+    item_recording: {
+        // backgroundColor: '#e9e9e9',
+        width: '30%',
+        paddingVertical: 10,
+        borderRadius: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+        TouchableOpacityAlign: 'center'
+    },
+    title_recording: {
+        paddingVertical: 10,
+        color: '#000'
+    }
+
+})

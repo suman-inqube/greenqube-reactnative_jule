@@ -1,0 +1,253 @@
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import CustomHeader from '../CustomHeader';
+import FormsTitle from '../../Common/FormsTitle';
+import ModalCompProduct from './ModalCompProduct';
+import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
+import DropdownForm from '../../Common/DropdownForm1';
+import SearchByCategoryModal from './SearchByCategoryModal';
+import { inputCategoryAPI, inputListAPI, inputSubCategoryAPI } from '../../../config/apiHere';
+import { getItem, setItem } from '../../../config/getDataFromStorage';
+import LoadingScreen from '../../Common/LoadingScreen';
+import SearchBy from './SearchBy';
+import SearchSubBy from './SearchSubBy';
+import { useTranslation } from 'react-i18next';
+import { onBackPress } from '../../Common/BackPressHandler';
+import { useIsFocused } from '@react-navigation/native';
+const InputList = ({ navigation }) => {
+    const { t } = useTranslation();
+    const isFocused = useIsFocused();
+    const [isLoading, setIsLoading] = useState(true);
+    const [dbLanTokUsr, setdbLanTokUsr] = useState({
+        dbName: "",
+        languageId: "",
+        token: "",
+        supervisorId: ""
+    });
+    const [modalVisible, setModalVisible] = useState(false);
+    const [inputListAll, setInputListAll] = useState([]);
+    const [inputListAllRaw, setInputListAllRaw] = useState([]);
+    const [inputCategory, setInputCategory] = useState([]);
+    const [inputSubCategory, setInputSubCategory] = useState([]);
+    const [inputSingle, setInputSingle] = useState({});
+    const [dataArray, setPrice] = useState([]);
+    const [category, setCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
+    const [currency, setCurrencyt] = useState("");
+    const navigateToPages = async (index) => {
+        await setItem("input_single_data", inputListAll[index]);
+        // setIsLoading(true)
+        setInputSingle(inputListAll[index]);
+        setModalVisible(true);
+        setIsLoading(false)
+    };
+    const handleCategory = async (search) => {
+        if (search.value === '0') {
+            setInputListAll(inputListAllRaw);
+            setInputSubCategory([])
+        }
+        else {
+            const inputFound = inputListAllRaw.filter(item => item.productCategories[0] && item.productCategories[0].productCategory && item.productCategories[0].productCategory.ioname && item.productCategories[0].productCategory.ioname.entity_type_id === search.value);
+            setInputListAll(inputFound)
+            const inputSubCategoryList = await inputSubCategoryAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value);
+            if (inputSubCategoryList) {
+                const dataArray = [];
+                inputSubCategoryList.data.data.rows.forEach(element => {
+                    dataArray.push({
+                        value: element.fid,
+                        label: element.product_name
+                    });
+                });
+                setInputSubCategory(dataArray)
+            }
+        }
+    }
+    const handleSubCategory = async (search) => {
+        const inputFound = inputListAllRaw.filter(item => item.product_id === search.value);
+        setInputListAll(inputFound)
+    }
+    const onPageLoad = async () => {
+        const [loginUser_data, currency_res] = await Promise.all([
+            getItem('loginUser_data'),
+            getItem('currency'),
+        ]);
+        setCurrencyt(currency_res);
+        if (loginUser_data) {
+            const dbName = loginUser_data.dbname;
+            const languageId = loginUser_data.lan_id;
+            const token = loginUser_data.token;
+            const supervisorId = loginUser_data.user_id;
+            setdbLanTokUsr({
+                ...dbLanTokUsr,
+                dbName: dbName,
+                languageId: languageId,
+                token: token,
+                supervisorId: supervisorId
+            });
+            const inputList = await inputListAPI(dbName, languageId, token, supervisorId);
+            setInputListAll(inputList.data.data.rows)
+            setInputListAllRaw(inputList.data.data.rows)
+            setItem("input_data", inputList.data.data.rows)
+            setIsLoading(false)
+            const inputCategoryList = await inputCategoryAPI(dbName, languageId, token, supervisorId);
+            if (inputCategoryList) {
+                const dataArray1 = [{
+                    value: "0",
+                    label: "All"
+                }];
+                inputCategoryList.data.data.rows.forEach(element => {
+                    dataArray1.push({
+                        value: element.fid,
+                        label: element.name
+                    });
+                });
+                setInputCategory(dataArray1)
+                setInputSubCategory([])
+                setIsLoading(false)
+            }
+
+        }
+    };
+    useEffect(() => {
+        setModalVisible(false);
+        onPageLoad();
+        // onBackPress(handleBackPress);
+    }, [isFocused]);
+    // function handleBackPress() {
+    //     navigation.navigate("Dashboard");
+    //     return true;
+    // }
+    const HandlerGoBack = () => {
+        setCategory('');
+        setSubCategory('');
+        navigation.navigate('Dashboard');
+    }
+    return (
+        <View style={{ flex: 1 }}>
+            <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} />
+            <View style={styles.container}>
+                <FormsTitle title={t('products')} />
+                <View style={styles.searchByCategoryContainer}>
+                    <View style={styles.searchByCategoryItem}>
+                        <SearchBy label={t('search_by_category')} data={inputCategory} onChange={(item) => handleCategory(item)} val={category} />
+                    </View>
+                    <View style={styles.searchByCategoryItem}>
+                        <SearchSubBy label={t('search_by_sub_category')} data={inputSubCategory} onChange={(item) => handleSubCategory(item)} val={subCategory} />
+                    </View>
+                </View>
+                <ModalCompProduct setModalVisible={setModalVisible} modalVisible={modalVisible} inputSigle={inputSingle}
+                    style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                />
+                {isLoading &&
+                    <View style={styles.loadingScreen}><LoadingScreen /></View>}
+                <FlatList
+                    data={inputListAll}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({ item, index }) => (
+                        <TouchableOpacity onPress={() => navigateToPages(index)} key={index}>
+                            <View style={styles.flatlistContainer} >
+                                <View style={styles.flatlistItem} >
+                                    {
+                                        item.agri_files && item.agri_files.length > 0 ?
+                                            <Image
+                                                source={{ uri: item.agri_files[0].file_path }}
+                                                style={{ width: 100, height: 100, resizeMode: 'contain' }}
+                                            />
+                                            :
+                                            <Image
+                                                source={require('../../Common/images/logo.png')}
+                                                style={{ width: 100, height: 100, resizeMode: 'contain' }} />
+                                    }
+                                    <View style={{ justifyContent: 'flex-end', paddingHorizontal: 10, width: '100%' }}>
+                                        <Text style={[styles.title, { fontFamily: 'Poppins-SemiBold', color: '#013715' }]}>{item.product_name}</Text>
+                                        <Text style={styles.title}>{item.productCategories[0].productCategory.name}</Text>
+                                        <Text style={styles.title}>{item.product_code}</Text>
+                                        <Text style={styles.title}>{item.description.length < 70 ? item.description.substring(0, 70) : item.description.substring(0, 70) + '...'}</Text>
+                                        <View style={{ width: 220, paddingLeft: 10 }}>
+                                            <ProductOptionDropDown rate={item.agri_product_prices} onChange={(item) => console.log(item.value && item.value)} key={index} currency={currency} />
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    )
+                    }
+                    keyExtractor={(item, index) => index}
+                />
+
+                <View style={styles.viewPastBtn}>
+                    <TouchableOpacity onPress={() => navigation.navigate('PastEnquiry')}>
+                        <Text style={styles.viewPastBtnText}>{t('view_input_requested')}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+    )
+}
+
+export default InputList
+
+const styles = StyleSheet.create({
+    container: {
+        marginHorizontal: '2.5%',
+        flex: 1
+    },
+    title: {
+        width: '70%',
+        color: '#000',
+        fontFamily: 'Poppins-Regular',
+        textAlign: 'auto',
+        fontSize: 14
+    },
+    flatlistContainer: {
+        backgroundColor: '#FFFF',
+        // backgroundColor: 'red',
+        marginBottom: 10,
+        // paddingHorizontal: 10,
+        borderRadius: 10,
+        shadowColor: "#000",
+    },
+    flatlistItem: {
+        flexDirection: 'row',
+
+        // justifyContent:'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+    },
+    productImage: {
+        width: 100,
+        height: 100,
+        marginRight: 20,
+        borderRadius: 10,
+    },
+    searchByCategoryContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    searchByCategoryItem: {
+        width: '45%'
+    },
+    viewPastBtn: {
+        position: 'absolute',
+        right: '-6%',
+        top: '70%',
+        backgroundColor: '#009200',
+        paddingLeft: 10,
+        paddingRight: 25,
+        paddingVertical: 2,
+        borderTopLeftRadius: 25,
+        borderBottomLeftRadius: 25,
+        zIndex: 99
+    },
+    loadingScreen: {
+        position: 'relative',
+        top: 100
+    },
+    viewPastBtnText: {
+        color: '#ffff',
+        paddingLeft: 20,
+        fontFamily: 'Poppins-Regular'
+    }
+})

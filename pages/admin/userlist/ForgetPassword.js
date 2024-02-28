@@ -5,102 +5,138 @@ import {
     Text,
     TouchableOpacity,
     TextInput,
-    Image
+    Image,
+    BackHandler
 } from 'react-native'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ButtonForm from '../../Common/ButtonForm';
 import MessageDialog from '../../Common/MessageDialog';
-
+import CustomHeader from '../CustomHeader';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
+import { useRoute, useFocusEffect, useNavigation, useIsFocused,CommonActions } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { NewForgotPassword } from '../../../config/apiHere';
+import { getItem } from '../../../config/getDataFromStorage';
+const qs = require('qs');
 const ForgotPassword = ({ sendDataToParent }) => {
+    const { t } = useTranslation();
+    const navigation = useNavigation();
+    const route = useRoute();
     const [cpasswordVisibility, setcPasswordVisibility] = useState('');
     const [passwordVisibility, setPasswordVisibility] = useState('');
-    const [forgetPassword, setforgetPassword] = useState({
-        password: '',
-        cpassword: '',
+    const [forgetPassword, setforgetPassword] = useState({ password: '', cpassword: '' });
+    const [dbLanTokUsr, setdbLanTokUsr] = useState({
+        dbName: '',
+        languageID: '',
+        token: '',
+        userID: '',
     });
-
-
     const handleCheckPassowrdConfirm = () => {
         const password = forgetPassword.password;
         const cpassword = forgetPassword.cpassword;
         if (password != cpassword) {
-            MessageDialog({ title: 'Password', message: `This Password Not Matched` })
+            Toast.show({ text: `${t('same_con_password')}`, ...AlertMesg[0] })
             setforgetPassword({ ...forgetPassword, cpassword: "" })
         }
     };
-    const validation = () => {
-        // console.log(JSON.stringify(forgetPassword, null, 2));
-        if (forgetPassword.cpassword && forgetPassword.password) {
-            return true;
-        }
-        else {
-            MessageDialog({ title: 'Required', message: `Required all Field` })
+    const handleSave = async() => {
+        if (forgetPassword.password == "") {
+            Toast.show({ text: `${t('enter_new_password')}`, ...AlertMesg[0] })
+        } else if (forgetPassword.cpassword == "") {
+            Toast.show({ text: `${t('enter_conf_pass')}`, ...AlertMesg[0] })
+        } else if (forgetPassword.cpassword != forgetPassword.password) {
+            Toast.show({ text: `${t('same_con_password')}`, ...AlertMesg[0] })
+        } else {
+            let save_data = qs.stringify({
+                newPassword:forgetPassword.password,
+                userType:2
+            });
+            const newForgotPassword = await NewForgotPassword(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.farmeruserID, save_data);
+            if(newForgotPassword.status==200){
+                setforgetPassword({ ...forgetPassword, password: '', cpassword: '' });
+                Toast.show({ text: `${t('password_change_successfully')}`, ...AlertMesg[0] });
+                navigation.navigate('userList');
+            }
         }
     };
-    const handleSave = () => {
-        const res = validation()
-        if (res) {
-            console.log("welcome");
+    const onPageLoad = async () => {
+        let farmeruserID="";
+        if(route.params !=undefined){
+            farmeruserID=route.params.farmeruserID
         }
-    };
-    const sendDataToParentOnClick = () => {
-        sendDataToParent(null);
-    };
+        const [loginUser_data] = await Promise.all([
+            getItem('loginUser_data'),
+        ]);
+        if (loginUser_data) {
+            setdbLanTokUsr({
+                ...dbLanTokUsr,
+                dbName: loginUser_data.dbname,
+                languageID: loginUser_data.agri_language.id,
+                userID: loginUser_data.user_id,
+                farmeruserID:farmeruserID,
+                token: loginUser_data.token
+            });
+        }
+    }
+    useEffect(() => {
+            onPageLoad();
+            const onBackPress = () => { navigation.navigate('userList'); return true; };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, []);
+    const HandlerGoBack=()=>{
+        navigation.navigate('userList');
+    }
     return (
         <>
-            <View>
-                <TouchableOpacity onPress={sendDataToParentOnClick}>
-                    <Text>Back</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.container} >
-                <View style={styles.forgotContainer} >
-                    <Text style={styles.titleForgot}>Forgot Password</Text>
-                    <View>
-                        <Text style={styles.formMargin}>Please Enter Password</Text>
+            <Root>
+                <CustomHeader path='userList' HandlerGoBack={HandlerGoBack}/>
+                <ScrollView>
+                <View style={styles.container} >
+                    <View style={styles.forgotContainer} >
+                        <Text style={styles.titleForgot}>{t('forgot_password')}</Text>
                         <View>
-                            <View style={styles.passwordContainer}>
-                                <TextInput secureTextEntry={passwordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(passsword) => setforgetPassword({ ...forgetPassword, password: passsword })} value={forgetPassword.password} />
-                                <TouchableOpacity
-                                    onPress={() => setPasswordVisibility(!passwordVisibility)}
-                                >
-                                    {
-                                        passwordVisibility ?
-                                            <Image source={require('../../Common/images/show.png')} style={{ width: 30, height: 30 }} />
-                                            :
-
-                                            <Image source={require('../../Common/images/hide.png')} style={{ width: 30, height: 30 }} />
-
-                                    }
-                                </TouchableOpacity>
+                            <Text style={styles.formMargin}>{t('enter_pass')}</Text>
+                            <View>
+                                <View style={styles.passwordContainer}>
+                                    <TextInput secureTextEntry={passwordVisibility ? false : true} style={styles.inputTextStyle} placeholderTextColor={'#000'} onChangeText={(passsword) => setforgetPassword({ ...forgetPassword, password: passsword })} value={forgetPassword.password} />
+                                    <TouchableOpacity
+                                        onPress={() => setPasswordVisibility(!passwordVisibility)}
+                                    >
+                                        {
+                                            passwordVisibility ?
+                                                <Image source={require('../../Common/images/show.png')} style={{ width: 25, height: 25 }} />
+                                                :
+                                                <Image source={require('../../Common/images/hide.png')} style={{ width: 25, height: 25 }} />
+                                        }
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
-
-                        <Text style={styles.formMargin}>Please Enter Confirm Password</Text>
-                        <View>
-                            <View style={styles.passwordContainer}>
-                                <TextInput secureTextEntry={cpasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(cpassword => setforgetPassword({ ...forgetPassword, cpassword: cpassword }))} onBlur={handleCheckPassowrdConfirm} value={forgetPassword.cpassword} />
-                                <TouchableOpacity
-                                    onPress={() => setcPasswordVisibility(!cpasswordVisibility)}
-                                >
-                                    {
-                                        cpasswordVisibility ?
-                                            <Image source={require('../../Common/images/show.png')} style={{ width: 30, height: 30 }} />
-
-                                            :
-                                            <Image source={require('../../Common/images/hide.png')} style={{ width: 30, height: 30 }} />
-
-                                    }
-                                </TouchableOpacity>
+                            <Text style={styles.formMargin}>{t('enter_conf_pass')}</Text>
+                            <View>
+                                <View style={styles.passwordContainer}>
+                                    <TextInput secureTextEntry={cpasswordVisibility ? false : true} style={styles.inputTextStyle} placeholderTextColor={'#000'} onChangeText={(cpassword => setforgetPassword({ ...forgetPassword, cpassword: cpassword }))}
+                                        // onBlur={handleCheckPassowrdConfirm}
+                                        value={forgetPassword.cpassword} />
+                                    <TouchableOpacity
+                                        onPress={() => setcPasswordVisibility(!cpasswordVisibility)}
+                                    >
+                                        {
+                                            cpasswordVisibility ?
+                                                <Image source={require('../../Common/images/show.png')} style={{ width: 25, height: 25 }} />
+                                                :
+                                                <Image source={require('../../Common/images/hide.png')} style={{ width: 25, height: 25 }} />
+                                        }
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                            <View style={styles.buttonForm}>
-                                <ButtonForm label='Next' onPress={() => handleSave()} />
-                            </View>
-
                         </View>
                     </View>
                 </View>
-            </View>
+                </ScrollView>
+                <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+            </Root>
         </>
     )
 }
@@ -109,10 +145,8 @@ export default ForgotPassword
 
 const styles = StyleSheet.create({
     container: {
-        // backgroundColor: "#FFFFFF",
-        height: "100%",
-        // flex: 1,
-        alignItems: 'center',
+        flex: 1,
+        // alignItems: 'center',
     },
     forgotContainer: {
         paddingHorizontal: 20,
@@ -135,7 +169,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF'
     },
     inputTextStyle: {
-        width: "90%"
+        width: "90%",
+        color: '#000',
+        fontFamily:'Poppins-Regular',
     },
     buttonForm: {
         marginTop: 10,
@@ -151,6 +187,6 @@ const styles = StyleSheet.create({
     },
     formMargin: {
         color: '#000',
-        fontSize: 14,
+        fontFamily:'Poppins-Regular',
     }
 })

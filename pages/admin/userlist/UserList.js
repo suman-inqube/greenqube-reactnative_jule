@@ -1,25 +1,65 @@
-import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { Alert, BackHandler, FlatList, Image, StyleSheet, Text, TouchableOpacity, View, TextInput, Keyboard } from 'react-native'
+import React, { useState, useEffect, useCallback } from 'react'
 import ImageForm from '../../Common/ImageForm';
 import InputTextFormWithoutLabel from '../../Common/InputTextFormWithoutLabel';
-import { userDataListAPI } from '../../../config/apiHere';
 import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { userDataListAPI } from './UsersAPI';
 import ForgotPassword from './ForgetPassword';
 import Information from './Information';
 import LiveHood from './LiveHood';
-
-
-const UserList = () => {
+import CustomHeader from '../CustomHeader';
+import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
+import LoadingScreen from '../../Common/LoadingScreen';
+import { useTranslation } from 'react-i18next';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
+const UserList = ({ navigation }) => {
+    const { t } = useTranslation();
+    const isFocused = useIsFocused();
+    const [isLoading, setIsLoading] = useState(false);
     const [userList, setuserList] = useState([]);
     const [expandedItem, setExpandedItem] = useState(null);
-    const [showMenu, setshowMenu] = useState('livehood');
+    const [showMenu, setshowMenu] = useState();
     const [userID, setuserID] = useState();
+    const [dbLanTokUsr, setdbLanTokUsr] = useState({
+        dbName: '',
+        languageID: '',
+        token: '',
+        userID: '',
+        pageNo: 1,
+        currentPage: '',
+    });
+    const [phoneNumber, setPhoneNumber] = useState('');
+    function MenuBoxDisplay({ farmeruserID, agri_land_user_rels, menuName }) {
 
-    function MenuBoxDisplay({ userID }) {
         const handleMenu = (menuName) => {
-            // console.log(userID)
-            setshowMenu(menuName)
-            setuserID(userID)
+            const PlotdataArray = [];
+            // if (menuName == 'livehood') {
+            agri_land_user_rels.agri_land_user_rels.map((data, index) => {
+                PlotdataArray.push({
+                    value: data.rel_id,
+                    label: data.plot_no
+                });
+            })
+            // }
+
+            let file_path = "";
+            if (agri_land_user_rels.agri_files[0] != undefined) {
+                file_path = agri_land_user_rels.agri_files[0].file_path;
+            }
+            // if (menuName == "information1") {
+            //     navigation.navigate("ProblemCreate",)
+            // } else {
+            navigation.navigate(menuName, {
+                farmeruserID: farmeruserID,
+                agri_land_user_rels: PlotdataArray,
+                userName: agri_land_user_rels.userName,
+                contactNumber: agri_land_user_rels.contactNumber,
+                profileImage: file_path,
+                gender: agri_land_user_rels.gender,
+                farmer_type: agri_land_user_rels.farmer_type
+            });
+            // }
         }
 
         return (
@@ -28,25 +68,25 @@ const UserList = () => {
                     <TouchableOpacity onPress={() => handleMenu("password")}>
                         <View style={{ alignItems: 'center' }}>
                             <ImageForm source={require('../../Common/images/change_password_green.png')} resizeMode="cover" height={30} width={30} />
-                            <Text>Password</Text>
+                            <Text style={styles.titleBottom}>{t('forgot_password')}</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleMenu("information")}>
                         <View style={{ alignItems: 'center' }}>
                             <ImageForm source={require('../../Common/images/add_info_plus.png')} resizeMode="cover" height={30} width={30} />
-                            <Text>Information</Text>
+                            <Text style={[styles.titleBottom, { marginVertical: 8 }]}>{t('far_list_information')}</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleMenu("livehood")}>
-                        <View style={{ alignItems: 'center' }}>
+                        <View style={{ alignItems: 'center', justifyContent: 'flex-start' }}>
                             <ImageForm source={require('../../Common/images/add_plot_plus.png')} resizeMode="cover" height={30} width={30} />
-                            <Text>Livehood</Text>
+                            <Text style={styles.titleBottom}>{t('farming_details')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMenu("information1")}>
+                    <TouchableOpacity onPress={() => handleMenu("CrateProblemUser")}>
                         <View style={{ alignItems: 'center' }}>
                             <ImageForm source={require('../../Common/images/add_qust_plus.png')} resizeMode="cover" height={30} width={30} />
-                            <Text>Q&A</Text>
+                            <Text style={[styles.titleBottom, { marginVertical: 8 }]}>{t('q_a')}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -56,119 +96,210 @@ const UserList = () => {
 
     function UserBoxDisplay({ item, item2, item3, item4 }) {
         return (
-
             <View style={styles.box1}>
                 <View style={styles.box1_1}>
                     <View>
-                        <Text>{item}</Text>
-                        <Text>{item2}</Text>
-                        <Text>{item3}</Text>
+                        <Text style={styles.title}>{item}</Text>
+                        <Text style={styles.title}>{item2}</Text>
+                        <Text style={styles.title}>{item3}</Text>
                     </View>
                     <View>
-                        <Text>{item4}</Text>
+                        <Text style={styles.title}>{item4}</Text>
                     </View>
                 </View>
             </View>
         );
     }
-
     const receiveDataFromChild = () => {
         setshowMenu(null);
-
     }
     const handleBack = () => {
         navigation.navigate("Dashboard");
     }
-
     const toggleItem = (itemId) => {
         if (expandedItem === itemId) {
             setExpandedItem(null);
         } else {
             setExpandedItem(itemId);
         }
-
     }
-
     const userDataListAPI1 = async (dbName, languageId, token, user_id) => {
-        const userListData = await getItem('userListData');
-        if (userListData) {
-            setuserList(userListData)
+        setIsLoading(true);
+        let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
+        if (response.status === 200) {
+            setPhoneNumber('');
+            const totalPage = Math.ceil(response.data.data.count / 20);
+            setdbLanTokUsr({
+                ...dbLanTokUsr,
+                dbName: dbName,
+                languageID: languageId,
+                token: token,
+                userID: user_id,
+                pageNo: 1,
+                currentPage: '',
+                totalPage: totalPage
+            });
+            setIsLoading(false);
+            setuserList(response.data.data)
+            setItem("userListData", response.data.data)
         } else {
-            let response = await userDataListAPI(dbName, languageId, token, user_id);
-            if (response) {
-                setuserList(response.data.data)
-                setItem("userListData", response.data.data)
-            }
+            setIsLoading(false);
+            const userListData = await getItem('userListData');
+            setuserList(userListData)
         }
     }
-
-
     const onPageLoad = async () => {
         const loginUser_data = await getItem('loginUser_data');
         if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const compCode = loginUser_data.sa_company[0].company_code;
-            userDataListAPI1(dbName, languageID, token, userID)
+            const { dbname, lan_id, token, user_id } = loginUser_data;
+            userDataListAPI1(dbname, lan_id, token, user_id)
         }
     };
     useEffect(() => {
-        onPageLoad();
-    }, []);
+        if (isFocused) {
+            if (phoneNumber == "") {
+                onPageLoad();
+            }
+            const onBackPress = () => {
+                setuserList([]);
+                setPhoneNumber('');
+                navigation.navigate('Dashboard'); return true;
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        }
+    }, [isFocused]);
+    const handlePage = async (value) => {
+        let currentPage = dbLanTokUsr.pageNo + 1;
+        if (value === 'next') {
+            if (dbLanTokUsr.totalPage >= currentPage) {
+                setIsLoading(true);
+                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: currentPage })
+                const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, currentPage, '');
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setuserList(response.data.data);
+                }
+            } else {
+                setIsLoading(false);
+                // setuserList([]);
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+            }
+        } else if (value === 'previous') {
+            let currentPage = dbLanTokUsr.pageNo - 1;
+            if (dbLanTokUsr.pageNo !== 1) {
+                setIsLoading(true);
+                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: currentPage })
+                const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, currentPage, '');
+                if (response.status === 200) {
+                    setIsLoading(false);
+                    setuserList(response.data.data);
+                }
+            }
+        }
+    }
+    const searchByPhoneNumber = async () => {
+        Keyboard.dismiss();
+        const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, '0', phoneNumber);
+        if (response.status === 200) {
+            if (response.data.data.count != 0) {
+                setuserList(response.data.data);
+            } else {
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+            }
+        }
+    }
+    const changePhoneNumber = (num) => {
+        setPhoneNumber(num);
+        if (num == "") {
+            Keyboard.dismiss();
+            userDataListAPI1(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID);
+        }
+    }
+    const HandlerGoBack = () => {
+        setuserList([]);
+        setPhoneNumber('');
+        navigation.navigate('Dashboard')
+    }
     return (
-        <View style={{ marginHorizontal: 7, marginTop: 20, }}>
-            {
-                showMenu === 'password' ?
-                    <ForgotPassword sendDataToParent={receiveDataFromChild} farmerID={userID} />
-                    :
-                    showMenu === 'information' ?
-                        <Information sendDataToParent={receiveDataFromChild} farmerID={userID} />
-                        :
-                        showMenu === 'livehood' ?
-                            <LiveHood sendDataToParent={receiveDataFromChild} farmerID={userID} />
-                        :
-                        <>
-                            <View style={styles.header}>
-                                <Button title='Back' onPress={() => handleBack} />
-                                <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
-                                <Text>{userList.count}</Text>
-                                <Text>User List</Text>
-                            </View>
-                            <View style={{ paddingVertical: 7 }}>
-                                <InputTextFormWithoutLabel />
-                            </View>
-                            <View>
-                                {
-                                    userList ?
-                                        <FlatList
-                                            data={userList.rows}
-                                            keyExtractor={(item) => item.user_id}
-                                            renderItem={({ item, index }) => (
-                                                <View style={{ marginBottom: 10 }}>
-                                                    <TouchableOpacity onPress={() => toggleItem(item.user_id)}>
+        <Root>
+            <View style={{ flex: 1, backgroundColor: '#fff' }}>
+                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+                <View style={{ marginTop: 10, flex: 1 }}>
+                    <View style={styles.header}>
+                        <View style={{ alignItems: 'center' }}>
+                            <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
+                            <Text style={styles.title}>{userList.count} {t('farmers')}</Text>
+                        </View>
+                        <Text style={[styles.title, { fontWeight: '700', fontSize: 17 }]}>{t('farmer_list')}</Text>
+                    </View>
+                    <View style={styles.searchContainer}>
+                        <View style={styles.textInputContainer}>
+                            <TextInput placeholder={t('search_phone_by_number')}
+                                keyboardType='numeric'
+                                placeholderTextColor={'#000'} maxLength={10} style={styles.textInput}
+                                onChangeText={(num) => changePhoneNumber(num)} value={phoneNumber} />
+                        </View>
+                        <TouchableOpacity onPress={searchByPhoneNumber} style={styles.searchIcon}>
+                            <ImageForm source={require('../../Common/images/search.png')} resizeMode="cover" height={40} width={40} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ backgroundColor: '#e7e7e7' }}>
+                        <View style={styles.LoadingScreen}>
+                            {isLoading ? <LoadingScreen /> : null}
+                        </View>
+                        {
+                            userList ?
+                                <>
+                                    <View style={styles.LoadingScreen}>
+                                        {isLoading ? <LoadingScreen /> : null}
+                                    </View>
+                                    <FlatList
+                                        initialNumToRender={7}
+                                        showsVerticalScrollIndicator={false}
+                                        data={userList.rows}
+                                        style={userList.count != 0 ? typeof userList.rows == "object" ? { marginBottom: 188, paddingTop: 10 } : "" : ""}
+                                        keyExtractor={(item) => item.user_id}
+                                        renderItem={({ item, index }) => {
+                                            return (
+                                                <View style={{ marginBottom: 10, marginHorizontal: '3%', backgroundColor: '#FFF', borderRadius: 20 }}>
+                                                    <TouchableOpacity onPress={() => toggleItem(item.user_id)} activeOpacity={0.7}>
                                                         <UserBoxDisplay
                                                             item={item.userName}
                                                             item2={item.contactNumber}
-                                                            item3={item.CreateDateTime}
-                                                            item4={"Plot/Site " + item.agri_land_user_rels.length}
+                                                            item3={item.CreateDateTime.substring(-1, 10)}
+                                                            item4={t('plots') + " : " + item.agri_land_user_rels.length}
                                                         />
                                                         {
                                                             expandedItem === item.user_id && (
-                                                                <MenuBoxDisplay userID={item.user_id} />
+                                                                <MenuBoxDisplay farmeruserID={item.user_id} agri_land_user_rels={item} />
                                                             )
                                                         }
                                                     </TouchableOpacity>
                                                 </View>
-                                            )} />
-                                        :
-                                        ""
-                                }
-                            </View>
-                        </>
-            }
-        </View>
+                                            )
+                                        }} />
+                                </>
+                                : ""
+                        }
+                    </View>
+                    <View style={styles.prevNextPage}>
+                        {userList.count != 0 ?
+                            <TouchableOpacity
+                                onPress={() => handlePage('previous')}
+                            >
+                                <Text style={styles.title}>{t('prev_page')}</Text>
+                            </TouchableOpacity> : null}
+
+                        {userList.count != 0 ? <TouchableOpacity
+                            onPress={() => handlePage('next')}
+                        >
+                            <Text style={styles.title}>{t('next_page')}</Text>
+                        </TouchableOpacity> : null}
+                    </View>
+                </View>
+            </View>
+        </Root>
     )
 }
 
@@ -179,43 +310,47 @@ const styles = StyleSheet.create({
     {
         flexDirection: 'row',
         justifyContent: "space-between",
-        alignItems: 'center'
+        alignItems: 'center',
+        marginHorizontal: '10%'
     },
     box1:
     {
-        // marginBottom: 10,
         borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        height: 70,
+        height: 80,
         backgroundColor: 'white',
         shadowColor: 'rgba(0, 0, 0, 0.2)',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 20,
+        elevation: 1,
+        paddingVertical: 30
     },
-
     box1_1: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginHorizontal: 20,
+        marginHorizontal: 20
     },
-    boxMenu:
-    {
-        // marginBottom: 10,
-        borderRadius: 10,
+    boxMenu: {
+        borderBottomStartRadius: 10,
+        borderBottomEndRadius: 10,
+        borderTopWidth: 1,
+        borderColor: 'green',
         flexDirection: 'row',
         alignItems: 'center',
-        height: 50,
+        justifyContent: 'space-between',
         backgroundColor: 'white',
         shadowColor: 'rgba(0, 0, 0, 0.2)',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.8,
         shadowRadius: 20,
+        header: 150,
+        elevation: 2,
+        paddingVertical: 10
     },
-
     containerflat: {
         flex: 1,
         padding: 16,
@@ -225,4 +360,54 @@ const styles = StyleSheet.create({
         padding: 8,
         marginBottom: 8,
     },
+    title: {
+        color: '#000',
+        lineHeight: 25,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
+    },
+    titleBottom: {
+        color: '#000',
+        fontFamily: 'Poppins-Regular'
+    },
+    prevNextPage: {
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 15,
+        position: 'absolute',
+        bottom: 0,
+        backgroundColor: '#ffffff'
+    },
+    LoadingScreen: {
+        position: 'absolute',
+        top: 100,
+        left: '45%',
+        zIndex: 999
+    },
+    searchContainer: {
+        marginHorizontal: '3%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        marginVertical: 7,
+        elevation: 1,
+        backgroundColor: '#FFF',
+    },
+    textInput: {
+        height: 45,
+        width: '100%',
+        color: '#000',
+        fontFamily: 'Poppins-Regular',
+        lineHeight: 18
+    },
+    searchIcon: {
+        width: '10%',
+    },
+    textInputContainer: {
+        width: '90%',
+    }
 })

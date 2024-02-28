@@ -6,19 +6,18 @@ const ButtonForm = ({ label, onPress, tcolor, bcolor }) => {
   return (
     <View>
       <TouchableOpacity style={{
-        backgroundColor: bcolor ?? '#003c04',
-        padding: 10,
-        borderRadius: 0,
-        marginBottom: 5,
-      }} onPress={onPress}
-
-
-      >
-
+       backgroundColor: bcolor ?? '#003c04',
+       padding: 10,
+       borderRadius: 0,
+       marginBottom: 5,
+       position:'absolute',
+       bottom:-5,
+       width:'100%'
+      }} onPress={onPress}>
         <Text style={{
           color: tcolor ?? 'white',
           fontSize: 20,
-          fontWeight: 'bold',
+          fontFamily:'Poppins-SemiBold',
           textAlign: 'center',
         }}>{label}</Text>
       </TouchableOpacity>

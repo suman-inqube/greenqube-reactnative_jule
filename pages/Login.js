@@ -1,166 +1,245 @@
-import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import Logo from './Common/Logo'
-import DropdownForm from './Common/DropdownForm'
-import config from '../config'
-import ButtonForm from './Common/ButtonForm'
-import { useNavigation } from '@react-navigation/native';
+import { PermissionsAndroid, Keyboard, Image, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Button, StatusBar } from 'react-native'
+import React, { useEffect, useState } from 'react';
+import Logo from './Common/Logo';
+import DropdownForm from './Common/DropdownForm';
+import config from '../config';
+import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
 import { getItem, removeItem, setItem } from '../config/getDataFromStorage'
-import { databaseListAPI } from '../config/apiHere'
+import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI } from '../config/apiHere'
 import MessageDialog from './Common/MessageDialog'
-
-const Login = () => {
+import i18next from './services/i18next';
+import { useTranslation } from 'react-i18next';
+import LoadingScreen from './Common/LoadingScreen'
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from './Common/ToastAlert';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
+import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
+import NotificationServices from './PushNotification/NotificationServices';
+const Login = ({ route }) => {
+    // const { fusedLocationData } = ForegroundLocationService();
+    const { requestUserPermission, notificationListener } = NotificationServices();
+    const [isLoading, setIsLoading] = useState(false);
+    const isFocused = useIsFocused();
     const navigation = useNavigation();
     const [companyData, setCompanyData] = useState([]);
     const [companyLanguage, setcompanyLanguage] = useState({
         company: "",
-        language: ""
+        language: "",
+        company_id: ""
     });
-    const [storeLoginUser, setstoreLoginUser] = useState(
-        {
-            "FcmUserToken": "654321",
-            "IMEINumber": "123456",
-            "company": "",
-            "contactNumber": "",
-            "password": "",
-            "type": ""
+    const { t } = useTranslation();
+    const [storeLoginUser, setstoreLoginUser] = useState({
+        FcmUserToken: "",
+        IMEINumber: "123456",
+        company: "",
+        contactNumber: "",
+        password: "",
+        role: "",
+        company_lable: "",
+    });
+    const validateForm = () => {
+        Keyboard.dismiss();
+        if (!storeLoginUser.phone) {
+            Toast.show({
+                time: 3, text: 'Please enter a phone number. ', ...AlertMesg[0]
+            })
+            return false;
         }
-    );
-
-
-    const validationData = () => {
-        if (
-            (storeLoginUser.phone) &&
-            (storeLoginUser.password) &&
-            (storeLoginUser.company) &&
-            (storeLoginUser.role)
-        ) {
-            return true;
+        if (storeLoginUser.phone.length < 9) {
+            Toast.show({ time: 3, text: 'Please enter a valid phone number. ', ...AlertMesg[0] })
+            return false;
         }
-        else {
-            MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
-            return;
+        if (!storeLoginUser.password) {
+            Toast.show({
+                time: 3, text: 'Please enter a password. ', ...AlertMesg[0]
+            })
+            return false;
         }
-
-    }
+        if (!storeLoginUser.role) {
+            Toast.show({
+                time: 3, text: 'Please select a role.', ...AlertMesg[0]
+            })
+            return false;
+        }
+        return true;
+    };
     const saveHandle = async () => {
-        const validatin_res = validationData();
-        // console.log(validatin_res);
-        if (validatin_res) {
+        if (validateForm()) {
             const inputdata = {
-                "FcmUserToken": "654321",
+                "FcmUserToken": storeLoginUser.FcmUserToken,
                 "IMEINumber": "123456",
-                "company": storeLoginUser.company.value,
+                "company": storeLoginUser.company,
                 "contactNumber": storeLoginUser.phone,
                 "password": storeLoginUser.password,
-                "type": storeLoginUser.role.value
+                "type": storeLoginUser.role
             };
             try {
+                setIsLoading(true)
                 let userIno = await axios.post(config.loginAPI, inputdata);
-                const loginUserdata = userIno.data.data[0];
-                await setItem('loginUser_data', loginUserdata);
-                setstoreLoginUser({ ...storeLoginUser, phone: "" })
-                setstoreLoginUser({ ...storeLoginUser, password: "" })
-                navigation.navigate('AdminNavigation');
+                if (userIno.status === 200) {
+                    const loginUserdata = userIno.data.data[0];
+                    await Promise.all([
+                        setItem("userNameData", loginUserdata.userName),
+                        setItem("userType", loginUserdata.userType)
+                    ]);
+                    if (loginUserdata.agri_files.length > 0) {
+                        const profileImg = loginUserdata.agri_files.find((item) => item.term_type === '1');
+                        if (typeof profileImg != "undefined") {
+                            await setItem("profileImgData", profileImg.file_path)
+                        }
+                    } else {
+                        await setItem("profileImgData", "");
+                    }
+                    await setItem('loginUser_data', loginUserdata);
+                    setstoreLoginUser({
+                        ...storeLoginUser,
+                        phone: "",
+                        password: "",
+                        role: ""
+                    })
+                    const [fpoDetailsList_res, reginalRes] = await Promise.all([
+                        fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
+                        reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
+                    ]);
+                    if (reginalRes.status === 200) {
+                        const datam = reginalRes.data.data.rows;
+                        datam.map(async (item) => {
+                            if (item.static_cid === 1) {
+                                await setItem("state", item.categoryName);
+                            } else if (item.static_cid === 2) {
+                                await setItem("district", item.categoryName);
+                            } else if (item.static_cid === 3) {
+                                await setItem("block", item.categoryName);
+                            } else if (item.static_cid === 4) {
+                                await setItem("currency", item.categoryName);
+                            }
+                        });
+                    }
+                    if (fpoDetailsList_res.status === 200) {
+                        const agri_files = fpoDetailsList_res.data.data[0].agri_files;
+                        const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
+                        if (typeof foundbotomBannerFind != "undefined") {
+                            await setItem("bottomBannerData", foundbotomBannerFind.file_path);
+                        }
+                        const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
+                        if (typeof foundlogoFindFind != "undefined") {
+                            await setItem("logoImageData", foundlogoFindFind.file_path);
+                        }
+                        const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
+                        if (typeof foundtopBannerFind != "undefined") {
+                            await setItem("topBannerData", foundtopBannerFind.file_path);
+                        }
+                        const userType = await getItem("userType");
+                        setIsLoading(false);
+                        if (userType === 3) {
+                            navigation.navigate('AdminNavigation');
+                        } else if (userType === 2) {
+                            navigation.navigate('FarmerNavigation');
+                        }
+                    }
+                }
             } catch (error) {
-                MessageDialog({ title: 'Login', message: error.response.data.error.errorMessage })
+                Toast.show({ text: `${error.response.data.error.errorMessage}`, ...AlertMesg[0] })
+                setIsLoading(false);
             }
         }
-
-        // const inputdata = {
-        //     "FcmUserToken": "654321",
-        //     "IMEINumber": "123456",
-        //     "company": 86,
-        //     "contactNumber": "8961494771",
-        //     "password": "12345678",
-        //     "type": "3"
-        // };
-
-        // try {
-        //     let userIno = await axios.post(config.loginAPI, inputdata);
-        //     // console.log(userIno.data);
-        //     const loginUserdata = userIno.data.data[0];
-        //     // await setItem('loginUser_data', loginUserdata);
-        //     navigation.navigate('Dashboard');
-        // } catch (error) {
-        //     // console.error('Error storing data:', error.response.data.error.errorMessage);
-        //     MessageDialog({ title: 'Login', message: error.response.data.error.errorMessage })
-        //     return;
-        // }
-
     }
-
-    let databaseList = async () => {
-        try {
-            let companyArray = [];
-            let company_res = await databaseListAPI();
-            if (company_res.data.data) {
-                company_res.data.data.forEach(element => {
-                    companyArray.push({
-                        value: element.company_id,
-                        label: element.agri_company.company_name,
-                        dbname: element.db_name,
-                    });
-                });
-                setCompanyData(companyArray);
-            }
-        } catch (error) {
-            console.error('database APi error code with :', error.response);
-        }
-    }
-
-
     const onPageLoad = async () => {
-        databaseList();
-        await removeItem('storeSignup_data');
-        await removeItem('storePersnolInfo_data');
-        await removeItem('storeFinancial_data');
-        await removeItem('storeProduceInfo_data');
+        const [companyLanguage_data, company_res, fcmToken_res] = await Promise.all([
+            getItem('companyLanguage_data'),
+            databaseListAPI(),
+            getItem('fcmToken'),
+            removeItem('storeSignup_data'),
+            removeItem('storePersnolInfo_data'),
+            removeItem('storeFinancial_data'),
+            removeItem('storeProduceInfo_data'),
+            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
+            requestUserPermission(),
+            notificationListener(),
 
-        const companyLanguage = await getItem('companyLanguage_data');
-        setcompanyLanguage(companyLanguage);
-
+        ]);
+        if (companyLanguage_data != "" && companyLanguage_data != null) {
+            setcompanyLanguage(companyLanguage_data);
+            setstoreLoginUser({
+                ...storeLoginUser,
+                phone: "",
+                password: "",
+                role: "",
+                company: companyLanguage_data.company_id,
+                FcmUserToken: fcmToken_res,
+            });
+        }
+        if (company_res.status == 200) {
+            let companyArray = [];
+            company_res.data.data.forEach(element => {
+                companyArray.push({
+                    value: element.company_id,
+                    label: element.agri_company.company_name,
+                    dbname: element.db_name,
+                });
+            });
+            setCompanyData(companyArray);
+        }
     };
     useEffect(() => {
-        onPageLoad();
-    }, []);
-
+        // console.log(fusedLocationData);
+        try {
+            if (isFocused) {
+                onPageLoad();
+                // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+            }
+            if (route.params === undefined) {
+                i18next.changeLanguage('1')
+            } else {
+                i18next.changeLanguage(`${route.params.locale}`);
+            }
+        }
+        catch (err) {
+            console.error(err)
+        }
+    }, [isFocused]);
     return (
-        <>
+        <Root>
+            {/* <ForegroundLocationService /> */}
+            <StatusBar barStyle="light-content" backgroundColor="#023316" />
             <ScrollView>
                 <View>
                     <View style={{ paddingHorizontal: 20 }}>
-                        <Logo />
                         <View>
-                            <Text style={{ fontSize: 25 }}>Sign In</Text>
-                            <Text>Login with your registered phone number an password</Text>
-                            <TextInput style={styles.simpleInputTextStyle} placeholder="Enter your Register Phone no." keyboardType="numeric" onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} />
-
-                            <TextInput style={styles.simpleInputTextStyle} placeholder="Enter Your Password" secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} />
+                            <Image source={require('../pages/Common/images/logo.png')} style={styles.logo} />
+                        </View>
+                        <View>
+                            {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
+                            <Text style={{ fontSize: 25, color: "#000", fontFamily: 'Poppins-Regular' }}>{t('sign_in')}</Text>
+                            <Text style={{ color: "#000", fontFamily: 'Poppins-Regular' }}>{t('login_with_your_registerd_phone_number_and_password')}</Text>
+                            <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_registered_Phone_no')} keyboardType="numeric" value={storeLoginUser.phone} onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} maxLength={10} />
+                            <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_Password')} secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} value={storeLoginUser.password} />
                             <View style={{ marginTop: 20, }}>
-                                <DropdownForm data={config.roleData} label="Role" onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role })} />
+                                <DropdownForm data={config.roleData} label={t('select_role')} onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role.value })} val={storeLoginUser.role} />
                             </View>
                             <View style={{ marginTop: 5, }}>
-                                <DropdownForm data={companyData} label="Company" onChange={company => setstoreLoginUser({ ...storeLoginUser, company: company })} />
+                                <DropdownForm data={companyData} label={t('select_company')} onChange={company => setstoreLoginUser({ ...storeLoginUser, company: company.value })} val={companyLanguage.company_id} />
                             </View>
-                            <View style={{ alignItems: 'center' }} onPress>
-                                <Text>Forget Password?</Text>
+                            <View style={{ alignItems: 'center' }} >
+                                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                                    <Text style={styles.title}>{t('forgot_Password')}</Text>
+                                </TouchableOpacity>
                             </View>
                             <View style={{ alignItems: 'center', marginTop: 10, }}>
                                 <TouchableOpacity>
-                                    <Text onPress={() => navigation.navigate('Signup')}>New User ? Sign Up Now</Text>
+                                    <Text style={styles.title} onPress={() => navigation.navigate('Signup')}>{t('new_to_farmer')} {t('signup_now')}</Text>
                                 </TouchableOpacity>
                             </View>
-
                         </View>
                     </View>
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10 }}>
-                <ButtonForm label='Submit' onPress={saveHandle} />
+                <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
             </View>
-        </>
+        </Root>
     )
 }
 
@@ -174,6 +253,47 @@ const styles = StyleSheet.create({
         marginTop: 20,
         height: 40,
         borderBottomWidth: 1,
-        width: '100%'
+        width: '100%',
+        color: '#000'
+    },
+    alert: {
+        backgroundColor: "white",
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        padding: 20,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '300',
+        color: "#000",
+        fontFamily: 'Poppins-Regular'
+    },
+    message: {
+        fontSize: 16,
+    },
+    buttonContainer: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginTop: 10,
+    },
+    button: {
+        borderRadius: 5,
+    }, logo: {
+        width: 250,
+        height: 100,
+        resizeMode: 'contain',
+        alignItems: 'center',
+        marginTop: 30,
+        marginBottom: 20,
+        marginLeft: 40,
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: 200,
+        zIndex: 999,
+        left: '45%'
     },
 })

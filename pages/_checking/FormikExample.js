@@ -6,6 +6,7 @@ import axios from 'axios';
 import DropdownForm from '../Common/DropdownForm';
 import InputTextForm from '../Common/InputTextForm';
 import config from '../../config';
+import { CrashlyticsRecordError } from '../Crashlytics/CrashlyticsRecordError';
 const FormikExample = () => {
     const [countryData, setCountryData] = useState([]);
     const [country, setCountry] = useState('');
@@ -39,6 +40,7 @@ const FormikExample = () => {
 
 
         } catch (error) {
+            CrashlyticsRecordError(error.response)
             console.log("Error in Country API", error);
         }
     }
@@ -76,7 +78,7 @@ const FormikExample = () => {
                     /> */}
                     <DropdownForm data={countryData}
                         label="Country"
-                        onChange={item => {countryHandle(item.value) }}
+                        onChange={item => { countryHandle(item.value) }}
                     />
                     {formikProps.touched.gender && formikProps.errors.gender ? (
                         <Text style={{ color: 'red' }}>{formikProps.errors.gender}</Text>
