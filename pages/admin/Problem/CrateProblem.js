@@ -431,13 +431,13 @@ const CreateProblem = ({ navigation }) => {
                     problemSeverityAPI(dbName, languageID)
                 ]);
                 await Promise.all([
-                    setItem('problemTypeName', problemName_res),
+                    setItem('supervisorProblemTypeName', problemName_res),
                     setItem('response' + userID, response),
                     setItem('severity_res', severity_res)
                 ])
             } else {
                 var [problemName_res, response, severity_res] = await Promise.all([
-                    getItem('problemTypeName'),
+                    getItem('supervisorProblemTypeName'),
                     getItem('response' + userID),
                     getItem('severity_res')
                 ])

@@ -242,7 +242,7 @@ const ActivityReport = ({ navigation }) => {
                 var activityType_res = await activityTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, currentfarmerId)
                 await setItem('activityType' + currentfarmerId, activityType_res)
             } else {
-                var activityType_res = await getItem('plotAgainstFarmer' + currentfarmerId)
+                var activityType_res = await getItem('activityType' + currentfarmerId)
             }
             if (activityType_res) {
                 const dataArray = [];
@@ -480,7 +480,7 @@ const ActivityReport = ({ navigation }) => {
                     }, 1000);
                 }
             } catch (error) {
-                CrashlyticsRecordError(error.response)
+                // CrashlyticsRecordError(error.response)
                 MessageDialog({ title: 'Error', message: error.response })
                 return;
             }

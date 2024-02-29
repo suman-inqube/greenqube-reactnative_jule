@@ -324,7 +324,8 @@ const BackGroundLocation = () => {
             formData.append('material_used', obj.material_used);
             formData.append('water_used', obj.water_used);
             formData.append('power_used', obj.power_used);
-            await activitySaveAPI(dbname, lan_id, token, obj.obj.farmerID, formData);
+            const activity_res = await activitySaveAPI(dbname, lan_id, token, obj.farmerID, formData);
+            console.log(activity_res);
           }
         }
         await removeItem('offlineSupervisorActivityData');
