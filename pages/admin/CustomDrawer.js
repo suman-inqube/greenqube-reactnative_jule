@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     },
     menuText: {
         marginLeft: 10,
-        fontSize: 18,
+        fontSize: 15,
         color: '#FFF',
         fontFamily: 'Poppins-Regular'
     }

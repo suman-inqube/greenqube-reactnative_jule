@@ -269,6 +269,7 @@ const BackGroundLocation = () => {
         }
         await removeItem('offlineSupervisorProblemData');
       }
+      console.log(offlineSupervisorActivityDataArr)
       if (offlineSupervisorActivityDataArr != null) {
         // await removeItem('offlineFarmerActivityData');
         const myArrayaActivity = offlineSupervisorActivityDataArr.split(',');
@@ -325,7 +326,6 @@ const BackGroundLocation = () => {
             formData.append('water_used', obj.water_used);
             formData.append('power_used', obj.power_used);
             const activity_res = await activitySaveAPI(dbname, lan_id, token, obj.farmerID, formData);
-            console.log(activity_res);
           }
         }
         await removeItem('offlineSupervisorActivityData');

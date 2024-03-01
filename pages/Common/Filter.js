@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native'
-import React from 'react'
+import React, { memo } from 'react'
 import RadioForm from './RadioForm';
 import { useTranslation } from 'react-i18next';
 const Filter = ({
@@ -71,7 +71,7 @@ const Filter = ({
           {filterItem === 'Date' ?
             <>
               <View style={styles.dataSearchContainer}>
-                <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.dateContainer}>
+                <TouchableOpacity onPress={setOpenFromDate} style={styles.dateContainer}>
                   <Text style={[styles.title, { marginLeft: 5 }]}>
                     {fromDate == "" ? "From date" : `${fromDate}`}
                   </Text>
@@ -153,13 +153,13 @@ const Filter = ({
   )
 }
 
-export default Filter
+export default memo(Filter)
 
 const styles = StyleSheet.create({
   filterContainer: {
     alignItems: 'flex-end',
     padding: 10,
-    marginHorizontal: "2.5%"
+    // marginHorizontal: "%"
   },
   prevNextPage: {
     flexDirection: 'row',

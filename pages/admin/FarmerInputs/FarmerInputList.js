@@ -52,7 +52,6 @@ const FarmerInputList = ({ navigation }) => {
             const inputFound = inputListAllRaw.filter(item => item.productCategories[0] && item.productCategories[0].productCategory && item.productCategories[0].productCategory.ioname && item.productCategories[0].productCategory.ioname.entity_type_id === search.value);
             setInputListAll(inputFound);
             const inputSubCategoryList = await inputSubCategoryAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value);
-            // console.log(inputSubCategoryList.data.data);
             if (inputSubCategoryList) {
                 const dataArray = [];
                 inputSubCategoryList.data.data.rows.forEach(element => {

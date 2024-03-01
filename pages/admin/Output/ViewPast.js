@@ -271,19 +271,19 @@ const ViewPast = (props) => {
                     <View style={styles.loadingScreen}><LoadingScreen /></View>
                     :
                     <View>
-                        <DatePickerComp
+                        {openFromDate && <DatePickerComp
                             openDate={openFromDate}
                             newDate={newFromDate}
                             setOpenDate={setOpenFromDate}
                             handleDatePicker={handleDatePicker}
-                        />
-                        <DatePickerComp
+                        />}
+                        {openToDate && <DatePickerComp
                             openDate={openToDate}
                             newDate={newToDate}
                             setOpenDate={setOpenToDate}
                             handleDatePicker={handleDatePicker2}
                             minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                        />
+                        />}
                         <ViewModalPast setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle={outputSingle}
                             pastEnquiryView={pastEnquiryView}
                             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
@@ -356,7 +356,7 @@ export default ViewPast
 
 const styles = StyleSheet.create({
     flatListContainer: {
-        marginHorizontal: '3%',
+        marginHorizontal: '2.5%',
         flexDirection: 'row',
         backgroundColor: '#FFF',
         padding: 10,

@@ -306,19 +306,19 @@ const ListProblem = ({ navigation }) => {
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
                     <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} />
-                    <DatePickerComp
+                    {openFromDate && <DatePickerComp
                         openDate={openFromDate}
                         newDate={newFromDate}
                         setOpenDate={setOpenFromDate}
                         handleDatePicker={handleDatePicker}
-                    />
-                    <DatePickerComp
+                    />}
+                    {openToDate && <DatePickerComp
                         openDate={openToDate}
                         newDate={newToDate}
                         setOpenDate={setOpenToDate}
                         handleDatePicker={handleDatePicker2}
                         minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                    />
+                    />}
                     <Filter
                         filterItem={filterItem}
                         filterOption={filterOption}

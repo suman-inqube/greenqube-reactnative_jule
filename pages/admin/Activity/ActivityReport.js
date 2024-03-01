@@ -15,7 +15,7 @@ import Marker, { Position, TextBackgroundType } from "react-native-image-marker"
 import RecordComp from './RecordComp';
 import ButtonForm from '../../Common/ButtonForm';
 import DatePickerComp from '../../Common/DatePickerComp';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { getItem, removeItem, setItem } from '../../../config/getDataFromStorage';
 import { activityInfoAPI, activitySaveAPI, activityTypeAPI, farmerByNameAPI, plotAgainstFarmerAPI, produceAgainstPlotAPI, productionStageAPI, setCycleDateAPI } from '../../../config/apiHere';
 import axios from 'axios';
 import MessageDialog from '../../Common/MessageDialog';
@@ -331,6 +331,7 @@ const ActivityReport = ({ navigation }) => {
             crop_cycl_start_date: cycleDtartDate,
         });
         const productionStage_res = await setCycleDateAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, dbLanTokUsr.token, saveData.cu_rel_id, save_data);
+        console.log(productionStage_res)
     }
     const validateForm = () => {
         if (!saveData.user_id) {
@@ -446,43 +447,30 @@ const ActivityReport = ({ navigation }) => {
             formData.append("water_used", saveData.water_used);
             formData.append("power_used", saveData.power_used);
             // console.log(JSON.stringify(formData, null, 2));
-            setCycleDate();
-            try {
-                const axiosHeaders = {
-                    headers: {
-                        'information': `${dbLanTokUsr.dbName},${dbLanTokUsr.languageID},${saveData.user_id}`,
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `${dbLanTokUsr.token}`,
-                    },
-                };
-                if (netConnection) {
-                    const database_res = await axios.post("http://142.93.208.31:4003/inputOutputRoute/addUserActivity", formData, axiosHeaders);
-                    if (database_res) {
-                        Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
-                        setTimeout(() => {
-                            navigation.navigate('activityList');
-                        }, 1500);
-                    }
-                } else {
-                    formData.append("farmerID", saveData.user_id);
-                    let timeStamp = Date.now()
-                    await setItem('off' + timeStamp, formData)
-                    let offlineDataArr = await getItem('offlineSupervisorActivityData');
-                    if (offlineDataArr) {
-                        await setItem('offlineSupervisorActivityData', offlineDataArr + ',' + 'off' + timeStamp)
-                    } else {
-                        await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
-                    }
-
+            if (netConnection) {
+                // setCycleDate();
+                const database_res = await activitySaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.user_id, formData)
+                if (database_res) {
                     Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
                     setTimeout(() => {
                         navigation.navigate('activityList');
-                    }, 1000);
+                    }, 1500);
                 }
-            } catch (error) {
-                // CrashlyticsRecordError(error.response)
-                MessageDialog({ title: 'Error', message: error.response })
-                return;
+            } else {
+                formData.append("farmerID", saveData.user_id);
+                let timeStamp = Date.now()
+                await setItem('off' + timeStamp, formData)
+                let offlineDataArr = await getItem('offlineSupervisorActivityData');
+                console.log(offlineDataArr)
+                if (offlineDataArr) {
+                    await setItem('offlineSupervisorActivityData', offlineDataArr + ',' + 'off' + timeStamp)
+                } else {
+                    await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
+                }
+                Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+                setTimeout(() => {
+                    navigation.navigate('activityList');
+                }, 1000);
             }
         }
     }

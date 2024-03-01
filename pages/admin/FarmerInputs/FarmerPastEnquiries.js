@@ -83,7 +83,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
             const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fromDate, toDate);
             if (inputList) {
                 setInputPastEnquiryAll(inputList.data.data.rows)
-                setItem("input_past_enquiry_Data", inputList.data.data)
+                setItem("input_past_enquiry_Data", inputList.data.data.rows)
                 setIsLoading(false)
             }
         }
@@ -95,25 +95,15 @@ const FarmerPastEnquiries = ({ navigation }) => {
         const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
         setToDate(effective_date)
         if (fromDate) {
-            // let fromDate = fromDateFilter;
-            // let toDate = effective_date;
-            // let mobileNo = "";
-
-            console.log(dbLanTokUsr.dbName);
-            console.log(dbLanTokUsr.languageId);
-            console.log(dbLanTokUsr.token);
-            console.log(dbLanTokUsr.supervisorId);
-
             const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fromDate, effective_date);
             if (inputList) {
                 setInputPastEnquiryAll(inputList.data.data.rows)
-                setItem("input_past_enquiry_Data", inputList.data.data)
+                setItem("input_past_enquiry_Data", inputList.data.data.rows)
                 setIsLoading(false)
             }
         }
 
     }
-
     const requestCameraPermission = async () => {
         try {
             const granted = await PermissionsAndroid.request(
@@ -151,7 +141,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
         const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, "", "");
         if (inputList) {
             setInputPastEnquiryAll(inputList.data.data.rows)
-            setItem("input_past_enquiry_Data", inputList.data.data)
+            setItem("input_past_enquiry_Data", inputList.data.data.rows)
             setIsLoading(false)
         }
     }

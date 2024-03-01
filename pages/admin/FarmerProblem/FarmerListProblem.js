@@ -208,7 +208,7 @@ const FarmerListProblem = ({ navigation }) => {
     const myProblemList = async () => {
         setActiveBtn(1);
         if (netConnection) {
-            const response = await farmerProblemListAPI(
+            var response = await farmerProblemListAPI(
                 dbName,
                 langID,
                 farmerID,
@@ -217,26 +217,19 @@ const FarmerListProblem = ({ navigation }) => {
                 page,
             );
             await setItem('farmerProblemList', response);
-            response = await getItem('farmerProblemList');
-            if (response) {
-                setProblemAll(response.data.data.rows);
-                setProblemAllRaw(response.data.data.rows);
-                setItem('problem_Data', response.data.data);
-                setIsLoading(false);
-            }
         } else {
-            const response = await getItem('farmerProblemList');
-            if (response) {
-                setProblemAll(response.data.data.rows);
-                setProblemAllRaw(response.data.data.rows);
-                setItem('problem_Data', response.data.data);
-            }
+            var response = await getItem('farmerProblemList');
+        }
+        if (response) {
+            setProblemAll(response.data.data.rows);
+            setProblemAllRaw(response.data.data.rows);
+            setItem('problem_Data', response.data.data);
         }
     };
     const otherProblemList = async () => {
         setActiveBtn(2);
         if (netConnection) {
-            const response = await farmerProblemListAPI(
+            var response = await farmerProblemListAPI(
                 dbName,
                 langID,
                 farmerID,
@@ -245,20 +238,13 @@ const FarmerListProblem = ({ navigation }) => {
                 page,
             );
             await setItem('otherFarmerProblemList', response);
-            response = await getItem('otherFarmerProblemList');
-            if (response) {
-                setProblemAll(response.data.data.rows);
-                setProblemAllRaw(response.data.data.rows);
-                setItem('problem_Data', response.data.data);
-                setIsLoading(false);
-            }
         } else {
-            const response = await getItem('otherFarmerProblemList');
-            if (response) {
-                setProblemAll(response.data.data.rows);
-                setProblemAllRaw(response.data.data.rows);
-                setItem('problem_Data', response.data.data);
-            }
+            var response = await getItem('otherFarmerProblemList');
+        }
+        if (response) {
+            setProblemAll(response.data.data.rows);
+            setProblemAllRaw(response.data.data.rows);
+            setItem('problem_Data', response.data.data);
         }
     };
     const handlePage = async value => {

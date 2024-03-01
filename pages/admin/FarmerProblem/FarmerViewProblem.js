@@ -192,7 +192,7 @@ const FarmerViewProblem = ({ navigation }) => {
                 <>
                     <CustomHeader path="FarmerListProblem" HandlerGoBack={HandlerGoBack} />
                     <FormsTitle title={t('plot_and_crop_problem')} />
-                    <ScrollView>
+                    <ScrollView showsVerticalScrollIndicator={false}>
                         <View >
                             {
                                 farmerProblem && farmerProblem.agri_user ?
@@ -395,8 +395,7 @@ export default FarmerViewProblem
 
 const styles = StyleSheet.create({
     container: {
-        width: '90%',
-        marginHorizontal: '5%',
+        marginHorizontal: '2.5%',
         backgroundColor: '#FFF',
         borderRadius: 8
     },
@@ -451,8 +450,7 @@ const styles = StyleSheet.create({
         borderRadius: 10
     },
     commentsContainer: {
-        width: '90%',
-        marginHorizontal: '5%',
+        marginHorizontal: '2.5%',
         marginTop: 10,
         flexDirection: 'row',
         alignItems: 'center',

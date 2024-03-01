@@ -408,7 +408,7 @@ export const activitySaveAPI = async (dbName, languageId, token, userId, inputDa
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in problemSaveAPI " + error);
+        return error.response;
     }
 }
 // Problem

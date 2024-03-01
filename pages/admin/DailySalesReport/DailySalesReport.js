@@ -73,7 +73,7 @@ const DailySalesReport = ({ navigation }) => {
                             <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('SalesDetail', item)}>
                                 <View style={styles.flatListItemLeft}>
                                     <Text style={styles.flatTitle}>{t('name')}: {item.salesUser.userName.substring(-1, 12)}{item.salesUser.userName.length > 11 ? "..." : ""}</Text>
-                                    <Text style={styles.flatTitle}>{item.srProducts.length != 0 && item.srProducts[0].salesProduct != null ? `${t('product_name')}: ${item.srProducts[0].salesProduct.product_name.substring(-1, 5)}` : item.srProducts.length != 0 && item.srProducts[0].salesProduceName != null ? `${t('product_name')}: ${item.srProducts[0].salesProduceName.name.substring(-1, 7)}` : ""}</Text>
+                                    <Text style={styles.flatTitle}>{item.srProducts.length != 0 && item.srProducts[0].salesProduct != null ? `${t('product_name')}: ${item.srProducts[0].salesProduct.product_name.substring(-1, 5)}` : item.srProducts.length != 0 && item.srProducts[0].salesProduceName != null ? `${t('product_name')}: ${item.srProducts[0].salesProduceName.name.substring(-1, 5)}` : ""}</Text>
                                 </View>
                                 <View style={styles.flatListItemRight}>
                                     <Text style={styles.flatTitle}>{t('number_caps')} : {item.salesUser.contactNumber.substring(-1, 10)}</Text>

@@ -9,9 +9,9 @@ import {
   PermissionsAndroid,
   SafeAreaView,
 } from 'react-native';
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
-import {getItem, setItem} from '../../../config/getDataFromStorage';
+import { getItem, setItem } from '../../../config/getDataFromStorage';
 import {
   inputEnquiryViewAPI,
   inputPastEnquiryListAPI,
@@ -29,12 +29,12 @@ import {
   useNavigation,
   useIsFocused,
 } from '@react-navigation/native';
-import {Root, Popup, Toast} from 'react-native-popup-confirm-toast';
-import {AlertMesg} from '../../Common/ToastAlert';
-import {useTranslation} from 'react-i18next';
-const PastEnquiries = ({navigation}) => {
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
+const PastEnquiries = ({ navigation }) => {
   const isFocused = useIsFocused();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const route = useRoute();
   const [farmerData, setFarmerData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +97,7 @@ const PastEnquiries = ({navigation}) => {
     setIsLoading(true);
     const loginUser_data = await getItem('loginUser_data');
     if (loginUser_data) {
-      const {dbname, lan_id, token, user_id} = loginUser_data;
+      const { dbname, lan_id, token, user_id } = loginUser_data;
       const [response, farmerByName] = await Promise.all([
         inputPastEnquiryListAPI(dbname, lan_id, token, user_id),
         farmerByNameAPI(dbname, lan_id, token, user_id),
@@ -228,7 +228,7 @@ const PastEnquiries = ({navigation}) => {
       });
       setInputPastEnquiryAll(tempData);
       if (tempData.length === 0) {
-        Toast.show({text: 'No Data Found. ', ...AlertMesg[0]});
+        Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
       }
     } else {
       let tempData = inputPastEnquiryAll.filter(item => {
@@ -239,7 +239,7 @@ const PastEnquiries = ({navigation}) => {
       });
       setInputPastEnquiryAll(tempData);
       if (tempData.length === 0) {
-        Toast.show({text: 'No Data Found. ', ...AlertMesg[0]});
+        Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
       }
     }
   };
@@ -252,7 +252,7 @@ const PastEnquiries = ({navigation}) => {
         );
       });
       if (tempData.length === 0) {
-        Toast.show({text: 'No Data Found. ', ...AlertMesg[0]});
+        Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
       }
       setInputPastEnquiryAll(tempData);
     }
@@ -290,29 +290,22 @@ const PastEnquiries = ({navigation}) => {
   return (
     <>
       <Root>
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <CustomHeader path="InputList" HandlerGoBack={HandlerGoBack} />
-          <DatePickerComp
+          {openFromDate && <DatePickerComp
             openDate={openFromDate}
             newDate={newFromDate}
             setOpenDate={setOpenFromDate}
             handleDatePicker={handleDatePicker}
-          />
-          <DatePickerComp
+          />}
+          {openToDate && <DatePickerComp
             openDate={openToDate}
             newDate={newToDate}
             setOpenDate={setOpenToDate}
             handleDatePicker={handleDatePicker2}
-            minimumDate={
-              problemFromDate == ''
-                ? ''
-                : new Date(
-                    `${new Date(problemFromDate).getFullYear()}-${
-                      new Date(problemFromDate).getMonth() + 1
-                    }-${new Date(problemFromDate).getDate() + 1}`,
-                  )
+            minimumDate={problemFromDate == '' ? '' : new Date(`${new Date(problemFromDate).getFullYear()}-${new Date(problemFromDate).getMonth() + 1}-${new Date(problemFromDate).getDate() + 1}`)
             }
-          />
+          />}
           <Filter
             title={t('past_enq')}
             filterItem={filterItem}
@@ -328,7 +321,7 @@ const PastEnquiries = ({navigation}) => {
             FarmerProductPhoneValue={searchFarmerPhone}
             setFilterOption={setFilterOption}
             filterDataRemove={filterDataRemove}
-            // category={true}
+          // category={true}
           />
           <SafeAreaView>
             {searchResultsList && searchResultsList ? (
@@ -336,7 +329,7 @@ const PastEnquiries = ({navigation}) => {
                 <FlatList
                   style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                   data={searchResults}
-                  renderItem={({item}) => (
+                  renderItem={({ item }) => (
                     <TouchableOpacity
                       onPress={() => handleResultSelect(item.label, item.phone)}
                       style={styles.flatlistitemSearch}>
@@ -371,7 +364,7 @@ const PastEnquiries = ({navigation}) => {
           ) : (
             <FlatList
               data={inputPastEnquiryAll}
-              renderItem={({item}) => {
+              renderItem={({ item }) => {
                 return (
                   <TouchableOpacity
                     style={styles.wrapper}
