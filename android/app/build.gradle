@@ -74,9 +74,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.green_04_11"
+    namespace "com.greenZown"
     defaultConfig {
-        applicationId "com.green_04_11"
+        applicationId "com.greenZown"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
