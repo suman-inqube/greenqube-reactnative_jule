@@ -32,10 +32,16 @@ const FarmerDashboard = ({ navigation }) => {
         latitude: "", longitude: ""
     });
     const navigateToPages = (pageName) => {
-        if (pageName == 'Weather') {
-            navigation.navigate(pageName, { latLong });
+        if (netConnection) {
+            if (pageName == 'Weather') {
+                navigation.navigate(pageName, { latLong });
+            } else {
+                navigation.navigate(pageName);
+            }
         } else {
-            navigation.navigate(pageName);
+            if (pageName == "FarmerListProblem" || pageName == "FarmerActivityList") {
+                navigation.navigate(pageName);
+            }
         }
     };
     const onPageLoad = async () => {

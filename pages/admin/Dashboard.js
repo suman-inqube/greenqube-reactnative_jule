@@ -30,7 +30,13 @@ const Dashboard = ({ navigation }) => {
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
   const navigateToPages = (pageName) => {
-    navigation.navigate(pageName, { data: 'remove' });
+    if (netConnection) {
+      navigation.navigate(pageName, { data: 'remove' });
+    } else {
+      if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
+        navigation.navigate(pageName, { data: 'remove' });
+      }
+    }
   };
   const onPageLoad = async () => {
     const [bottomBannerData,
@@ -109,11 +115,11 @@ const Dashboard = ({ navigation }) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View >
             <View style={styles.container}>
-              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigation.navigate('PersonalInformation', { data: "remove" })} />
-              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigation.navigate('userList')} />
+              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigateToPages('PersonalInformation')} />
+              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigateToPages('userList')} />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigation.navigate('ProblemList')} />
+              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigateToPages('ProblemList')} />
               <BoxDisplay text={t('acti_report_far_dash')} imageurl={require('../Common/images/activity_report_only.png')} onpress={() => navigateToPages('activityList')} />
             </View>
             <View style={styles.container}>

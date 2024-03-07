@@ -57,6 +57,12 @@ const PastEnquiries = ({ navigation }) => {
   const [filterName, setFilterName] = useState('');
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+  const [result, setresult] = useState({
+    qty: "",
+    total: "",
+    grandTotal: "",
+    disTotal: "",
+  });
   const filterOptionShow = () => {
     setSearchResultsList(false);
     if (!filterOption) {
@@ -90,6 +96,23 @@ const PastEnquiries = ({ navigation }) => {
     setIsLoading(false);
     if (response) {
       setPastEnquiryView(response.data.data);
+      var qty = 0;
+      var grandTotal = 0;
+      var disTotal = 0;
+      var total = 0;
+      response.data.data.map((data, index) => {
+        qty = qty + parseFloat(data.sqty);
+        grandTotal = grandTotal + parseFloat(data.sgrand_total);
+        disTotal = disTotal + parseFloat(data.sdiscount);
+        total = total + parseFloat(data.total_samount);
+      });
+      setresult({
+        ...result,
+        qty: qty,
+        total: total,
+        grandTotal: grandTotal,
+        disTotal: disTotal,
+      });
     }
     setPastEnquiries(true);
   };
@@ -350,6 +373,7 @@ const PastEnquiries = ({ navigation }) => {
             modalVisible={pastEnquiries}
             pastEnquirySingle={pastEnquirySingle}
             pastEnquiryView={pastEnquiryView}
+            qty={result}
             style={{
               flex: 1,
               alignItems: 'center',

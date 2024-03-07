@@ -19,7 +19,7 @@ const ForegroundHandler = () => {
     }
     useEffect(() => {
         const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-            // console.log("handle in foreground", remoteMessage)
+            console.log("handle in foreground", remoteMessage)
             const userType = await getItem('userType');
             const { notification, messageId } = remoteMessage
             if (Platform.OS == 'ios') {
@@ -30,15 +30,15 @@ const ForegroundHandler = () => {
                     sound: 'default'
                 });
             } else {
-                PushNotification.localNotification({
-                    channelId: "your-channel-id",
-                    id: messageId,
-                    body: 'android body',
-                    title: 'android notif title',
-                    soundName: 'default',
-                    vibrate: true,
-                    playSound: true
-                })
+                // PushNotification.localNotification({
+                //     channelId: "your-channel-id",
+                //     id: messageId,
+                //     body: 'android body',
+                //     title: 'android notif title',
+                //     soundName: 'default',
+                //     vibrate: true,
+                //     playSound: true
+                // })
                 PushNotification.configure({
                     onNotification: function (notification) {
                         if (notification.userInteraction) {
@@ -68,7 +68,20 @@ const ForegroundHandler = () => {
                                 } else {
                                     navigation.navigate("FarmerPastEnquiry", { io_oid: responseCommentJson.io_oid });
                                 }
+                            } else if (responseCommentJson.post_type == "general_info") {
+                                if (userType == 3) {
+                                    navigation.navigate("UsefulInformationList");
+                                } else {
+                                    navigation.navigate("FarmerUsefulInformationList", { io_oid: responseCommentJson.io_oid });
+                                }
+                            } else if (responseCommentJson.post_type == "training") {
+                                if (userType == 3) {
+                                    navigation.navigate("TraingList");
+                                } else {
+                                    navigation.navigate("FarmerTrainingList", { io_oid: responseCommentJson.io_oid });
+                                }
                             }
+
                         }
                     },
                 });

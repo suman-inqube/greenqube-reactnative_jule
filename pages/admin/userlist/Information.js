@@ -59,8 +59,14 @@ const Information = ({ sendDataToParent, farmerID }) => {
         frequency: "",
         company_name: "",
         policy_no: "",
-        sum_insured: ""
+        sum_insured: "",
     });
+    const [regionaldatas, setregionaldatas] = useState({
+        state: "",
+        district: "",
+        block: "",
+    });
+    const [currency, setcurrency] = useState("");
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -137,17 +143,28 @@ const Information = ({ sendDataToParent, farmerID }) => {
         setfarmerData({ ...farmerData, effective_from: cycleEnds })
     }
     const onPageLoad = async () => {
-        const [loginUser_data, userListData
+        const [loginUser_data, userListData,
+            state,
+            district,
+            block, curr
         ] = await Promise.all([
             getItem('loginUser_data'),
-            getItem('userListData')
+            getItem('userListData'),
+            getItem("state"),
+            getItem("district"),
+            getItem("block"),
+            getItem('currency')
         ]);
         if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
+            setcurrency(curr)
             const compCode = loginUser_data.sa_company[0].company_code;
+            const { dbname, lan_id, token, user_id } = loginUser_data;
+            setregionaldatas({
+                ...regionaldatas,
+                state: state,
+                district: district,
+                block: block,
+            })
             if (userListData) {
                 const farmerFound = userListData.rows.find(user => user.user_id === farmeruserID);
                 if (farmerFound) {
@@ -156,8 +173,8 @@ const Information = ({ sendDataToParent, farmerID }) => {
                     const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
                     if (farmerFound.agri_user_addresses[0].agri_district) {
                         await Promise.all([
-                            getDistrict(dbName, languageID, farmerFound.agri_user_addresses[0].agri_state.fid),
-                            getBlock(dbName, languageID, farmerFound.agri_user_addresses[0].agri_district.fid)
+                            getDistrict(dbname, lan_id, farmerFound.agri_user_addresses[0].agri_state.fid),
+                            getBlock(dbname, lan_id, farmerFound.agri_user_addresses[0].agri_district.fid)
                         ]);
                     }
                     if (farmerFound.agri_files[0] != undefined) {
@@ -197,11 +214,11 @@ const Information = ({ sendDataToParent, farmerID }) => {
                         sum_insured: farmerFound.lic_details.sum_insured
                     })
                 }
-                setdbName(dbName);
-                setlanguageID(languageID);
-                setLoginUserId(userID);
+                setdbName(dbname);
+                setlanguageID(lan_id);
+                setLoginUserId(user_id);
                 setLoginUserToken(token);
-                getState(dbName, languageID);
+                getState(dbname, lan_id);
             }
         }
     };
@@ -308,7 +325,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
             <Root>
                 <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} />
                 <FormsTitle title={'User Profile'} />
-                <ScrollView >
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginHorizontal: 20, backgroundColor: '#FFFFF' }}>
                         <View style={{ backgroundColor: '#E9FCC5', marginTop: 30, borderRadius: 20, elevation: 3 }}>
                             <View style={{ marginTop: 20, marginHorizontal: 15 }}>
@@ -338,23 +355,23 @@ const Information = ({ sendDataToParent, farmerID }) => {
                                     <RadioForm
                                         label={t('grower')}
                                         selected={farmerData.farmer_type == "" ? farmer_type == "1" : farmerData.farmer_type === '1'}
-                                        onSelect={() => setfarmerData({ ...farmerData, farmerType: '1' })}
+                                        onSelect={() => setfarmerData({ ...farmerData, farmer_type: '1' })}
                                     />
                                     <RadioForm
                                         label={t('small_holder')}
                                         selected={farmerData.farmer_type == "" ? farmer_type == '2' : farmerData.farmer_type === '2'}
-                                        onSelect={() => setfarmerData({ ...farmerData, farmerType: '2' })}
+                                        onSelect={() => setfarmerData({ ...farmerData, farmer_type: '2' })}
                                     />
                                     <RadioForm
                                         label={t('farm_worker')}
                                         selected={farmerData.farmer_type == "" ? farmer_type == '3' : farmerData.farmer_type === '3'}
-                                        onSelect={() => setfarmerData({ ...farmerData, farmerType: '3' })}
+                                        onSelect={() => setfarmerData({ ...farmerData, farmer_type: '3' })}
                                     />
                                 </View>
                                 <InputTextForm label={t('age')} value={farmerData.age ?? farmerData.age} keyboardType="numeric" />
-                                <DropdownForm label={t('pre_state_division_zone')} data={stateAll} onChange={data => { handleStateDistrictBlock("state", data) }} val={farmerData.stateName} />
-                                <DropdownForm label={t('pre_district_county')} data={districtAll} onChange={data => { handleStateDistrictBlock("district", data) }} val={farmerData.districtName} />
-                                <DropdownForm label={t('select_block_sub_county_upzila')} data={blockAll} onChange={item => {
+                                <DropdownForm label={regionaldatas.state == "" ? t('pre_state_division_zone') : t(`${regionaldatas.state}`)} data={stateAll} onChange={data => { handleStateDistrictBlock("state", data) }} val={farmerData.stateName} />
+                                <DropdownForm label={regionaldatas.state == "" ? t('pre_district_county') : t(`${regionaldatas.district}`)} data={districtAll} onChange={data => { handleStateDistrictBlock("district", data) }} val={farmerData.districtName} />
+                                <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} data={blockAll} onChange={item => {
                                     setfarmerData({ ...farmerData, block: item.value })
                                 }} val={farmerData.blockName} />
                             </View>
@@ -430,7 +447,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
                                         </View>
                                     </View>
 
-                                    <InputTextForm label={t('pension_amount_currency')} onChangeText={pension_amount => setfarmerData({ ...farmerData, pension_amount: pension_amount })} value={farmerData.pension_amount} keyboardType="numeric" />
+                                    <InputTextForm label={t('pension_amount_currency') + "(" + currency + ")"} onChangeText={pension_amount => setfarmerData({ ...farmerData, pension_amount: pension_amount })} value={farmerData.pension_amount} keyboardType="numeric" />
                                     <DropdownForm label={t('per_month_quarter_year')} data={config.pensionParMonthData} onChange={frequency => setfarmerData({ ...farmerData, frequency: frequency.value })} val={farmerData.frequency} />
                                 </>
                             </View>
@@ -443,7 +460,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
                                         <InputTextForm label={t('lic_name_of_company')} onChangeText={company_name => setfarmerData({ ...farmerData, company_name: company_name })} value={farmerData.company_name} />
                                     </View>
                                     <InputTextForm label={t('policy_number')} onChangeText={policy_no => setfarmerData({ ...farmerData, policy_no: policy_no })} value={farmerData.policy_no} keyboardType="numeric" />
-                                    <InputTextForm label={t('sum_insured_currency')} onChangeText={sum_insured => setfarmerData({ ...farmerData, sum_insured: sum_insured })} value={farmerData.sum_insured} keyboardType="numeric" />
+                                    <InputTextForm label={t('sum_insured_currency') + "(" + currency + ")"} onChangeText={sum_insured => setfarmerData({ ...farmerData, sum_insured: sum_insured })} value={farmerData.sum_insured} keyboardType="numeric" />
                                 </>
                             </View>
                         </View>

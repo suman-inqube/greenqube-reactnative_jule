@@ -33,7 +33,7 @@ const roleData = [
 ];
 const pensionParMonthData = [
   { label: 'Month', value: 'month' },
-  { label: 'Quater', value: 'quater' },
+  { label: 'Quarter', value: 'quarter' },
   { label: 'Year', value: 'year' }
 ];
 

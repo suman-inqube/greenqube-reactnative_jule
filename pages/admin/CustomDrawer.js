@@ -3,7 +3,9 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-na
 import { removeItem } from '../../config/getDataFromStorage';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import DeviceInfo from '../DeviceInfo';
 const CustomDrawer = (props) => {
+    const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
     const navigation = useNavigation();
     const handleLogout = async () => {
@@ -26,64 +28,70 @@ const CustomDrawer = (props) => {
             removeItem("bottomBannerData"),
             removeItem("topBannerData"),
             removeItem('currency'),
+            // removeItem('fcmToken')
         ]);
         const popAction = StackActions.pop(1);
         navigation.dispatch(popAction);
         navigation.navigate('Login');
     }
+    const navigateToPages = (pageName) => {
+        if (netConnection) {
+            navigation.navigate(pageName);
+        }
+    };
     return (
         <View>
             <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} onPress={() => props.setModalVisible(!props.modalVisible)}>
                 <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('Profile')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Profile')}>
                         <View style={[styles.menuItem, { marginTop: 8 }]}>
                             <Image source={require('../Common/images/user_menu.png')}
                                 style={[{ height: 28, width: 28, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('profile')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('Business')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Business')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/inncome_expence_menu.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('traceability')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('DailySalesReport')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('DailySalesReport')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/dash_sale_your_product_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('daily_sales_report')}</Text>
                         </View></TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('TraingList')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('TraingList')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/soil.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('training_support')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmIncomeExpenseList')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmIncomeExpenseList')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/insurance_menu.png')}
                                 style={[{ height: 25, width: 25 }]} />
                             <Text style={styles.menuText}>{t('farm_income_amp_expense')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('Loan')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Loan')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/dash_apply_for_loan_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('loan_ninquiry_far_dash')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('InsuranceEnquiry')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('InsuranceEnquiry')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/dash_apply_for_insurance_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('ins_inq_far_dash')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('ChangePassword')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('ChangePassword')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/change_password_white.png')}
                                 style={[{ height: 30, width: 30 }]} />

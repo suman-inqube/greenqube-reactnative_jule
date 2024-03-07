@@ -17,7 +17,9 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import NotificationServices from './PushNotification/NotificationServices';
+import DeviceInfo from './DeviceInfo';
 const Login = ({ route }) => {
+    const { netConnection } = DeviceInfo();
     // const { fusedLocationData } = ForegroundLocationService();
     const { requestUserPermission, notificationListener } = NotificationServices();
     const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +78,8 @@ const Login = ({ route }) => {
                 "type": storeLoginUser.role
             };
             try {
-                setIsLoading(true)
+                setIsLoading(true);
+
                 let userIno = await axios.post(config.loginAPI, inputdata);
                 if (userIno.status === 200) {
                     const loginUserdata = userIno.data.data[0];
@@ -99,6 +102,7 @@ const Login = ({ route }) => {
                         password: "",
                         role: ""
                     })
+                    console.log(loginUserdata.sa_company[0].company_code)
                     const [fpoDetailsList_res, reginalRes] = await Promise.all([
                         fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
                         reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
@@ -155,10 +159,9 @@ const Login = ({ route }) => {
             removeItem('storePersnolInfo_data'),
             removeItem('storeFinancial_data'),
             removeItem('storeProduceInfo_data'),
-            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
             requestUserPermission(),
             notificationListener(),
-
+            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
         ]);
         if (companyLanguage_data != "" && companyLanguage_data != null) {
             setcompanyLanguage(companyLanguage_data);
@@ -199,7 +202,7 @@ const Login = ({ route }) => {
         catch (err) {
             console.error(err)
         }
-    }, [isFocused]);
+    }, [isFocused, netConnection]);
     return (
         <Root>
             {/* <ForegroundLocationService /> */}

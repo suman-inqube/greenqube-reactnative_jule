@@ -307,7 +307,13 @@ const PlotSiteProduceInformation = () => {
         });
     }
     const HandlelivehoodType = async (livelihoodType) => {
-        setstoreProduceInfo({ ...storeProduceInfo, livelihoodType: livelihoodType.label, livelihoodTypeValue: livelihoodType.value })
+        setstoreProduceInfo({
+            ...storeProduceInfo,
+            livelihoodType: livelihoodType.label,
+            livelihoodTypeValue: livelihoodType.value,
+            produceName: "", produceNameValue: "",
+            produceVariety: "", produceVarietyValue: ""
+        })
         produceNameDataList(dbLanTokUsr.dbName, dbLanTokUsr.languageID, livelihoodType);
     }
     const produceNameDataList = async (dbName, language_id, livelihoodType) => {
@@ -329,7 +335,12 @@ const PlotSiteProduceInformation = () => {
         setproduceNameData(produceNameArray);
     }
     const HandleproduceName = async (produceName) => {
-        setstoreProduceInfo({ ...storeProduceInfo, produceName: produceName.label, produceNameValue: produceName.value })
+        setstoreProduceInfo({
+            ...storeProduceInfo,
+            produceName: produceName.label,
+            produceNameValue: produceName.value,
+            produceVariety: "", produceVarietyValue: ""
+        })
         produceVarientyDataList(dbLanTokUsr.dbName, dbLanTokUsr.languageID, storeProduceInfo.livelihoodType, produceName.value);
     }
     const produceVarientyDataList = async (dbName, languageID, livelihoodType, produceName) => {
@@ -391,79 +402,92 @@ const PlotSiteProduceInformation = () => {
         if (!storeProduceInfo.plotSiteName) {
             Toast.show({
                 time: 3, text: `${t('pl_en_plot_name_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.terrainType) {
             Toast.show({
                 time: 3, text: `${t('please_select_terrain_type_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.landType) {
             Toast.show({
                 time: 3, text: `${t('please_select_land_type_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.soilType) {
             Toast.show({
                 time: 3, text: `${t('please_select_soil_type_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.plotSize) {
             Toast.show({
                 time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.landUnit) {
             Toast.show({
                 time: 3, text: `${t('please_select_unit_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.prodctionSeasion) {
             Toast.show({
                 time: 3, text: `${t('please_select_cultiveting_season_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.livelihoodType) {
             Toast.show({
                 time: 3, text: `${t('please_select_crop_type_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.produceName) {
             Toast.show({
                 time: 3, text: `${t('please_select_crop_name_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.produceVariety) {
             Toast.show({
                 time: 3, text: `${t('please_select_crop_veriety_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.productionProcess) {
             Toast.show({
                 time: 3, text: `${t('please_select_production_system_first')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.produceProductionUnit) {
             Toast.show({
                 time: 3, text: `${t('please_give_yeild_size')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
         if (!storeProduceInfo.lat) {
             Toast.show({
                 time: 3, text: `${t('tap_to_get_latitude_and_longitude')}`, ...AlertMesg[0]
-            })
+            });
+            setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
             return false;
         }
 
@@ -482,12 +506,12 @@ const PlotSiteProduceInformation = () => {
             return false;
         }
 
-        // if (!storeProduceInfo.cycleEnds) {
-        //     Toast.show({
-        //         time: 3, text: 'Please Select Crop Cycle End Date First', ...AlertMesg[0]
-        //     })
-        //     return false;
-        // }
+        if (!storeProduceInfo.cycleEnds) {
+            Toast.show({
+                time: 3, text: `${t('select_enddate_first')}`, ...AlertMesg[0]
+            })
+            return false;
+        }
 
         return true;
     }
@@ -583,6 +607,11 @@ const PlotSiteProduceInformation = () => {
         } else if (storeProduceInfoInArray.length !== 0) {
             await setItem('storeProduceInfo_data', storeProduceInfoInArray);
             navigation.navigate('RegistationSignUpViwer', { data: remove });
+        } else if (storeProduceInfoInArray.length === 0) {
+            if (validationData()) {
+                await setItem('storeProduceInfo_data', storeProduceInfoInArray);
+                navigation.navigate('RegistationSignUpViwer', { data: remove });
+            }
         }
     }
     const HandlerGoBack = () => {
@@ -646,11 +675,24 @@ const PlotSiteProduceInformation = () => {
                                 </TouchableOpacity>
                             </View>
 
-                            <DropdownForm label={t('addcrop_select_cultivating_season')} color="red" data={prodctionSeasionData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, prodctionSeasion: item.label, prodctionSeasionValue: item.value }) }} val={storeProduceInfo.prodctionSeasion} />
+                            <DropdownForm label={t('addcrop_select_cultivating_season')} color="red"
+                                data={prodctionSeasionData}
+                                onChange={item => {
+                                    setstoreProduceInfo({
+                                        ...storeProduceInfo,
+                                        prodctionSeasion: item.label,
+                                        prodctionSeasionValue: item.value,
+                                        livelihoodType: "", livelihoodTypeValue: "",
+                                        produceName: "", produceNameValue: "",
+                                        produceVariety: "", produceVarietyValue: ""
+                                    })
+                                }}
+                                val={storeProduceInfo.prodctionSeasion} />
 
                             <DropdownForm label={t('select_crop_type')} color="red" data={livelihoodTypeData} onChange={item => HandlelivehoodType(item)} val={storeProduceInfo.livelihoodType} />
 
                             <DropdownForm label={t('select_crop_name')} color="red" data={produceNameData} onChange={item => HandleproduceName(item)} val={storeProduceInfo.produceName} />
+
 
                             <DropdownForm label={t('select_crop_variety')} color="red" data={produceVarietyData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, produceVariety: item.label, produceVarietyValue: item.value }) }} val={storeProduceInfo.produceVariety} />
 

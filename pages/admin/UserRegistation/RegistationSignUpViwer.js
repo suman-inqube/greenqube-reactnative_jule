@@ -250,14 +250,18 @@ const RegistationSignUpViwer = () => {
         if (isFocused) {
             onPageLoad();
         }
-        const onBackPress = () => { navigation.navigate('PlotSiteProduceInformation'); return true; };
+        const onBackPress = () => {
+            navigation.navigate('RegistationSignUpViwer');
+            return true;
+        };
         BackHandler.addEventListener('hardwareBackPress', onBackPress);
         return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }, [isFocused]);
+    const HandlerGoBack = () => { }
     return (
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <Root>
-                <CustomHeader path='RegistationSignUpViwer' />
+                <CustomHeader path='RegistationSignUpViwer' HandlerGoBack={HandlerGoBack} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginBottom: 100 }}>
                         <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', marginTop: 15 }}>
@@ -538,7 +542,7 @@ const RegistationSignUpViwer = () => {
                                             <View style={[styles.bodyContainerMarginBottom, { marginTop: 10 }]}>
                                                 {storeProduceInfo.map((item, index) => {
                                                     return (
-                                                        <View style={{ borderBottomWidth: 5, borderColor: '#050505' }} key={index}>
+                                                        <View style={{ borderBottomWidth: 2, borderColor: '#050505' }} key={index}>
                                                             <View style={{ alignItems: 'flex-end' }} >
                                                                 <TouchableOpacity onPress={() => navigation.navigate('PlotSiteProduceInformation', {
                                                                     pagename: "RegistationSignUpViwer",

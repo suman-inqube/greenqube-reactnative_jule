@@ -451,7 +451,7 @@ const ActivityReport = ({ navigation }) => {
                 // setCycleDate();
                 const database_res = await activitySaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.user_id, formData)
                 if (database_res) {
-                    Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+                    Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                     setTimeout(() => {
                         navigation.navigate('activityList');
                     }, 1500);
@@ -467,7 +467,7 @@ const ActivityReport = ({ navigation }) => {
                 } else {
                     await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
                 }
-                Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('activityList');
                 }, 1000);

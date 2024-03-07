@@ -188,12 +188,12 @@ const FarmerWantToBuy = ({ navigation }) => {
             return ((v.prod_price_id == item.value));
         })
         inputSingle.productCategories.forEach(element => {
-            if (
-                element.productCategory.iotype
-            ) {
+            if (element.productCategory.iotype) {
                 entity_type_id = element.productCategory.iotype.entity_type_id;
                 entity_name_id = element.productCategory.iotype.entity_name_id;
-
+            } else {
+                entity_type_id = element.productCategory.ioname.entity_type_id;
+                entity_name_id = element.productCategory.ioname.entity_name_id;
             }
             setSaveData({
                 ...saveData,
@@ -279,7 +279,10 @@ const FarmerWantToBuy = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, inputSingleData] = await Promise.all([
+            getItem('loginUser_data'),
+            getItem('input_single_data')
+        ])
         if (loginUser_data) {
             const dbName = loginUser_data.dbname;
             const languageID = loginUser_data.lan_id;
@@ -294,7 +297,6 @@ const FarmerWantToBuy = ({ navigation }) => {
                 token: token,
                 userID: userID
             })
-            const inputSingleData = await getItem('input_single_data');
             const min = 1000000000000;
             const max = 9999999999999;
             const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -324,10 +326,20 @@ const FarmerWantToBuy = ({ navigation }) => {
 
             if (inputSingleData) {
                 setInputSingle(inputSingleData)
+                let category = "";
+                let sub_category = "";
+                if (inputSingleData.productCategories[0].productCategory.iotype != null) {
+                    const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.iotype;
+                    category = entity_type.name;
+                    sub_category = entity_name.name;
+                } else {
+                    const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.ioname;
+                    category = entity_type.name;
+                    sub_category = entity_name.name;
+                }
+                // const category = inputSingleData.productCategories && inputSingleData.productCategories[0].productCategory && inputSingleData.productCategories[0].productCategory.name
 
-                const category = inputSingleData.productCategories && inputSingleData.productCategories[0].productCategory && inputSingleData.productCategories[0].productCategory.name
-
-                const sub_category = inputSingleData.productCategories && inputSingleData.productCategories[1].productCategory && inputSingleData.productCategories[1].productCategory.name
+                // const sub_category = inputSingleData.productCategories && inputSingleData.productCategories[1].productCategory && inputSingleData.productCategories[1].productCategory.name
 
                 setSaveData({
                     ...saveData,

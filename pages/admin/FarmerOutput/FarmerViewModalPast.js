@@ -89,11 +89,14 @@ const FarmerViewModalPast = (props) => {
 
                                                     <View style={styles.item}>
                                                         <Text style={styles.itemText}>{t('qty_amp_unit')}</Text>
-                                                        <Text style={styles.itemText}>: {props.pastEnquiryView[0].pro_qty}  {props.pastEnquiryView[0].prod_unit}</Text>
+                                                        <Text style={styles.itemText}>
+                                                            : {props.qty.qty}-{props.pastEnquiryView[0].prod_unit}
+                                                        </Text>
                                                     </View>
+
                                                     <View style={styles.item}>
                                                         <Text style={styles.itemText}>{t('grand_total') + " (" + currency + ")"} </Text>
-                                                        <Text style={styles.itemText}>: {props.pastEnquiryView[0].grand_total}</Text>
+                                                        <Text style={styles.itemText}>: {props.qty.total}</Text>
                                                     </View>
                                                     <View style={styles.item}>
                                                         <Text style={styles.itemText}>{t('approved_date')}</Text>
@@ -101,7 +104,11 @@ const FarmerViewModalPast = (props) => {
                                                     </View>
                                                     <View style={styles.item}>
                                                         <Text style={styles.itemText}>{t('sta_')}</Text>
-                                                        <Text style={styles.itemText}>: {props.pastEnquiryView[0].pro_status == 'partially' || props.pastEnquiryView[0].pro_status == 'moved_to_inventory' && t('pending_')} {props.pastEnquiryView[0].pro_status == 'fully' && t('closed')}</Text>
+                                                        <Text style={styles.itemText}>
+                                                            {props.pastEnquiryView[
+                                                                props.pastEnquiryView.length - 1
+                                                            ].pro_status == 'fully' ? t('closed') : t('pending_')}
+                                                        </Text>
                                                     </View>
                                                 </>
                                                 : ''

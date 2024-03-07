@@ -12,6 +12,7 @@ import { signupSaveAPI } from '../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { onBackPress } from './Common/BackPressHandler';
 import DeviceInfo from './DeviceInfo';
+import FormsTitle from './Common/FormsTitle';
 const SignUpViwer = () => {
     const { t } = useTranslation();
     const { netConnection } = DeviceInfo();
@@ -273,8 +274,9 @@ const SignUpViwer = () => {
     );
     return (
         <View style={{ flex: 1 }}>
+            <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
+            <FormsTitle title={t('preview_information')} />
             <ScrollView>
-                <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
                 <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', marginTop: 15 }}>
                     <TouchableOpacity onPress={togglestorePersnolInfo}>
                         <View style={styles.headerStyle}>

@@ -72,7 +72,7 @@ const CreateProblem = ({ navigation }) => {
     });
     const [saveData, setSaveData] = useState({
         agent_fcm: "",
-        farmer_fcm: "eJ_QQHq1Qq-337QqKYbK4A:APA91bFCGrfq6XPr7dc7UyWMFoPdaY9fGryYS6JSByN5QPY7WlLOIXtmWU1-Z16RfuDhqf7InNwiHIhJh1_W6J-MYl97s7FA-xodzjza5J_DKKoVodUJfiqLyZIy56Tvicr0vsIbDGAj ",
+        farmer_fcm: "",
         latitude: "",
         longitude: "",
         question_type: "crop_problem",
@@ -264,7 +264,7 @@ const CreateProblem = ({ navigation }) => {
 
             // Start recording
             await audioRecorderPlayer.startRecorder(path);
-         
+
         } catch (error) {
             console.error('Error starting recording:', error);
         }
@@ -279,22 +279,22 @@ const CreateProblem = ({ navigation }) => {
         try {
             // Check if the directory exists, if not, create it
             await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-            
+
             // Start recording
             await audioRecorderPlayer.startRecorder(path);
-                console.log("play");
+            console.log("play");
         } catch (error) {
             console.error('Error starting recording:', error);
         }
-         
-      };
-    
-      const stopRecording1 = async () => {
+
+    };
+
+    const stopRecording1 = async () => {
         const result = await audioRecorderPlayer.stopRecorder();
         console.log(result);
         // setToggleRecordingFirst(true);
-      };
-    
+    };
+
 
 
 
@@ -327,7 +327,7 @@ const CreateProblem = ({ navigation }) => {
         setSaveData({
             ...saveData,
             agent_fcm: "",
-            farmer_fcm: "eJ_QQHq1Qq-337QqKYbK4A:APA91bFCGrfq6XPr7dc7UyWMFoPdaY9fGryYS6JSByN5QPY7WlLOIXtmWU1-Z16RfuDhqf7InNwiHIhJh1_W6J-MYl97s7FA-xodzjza5J_DKKoVodUJfiqLyZIy56Tvicr0vsIbDGAj ",
+            farmer_fcm: "",
             latitude: "",
             longitude: "",
             question_type: "crop_problem",
@@ -514,7 +514,7 @@ const CreateProblem = ({ navigation }) => {
                         <View style={styles.fromContainer}>
 
 
-                         
+
 
                             <Text style={styles.title_recording}>Record Your comment (Optional)</Text>
                             <View style={styles.container_recording}>
@@ -526,13 +526,13 @@ const CreateProblem = ({ navigation }) => {
                                 </TouchableOpacity> */}
 
 
-{/* 
+                                {/* 
                                 <Button title="Start Recording 1" onPress={()=>startRecording1()} /> 
                                  <Button title="Stop Recording" onPress={()=>stopRecording1()} /> */}
 
 
-                                 
-                    
+
+
 
                                 {/* {isToggleRecordingFirst ? 
 
@@ -656,7 +656,7 @@ const CreateProblem = ({ navigation }) => {
 
                             <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} />
 
-                                {/* <RecordComp soundRecording={soundRecording} selectedRecord={selectedRecord} /> */}
+                            {/* <RecordComp soundRecording={soundRecording} selectedRecord={selectedRecord} /> */}
 
                         </View>
 

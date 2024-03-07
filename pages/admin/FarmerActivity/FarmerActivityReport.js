@@ -12,22 +12,22 @@ import {
   Button,
   Animated,
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import InputTextForm from '../../Common/InputTextForm';
 import DropdownForm from '../../Common/DropdownForm';
 import RadioForm from '../../Common/RadioForm';
-import {request, PERMISSIONS} from 'react-native-permissions';
+import { request, PERMISSIONS } from 'react-native-permissions';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import TakePhoto from './TakePhoto';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import Marker, {Position, TextBackgroundType} from 'react-native-image-marker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import Marker, { Position, TextBackgroundType } from 'react-native-image-marker';
 import RecordComp from '../Activity/RecordComp';
 import ButtonForm from '../../Common/ButtonForm';
 import DatePickerComp from '../../Common/DatePickerComp';
-import {getItem, setItem} from '../../../config/getDataFromStorage';
+import { getItem, setItem } from '../../../config/getDataFromStorage';
 import {
   activityInfoAPI,
   activitySaveAPI,
@@ -40,19 +40,19 @@ import {
 } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import CustomHeader from '../CustomHeader';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
-import {useFocusEffect} from '@react-navigation/native';
-import {Root, Popup, Toast} from 'react-native-popup-confirm-toast';
-import {AlertMesg} from '../../Common/ToastAlert';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import { useFocusEffect } from '@react-navigation/native';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
 // import i18next from '../services/i18next';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import SoundRecord from '../../Common/SoundRecord';
 import DeviceInfo from '../../DeviceInfo';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
-const FarmerActivityReport = ({navigation}) => {
-  const {t} = useTranslation();
-  const {netConnection} = DeviceInfo();
+const FarmerActivityReport = ({ navigation }) => {
+  const { t } = useTranslation();
+  const { netConnection } = DeviceInfo();
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [farmerData, setfarmerData] = useState();
@@ -185,16 +185,15 @@ const FarmerActivityReport = ({navigation}) => {
           },
           watermarkTexts: [
             {
-              text: `${saveData.latitude},${
-                saveData.longitude
-              },${new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              }).format(timestamp)}`,
+              text: `${saveData.latitude},${saveData.longitude
+                },${new Intl.DateTimeFormat('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                }).format(timestamp)}`,
 
               positionOptions: {
                 position: Position.bottomLeft,
@@ -267,7 +266,7 @@ const FarmerActivityReport = ({navigation}) => {
     // console.log(x1[2] + '/' + x1[1] + '/' + x1[0]);
     const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
     setActivityPreFormDate(effective_date);
-    setSaveData({...saveData, act_perform_date: effective_date});
+    setSaveData({ ...saveData, act_perform_date: effective_date });
     // console.log(item);
   };
 
@@ -356,13 +355,13 @@ const FarmerActivityReport = ({navigation}) => {
         const data = response.data.data.rows[0];
         setShowingMenu(true);
         data.crop_cycl_start_date == null ||
-        data.crop_cycl_start_date == '2004-02-29'
+          data.crop_cycl_start_date == '2004-02-29'
           ? setIsButtonDisabled(false)
           : setIsButtonDisabled(true);
         // console.log(isButtonDisabled);
         let cycle_start_date =
           data.crop_cycl_start_date == null ||
-          data.crop_cycl_start_date == '2004-02-29'
+            data.crop_cycl_start_date == '2004-02-29'
             ? data.sowing_date
             : data.crop_cycl_start_date;
 
@@ -398,15 +397,15 @@ const FarmerActivityReport = ({navigation}) => {
           );
           await setItem(
             'productionStageAPI' +
-              response.data.data.rows[0].crop_type_id +
-              response.data.data.rows[0].crop_name_id,
+            response.data.data.rows[0].crop_type_id +
+            response.data.data.rows[0].crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'productionStageAPI' +
-              response.data.data.rows[0].crop_type_id +
-              response.data.data.rows[0].crop_name_id,
+            response.data.data.rows[0].crop_type_id +
+            response.data.data.rows[0].crop_name_id,
           );
         }
         if (productionStage_res) {
@@ -498,7 +497,7 @@ const FarmerActivityReport = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -511,7 +510,7 @@ const FarmerActivityReport = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
+      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -588,7 +587,7 @@ const FarmerActivityReport = ({navigation}) => {
       return false;
     }
     if (!cycleDtartDate) {
-      Toast.show({text: 'Please set cycle start date', ...AlertMesg[0]});
+      Toast.show({ text: 'Please set cycle start date', ...AlertMesg[0] });
       return false;
     }
     return true;
@@ -653,7 +652,7 @@ const FarmerActivityReport = ({navigation}) => {
           formData,
         );
         if (database_res.status === 200) {
-          MessageDialog({title: 'Successful', message: 'Successfull Add Data'});
+          MessageDialog({ title: 'Successful', message: 'Data submitted successfully' });
           handleClear();
           navigation.navigate('FarmerActivityList');
         }
@@ -672,7 +671,7 @@ const FarmerActivityReport = ({navigation}) => {
         }
         MessageDialog({
           title: 'Successful',
-          message: 'Successfull Add Data',
+          message: 'Data submitted successfully',
         });
         handleClear();
         navigation.navigate('FarmerActivityList');
@@ -681,8 +680,8 @@ const FarmerActivityReport = ({navigation}) => {
   };
 
   const handleActivityPattern = item => {
-    setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
-    setSaveData({...saveData, act_pattern: item});
+    setactivityInfoReadio({ ...activityInfoReadio, activityPreFormDate: item });
+    setSaveData({ ...saveData, act_pattern: item });
     if (item === 'schedule') {
       setisActiveMenu(true);
     } else {
@@ -710,7 +709,7 @@ const FarmerActivityReport = ({navigation}) => {
         response,
       );
     }
-    setSaveData({...saveData, act_ref_type: item.value});
+    setSaveData({ ...saveData, act_ref_type: item.value });
     if (response.data.data.count > 0) {
       const dataArray = [];
       response.data.data.rows.forEach(element => {
@@ -1067,7 +1066,7 @@ const FarmerActivityReport = ({navigation}) => {
               color="red"
               data={productionStageAll}
               onChange={production_stage =>
-                setSaveData({...saveData, growth_stage: production_stage.value})
+                setSaveData({ ...saveData, growth_stage: production_stage.value })
               }
             />
 
@@ -1080,7 +1079,7 @@ const FarmerActivityReport = ({navigation}) => {
                   style={styles.cycleContainerDate}
                   disabled={isButtonDisabled}
                   onPress={() => srtCycleStartDate(true)}>
-                  <View style={{width: '80%'}}>
+                  <View style={{ width: '80%' }}>
                     <Text style={styles.title}>
                       {cycleDtartDate == ''
                         ? saveData.cycle_start_date
@@ -1089,7 +1088,7 @@ const FarmerActivityReport = ({navigation}) => {
                   </View>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
+                    style={{ width: 20, height: 20 }}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1104,7 +1103,7 @@ const FarmerActivityReport = ({navigation}) => {
                   <Text
                     style={[
                       styles.title,
-                      {color: isButtonDisabled ? '#000' : '#FFF'},
+                      { color: isButtonDisabled ? '#000' : '#FFF' },
                     ]}>
                     {t('set_the_crop_cycle_start_date')}
                   </Text>
@@ -1147,7 +1146,7 @@ const FarmerActivityReport = ({navigation}) => {
             )}
 
             <View>
-              <Text style={{color: 'red'}}>
+              <Text style={{ color: 'red' }}>
                 {t('pick_activity_perform_date')}
               </Text>
               <TouchableOpacity
@@ -1156,7 +1155,7 @@ const FarmerActivityReport = ({navigation}) => {
                 <Text style={styles.title}>{activityPreFormDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{width: 20, height: 20}}
+                  style={{ width: 20, height: 20 }}
                 />
               </TouchableOpacity>
             </View>
@@ -1165,7 +1164,7 @@ const FarmerActivityReport = ({navigation}) => {
               label={t('your_comm_')}
               value={saveData.act_desc}
               onChangeText={act_desc =>
-                setSaveData({...saveData, act_desc: act_desc})
+                setSaveData({ ...saveData, act_desc: act_desc })
               }
             />
 
@@ -1173,7 +1172,7 @@ const FarmerActivityReport = ({navigation}) => {
               label={t('material_used')}
               value={saveData.material_used}
               onChangeText={material_used =>
-                setSaveData({...saveData, material_used: material_used})
+                setSaveData({ ...saveData, material_used: material_used })
               }
             />
 
@@ -1181,7 +1180,7 @@ const FarmerActivityReport = ({navigation}) => {
               label={t('water_used')}
               value={saveData.water_used}
               onChangeText={water_used =>
-                setSaveData({...saveData, water_used: water_used})
+                setSaveData({ ...saveData, water_used: water_used })
               }
             />
 
@@ -1189,7 +1188,7 @@ const FarmerActivityReport = ({navigation}) => {
               label={t('power_used')}
               value={saveData.power_used}
               onChangeText={power_used =>
-                setSaveData({...saveData, power_used: power_used})
+                setSaveData({ ...saveData, power_used: power_used })
               }
             />
 
@@ -1216,7 +1215,7 @@ const FarmerActivityReport = ({navigation}) => {
           </View>
         </ScrollView>
 
-        <View style={{marginTop: 10}}>
+        <View style={{ marginTop: 10 }}>
           <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
         <Root></Root>

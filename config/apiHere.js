@@ -222,7 +222,7 @@ export const farmerAgainstSupervisorAPI = async (dbName, languageID, token, user
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error with farmerAgainstSupervisorAPI" + error.response);
+        return error.response;
     }
 
 }
@@ -255,6 +255,7 @@ export const farmerActivityListAPI = async (dbName, languageID, token, userID, p
             'information': `${dbName},${languageID},${userID}`,
         },
     };
+    // console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`)
     try {
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
         return response;
@@ -510,7 +511,6 @@ export const problemSeverityAPI = async (dbName, languageID) => {
 }
 
 export const problemSaveAPI = async (dbName, languageId, token, userId, inputData) => {
-    console.log({ dbName, languageId, token, userId, inputData })
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageId},${userId}`,
@@ -645,7 +645,7 @@ export const stateListAPI = async (dbName, languageId, token) => {
 }
 
 //input type
-export const inputListAPI = async (dbName, languageId, token, userId) => {
+export const inputListAPI = async (dbName, languageId, token, userId, category_id) => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageId},${userId}`,
@@ -653,11 +653,11 @@ export const inputListAPI = async (dbName, languageId, token, userId) => {
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in inputListAPI " + error);
+        return error.response;
     }
 }
 
@@ -684,8 +684,11 @@ export const inputSubCategoryAPI = async (dbName, languageId, token, userId, cat
             'authorization': `${token}`,
         },
     };
+    console.log(axiosHeaders)
     try {
-        let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`, axiosHeaders);
+        // console.log(`${config.BASE_URL}inputOutputEntityRoute/listEntityTypes/1/0/2?entity_type_id=${category_id}`)
+        // let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}inputOutputEntityRoute/listEntities/1/0/2?entity_type_id=${category_id}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -1326,7 +1329,6 @@ export const farmerProblemListAPI = async (dbName, languageID, userID, farmer_ty
     try {
         let response = await axios.get(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
         return response;
-        // return console.log(JSON.stringify(response.data.data,null,2));
     } catch (error) {
         CrashlyticsRecordError(error.response);
         return console.log("error in Problem api" + error.response);
@@ -1453,7 +1455,6 @@ export const faremerTrainingListAPI = async (dbName, languageId, userId, state_i
         },
     };
     try {
-
         let response = await axios.get(`${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`, axiosHeaders);
         // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
         return response;
@@ -1493,7 +1494,6 @@ export const FarmerInsuranceListAPI = async (dbName, languageId, token, user_id,
         return error.response;
     }
 }
-
 export const SupervisoroutputEnquiryViewAPI = async (dbName, languageId, token, userId, id) => {
     const axiosHeaders = {
         headers: {
@@ -1505,7 +1505,7 @@ export const SupervisoroutputEnquiryViewAPI = async (dbName, languageId, token, 
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/protofdetails/${id}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error.response);
         return error.response;
     }
 }

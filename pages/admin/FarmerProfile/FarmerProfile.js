@@ -65,6 +65,11 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         policy_no: "",
         sum_insured: ""
     });
+    const [regionaldatas, setregionaldatas] = useState({
+        state: "",
+        district: "",
+        block: "",
+    })
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -192,12 +197,24 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         setfarmerData({ ...farmerData, effective_from: cycleEnds })
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, state,
+            district, block] = await Promise.all([
+                getItem('loginUser_data'),
+                getItem("state"),
+                getItem("district"),
+                getItem("block")
+            ])
         if (loginUser_data) {
             const dbName = loginUser_data.dbname;
             const languageID = loginUser_data.lan_id;
             const token = loginUser_data.token;
             const userID = loginUser_data.user_id;
+            setregionaldatas({
+                ...regionaldatas,
+                state: state,
+                district: district,
+                block: block,
+            })
             const res = await farmerProfileInformation(dbName, languageID, token, userID)
             const farmerFound = res.data.data[0];
             if (farmerFound) {
@@ -469,9 +486,9 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                                 <InputTextForm label={t('age')} value={farmerData.age ?? farmerData.age} keyboardType="numeric"
                                     onChangeText={age => { setfarmerData({ ...farmerData, age: age }) }} />
                                 <DropdownForm label="Language" color="black" data={languageData} onChange={item => { handleLanguage(item) }} val={farmerData.lanName} />
-                                <DropdownForm label={t('pre_state_division_zone')} data={stateAll} onChange={data => { handleStateDistrictBlock("state", data) }} val={farmerData.stateName} />
-                                <DropdownForm label={t('pre_district_county')} data={districtAll} onChange={data => { handleStateDistrictBlock("district", data) }} val={farmerData.districtName} />
-                                <DropdownForm label={t('select_block_sub_county_upzila')} data={blockAll} onChange={item => {
+                                <DropdownForm label={regionaldatas.state == "" ? t('pre_state_division_zone') : t(`${regionaldatas.state}`)} data={stateAll} onChange={data => { handleStateDistrictBlock("state", data) }} val={farmerData.stateName} />
+                                <DropdownForm label={regionaldatas.district == "" ? t('pre_district_county') : t(`${regionaldatas.district}`)} data={districtAll} onChange={data => { handleStateDistrictBlock("district", data) }} val={farmerData.districtName} />
+                                <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} data={blockAll} onChange={item => {
                                     setfarmerData({ ...farmerData, block: item.value })
                                 }} val={farmerData.blockName} />
                             </View>

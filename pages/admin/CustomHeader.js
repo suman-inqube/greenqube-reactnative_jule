@@ -83,15 +83,14 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                 </TouchableOpacity>
             </View>
             <View>
-                {banner !== true && topBanner ?
+                {banner !== true && topBanner &&
                     <ImageForm
                         source={{ uri: topBanner }}
                         resizeMode="cover"
                         height={200}
                         width={'100%'}
-
-                    /> : ''}
-
+                    />
+                }
             </View>
         </View>
     );
@@ -122,6 +121,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginLeft: 15,
         justifyContent: 'center'
+    },
+    image: {
+        width: 200,
+        height: 200
     }
 
 })

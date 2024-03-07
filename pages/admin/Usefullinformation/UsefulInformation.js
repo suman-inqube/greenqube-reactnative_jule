@@ -23,15 +23,25 @@ const UsefulInformation = () => {
     const DocumentDisplay = (props) => {
         return (
             <View >
-                {props.file_ext == "application/pdf" ?
+                {props.file_ext == "application/pdf" &&
                     <Image
                         style={{ width: '100%', height: 100 }}
                         resizeMode="contain"
                         source={require("../../Common/images/icons8-pdf-50.png")}
-                    /> : <Image
+                    />
+                }
+                {
+                    props.file_ext == "image/jpeg" && <Image
                         // resizeMode="contain"
                         style={{ width: '100%', height: 200 }}
                         source={{ uri: props.item }}
+                    />
+                }
+                {
+                    props.file_ext == "video/mp4" && <Image
+                        resizeMode="contain"
+                        style={{ width: '100%', height: 100 }}
+                        source={require("../../Common/images/icons8-play-100.png")}
                     />
                 }
             </View>

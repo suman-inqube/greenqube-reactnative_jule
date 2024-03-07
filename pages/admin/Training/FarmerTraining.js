@@ -23,15 +23,25 @@ const FarmerTraining = () => {
     const DocumentDisplay = (props) => {
         return (
             <View >
-                {props.file_ext == "application/pdf" ?
+                {props.file_ext == "application/pdf" &&
                     <Image
                         style={{ width: '100%', height: 100 }}
                         resizeMode="contain"
                         source={require("../../Common/images/icons8-pdf-50.png")}
-                    /> : <Image
+                    />
+                }
+                {
+                    props.file_ext == "image/jpeg" && <Image
                         // resizeMode="contain"
                         style={{ width: '100%', height: 200 }}
                         source={{ uri: props.item }}
+                    />
+                }
+                {
+                    props.file_ext == "video/mp4" && <Image
+                        resizeMode="contain"
+                        style={{ width: '100%', height: 100 }}
+                        source={require("../../Common/images/icons8-play-100.png")}
                     />
                 }
             </View>
@@ -89,7 +99,7 @@ const FarmerTraining = () => {
                     />
                 </View>
 
-                <View>
+                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
                     {
                         noticeFiles ?
 
@@ -97,7 +107,7 @@ const FarmerTraining = () => {
                                 data={noticeFiles}
                                 keyExtractor={(item) => item.file_id}
                                 renderItem={({ item, index }) => (
-                                    <View style={{ marginBottom: 10 }}>
+                                    <View style={{ width: 200, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
                                         <TouchableOpacity onPress={() => detailItem(item.file_path)}>
                                             <DocumentDisplay
                                                 item={item.file_path}

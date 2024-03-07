@@ -45,10 +45,12 @@ const FarmerViewProblem = ({ navigation }) => {
             formData.append("comment_approved", "1");
             formData.append("comment_parent", "");
             formData.append("farming_type", "crop");
-            formData.append("farmer_fcm", dbLanTokUsr.question_user_fcm);
+            // formData.append("farmer_fcm", dbLanTokUsr.question_user_fcm);
             formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
             formData.append("photo", "");
             const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.farmerID, formData);
+            console.log(formData);
+            console.log("****");
             if (database_res) {
                 MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
                 setComment1("")
@@ -71,10 +73,11 @@ const FarmerViewProblem = ({ navigation }) => {
             secondItem: "",
             thirdItem: "",
         })
-        const problemData = await getItem('problem_Data');
-        const problemIdData = await getItem('problem_id_data');
-        const loginUser_data = await getItem('loginUser_data');
-        // console.log(JSON.stringify(loginUser_data));
+        const [problemData, problemIdData, loginUser_data] = await Promise.all([
+            getItem('problem_Data'),
+            getItem('problem_id_data'),
+            getItem('loginUser_data')
+        ])
         const dbName = loginUser_data.dbname;
         const languageId = loginUser_data.lan_id;
         const token = loginUser_data.token;
@@ -86,17 +89,12 @@ const FarmerViewProblem = ({ navigation }) => {
                 var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
                 // await setItem('farmerProblemDetail' + problemIdData, response);
             }
-            // var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
             await setItem('farmerProblemDetail' + problemIdData, response);
         } else {
             var response = await getItem('farmerProblemDetail' + problemIdData);
         }
         if (response.status === 200) {
             const { agri_user, agent_details } = response.data.data[0];
-            // const farmerArray = problemData.rows
-            // const farmerFound = farmerArray.find(user => user.fid === problemIdData);
-            // console.log(JSON.stringify(farmerFound));
-            // return console.log(JSON.stringify(response.data.data[0], null, 2));
             setFarmerProblem(response.data.data[0]);
             setdbLanTokUsr({
                 ...dbLanTokUsr,
@@ -171,7 +169,7 @@ const FarmerViewProblem = ({ navigation }) => {
         // }
     }
     useEffect(() => {
-        onPageLoad();
+        // onPageLoad();
     }, []);
     useFocusEffect(
         useCallback(() => {

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { getItem } from '../../../config/getDataFromStorage';
 const FarmerPastEnquiriesModel = (props) => {
     const { t } = useTranslation();
-    // console.log(JSON.stringify(props,null,2));
     const [currency, setcurrency] = useState("");
     function formatDateToMMDDYYYY(inputDate) {
         const date = new Date(inputDate);
@@ -65,27 +64,27 @@ const FarmerPastEnquiriesModel = (props) => {
                                     <>
                                         <View style={{ backgroundColor: '#FFF', height: 3, borderRadius: 50 }}></View>
                                         <View style={styles.ModelTtem}>
-                                            <Text style={styles.modelItemTitle}>{'Fulfillment \n Status'}</Text>
+                                            <Text style={styles.modelItemTitle}>{t('full_fill_status')}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('qty')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text>
+                                            <Text style={styles.modelItemTitle}>: {props.qty.qty} - {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('total_amount') + " (" + currency + ")"}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].total_samount}</Text>
+                                            <Text style={styles.modelItemTitle}>:  {props.qty.total}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('discount_amount') + " (" + currency + ")"}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sdiscount}</Text>
+                                            <Text style={styles.modelItemTitle}>:  {props.qty.disTotal}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('grand_total') + " (" + currency + ")"}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sgrand_total}</Text>
+                                            <Text style={styles.modelItemTitle}>:  {props.qty.grandTotal}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('approved_date')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[0].sdate)}</Text>
+                                            <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[props.pastEnquiryView.length - 1].sdate)}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('sta_')}</Text>

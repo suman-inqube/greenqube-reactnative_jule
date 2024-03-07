@@ -10,26 +10,28 @@ import {
   StatusBar,
   BackHandler,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import ImageForm from '../../Common/ImageForm';
 import RadioForm from '../../Common/RadioForm';
 import DatePickerComp from '../../Common/DatePickerComp';
 import WidgetsSide from '../../Common/WidgetsSide';
 import Filter from '../../Common/Filter';
-import {farmerActivityListAPI} from '../../../config/apiHere';
-import {getItem, setItem} from '../../../config/getDataFromStorage';
+import { farmerActivityListAPI } from '../../../config/apiHere';
+import { getItem, setItem } from '../../../config/getDataFromStorage';
 import FarmerActivityDetail from './FarmerActivityDetail';
 import FarmerActivityReport from './FarmerActivityReport';
 import LoadingScreen from '../../Common/LoadingScreen';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import MessageDialog from '../../Common/MessageDialog';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import FarmerFilter from '../../Common/FarmerFilter';
 import DeviceInfo from '../../DeviceInfo';
-const FarmerActivityList = ({navigation}) => {
-  const {t} = useTranslation();
-  const {netConnection} = DeviceInfo();
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
+const FarmerActivityList = ({ navigation }) => {
+  const { t } = useTranslation();
+  const { netConnection } = DeviceInfo();
   const [isLoading, setIsLoading] = useState(true);
   const [reloadList, setReloadList] = useState(false);
   const [activityAll, setactivityAll] = useState([]);
@@ -70,71 +72,49 @@ const FarmerActivityList = ({navigation}) => {
     setFilterOption(false);
   };
 
-  const handlePage = async value => {
-    // console.warn(dbLanTokUsr);
-    const currentPageNo = dbLanTokUsr.pageNo;
-    const totalPage = dbLanTokUsr.totalPage;
-
+  const handlePage = async (value) => {
+    const currentPageNo = dbLanTokUsr.pageNo
+    const totalPage = dbLanTokUsr.totalPage
     if (value === 'next') {
+      setIsLoading(true);
       if (totalPage === currentPageNo) {
-        const response = await farmerActivityListAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          dbLanTokUsr.token,
-          dbLanTokUsr.supervisorId,
-          currentPage,
-        );
-        if (response) {
-          setactivityAll(response.data.data.rows);
-          setItem('activity_Data', response.data.data.rows);
-        }
+        setIsLoading(false);
+        Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+        setactivityAll([]);
+        const nextPage = currentPageNo + 1
+        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
       } else {
-        const nextPage = currentPageNo + 1;
-        setdbLanTokUsr({...dbLanTokUsr, pageNo: nextPage});
-        const response = await farmerActivityListAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          dbLanTokUsr.token,
-          dbLanTokUsr.supervisorId,
-          nextPage,
-        );
+        const nextPage = currentPageNo + 1
+        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
+        const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage)
         if (response) {
+          setIsLoading(false);
           setactivityAll(response.data.data.rows);
-          setItem('activity_Data', response.data.data.rows);
+          setItem("activity_Data", response.data.data.rows)
         }
       }
     }
-
     if (value === 'previous') {
       if (currentPageNo === 1) {
-        const response = await farmerActivityListAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          dbLanTokUsr.token,
-          dbLanTokUsr.supervisorId,
-          currentPage,
-        );
+        const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
         if (response) {
+          setIsLoading(false);
           setactivityAll(response.data.data.rows);
-          setItem('activity_Data', response.data.data.rows);
+          setItem("activity_Data", response.data.data.rows)
         }
       } else {
-        const prePage = currentPageNo - 1;
-        setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
-        const response = await farmerActivityListAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          dbLanTokUsr.token,
-          dbLanTokUsr.supervisorId,
-          prePage,
-        );
+        setIsLoading(true);
+        const prePage = currentPageNo - 1
+        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
+        const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage)
         if (response) {
+          setIsLoading(false);
           setactivityAll(response.data.data.rows);
-          setItem('activity_Data', response.data.data.rows);
+          setItem("activity_Data", response.data.data.rows)
         }
       }
     }
-  };
+  }
 
   const handleFilter = async item => {
     // return console.warn(item);
@@ -159,7 +139,6 @@ const FarmerActivityList = ({navigation}) => {
       }
     }
   };
-
   const handleDatePicker = item => {
     const dt = new Date(item);
     const x = dt.toISOString().split('T');
@@ -192,10 +171,9 @@ const FarmerActivityList = ({navigation}) => {
         setItem('activity_Data', response.data.data.rows);
       }
     } else {
-      MessageDialog({title: 'Require', message: 'Please Select First data.'});
+      MessageDialog({ title: 'Require', message: 'Please Select First data.' });
     }
   };
-
   const navigateToPages = async (pageName, uact_id) => {
     setItem('uact_id_data', uact_id);
     navigation.navigate(pageName);
@@ -282,13 +260,13 @@ const FarmerActivityList = ({navigation}) => {
       setactivityAll(response.data.data.rows);
       setItem('activity_Data', response.data.data.rows);
       setIsLoading(false);
-      setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
+      setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
     }
   };
   return (
-    <>
+    <Root>
       <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} />
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <DatePickerComp
           openDate={openFromDate}
           newDate={newFromDate}
@@ -304,10 +282,9 @@ const FarmerActivityList = ({navigation}) => {
             fromDate == ''
               ? ''
               : new Date(
-                  `${new Date(fromDate).getFullYear()}-${
-                    new Date(fromDate).getMonth() + 1
-                  }-${new Date(fromDate).getDate() + 1}`,
-                )
+                `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
+                }-${new Date(fromDate).getDate() + 1}`,
+              )
           }
         />
 
@@ -339,7 +316,7 @@ const FarmerActivityList = ({navigation}) => {
           <>
             <FlatList
               data={activityAll}
-              renderItem={({item, index}) => (
+              renderItem={({ item, index }) => (
                 <TouchableOpacity
                   style={styles.wrapper}
                   onPress={() =>
@@ -397,7 +374,7 @@ const FarmerActivityList = ({navigation}) => {
           ''
         )}
       </View>
-    </>
+    </Root>
   );
 };
 
@@ -407,7 +384,7 @@ const styles = StyleSheet.create({
   wrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,
@@ -444,7 +421,7 @@ const styles = StyleSheet.create({
   OptionWrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,

@@ -65,6 +65,7 @@ const DealerReport = () => {
         issuseDate: issueDate,
     });
     const [myphoto, setmyPhoto] = useState([]);
+    const [currency, setcurrency] = useState("");
     const handleDatePicker = (item) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
@@ -133,7 +134,11 @@ const DealerReport = () => {
     }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, curr] = await Promise.all([
+            getItem('loginUser_data'),
+            getItem('currency')
+        ])
+        setcurrency(curr)
         if (loginUser_data) {
             const dbName = loginUser_data.dbname;
             const languageID = loginUser_data.lan_id;
@@ -353,7 +358,7 @@ const DealerReport = () => {
                         <TouchableOpacity onPress={() => setopenNewDate(true)} activeOpacity={9}>
                             <Text style={{ marginBottom: 5, color: '#000' }}>{t('date')}</Text>
                             <View style={styles.calenderContainer} >
-                                <Text style={styles.title}>{date}</Text>
+                                <Text style={{ color: '#000' }}>{date}</Text>
                                 <Image
                                     source={require('../../Common/images/calendar.png')}
                                     style={{ width: 20, height: 20 }}
@@ -388,8 +393,8 @@ const DealerReport = () => {
                                     return (
                                         <View key={index} style={styles.addMoreContainer}>
                                             <View style={{ marginLeft: 10 }} >
-                                                <Text style={{ color: '#000', fontFamily: 'Poppins-Regular',fontSize:14 }}>{data.productName}</Text>
-                                                <Text style={{ color: '#000', fontFamily: 'Poppins-Regular',fontSize:14 }}>{data.qty}  {data.unit}</Text>
+                                                <Text style={{ color: '#000', fontFamily: 'Poppins-Regular', fontSize: 14 }}>{data.productName}</Text>
+                                                <Text style={{ color: '#000', fontFamily: 'Poppins-Regular', fontSize: 14 }}>{data.qty}  {data.unit}</Text>
                                             </View>
                                             <TouchableOpacity onPress={() => handleRemovedFields(index)}>
                                                 <Image source={require('../../Common/images/cross.png')}
@@ -426,7 +431,7 @@ const DealerReport = () => {
                         }
                         {
                             dealerData.paymentReceived === "Cash" || dealerData.paymentReceived === "Online" || dealerData.paymentReceived === "Cheque" ?
-                                <InputTextForm label={t('payment_received') + '  ( ₹ )'} onChangeText={(text) => handleAddData(text, 'paymentReceivedRs')} value={dealerData.paymentReceivedRs} /> : ""
+                                <InputTextForm label={t('payment_received') + "(" + currency + ")"} onChangeText={(text) => handleAddData(text, 'paymentReceivedRs')} value={dealerData.paymentReceivedRs} /> : ""
                         }
                         <InputTextForm label={t('comments')} onChangeText={(text) => handleAddData(text, 'comments')} value={dealerData.comments} />
                         <TakePhoto title={t('take_a_photo_optional')} openImagePicker={openImagePicker} selectedImage={selectedImage} />
@@ -458,7 +463,7 @@ const styles = StyleSheet.create({
     title: {
         color: '#000',
         marginVertical: 10,
-        fontFamily: 'Poppins-Regular',fontSize:14
+        fontFamily: 'Poppins-Regular', fontSize: 14
     },
     productPropDownContainer: {
         backgroundColor: '#FFF',

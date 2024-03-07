@@ -38,6 +38,10 @@ const FarmerViewPast = () => {
         token: "",
         supervisorId: ""
     });
+    const [result, setresult] = useState({
+        qty: '',
+        total: '',
+    });
     const [outputListAll, setOutputListAll] = useState([]);
     const [outputListAllRaw, setOutputListRaw] = useState([]);
     const [outputSingle, setOutputSingle] = useState();
@@ -90,12 +94,22 @@ const FarmerViewPast = () => {
         const outputFound = output_data.find(user => user.fid === fid);
         await setItem('output_single_data', outputFound)
         setOutputSingle(outputFound);
-        setModalVisible(true)
         const response = await outputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
-        // setIsLoading(false)
         if (response) {
-            setPastEnquiryView(response.data.data)
+            setPastEnquiryView(response.data.data);
+            var qty = 0;
+            var total = 0;
+            response.data.data.map((data, index) => {
+                qty = qty + parseFloat(data.pro_qty);
+                total = total + parseFloat(data.grand_total);
+            });
+            setresult({
+                ...result,
+                qty: qty,
+                total: total,
+            });
         }
+        setModalVisible(true);
     };
 
     const handleFilter = async (search) => {
@@ -233,7 +247,7 @@ const FarmerViewPast = () => {
                         minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
                     />
                     <ViewModalPast setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle={outputSingle}
-                        pastEnquiryView={pastEnquiryView}
+                        pastEnquiryView={pastEnquiryView} qty={result}
                         style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
                     />
 

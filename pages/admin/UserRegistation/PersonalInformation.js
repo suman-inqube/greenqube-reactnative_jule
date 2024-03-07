@@ -61,6 +61,11 @@ const PersonalInformation = () => {
         cpassword: "",
     });
     const [path, setPath] = useState("");
+    const [regionaldatas, setregionaldatas] = useState({
+        state: "",
+        district: "",
+        block: "",
+    })
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -127,11 +132,20 @@ const PersonalInformation = () => {
         setblockAll(dataArray);
     }
     const onPageLoad = async () => {
-        const [loginUser_data
+        const [loginUser_data, state, district, block
         ] = await Promise.all([
-            getItem('loginUser_data')
+            getItem('loginUser_data'),
+            getItem("state"),
+            getItem("district"),
+            getItem("block")
         ]);
         if (loginUser_data) {
+            setregionaldatas({
+                ...regionaldatas,
+                state: state,
+                district: district,
+                block: block
+            })
             const { dbname, lan_id, token, user_id } = loginUser_data;
             getState(dbname, lan_id);
             setdbLanTokUsr({
@@ -415,9 +429,9 @@ const PersonalInformation = () => {
                                 />
                             </View>
                             <InputTextForm label={t('age')} color="red" keyboardType={'number-pad'} maxLength={2} onChangeText={(value) => handleAddData('age', value)} value={farmerData.age} />
-                            <DropdownForm label={t('state_col')} color="red" data={stateAll} onChange={item => { handleStateInfo(item, 'state', 'stateValue') }} val={farmerData.state} />
-                            <DropdownForm label={t('select_zila')} color="red" data={districtAll} onChange={item => { handleDistrictInfo(item, 'district', 'districtValue') }} val={farmerData.district} />
-                            <DropdownForm label={t('select_block_sub_county_upzila')} color="red" data={blockAll} onChange={item => { handleAddDataBlock(item, 'block', 'bloctValue') }} val={farmerData.block} />
+                            <DropdownForm label={regionaldatas.state == "" ? t('state_col') : t(`${regionaldatas.state}`)} color="red" data={stateAll} onChange={item => { handleStateInfo(item, 'state', 'stateValue') }} val={farmerData.state} />
+                            <DropdownForm label={regionaldatas.district == "" ? t('select_zila') : t(`${regionaldatas.district}`)} color="red" data={districtAll} onChange={item => { handleDistrictInfo(item, 'district', 'districtValue') }} val={farmerData.district} />
+                            <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} color="red" data={blockAll} onChange={item => { handleAddDataBlock(item, 'block', 'bloctValue') }} val={farmerData.block} />
                             <InputTextForm label={t('enter_address')} onChangeText={(value) => handleAddData('address', value)} value={farmerData.address} />
                             <InputTextForm label={t('valid_pin_code')} keyboardType={'number-pad'} maxLength={6} onChangeText={(value) => handleAddData('pin', value)} value={farmerData.pin} />
                             <PasswordComp setPasswordVisibility={setPasswordVisibility} passwordVisibility={passwordVisibility} label={t('new_reg_password')} onChangeText={(value) => handleAddData('password', value)} value={farmerData.password} />
