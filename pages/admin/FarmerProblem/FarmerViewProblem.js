@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
 import FormsTitle from '../../Common/FormsTitle';
 import { getItem, setItem } from '../../../config/getDataFromStorage';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { problemAnswerListAPI, problemCommentListAPI, problemCommentSaveAPI, farmerProblemDetailApi } from '../../../config/apiHere';
@@ -13,6 +13,7 @@ import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import { useTranslation } from 'react-i18next';
 import DeviceInfo from '../../DeviceInfo';
 const FarmerViewProblem = ({ navigation }) => {
+    const isFocused = useIsFocused();
     const netConnection = DeviceInfo();
     const route = useRoute();
     const { t } = useTranslation();
@@ -49,8 +50,6 @@ const FarmerViewProblem = ({ navigation }) => {
             formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
             formData.append("photo", "");
             const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.farmerID, formData);
-            console.log(formData);
-            console.log("****");
             if (database_res) {
                 MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
                 setComment1("")
@@ -84,7 +83,13 @@ const FarmerViewProblem = ({ navigation }) => {
         const farmerID = loginUser_data.user_id;
         if (netConnection) {
             if (route.params != undefined) {
-                var response = await farmerProblemDetailApi(dbName, languageId, route.params.comment_qid);
+                const { comment_qid, type } = route.params;
+                if (type == "comment") {
+                    setBtnColor(2)
+                } else {
+                    setBtnColor(1)
+                }
+                var response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
             } else {
                 var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
                 // await setItem('farmerProblemDetail' + problemIdData, response);
@@ -94,7 +99,8 @@ const FarmerViewProblem = ({ navigation }) => {
             var response = await getItem('farmerProblemDetail' + problemIdData);
         }
         if (response.status === 200) {
-            const { agri_user, agent_details } = response.data.data[0];
+            const { agri_user, agent_details, question_id } = response.data.data[0];
+            console.log(response.data.data[0])
             setFarmerProblem(response.data.data[0]);
             setdbLanTokUsr({
                 ...dbLanTokUsr,
@@ -102,21 +108,20 @@ const FarmerViewProblem = ({ navigation }) => {
                 languageId: languageId,
                 token: token,
                 farmerID: farmerID,
-                question_id: problemIdData,
+                question_id: question_id,
                 question_user_fcm: agri_user.FcmUserToken,
                 question_user_agent_fcm: agent_details.FcmUserToken
             });
-            const commnetList = await problemCommentListAPI(dbName, farmerID, problemIdData)
-            // console.log(JSON.stringify(commnetList.data.data, null, 2));
+            const [commnetList, answerList] = await Promise.all([
+                problemCommentListAPI(dbName, farmerID, question_id),
+                problemAnswerListAPI(dbName, languageId, token, question_id)
+            ])
             if (commnetList.data) {
                 setcommentAll(commnetList.data.data.rows);
             }
-            const answerList = await problemAnswerListAPI(dbName, languageId, token, problemIdData)
-            //  console.log(JSON.stringify(answerList.data.data, null, 2));
             if (answerList) {
                 setAnswerAll(answerList.data.data);
             }
-            // console.log(JSON.stringify(answerList.data.data, null, 2));
             // if (response.data.agri_files) {
             let Imag1 = ''
             let Imag2 = ''
@@ -166,18 +171,20 @@ const FarmerViewProblem = ({ navigation }) => {
             })
             setIsLoading(false)
         }
-        // }
     }
     useEffect(() => {
-        // onPageLoad();
-    }, []);
+        console.error("farmer")
+        if (isFocused) {
+            onPageLoad();
+        }
+    }, [route.params, isFocused]);
     useFocusEffect(
         useCallback(() => {
-            onPageLoad();
+            // onPageLoad();
             const onBackPress = () => { navigation.navigate('FarmerListProblem'); return true; };
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
+        }, [route.params, isFocused])
     );
     const HandlerGoBack = () => {
         navigation.navigate('FarmerListProblem');

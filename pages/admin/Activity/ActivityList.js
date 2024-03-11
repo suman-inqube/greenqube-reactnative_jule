@@ -372,7 +372,7 @@ const ActivityList = ({ navigation }) => {
                             <View style={styles.activityListContainer}>
                                 <View style={styles.activityListItem}>
                                     <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item.agri_user.userName.substring(0, 4) + '...'}</Text>
-                                    <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info.plot_no}</Text>
+                                    <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info.plot_no.substring(0, 8) + '...'}</Text>
                                     <Text style={styles.title}>{t('perf_date')} : {item.act_perform_date.substring(0, 4) + '...'}</Text>
                                 </View>
                                 <View style={styles.activityListItem}>

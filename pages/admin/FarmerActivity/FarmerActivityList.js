@@ -328,7 +328,7 @@ const FarmerActivityList = ({ navigation }) => {
                         {t('pro_reg_name')} : {item.agri_user.userName}
                       </Text>
                       <Text style={styles.title}>
-                        {t('reg_plot_name')} : {item.land_info.plot_no}
+                        {t('reg_plot_name')} : {item.land_info.plot_no.substring(0, 8) + '...'}
                       </Text>
                       <Text style={styles.title}>
                         {t('perf_date')} : {item.act_perform_date}
@@ -390,12 +390,10 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     elevation: 3,
     backgroundColor: '#FFFFFF',
-    // marginHorizontal: 15,
     paddingHorizontal: 7,
     marginVertical: 7,
     paddingVertical: 15,
     marginHorizontal: '2.5%',
-    // height: 100,
   },
   activityListContainer: {
     flexDirection: 'row',

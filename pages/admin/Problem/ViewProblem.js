@@ -13,7 +13,9 @@ import { useTranslation } from 'react-i18next';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
+import DeviceInfo from '../../DeviceInfo';
 const ViewProblem = ({ navigation }) => {
+    const { netConnection } = DeviceInfo();
     const isFocused = useIsFocused();
     const { t } = useTranslation();
     const route = useRoute();
@@ -60,8 +62,7 @@ const ViewProblem = ({ navigation }) => {
                     navigation.navigate('ProblemView');
                 }
             }
-        }
-        else {
+        } else {
             return;
         }
     }
@@ -81,14 +82,23 @@ const ViewProblem = ({ navigation }) => {
             const languageId = loginUser_data.lan_id;
             const token = loginUser_data.token;
             const supervisorId = loginUser_data.user_id;
+            // if (netConnection) {
             if (route.params != undefined) {
-                var response = await farmerProblemDetailApi(dbName, languageId, route.params.comment_qid);
+                const { comment_qid, type } = route.params;
+                if (type == "comment") {
+                    setBtnColor(2)
+                } else {
+                    setBtnColor(1)
+                }
+                var response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
             } else {
                 var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
             }
+            // } else {
+
+            // }
             if (response.status === 200) {
                 const { agri_user, agent_details, question_id, agri_files } = response.data.data[0];
-                // console.warn(JSON.stringify(response.data.data[0]))
                 setFarmerProblem(response.data.data[0]);
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
@@ -107,7 +117,7 @@ const ViewProblem = ({ navigation }) => {
                 if (commnetList.data) {
                     setcommentAll(commnetList.data.data.rows);
                 }
-                if (answerList) {
+                if (answerList.data) {
                     setAnswerAll(answerList.data.data);
                 }
                 if (agri_files) {
@@ -176,15 +186,18 @@ const ViewProblem = ({ navigation }) => {
         navigation.navigate('ProblemList');
     }
     useEffect(() => {
-        onPageLoad();
+        if (isFocused) {
+            onPageLoad();
+        }
     }, [route.params, isFocused]);
     useFocusEffect(
         useCallback(() => {
+            // console.error("aaa")
             // onPageLoad();
             const onBackPress = () => { navigation.navigate('ProblemList'); return true; };
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
+        }, [route.params, isFocused])
     );
     return (
         <Root>

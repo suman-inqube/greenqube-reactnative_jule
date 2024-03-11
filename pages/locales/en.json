@@ -954,7 +954,7 @@
     "approved_date": "Approved Date",
     "sta_": "Status",
     "full_fill_status": "Fulfillment status",
-    "pending_": "Pending",
+    "pending": "Pending",
     "processed": "Processed",
     "paid_": "Paid",
     "activity_date": "Activity Scheduled Date",
@@ -1023,5 +1023,5 @@
     "cheque": "Cheque",
     "product_sub_category": "Product Sub Category",
     "title_activity_maps": "MapsActivity",
-    "closed": "closed"
+    "closed": "Closed"
 }

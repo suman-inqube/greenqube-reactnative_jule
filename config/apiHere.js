@@ -203,7 +203,7 @@ export const fpodetailsDataListAPI = async (dbName, languageID, token, userID, c
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error with fpodetails api" + error.response);
+        return error.response;
     }
 
 }
@@ -1358,8 +1358,6 @@ export const farmerProblemDetailApi = async (dbName, languageID, quesId) => {
             'information': `${dbName},${languageID}`,
         },
     };
-    console.log(`${config.BASE_URL}questionRoute/details/${quesId}`, axiosHeaders);
-
     try {
         let response = await axios.get(`${config.BASE_URL}questionRoute/details/${quesId}`, axiosHeaders);
         return response;

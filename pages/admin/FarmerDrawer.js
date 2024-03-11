@@ -29,20 +29,25 @@ const FarmerDrawer = (props) => {
 
     }
     const removeData = async () => {
-        await Promise.all([
-            removeItem("logoImageData"),
-            removeItem('loginUser_data'),
-            removeItem("profileImgData"),
-            removeItem("userNameData"),
-            removeItem("userType"),
-            removeItem("bottomBannerData"),
-            removeItem("topBannerData"),
-            removeItem("currency"),
-            // removeItem('fcmToken')
-        ]);
-        const popAction = StackActions.pop(1);
-        navigation.dispatch(popAction);
-        navigation.navigate('Login');
+        if (netConnection) {
+            await Promise.all([
+                removeItem("logoImageData"),
+                removeItem('loginUser_data'),
+                removeItem("profileImgData"),
+                removeItem("userNameData"),
+                removeItem("userType"),
+                removeItem("bottomBannerData"),
+                removeItem("topBannerData"),
+                removeItem("currency"),
+                removeItem('fcmToken'),
+                removeItem('company_website')
+            ]);
+            const popAction = StackActions.pop(1);
+            navigation.dispatch(popAction);
+            navigation.navigate('Login');
+        } else {
+            Alert.alert("You are offline hence cannot proceed");
+        }
     }
     const navigateToPages = (pageName) => {
         if (netConnection) {

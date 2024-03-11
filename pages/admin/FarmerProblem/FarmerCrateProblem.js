@@ -225,7 +225,7 @@ const FarmerCreateProblem = ({ navigation }) => {
           sowing_date: response.data.data.rows[0].sowing_date,
           production_system:
             response.data.data.rows[0].farmer_production_system.fa_id,
-          agent_id: dbLanTokUsr.userID,
+          agent_id: dbLanTokUsr.supervisor_id,
         });
         setCropType(response.data.data.rows[0].crop_type.fid);
         setCropName(response.data.data.rows[0].crop_name.fid);
@@ -531,14 +531,16 @@ const FarmerCreateProblem = ({ navigation }) => {
       const languageID = loginUser_data.lan_id;
       const token = loginUser_data.token;
       const userID = loginUser_data.user_id;
+      const { owner, FcmUserToken } = loginUser_data;
       setdbLanTokUsr({
         ...dbLanTokUsr,
         dbName: dbName,
         languageID: languageID,
         token: token,
         userID: userID,
-        FcmUserToken: loginUser_data.FcmUserToken,
-        owner: loginUser_data.owner.FcmUserToken
+        FcmUserToken: FcmUserToken,
+        owner: owner.FcmUserToken,
+        supervisor_id: owner.user_id
       });
       setfarmerID(userID);
       var responsePlot = [];
@@ -725,13 +727,6 @@ const FarmerCreateProblem = ({ navigation }) => {
       formData.append('question_title', saveData.question_title);
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
-      // console.log(axiosHeaders);
-      // const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
-      // if (database_res.status === 200) {
-      //     MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
-      //     handleClear();
-      //     navigation.navigate('FarmerListProblem');
-      // }
       if (netConnection) {
         const database_res = await problemSaveAPI(
           dbLanTokUsr.dbName,

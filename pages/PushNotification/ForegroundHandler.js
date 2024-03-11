@@ -19,7 +19,7 @@ const ForegroundHandler = () => {
     }
     useEffect(() => {
         const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-            console.log("handle in foreground", remoteMessage)
+            // console.log("handle in foreground", remoteMessage)
             const userType = await getItem('userType');
             const { notification, messageId } = remoteMessage
             if (Platform.OS == 'ios') {
@@ -43,12 +43,18 @@ const ForegroundHandler = () => {
                     onNotification: function (notification) {
                         if (notification.userInteraction) {
                             const { type, response } = notification.data;
-                            const responseCommentJson = JSON.parse(response)
+                            const responseCommentJson = JSON.parse(response);
                             if (type == 'comment') {
                                 if (userType == 3) {
-                                    navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid });
+                                    navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid, type: type });
                                 } else {
-                                    navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid });
+                                    navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid, type: type });
+                                }
+                            } else if (type == 'answer') {
+                                if (userType == 3) {
+                                    navigation.navigate("ProblemView", { comment_qid: responseCommentJson.question_id, type: type });
+                                } else {
+                                    navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.question_id, type: type });
                                 }
                             } else if (type == 'problem') {
                                 if (userType == 3) {

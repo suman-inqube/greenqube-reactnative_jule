@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { getItem, setItem } from '../../config/getDataFromStorage';
 import { Platform } from 'react-native';
+import ForegroundHandler from './ForegroundHandler';
 const notificationServices = () => {
   const navigation = useNavigation();
   const requestUserPermission = async () => {
@@ -37,6 +38,7 @@ const notificationServices = () => {
     const userType = await getItem('userType');
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', remoteMessage);
+      <ForegroundHandler />
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log(
@@ -47,9 +49,15 @@ const notificationServices = () => {
       const responseCommentJson = JSON.parse(response);
       if (type == 'comment') {
         if (userType == 3) {
-          navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid });
+          navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid, type: type });
         } else if (userType == 2) {
-          navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid });
+          navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid, type: type });
+        }
+      } else if (type == 'answer') {
+        if (userType == 3) {
+          navigation.navigate("ProblemView", { comment_qid: responseCommentJson.question_id, type: type });
+        } else if (userType == 2) {
+          navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.question_id, type: type });
         }
       } else if (type == 'problem') {
         if (userType == 3) {
@@ -89,19 +97,20 @@ const notificationServices = () => {
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
-          console.error("666")
           const { type, response } = remoteMessage.data;
           const responseCommentJson = JSON.parse(response);
           if (type == 'comment') {
             if (userType == 3) {
               setTimeout(() => {
-                navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid });
+                navigation.navigate("ProblemView", { comment_qid: responseCommentJson.question_id, type: type });
               }, 1200);
             } else if (userType == 2) {
               setTimeout(() => {
-                navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid });
+                navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.question_id, type: type });
               }, 1200);
             }
+          } else if (type == 'answer') {
+
           } else if (type == 'problem') {
             if (userType == 3) {
               setTimeout(() => {

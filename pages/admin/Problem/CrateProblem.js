@@ -134,7 +134,7 @@ const CreateProblem = ({ navigation }) => {
         setSearchFarmerName(name);
         setShowingMenu(false);
         setSearchResults([]);
-        setfarmerID(currentfarmerId)
+        setfarmerID(currentfarmerId);
         setSaveData({ ...saveData, farmer_fcm: FcmUserToken })
         if (netConnection) {
             var response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
@@ -348,22 +348,13 @@ const CreateProblem = ({ navigation }) => {
         }
     }
     const requestLivePermission = async () => {
-        try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                Geolocation.getCurrentPosition(data =>
-                    setSaveData({
-                        ...saveData,
-                        latitude: data.coords.latitude,
-                        longitude: data.coords.longitude,
-                    })
-                )
-            } else {
-                console.log('Location permission denied');
-            }
-        } catch (err) {
-            console.warn(err);
+        const { latitude, longitude } = await getItem('fusedLocation');
+        if (latitude != null) {
+            setSaveData({
+                ...saveData,
+                latitude: latitude,
+                longitude: longitude,
+            })
         }
     };
     function handleClear() {

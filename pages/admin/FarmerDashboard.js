@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, StatusBar, Alert, BackHandler, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, StatusBar, Alert, BackHandler, ScrollView } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import { getItem, removeItem } from '../../config/getDataFromStorage';
 import { BoxDisplay, BoxDisplayDeactive } from './dashboardComp';
@@ -31,6 +31,7 @@ const FarmerDashboard = ({ navigation }) => {
     const [latLong, setLatLong] = useState({
         latitude: "", longitude: ""
     });
+    const [company_website, setcompany_website] = useState("");
     const navigateToPages = (pageName) => {
         if (netConnection) {
             if (pageName == 'Weather') {
@@ -47,35 +48,25 @@ const FarmerDashboard = ({ navigation }) => {
     const onPageLoad = async () => {
         const [bottomBannerData,
             userNameData,
-            profileImgData, loginUser_data] = await Promise.all([
+            profileImgData, loginUser_data, company_website] = await Promise.all([
                 getItem('bottomBannerData'),
                 getItem('userNameData'),
                 getItem('profileImgData'),
                 getItem('loginUser_data'),
+                getItem('company_website'),
                 // GeolocationApi(),
             ]);
         // console.log(loginUser_data.lan_id)
 
         i18next.changeLanguage(`${loginUser_data.lan_id}`);
         setbottomBanner(bottomBannerData);
+        setcompany_website(company_website);
         setuserName(userNameData);
         setprofileImg(profileImgData);
 
     };
-    const GeolocationApi = async () => {
-        Geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                setLatLong({ ...latLong, latitude: latitude, longitude: longitude })
-            },
-            (error) => {
-                console.error(error);
-            },
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-        );
-    }
+
     useEffect(() => {
-        console.log(netConnection)
         requestUserPermission();
         notificationListener();
         onPageLoad();
@@ -106,10 +97,16 @@ const FarmerDashboard = ({ navigation }) => {
             ],
             { cancelable: false });
     }
+    const CompanyWebsiteOpen = () => {
+        if (company_website != "") {
+            Linking.openURL(company_website)
+        } else {
+            Alert.alert("Company website not found")
+        }
+    }
     return (
         <>
             <BackGroundLocation />
-
             <ForegroundLocationService />
             <ForegroundHandler />
             <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
@@ -147,18 +144,22 @@ const FarmerDashboard = ({ navigation }) => {
                     <BoxDisplay text={t('training_support')} imageurl={require('../Common/images/training_support_green.png')} onpress={() => navigateToPages('FarmerTrainingList')} />
                 </View>
                 {bottomBanner ?
-                    <ImageForm
-                        source={{ uri: bottomBanner }}
-                        resizeMode="cover"
-                        height={320}
-                        width={'100%'}
-                    />
-                    : <ImageForm
-                        source={require('../Common/images/ad_banner_space.jpg')}
-                        resizeMode="cover"
-                        height={200}
-                        width={'100%'}
-                    />}
+                    <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                        <ImageForm
+                            source={{ uri: bottomBanner }}
+                            resizeMode="cover"
+                            height={320}
+                            width={'100%'}
+                        />
+                    </TouchableOpacity>
+                    : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                        <ImageForm
+                            source={require('../Common/images/ad_banner_space.jpg')}
+                            resizeMode="cover"
+                            height={200}
+                            width={'100%'}
+                        />
+                    </TouchableOpacity>}
             </ScrollView>
         </>
 

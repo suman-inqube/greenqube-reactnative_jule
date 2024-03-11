@@ -102,11 +102,19 @@ const Login = ({ route }) => {
                         password: "",
                         role: ""
                     })
-                    console.log(loginUserdata.sa_company[0].company_code)
                     const [fpoDetailsList_res, reginalRes] = await Promise.all([
                         fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
                         reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
                     ]);
+                    if (fpoDetailsList_res.status === 200) {
+                        const { company_website } = fpoDetailsList_res.data.data[0];
+                        var url_regex = /^(http|https)/;
+                        if (url_regex.test(String(company_website).toLowerCase()) == true) {
+                            await setItem("company_website", company_website);
+                        } else {
+                            await setItem("company_website", `https://${company_website}`);
+                        }
+                    }
                     if (reginalRes.status === 200) {
                         const datam = reginalRes.data.data.rows;
                         datam.map(async (item) => {
