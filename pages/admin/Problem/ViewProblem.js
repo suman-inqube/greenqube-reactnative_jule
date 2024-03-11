@@ -2,7 +2,7 @@ import { BackHandler, StyleSheet, Text, View, ScrollView, Image, TouchableOpacit
 import React, { useEffect, useState, useCallback } from 'react'
 import FormsTitle from '../../Common/FormsTitle';
 import { getItem } from '../../../config/getDataFromStorage';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { problemAnswerListAPI, problemCommentListAPI, problemCommentSaveAPI, farmerProblemDetailApi } from '../../../config/apiHere';
@@ -13,7 +13,10 @@ import { useTranslation } from 'react-i18next';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
+import DeviceInfo from '../../DeviceInfo';
 const ViewProblem = ({ navigation }) => {
+    const { netConnection } = DeviceInfo();
+    const isFocused = useIsFocused();
     const { t } = useTranslation();
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +49,7 @@ const ViewProblem = ({ navigation }) => {
             formData.append("comment_parent", "");
             formData.append("farming_type", "crop");
             formData.append("farmer_fcm", dbLanTokUsr.question_user_fcm);
-            formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
+            // formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
             formData.append("photo", "");
             const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, formData);
             if (database_res) {
@@ -59,31 +62,41 @@ const ViewProblem = ({ navigation }) => {
                     navigation.navigate('ProblemView');
                 }
             }
-        }
-        else {
+        } else {
             return;
         }
     }
-
     const onPageLoad = async () => {
         setSelectedImage({
             firstItem: "",
             secondItem: "",
             thirdItem: "",
         })
-        const problemData = await getItem('problem_Data');
-        const problemIdData = await getItem('problem_id_data');
+        const [problemData, problemIdData, loginUser_data] = await Promise.all([
+            getItem('problem_Data'),
+            getItem('problem_id_data'),
+            getItem('loginUser_data')
+        ]);
         if (problemData) {
-            const loginUser_data = await getItem('loginUser_data');
             const dbName = loginUser_data.dbname;
             const languageId = loginUser_data.lan_id;
             const token = loginUser_data.token;
             const supervisorId = loginUser_data.user_id;
+            // if (netConnection) {
             if (route.params != undefined) {
-                var response = await farmerProblemDetailApi(dbName, languageId, route.params.comment_qid);
+                const { comment_qid, type } = route.params;
+                if (type == "comment") {
+                    setBtnColor(2)
+                } else {
+                    setBtnColor(1)
+                }
+                var response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
             } else {
                 var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
             }
+            // } else {
+
+            // }
             if (response.status === 200) {
                 const { agri_user, agent_details, question_id, agri_files } = response.data.data[0];
                 setFarmerProblem(response.data.data[0]);
@@ -97,16 +110,16 @@ const ViewProblem = ({ navigation }) => {
                     question_user_fcm: agri_user.FcmUserToken,
                     question_user_agent_fcm: agent_details.FcmUserToken
                 });
-
-                const commnetList = await problemCommentListAPI(dbName, supervisorId, question_id)
+                const [commnetList, answerList] = await Promise.all([
+                    problemCommentListAPI(dbName, supervisorId, question_id),
+                    problemAnswerListAPI(dbName, languageId, token, question_id)
+                ])
                 if (commnetList.data) {
                     setcommentAll(commnetList.data.data.rows);
                 }
-                const answerList = await problemAnswerListAPI(dbName, languageId, token, question_id)
-                if (answerList) {
+                if (answerList.data) {
                     setAnswerAll(answerList.data.data);
                 }
-                // console.log(JSON.stringify(answerList.data.data, null, 2));
                 if (agri_files) {
                     let Imag1 = ''
                     let Imag2 = ''
@@ -116,11 +129,10 @@ const ViewProblem = ({ navigation }) => {
                     let audio3 = '';
                     const agri_files_image = agri_files.filter(function (v, i) {
                         return ((v["file_ext"] == "image/jpeg"));
-                    })
+                    });
                     const agri_files_mp3 = agri_files.filter(function (v, i) {
                         return ((v["file_ext"] == "audio/mp3"));
-                    })
-                    // console.log(agri_files_mp3);
+                    });
                     for (let i = 0; i < 3; i++) {
                         if (agri_files_image[0] != undefined) {
                             Imag1 = agri_files_image[0].file_path
@@ -174,15 +186,18 @@ const ViewProblem = ({ navigation }) => {
         navigation.navigate('ProblemList');
     }
     useEffect(() => {
-        onPageLoad();
-    }, [route.params]);
+        if (isFocused) {
+            onPageLoad();
+        }
+    }, [route.params, isFocused]);
     useFocusEffect(
         useCallback(() => {
+            // console.error("aaa")
             // onPageLoad();
             const onBackPress = () => { navigation.navigate('ProblemList'); return true; };
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
+        }, [route.params, isFocused])
     );
     return (
         <Root>
@@ -397,8 +412,7 @@ export default ViewProblem
 
 const styles = StyleSheet.create({
     container: {
-        width: '90%',
-        marginHorizontal: '5%',
+        marginHorizontal: '2%',
         backgroundColor: '#FFF',
         borderRadius: 8
     },
@@ -456,8 +470,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular'
     },
     commentsContainer: {
-        width: '90%',
-        marginHorizontal: '5%',
+        marginHorizontal: '2%',
         marginTop: 10,
         flexDirection: 'row',
         alignItems: 'center',
@@ -472,7 +485,7 @@ const styles = StyleSheet.create({
     AnsContainer: {
         backgroundColor: '#FFF',
         padding: 8, borderRadius: 10, elevation: 5,
-        width: '90%', marginHorizontal: '5%',
+        marginHorizontal: '2%',
     },
     AnsItem: {
         flexDirection: 'row', alignItems: 'center',

@@ -12,9 +12,9 @@ import {
   Button,
   Animated,
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import FormsTitle from '../../Common/FormsTitle';
 import RadioForm from '../../Common/RadioForm';
 import DropdownForm from '../../Common/DropdownForm';
@@ -23,10 +23,10 @@ import InputTextForm from '../../Common/InputTextForm';
 import DatePickerComp from '../../Common/DatePickerComp';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import Marker, {Position, TextBackgroundType} from 'react-native-image-marker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import Marker, { Position, TextBackgroundType } from 'react-native-image-marker';
 import ButtonForm from '../../Common/ButtonForm';
-import {getItem, removeItem, setItem} from '../../../config/getDataFromStorage';
+import { getItem, removeItem, setItem } from '../../../config/getDataFromStorage';
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
@@ -42,9 +42,9 @@ import CustomHeader from '../CustomHeader';
 import LoadingScreen from '../../Common/LoadingScreen';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
-import {Root, Toast} from 'react-native-popup-confirm-toast';
-import {AlertMesg} from '../../Common/ToastAlert';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import { Root, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../../Common/ToastAlert';
 import {
   useRoute,
   useFocusEffect,
@@ -52,13 +52,13 @@ import {
   useIsFocused,
 } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
-import {useTranslation} from 'react-i18next';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import { useTranslation } from 'react-i18next';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import DeviceInfo from '../../DeviceInfo';
-const FarmerCreateProblem = ({navigation}) => {
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+const FarmerCreateProblem = ({ navigation }) => {
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const isFocused = useIsFocused();
   const scrollOffsetY = useRef(new Animated.Value(0)).current;
   const [isLoading, setIsLoading] = useState(true);
@@ -225,7 +225,7 @@ const FarmerCreateProblem = ({navigation}) => {
           sowing_date: response.data.data.rows[0].sowing_date,
           production_system:
             response.data.data.rows[0].farmer_production_system.fa_id,
-          agent_id: dbLanTokUsr.userID,
+          agent_id: dbLanTokUsr.supervisor_id,
         });
         setCropType(response.data.data.rows[0].crop_type.fid);
         setCropName(response.data.data.rows[0].crop_name.fid);
@@ -238,15 +238,15 @@ const FarmerCreateProblem = ({navigation}) => {
           );
           await setItem(
             'problemProductionStage' +
-              response.data.data.rows[0].crop_type_id +
-              response.data.data.rows[0].crop_name_id,
+            response.data.data.rows[0].crop_type_id +
+            response.data.data.rows[0].crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'problemProductionStage' +
-              response.data.data.rows[0].crop_type_id +
-              response.data.data.rows[0].crop_name_id,
+            response.data.data.rows[0].crop_type_id +
+            response.data.data.rows[0].crop_name_id,
           );
         }
         if (productionStage_res) {
@@ -293,16 +293,15 @@ const FarmerCreateProblem = ({navigation}) => {
           },
           watermarkTexts: [
             {
-              text: `${saveData.latitude},${
-                saveData.longitude
-              },${new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              }).format(timestamp)}`,
+              text: `${saveData.latitude},${saveData.longitude
+                },${new Intl.DateTimeFormat('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                }).format(timestamp)}`,
 
               positionOptions: {
                 position: Position.bottomLeft,
@@ -359,7 +358,7 @@ const FarmerCreateProblem = ({navigation}) => {
     const x1 = x[0].split('-');
     const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
     setaffectedDate(effective_date);
-    setSaveData({...saveData, affected_date: effective_date});
+    setSaveData({ ...saveData, affected_date: effective_date });
   };
   const handleProblemType = problem_type => {
     setSaveData({
@@ -532,12 +531,16 @@ const FarmerCreateProblem = ({navigation}) => {
       const languageID = loginUser_data.lan_id;
       const token = loginUser_data.token;
       const userID = loginUser_data.user_id;
+      const { owner, FcmUserToken } = loginUser_data;
       setdbLanTokUsr({
         ...dbLanTokUsr,
         dbName: dbName,
         languageID: languageID,
         token: token,
         userID: userID,
+        FcmUserToken: FcmUserToken,
+        owner: owner.FcmUserToken,
+        supervisor_id: owner.user_id
       });
       setfarmerID(userID);
       var responsePlot = [];
@@ -700,8 +703,8 @@ const FarmerCreateProblem = ({navigation}) => {
         });
       }
       formData.append('post_meta_info', JSON.stringify(array));
-      formData.append('agent_fcm', dbLanTokUsr.farmer_fcm);
-      formData.append('farmer_fcm', dbLanTokUsr.farmer_fcm);
+      formData.append('agent_fcm', dbLanTokUsr.owner);
+      // formData.append('farmer_fcm', dbLanTokUsr.FcmUserToken);
       formData.append('latitude', saveData.latitude);
       formData.append('longitude', saveData.longitude);
       formData.append('question_type', saveData.question_type);
@@ -724,13 +727,6 @@ const FarmerCreateProblem = ({navigation}) => {
       formData.append('question_title', saveData.question_title);
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
-      // console.log(axiosHeaders);
-      // const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
-      // if (database_res.status === 200) {
-      //     MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
-      //     handleClear();
-      //     navigation.navigate('FarmerListProblem');
-      // }
       if (netConnection) {
         const database_res = await problemSaveAPI(
           dbLanTokUsr.dbName,
@@ -740,7 +736,7 @@ const FarmerCreateProblem = ({navigation}) => {
           formData,
         );
         if (database_res.status === 200) {
-          MessageDialog({title: 'Successful', message: 'Successfull Add Data'});
+          MessageDialog({ title: 'Successful', message: 'Data submitted successfully' });
           handleClear();
           navigation.navigate('FarmerListProblem');
         }
@@ -750,7 +746,6 @@ const FarmerCreateProblem = ({navigation}) => {
         let offlineDataArr = await getItem('offlineFarmerProblemData');
         // console.log(formData);
         if (offlineDataArr) {
-          // offlineDataArr.push('off'+timeStamp);
           await setItem(
             'offlineFarmerProblemData',
             offlineDataArr + ',' + 'off' + timeStamp,
@@ -758,12 +753,9 @@ const FarmerCreateProblem = ({navigation}) => {
         } else {
           await setItem('offlineFarmerProblemData', '00,off' + timeStamp);
         }
-        // console.log(await getItem('offlineFarmerProblemData'));
-        // console.log(await getItem('off1709019798669'));
-
         MessageDialog({
           title: 'Successful',
-          message: 'Successfull Add Data off line',
+          message: 'Data submitted successfully',
         });
         handleClear();
         navigation.navigate('FarmerListProblem');
@@ -834,7 +826,7 @@ const FarmerCreateProblem = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -847,7 +839,7 @@ const FarmerCreateProblem = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
+      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1004,25 +996,28 @@ const FarmerCreateProblem = ({navigation}) => {
               color="red"
               data={productionStageAll}
               onChange={production_stage =>
-                setSaveData({...saveData, growth_stage: production_stage.value})
+                setSaveData({ ...saveData, growth_stage: production_stage.value })
               }
             />
             <DropdownForm
               label={t('problem_type')}
+              color="red"
               data={problemTypeAll}
               onChange={item => handleProblemType(item)}
             />
             <DropdownForm
               label={t('select_problem')}
+              color="red"
               data={problemNameAll}
               onChange={item => handleProblemName(item)}
             />
             {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
             <DropdownForm
               label={t('select_severity')}
+              color="red"
               data={severityAll}
               onChange={item =>
-                setSaveData({...saveData, severity_id: item.value})
+                setSaveData({ ...saveData, severity_id: item.value })
               }
             />
             <InputTextForm
@@ -1030,30 +1025,30 @@ const FarmerCreateProblem = ({navigation}) => {
               value={nameVarityStartEnd.production_process}
             />
             <View>
-              <Text style={{color: '#000'}}>
+              <Text style={{ color: 'red' }}>
                 {t('agent_crop_problem_affected_date')}
               </Text>
               <TouchableOpacity
                 style={styles.activityPerFromDate}
                 onPress={() => setaddAffectedDate(true)}>
-                <Text style={{color: '#000'}}>{affectedDate}</Text>
+                <Text style={{ color: '#000' }}>{affectedDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{width: 20, height: 20}}
+                  style={{ width: 20, height: 20 }}
                 />
               </TouchableOpacity>
             </View>
             <InputTextForm
               label={t('enter_problem_title')}
               onChangeText={item =>
-                setSaveData({...saveData, question_title: item})
+                setSaveData({ ...saveData, question_title: item })
               }
               value={saveData.question_title}
             />
             <InputTextForm
               label={t('enter_problem_description')}
               onChangeText={item =>
-                setSaveData({...saveData, question_desc: item})
+                setSaveData({ ...saveData, question_desc: item })
               }
               value={saveData.question_desc}
             />
@@ -1078,7 +1073,7 @@ const FarmerCreateProblem = ({navigation}) => {
           </View>
         )}
       </ScrollView>
-      <View style={{marginTop: 10}}>
+      <View style={{ marginTop: 10 }}>
         <ButtonForm label={t('submit')} onPress={() => handleSave()} />
       </View>
       <Root></Root>

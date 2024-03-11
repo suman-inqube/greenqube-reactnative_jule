@@ -27,15 +27,25 @@ const FarmerUsefulInformation = () => {
     const DocumentDisplay = (props) => {
         return (
             <View >
-                {props.file_ext == "application/pdf" ?
+                {props.file_ext == "application/pdf" &&
                     <Image
                         style={{ width: '100%', height: 100 }}
                         resizeMode="contain"
                         source={require("../../Common/images/icons8-pdf-50.png")}
-                    /> : <Image
+                    />
+                }
+                {
+                    props.file_ext == "image/jpeg" && <Image
                         // resizeMode="contain"
                         style={{ width: '100%', height: 200 }}
                         source={{ uri: props.item }}
+                    />
+                }
+                {
+                    props.file_ext == "video/mp4" && <Image
+                        resizeMode="contain"
+                        style={{ width: '100%', height: 100 }}
+                        source={require("../../Common/images/icons8-play-100.png")}
                     />
                 }
             </View>
@@ -53,9 +63,7 @@ const FarmerUsefulInformation = () => {
             const languageID = loginUser_data.lan_id;
             const token = loginUser_data.token;
             let response = await noticeDetailsAPI(dbName, languageID, token, noticeId);
-
             if (response) {
-                console.log(JSON.stringify(response.data.data, null, 2));
                 setNoticeDetails(response.data.data[0])
                 setNoticeFiles(response.data.data[0].agri_files)
             }

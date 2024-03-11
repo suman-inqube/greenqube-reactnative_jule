@@ -28,6 +28,12 @@ const FarmerPastEnquiries = ({ navigation }) => {
     const [pastEnquiries, setPastEnquiries] = useState(false);
     const [pastEnquirySingle, setPastEnquirySingle] = useState(false);
     const [pastEnquiryView, setPastEnquiryView] = useState([]);
+    const [result, setresult] = useState({
+        qty: "",
+        total: "",
+        grandTotal: "",
+        disTotal: "",
+    });
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -44,12 +50,28 @@ const FarmerPastEnquiries = ({ navigation }) => {
         const input_past_enquiry_Data = await getItem('input_past_enquiry_Data');
         const EnquiryFound = input_past_enquiry_Data.find(user => user.fid === fid);
         setPastEnquirySingle(EnquiryFound);
-        setPastEnquiries(true)
         const response = await inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
-        // setIsLoading(false)
         if (response) {
             setPastEnquiryView(response.data.data)
+            var qty = 0;
+            var grandTotal = 0;
+            var disTotal = 0;
+            var total = 0;
+            response.data.data.map((data, index) => {
+                qty = qty + parseFloat(data.sqty);
+                grandTotal = grandTotal + parseFloat(data.sgrand_total);
+                disTotal = disTotal + parseFloat(data.sdiscount);
+                total = total + parseFloat(data.total_samount);
+            });
+            setresult({
+                ...result,
+                qty: qty,
+                total: total,
+                grandTotal: grandTotal,
+                disTotal: disTotal,
+            });
         }
+        setPastEnquiries(true);
     };
     const onPageLoad = async () => {
         const loginUser_data = await getItem('loginUser_data');
@@ -83,7 +105,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
             const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fromDate, toDate);
             if (inputList) {
                 setInputPastEnquiryAll(inputList.data.data.rows)
-                setItem("input_past_enquiry_Data", inputList.data.data)
+                setItem("input_past_enquiry_Data", inputList.data.data.rows)
                 setIsLoading(false)
             }
         }
@@ -95,25 +117,15 @@ const FarmerPastEnquiries = ({ navigation }) => {
         const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
         setToDate(effective_date)
         if (fromDate) {
-            // let fromDate = fromDateFilter;
-            // let toDate = effective_date;
-            // let mobileNo = "";
-
-            console.log(dbLanTokUsr.dbName);
-            console.log(dbLanTokUsr.languageId);
-            console.log(dbLanTokUsr.token);
-            console.log(dbLanTokUsr.supervisorId);
-
             const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fromDate, effective_date);
             if (inputList) {
                 setInputPastEnquiryAll(inputList.data.data.rows)
-                setItem("input_past_enquiry_Data", inputList.data.data)
+                setItem("input_past_enquiry_Data", inputList.data.data.rows)
                 setIsLoading(false)
             }
         }
 
     }
-
     const requestCameraPermission = async () => {
         try {
             const granted = await PermissionsAndroid.request(
@@ -151,7 +163,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
         const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, "", "");
         if (inputList) {
             setInputPastEnquiryAll(inputList.data.data.rows)
-            setItem("input_past_enquiry_Data", inputList.data.data)
+            setItem("input_past_enquiry_Data", inputList.data.data.rows)
             setIsLoading(false)
         }
     }
@@ -186,6 +198,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
                     onlyDate={true}
                 />
                 <FarmerPastEnquiriesModel setModalVisible={setPastEnquiries} modalVisible={pastEnquiries} pastEnquirySingle={pastEnquirySingle} pastEnquiryView={pastEnquiryView}
+                    qty={result}
                     style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} />
                 {
                     isLoading ?

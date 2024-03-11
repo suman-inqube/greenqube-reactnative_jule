@@ -261,6 +261,8 @@ const ActivityList = ({ navigation }) => {
         setSearchFarmerName("");
         setSearchFarmerPhone("");
         setSearchResultsList(false);
+        setfromDate("");
+        setToDate("");
         navigation.navigate('Dashboard');
     }
     const handleResultSelect = async (name, user_id1, phone) => {
@@ -277,7 +279,7 @@ const ActivityList = ({ navigation }) => {
     }
     useEffect(() => {
         if (isFocused) {
-            if (openFromDate == "" && openToDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
+            if (fromDate == "" && toDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
                 onPageLoad();
             }
             const onBackPress = () => {
@@ -286,6 +288,8 @@ const ActivityList = ({ navigation }) => {
                 setSearchFarmerName("");
                 setSearchFarmerPhone("");
                 setSearchResultsList(false);
+                setfromDate("");
+                setToDate("");
                 navigation.navigate('Dashboard');
                 return true;
             };
@@ -311,19 +315,19 @@ const ActivityList = ({ navigation }) => {
         <Root>
             <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} />
             <View style={{ flex: 1 }}>
-                <DatePickerComp
+                {openFromDate && <DatePickerComp
                     openDate={openFromDate}
                     newDate={newFromDate}
                     setOpenDate={setOpenFromDate}
                     handleDatePicker={handleDatePicker}
-                />
-                <DatePickerComp
+                />}
+                {openToDate && <DatePickerComp
                     openDate={openToDate}
                     newDate={newToDate}
                     setOpenDate={setOpenToDate}
                     handleDatePicker={handleDatePicker2}
                     minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                />
+                />}
                 <WidgetsSide location={"ActivityReport"} title={t('report_activity')} onPress={() => navigateToPages('activityReport', 123)} />
                 <Filter
                     filterItem={filterItem}
@@ -363,25 +367,24 @@ const ActivityList = ({ navigation }) => {
                 }
                 <FlatList
                     data={activityAll}
-                    renderItem={({ item, index }) => {
-                        return (
-                            <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
-                                <View style={styles.activityListContainer}>
-                                    <View style={styles.activityListItem}>
-                                        <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item.agri_user.userName.substring(0, 4) + '...'}</Text>
-                                        <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info.plot_no}</Text>
-                                        <Text style={styles.title}>{t('perf_date')} : {item.act_perform_date.substring(0, 4) + '...'}</Text>
-                                    </View>
-                                    <View style={styles.activityListItem}>
-                                        <Text style={styles.title}>{t('farmer_number')} : {item.agri_user.contactNumber.substring(0, 7) + '...'}</Text>
-                                        <Text style={styles.title}>{t('crop_name')} : {item.cropName.name.substring(0, 7) + '..'}</Text>
-                                        <Text style={styles.title}>{t('deviation')} : {item.deviation}{t('days')}</Text>
-                                    </View>
+                    renderItem={({ item, index }) => (
+                        <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
+                            <View style={styles.activityListContainer}>
+                                <View style={styles.activityListItem}>
+                                    <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item.agri_user.userName.substring(0, 4) + '...'}</Text>
+                                    <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info.plot_no.substring(0, 8) + '...'}</Text>
+                                    <Text style={styles.title}>{t('perf_date')} : {item.act_perform_date.substring(0, 4) + '...'}</Text>
                                 </View>
-                                <Text style={styles.title}>{t('cycle_start_date')} : {item.cycle_start_date}</Text>
-                            </TouchableOpacity>
-                        )
-                    }}
+                                <View style={styles.activityListItem}>
+                                    <Text style={styles.title}>{t('farmer_number')} : {item.agri_user.contactNumber.substring(0, 7) + '...'}</Text>
+                                    <Text style={styles.title}>{t('crop_name')} : {item.cropName.name.substring(0, 7) + '..'}</Text>
+                                    <Text style={styles.title}>{t('deviation')} : {item.deviation}{t('days')}</Text>
+                                </View>
+                            </View>
+                            <Text style={styles.title}>{t('cycle_start_date')} : {item.cycle_start_date}</Text>
+                        </TouchableOpacity>
+                    )
+                    }
                     keyExtractor={(item, index) => index}
                     showsVerticalScrollIndicator={false}
                 />

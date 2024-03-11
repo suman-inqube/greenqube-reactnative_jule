@@ -41,7 +41,6 @@ const ViewProblem = ({ navigation }) => {
             }
         });
     };
-
     const saveCommet = async () => {
         if (comment1) {
             const formData = new FormData();
@@ -55,7 +54,6 @@ const ViewProblem = ({ navigation }) => {
             formData.append("agent_fcm", "");
             formData.append("photo", "");
             const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, formData);
-
             if (database_res) {
                 MessageDialog({ title: 'Successful', message: "Successfull SignUp Data" })
                 navigation.navigate('ProblemView');
@@ -74,7 +72,7 @@ const ViewProblem = ({ navigation }) => {
             const farmerArray = problemData.rows
             const farmerFound = farmerArray.find(user => user.fid === problemIdData);
             setFarmerProblem(farmerFound);
-        //  return  console.warn(JSON.stringify(farmerFound,null,2));
+            //  return  console.warn(JSON.stringify(farmerFound,null,2));
             const loginUser_data = await getItem('loginUser_data');
             const dbName = loginUser_data.dbname;
             const languageId = loginUser_data.lan_id;
@@ -255,20 +253,20 @@ const ViewProblem = ({ navigation }) => {
                             {btnColor === 1 ?
                                 <View style={styles.AnsContainer}>
                                     {
-                                        answerAll.length>0 
+                                        answerAll.length > 0
                                             ?
-                                           
+
                                             <View style={styles.AnsItem}>
                                                 {
-                                                   answerAll.map((value, index) => (
-                                                    <View style={styles.AnsTextContainer} key={index}>
-                                                    <Text style={styles.AnsTitle}>Role : Super Admin</Text>
-                                                     <Text style={styles.AnsTitle}>Date : {formatDateToMMDDYYYY( value.created_at)}</Text>
-                                                     <Text style={styles.AnsTitle}>Comment :{value.optional_solution} </Text>
-                                                    </View>
-                                                   ))
+                                                    answerAll.map((value, index) => (
+                                                        <View style={styles.AnsTextContainer} key={index}>
+                                                            <Text style={styles.AnsTitle}>Role : Super Admin</Text>
+                                                            <Text style={styles.AnsTitle}>Date : {formatDateToMMDDYYYY(value.created_at)}</Text>
+                                                            <Text style={styles.AnsTitle}>Comment :{value.optional_solution} </Text>
+                                                        </View>
+                                                    ))
                                                 }
-                                                
+
                                             </View>
                                             : ""
                                     }

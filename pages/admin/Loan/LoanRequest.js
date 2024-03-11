@@ -204,18 +204,15 @@ const LoanRequest = ({ setActiveBtn }) => {
         ]);
         setCurrencyt(currency_res)
         if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
+            const { dbname, lan_id, token, user_id } = loginUser_data;
             setdbLanTokUsr({
                 ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
+                dbName: dbname,
+                languageID: lan_id,
                 token: token,
-                userID: userID
+                userID: user_id
             })
-            const response = await loanRouteFarmerListAPI(dbName, languageID, token, userID)
+            const response = await loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
             if (response.status === 200) {
                 setIsLoading(false);
                 const dataArray = [];

@@ -8,10 +8,10 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Logo from './Common/Logo';
 import ButtonForm from './Common/ButtonForm';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
@@ -20,23 +20,23 @@ import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
 import Geolocation from '@react-native-community/geolocation';
 // import GetLocation from 'react-native-get-location'
-import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
-import {isNotEmpty} from './Common/ValidationFunctions';
+import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
+import { isNotEmpty } from './Common/ValidationFunctions';
 import MessageDialog from './Common/MessageDialog';
-import {request, PERMISSIONS} from 'react-native-permissions';
-import {Root, Toast} from 'react-native-popup-confirm-toast';
-import {AlertMesg} from './Common/ToastAlert';
-import {useTranslation} from 'react-i18next';
+import { request, PERMISSIONS } from 'react-native-permissions';
+import { Root, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from './Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import DeviceInfo from './DeviceInfo';
 const ProduceInfo = () => {
   const ForegroundLocationData = useSelector(state => state.locationData);
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const route = useRoute();
-  const {pagename, arrayIndex, locationData} = route.params;
+  const { pagename, arrayIndex, locationData } = route.params;
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
@@ -268,7 +268,11 @@ const ProduceInfo = () => {
     }
   };
   const HandlelivehoodType = async livelihoodType => {
-    setstoreProduceInfo({...storeProduceInfo, livelihoodType: livelihoodType});
+    setstoreProduceInfo({
+      ...storeProduceInfo, livelihoodType: livelihoodType,
+      produceName: "",
+      produceVariety: ""
+    });
     produceNameDataList(livelihoodType, lanID, dbName);
   };
   const produceNameDataList = async (livelihoodType, language_id, dbName) => {
@@ -299,13 +303,8 @@ const ProduceInfo = () => {
               });
             });
           }
-          if (
-            produceName_offline_list != null &&
-            produceName_offline_list.length > 0
-          ) {
-            if (
-              produceName_offline_list[0][livelihoodType.value] != undefined
-            ) {
+          if (produceName_offline_list != null && produceName_offline_list.length > 0) {
+            if (produceName_offline_list[0][livelihoodType.value] != undefined) {
               JSON.parse(
                 produceName_offline_list[0][livelihoodType.value],
               ).push({
@@ -348,7 +347,7 @@ const ProduceInfo = () => {
     }
   };
   const HandleproduceName = async produceName => {
-    setstoreProduceInfo({...storeProduceInfo, produceName: produceName});
+    setstoreProduceInfo({ ...storeProduceInfo, produceName: produceName, produceVariety: "" });
     produceVarientyDataList(produceName, lanID, dbName);
   };
   const produceVarientyDataList = async (produceName, language_id, dbName) => {
@@ -382,18 +381,11 @@ const ProduceInfo = () => {
               label: element.crop_variety.name,
             });
           });
-          if (
-            produceVariety_offline_list != null &&
-            produceVariety_offline_list.length > 0
-          ) {
-            if (
-              produceVariety_offline_list[0][produceName.value] != undefined
-            ) {
+          if (produceVariety_offline_list != null && produceVariety_offline_list.length > 0) {
+            if (produceVariety_offline_list[0][produceName.value] != undefined) {
               JSON.parse(
                 produceVariety_offline_list[0][produceName.value],
-              ).push({
-                [produceName.value]: JSON.stringify(produceVarietyArray),
-              });
+              ).push({ [produceName.value]: JSON.stringify(produceVarietyArray), });
             } else {
               produceVariety_offline_list.push({
                 [produceName.value]: JSON.stringify(produceVarietyArray),
@@ -436,18 +428,18 @@ const ProduceInfo = () => {
     const x1 = x[0].split('-');
     const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
     setStartDate(cycleStarts);
-    setstoreProduceInfo({...storeProduceInfo, cycleStarts: cycleStarts});
+    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts });
   };
   const handlecycleEnd = async item => {
     const dt = new Date(item);
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
+    setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
   };
   const setLocation = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
     if (
       fusedLocation != null &&
       longitude.toString().length == 10 &&
@@ -570,8 +562,21 @@ const ProduceInfo = () => {
       });
       return false;
     }
-
-    if (!storeProduceInfo.cycleStarts) {
+    if (!storeProduceInfo.cycleEnds) {
+      Toast.show({
+        time: 3, text: `${t('select_enddate_first')}`, ...AlertMesg[0]
+      })
+      return false;
+    }
+    // if (storeProduceInfo.expectedProduction == "") {
+    //   Toast.show({
+    //     time: 3,
+    //     text: `${t('select_enddate_first')}`,
+    //     ...AlertMesg[0],
+    //   });
+    //   return false;
+    // }
+    if (storeProduceInfo.cycleStarts == "") {
       Toast.show({
         time: 3,
         text: `${t('select_enddate_first')}`,
@@ -668,10 +673,9 @@ const ProduceInfo = () => {
       if (validationData()) {
         if (storeProduceInfoInArray.length < 3) {
           emptyFieldsValue();
-          console.log(storeProduceInfo);
           setstoreProduceInfoInArray([
             ...storeProduceInfoInArray,
-            {storeProduceInfo},
+            { storeProduceInfo },
           ]);
         }
       }
@@ -697,13 +701,13 @@ const ProduceInfo = () => {
         </View>
       ) : null}
       <View style={styles.container}>
-        <View style={{height: 60, backgroundColor: '#003c04'}}></View>
+        <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
         <Text style={styles.headersTitle}>
           {t('reg_land_crop_information')}
         </Text>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
-            <View style={{paddingHorizontal: 20}}>
+            <View style={{ paddingHorizontal: 20 }}>
               <View>
                 <Image
                   source={require('../pages/Common/images/logo.png')}
@@ -714,28 +718,28 @@ const ProduceInfo = () => {
                 label={t('pre_plot_name')}
                 color="red"
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, plotSiteName: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })
                 }
                 value={storeProduceInfo.plotSiteName}
               />
               <InputTextForm
                 label={t('daag_no')}
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, daagNo: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
                 }
                 value={storeProduceInfo.daagNo}
               />
               <InputTextForm
                 label={t('khatian_no')}
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
                 }
                 value={storeProduceInfo.khatianNo}
               />
               <InputTextForm
                 label={t('no_of_plants')}
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
                 }
                 value={storeProduceInfo.noOfPlants}
               />
@@ -744,7 +748,7 @@ const ProduceInfo = () => {
                 color="red"
                 data={terrainTypeData}
                 onChange={item =>
-                  setstoreProduceInfo({...storeProduceInfo, terrainType: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, terrainType: item })
                 }
                 val={storeProduceInfo.terrainType.label}
               />
@@ -753,7 +757,7 @@ const ProduceInfo = () => {
                 color="red"
                 data={landTypeData}
                 onChange={item => {
-                  setstoreProduceInfo({...storeProduceInfo, landType: item});
+                  setstoreProduceInfo({ ...storeProduceInfo, landType: item });
                 }}
                 val={storeProduceInfo.landType.label}
               />
@@ -762,24 +766,24 @@ const ProduceInfo = () => {
                 color="red"
                 data={soilTypeData}
                 onChange={item => {
-                  setstoreProduceInfo({...storeProduceInfo, soilType: item});
+                  setstoreProduceInfo({ ...storeProduceInfo, soilType: item });
                 }}
                 val={storeProduceInfo.soilType.label}
               />
               <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{width: '45%'}}>
+                style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ width: '45%' }}>
                   <InputTextForm
                     label={t('addland_landsize')}
                     color="red"
                     onChangeText={item =>
-                      setstoreProduceInfo({...storeProduceInfo, plotSize: item})
+                      setstoreProduceInfo({ ...storeProduceInfo, plotSize: item })
                     }
                     value={storeProduceInfo.plotSize}
                     keyboardType="numeric"
                   />
                 </View>
-                <View style={{width: '45%'}}>
+                <View style={{ width: '45%' }}>
                   {/* <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} /> */}
                   <DropdownForm
                     label={t('addland_unit')}
@@ -790,7 +794,7 @@ const ProduceInfo = () => {
                   />
                 </View>
               </View>
-              <TouchableOpacity style={{marginBottom: 4}}>
+              <TouchableOpacity style={{ marginBottom: 4 }}>
                 <TouchableOpacity onPress={setLocation}>
                   {storeProduceInfo.lat ? (
                     <View
@@ -800,10 +804,10 @@ const ProduceInfo = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                       }}>
-                      <Text style={{color: '#000'}}>
+                      <Text style={{ color: '#000' }}>
                         {storeProduceInfo.lat}
                       </Text>
-                      <Text style={{color: '#000'}}>
+                      <Text style={{ color: '#000' }}>
                         {storeProduceInfo.long}
                       </Text>
                     </View>
@@ -817,12 +821,12 @@ const ProduceInfo = () => {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                     }}>
-                    <Text style={{color: 'red'}}>
+                    <Text style={{ color: 'red' }}>
                       {t('tap_to_get_latitude_and_longitude')}
                     </Text>
                     <Image
                       source={require('./Common/images/map.png')}
-                      style={{width: 50, height: 50}}
+                      style={{ width: 50, height: 50 }}
                     />
                   </View>
                 </TouchableOpacity>
@@ -835,6 +839,9 @@ const ProduceInfo = () => {
                   setstoreProduceInfo({
                     ...storeProduceInfo,
                     prodctionSeasion: item,
+                    livelihoodType: "",
+                    produceName: "",
+                    produceVariety: ""
                   });
                 }}
                 val={storeProduceInfo.prodctionSeasion.label}
@@ -902,7 +909,7 @@ const ProduceInfo = () => {
                 val={storeProduceInfo.produceProductionUnit.label}
               />
               <View>
-                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
+                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
                   Cycle Starts
                 </Text>
                 <View style={styles.passwordMainContainer}>
@@ -937,7 +944,7 @@ const ProduceInfo = () => {
                 </View>
               </View>
               <View>
-                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
+                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
                   Cycle Ends
                 </Text>
                 <View style={styles.passwordMainContainer}>
@@ -963,18 +970,16 @@ const ProduceInfo = () => {
                         storeProduceInfo.cycleStarts == ''
                           ? ''
                           : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleStarts,
-                              ).getFullYear()}-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getMonth() + 1
-                              }-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getDate() + 1
-                              }`,
-                            )
+                            `${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getFullYear()}-${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getMonth() + 1
+                            }-${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getDate() + 1
+                            }`,
+                          )
                       }
                       onConfirm={item => {
                         handlecycleEnd(item);
@@ -989,11 +994,11 @@ const ProduceInfo = () => {
               </View>
               <TouchableOpacity
                 onPress={saveInObject}
-                style={{alignItems: 'center'}}
+                style={{ alignItems: 'center' }}
                 activeOpacity={0.7}>
                 <Text style={styles.addBtn}>{t('click_to_add_more_plot')}</Text>
               </TouchableOpacity>
-              <View style={{marginBottom: 10}}>
+              <View style={{ marginBottom: 10 }}>
                 {storeProduceInfoInArray.map((data, index) => {
                   return (
                     <View style={styles.moreContainer} key={index}>

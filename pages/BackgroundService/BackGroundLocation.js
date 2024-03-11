@@ -91,7 +91,7 @@ const BackGroundLocation = () => {
             formData.append('file_title', obj.file_title);
             formData.append('post_meta_info', JSON.stringify(array));
             formData.append('agent_fcm', obj.agent_fcm);
-            formData.append('farmer_fcm', obj.farmer_fcm);
+            // formData.append('farmer_fcm', obj.farmer_fcm);
             formData.append('latitude', obj.latitude);
             formData.append('longitude', obj.longitude);
             formData.append('question_type', obj.question_type);
@@ -269,6 +269,7 @@ const BackGroundLocation = () => {
         }
         await removeItem('offlineSupervisorProblemData');
       }
+      console.log(offlineSupervisorActivityDataArr)
       if (offlineSupervisorActivityDataArr != null) {
         // await removeItem('offlineFarmerActivityData');
         const myArrayaActivity = offlineSupervisorActivityDataArr.split(',');
@@ -325,7 +326,6 @@ const BackGroundLocation = () => {
             formData.append('water_used', obj.water_used);
             formData.append('power_used', obj.power_used);
             const activity_res = await activitySaveAPI(dbname, lan_id, token, obj.farmerID, formData);
-            console.log(activity_res);
           }
         }
         await removeItem('offlineSupervisorActivityData');

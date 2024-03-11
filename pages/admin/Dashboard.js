@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, AppState, View, Text, StyleSheet, StatusBar, ScrollView, BackHandler, Alert } from 'react-native';
+import { PermissionsAndroid, Linking, TouchableOpacity, AppState, View, Text, StyleSheet, StatusBar, ScrollView, BackHandler, Alert } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import { getItem, removeItem } from '../../config/getDataFromStorage';
 import { BoxDisplay } from './dashboardComp';
@@ -29,21 +29,30 @@ const Dashboard = ({ navigation }) => {
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
+  const [company_website, setcompany_website] = useState("");
   const navigateToPages = (pageName) => {
-    navigation.navigate(pageName, { data: 'remove' });
+    if (netConnection) {
+      navigation.navigate(pageName, { data: 'remove' });
+    } else {
+      if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
+        navigation.navigate(pageName, { data: 'remove' });
+      }
+    }
   };
   const onPageLoad = async () => {
     const [bottomBannerData,
       userNameData,
-      profileImgData, loginUser_data] = await Promise.all([
+      profileImgData, loginUser_data, company_website] = await Promise.all([
         getItem('bottomBannerData'),
         getItem('userNameData'),
         getItem('profileImgData'),
         getItem('loginUser_data'),
+        getItem('company_website'),
         // getCurrentLatLong(),
         Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
       ]);
     i18next.changeLanguage(`${loginUser_data.lan_id}`);
+    setcompany_website(company_website);
     setbottomBanner(bottomBannerData);
     setuserName(userNameData);
     setprofileImg(profileImgData);
@@ -90,6 +99,13 @@ const Dashboard = ({ navigation }) => {
       ],
       { cancelable: false });
   }
+  const CompanyWebsiteOpen = () => {
+    if (company_website != "") {
+      Linking.openURL(company_website)
+    } else {
+      Alert.alert("Company website not found")
+    }
+  }
   return (
     <>
       <BackGroundLocation />
@@ -109,11 +125,11 @@ const Dashboard = ({ navigation }) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View >
             <View style={styles.container}>
-              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigation.navigate('PersonalInformation', { data: "remove" })} />
-              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigation.navigate('userList')} />
+              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigateToPages('PersonalInformation')} />
+              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigateToPages('userList')} />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigation.navigate('ProblemList')} />
+              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigateToPages('ProblemList')} />
               <BoxDisplay text={t('acti_report_far_dash')} imageurl={require('../Common/images/activity_report_only.png')} onpress={() => navigateToPages('activityList')} />
             </View>
             <View style={styles.container}>
@@ -126,18 +142,22 @@ const Dashboard = ({ navigation }) => {
             </View>
             <View style={{ marginTop: 16, elevation: 5 }}>
               {bottomBanner ?
-                <ImageForm
-                  source={{ uri: bottomBanner }}
-                  resizeMode="cover"
-                  height={200}
-                  width={'100%'}
-                />
-                : <ImageForm
-                  source={require('../Common/images/ad_banner_space.jpg')}
-                  resizeMode="cover"
-                  height={200}
-                  width={'100%'}
-                />}
+                <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                  <ImageForm
+                    source={{ uri: bottomBanner }}
+                    resizeMode="cover"
+                    height={200}
+                    width={'100%'}
+                  />
+                </TouchableOpacity>
+                : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                  <ImageForm
+                    source={require('../Common/images/ad_banner_space.jpg')}
+                    resizeMode="cover"
+                    height={200}
+                    width={'100%'}
+                  />
+                </TouchableOpacity>}
             </View>
           </View>
         </ScrollView>

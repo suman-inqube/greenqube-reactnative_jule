@@ -198,7 +198,7 @@ const FinancialUpdate = () => {
                             )}
                         </View>
                     </View>
-                    <View style={{ paddingHorizontal: 20 }}>
+                    <View style={{ paddingHorizontal: 20, marginBottom: 100 }}>
                         <View style={styles.container}>
                             <TouchableOpacity onPress={toggleLifeInsurance}>
                                 <View style={styles.headerStyle}>

@@ -18,15 +18,15 @@ const UsefulInformationList = () => {
 
     const detailItem = async (itemId) => {
         await setItem("userNoticeId", itemId);
-        const userNoticeListData = await getItem('userNoticeId')
-        console.log(userNoticeListData);
+        // const userNoticeListData = await getItem('userNoticeId')
+        // console.log(userNoticeListData);
         navigation.navigate('UsefulInformation', { pagename: 'UsefulInformation', noticeId: itemId });
     }
     function UserBoxDisplay({ item, item2, item3, item4 }) {
         return (
             <View style={styles.box1}>
                 <View style={styles.box1_1}>
-                    <View style={{width:'80%'}}>
+                    <View style={{ width: '80%' }}>
                         <Text style={styles.textOne}>{item}</Text>
                         <Text>{item2}</Text>
                     </View>
@@ -90,7 +90,7 @@ const UsefulInformationList = () => {
                     {
                         noticeList ?
                             <FlatList
-                            showsVerticalScrollIndicator={false}
+                                showsVerticalScrollIndicator={false}
                                 data={noticeList.rows}
                                 keyExtractor={(item) => item.fid}
                                 renderItem={({ item, index }) => (
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     },
     box1:
     {
-        marginHorizontal:'2.5%',
+        marginHorizontal: '2.5%',
         borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
@@ -167,14 +167,14 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         textDecorationLine: 'underline',
         marginTop: 20,
-        fontFamily:'Poppins-Regular',
-        fontSize:14,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14,
     },
     textOne:
     {
         color: 'black',
         // color: "black",
-        fontFamily:'Poppins-Regular',
-        fontSize:14,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14,
     },
 })

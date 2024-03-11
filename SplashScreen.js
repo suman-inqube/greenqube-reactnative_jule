@@ -8,7 +8,9 @@ import { getItem, removeItem, setItem } from './config/getDataFromStorage';
 import SplashScreenModal from './SplashScreenModal';
 import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 import { HeaderBackButton } from 'react-navigation';
+import NotificationServices from './pages/PushNotification/NotificationServices';
 const SplashScreen = ({ navigation }) => {
+    const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
     const [companyData, setCompanyData] = useState([]);
     const [companyDataRaw, setCompanyDataRaw] = useState([]);
@@ -82,8 +84,12 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        const companyLanguage_data = await getItem('companyLanguage_data');
-        const loginUser_data = await getItem('loginUser_data');
+        const [companyLanguage_data, loginUser_data] = await Promise.all([
+            getItem('companyLanguage_data'),
+            getItem('loginUser_data'),
+            requestUserPermission(),
+            notificationListener(),
+        ])
         if (loginUser_data) {
             const userType = await getItem("userType");
             if (userType === 3) {

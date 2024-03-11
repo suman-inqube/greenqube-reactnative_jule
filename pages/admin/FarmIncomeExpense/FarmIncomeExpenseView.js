@@ -13,8 +13,13 @@ const FarmIncomeExpenseView = ({ route }) => {
     const navigation = useNavigation();
     const [farmAccountSingle, setFarmAccountSingle] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [currency, setcurrency] = useState("");
     const onPageLoad = async () => {
-        const farmInExId = await getItem('farm_in_ex_id');
+        const [farmInExId, curr] = await Promise.all([
+            getItem('farm_in_ex_id'),
+            getItem('currency')
+        ])
+        setcurrency(curr)
         if (farmInExId) {
             setFarmAccountSingle(farmInExId);
             setIsLoading(false);
@@ -95,7 +100,7 @@ const FarmIncomeExpenseView = ({ route }) => {
                                 <View style={styles.ExpenseContainer}>
                                     <Text style={styles.ExpenseTitle}>{t('expense_head')}</Text>
                                     <Text style={styles.ExpenseTitle}>{t('date')}</Text>
-                                    <Text style={styles.ExpenseTitle}>{t('amount')}</Text>
+                                    <Text style={styles.ExpenseTitle}>{t('amount') + "(" + currency + ")"}</Text>
                                 </View>
                                 {
                                     farmAccountSingle.income_expense && farmAccountSingle.income_expense.map((data, index) => {
@@ -106,7 +111,7 @@ const FarmIncomeExpenseView = ({ route }) => {
                                                         ?
                                                         <View style={styles.flatListItem} >
                                                             <Text style={styles.text}>{data.inexType && data.inexType.inexName && data.inexType.inexName.categoryName}</Text>
-                                                            <Text style={styles.text}>{formatDateToDateName(data.date)}{index}</Text>
+                                                            <Text style={styles.text}>{formatDateToDateName(data.date)}</Text>
                                                             <Text style={styles.text}>{data.amount}</Text>
                                                         </View>
                                                         : ''
@@ -118,13 +123,13 @@ const FarmIncomeExpenseView = ({ route }) => {
                                 <View style={styles.ExpenseCon}>
                                     <View></View>
                                     <View style={styles.ExpenseConItem}>
-                                        <Text style={styles.ExpenseTitle}>{t('total_exp_sum')} {<ShowExpense expense={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
+                                        <Text style={styles.ExpenseTitle}>{t('total_exp_sum') + "(" + currency + ")"} {<ShowExpense expense={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
                                     </View>
                                 </View>
                                 <View style={styles.IncomeContainer}>
                                     <Text style={styles.IncomeTitle}>{t('income_head')}</Text>
                                     <Text style={styles.IncomeTitle}>{t('date')}</Text>
-                                    <Text style={styles.IncomeTitle}>{t('amount')}</Text>
+                                    <Text style={styles.IncomeTitle}>{t('amount') + "(" + currency + ")"}</Text>
                                 </View>
                                 {
                                     farmAccountSingle.income_expense && farmAccountSingle.income_expense.map((data, index) => {
@@ -135,7 +140,7 @@ const FarmIncomeExpenseView = ({ route }) => {
                                                         ?
                                                         <View style={styles.flatListItem}>
                                                             <Text style={styles.text}>{data.inexType && data.inexType.inexName && data.inexType.inexName.categoryName}</Text>
-                                                            <Text style={styles.text}>{formatDateToDateName(data.date)}{index}</Text>
+                                                            <Text style={styles.text}>{formatDateToDateName(data.date)}</Text>
                                                             <Text style={styles.text}>{data.amount}</Text>
                                                         </View>
                                                         : ''
@@ -147,14 +152,14 @@ const FarmIncomeExpenseView = ({ route }) => {
                                 <View style={styles.ExpenseCon}>
                                     <View></View>
                                     <View style={styles.ExpenseConItem}>
-                                        <Text style={styles.ExpenseTitle}>{t('total_exp_sum')} {<ShowIncome income={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
+                                        <Text style={styles.ExpenseTitle}>{t('total_income_sum') + "(" + currency + ")"} {<ShowIncome income={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
                                     </View>
                                 </View>
                             </View>
                             : ''
                 }
                 <View style={styles.ExpenseContainer}>
-                    <Text style={styles.ExpenseTitle}>{t('total_margin')}: </Text>
+                    <Text style={styles.ExpenseTitle}>{t('total_margin') + "(" + currency + ")"}: </Text>
                     <Text style={styles.ExpenseTitle}>{<ShowTotalMargin expense={farmAccountSingle && farmAccountSingle.income_expense} income={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
                     <Text style={styles.ExpenseTitle}></Text>
                 </View>

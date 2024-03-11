@@ -45,17 +45,20 @@ const InputList = ({ navigation }) => {
         if (search.value === '0') {
             setInputListAll(inputListAllRaw);
             setInputSubCategory([])
-        }
-        else {
-            const inputFound = inputListAllRaw.filter(item => item.productCategories[0] && item.productCategories[0].productCategory && item.productCategories[0].productCategory.ioname && item.productCategories[0].productCategory.ioname.entity_type_id === search.value);
-            setInputListAll(inputFound)
-            const inputSubCategoryList = await inputSubCategoryAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value);
+        } else {
+            const [inputFound, inputSubCategoryList] = await Promise.all([
+                inputListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value),
+                inputSubCategoryAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value)
+            ])
+            if (inputFound.status == 200) {
+                setInputListAll(inputFound.data.data.rows);
+            }
             if (inputSubCategoryList) {
                 const dataArray = [];
                 inputSubCategoryList.data.data.rows.forEach(element => {
                     dataArray.push({
-                        value: element.fid,
-                        label: element.product_name
+                        value: element.entity_name.fid,
+                        label: element.entity_name.name
                     });
                 });
                 setInputSubCategory(dataArray)
@@ -63,8 +66,10 @@ const InputList = ({ navigation }) => {
         }
     }
     const handleSubCategory = async (search) => {
-        const inputFound = inputListAllRaw.filter(item => item.product_id === search.value);
-        setInputListAll(inputFound)
+        const inputList = await inputListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value);
+        if (inputList.status == 200) {
+            setInputListAll(inputList.data.data.rows)
+        }
     }
     const onPageLoad = async () => {
         const [loginUser_data, currency_res] = await Promise.all([
@@ -84,12 +89,16 @@ const InputList = ({ navigation }) => {
                 token: token,
                 supervisorId: supervisorId
             });
-            const inputList = await inputListAPI(dbName, languageId, token, supervisorId);
-            setInputListAll(inputList.data.data.rows)
-            setInputListAllRaw(inputList.data.data.rows)
-            setItem("input_data", inputList.data.data.rows)
-            setIsLoading(false)
-            const inputCategoryList = await inputCategoryAPI(dbName, languageId, token, supervisorId);
+            const [inputList, inputCategoryList,] = await Promise.all([
+                inputListAPI(dbName, languageId, token, supervisorId, ''),
+                inputCategoryAPI(dbName, languageId, token, supervisorId),
+            ])
+            if (inputList.status == 200) {
+                setInputListAll(inputList.data.data.rows);
+                setInputListAllRaw(inputList.data.data.rows);
+                setItem("input_data", inputList.data.data.rows);
+                setIsLoading(false);
+            }
             if (inputCategoryList) {
                 const dataArray1 = [{
                     value: "0",

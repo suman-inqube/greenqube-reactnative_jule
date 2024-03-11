@@ -55,7 +55,11 @@ const FarmerPostNew = (props) => {
     const [approximateDate, setApproximateDate] = useState("");
     const [openDatePicker, setOpenDatePicker] = useState(false)
     const [isOther, setIsOther] = useState(false);
-
+    const [regionaldatas, setregionaldatas] = useState({
+        state: "",
+        district: "",
+        block: "",
+    })
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
@@ -144,45 +148,44 @@ const FarmerPostNew = (props) => {
                 // console.log(JSON.stringify(livelyhoodNameVerity, null, 2))
                 if (problemNameFound) {
                     if (new Date(livelyhoodNameVerity.data.data.rows[0].harvesting_date) > new Date()) {
-
-                        setProduceName([{
-                            value: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
-                            label: livelyhoodNameVerity.data.data.rows[0].crop_name.name
-                        }])
-                        setProduceVariety([{
-                            value: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
-                            label: livelyhoodNameVerity.data.data.rows[0].crop_variety.name
-                        }])
-
-                        setLiveliHoodType([{
-                            value: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
-                            label: livelyhoodNameVerity.data.data.rows[0].crop_type.name
-                        }])
-
-                        setNameVarityLivelihood({
-                            ...nameVarityLivelihood,
-                            name: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
-                            varity: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
-                            livelihood: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
-                        })
-                        setSaveData({
-                            ...saveData,
-                            type: "",
-                            farmer_id: relId.user_id,
-                            land_rel_id: relId.value,
-                            transaction_type: 2,
-                            fulfill_status: 0,
-                            state_name: problemNameFound.agri_user_addresses[0].agri_state.state_name,
-                            district_name: problemNameFound.agri_user_addresses[0].agri_district.district_name,
-                            subdiv_name: problemNameFound.agri_user_addresses[0].agri_subdivision.subdiv_name,
-                            state_id: problemNameFound.agri_user_addresses[0].state,
-                            district_id: problemNameFound.agri_user_addresses[0].district,
-                            block_id: problemNameFound.agri_user_addresses[0].subdivision,
-                            entity_type_id: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
-                            entity_name_id: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
-                            entity_variety_id: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
-                            others: "",
-                        })
+                        await Promise.all([
+                            setProduceName([{
+                                value: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
+                                label: livelyhoodNameVerity.data.data.rows[0].crop_name.name
+                            }]),
+                            setProduceVariety([{
+                                value: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
+                                label: livelyhoodNameVerity.data.data.rows[0].crop_variety.name
+                            }]),
+                            setLiveliHoodType([{
+                                value: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
+                                label: livelyhoodNameVerity.data.data.rows[0].crop_type.name
+                            }]),
+                            setNameVarityLivelihood({
+                                ...nameVarityLivelihood,
+                                name: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
+                                varity: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
+                                livelihood: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
+                            }),
+                            setSaveData({
+                                ...saveData,
+                                type: "",
+                                farmer_id: relId.user_id,
+                                land_rel_id: relId.value,
+                                transaction_type: 2,
+                                fulfill_status: 0,
+                                state_name: problemNameFound.agri_user_addresses[0].agri_state.state_name,
+                                district_name: problemNameFound.agri_user_addresses[0].agri_district.district_name,
+                                subdiv_name: problemNameFound.agri_user_addresses[0].agri_subdivision.subdiv_name,
+                                state_id: problemNameFound.agri_user_addresses[0].state,
+                                district_id: problemNameFound.agri_user_addresses[0].district,
+                                block_id: problemNameFound.agri_user_addresses[0].subdivision,
+                                entity_type_id: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
+                                entity_name_id: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
+                                entity_variety_id: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
+                                others: "",
+                            })
+                        ])
                     } else {
                         MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
 
@@ -251,10 +254,20 @@ const FarmerPostNew = (props) => {
 
 
     const onPageLoad = async () => {
-
-
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, state,
+            district, block] = await Promise.all([
+                getItem('loginUser_data'),
+                getItem("state"),
+                getItem("district"),
+                getItem("block")
+            ])
         if (loginUser_data) {
+            setregionaldatas({
+                ...regionaldatas,
+                state: state,
+                district: district,
+                block: block,
+            })
             const dbName = loginUser_data.dbname;
             const languageId = loginUser_data.lan_id;
             const token = loginUser_data.token;
@@ -440,9 +453,9 @@ const FarmerPostNew = (props) => {
                                 </View>
                             </View>
                         </> : <>
-                            <InputTextForm label={t('state_col')} value={saveData.state_name} />
-                            <InputTextForm label={t('select_district_county')} value={saveData.district_name} />
-                            <InputTextForm label={t('select_block_sub_county_upzila')} value={saveData.subdiv_name} />
+                            <InputTextForm label={regionaldatas.state == "" ? t('state_col') : t(`${regionaldatas.state}`)} value={saveData.state_name} />
+                            <InputTextForm label={regionaldatas.district == "" ? t('select_district_county') : t(`${regionaldatas.district}`)} value={saveData.district_name} />
+                            <InputTextForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} value={saveData.subdiv_name} />
 
                             <View >
                                 <Text style={{ color: "#000" }}>{t('approximate_date')}</Text>

@@ -43,6 +43,10 @@ const ViewPast = (props) => {
     const [outputListAllRaw, setOutputListRaw] = useState([]);
     const [outputSingle, setOutputSingle] = useState();
     const [pastEnquiryView, setPastEnquiryView] = useState([]);
+    const [result, setresult] = useState({
+        qty: '',
+        total: '',
+    });
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -93,14 +97,24 @@ const ViewPast = (props) => {
         }
     }
     const navigateToPages = async (fid, dbname, lan_id, token, user_id) => {
-        // const outputFound = outputListAll.find(user => user.fid === fid);
         const output_data = await getItem('output_data')
         const outputFound = output_data.find(user => user.fid === fid);
         setIsLoading(false)
         setOutputSingle(outputFound);
         const response = await SupervisoroutputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
         if (response) {
-            setPastEnquiryView(response.data.data)
+            setPastEnquiryView(response.data.data);
+            var qty = 0;
+            var total = 0;
+            response.data.data.map((data, index) => {
+                qty = qty + parseFloat(data.pro_qty);
+                total = total + parseFloat(data.grand_total);
+            });
+            setresult({
+                ...result,
+                qty: qty,
+                total: total,
+            });
         }
         setModalVisible(true)
     };
@@ -271,21 +285,21 @@ const ViewPast = (props) => {
                     <View style={styles.loadingScreen}><LoadingScreen /></View>
                     :
                     <View>
-                        <DatePickerComp
+                        {openFromDate && <DatePickerComp
                             openDate={openFromDate}
                             newDate={newFromDate}
                             setOpenDate={setOpenFromDate}
                             handleDatePicker={handleDatePicker}
-                        />
-                        <DatePickerComp
+                        />}
+                        {openToDate && <DatePickerComp
                             openDate={openToDate}
                             newDate={newToDate}
                             setOpenDate={setOpenToDate}
                             handleDatePicker={handleDatePicker2}
                             minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                        />
+                        />}
                         <ViewModalPast setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle={outputSingle}
-                            pastEnquiryView={pastEnquiryView}
+                            pastEnquiryView={pastEnquiryView} qty={result}
                             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
                         />
                         <TouchableOpacity style={styles.plusIcon} onPress={() => props.sendDataToParent(1)}>
@@ -356,7 +370,7 @@ export default ViewPast
 
 const styles = StyleSheet.create({
     flatListContainer: {
-        marginHorizontal: '3%',
+        marginHorizontal: '2.5%',
         flexDirection: 'row',
         backgroundColor: '#FFF',
         padding: 10,

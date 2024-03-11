@@ -48,6 +48,8 @@ const CreateProblem = ({ navigation }) => {
         token: '',
         userID: '',
         userType: '',
+        FcmUserToken: '',
+        owner: '',
     });
     const [isToggleRecordingFirst, setToggleRecordingFirst] = useState(true);
     const [isToggleRecordingSecound, setToggleRecordingSecound] = useState(true);
@@ -132,7 +134,7 @@ const CreateProblem = ({ navigation }) => {
         setSearchFarmerName(name);
         setShowingMenu(false);
         setSearchResults([]);
-        setfarmerID(currentfarmerId)
+        setfarmerID(currentfarmerId);
         setSaveData({ ...saveData, farmer_fcm: FcmUserToken })
         if (netConnection) {
             var response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
@@ -346,22 +348,13 @@ const CreateProblem = ({ navigation }) => {
         }
     }
     const requestLivePermission = async () => {
-        try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                Geolocation.getCurrentPosition(data =>
-                    setSaveData({
-                        ...saveData,
-                        latitude: data.coords.latitude,
-                        longitude: data.coords.longitude,
-                    })
-                )
-            } else {
-                console.log('Location permission denied');
-            }
-        } catch (err) {
-            console.warn(err);
+        const { latitude, longitude } = await getItem('fusedLocation');
+        if (latitude != null) {
+            setSaveData({
+                ...saveData,
+                latitude: latitude,
+                longitude: longitude,
+            })
         }
     };
     function handleClear() {
@@ -412,33 +405,31 @@ const CreateProblem = ({ navigation }) => {
             requestLivePermission()
         ]);
         if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
+            const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
             setdbLanTokUsr({
                 ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
+                dbName: dbname,
+                languageID: lan_id,
                 token: token,
-                userID: userID,
-                FcmUserToken: loginUser_data.FcmUserToken
+                userID: user_id,
+                FcmUserToken: FcmUserToken,
+                owner: owner.FcmUserToken
             })
             if (netConnection) {
                 var [problemName_res, response, severity_res] = await Promise.all([
-                    problemTypeNameAPI(dbName, languageID, token),
-                    farmerByNameAPI(dbName, languageID, token, userID),
-                    problemSeverityAPI(dbName, languageID)
+                    problemTypeNameAPI(dbname, lan_id, token),
+                    farmerByNameAPI(dbname, lan_id, token, user_id),
+                    problemSeverityAPI(dbname, lan_id)
                 ]);
                 await Promise.all([
                     setItem('supervisorProblemTypeName', problemName_res),
-                    setItem('response' + userID, response),
+                    setItem('response' + user_id, response),
                     setItem('severity_res', severity_res)
                 ])
             } else {
                 var [problemName_res, response, severity_res] = await Promise.all([
                     getItem('supervisorProblemTypeName'),
-                    getItem('response' + userID),
+                    getItem('response' + user_id),
                     getItem('severity_res')
                 ])
             }
@@ -559,7 +550,7 @@ const CreateProblem = ({ navigation }) => {
                 });
             }
             formData.append("post_meta_info", JSON.stringify(array));
-            formData.append("agent_fcm", dbLanTokUsr.FcmUserToken);
+            // formData.append("agent_fcm", dbLanTokUsr.owner);
             formData.append("farmer_fcm", saveData.farmer_fcm);
             formData.append("latitude", saveData.latitude);
             formData.append("longitude", saveData.longitude);
@@ -586,9 +577,12 @@ const CreateProblem = ({ navigation }) => {
             if (netConnection) {
                 const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
                 if (database_res.status === 200) {
-                    MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
+                    // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
+                    Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                     handleClear();
-                    navigation.navigate('ProblemList');
+                    setTimeout(() => {
+                        navigation.navigate('ProblemList');
+                    }, 1200);
                 }
             } else {
                 formData.append("farmerID", farmerID);
@@ -596,14 +590,15 @@ const CreateProblem = ({ navigation }) => {
                 await setItem('off' + timeStamp, formData)
                 let offlineDataArr = await getItem('offlineSupervisorProblemData');
                 if (offlineDataArr) {
-                    // offlineDataArr.push('off'+timeStamp);
                     await setItem('offlineSupervisorProblemData', offlineDataArr + ',' + 'off' + timeStamp)
                 } else {
                     await setItem('offlineSupervisorProblemData', 'off' + timeStamp)
                 }
-                MessageDialog({ title: 'Successful', message: "Successfull Add Data off line" })
+                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                 handleClear();
-                navigation.navigate('ProblemList');
+                setTimeout(() => {
+                    navigation.navigate('ProblemList');
+                }, 1200);
             }
         }
     }
@@ -816,13 +811,13 @@ const CreateProblem = ({ navigation }) => {
                             ''
                     }
                     <DropdownForm label={t('growth_stage')} color="red" data={productionStageAll} onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value })} />
-                    <DropdownForm label={t('problem_type')} data={problemTypeAll} onChange={item => handleProblemType(item)} />
-                    <DropdownForm label={t('select_problem')} data={problemNameAll} onChange={item => handleProblemName(item)} />
+                    <DropdownForm label={t('problem_type')} color="red" data={problemTypeAll} onChange={item => handleProblemType(item)} />
+                    <DropdownForm label={t('select_problem')} color="red" data={problemNameAll} onChange={item => handleProblemName(item)} />
                     {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
-                    <DropdownForm label={t('select_severity')} data={severityAll} onChange={item => setSaveData({ ...saveData, severity_id: item.value })} />
+                    <DropdownForm label={t('select_severity')} color="red" data={severityAll} onChange={item => setSaveData({ ...saveData, severity_id: item.value })} />
                     <InputTextForm label={t('production_system')} value={nameVarityStartEnd.production_process} />
                     <View>
-                        <Text style={{ color: '#000' }}>{t('agent_crop_problem_affected_date')}</Text>
+                        <Text style={{ color: 'red' }}>{t('agent_crop_problem_affected_date')}</Text>
                         <TouchableOpacity style={styles.activityPerFromDate} onPress={() => setaddAffectedDate(true)}>
                             <Text style={{ color: '#000' }}>{affectedDate}</Text>
                             <Image

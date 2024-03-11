@@ -44,6 +44,11 @@ const Profile = () => {
         userId: "",
         userName: ""
     });
+    const [regionaldatas, setregionaldatas] = useState({
+        state: "",
+        district: "",
+        block: "",
+    })
     const handleSave = async () => {
         addressInfo = [{
             country: '1',
@@ -218,15 +223,24 @@ const Profile = () => {
         }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, state,
+            district, block] = await Promise.all([
+                getItem('loginUser_data'),
+                getItem("state"),
+                getItem("district"),
+                getItem("block")
+            ])
         if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbName(loginUser_data.dbname)
-            setToken(loginUser_data.token)
-            userDetails(dbName, languageID, token, userID)
+            setregionaldatas({
+                ...regionaldatas,
+                state: state,
+                district: district,
+                block: block,
+            })
+            const { dbname, lan_id, token, user_id } = loginUser_data;
+            setdbName(dbname)
+            setToken(token)
+            userDetails(dbname, lan_id, token, user_id)
         }
     };
     const handleLogout = async () => {
@@ -291,14 +305,14 @@ const Profile = () => {
                             Profile
                         </Text>
                     </View>
-                    <ScrollView>
+                    <ScrollView showsVerticalScrollIndicator={false}>
                         <View style={styles.fromContainer}>
                             <InputTextForm label={t('name')} color="black" value={storePersnolInfo.userName} editable={false} />
                             <InputTextForm label={t('new_reg_phone_number')} color="black" value={storePersnolInfo.contactNumber} editable={false} />
                             <View>
-                                <Text style={{ color: 'black', marginLeft: 5, fontFamily:'Poppins-Regular' }}>{t('date_of_birth')}</Text>
+                                <Text style={{ color: 'black', marginLeft: 5, fontFamily: 'Poppins-Regular' }}>{t('date_of_birth')}</Text>
                                 <TouchableOpacity style={styles.DateofBirth}>
-                                    <Text style={{ color: '#000', fontFamily:'Poppins-Regular' }}>{storePersnolInfo.date_of_birth} </Text>
+                                    <Text style={{ color: '#000', fontFamily: 'Poppins-Regular' }}>{storePersnolInfo.date_of_birth} </Text>
                                     <Image
                                         source={require('../../Common/images/calendar.png')}
                                         style={{ width: 20, height: 20 }}
@@ -306,9 +320,9 @@ const Profile = () => {
                                 </TouchableOpacity>
                             </View>
                             <DropdownForm label={t('select_language')} color="black" data={languageData} onChange={item => { handleLanguage(item) }} val={storePersnolInfo.langIdName} />
-                            <DropdownForm label={t('state_col')} color="black" data={stateInfoData} onChange={item => { handleStateInfo(item) }} val={storePersnolInfo.stateName} />
-                            <DropdownForm label={t('select_zila')} color="black" data={districtData} onChange={item => { handleDistrict(item) }} val={storePersnolInfo.districtName} />
-                            <DropdownForm label={t('select_block_sub_county_upzila')} color="black" data={blockData} onChange={item => { setstorePersnolInfo({ ...storePersnolInfo, block: item.value, blockName: item.label }) }} val={storePersnolInfo.blockName} />
+                            <DropdownForm label={regionaldatas.state == "" ? t('state_col') : t(`${regionaldatas.state}`)} color="black" data={stateInfoData} onChange={item => { handleStateInfo(item) }} val={storePersnolInfo.stateName} />
+                            <DropdownForm label={regionaldatas.district == "" ? t('select_zila') : t(`${regionaldatas.district}`)} color="black" data={districtData} onChange={item => { handleDistrict(item) }} val={storePersnolInfo.districtName} />
+                            <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} color="black" data={blockData} onChange={item => { setstorePersnolInfo({ ...storePersnolInfo, block: item.value, blockName: item.label }) }} val={storePersnolInfo.blockName} />
                         </View>
                     </ScrollView>
                 </View>

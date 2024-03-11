@@ -11,9 +11,7 @@ import { formatDateToDateName } from '../../Common/DateChanger';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
 const FarmIncomeExpenseList = ({ navigation }) => {
-    const internetState = useNetInfo();
     const { t } = useTranslation();
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         dbName: "",
@@ -63,15 +61,8 @@ const FarmIncomeExpenseList = ({ navigation }) => {
             const farmerId = '';
             const fromDate = '';
             const toDate = '';
-            if (internetState.isConnected === true) {
-                var response = await farmaccountsListAPI(dbName, languageId, token, supervisorId, 1, farmerId, fromDate, toDate)
-                if (response.status == 200) {
-                    setItem('farmaccountsListAPI', response)
-                }
-            } else {
-                var response = await getItem('farmaccountsListAPI', response);
-            }
-            if (response.status) {
+            var response = await farmaccountsListAPI(dbName, languageId, token, supervisorId, 1, farmerId, fromDate, toDate)
+            if (response.status == 200) {
                 const totalPage = Math.ceil(response.data.data.count / 20)
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
@@ -256,9 +247,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         } else {
             MessageDialog({ title: 'Require', message: 'Please Select First data.' })
         }
-
     }
-
     const navigateToPages = async (pageName, index) => {
         setItem("farm_in_ex_id", farmAccount[index])
         navigation.navigate(pageName);
@@ -288,19 +277,19 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         <Root>
             <View style={{ flex: 1 }}>
                 <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
-                <DatePickerComp
+                {openFromDate && <DatePickerComp
                     openDate={openFromDate}
                     newDate={newFromDate}
                     setOpenDate={setOpenFromDate}
                     handleDatePicker={handleDatePicker}
-                />
-                <DatePickerComp
+                />}
+                {openToDate && <DatePickerComp
                     openDate={openToDate}
                     newDate={newToDate}
                     setOpenDate={setOpenToDate}
                     handleDatePicker={handleDatePicker2}
                     minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                />
+                />}
                 <Filter
                     filterItem={filterItem}
                     filterOption={filterOption}

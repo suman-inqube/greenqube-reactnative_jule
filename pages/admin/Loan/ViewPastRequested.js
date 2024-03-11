@@ -63,7 +63,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
         const x1 = x[0].split('-');
-        // console.log(item)
         const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
         setfromDate(effective_date)
     }
@@ -83,23 +82,19 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         ]);
         setCurrencyt(currency_res)
         if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
+            const { dbname, lan_id, token, user_id } = loginUser_data;
             setdbLanTokUsr({
                 ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
+                dbName: dbname,
+                languageID: lan_id,
                 token: token,
-                userID: userID
+                userID: user_id
             })
             const [response, farmerByName] = await Promise.all([
-                loanRouteListAPI(dbName, languageID, token, userID, "", "", ""),
-                loanRouteFarmerListAPI(dbName, languageID, token, userID)
+                loanRouteListAPI(dbname, lan_id, token, user_id, "", "", ""),
+                loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
             ]);
-            // const response = await loanRouteListAPI(dbName, languageID, token, userID, "", "", "")
-            if (response) {
+            if (response.status == 200) {
                 if (response.data.data.rows.length != 0) {
                     setIsLoading(false);
                     setLoanList(response.data.data.rows);
@@ -109,8 +104,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                     Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
                 }
             }
-            // const farmerByName = await loanRouteFarmerListAPI(dbName, languageID, token, userID)
-            if (farmerByName) {
+            if (farmerByName.status == 200) {
                 const dataArray = [];
                 farmerByName.data.data.rows.forEach(element => {
                     dataArray.push({
@@ -209,20 +203,19 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         <Root>
             <SafeAreaView style={{ flex: 1 }}>
                 <View>
-                    <DatePickerComp
+                    {openFromDate && <DatePickerComp
                         openDate={openFromDate}
                         newDate={newFromDate}
                         setOpenDate={setOpenFromDate}
                         handleDatePicker={handleDatePicker}
-                    />
-                    <DatePickerComp
+                    />}
+                    {openToDate && <DatePickerComp
                         openDate={openToDate}
                         newDate={newToDate}
                         setOpenDate={setOpenToDate}
                         handleDatePicker={handleDatePicker2}
                         minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                    />
-
+                    />}
                     {
                         searchResultsList && searchResultsList ?
                             <View style={styles.flatContainer}>

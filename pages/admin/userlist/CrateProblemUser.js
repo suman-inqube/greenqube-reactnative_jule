@@ -540,7 +540,7 @@ const CrateProblemUser = ({ navigation }) => {
                 });
             }
             formData.append("post_meta_info", JSON.stringify(array));
-            formData.append("agent_fcm", saveData.agent_fcm);
+            // formData.append("agent_fcm", saveData.agent_fcm);
             formData.append("farmer_fcm", saveData.farmer_fcm);
             formData.append("latitude", saveData.latitude);
             formData.append("longitude", saveData.longitude);
@@ -794,13 +794,13 @@ const CrateProblemUser = ({ navigation }) => {
                                     ''
                             }
                             <DropdownForm label={t('growth_stage')} color="red" data={productionStageAll} onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value })} />
-                            <DropdownForm label={t('problem_type')} data={problemTypeAll} onChange={item => handleProblemType(item)} />
-                            <DropdownForm label={t('select_problem')} data={problemNameAll} onChange={item => handleProblemName(item)} />
+                            <DropdownForm label={t('problem_type')} color="red" data={problemTypeAll} onChange={item => handleProblemType(item)} />
+                            <DropdownForm label={t('select_problem')} color="red" data={problemNameAll} onChange={item => handleProblemName(item)} />
                             {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
-                            <DropdownForm label={t('select_severity')} data={severityAll} onChange={item => setSaveData({ ...saveData, severity_id: item.value })} />
+                            <DropdownForm label={t('select_severity')} color="red" data={severityAll} onChange={item => setSaveData({ ...saveData, severity_id: item.value })} />
                             <InputTextForm label={t('production_system')} value={nameVarityStartEnd.production_process} />
                             <View>
-                                <Text style={{ color: '#000' }}>{t('agent_crop_problem_affected_date')}</Text>
+                                <Text style={{ color: 'red' }}>{t('agent_crop_problem_affected_date')}</Text>
                                 <TouchableOpacity style={styles.activityPerFromDate} onPress={() => setaddAffectedDate(true)}>
                                     <Text style={{ color: '#000' }}>{affectedDate}</Text>
                                     <Image

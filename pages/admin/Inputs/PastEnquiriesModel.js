@@ -1,8 +1,10 @@
 import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Image, FlatList } from 'react-native';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
+import { getItem } from '../../../config/getDataFromStorage';
 const PastEnquiriesModel = (props) => {
     const { t } = useTranslation();
+    const [currency, setcurrency] = useState("");
     function formatDateToMMDDYYYY(inputDate) {
         const date = new Date(inputDate);
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -10,7 +12,14 @@ const PastEnquiriesModel = (props) => {
         const year = date.getFullYear();
         return `${month}-${day}-${year}`;
     }
+    const onPageLoad = async () => {
+        const curr = await getItem('currency');
+        setcurrency(curr)
 
+    };
+    useEffect(() => {
+        onPageLoad();
+    }, [])
     return (
         <View>
             <Modal
@@ -62,30 +71,36 @@ const PastEnquiriesModel = (props) => {
                                     <>
                                         <View style={{ backgroundColor: '#FFF', height: 3, borderRadius: 50 }}></View>
                                         <View style={styles.ModelTtem}>
-                                            <Text style={styles.modelItemTitle}>{'Fulfillment \n Status'}</Text>
+                                            <Text style={styles.modelItemTitle}>{t('full_fill_status')}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('qty')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text>
+                                            <Text style={styles.modelItemTitle}>: {props.qty.qty} - {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text> */}
                                         </View>
                                         <View style={styles.ModelTtem}>
-                                            <Text style={styles.modelItemTitle}>{t('total_amount')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].total_samount}</Text>
+                                            <Text style={styles.modelItemTitle}>{t('total_amount') + " (" + currency + ")"}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].total_samount}</Text> */}
+                                            <Text style={styles.modelItemTitle}>:  {props.qty.total}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
-                                            <Text style={styles.modelItemTitle}>{t('discount_amount')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sdiscount}</Text>
+                                            <Text style={styles.modelItemTitle}>{t('discount_amount') + " (" + currency + ")"}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sdiscount}</Text> */}
+                                            <Text style={styles.modelItemTitle}>:  {props.qty.disTotal}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('grand_total')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sgrand_total}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sgrand_total}</Text> */}
+                                            <Text style={styles.modelItemTitle}>:  {props.qty.grandTotal}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('approved_date')}</Text>
-                                            <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[0].sdate)}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[0].sdate)}</Text> */}
+                                            <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[props.pastEnquiryView.length - 1].sdate)}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('sta_')}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder.quantity - props.pastEnquiryView[0].farmerorder.fulfill_quantity == 0 ? <Text>{t('closed')}</Text> : <Text>{t('pending')}</Text>}</Text> */}
                                             <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder.quantity - props.pastEnquiryView[0].farmerorder.fulfill_quantity == 0 ? <Text>{t('closed')}</Text> : <Text>{t('pending')}</Text>}</Text>
                                         </View>
                                     </>

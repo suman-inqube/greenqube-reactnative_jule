@@ -5,7 +5,9 @@ import { getItem, removeItem } from '../../config/getDataFromStorage';
 import i18next from '../services/i18next';
 import { useTranslation } from 'react-i18next';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import DeviceInfo from '../DeviceInfo';
 const FarmerDrawer = (props) => {
+    const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
     const navigation = useNavigation();
     const onPageLoad = async () => {
@@ -27,32 +29,43 @@ const FarmerDrawer = (props) => {
 
     }
     const removeData = async () => {
-        await Promise.all([
-            removeItem("logoImageData"),
-            removeItem('loginUser_data'),
-            removeItem("profileImgData"),
-            removeItem("userNameData"),
-            removeItem("userType"),
-            removeItem("bottomBannerData"),
-            removeItem("topBannerData"),
-            removeItem("currency"),
-        ]);
-        const popAction = StackActions.pop(1);
-        navigation.dispatch(popAction);
-        navigation.navigate('Login');
+        if (netConnection) {
+            await Promise.all([
+                removeItem("logoImageData"),
+                removeItem('loginUser_data'),
+                removeItem("profileImgData"),
+                removeItem("userNameData"),
+                removeItem("userType"),
+                removeItem("bottomBannerData"),
+                removeItem("topBannerData"),
+                removeItem("currency"),
+                removeItem('fcmToken'),
+                removeItem('company_website')
+            ]);
+            const popAction = StackActions.pop(1);
+            navigation.dispatch(popAction);
+            navigation.navigate('Login');
+        } else {
+            Alert.alert("You are offline hence cannot proceed");
+        }
     }
+    const navigateToPages = (pageName) => {
+        if (netConnection) {
+            navigation.navigate(pageName);
+        }
+    };
     return (
         <View>
             <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} onPress={() => props.setModalVisible(!props.modalVisible)}>
                 <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmerProfile')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerProfile')}>
                         <View style={[styles.menuItem, { marginTop: 8 }]}>
                             <Image source={require('../Common/images/user_menu.png')}
                                 style={[{ height: 28, width: 28, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('profile')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmerLiveHood')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerLiveHood')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/land.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
@@ -79,28 +92,28 @@ const FarmerDrawer = (props) => {
                             <Text style={styles.menuText}>{t('agri_calculator')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmerFarmIncomeExpenseList')} >
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')} >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/insurance_menu.png')}
                                 style={[{ height: 25, width: 25 }]} />
                             <Text style={styles.menuText}>{t('farm_income_amp_expense')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmerLoan')} >
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerLoan')} >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/dash_apply_for_loan_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('loan_ninquiry_far_dash')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmerInsuranceEnquiry')} >
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerInsuranceEnquiry')} >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/dash_apply_for_insurance_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('ins_inq_far_dash')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigation.navigate('FarmerChangePassword')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerChangePassword')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/change_password_white.png')}
                                 style={[{ height: 30, width: 30 }]} />
@@ -150,7 +163,7 @@ const styles = StyleSheet.create({
     },
     menuText: {
         marginLeft: 10,
-        fontSize: 18,
+        fontSize: 15,
         color: '#FFF',
         fontFamily: 'Poppins-Regular'
 

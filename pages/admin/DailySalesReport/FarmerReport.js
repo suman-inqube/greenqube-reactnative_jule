@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Keyboard, FlatList, Dimensions,BackHandler } from 'react-native'
+import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Keyboard, FlatList, Dimensions, BackHandler } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -9,14 +9,14 @@ import TakePhoto from '../Activity/TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import ButtonForm from '../../Common/ButtonForm';
 import { getItem } from '../../../config/getDataFromStorage';
-import { loanRouteFarmerListAPI, produceAgainstPlotAPI,FarmerDailysalesreportAdd } from '../../../config/apiHere';
+import { loanRouteFarmerListAPI, produceAgainstPlotAPI, FarmerDailysalesreportAdd } from '../../../config/apiHere';
 import { Root, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import DropdownForm from '../../Common/DropdownForm';
-import { useFocusEffect,useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 const FarmerReport = () => {
-    const{t}=useTranslation();
+    const { t } = useTranslation();
     const navigation = useNavigation();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [newDate, setnewDate] = useState(new Date());
@@ -42,9 +42,9 @@ const FarmerReport = () => {
     const [myphoto, setmyPhoto] = useState([]);
     const [saveData, setSaveData] = useState({
         plot_id: '',
-        type:"farmer_sales_report",
-        status:1,
-        comment:"",
+        type: "farmer_sales_report",
+        status: 1,
+        comment: "",
     });
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
         name: "",
@@ -74,7 +74,7 @@ const FarmerReport = () => {
                 console.log('Camera Error: ', response.error);
             } else {
                 let imageUri = response.uri || response.assets?.[0]?.uri;
-                setmyPhoto([...myphoto,{uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName}]);
+                setmyPhoto([...myphoto, { uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName }]);
                 setSelectedImage({ ...selectedImage, [item]: imageUri });
             }
         });
@@ -110,7 +110,7 @@ const FarmerReport = () => {
             'keyboardDidHide', () => { setKeyboardVisible(false); }
         );
         return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove(); };
-    },[]);
+    }, []);
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         if (loanFarmerList.length !== 0) {
@@ -140,6 +140,21 @@ const FarmerReport = () => {
         setSearchResults([]);
         setfarmerID(item.user_id)
         setSearchResultsList(false);
+        setNameVarityStartEnd({
+            ...nameVarityStartEnd,
+            name: "",
+            name_fid: "",
+            varity: "",
+            varity_fid: "",
+        });
+        setSaveData({
+            ...saveData,
+            plot_id: '',
+            type: "farmer_sales_report",
+            status: 1,
+            comment: "",
+        });
+        setDate("")
     }
     const handlePlot = async (relId) => {
         setSaveData({ ...saveData, ['plot_id']: relId.value })
@@ -148,9 +163,9 @@ const FarmerReport = () => {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
                 name: response.data.data.rows[0].crop_name.name,
-                name_fid:response.data.data.rows[0].crop_name.fid,
+                name_fid: response.data.data.rows[0].crop_name.fid,
                 varity: response.data.data.rows[0].crop_variety.name,
-                varity_fid:response.data.data.rows[0].crop_variety.fid,
+                varity_fid: response.data.data.rows[0].crop_variety.fid,
             })
         }
     }
@@ -164,7 +179,7 @@ const FarmerReport = () => {
             validateForm(date, `${t('please_date_first')}`);
         } else if (saveData.plot_id == "") {
             validateForm(saveData.plot_id, `${t('please_select_plot_first')}`);
-        }else{
+        } else {
             const formData = new FormData();
             formData.append("user_fid", farmerID);
             formData.append("type", saveData.type);
@@ -172,48 +187,49 @@ const FarmerReport = () => {
             formData.append("sr_date", date);
             formData.append("comment", saveData.comment);
             formData.append("products", JSON.stringify([{
-                "prod_fid":nameVarityStartEnd.name_fid,
-                "prod_vfid":nameVarityStartEnd.varity_fid
+                "prod_fid": nameVarityStartEnd.name_fid,
+                "prod_vfid": nameVarityStartEnd.varity_fid
             }]));
             myphoto.forEach((photo) => {
                 formData.append("photo", photo);
             });
-            const response = await FarmerDailysalesreportAdd(dbLanTokUsr.dbName, dbLanTokUsr.languageID,dbLanTokUsr.token,dbLanTokUsr.userID, formData);
-            if(response.status===200){
+            const response = await FarmerDailysalesreportAdd(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData);
+            if (response.status === 200) {
                 validateForm("", `${t('your_request_submitted')}`);
-                setTimeout(()=>{
+                setTimeout(() => {
                     navigation.navigate('DailySalesReport');
-                },1000)
+                }, 1000)
             }
         }
     }
     useFocusEffect(
         useCallback(() => {
-          const onBackPress = () => {
-            navigation.navigate('DailySalesReport');
-            return true;
-          };
-          BackHandler.addEventListener(
-            'hardwareBackPress', onBackPress
-          );
-          return () =>
-            BackHandler.removeEventListener(
-              'hardwareBackPress', onBackPress
+            const onBackPress = () => {
+                navigation.navigate('DailySalesReport');
+                return true;
+            };
+            BackHandler.addEventListener(
+                'hardwareBackPress', onBackPress
             );
+            return () =>
+                BackHandler.removeEventListener(
+                    'hardwareBackPress', onBackPress
+                );
         }, [])
-      );
-      const HandlerGoBack=()=>{
+    );
+    const HandlerGoBack = () => {
         navigation.navigate('DailySalesReport');
-      }
+    }
     return (
         <>
             <Root>
-                <DatePickerComp
+                {openNewDate && <DatePickerComp
                     openDate={openNewDate}
                     newDate={newDate}
                     setOpenDate={setopenNewDate}
                     handleDatePicker={handleDatePicker} />
-                <CustomHeader path='DailySalesReport'  HandlerGoBack={HandlerGoBack}/>
+                }
+                <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} />
                 <FormsTitle title={t('farmer_report')} />
                 {
                     searchResultsList && searchResultsList ?
@@ -248,7 +264,7 @@ const FarmerReport = () => {
                         />
                         <InputTextForm label={t('produce_name')} value={nameVarityStartEnd.name} />
                         <InputTextForm label={t('prodece_vareity')} value={nameVarityStartEnd.varity} />
-                        <InputTextForm label={t('comments')} onChangeText={(text) => setSaveData({...saveData,['comment']:text})}/>
+                        <InputTextForm label={t('comments')} onChangeText={(text) => setSaveData({ ...saveData, ['comment']: text })} />
                         <TakePhoto title={t('take_a_photo_optional')} openImagePicker={openImagePicker} selectedImage={selectedImage} />
                     </View>
                 </ScrollView>
@@ -262,7 +278,7 @@ export default FarmerReport;
 const styles = StyleSheet.create({
     formComtainer: {
         marginHorizontal: '3%',
-        marginBottom:60
+        marginBottom: 60
     },
     calenderContainer: {
         backgroundColor: '#FFF',
@@ -279,7 +295,7 @@ const styles = StyleSheet.create({
     title: {
         color: '#000',
         marginVertical: 10,
-        fontFamily:'Poppins-Regular'
+        fontFamily: 'Poppins-Regular'
 
     },
     flatContainer: {
@@ -312,7 +328,7 @@ const styles = StyleSheet.create({
     flatlisttitle: {
         color: '#000',
         marginVertical: 8,
-        fontFamily:'Poppins-Regular'
+        fontFamily: 'Poppins-Regular'
     },
     flatlistHeight: {
         height: Dimensions.get('window').height / 3,

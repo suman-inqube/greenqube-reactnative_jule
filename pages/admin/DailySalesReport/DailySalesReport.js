@@ -6,7 +6,9 @@ import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { DailySalesReportGetAPI } from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
 import { useTranslation } from 'react-i18next';
+import { useIsFocused } from '@react-navigation/native';
 const DailySalesReport = ({ navigation }) => {
+    const isFocused = useIsFocused();
     const { t } = useTranslation();
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         dbName: '',
@@ -39,14 +41,16 @@ const DailySalesReport = ({ navigation }) => {
         }
     };
     useEffect(() => {
-        onPageLoad();
-        const onBackPress = () => {
-            // setuserList([]);
-            navigation.navigate('Dashboard'); return true;
-        };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [])
+        if (isFocused) {
+            onPageLoad();
+            const onBackPress = () => {
+                // setuserList([]);
+                navigation.navigate('Dashboard'); return true;
+            };
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        }
+    }, [isFocused])
     const HandlerGoBack = () => {
         navigation.navigate('Dashboard');
     }
@@ -62,30 +66,27 @@ const DailySalesReport = ({ navigation }) => {
                     <Text style={styles.btnText}>{t('farmer_report')}</Text>
                 </TouchableOpacity>
             </View>
-            {isLoading ?
-                <View style={styles.loadingScreen}><LoadingScreen /></View>
-                :
-                <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={dailySalesReportData}
-                    renderItem={({ item }) => {
-                        return (
-                            <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('SalesDetail', item)}>
-                                <View style={styles.flatListItemLeft}>
-                                    <Text style={styles.flatTitle}>{t('name')}: {item.salesUser.userName.substring(-1, 12)}{item.salesUser.userName.length > 11 ? "..." : ""}</Text>
-                                    <Text style={styles.flatTitle}>{item.srProducts.length != 0 && item.srProducts[0].salesProduct != null ? `${t('product_name')}: ${item.srProducts[0].salesProduct.product_name.substring(-1, 5)}` : item.srProducts.length != 0 && item.srProducts[0].salesProduceName != null ? `${t('product_name')}: ${item.srProducts[0].salesProduceName.name.substring(-1, 7)}` : ""}</Text>
-                                </View>
-                                <View style={styles.flatListItemRight}>
-                                    <Text style={styles.flatTitle}>{t('number_caps')} : {item.salesUser.contactNumber.substring(-1, 10)}</Text>
-                                    <Text style={styles.flatTitle}>{item.srProducts.length != 0 ? item.srProducts[0].qty != null || item.srProducts[0].unit != null ? `${t('select_quantity_input')}: ${item.srProducts[0].qty != null ? item.srProducts[0].qty : ''}  ${item.srProducts[0].unit != null ? item.srProducts[0].unit.substring(-1, 2) + "..." : ''}` : null : null}
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        )
-                    }}
-                    keyExtractor={(item, index) => index}
-                />
-            }
+            {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
+            <FlatList
+                showsVerticalScrollIndicator={false}
+                data={dailySalesReportData}
+                renderItem={({ item }) => {
+                    return (
+                        <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('SalesDetail', item)}>
+                            <View style={styles.flatListItemLeft}>
+                                <Text style={styles.flatTitle}>{t('name')}: {item.salesUser.userName.substring(-1, 12)}{item.salesUser.userName.length > 11 ? "..." : ""}</Text>
+                                <Text style={styles.flatTitle}>{t('number_caps')} : {item.salesUser.contactNumber.substring(-1, 10)}</Text>
+                            </View>
+                            <View style={styles.flatListItemRight}>
+                                <Text style={styles.flatTitle}>{item.srProducts.length != 0 && item.srProducts[0].salesProduct != null ? `${t('product_name')}: ${item.srProducts[0].salesProduct.product_name}` : item.srProducts.length != 0 && item.srProducts[0].salesProduceName != null ? `${t('product_name')}: ${item.srProducts[0].salesProduceName.name}` : ""}</Text>
+                                {/* <Text style={styles.flatTitle}>{item.srProducts.length != 0 ? item.srProducts[0].qty != null || item.srProducts[0].unit != null ? `${t('select_quantity_input')}: ${item.srProducts[0].qty != null ? item.srProducts[0].qty : ''}  ${item.srProducts[0].unit != null ? item.srProducts[0].unit.substring(-1, 2) + "..." : ''}` : null : null}
+                                </Text> */}
+                            </View>
+                        </TouchableOpacity>
+                    )
+                }}
+                keyExtractor={(item, index) => index}
+            />
         </View>
     )
 }
@@ -117,15 +118,18 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         elevation: 5,
         padding: 10,
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center'
     },
     flatListItemLeft: {
-        width: '50%'
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     },
     flatListItemRight: {
         marginLeft: 3,
-        width: '49%'
+        width: '100%',
+        // backgroundColor: 'red'
     },
     scrollContainer: {
         marginBottom: 380
@@ -138,6 +142,7 @@ const styles = StyleSheet.create({
     },
     loadingScreen: {
         position: 'relative',
-        top: 100
+        top: 100,
+        zIndex: 999
     },
 })

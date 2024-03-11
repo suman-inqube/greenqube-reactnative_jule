@@ -104,8 +104,8 @@ const FarmerLiveHood = ({ navigation }) => {
     const [harvested, setHarvested] = useState("");
     const [modalVisible, setModalVisible] = useState(false);
     const [plotSiteUserLandDetails, setplotSiteUserLandDetails] = useState([]);
+    const [edit, setEdit] = useState("")
     const handlePlot = async (findData) => {
-        console.log(findData);
         setIsLoading(true);
         setHarvested("");
         const [productSeasonresRes, cropAndPlotDetails,
@@ -118,14 +118,14 @@ const FarmerLiveHood = ({ navigation }) => {
         if (cropAndPlotDetails.status === 200) {
             if (cropAndPlotDetails.data.data.rows.length != 0) {
                 const data = cropAndPlotDetails.data.data.rows[0];
-                //  console.log(JSON.stringify(data, null, 2))
                 // if (plotSiteUserLandDetails_res.status === 200) {
                 plotSiteUserLandDetails.map((dataLandDetails, index) => {
                     if (dataLandDetails.rel_id == findData.value) {
                         if (new Date(data.sowing_date) < new Date(data.harvesting_date) != true) {
                             setModalVisible(true)
+                        } else {
+                            setEdit(true);
                         }
-                        // console.log(data);
                         setIsLoading(false);
                         setfarmerData({
                             ...farmerData,
@@ -232,14 +232,7 @@ const FarmerLiveHood = ({ navigation }) => {
                     productionProcessAPI(dbName, languageID),
                 ]);
                 if (plotSiteUserLandDetails_res.status === 200) {
-                    // console.log(JSON.stringify(plotSiteUserLandDetails_res.data.data, null, 2))
                     setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
-                    // agri_land_user_rels.agri_land_user_rels.map((data, index) => {
-                    //     PlotdataArray.push({
-                    //         value: data.rel_id,
-                    //         label: data.plot_no
-                    //     });
-                    // })
                 }
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
@@ -248,34 +241,17 @@ const FarmerLiveHood = ({ navigation }) => {
                     userID: user_id,
                     token: token,
                     supervisorID: supervisorID
-                })
-
-
+                });
             };
         } catch (error) {
             CrashlyticsRecordError(error.response)
         }
     }
-    const getLocation = () => {
-        Geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                setCurrentlatlong({ ...currentlatlong, lat: latitude.toFixed(7), long: longitude.toFixed(7) })
-            },
-            (error) => {
-                console.error(error);
-            },
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-        );
-    }
-
-
     useEffect(() => {
         RemoveFarmerData();
         if (isFocused) {
             setUserData("");
             onPageLoad();
-            getLocation();
             setLocation([{ latitude: "", longitude: "" }, { latitude: "", longitude: "" }, { latitude: "", longitude: "" }])
             const onBackPress = () => {
                 RemoveFarmerData();
@@ -327,6 +303,7 @@ const FarmerLiveHood = ({ navigation }) => {
     }
     const handleHarvested = async (data) => {
         setHarvested(data);
+        setEdit("");
         if (data === "same produce") {
             setfarmerData({
                 ...farmerData,
@@ -372,10 +349,16 @@ const FarmerLiveHood = ({ navigation }) => {
     const addMoreLocation = async () => {
         setLocation([...location, { lat: "", long: "" }])
     }
-    const handleCurrentLatLong = (index) => {
+    const handleCurrentLatLong = async (index) => {
+        const fusedLocation = await getItem('fusedLocation');
+        const { latitude, longitude } = fusedLocation;
         const values = [...location];
-        values[index] = { latitude: currentlatlong.lat, longitude: currentlatlong.long }
-        setLocation(values);
+        if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
+            values[index] = { "latitude": latitude, "longitude": longitude }
+            setLocation(values);
+        } else {
+            Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
+        }
     }
     const handleAddData = async (item, name, value) => {
         let selectUnitValue = "";
@@ -390,12 +373,8 @@ const FarmerLiveHood = ({ navigation }) => {
             livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
         }
         setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value, ['unit_value']: selectUnitValue })
-        if (name === 'livelihoodType') {
-            livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
-        }
-        if (name === 'produceName') {
-            produceNameAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerData.livelihoodTypeValue, item.value);
-        }
+
+
         if (name === "produceVariety") {
             produceVarietyAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
         }
@@ -403,6 +382,44 @@ const FarmerLiveHood = ({ navigation }) => {
             productionProcessAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
         }
     };
+    const handleAddDataproductionSeason = (item, name, value) => {
+        setfarmerData({
+            ...farmerData,
+            [name]: item.label, [value]: item.value,
+            livelihoodType: "",
+            livelihoodTypeValue: "",
+            produceName: "",
+            produceNameValue: "",
+            produceVariety: "",
+            produceVarietyValue: "",
+            productionProcess: "",
+            productionProcessValue: "",
+        })
+    }
+    const handleAddDatalivelihoodType = async (item, name, value) => {
+        setfarmerData({
+            ...farmerData, [name]: item.label,
+            [value]: item.value,
+            produceName: "",
+            produceNameValue: "",
+            produceVariety: "",
+            produceVarietyValue: "",
+        })
+        if (name === 'livelihoodType') {
+            livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
+        }
+    }
+    const handleAddDataproduceName = async (item, name, value) => {
+        setfarmerData({
+            ...farmerData, [name]: item.label,
+            [value]: item.value,
+            produceVariety: "",
+            produceVarietyValue: "",
+        })
+        if (name === 'produceName') {
+            produceNameAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerData.livelihoodTypeValue, item.value);
+        }
+    }
     const terraintype_resAPI = async (axiosConfig) => {
         try {
             let terraintype_res = await axios.get(config.terraintypeAPI, axiosConfig);
@@ -539,140 +556,95 @@ const FarmerLiveHood = ({ navigation }) => {
         }
     }
     const handleUserListUpdate = async () => {
-        console.log("data");
         Keyboard.dismiss();
         const locationArry = [];
         const latlongArr = [];
         location.map((data, index) => {
-            if (data.latitude != "") {
+            if (data.latitude != "" && data.latitude != undefined) {
                 locationArry.push("latitude")
                 latlongArr.push({ "latitude": data.latitude, "longitude": data.longitude })
             }
         })
         if (farmerData.plot_Site_Name == "") {
-            Toast.show({ text: 'Please add plot name First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0] })
         } else if (farmerData.terrainTypeValue == "") {
-            Toast.show({ text: 'Please Select Terrain Type First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_terrain_type_first')}`, ...AlertMesg[0] });
         } else if (farmerData.landTypeValue == "") {
-            Toast.show({ text: 'Please Select Plot/Site First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_plot_first')}`, ...AlertMesg[0] });
         } else if (farmerData.soilTypeValue == "") {
-            Toast.show({ text: 'Please Select Soil Type First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_soil_type_first')}`, ...AlertMesg[0] });
         } else if (farmerData.unitValue == "") {
-            Toast.show({ text: 'Please Select Unit First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_unit_first')}`, ...AlertMesg[0] });
         } else if (farmerData.land_size == "") {
-            Toast.show({ text: 'Please Enter Plot/Site Size', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
         } else if (locationArry.length == 0) {
-            Toast.show({ text: 'Please Submit Location Size', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_submit_location_first')}`, ...AlertMesg[0] });
         } else if (farmerData.productionSeasonValue == "") {
-            Toast.show({ text: 'Please Select Production Season First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_cultiveting_season_first')}`, ...AlertMesg[0] });
         } else if (farmerData.livelihoodTypeValue == "") {
-            Toast.show({ text: 'Please Select Livelihood Type First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_crop_type_first')}`, ...AlertMesg[0] });
         } else if (farmerData.produceNameValue == "") {
-            Toast.show({ text: 'Please Select Producr Name/Type First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_crop_name_first')}`, ...AlertMesg[0] });
         } else if (farmerData.produceVarietyValue == "") {
-            Toast.show({ text: 'Please Select Produce Variety  First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_crop_veriety_first')}`, ...AlertMesg[0] });
         } else if (farmerData.productionProcessValue == "") {
-            Toast.show({ text: 'Please Select Production Process In Produce Details First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_production_system_first')}`, ...AlertMesg[0] });
         } else if (farmerData.expectedProduction == "") {
-            Toast.show({ text: 'Please Select Give Production Size', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_give_yeild_size')}`, ...AlertMesg[0] });
         } else if (farmerData.unitProductValue == "") {
-            Toast.show({ text: 'Please Select Production Unit', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0] });
         } else if (farmerData.cycleStartDate == "") {
             Toast.show({ text: 'Please Select Planting Date', ...AlertMesg[0] });
         } else if (farmerData.cycleEndDate == "") {
-            Toast.show({ text: 'Please Select Crop Cycle End Date First', ...AlertMesg[0] });
+            Toast.show({ text: `${t('select_enddate_first')}`, ...AlertMesg[0] });
         } else {
             const latlongArrString = JSON.stringify(latlongArr);
-
+            let save_data = qs.stringify({
+                plot_no: farmerData.plot_Site_Name,
+                createdBy: dbLanTokUsr.userID,
+                daag_no: farmerData.daag_no,
+                khatian_no: farmerData.khatian_no,
+                plant_number: farmerData.plant_number,
+                terrain_type_id: farmerData.terrainTypeValue,
+                lan_type_id: farmerData.landTypeValue,
+                soil_type_id: farmerData.soilTypeValue,
+                land_unit_id: farmerData.unitValue,
+                land_size: farmerData.land_size,
+                land_convert_size: farmerData.land_size * farmerData.unit_value == null || farmerData.unit_value == "" || farmerData.unit_value == "undefined" ? 1 : farmerData.unit_value,
+                latitude: latlongArr[0].latitude,
+                longitude: latlongArr[0].longitude,
+                status: 1,
+                crop_season_id: farmerData.productionSeasonValue,
+                crop_type_id: farmerData.livelihoodTypeValue,
+                crop_name_id: farmerData.produceNameValue,
+                crop_variety_id: farmerData.produceVarietyValue,
+                sowing_date: farmerData.cycleStartDate,
+                harvesting_date: farmerData.cycleEndDate,
+                is_primary: 0,
+                certified_seed: "No",
+                have_land_title: "No",
+                production_system: farmerData.productionProcessValue,
+                have_fertilizer: "Yes",
+                buy_pesticide: "Yes",
+                yield_amount: farmerData.expectedProduction,
+                yield_unit: farmerData.unitProductValue,
+                crop_cycl_start_date: "2004-02-29",
+                // crop_cycl_start_date: farmerData.cycleStartDate,
+                latlong_data: latlongArrString,
+            });
             if (userData == "addUserData") {
-                let save_data = qs.stringify({
-                    plot_no: farmerData.plot_Site_Name,
-                    createdBy: dbLanTokUsr.supervisorID,
-                    daag_no: farmerData.daag_no,
-                    khatian_no: farmerData.khatian_no,
-                    plant_number: farmerData.plant_number,
-                    terrain_type_id: farmerData.terrainTypeValue,
-                    lan_type_id: farmerData.landTypeValue,
-                    soil_type_id: farmerData.soilTypeValue,
-                    land_unit_id: farmerData.unitValue,
-                    land_size: farmerData.land_size,
-                    land_convert_size: farmerData.land_size * farmerData.unit_value == null || farmerData.unit_value == "" || farmerData.unit_value == "undefined" ? 1 : farmerData.unit_value,
-                    latitude: latlongArr[0].latitude,
-                    longitude: latlongArr[0].longitude,
-                    status: 1,
-                    crop_season_id: farmerData.productionSeasonValue,
-                    crop_type_id: farmerData.livelihoodTypeValue,
-                    crop_name_id: farmerData.produceNameValue,
-                    crop_variety_id: farmerData.produceVarietyValue,
-                    sowing_date: farmerData.cycleStartDate,
-                    harvesting_date: farmerData.cycleEndDate,
-                    is_primary: 0,
-                    certified_seed: "No",
-                    have_land_title: "No",
-                    production_system: farmerData.productionProcessValue,
-                    have_fertilizer: "Yes",
-                    buy_pesticide: "Yes",
-                    yield_amount: farmerData.expectedProduction,
-                    yield_unit: farmerData.unitProductValue,
-                    crop_cycl_start_date: "2004-02-29",
-                    // crop_cycl_start_date: farmerData.cycleStartDate,
-                    latlong_data: latlongArrString,
-                });
                 const AddLandCropDetails_res = await AddLandCropDetailsAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmeruserID, dbLanTokUsr.token, save_data, '', '');
                 if (AddLandCropDetails_res.status === 200) {
-                    setLocation([{ latitude: "", longitude: "" }, { latitude: "", longitude: "" }, { latitude: "", longitude: "" }]);
                     Toast.show({ text: 'Plot/Site Produce Add Succesfully', ...AlertMesg[0] });
-                    RemoveFarmerData();
                     setTimeout(() => {
-                        RemoveFarmerData();
                         navigation.navigate('FarmerDashboard')
                     }, 2000);
                 }
             } else {
-                console.log("data2");
-                // problemPlotAgainstFarmerAPI
-
-                let save_data = qs.stringify({
-                    plot_no: farmerData.plot_Site_Name,
-                    createdBy: dbLanTokUsr.supervisorID,
-                    daag_no: farmerData.daag_no,
-                    khatian_no: farmerData.khatian_no,
-                    plant_number: farmerData.plant_number,
-                    terrain_type_id: farmerData.terrainTypeValue,
-                    lan_type_id: farmerData.landTypeValue,
-                    soil_type_id: farmerData.soilTypeValue,
-                    land_unit_id: farmerData.unitValue,
-                    land_size: farmerData.land_size,
-                    land_convert_size: farmerData.land_size * farmerData.unit_value == null || farmerData.unit_value == "" || farmerData.unit_value == "undefined" ? 1 : farmerData.unit_value,
-                    latitude: latlongArr[0].latitude,
-                    longitude: latlongArr[0].longitude,
-                    status: 1,
-                    crop_season_id: farmerData.productionSeasonValue,
-                    crop_type_id: farmerData.livelihoodTypeValue,
-                    crop_name_id: farmerData.produceNameValue,
-                    crop_variety_id: farmerData.produceVarietyValue,
-                    sowing_date: farmerData.cycleStartDate,
-                    harvesting_date: farmerData.cycleEndDate,
-                    is_primary: 0,
-                    certified_seed: "No",
-                    have_land_title: "No",
-                    production_system: farmerData.productionProcessValue,
-                    have_fertilizer: "Yes",
-                    buy_pesticide: "Yes",
-                    yield_amount: farmerData.expectedProduction,
-                    yield_unit: farmerData.unitProductValue,
-                    // crop_cycl_start_date: "2004-02-29",
-                    crop_cycl_start_date: farmerData.cycleStartDate,
-                    latlong_data: latlongArrString,
-                });
                 const updateLandCropdetails_res = await UpdateLandCropdetailsAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmeruserID, dbLanTokUsr.token, save_data, farmerData.land_rel_id, farmerData.cu_rel_id)
                 if (updateLandCropdetails_res.status === 200) {
-
-                    setLocation([{ latitude: "", longitude: "" }, { latitude: "", longitude: "" }, { latitude: "", longitude: "" }]);
                     Toast.show({ text: 'Plot/Site Produce Updateed Succesfully', ...AlertMesg[0] });
-                    RemoveFarmerData();
                     setTimeout(() => {
-                        RemoveFarmerData();
                         navigation.navigate('FarmerDashboard')
                     }, 2000);
                 }
@@ -681,6 +653,7 @@ const FarmerLiveHood = ({ navigation }) => {
     }
     const handleUserData = async () => {
         setUserData("addUserData");
+        setEdit("");
         RemoveFarmerData();
     }
     const handleAddUserData = (name, data) => {
@@ -766,24 +739,24 @@ const FarmerLiveHood = ({ navigation }) => {
                         </View>
                         <DropdownForm label="Production Season" color="red"
                             data={productionSeason}
-                            onChange={item => { handleAddData(item, 'productionSeason', 'productionSeasonValue') }}
-                            val={farmerData.productionSeason} />
+                            onChange={item => { handleAddDataproductionSeason(item, 'productionSeason', 'productionSeasonValue') }}
+                            val={farmerData.productionSeason} disable={edit} />
                         <DropdownForm label="Livelihood Type" color="red"
                             data={livelihoodType}
-                            onChange={item => { handleAddData(item, 'livelihoodType', 'livelihoodTypeValue') }}
-                            val={farmerData.livelihoodType} disable={harvested == "same produce" ? true : false} />
+                            onChange={item => { handleAddDatalivelihoodType(item, 'livelihoodType', 'livelihoodTypeValue') }}
+                            val={farmerData.livelihoodType} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
                         <DropdownForm label="Produce Name" color="red"
                             data={produceName}
-                            onChange={item => { handleAddData(item, 'produceName', 'produceNameValue') }}
-                            val={farmerData.produceName} disable={harvested == "same produce" ? true : false} />
+                            onChange={item => { handleAddDataproduceName(item, 'produceName', 'produceNameValue') }}
+                            val={farmerData.produceName} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
                         <DropdownForm label="Produce Variety" color="red"
                             data={produceVariety}
                             onChange={item => { handleAddData(item, 'produceVariety', 'produceVarietyValue') }}
-                            val={farmerData.produceVariety} disable={harvested == "same produce" ? true : false} />
+                            val={farmerData.produceVariety} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
                         <DropdownForm label="Production Process" color="red"
                             data={productionProcess}
                             onChange={item => { handleAddData(item, 'productionProcess', 'productionProcessValue') }}
-                            val={farmerData.productionProcess} />
+                            val={farmerData.productionProcess} disable={edit} />
                         <View style={styles.plotSiteUnit}>
                             <View style={{ width: '45%' }}>
                                 <InputTextForm label={"Expected \nProduction"} color="red" value={farmerData.expectedProduction} onChangeText={(text) => handleAddUserData("expectedProduction", text)} />
@@ -791,7 +764,7 @@ const FarmerLiveHood = ({ navigation }) => {
                             <View style={{ width: '45%' }}>
                                 <DropdownForm label={"Unit\n"} color="red" data={productionUnit}
                                     onChange={item => { handleAddData(item, 'unitProduct', 'unitProductValue') }}
-                                    val={farmerData.unitProduct} />
+                                    val={farmerData.unitProduct} disable={edit} />
                             </View>
                         </View>
                         <TouchableOpacity onPress={() => setopenCycleStart(true)} activeOpacity={9}>

@@ -107,6 +107,7 @@ const LiveHood = ({ sendDataToParent }) => {
     const [harvested, setHarvested] = useState("");
     const [modalVisible, setModalVisible] = useState(false);
     const [plotSiteUserLandDetails, setplotSiteUserLandDetails] = useState([]);
+    const [edit, setEdit] = useState("")
     const handlePlot = async (findData) => {
         setIsLoading(true);
         setHarvested("");
@@ -124,6 +125,8 @@ const LiveHood = ({ sendDataToParent }) => {
                     if (dataLandDetails.rel_id == findData.value) {
                         if (new Date(data.sowing_date) < new Date(data.harvesting_date) != true) {
                             setModalVisible(true)
+                        } else {
+                            setEdit(true);
                         }
                         setIsLoading(false);
                         setfarmerData({
@@ -318,6 +321,7 @@ const LiveHood = ({ sendDataToParent }) => {
     }
     const handleHarvested = async (data) => {
         setHarvested(data);
+        setEdit("");
         if (data === "same produce") {
             setfarmerData({
                 ...farmerData,
@@ -396,12 +400,8 @@ const LiveHood = ({ sendDataToParent }) => {
             livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
         }
         setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value, ['unit_value']: selectUnitValue })
-        if (name === 'livelihoodType') {
-            livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
-        }
-        if (name === 'produceName') {
-            produceNameAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerData.livelihoodTypeValue, item.value);
-        }
+
+
         if (name === "produceVariety") {
             produceVarietyAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
         }
@@ -409,6 +409,45 @@ const LiveHood = ({ sendDataToParent }) => {
             productionProcessAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
         }
     };
+    const handleAddDataproductionSeason = (item, name, value) => {
+        setfarmerData({
+            ...farmerData,
+            [name]: item.label, [value]: item.value,
+            livelihoodType: "",
+            livelihoodTypeValue: "",
+            produceName: "",
+            produceNameValue: "",
+            produceVariety: "",
+            produceVarietyValue: "",
+            productionProcess: "",
+            productionProcessValue: "",
+        })
+    }
+    const handleAddDatalivelihoodType = async (item, name, value) => {
+        setfarmerData({
+            ...farmerData, [name]: item.label,
+            [value]: item.value,
+            produceName: "",
+            produceNameValue: "",
+            produceVariety: "",
+            produceVarietyValue: "",
+        })
+        if (name === 'livelihoodType') {
+            livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
+        }
+    }
+    const handleAddDataproduceName = async (item, name, value) => {
+        setfarmerData({
+            ...farmerData, [name]: item.label,
+            [value]: item.value,
+            produceVariety: "",
+            produceVarietyValue: "",
+        })
+        if (name === 'produceName') {
+            produceNameAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerData.livelihoodTypeValue, item.value);
+        }
+    }
+
     const terraintype_resAPI = async (axiosConfig) => {
         try {
             let terraintype_res = await axios.get(config.terraintypeAPI, axiosConfig);
@@ -648,6 +687,7 @@ const LiveHood = ({ sendDataToParent }) => {
     }
     const handleUserData = async () => {
         setUserData("addUserData");
+        setEdit("")
         RemoveFarmerData();
         locationEmpty();
     }
@@ -756,32 +796,33 @@ const LiveHood = ({ sendDataToParent }) => {
                         </View>
                         <DropdownForm label={t('addcrop_select_cultivating_season')} color="red"
                             data={productionSeason}
-                            onChange={item => { handleAddData(item, 'productionSeason', 'productionSeasonValue') }}
-                            val={farmerData.productionSeason} />
+                            onChange={item => { handleAddDataproductionSeason(item, 'productionSeason', 'productionSeasonValue') }}
+                            val={farmerData.productionSeason} disable={edit} />
                         <DropdownForm label={t('addcrop_croptype')} color="red"
                             data={livelihoodType}
-                            onChange={item => { handleAddData(item, 'livelihoodType', 'livelihoodTypeValue') }}
-                            val={farmerData.livelihoodType} disable={harvested == "same produce" ? true : false} />
+                            onChange={item => { handleAddDatalivelihoodType(item, 'livelihoodType', 'livelihoodTypeValue') }}
+                            val={farmerData.livelihoodType} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
                         <DropdownForm label={t('crop_name')} color="red"
                             data={produceName}
-                            onChange={item => { handleAddData(item, 'produceName', 'produceNameValue') }}
-                            val={farmerData.produceName} disable={harvested == "same produce" ? true : false} />
+                            onChange={item => { handleAddDataproduceName(item, 'produceName', 'produceNameValue') }}
+                            val={farmerData.produceName} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
                         <DropdownForm label={t('crop_veriety')} color="red"
                             data={produceVariety}
                             onChange={item => { handleAddData(item, 'produceVariety', 'produceVarietyValue') }}
-                            val={farmerData.produceVariety} disable={harvested == "same produce" ? true : false} />
+                            val={farmerData.produceVariety} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
                         <DropdownForm label={t('production_system')} color="red"
                             data={productionProcess}
                             onChange={item => { handleAddData(item, 'productionProcess', 'productionProcessValue') }}
-                            val={farmerData.productionProcess} />
+                            val={farmerData.productionProcess} disable={edit} />
                         <View style={styles.plotSiteUnit}>
                             <View style={{ width: '45%' }}>
-                                <InputTextForm label={t('expected_yield')} keyboardType='number-pad' color="red" value={farmerData.expectedProduction} onChangeText={(text) => handleAddUserData("expectedProduction", text)} />
+                                <InputTextForm label={t('expected_yield')} keyboardType='number-pad' color="red" value={farmerData.expectedProduction}
+                                    onChangeText={(text) => handleAddUserData("expectedProduction", text)} />
                             </View>
                             <View style={{ width: '45%' }}>
-                                <DropdownForm label={t('select_unit_input')} color="red" data={productionUnit}
+                                <DropdownForm label={`${t('select_unit_input')}` + "\n"} color="red" data={productionUnit}
                                     onChange={item => { handleAddData(item, 'unitProduct', 'unitProductValue') }}
-                                    val={farmerData.unitProduct} />
+                                    val={farmerData.unitProduct} disable={edit} />
                             </View>
                         </View>
                         <TouchableOpacity onPress={() => setopenCycleStart(true)} activeOpacity={9}>
