@@ -276,8 +276,6 @@ export const farmerByNameAPI = async (dbName, languageID, token, userID) => {
     };
     try {
         let response = await axios.get(`${config.BASE_URL}loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=${userID}`, axiosHeaders);
-        // let response = await axios.get(`${config.BASE_URL}loginSignupRoute/newlistuser/1/0/2?search_key=&userType=2&createdBy=${userID}`, axiosHeaders);
-
         return response;
 
     } catch (error) {
@@ -305,7 +303,6 @@ export const plotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) 
 // Production season And Livelyhood type List
 
 export const productionSeasonAndLivelyhoodTypeListAPI = async (dbName) => {
-    // return console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`);
     const axiosHeaders = {
         headers: {
             'information': `${dbName}`,
@@ -331,7 +328,7 @@ export const produceAgainstPlotAPI = async (dbName, languageID, farmerID, relID)
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in produceAgainstPlotAPI " + error.response);
+        return error.response;
     }
 }
 
@@ -346,7 +343,7 @@ export const productionStageAPI = async (dbName, languageID, cropTypeId, cropNam
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in productionStageAPI " + error.response);
+        return error.response;
     }
 }
 export const setCycleDateAPI = async (dbName, language, userId, token, cuRelID, save_data) => {
@@ -1166,7 +1163,6 @@ export const farmIncomeExpenceSaveAPI = async (dbName, languageId, token, farmer
             'authorization': `${token}`,
         },
     };
-    console.log(`${config.BASE_URL}cropRoute/addUserCropRels`, inputData, axiosHeaders);
     try {
         let response = await axios.post(`${config.BASE_URL}cropRoute/addUserCropRels`, inputData, axiosHeaders);
         return response;
@@ -1324,8 +1320,6 @@ export const farmerProblemListAPI = async (dbName, languageID, userID, farmer_ty
             'information': `${dbName},${userID}`,
         },
     };
-    console.log(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
-
     try {
         let response = await axios.get(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
         return response;
@@ -1507,3 +1501,82 @@ export const SupervisoroutputEnquiryViewAPI = async (dbName, languageId, token, 
         return error.response;
     }
 }
+
+export const checkUniqueIdTree = async (dbName, languageId, inputData) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${languageId}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+    };
+    try {
+        let response = await axios.post(`${config.BASE_URL}greenZownRoute/checkUniqueId`, inputData, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const greenZownRouteaddMultiCrops = async (dbName, languageId, token, userId, inputData, length) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${languageId},${userId}`,
+            'Content-Type': 'multipart/form-data',
+            'authorization': `${token}`,
+            'crop_count': length
+        },
+    };
+    try {
+        let response = await axios.post(`${config.BASE_URL}greenZownRoute/addMultiCrops`, inputData, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const greenZownTreeImg = async (dbName, languageId, tree_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${languageId}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}greenZownRoute/listFiles/${tree_id}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const greenZownlistMultiLatLong = async (dbName, languageId, tree_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${languageId}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}landRoute/listMultiLatLong/${tree_id}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const greenZownuserCropEditApi = async (dbName, languageId, userId, token, tree_id, savedData) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${languageId},${userId}`,
+            'Content-Type': 'multipart/form-data',
+            'authorization': `${token}`
+        },
+    };
+    try {
+        let response = await axios.put(`${config.BASE_URL}greenZownRoute/userCropEdit/${tree_id}`, savedData, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+

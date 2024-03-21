@@ -55,6 +55,20 @@ const CustomDrawer = (props) => {
                             <Text style={styles.menuText}>{t('profile')}</Text>
                         </View>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('AddTree')}>
+                        <View style={[styles.menuItem, { marginTop: 8 }]}>
+                            <Image source={require('../Common/images/user_menu.png')}
+                                style={[{ height: 28, width: 28, tintColor: '#FFF' }]} />
+                            <Text style={styles.menuText}>{t('list_add_pond')}</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('EditTree')}>
+                        <View style={[styles.menuItem, { marginTop: 8 }]}>
+                            <Image source={require('../Common/images/user_menu.png')}
+                                style={[{ height: 28, width: 28, tintColor: '#FFF' }]} />
+                            <Text style={styles.menuText}>{t('edit_land')}</Text>
+                        </View>
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Business')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/inncome_expence_menu.png')}

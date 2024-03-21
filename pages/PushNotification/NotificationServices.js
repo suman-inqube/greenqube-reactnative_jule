@@ -24,12 +24,12 @@ const notificationServices = () => {
       try {
         const fcmToken = await messaging().getToken()
         if (!!fcmToken) {
-          console.log("fcme token generated", fcmToken)
+          // console.log("fcme token generated", fcmToken)
           await setItem('fcmToken', fcmToken)
           // console.log(checkToken);
         }
       } catch (error) {
-        console.log("error in fcmToken", error)
+        // console.log("error in fcmToken", error)
         // alert(error?.message)
       }
     }
@@ -38,13 +38,12 @@ const notificationServices = () => {
     const userType = await getItem('userType');
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', remoteMessage);
-      <ForegroundHandler />
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log(
-        'Notification caused app to open from background state:',
-        remoteMessage.notification,
-      );
+      // console.log(
+      //   'Notification caused app to open from background state:',
+      //   remoteMessage.notification,
+      // );
       const { type, response } = remoteMessage.data;
       const responseCommentJson = JSON.parse(response);
       if (type == 'comment') {
@@ -165,7 +164,7 @@ const notificationServices = () => {
           // console.log(remoteMessage.data.type)
         }
       })
-    // return unsubscribe;
+    return unsubscribe;
   }
   return {
     requestUserPermission,

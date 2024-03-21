@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
 import React, { memo } from 'react'
 
-const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname, maxLength, editable }) => {
+const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname, maxLength, editable, onTouchStart }) => {
   const scheme = useColorScheme();
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
   return (
@@ -18,6 +18,8 @@ const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur
           ref={refname}
           maxLength={maxLength}
           editable={editable}
+          onTouchStart={onTouchStart}
+
         />
       </View>
     </>

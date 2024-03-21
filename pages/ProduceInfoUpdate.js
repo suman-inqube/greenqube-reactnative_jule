@@ -156,6 +156,7 @@ const ProduceInfoUpdate = () => {
                         landUnitArray.push({
                             value: element.id,
                             label: element.name,
+                            sizevalue: element.unit_value,
                         });
                     });
                 }
@@ -401,9 +402,7 @@ const ProduceInfoUpdate = () => {
             MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
         }
     }
-
     const handleLandUnit = async (item) => {
-        //    return console.log(storeProduceInfo.plotSize);
         if (item.sizevalue > 0) {
             const landUnitSize = storeProduceInfo.plotSize * item.sizevalue
             setstoreProduceInfo({
@@ -416,7 +415,7 @@ const ProduceInfoUpdate = () => {
             setstoreProduceInfo({
                 ...storeProduceInfo,
                 landUnit: item.value,
-                landUnitSize: storeProduceInfo.plotSize,
+                landUnitSize: storeProduceInfo.plotSize * 1,
                 landUnitName: item.label,
             })
         }

@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, Modal, TouchableOpacity, FlatList,Dimensions, Keyboard } from 'react-native'
+import { StyleSheet, Text, View, Modal, TouchableOpacity, FlatList, Dimensions, Keyboard } from 'react-native'
 import React from 'react'
 
 
 const SplashScreenModalLanguage = (props) => {
     const handleDBName = (item) => {
-       props.sendDataToParentLan(item);
+        props.sendDataToParentLan(item);
 
     }
     return (
@@ -20,22 +20,23 @@ const SplashScreenModalLanguage = (props) => {
                 <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} >
                     <View style={styles.modalView}>
                         <View style={styles.modelTitleContainer}>
-                            <FlatList
-                            showsVerticalScrollIndicator={false}
-                                data={props.companyData}
-                                renderItem={({ item }) => {
-                                    return (
-                                        <TouchableOpacity style={styles.wrapper} onPress={() => handleDBName(item.id)}>
-                                            <View style={styles.item}>
-                                                <Text style={styles.itemText}>{item.name}</Text>
+                            <View style={{ maxHeight: Dimensions.get('window').height - 50 }}>
+                                <FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    data={props.companyData}
+                                    renderItem={({ item }) => {
+                                        return (
+                                            <TouchableOpacity style={styles.wrapper} onPress={() => handleDBName(item.id)}>
+                                                <View style={styles.item}>
+                                                    <Text style={styles.itemText}>{item.name}</Text>
 
-                                            </View>
-                                        </TouchableOpacity>
-                                    )
-                                }}
-                                keyExtractor={(item, index) => index}
-                            />
-
+                                                </View>
+                                            </TouchableOpacity>
+                                        )
+                                    }}
+                                    keyExtractor={(item, index) => index}
+                                />
+                            </View>
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -57,8 +58,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         width: '90%',
         // height:'80%',
-        borderRadius:20,
-        marginVertical:30
+        borderRadius: 20,
+        marginVertical: 30
     },
     modelTitleContainer: {
 
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     itemText: {
         width: '100%',
         textAlign: 'center',
-        color:'#000',
+        color: '#000',
         fontFamily: 'Poppins-Regular'
     },
 

@@ -52,6 +52,9 @@ import RegistationSignUpViwer from './UserRegistation/RegistationSignUpViwer';
 import ChangePassword from './ChangePassword/ChangePassword';
 import Business from './Business/Business';
 
+import AddTree from './Tree/AddTree';
+import EditTree from './Tree/EditTree';
+import VideoCamera from '../Common/VideoCamera';
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
 
@@ -184,7 +187,10 @@ const AdminNavigation = () => {
 
             <Drawer.Screen name="ChangePassword" component={ChangePassword} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="Business" component={Business} options={{ unmountOnBlur: true, gestureEnabled: false }} />
-        </Drawer.Navigator >
+            <Drawer.Screen name="AddTree" component={AddTree} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="EditTree" component={EditTree} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="VideoCamera" component={VideoCamera} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+        </Drawer.Navigator>
     )
 }
 

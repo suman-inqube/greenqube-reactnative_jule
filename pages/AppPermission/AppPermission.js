@@ -12,15 +12,29 @@ const POST_NOTIFICATIONS = {
     ios: PERMISSIONS.IOS.POST_NOTIFICATIONS,
     android: PERMISSIONS.ANDROID.POST_NOTIFICATIONS
 }
+const CAMERA_PERMISSION = {
+    ios: PERMISSIONS.IOS.CAMERA,
+    android: PERMISSIONS.ANDROID.CAMERA
+}
+const READ_EXTERNAL_STORAGE_PERMISSION = {
+    ios: PERMISSIONS.IOS.READ_EXTERNAL_STORAGE,
+    android: PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE
+}
+
+
 const REQUEST_PERMISSIONS_TYPE = {
     fineLocation: ACCESS_FINE_LOCATION,
     microphone: PLATFORM_MICROPHONE_PERMISSION,
-    notifications: POST_NOTIFICATIONS
+    notifications: POST_NOTIFICATIONS,
+    camera: CAMERA_PERMISSION,
+    storage: READ_EXTERNAL_STORAGE_PERMISSION
 }
 const PERMISSIONS_TYPE = {
     fineLocation: 'fineLocation',
     microphone: 'microphone',
-    notifications: 'notifications'
+    notifications: 'notifications',
+    camera: 'camera',
+    storage: 'storage'
 }
 class AppPermission {
     checkPermission = async (type) => {

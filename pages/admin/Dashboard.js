@@ -39,6 +39,7 @@ const Dashboard = ({ navigation }) => {
       }
     }
   };
+
   const onPageLoad = async () => {
     const [bottomBannerData,
       userNameData,
@@ -49,7 +50,7 @@ const Dashboard = ({ navigation }) => {
         getItem('loginUser_data'),
         getItem('company_website'),
         // getCurrentLatLong(),
-        Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
+        Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications, PERMISSIONS_TYPE.camera])
       ]);
     i18next.changeLanguage(`${loginUser_data.lan_id}`);
     setcompany_website(company_website);
