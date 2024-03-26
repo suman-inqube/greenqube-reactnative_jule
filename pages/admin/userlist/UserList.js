@@ -57,7 +57,8 @@ const UserList = ({ navigation }) => {
                 contactNumber: agri_land_user_rels.contactNumber,
                 profileImage: file_path,
                 gender: agri_land_user_rels.gender,
-                farmer_type: agri_land_user_rels.farmer_type
+                farmer_type: agri_land_user_rels.farmer_type,
+                video: "",
             });
             // }
         }

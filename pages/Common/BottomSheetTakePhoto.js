@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { Root, SPSheet } from 'react-native-popup-confirm-toast';
+import Video from 'react-native-video';
 const BottomSheetTakePhoto = ({
     openlaunchCamera,
     openlaunchImageLibrary,
@@ -9,7 +10,8 @@ const BottomSheetTakePhoto = ({
     ChooseFromGallery,
     Cancel,
     title,
-    height
+    height,
+    VideoProps
 }) => {
     return (
         <TouchableOpacity
@@ -48,14 +50,24 @@ const BottomSheetTakePhoto = ({
             }}>
             {title && <Text style={styles.title} >{title}</Text>}
             {
-                uploadTreeImage.uri == "" ?
+                VideoProps == undefined ? uploadTreeImage.uri == "" ?
                     <Image
+                        source={require('./images/camera.jpeg')}
+                        style={{ width: 60, height: 60, marginBottom: 10, opacity: 0.7 }}
+                        resizeMode="contain"
+                    /> :
+                    <Image
+                        source={{ uri: `${uploadTreeImage.uri}` }}
+                        style={{ width: 60, height: 60, marginBottom: 10 }}
+                        resizeMode="contain"
+                    />
+                    : VideoProps != undefined && VideoProps != "" ? <Image
                         source={require('./images/camera.jpeg')}
                         style={{ width: 60, height: 60, marginBottom: 10 }}
                         resizeMode="contain"
                     /> : <Image
-                        source={{ uri: `${uploadTreeImage.uri}` }}
-                        style={{ width: 60, height: 60, marginBottom: 10 }}
+                        source={require('./images/camera.jpeg')}
+                        style={{ width: 60, height: 60, marginBottom: 10, opacity: 0.7 }}
                         resizeMode="contain"
                     />
             }

@@ -1578,5 +1578,55 @@ export const greenZownuserCropEditApi = async (dbName, languageId, userId, token
         return error.response;
     }
 }
+export const greenZownRouteUserLandEdit = async (dbName, languageId, userId, token, plotDetailsID, formData) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${languageId},${userId}`,
+            'Content-Type': 'multipart/form-data',
+            // 'Content-Type': 'application/json',
+            // 'Accept': 'application/json',
+            'authorization': `${token}`
+        },
+    };
+    console.log({
+        'information': `${dbName},${languageId},${userId}`,
+        'Content-Type': 'multipart/form-data',
+        'authorization': `${token}`
+    })
+    console.log(`${config.BASE_URL}greenZownRoute/userLandEdit/${plotDetailsID}`);
+    console.log(JSON.stringify(formData))
+    try {
+        let response = await axios.put(`${config.BASE_URL}greenZownRoute/userLandEdit/${plotDetailsID}`, formData, axiosHeaders);
+        return response;
+    } catch (error) {
+        console.log(error);
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const addUserLandAPI = async (dbname, lan_id, user_id, token, farmeruserID, formData, plotLength) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbname},${lan_id},${user_id}`,
+            'Content-Type': 'multipart/form-data',
+            // 'Content-Type': 'application/json',
+            // 'Accept': 'application/json',
+            'authorization': `${token}`,
+            'plot_count': plotLength
+        },
+    }
+    console.log(axiosHeaders)
+    console.log(JSON.stringify(formData))
+    try {
+        let response = await axios.post(`${config.BASE_URL}greenZownRoute/addUserLand`, formData, axiosHeaders);
+        return response;
+    } catch (error) {
+        console.log(error);
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
 
 
+
+// 

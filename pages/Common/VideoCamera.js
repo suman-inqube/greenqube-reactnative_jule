@@ -20,17 +20,17 @@ import {
     useCodeScanner,
 } from 'react-native-vision-camera';
 import Video from 'react-native-video';
+import VideoCameraController from '../ViewController/VideoCameraController';
+import { useRoute, useNavigation } from '@react-navigation/native';
 const CameraScreen = () => {
+    const navigation = useNavigation();
+    const route = useRoute();
+    const { farmeruserID, agri_land_user_rels } = route.params;
+    const { isRecording, setVideo, setIsRecording } = VideoCameraController(farmeruserID, agri_land_user_rels);
     const device = useCameraDevice('back', {
         physicalDevices: ['ultra-wide-angle-camera'],
     });
-    const [isActive, setIsActive] = useState(true);
-    const [flash, setFlash] = useState('off');
-    const [isRecording, setIsRecording] = useState(false);
-    const [photo, setPhoto] = useState();
-    const [video, setVideo] = useState();
     const camera = useRef(null);
-    const [mode, setMode] = useState('camera');
     const onStartRecording = async () => {
         if (!camera.current) {
             return;
@@ -38,11 +38,10 @@ const CameraScreen = () => {
         setIsRecording(true);
         if (isRecording == false) {
             camera.current.startRecording({
-                flash: flash === 'on' ? 'on' : 'off',
                 onRecordingFinished: (video) => {
-                    console.log(video);
                     setIsRecording(false);
                     setVideo(video);
+                    navigation.navigate("livehood", { farmeruserID: farmeruserID, agri_land_user_rels: agri_land_user_rels, video: video })
                 },
                 onRecordingError: (error) => {
                     console.error(error);
@@ -63,7 +62,7 @@ const CameraScreen = () => {
                 style={StyleSheet.absoluteFill}
                 device={device}
                 isActive={true}
-                photo
+                // photo
                 video
                 audio
             />

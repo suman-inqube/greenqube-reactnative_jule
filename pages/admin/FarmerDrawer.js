@@ -69,7 +69,7 @@ const FarmerDrawer = (props) => {
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/land.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                            <Text style={styles.menuText}>{t('plot_and_crop_details')}</Text>
+                            <Text style={styles.menuText}>{t('farming_details')}</Text>
                         </View>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.memuContainer} >

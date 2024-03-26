@@ -15,6 +15,18 @@ import PlotModel from '../../Common/PlotModel';
 import LoadingScreen from '../../Common/LoadingScreen';
 import BottomSheetTakePhoto from '../../Common/BottomSheetTakePhoto';
 import LiveHoodController from '../../ViewController/LiveHoodController';
+import Video from 'react-native-video';
+import CameraScreen from '../../Common/VideoCamera';
+import {
+    useCameraPermission,
+    useMicrophonePermission,
+    useCameraDevice,
+    Camera,
+    PhotoFile,
+    TakePhotoOptions,
+    VideoFile,
+    useCodeScanner,
+} from 'react-native-vision-camera';
 const LiveHood = () => {
     const navigation = useNavigation();
     const { t } = useTranslation();
@@ -35,132 +47,219 @@ const LiveHood = () => {
         location,
         handleCurrentLatLong,
         addMoreLocation,
-        photographsOne,
-        photographsTwo,
-        photographsThree,
-        photographsFour,
         openlaunchCamera,
         openlaunchImageLibrary,
         openlaunchCameraVider,
-        onPressSubmit } = LiveHoodController(farmeruserID);
+        onPressSubmit,
+        plotVideo,
+        plotRecord,
+        onChangeKhatianNo,
+        onChangeTreeType,
+        onChangelandType,
+        onChangeSoilType,
+        onChangeyieldamount,
+        onChangeProductionUnit,
+        camera,
+        isRecording,
+        videoData,
+        setVideo,
+        setIsRecording,
+        recordingStart,
+        setRecordingStart,
+        plotDetails,
+        recordingDuration,
+        setRecordingDuration,
+        formatTime,
+        onStartRecording,
+        photographs,
+        addMorePlot,
+        plotType,
+        onchangePlotName,
+        addUserLand,
+        storePlotArray,
+        produceRemoveDetails } = LiveHoodController(farmeruserID, agri_land_user_rels,);
+
     const HandlerGoBack = () => {
         navigation.navigate('Dashboard');
     }
+    const device = useCameraDevice('back', {
+        physicalDevices: ['ultra-wide-angle-camera'],
+    });
     return (
         <Root>
-            <View style={{ flex: 1 }} >
-                <CustomHeader HandlerGoBack={HandlerGoBack} />
-                {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
-                <FormsTitle title={"Plot Information"} />
-                {/* {plotDetails.length > 0 && <PlotModel plotDetails={plotDetails} modalVisible={modalVisible} setModalVisible={setModalVisible} onChangeTreeId={onChangeTreeId} />} */}
-                <View style={styles.container}>
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        <DropdownForm label={t('select_plot')} color={"red"} data={agri_land_user_rels}
-                            onChange={onChangePlotDetails}
-                        // val={plotData.plotName}
+            {recordingStart ?
+                !device ? <Text>Camera device not found</Text>
+                    :
+                    <View style={{ flex: 1 }}>
+                        <Camera
+                            ref={camera}
+                            style={StyleSheet.absoluteFill}
+                            device={device}
+                            isActive={true}
+                            // photo
+                            video
+                            audio
                         />
-                        <InputTextForm label={t('khatian_no')} value={khasraNo} />
-                        <DropdownForm label={t('select_plot')} color={"red"} data={terrainTypeAll} val={treeainTypeData.name} />
-                        <DropdownForm label={t('select_plot')} color={"red"} data={landTypeAll} val={landTypeAllData.name} />
-                        <DropdownForm label={t('select_plot')} color={"red"} data={soilTypeAll} val={soilTypeData.name} />
-                        <View style={styles.expectedproducessUnitContainer}>
-                            <View style={styles.expectedproducess}>
-                                <InputTextForm label={t('expected_yield')} color={"red"}
-                                    // onChangeText={onChangeyieldamount} value={yield_amount}
-                                    value={landSize}
-                                />
-                            </View>
-                            <View style={styles.unit}>
-                                <DropdownForm label={t('select_unit')} color={"red"}
-                                    data={unitAll}
-                                    // onChange={onChangeProductionUnit}
-                                    //  val={productionUnitData.productionUnitName}
-                                    val={landUnitData.name}
-                                />
-                            </View>
-                        </View>
-                        {
-                            location.map((data, index) => <TouchableOpacity key={index} onPress={() => handleCurrentLatLong(index)}>
-                                <View style={styles.latlongContainer}>
-                                    <Text style={styles.title}>{data.latitude == "" ? "0.0" : data.latitude}</Text>
-                                    <Text style={styles.title}>{data.longitude == "" ? "0.0" : data.longitude}</Text>
+                        <>
+                            {isRecording ? (
+                                <View style={styles.recordingTimer}>
+                                    <Text style={{ color: 'white' }}>{formatTime(recordingDuration)}</Text>
                                 </View>
-                                <View style={styles.latlongContainer}>
-                                    <Text style={styles.title}>{t('tap_to_get_latitude_and_longitude')}</Text>
-                                    {/* <TouchableOpacity onPress={() => handleCurrentLatLong(index)}> */}
-                                    <Image
-                                        source={require('../../Common/images/location.png')}
-                                        style={{ width: 40, height: 40 }}
-                                        resizeMode="contain"
-                                    />
-                                    {/* </TouchableOpacity> */}
-                                </View>
-                            </TouchableOpacity>)
-                        }
-                        <Text style={[styles.title, { marginVertical: 20 }]}>Photographs of Plot</Text>
-                        <View style={styles.photographsContainer}>
-                            {SPSheet && <BottomSheetTakePhoto
-                                openlaunchCamera={() => openlaunchCamera("one")}
-                                openlaunchImageLibrary={() => openlaunchImageLibrary("one")}
-                                uploadTreeImage={photographsOne}
-                                TakePhoto={"Take Photo"}
-                                ChooseFromGallery={"Choose From Gallery"}
-                                Cancel={"Cancel"}
-                                height={240}
-                            />}
-                            {SPSheet && <BottomSheetTakePhoto
-                                openlaunchCamera={() => openlaunchCamera("two")}
-                                openlaunchImageLibrary={() => openlaunchImageLibrary("two")}
-                                uploadTreeImage={photographsTwo}
-                                TakePhoto={"Take Photo"}
-                                ChooseFromGallery={"Choose From Gallery"}
-                                Cancel={"Cancel"}
-                                height={240}
-                            />}
-                            {SPSheet && <BottomSheetTakePhoto
-                                openlaunchCamera={() => openlaunchCamera("three")}
-                                openlaunchImageLibrary={() => openlaunchImageLibrary("three")}
-                                uploadTreeImage={photographsThree}
-                                TakePhoto={"Take Photo"}
-                                ChooseFromGallery={"Choose From Gallery"}
-                                Cancel={"Cancel"}
-                                height={240}
-                            />}
-                            {SPSheet && <BottomSheetTakePhoto
-                                openlaunchCamera={() => openlaunchCamera("foue")}
-                                openlaunchImageLibrary={() => openlaunchImageLibrary("foue")}
-                                uploadTreeImage={photographsFour}
-                                TakePhoto={"Take Photo"}
-                                ChooseFromGallery={"Choose From Gallery"}
-                                Cancel={"Cancel"}
-                                height={240}
-                            />}
-                        </View>
-                        <Text style={[styles.title, { marginVertical: 20 }]}>UPload Land Record as proof of ownership</Text>
-                        <Image source={require('../../Common/images/adobereader.png')} style={{ width: 80, height: 80 }} />
-                        <View style={{ marginVertical: 20 }}>
-                            <BottomSheetTakePhoto
-                                title={"Short Video Clip of Plantation"}
-                                openlaunchCamera={() => openlaunchCameraVider("foue")}
-                                openlaunchImageLibrary={() => openlaunchImageLibrary("foue")}
-                                uploadTreeImage={photographsFour}
-                                TakePhoto={"Take Video"}
-                                // ChooseFromGallery={"Choose From Gallery"}
-                                Cancel={"Cancel"}
-                                height={200}
+                            ) : null}
+                            <Pressable
+                                onPress={() => onStartRecording(plotVideo.id)}
+                                onLongPress={() => onStartRecording(plotVideo.id)}
+                                style={{
+                                    position: 'absolute',
+                                    alignSelf: 'center',
+                                    bottom: 50,
+                                    width: 75,
+                                    height: 75,
+                                    backgroundColor: isRecording ? 'red' : 'white',
+                                    borderRadius: 75,
+                                }}
                             />
+                        </>
+                    </View>
+                : <>
+                    <View style={{ flex: 1 }} >
+                        <CustomHeader HandlerGoBack={HandlerGoBack} />
+                        {isLoading ?
+                            <View style={styles.loadingScreen}>
+                                <LoadingScreen />
+                            </View> : null}
+                        <FormsTitle title={"Plot Information"} />
+                        <View style={styles.container}>
+                            <ScrollView showsVerticalScrollIndicator={false}>
+                                {
+                                    plotType == "add" ?
+                                        <InputTextForm label={t('addland_select_plot')} color="red"
+                                            value={plotDetails.name} onChangeText={onchangePlotName}
+                                        />
+                                        : <DropdownForm label={t('select_plot')} color={"red"} data={agri_land_user_rels}
+                                            onChange={onChangePlotDetails}
+                                            val={plotDetails.name}
+                                        />
+                                }
+
+                                <InputTextForm label={t('khatian_no')} value={khasraNo}
+                                    onChangeText={onChangeKhatianNo} />
+                                <DropdownForm label={t('select_terrain_type')} color={"red"}
+                                    data={terrainTypeAll} val={treeainTypeData.name} onChange={onChangeTreeType} />
+                                <DropdownForm label={t('select_land_type')} color={"red"}
+                                    data={landTypeAll} val={landTypeAllData.name}
+                                    onChange={onChangelandType}
+                                />
+                                <DropdownForm label={t('addland_soil_type')} color={"red"}
+                                    data={soilTypeAll} val={soilTypeData.name}
+                                    onChange={onChangeSoilType}
+                                />
+                                <View style={styles.expectedproducessUnitContainer}>
+                                    <View style={styles.expectedproducess}>
+                                        <InputTextForm label={t('addland_landsize')} color={"red"}
+                                            onChangeText={onChangeyieldamount}
+                                            value={landSize}
+                                        />
+                                    </View>
+                                    <View style={styles.unit}>
+                                        <DropdownForm label={t('select_unit')} color={"red"}
+                                            data={unitAll}
+                                            onChange={onChangeProductionUnit}
+                                            val={landUnitData.name}
+                                        />
+                                    </View>
+                                </View>
+                                {
+                                    location.map((data, index) => <TouchableOpacity key={index} onPress={() => handleCurrentLatLong(index)}>
+                                        <View style={styles.latlongContainer}>
+                                            <Text style={styles.title}>{data.latitude == "" ? "0.0" : data.latitude}</Text>
+                                            <Text style={styles.title}>{data.longitude == "" ? "0.0" : data.longitude}</Text>
+                                        </View>
+                                        <View style={styles.latlongContainer}>
+                                            <Text style={styles.title}>{t('tap_to_get_latitude_and_longitude')}</Text>
+                                            {/* <TouchableOpacity onPress={() => handleCurrentLatLong(index)}> */}
+                                            <Image
+                                                source={require('../../Common/images/location.png')}
+                                                style={{ width: 40, height: 40 }}
+                                                resizeMode="contain"
+                                            />
+                                            {/* </TouchableOpacity> */}
+                                        </View>
+                                    </TouchableOpacity>)
+                                }
+                                <Text style={[styles.title, { marginVertical: 20 }]}>Photographs of Plot</Text>
+                                <View style={styles.photographsContainer}>
+                                    {photographs.map((data, index) => {
+                                        if (index < 4) {
+                                            return (
+                                                <BottomSheetTakePhoto key={index}
+                                                    openlaunchCamera={() => openlaunchCamera(data.id, index)}
+                                                    openlaunchImageLibrary={() => openlaunchImageLibrary(data.id, index, "")}
+                                                    uploadTreeImage={data}
+                                                    TakePhoto={"Take Photo"}
+                                                    ChooseFromGallery={"Choose From Gallery"}
+                                                    Cancel={"Cancel"}
+                                                    height={240}
+                                                />
+                                            )
+                                        }
+                                    })}
+                                </View>
+                                <Text style={[styles.title, { marginVertical: 20 }]}>UPload Land Record as proof of ownership</Text>
+                                <TouchableOpacity onPress={() => openlaunchImageLibrary(plotRecord.id, 5, 'plotRecord')}>
+                                    {plotRecord.name == "" ? <Image source={require('../../Common/images/adobereader.png')} style={{ width: 80, height: 80 }} />
+                                        : <Image
+                                            source={{ uri: plotRecord.uri }}
+                                            style={{ width: 60, height: 60, marginBottom: 10 }}
+                                            resizeMode="contain"
+                                        />}
+                                </TouchableOpacity>
+                                <View style={{ marginVertical: 20 }}>
+                                    <BottomSheetTakePhoto
+                                        title={"Short Video Clip of Plantation"}
+                                        openlaunchCamera={() => { setRecordingStart(true), SPSheet.hide() }}
+                                        openlaunchImageLibrary={() => { setRecordingStart(true), SPSheet.hide() }}
+                                        // uploadTreeImage={photographsFour}
+                                        TakePhoto={"Take Video"}
+                                        // ChooseFromGallery={"Choose From Gallery"}
+                                        Cancel={"Cancel"}
+                                        height={200}
+                                        VideoProps={plotVideo.uri}
+                                    />
+                                </View>
+                                {
+                                    storePlotArray.map((data, index) => {
+                                        const { plotName, treeainTypeDataName } = data;
+                                        return (
+                                            <View style={styles.moreContainer} key={index}>
+                                                <View style={styles.moreTextContainer}>
+                                                    <Text style={styles.title}>{plotName}</Text>
+                                                    <Text style={styles.title}>{treeainTypeDataName}</Text>
+                                                </View>
+                                                <TouchableOpacity onPress={() => produceRemoveDetails(index)}>
+                                                    <Image source={require('../../Common/images/x-mark.png')} style={styles.xMarkImage} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )
+                                    })
+
+                                }
+                                <TouchableOpacity style={styles.btnAddPlot} onPress={addMorePlot}>
+                                    <Text style={[styles.title, { color: "#FFF", textAlign: 'center' }]}>{t('click_to_add_more_plot')}</Text>
+                                </TouchableOpacity>
+                            </ScrollView>
                         </View>
-                    </ScrollView>
-                </View>
-            </View>
-            <TouchableOpacity style={styles.locationAddMoreContainer}
-                onPress={addMoreLocation}
-            >
-                <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>Add Location</Text>
-            </TouchableOpacity>
-            <ButtonForm label={"Submit"}
-                onPress={onPressSubmit}
-            />
+                    </View>
+                    <TouchableOpacity style={styles.locationAddMoreContainer}
+                        onPress={addMoreLocation}
+                    >
+                        <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>Add Location</Text>
+                    </TouchableOpacity>
+                    <ButtonForm label={"Submit"}
+                        onPress={plotType == "add" ? addUserLand : onPressSubmit}
+                    />
+                </>
+            }
         </Root>
     )
 }
@@ -232,5 +331,46 @@ const styles = StyleSheet.create({
     photographsContainer: {
         flexDirection: "row",
         justifyContent: "space-around"
+    },
+    recordingTimer: {
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 40,
+        fontSize: 15,
+        padding: 10,
+        backgroundColor: 'red',
+        elevation: 10,
+        position: 'absolute',
+        bottom: 150,
+        borderRadius: 25,
+    },
+    btnAddPlot: {
+        backgroundColor: '#025502',
+        padding: 10,
+        marginBottom: 30,
+        textAlign: 'center',
+        borderRadius: 50,
+        marginHorizontal: '20%',
+        width: '60%',
+        alignItems: 'center'
+    },
+    moreContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: '10%',
+        marginVertical: '3%'
+    },
+    xMarkImage: {
+        width: 20,
+        height: 20
+    },
+    moreTextContainer: {
+        borderLeftWidth: 5,
+        borderLeftColor: 'green',
+        paddingLeft: 10
     }
+
 })
