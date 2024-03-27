@@ -299,7 +299,7 @@ const PersnolUpdate = () => {
 
                             <InputTextForm label={t('valid_pin_code')} value={storePersnolInfo.zip ?? zip} onChangeText={zip => { setstorePersnolInfo({ ...storePersnolInfo, zip: zip }) }} maxLength={6} />
                         </View>
-                    </ScrollView >
+                    </ScrollView>
                 </View>
             </View>
             <ButtonForm label={t('next')} onPress={() => handleSave('Financial')} />

@@ -156,6 +156,7 @@ const ProduceInfoUpdate = () => {
                         landUnitArray.push({
                             value: element.id,
                             label: element.name,
+                            sizevalue: element.unit_value,
                         });
                     });
                 }
@@ -403,23 +404,18 @@ const ProduceInfoUpdate = () => {
     }
 
     const handleLandUnit = async (item) => {
-        //    return console.log(storeProduceInfo.plotSize);
+        let landUnitSize;
         if (item.sizevalue > 0) {
-            const landUnitSize = storeProduceInfo.plotSize * item.sizevalue
-            setstoreProduceInfo({
-                ...storeProduceInfo,
-                landUnit: item.value,
-                landUnitSize: landUnitSize,
-                landUnitName: item.label,
-            })
+            landUnitSize = storeProduceInfo.plotSize * item.sizevalue;
         } else {
-            setstoreProduceInfo({
-                ...storeProduceInfo,
-                landUnit: item.value,
-                landUnitSize: storeProduceInfo.plotSize,
-                landUnitName: item.label,
-            })
+            landUnitSize = storeProduceInfo.plotSize * 1;
         }
+        setstoreProduceInfo({
+            ...storeProduceInfo,
+            landUnit: item.value,
+            landUnitSize: landUnitSize,
+            landUnitName: item.label,
+        });
 
     }
 
@@ -437,6 +433,8 @@ const ProduceInfoUpdate = () => {
         } else {
             await removeItem('storeProduceInfo_data');
             storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
+            console.log(JSON.stringify(storeProduceInfoInArray));
+            return;
             await setItem('storeProduceInfo_data', storeProduceInfoInArray)
             navigation.navigate(pagename, { pagename: '' });
         }
@@ -505,7 +503,7 @@ const ProduceInfoUpdate = () => {
 
                     <InputTextForm label={t('addland_landsize')} onChangeText={item => setstoreProduceInfo({ ...storeProduceInfo, plotSize: item })} value={storeProduceInfo.plotSize} />
 
-                    <DropdownForm label={t('addland_unit')} color="black" data={landUnitData} onChange={(item) => handleLandUnit(item)} val={storeProduceInfo.landUnitName} />
+                    <DropdownForm label={t('addland_unit')} color="black" data={landUnitData} onChange={item => handleLandUnit(item)} val={storeProduceInfo.landUnitName} />
 
                     <View style={{ marginBottom: 4 }}>
                         <TouchableOpacity onPress={getLocation}>

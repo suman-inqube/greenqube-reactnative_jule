@@ -230,6 +230,7 @@ const RegistationSignUpViwer = () => {
             getItem('storeFinancial_data'),
             getItem('storeProduceInfo_data')
         ]);
+        console.log(storeProduceInfo_data)
         if (loginUser_data) {
             setdbLanTokUsr({
                 ...dbLanTokUsr,
