@@ -259,7 +259,6 @@ const LiveHoodController = (farmeruserID, agri_land_user_rels) => {
         setLocation([...location, { lat: "", long: "" }])
     }
     const openlaunchCamera = (id, index) => {
-        console.error(id, "***", index)
         const options = {
             mediaType: 'photo',
             includeBase64: true,
@@ -435,7 +434,6 @@ const LiveHoodController = (farmeruserID, agri_land_user_rels) => {
         };
     }, [isRecording]);
     const onStartRecording = async (id) => {
-        console.error(id)
         const values = [...photo_to_be_deleted];
         if (!camera.current) {
             return;

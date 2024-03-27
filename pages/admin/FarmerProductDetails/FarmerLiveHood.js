@@ -33,6 +33,7 @@ const FarmerLiveHood = () => {
     const route = useRoute();
     const { isLoading,
         onChangePlotDetails,
+        onchangePlotName,
         terrainTypeAll,
         soilTypeAll,
         landTypeAll,
@@ -46,10 +47,6 @@ const FarmerLiveHood = () => {
         location,
         handleCurrentLatLong,
         addMoreLocation,
-        photographsOne,
-        photographsTwo,
-        photographsThree,
-        photographsFour,
         openlaunchCamera,
         openlaunchImageLibrary,
         openlaunchCameraVider,
@@ -74,6 +71,12 @@ const FarmerLiveHood = () => {
         setRecordingDuration,
         formatTime,
         onStartRecording,
+        photographs,
+        addMorePlot,
+        plotType,
+        addUserLand,
+        storePlotArray,
+        produceRemoveDetails,
         plotAll } = FarmerLiveHoodController("", "",);
     const HandlerGoBack = () => {
         navigation.navigate('FarmerDashboard');
@@ -104,8 +107,8 @@ const FarmerLiveHood = () => {
                                 </View>
                             ) : null}
                             <Pressable
-                                onPress={onStartRecording}
-                                onLongPress={onStartRecording}
+                                onPress={() => onStartRecording(plotVideo.id, 'FarmerDashboard')}
+                                onLongPress={() => onStartRecording(plotVideo.id, 'FarmerDashboard')}
                                 style={{
                                     position: 'absolute',
                                     alignSelf: 'center',
@@ -129,10 +132,16 @@ const FarmerLiveHood = () => {
                         {/* {plotDetails.length > 0 && <PlotModel plotDetails={plotDetails} modalVisible={modalVisible} setModalVisible={setModalVisible} onChangeTreeId={onChangeTreeId} />} */}
                         <View style={styles.container}>
                             <ScrollView showsVerticalScrollIndicator={false}>
-                                <DropdownForm label={t('select_plot')} color={"red"} data={plotAll}
-                                    onChange={onChangePlotDetails}
-                                    val={plotDetails.name}
-                                />
+                                {
+                                    plotType == "add" ?
+                                        <InputTextForm label={t('addland_select_plot')} color="red"
+                                            value={plotDetails.name} onChangeText={onchangePlotName}
+                                        />
+                                        : <DropdownForm label={t('select_plot')} color={"red"} data={plotAll}
+                                            onChange={onChangePlotDetails}
+                                            val={plotDetails.name}
+                                        />
+                                }
                                 <InputTextForm label={t('khatian_no')} value={khasraNo}
                                     onChangeText={onChangeKhatianNo} />
                                 <DropdownForm label={t('select_terrain_type')} color={"red"}
@@ -180,45 +189,24 @@ const FarmerLiveHood = () => {
                                 }
                                 <Text style={[styles.title, { marginVertical: 20 }]}>Photographs of Plot</Text>
                                 <View style={styles.photographsContainer}>
-                                    {SPSheet && <BottomSheetTakePhoto
-                                        openlaunchCamera={() => openlaunchCamera("one", photographsOne.id, 0)}
-                                        openlaunchImageLibrary={() => openlaunchImageLibrary("one", photographsOne.id, 0)}
-                                        uploadTreeImage={photographsOne}
-                                        TakePhoto={"Take Photo"}
-                                        ChooseFromGallery={"Choose From Gallery"}
-                                        Cancel={"Cancel"}
-                                        height={240}
-                                    />}
-                                    {SPSheet && <BottomSheetTakePhoto
-                                        openlaunchCamera={() => openlaunchCamera("two", photographsTwo.id, 1)}
-                                        openlaunchImageLibrary={() => openlaunchImageLibrary("two", photographsTwo.id, 1)}
-                                        uploadTreeImage={photographsTwo}
-                                        TakePhoto={"Take Photo"}
-                                        ChooseFromGallery={"Choose From Gallery"}
-                                        Cancel={"Cancel"}
-                                        height={240}
-                                    />}
-                                    {SPSheet && <BottomSheetTakePhoto
-                                        openlaunchCamera={() => openlaunchCamera("three", photographsThree.id, 2)}
-                                        openlaunchImageLibrary={() => openlaunchImageLibrary("three", photographsThree.id, 2)}
-                                        uploadTreeImage={photographsThree}
-                                        TakePhoto={"Take Photo"}
-                                        ChooseFromGallery={"Choose From Gallery"}
-                                        Cancel={"Cancel"}
-                                        height={240}
-                                    />}
-                                    {SPSheet && <BottomSheetTakePhoto
-                                        openlaunchCamera={() => openlaunchCamera("foue", photographsFour.id, 3)}
-                                        openlaunchImageLibrary={() => openlaunchImageLibrary("foue", photographsFour.id, 3)}
-                                        uploadTreeImage={photographsFour}
-                                        TakePhoto={"Take Photo"}
-                                        ChooseFromGallery={"Choose From Gallery"}
-                                        Cancel={"Cancel"}
-                                        height={240}
-                                    />}
+                                    {photographs.map((data, index) => {
+                                        if (index < 4) {
+                                            return (
+                                                <BottomSheetTakePhoto key={index}
+                                                    openlaunchCamera={() => openlaunchCamera(data.id, index)}
+                                                    openlaunchImageLibrary={() => openlaunchImageLibrary(data.id, index, "")}
+                                                    uploadTreeImage={data}
+                                                    TakePhoto={"Take Photo"}
+                                                    ChooseFromGallery={"Choose From Gallery"}
+                                                    Cancel={"Cancel"}
+                                                    height={240}
+                                                />
+                                            )
+                                        }
+                                    })}
                                 </View>
                                 <Text style={[styles.title, { marginVertical: 20 }]}>UPload Land Record as proof of ownership</Text>
-                                <TouchableOpacity onPress={() => openlaunchImageLibrary("plotRecord", '', '')}>
+                                <TouchableOpacity onPress={() => openlaunchImageLibrary(plotRecord.id, 5, 'plotRecord')}>
                                     {plotRecord.name == "" ? <Image source={require('../../Common/images/adobereader.png')} style={{ width: 80, height: 80 }} />
                                         : <Image
                                             source={{ uri: plotRecord.uri }}
@@ -231,14 +219,34 @@ const FarmerLiveHood = () => {
                                         title={"Short Video Clip of Plantation"}
                                         openlaunchCamera={() => { setRecordingStart(true), SPSheet.hide() }}
                                         openlaunchImageLibrary={() => { setRecordingStart(true), SPSheet.hide() }}
-                                        uploadTreeImage={photographsFour}
+                                        // uploadTreeImage={photographsFour}
                                         TakePhoto={"Take Video"}
                                         // ChooseFromGallery={"Choose From Gallery"}
                                         Cancel={"Cancel"}
                                         height={200}
-                                        VideoProps={plotVideo}
+                                        VideoProps={plotVideo.uri}
                                     />
                                 </View>
+                                {
+                                    storePlotArray.map((data, index) => {
+                                        const { plotName, treeainTypeDataName } = data;
+                                        return (
+                                            <View style={styles.moreContainer} key={index}>
+                                                <View style={styles.moreTextContainer}>
+                                                    <Text style={styles.title}>{plotName}</Text>
+                                                    <Text style={styles.title}>{treeainTypeDataName}</Text>
+                                                </View>
+                                                <TouchableOpacity onPress={() => produceRemoveDetails(index)}>
+                                                    <Image source={require('../../Common/images/x-mark.png')} style={styles.xMarkImage} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )
+                                    })
+
+                                }
+                                <TouchableOpacity style={styles.btnAddPlot} onPress={addMorePlot}>
+                                    <Text style={[styles.title, { color: "#FFF", textAlign: 'center' }]}>{t('click_to_add_more_plot')}</Text>
+                                </TouchableOpacity>
                             </ScrollView>
                         </View>
                     </View>
@@ -248,7 +256,7 @@ const FarmerLiveHood = () => {
                         <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>Add Location</Text>
                     </TouchableOpacity>
                     <ButtonForm label={"Submit"}
-                        onPress={onPressSubmit}
+                        onPress={plotType == "add" ? addUserLand : onPressSubmit}
                     />
                 </>
             }
@@ -338,4 +346,30 @@ const styles = StyleSheet.create({
         bottom: 150,
         borderRadius: 25,
     },
+    btnAddPlot: {
+        backgroundColor: '#025502',
+        padding: 10,
+        marginBottom: 30,
+        textAlign: 'center',
+        borderRadius: 50,
+        marginHorizontal: '20%',
+        width: '60%',
+        alignItems: 'center'
+    },
+    moreContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginHorizontal: '10%',
+        marginVertical: '3%'
+    },
+    xMarkImage: {
+        width: 20,
+        height: 20
+    },
+    moreTextContainer: {
+        borderLeftWidth: 5,
+        borderLeftColor: 'green',
+        paddingLeft: 10
+    }
 })

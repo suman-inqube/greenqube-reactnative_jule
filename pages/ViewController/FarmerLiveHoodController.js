@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Keyboard } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
-import { PlotSiteUserLandDetails, problemPlotAgainstFarmerAPI } from '../../config/apiHere';
+import { PlotSiteUserLandDetails, problemPlotAgainstFarmerAPI, addUserLandAPI } from '../../config/apiHere';
 import loginUserDataController from './loginUserDataController';
 import axios from 'axios';
 import config from '../../config';
@@ -18,9 +18,8 @@ const FarmerLiveHoodController = () => {
     const isFocused = useIsFocused();
     const camera = useRef(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [plotAll, setplotAll] = useState([]);
     const { GetLoginUserData, loginUserData } = loginUserDataController();
-    const { dbname, lan_id, token, user_id } = loginUserData;
+    const { dbname, lan_id, token, user_id, owner } = loginUserData;
     const [terrainTypeAll, setterrainTypeAll] = useState([]);
     const [soilTypeAll, setsetsoilTypeAll] = useState([]);
     const [landTypeAll, setlandTypeAll] = useState([]);
@@ -40,42 +39,46 @@ const FarmerLiveHoodController = () => {
     const [landUnitData, setlandUnitData] = useState({
         name: "", value: "",
     });
-    const [photographsOne, setPhotographsOne] = useState({
-        uri: "", type: "", name: "", id: "", oldimgName: "",
-    });
-    const [photographsTwo, setPhotographsTwo] = useState({
-        uri: "", type: "", name: "", id: "", oldimgName: "",
-    });
-    const [photographsThree, setPhotographsThree] = useState({
-        uri: "", type: "", name: "", id: "", oldimgName: "",
-    });
-    const [photographsFour, setPhotographsFour] = useState({
-        uri: "", type: "", name: "", id: "", oldimgName: "",
-    });
+    const [photographs, setPhotographs] = useState([
+        { uri: "", type: "", name: "", id: "", oldimgName: "" },
+        { uri: "", type: "", name: "", id: "", oldimgName: "" },
+        { uri: "", type: "", name: "", id: "", oldimgName: "" },
+        { uri: "", type: "", name: "", id: "", oldimgName: "" },
+    ]);
+    const [plotType, setPlotType] = useState("edit")
     const [landSize, setlandSize] = useState("");
     const [khasraNo, setKhasraNo] = useState("");
     const [location, setLocation] = useState([
-        { latitude: "", longitude: "" },
-        { latitude: "", longitude: "" },
-        { latitude: "", longitude: "" },
-        { latitude: "", longitude: "" }
+        { latitude: "", longitude: "", type: "land" },
+        { latitude: "", longitude: "", type: "land" },
+        { latitude: "", longitude: "", type: "land" },
+        { latitude: "", longitude: "", type: "land" }
     ]);
-    const [plotVideo, setPlotVideo] = useState("");
+    const [plotVideo, setPlotVideo] = useState({
+        uri: "", type: "", name: "", id: ""
+    });
     const [plotRecord, setPlotRecord] = useState({
-        uri: "", type: "", name: "", oldimgName: ""
+        uri: "", type: "", name: ""
     });
     const [recordingDuration, setRecordingDuration] = useState(0);
     const [photo_to_be_deleted, setphoto_to_be_deleted] = useState([]);
+    const [photo_to_be_deleted_record, setphoto_to_be_deleted_record] = useState([]);
+    const [photo_to_be_deleted_video, setphoto_to_be_deleted_video] = useState([""]);
     const [isRecording, setIsRecording] = useState(false);
     const [recordingStart, setRecordingStart] = useState(false)
     const [videoData, setVideo] = useState();
+    const [storePlotArray, setstorePlotArray] = useState([])
+    const [locationArray, setLocationArray] = useState([]);
+    const [plotRecordArray, setPlotRecordArray] = useState([]);
+    const [plotVideoArray, setPlotVideoArray] = useState([]);
+    const [plotAll, setplotAll] = useState([]);
     const onPageLoad = async () => {
         setIsLoading(true);
         const [GetLoginUserDataRes] = await Promise.all([
             GetLoginUserData(),
         ]);
         if (GetLoginUserDataRes) {
-            const { dbname, lan_id, token, user_id } = GetLoginUserDataRes;
+            const { dbname, lan_id, token, user_id, owner } = GetLoginUserDataRes;
             const axiosConfig = {
                 headers: {
                     'information': `${dbname},${lan_id}`,
@@ -109,7 +112,7 @@ const FarmerLiveHoodController = () => {
         }
     }, [isFocused])
     function handleBackPress() {
-        navigation.navigate("userList");
+        navigation.navigate("FarmerDashboard");
         return true;
     }
     const terraintype_resAPI = async (axiosConfig) => {
@@ -184,6 +187,7 @@ const FarmerLiveHoodController = () => {
     const onChangePlotDetails = async (item) => {
         setIsLoading(true)
         const { value, label } = item;
+        console.log(value)
         setPlotDetails({ ...plotDetails, name: label, value: value });
         const [PlotSiteUserLandDetailsRes, multiLatLongRes, treeImgRes] = await Promise.all([
             PlotSiteUserLandDetails(dbname, lan_id, token, user_id),
@@ -191,99 +195,75 @@ const FarmerLiveHoodController = () => {
             greenZownTreeImg(dbname, lan_id, value)
         ])
         if (PlotSiteUserLandDetailsRes.status == 200) {
-            const { khatian_no, terrain_type_id,
-                lan_type_id, soil_type_id, land_unit_id, land_size, terrain_type, lan_type, soil_type, land_unit } = PlotSiteUserLandDetailsRes.data.data[0];
-            setKhasraNo(khatian_no);
-            setTreeainTypeData({ ...treeainTypeData, name: terrain_type.name, value: terrain_type.fid });
-            setlandTypeAllData({ ...landTypeAllData, name: lan_type.name, value: lan_type.fid });
-            setsoilTypeData({ ...soilTypeData, name: soil_type.name, value: soil_type.fid });
-            setlandUnitData({ ...landUnitData, name: land_unit.name, value: land_unit.fid });
-            setlandSize(land_size);
+            const PlotSiteDetails = PlotSiteUserLandDetailsRes.data.data.filter(e => e.rel_id == value);
+            if (PlotSiteDetails) {
+                const { khatian_no, terrain_type_id,
+                    lan_type_id, soil_type_id, land_unit_id, land_size, terrain_type, lan_type, soil_type, land_unit } = PlotSiteDetails[0];
+                setKhasraNo(khatian_no);
+                setTreeainTypeData({ ...treeainTypeData, name: terrain_type.name, value: terrain_type.fid });
+                setlandTypeAllData({ ...landTypeAllData, name: lan_type.name, value: lan_type.fid });
+                setsoilTypeData({ ...soilTypeData, name: soil_type.name, value: soil_type.fid });
+                setlandUnitData({ ...landUnitData, name: land_unit.name, value: land_unit.fid });
+                setlandSize(land_size);
+            }
         }
         if (multiLatLongRes.status == 200) {
             const { data } = multiLatLongRes.data;
             const values = [...location];
             data.map((data, index) => {
-                values[index] = { latitude: data.latitude, longitude: data.longitude }
+                values[index] = { latitude: data.latitude, longitude: data.longitude, type: "land" }
             })
             setLocation(values);
         }
         if (treeImgRes.status == 200) {
             const { data } = treeImgRes.data;
             const arrayId = [];
-            data.map((data, index) => {
-                if (data.term_type == "plot_image") {
-                    if (index == 0) {
-                        setPhotographsOne({
-                            ...photographsOne, uri: data.file_path, type: data.file_ext, name: data.file_name, id: data.file_id, oldimgName: data.file_name
-                        })
-                    } else if (index == 1) {
-                        setPhotographsTwo({
-                            ...photographsTwo, uri: data.file_path, type: data.file_ext, name: data.file_name, id: data.file_id, oldimgName: data.file_name
-                        })
-                    } else if (index == 2) {
-                        setPhotographsThree({
-                            ...photographsThree, uri: data.file_path, type: data.file_ext, name: data.file_name, id: data.file_id, oldimgName: data.file_name
-                        })
-                    } else if (index == 3) {
-                        setPhotographsFour({
-                            ...photographsFour, uri: data.file_path, type: data.file_ext, name: data.file_name, id: data.file_id, oldimgName: data.file_name
-                        })
-                    }
-                } else if (data.term_type == "plot_record") {
-                    setPlotRecord({
-                        ...plotRecord, uri: data.file_path, type: data.file_ext, name: data.file_name, oldimgName: data.file_name
-                    })
-                } else if (data.term_type == "plot_video") {
-                    setPlotVideo(data.file_path);
-                }
-            });
+            const photographsValue = [...photographs];
             const plot_image = data.filter(e => e.term_type == "plot_image");
             const plot_record = data.filter(e => e.term_type == "plot_record");
             const plot_video = data.filter(e => e.term_type == "plot_video");
-            [1, 2, 3].map((data, index) => {
-                if (plot_image[0] == undefined) {
-                    setPhotographsOne({
-                        ...photographsOne, uri: "", type: "", name: "", id: "", oldimgName: ""
-                    })
-                }
-                if (plot_image[1] == undefined) {
-                    setPhotographsTwo({
-                        ...photographsTwo, uri: "", type: "", name: "", id: "", oldimgName: ""
-                    })
-                }
-                if (plot_image[2] == undefined) {
-                    setPhotographsThree({
-                        ...photographsThree, uri: "", type: "", name: "", id: "", oldimgName: ""
-                    })
-                }
-                if (plot_image[3] == undefined) {
-                    setPhotographsFour({
-                        ...photographsFour, uri: "", type: "", name: "", id: "", oldimgName: ""
-                    })
+            [1, 2, 3, 4].map((data, index) => {
+                if (plot_image[index] == undefined) {
+                    photographsValue[index] = { uri: "", type: "", name: "", id: "", oldimgName: "" }
+                } else {
+                    photographsValue[index] = { uri: plot_image[index].file_path, type: plot_image[index].file_ext, name: plot_image[index].file_name, id: plot_image[index].file_id, oldimgName: plot_image[index].file_name }
                 }
             });
+            setPhotographs(photographsValue);
             [1].map((data, index) => {
                 if (plot_record[0] == undefined) {
                     setPlotRecord({
-                        ...plotRecord, uri: "", type: "", name: "", oldimgName: ""
+                        ...plotRecord, uri: "", type: "", name: "", oldimgName: "", id: ""
                     });
+                } else {
+                    setPlotRecord({
+                        ...plotRecord, uri: plot_record[index].file_path, type: plot_record[index].file_ext, name: plot_record[index].file_name, oldimgName: plot_record[index].file_name, id: plot_record[index].file_id
+                    })
                 }
             });
             [1].map((data, index) => {
                 if (plot_video[0] == undefined) {
-                    setPlotVideo("")
+                    setPlotVideo({
+                        ...plotVideo, uri: "", type: "", name: "", id: ""
+                    })
+                } else {
+                    setPlotVideo({
+                        ...plotVideo, uri: plot_video[index].file_path, type: "", name: "", id: plot_video[index].file_id
+                    })
                 }
             });
         }
         setIsLoading(false);
+    }
+    onchangePlotName = (item) => {
+        setPlotDetails({ ...plotDetails, name: item, value: "" });
     }
     const handleCurrentLatLong = async (index) => {
         const fusedLocation = await getItem('fusedLocation');
         const values = [...location];
         const { latitude, longitude } = fusedLocation;
         if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
-            values[index] = { "latitude": latitude, "longitude": longitude }
+            values[index] = { "latitude": latitude, "longitude": longitude, type: "land" }
             setLocation(values);
         } else {
             Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
@@ -292,7 +272,7 @@ const FarmerLiveHoodController = () => {
     const addMoreLocation = async () => {
         setLocation([...location, { lat: "", long: "" }])
     }
-    const openlaunchCamera = (item, id, index) => {
+    const openlaunchCamera = (id, index) => {
         const options = {
             mediaType: 'photo',
             includeBase64: true,
@@ -307,25 +287,18 @@ const FarmerLiveHoodController = () => {
                 console.log('Camera Error: ', response.error);
             } else {
                 let imageUri = response.uri || response.assets?.[0]?.uri;
-                if (item == "one") {
-                    setPhotographsOne({ ...photographsOne, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "two") {
-                    setPhotographsTwo({ ...photographsTwo, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "three") {
-                    setPhotographsThree({ ...photographsThree, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "foue") {
-                    setPhotographsFour({ ...photographsFour, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                }
-                if (index != "" && id != "") {
-                    values[index] = id;
-                    setphoto_to_be_deleted(values);
-                }
+                const photographsValue = [...photographs];
+                photographsValue[index] = { uri: response.assets[0].uri, type: response.assets[0].type, id: id, name: response.assets[0].fileName }
+                setPhotographs(photographsValue);
+                values[index] = id;
+                setphoto_to_be_deleted(values);
                 SPSheet.hide();
             }
         });
     };
-    const openlaunchImageLibrary = (item, id, index) => {
+    const openlaunchImageLibrary = (id, index, type) => {
         const values = [...photo_to_be_deleted];
+        const photographsValue = [...photographs];
         const options = {
             mediaType: 'photo',
             includeBase64: true,
@@ -339,29 +312,21 @@ const FarmerLiveHoodController = () => {
                 console.log('Image picker error: ', response.error);
             } else {
                 let imageUri = response.uri || response.assets[0].base64;
-                if (item == "one") {
-                    setPhotographsOne({ ...photographsOne, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "two") {
-                    setPhotographsTwo({ ...photographsTwo, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "three") {
-                    setPhotographsThree({ ...photographsThree, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "foue") {
-                    setPhotographsFour({ ...photographsFour, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
-                } else if (item == "plotRecord") {
-                    setPlotRecord({ ...plotRecord, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName });
+                if (type == "plotRecord") {
+                    setPlotRecord({ ...plotRecord, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName, id: id })
+                } else {
+                    photographsValue[index] = { uri: response.assets[0].uri, type: response.assets[0].type, id: id, name: response.assets[0].fileName }
+                    setPhotographs(photographsValue);
                 }
-                if (index != "" && id != "") {
-                    values[index] = id;
-                    setphoto_to_be_deleted(values);
-                }
+                values[index] = id;
+                setphoto_to_be_deleted(values);
                 SPSheet.hide();
             }
         });
     };
     const openlaunchCameraVider = async () => {
         navigation.navigate('VideoCamera', {
-            farmeruserID: "farmeruserID",
-            agri_land_user_rels: "agri_land_user_rels"
+            farmeruserID: user_id,
         });
     }
     const onChangeKhatianNo = async (item) => {
@@ -386,19 +351,37 @@ const FarmerLiveHoodController = () => {
         const { label, value } = item;
         setlandUnitData({ ...landUnitData, name: label, value: value });
     }
+    const validationData = () => {
+        if (plotDetails.name == "") {
+            Toast.show({ text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0] });
+            return false;
+        } else if (treeainTypeData.name == "") {
+            Toast.show({ text: `${t('please_select_terrain_type_first')}`, ...AlertMesg[0] });
+            return false;
+        } else if (landTypeAllData.name == "") {
+            Toast.show({ text: `${t('please_select_plot_first')}`, ...AlertMesg[0] });
+            return false;
+        } else if (soilTypeData.name == "") {
+            Toast.show({ text: `${t('please_select_soil_type_first')}`, ...AlertMesg[0] });
+            return false;
+        } else if (landSize == "") {
+            Toast.show({ text: "Please Select Give Production Size", ...AlertMesg[0] });
+            return false;
+        } else if (landUnitData.value == "") {
+            Toast.show({ text: t('please_select_yeild_unit'), ...AlertMesg[0] });
+            return false;
+        } else if (location[0].latitude == "") {
+            Toast.show({ text: t('please_submit_location_first'), ...AlertMesg[0] });
+            return false;
+        } else {
+            return true;
+        }
+    }
     const onPressSubmit = async () => {
         Keyboard.dismiss();
         const deleted_id = photo_to_be_deleted.filter(e => e != undefined || e != "");
-        if (plotDetails.value == "") {
-            Toast.show({ text: t('please_select_plot_first'), ...AlertMesg[0] });
-        } else if (landSize == "") {
-            Toast.show({ text: "Please Select Give Production Size", ...AlertMesg[0] });
-        } else if (landUnitData.value == "") {
-            Toast.show({ text: t('please_select_yeild_unit'), ...AlertMesg[0] });
-        } else if (location[0].latitude == "") {
-            Toast.show({ text: t('please_submit_location_first'), ...AlertMesg[0] });
-        } else {
-            setIsLoading(true);
+        if (validationData()) {
+            setIsLoading(true)
             const formData = new FormData();
             formData.append('plot_no', plotDetails.name);
             formData.append('khatian_no', khasraNo);
@@ -408,41 +391,34 @@ const FarmerLiveHoodController = () => {
             formData.append('land_unit_id', landUnitData.value);
             formData.append('land_size', landSize);
             formData.append('latlong_data', JSON.stringify(location));
-            if (plotVideo != "") {
+            if (plotVideo.id == "" && plotVideo.uri != "") {
+                const videoName = plotVideo.uri.split("cache/")
                 formData.append('plot_video', {
-                    uri: plotVideo,
+                    uri: plotVideo.uri,
                     type: 'video/mp4',
-                    name: 'video.mp4',
+                    name: videoName[1],
                 });
             }
             if (plotRecord.oldimgName != plotRecord.name) {
                 formData.append('plot_record', plotRecord);
             }
-            if (photo_to_be_deleted.length > 0) {
+            if (deleted_id.length > 0) {
                 formData.append('photo_to_be_deleted', deleted_id);
             }
-            if (photographsOne.oldimgName != photographsOne.name) {
-                formData.append('plot_image', photographsOne);
-            }
-            if (photographsTwo.oldimgName != photographsTwo.name) {
-                formData.append('plot_image', photographsTwo);
-            }
-            if (photographsThree.oldimgName != photographsThree.name) {
-                formData.append('plot_image', photographsThree);
-            }
-            if (photographsFour.oldimgName != photographsFour.name) {
-                formData.append('plot_image', photographsFour);
-            }
+            photographs.map((data, index) => {
+                if (data.oldimgName != data.name) {
+                    formData.append('plot_image', data);
+                }
+            })
             const response = await greenZownRouteUserLandEdit(dbname, lan_id, user_id, token, plotDetails.value, formData);
-            console.log(response.data)
             if (response != undefined) {
                 if (response.status == 200) {
+                    setIsLoading(false)
                     Toast.show({ text: t('your_request_submitted'), ...AlertMesg[0] });
                     setTimeout(() => {
                         navigation.navigate("FarmerDashboard");
                     }, 1200);
                 }
-                setIsLoading(false);
             } else {
                 setIsLoading(false);
                 Toast.show({ text: 'Network error please try again', ...AlertMesg[0] });
@@ -470,7 +446,8 @@ const FarmerLiveHoodController = () => {
             clearInterval(interval);
         };
     }, [isRecording]);
-    const onStartRecording = async () => {
+    const onStartRecording = async (id) => {
+        const values = [...photo_to_be_deleted];
         if (!camera.current) {
             return;
         }
@@ -478,7 +455,12 @@ const FarmerLiveHoodController = () => {
         if (isRecording == false) {
             camera.current.startRecording({
                 onRecordingFinished: (video) => {
-                    setVideo(video);
+                    setPlotVideo({
+                        ...plotVideo, uri: `file:///${video.path}`, type: "", name: "", id: id
+                    })
+                    values[6] = id;
+                    setphoto_to_be_deleted(values);
+                    // setPlotVideo(`file:///${video.path}`);
                     setIsRecording(false);
                     setRecordingStart(false);
                     console.log(video)
@@ -495,9 +477,143 @@ const FarmerLiveHoodController = () => {
             setRecordingDuration(0);
         }
     };
+    const addMorePlot = () => {
+        if (plotType == "edit") {
+            setPlotType("add");
+            emptyState();
+        } else {
+            if (validationData()) {
+                const plotName = plotDetails.name;
+                const treeainTypeDataValue = treeainTypeData.value;
+                const treeainTypeDataName = treeainTypeData.name;
+                const landTypeAllDataValue = landTypeAllData.value;
+                const soilTypeDataValue = soilTypeData.value;
+                const landUnitDataValue = landUnitData.value;
+                const storePlotArrayData = [...storePlotArray, {
+                    plotName,
+                    treeainTypeDataName,
+                    treeainTypeDataValue,
+                    landTypeAllDataValue,
+                    soilTypeDataValue,
+                    landUnitDataValue,
+                    location,
+                    photographs,
+                    plotVideo,
+                    plotRecord,
+                    khasraNo: khasraNo,
+                    landSize: landSize
+                }];
+                setstorePlotArray(storePlotArrayData);
+                emptyState();
+            }
+        }
+    }
+    const emptyState = () => {
+        setPlotDetails({ ...plotDetails, name: "", value: "" });
+        setKhasraNo("");
+        setlandSize("");
+        setTreeainTypeData({ ...treeainTypeData, name: "", value: "" });
+        setlandTypeAllData({ ...landTypeAllData, name: "", value: "" });
+        setsoilTypeData({ ...soilTypeData, name: "", value: "" });
+        setlandUnitData({ ...landUnitData, name: "", value: "" });
+        setLocation([
+            { latitude: "", longitude: "" },
+            { latitude: "", longitude: "" },
+            { latitude: "", longitude: "" },
+            { latitude: "", longitude: "" }
+        ]);
+        setPhotographs([
+            { uri: "", type: "", name: "", id: "", oldimgName: "" },
+            { uri: "", type: "", name: "", id: "", oldimgName: "" },
+            { uri: "", type: "", name: "", id: "", oldimgName: "" },
+            { uri: "", type: "", name: "", id: "", oldimgName: "" },
+        ]);
+        setPlotVideo({ uri: "", type: "", name: "", id: "" })
+        setPlotRecord({ uri: "", type: "", name: "", id: "" });
+    }
+    const addUserLand = async () => {
+        Keyboard.dismiss();
+        let dataArr = [];
+        const formData = new FormData();
+        let plot_img_length = 1;
+        if (storePlotArray.length > 0) {
+            setIsLoading(true);
+            storePlotArray.map((data, index) => {
+                let latDataArr = [];
+                let plotImageArr = [];
+                const { plotName, landTypeAllDataValue, landUnitDataValue, location,
+                    photographs, plotRecord, plotVideo, soilTypeDataValue,
+                    treeainTypeDataValue, khasraNo, landSize } = data;
+                storePlotArray[index].location.map((latData, e) => {
+                    const { latitude, longitude } = latData;
+                    if (latitude != "") {
+                        latDataArr.push(latData)
+                    }
+                })
+                storePlotArray[index].photographs.map((photographsData, e) => {
+                    const { name } = photographsData;
+                    if (name != "") {
+                        formData.append(`plot_image_${plot_img_length++}`, photographsData);
+                        console.log(plot_img_length)
+                    }
+                });
+                console.log(plotImageArr);
+                if (plotImageArr.length > 0) {
+                    formData.append(`plot_image_${index + 1}`, plotImageArr);
+                }
+                if (plotRecord.name != "") {
+                    formData.append(`plot_record_${index + 1}`, plotRecord);
+                }
+                if (plotVideo.id == "" && plotVideo.uri != "") {
+                    const videoName = plotVideo.uri.split("cache/")
+                    formData.append(`plot_video_${index + 1}`, {
+                        uri: plotVideo.uri,
+                        type: 'video/mov',
+                        name: videoName[1],
+                    });
+                }
+                dataArr.push({
+                    "user_id": user_id,
+                    "plot_no": plotName,
+                    "khatian_no": khasraNo,
+                    "terrain_type_id": treeainTypeDataValue,
+                    "lan_type_id": landTypeAllDataValue,
+                    "soil_type_id": soilTypeDataValue,
+                    "land_unit_id": landUnitDataValue,
+                    "land_size": landSize,
+                    "createdBy": owner.user_id,
+                    "agri_land_user_latlongs": latDataArr
+                });
+
+            });
+            formData.append("data", JSON.stringify(dataArr));
+            const response = await addUserLandAPI(dbname, lan_id, user_id, token, owner.id, formData, dataArr.length);
+            if (response.status == 200) {
+                setIsLoading(false);
+                setstorePlotArray([]);
+                Toast.show({ text: t('your_request_submitted'), ...AlertMesg[0] });
+                setTimeout(() => {
+                    navigation.navigate("FarmerDashboard");
+                }, 1200);
+            }
+        } else {
+            if (validationData()) {
+
+            } else {
+
+            }
+        }
+        // addUserLand
+    }
+    const produceRemoveDetails = (index) => {
+        const values = [...storePlotArray];
+        values.splice(index, 1);
+        setstorePlotArray(values);
+    }
     return {
         isLoading,
         onChangePlotDetails,
+        onchangePlotName,
         terrainTypeAll,
         soilTypeAll,
         landTypeAll,
@@ -511,10 +627,6 @@ const FarmerLiveHoodController = () => {
         location,
         handleCurrentLatLong,
         addMoreLocation,
-        photographsOne,
-        photographsTwo,
-        photographsThree,
-        photographsFour,
         openlaunchCamera,
         openlaunchImageLibrary,
         openlaunchCameraVider,
@@ -539,6 +651,12 @@ const FarmerLiveHoodController = () => {
         setRecordingDuration,
         formatTime,
         onStartRecording,
+        photographs,
+        addMorePlot,
+        plotType,
+        addUserLand,
+        storePlotArray,
+        produceRemoveDetails,
         plotAll
     }
 

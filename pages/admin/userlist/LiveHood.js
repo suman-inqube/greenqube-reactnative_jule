@@ -107,8 +107,8 @@ const LiveHood = () => {
                                 </View>
                             ) : null}
                             <Pressable
-                                onPress={() => onStartRecording(plotVideo.id)}
-                                onLongPress={() => onStartRecording(plotVideo.id)}
+                                onPress={() => onStartRecording(plotVideo.id, 'userList')}
+                                onLongPress={() => onStartRecording(plotVideo.id, 'userList')}
                                 style={{
                                     position: 'absolute',
                                     alignSelf: 'center',
