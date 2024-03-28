@@ -298,7 +298,7 @@ const FarmerLiveHood = ({ navigation }) => {
             unitProduct: "",
             unitProductValue: "",
             unit_value: "",
-            unit_valueArr: "",
+            // unit_valueArr: "",
         });
     }
     const handleHarvested = async (data) => {
@@ -370,16 +370,20 @@ const FarmerLiveHood = ({ navigation }) => {
                     }
                 });
             }
-            livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
-        }
-        setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value, ['unit_value']: selectUnitValue })
-
-
-        if (name === "produceVariety") {
-            produceVarietyAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
-        }
-        if (name === "productionProcess") {
-            productionProcessAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
+            ///****** *///
+            setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value, ['unit_value']: selectUnitValue })
+        } else {
+            setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value });
+            /******/
+            if (name === "terrainType") {
+                livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
+            }
+            if (name === "produceVariety") {
+                produceVarietyAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
+            }
+            if (name === "productionProcess") {
+                productionProcessAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID);
+            }
         }
     };
     const handleAddDataproductionSeason = (item, name, value) => {
@@ -570,7 +574,7 @@ const FarmerLiveHood = ({ navigation }) => {
         } else if (farmerData.terrainTypeValue == "") {
             Toast.show({ text: `${t('please_select_terrain_type_first')}`, ...AlertMesg[0] });
         } else if (farmerData.landTypeValue == "") {
-            Toast.show({ text: `${t('please_select_plot_first')}`, ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_enter_plot_name_first')}`, ...AlertMesg[0] });
         } else if (farmerData.soilTypeValue == "") {
             Toast.show({ text: `${t('please_select_soil_type_first')}`, ...AlertMesg[0] });
         } else if (farmerData.unitValue == "") {
@@ -598,6 +602,13 @@ const FarmerLiveHood = ({ navigation }) => {
         } else if (farmerData.cycleEndDate == "") {
             Toast.show({ text: `${t('select_enddate_first')}`, ...AlertMesg[0] });
         } else {
+            let land_convert_size_value = "";
+            //land_convert_size_value fix
+            if (farmerData.unit_value == null || farmerData.unit_value == "" || farmerData.unit_value == undefined) {
+                land_convert_size_value = farmerData.land_size * 1
+            } else {
+                land_convert_size_value = farmerData.land_size * farmerData.unit_value
+            }
             const latlongArrString = JSON.stringify(latlongArr);
             let save_data = qs.stringify({
                 plot_no: farmerData.plot_Site_Name,
@@ -610,7 +621,7 @@ const FarmerLiveHood = ({ navigation }) => {
                 soil_type_id: farmerData.soilTypeValue,
                 land_unit_id: farmerData.unitValue,
                 land_size: farmerData.land_size,
-                land_convert_size: farmerData.land_size * farmerData.unit_value == null || farmerData.unit_value == "" || farmerData.unit_value == "undefined" ? 1 : farmerData.unit_value,
+                land_convert_size: land_convert_size_value,
                 latitude: latlongArr[0].latitude,
                 longitude: latlongArr[0].longitude,
                 status: 1,

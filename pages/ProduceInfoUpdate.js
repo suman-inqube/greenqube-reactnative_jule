@@ -412,6 +412,7 @@ const ProduceInfoUpdate = () => {
         }
         setstoreProduceInfo({
             ...storeProduceInfo,
+            sizevalue: item.sizevalue,
             landUnit: item.value,
             landUnitSize: landUnitSize,
             landUnitName: item.label,
@@ -433,8 +434,6 @@ const ProduceInfoUpdate = () => {
         } else {
             await removeItem('storeProduceInfo_data');
             storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
-            console.log(JSON.stringify(storeProduceInfoInArray));
-            return;
             await setItem('storeProduceInfo_data', storeProduceInfoInArray)
             navigation.navigate(pagename, { pagename: '' });
         }

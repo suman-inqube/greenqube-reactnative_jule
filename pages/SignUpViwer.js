@@ -175,7 +175,6 @@ const SignUpViwer = () => {
         if (storeFinancial_data.sumInsured) {
             lic_details["sum_insured"] = storeFinancial_data.sumInsured;
         }
-
         const agri_land_user_rels = storeProduceInfo_data.map((item, index) => (
             {
                 "plot_no": item.storeProduceInfo.plotSiteName,
@@ -184,7 +183,7 @@ const SignUpViwer = () => {
                 "soil_type_id": item.storeProduceInfo.soilType && item.storeProduceInfo.soilType.value,
                 "land_unit_id": item.storeProduceInfo.landUnit,
                 "land_size": item.storeProduceInfo.plotSize,
-                "land_convert_size": item.storeProduceInfo.landUnitSize,
+                "land_convert_size": item.storeProduceInfo.sizevalue == "" || item.storeProduceInfo.sizevalue == undefined || item.storeProduceInfo.sizevalue == null ? item.storeProduceInfo.plotSize * 1 : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
                 "latitude": item.storeProduceInfo.lat,
                 "longitude": item.storeProduceInfo.long,
                 "daag_no": item.storeProduceInfo.daagNo,

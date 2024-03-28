@@ -524,6 +524,7 @@ const PlotSiteProduceInformation = () => {
         }
         setstoreProduceInfo({
             ...storeProduceInfo,
+            sizevalue: item.sizevalue,
             landUnit: item.value,
             landUnitSize: landUnitSize,
             landUnitName: item.label,

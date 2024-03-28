@@ -618,6 +618,7 @@ const ProduceInfo = () => {
     }
   };
   const handleLandUnit = async item => {
+    ///*************///
     let landUnitSize;
     if (item.sizevalue > 0) {
       landUnitSize = storeProduceInfo.plotSize * item.sizevalue;
@@ -626,9 +627,11 @@ const ProduceInfo = () => {
     }
     setstoreProduceInfo({
       ...storeProduceInfo,
+      sizevalue: item.sizevalue,
       landUnit: item.value,
       landUnitSize: landUnitSize,
       landUnitName: item.label,
+      sizevalue: item.sizevalue
     });
   };
   const handleSave = async () => {

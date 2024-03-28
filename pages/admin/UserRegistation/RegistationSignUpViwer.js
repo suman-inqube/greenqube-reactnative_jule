@@ -138,7 +138,7 @@ const RegistationSignUpViwer = () => {
                 "soil_type_id": item.soilTypeValue,
                 "land_unit_id": item.landUnit,
                 "land_size": item.plotSize,
-                "land_convert_size": item.landUnitSize.toString(),
+                "land_convert_size": item.sizevalue == "" || item.sizevalue == undefined || item.sizevalue == null ? item.plotSize * 1 : item.plotSize * item.sizevalue,
                 "latitude": item.lat.toString(),
                 "longitude": item.long.toString(),
                 "daag_no": item.daagNo,
@@ -230,7 +230,6 @@ const RegistationSignUpViwer = () => {
             getItem('storeFinancial_data'),
             getItem('storeProduceInfo_data')
         ]);
-        console.log(storeProduceInfo_data)
         if (loginUser_data) {
             setdbLanTokUsr({
                 ...dbLanTokUsr,
