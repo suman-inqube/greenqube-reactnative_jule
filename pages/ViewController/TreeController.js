@@ -490,9 +490,6 @@ const TreeController = (type) => {
         if (addTreeArray.length > 0) {
             const formData = new FormData();
             formData.append('data', JSON.stringify(addTreeArray));
-            if (uploadTreeImage.uri != "") {
-                formData.append("crop_image_1", uploadTreeImage);
-            }
             uploadTreeImageArr.map((data, index) => {
                 if (data.name != "") {
                     formData.append(`crop_image_${index + 1}`, data);
@@ -512,11 +509,11 @@ const TreeController = (type) => {
     const onChangeCurrentLatLong = async (index) => {
         const fusedLocation = await getItem('fusedLocation');
         const { latitude, longitude } = fusedLocation;
-        if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
-            setLocation({ ...location, type: "crop", latitude: latitude, longitude: longitude });
-        } else {
-            Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
-        }
+        // if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
+        setLocation({ ...location, type: "crop", latitude: latitude, longitude: longitude });
+        // } else {
+        //     Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
+        // }
         // onChangeSaved();
     }
     useEffect(() => {

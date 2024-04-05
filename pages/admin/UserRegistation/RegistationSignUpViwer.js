@@ -26,20 +26,19 @@ const RegistationSignUpViwer = () => {
     const [storeFinancial, setstoreFinancial] = useState({});
     const [storeProduceInfo, setstoreProduceInfo] = useState([]);
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
+        dbName: '', languageID: '', token: '', userID: ''
     });
     const [saveData, setsaveData] = useState([]);
+    const [photographsArr, setPhotographsArr] = useState([]);
+    const [plotRecordArr, setPlotRecordArr] = useState([]);
+    const [plotVideoArr, setPlotVideoArr] = useState([]);
+    const [individualTreeImgArr, setIndividualTreeImgArr] = useState([]);
     const togglestorePersnolInfo = () => {
         setisstorePersnolInfo(!isstorePersnolInfo);
     };
-
     const togglestoreFinancial = () => {
         setisstoreFinancial(!isstoreFinancial);
     };
-
     const togglestoreProduceInfo = () => {
         setisstoreProduceInfo(!isstoreProduceInfo);
     };
@@ -138,16 +137,24 @@ const RegistationSignUpViwer = () => {
                 "soil_type_id": item.soilTypeValue,
                 "land_unit_id": item.landUnit,
                 "land_size": item.plotSize,
-                "land_convert_size": item.landUnitSize.toString(),
-                "latitude": item.lat.toString(),
-                "longitude": item.long.toString(),
+                "land_convert_size": item.sizevalue == "" || item.sizevalue == undefined || item.sizevalue == null ? item.plotSize * 1 : item.plotSize * item.sizevalue,
+                // "latitude": item.lat.toString(),
+                // "longitude": item.long.toString(),
                 "daag_no": item.daagNo,
                 "khatian_no": item.khatianNo,
-                "plant_number": item.noOfPlants,
+                // "plant_number": item.noOfPlants,
+                "agri_land_user_latlongs": [
+                    {
+                        "type": "land",
+                        "latitude": item.lat.toString(),
+                        "longitude": item.long.toString()
+                    }
+                ]
             }
         ));
         const crop_details = storeProduceInfo.map((item, index) => (
             {
+                "type": "greenzown",
                 "crop_season_id": item.prodctionSeasionValue,
                 "crop_type_id": item.livelihoodTypeValue,
                 "crop_name_id": item.produceNameValue,
@@ -157,6 +164,14 @@ const RegistationSignUpViwer = () => {
                 "total_production": "",
                 "have_fertilizer": "Yes",
                 "buy_pesticide": "No",
+                "agri_land_user_latlongs": [
+                    {
+                        "type": "crop",
+                        "latitude": item.treeLat,
+                        "longitude": item.treeLong,
+                    }
+                ],
+                "unique_id": item.noOfPlants,
                 "sowing_date": item.cycleStarts,
                 "harvesting_date": item.cycleEnds,
                 "yield_amount": item.expectedProduction,
@@ -175,18 +190,41 @@ const RegistationSignUpViwer = () => {
         farmer_details['agri_ponds'] = agri_ponds;
         farmer_details['agri_ponds'] = agri_ponds;
         data_farmer_details['farmer_details'] = farmer_details;
-        // const savedData = {
-        //     'data': JSON.stringify([data_farmer_details]),
-        //     'photo': storePersnolInfo.userImg
-        // }
         const formData = new FormData();
         formData.append('data', JSON.stringify([data_farmer_details]));
         if (storePersnolInfo.userImg.name != undefined) {
             formData.append('photo', storePersnolInfo.userImg);
         }
+        photographsArr.map((item, i) => {
+            item.map((data, e) => {
+                if (data.name != "") {
+                    formData.append(`plot_image_${i + 1}`, data);
+                }
+            })
+        });
+        plotRecordArr.map((data, i) => {
+            if (data.uri != "") {
+                formData.append(`plot_record_${i + 1}`, data);
+            }
+        });
+        plotVideoArr.map((data, i) => {
+            if (data.uri != "") {
+                const videoName = data.uri.split("cache/");
+                formData.append(`plot_video_${i + 1}`, {
+                    uri: data.uri,
+                    type: 'video/mov',
+                    name: videoName[1],
+                });
+            }
+        })
+        individualTreeImgArr.map((data, i) => {
+            if (data.name != "") {
+                formData.append(`crop_image_${i + 1}`, data);
+            }
+        })
         if (netConnection) {
             const database_res = await UserRegisterAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID,
-                dbLanTokUsr.token, dbLanTokUsr.userID, formData);
+                dbLanTokUsr.token, dbLanTokUsr.userID, formData, photographsArr.length);
             if (database_res.status === 200) {
                 Toast.show({ text: `The farmer/producer has been registered successfully`, ...AlertMesg[0] });
                 setTimeout(() => {
@@ -243,7 +281,11 @@ const RegistationSignUpViwer = () => {
             setstoreSignup(storeSignup_data);
             setstorePersnolInfo(storePersnolInfo_data);
             setstoreFinancial(storeFinancial_data);
-            setstoreProduceInfo(storeProduceInfo_data);
+            setstoreProduceInfo(storeProduceInfo_data.storeProduceInfoInArray);
+            setPhotographsArr(storeProduceInfo_data.photographsArr);
+            setPlotRecordArr(storeProduceInfo_data.plotRecordArr);
+            setPlotVideoArr(storeProduceInfo_data.plotVideoArr);
+            setIndividualTreeImgArr(storeProduceInfo_data.individualTreeImgArr);
         }
     };
     useEffect(() => {
@@ -393,46 +435,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>: {storeFinancial.adharCard}</Text>
                                                         </View>
                                                     </View>
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Bank Account No </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.bankAccountNo}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Bank Name </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.bankName}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Farmar Loan No </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.farmarLoanNo}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Branch Name </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.branchName}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Ifsc Code </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.ifscCode}</Text>
-                                                        </View>
-                                                    </View> */}
+
                                                     <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}>{t('lic_name_of_company')} </Text>
@@ -441,46 +444,6 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>: {storeFinancial.ifscCode}</Text>
                                                         </View>
                                                     </View>
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Pan No </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.panNo}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Pension Account No </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.pensionAccountNo}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Pension Amount </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.pensionAmount}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Pension Effective From </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.pensionEffectiveFrom}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Pension Per Month </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.pensionPerMonth.label}</Text>
-                                                        </View>
-                                                    </View> */}
                                                     <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}>{t('pension_providing_authority').substring(0, 15)} </Text>
@@ -489,30 +452,6 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>: {storeFinancial.pensionProvidingAuthority}</Text>
                                                         </View>
                                                     </View>
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Policy Number </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.policyNumber}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Sum Insured </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.sumInsured}</Text>
-                                                        </View>
-                                                    </View> */}
-                                                    {/* <View style={styles.mainContainer}>
-                                                        <View style={styles.leftSection}>
-                                                            <Text style={styles.title}> Voter Card </Text>
-                                                        </View>
-                                                        <View style={styles.rightSection}>
-                                                            <Text style={styles.title}>{storeFinancial.voterCard}</Text>
-                                                        </View>
-                                                    </View> */}
                                                 </View>
                                             </View>
                                             : ""
@@ -548,6 +487,10 @@ const RegistationSignUpViwer = () => {
                                                                     pagename: "RegistationSignUpViwer",
                                                                     editItem: item,
                                                                     arrayIndex: index,
+                                                                    photographsArr: photographsArr[index],
+                                                                    plotRecordArr: plotRecordArr[index],
+                                                                    plotVideoArr: plotVideoArr[index],
+                                                                    individualTreeImgArr: individualTreeImgArr[index]
                                                                 })}>
                                                                     <Image source={require('../../Common/images/edit.png')} style={{ width: 25, height: 25 }} />
                                                                 </TouchableOpacity>
@@ -602,17 +545,9 @@ const RegistationSignUpViwer = () => {
                                                                         <Text style={styles.title}>{item.produceVariety}</Text>
                                                                     </View>
                                                                 </View>
-                                                                <View style={styles.mainContainer} >
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('showing_date')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.cycleStarts}</Text>
-                                                                    </View>
-                                                                </View>
                                                                 <View style={styles.mainContainer}>
                                                                     <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('harvesting_date_auto_calculated')} </Text>
+                                                                        <Text style={styles.title}> {t('showing_date')} </Text>
                                                                     </View>
                                                                     <View style={styles.rightSection}>
                                                                         <Text style={styles.title}>{item.cycleEnds}</Text>
@@ -622,7 +557,6 @@ const RegistationSignUpViwer = () => {
                                                         </View>
                                                     )
                                                 })}
-
                                             </View>
                                             : ""
                                     }

@@ -165,23 +165,42 @@ export const ProduceProductionUnitDataAPI = async (dbName, language) => {
 
 }
 
-export const UserRegisterAPI = async (dbName, language, token, userId, inputData) => {
+export const UserRegisterAPI = async (dbName, language, token, userId, inputData, plot_count) => {
     const axiosHeaders = {
         headers: {
             'authorization': `${token}`,
             'information': `${dbName},${language},${userId}`,
             'Content-Type': 'multipart/form-data',
+            'plot_count': plot_count
         },
     };
     try {
-        let response = await axios.post(`${config.BASE_URL}agentRoute/farmerLongReg`, inputData, axiosHeaders);
+        let response = await axios.post(`${config.BASE_URL}greenZownRoute/growerRegistration`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response)
+        // CrashlyticsRecordError(error.response)
         return error.response;
     }
 
 }
+// export const UserRegisterAPI = async (dbName, language, token, userId, inputData, plot_count) => {
+//     const axiosHeaders = {
+//         headers: {
+//             'authorization': `${token}`,
+//             'information': `${dbName},${language},${userId}`,
+//             'Content-Type': 'multipart/form-data',
+//             'plot_count': plot_count
+//         },
+//     };
+//     try {
+//         let response = await axios.post(`${config.BASE_URL}greenZownRoute/growerRegistration`, inputData, axiosHeaders);
+//         return response;
+//     } catch (error) {
+//         CrashlyticsRecordError(error.response)
+//         return error.response;
+//     }
+
+// }
 
 
 

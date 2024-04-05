@@ -169,7 +169,7 @@ const Login = ({ route }) => {
             removeItem('storeProduceInfo_data'),
             requestUserPermission(),
             notificationListener(),
-            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
+            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications, PERMISSIONS_TYPE.camera]),
         ]);
         if (companyLanguage_data != "" && companyLanguage_data != null) {
             setcompanyLanguage(companyLanguage_data);

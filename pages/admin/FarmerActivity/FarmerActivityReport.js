@@ -55,7 +55,7 @@ const FarmerActivityReport = ({ navigation }) => {
   const { netConnection } = DeviceInfo();
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [farmerData, setfarmerData] = useState();
+  const [farmerData, setfarmerData] = useState([]);
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
   const [searchResults, setSearchResults] = useState([]);

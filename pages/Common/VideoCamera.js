@@ -22,39 +22,34 @@ import {
 import Video from 'react-native-video';
 import VideoCameraController from '../ViewController/VideoCameraController';
 import { useRoute, useNavigation } from '@react-navigation/native';
-const CameraScreen = () => {
-    const navigation = useNavigation();
-    const route = useRoute();
-    const { farmeruserID, agri_land_user_rels } = route.params;
-    const { isRecording, setVideo, setIsRecording } = VideoCameraController(farmeruserID, agri_land_user_rels);
+const CameraScreen = ({ recordingDuration, plotVideo, camera, isRecording, onStartRecording, setRecordingDuration }) => {
     const device = useCameraDevice('back', {
         physicalDevices: ['ultra-wide-angle-camera'],
     });
-    const camera = useRef(null);
-    const onStartRecording = async () => {
-        if (!camera.current) {
-            return;
-        }
-        setIsRecording(true);
-        if (isRecording == false) {
-            camera.current.startRecording({
-                onRecordingFinished: (video) => {
-                    setIsRecording(false);
-                    setVideo(video);
-                    navigation.navigate("livehood", { farmeruserID: farmeruserID, agri_land_user_rels: agri_land_user_rels, video: video })
-                },
-                onRecordingError: (error) => {
-                    console.error(error);
-                    setIsRecording(false);
-                },
-            });
-        } else {
-            camera.current?.stopRecording();
-        }
-    };
     if (!device) {
         return <Text>Camera device not found</Text>;
     }
+    useEffect(() => {
+        let interval;
+        if (isRecording) {
+            interval = setInterval(() => {
+                setRecordingDuration(prevDuration => prevDuration + 1);
+            }, 1000);
+        } else {
+            clearInterval(interval);
+        }
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [isRecording]);
+    const formatTime = seconds => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(
+            remainingSeconds,
+        ).padStart(2, '0')}`;
+    };
     return (
         <View style={{ flex: 1 }}>
             <Camera
@@ -64,12 +59,17 @@ const CameraScreen = () => {
                 isActive={true}
                 // photo
                 video
-                audio
+            // audio
             />
             <>
+                {isRecording ? (
+                    <View style={styles.recordingTimer}>
+                        <Text style={{ color: 'white' }}>{formatTime(recordingDuration)}</Text>
+                    </View>
+                ) : null}
                 <Pressable
-                    onPress={onStartRecording}
-                    onLongPress={onStartRecording}
+                    onPress={() => onStartRecording(plotVideo.id, 'userList')}
+                    onLongPress={() => onStartRecording(plotVideo.id, 'userList')}
                     style={{
                         position: 'absolute',
                         alignSelf: 'center',
@@ -85,3 +85,19 @@ const CameraScreen = () => {
     );
 };
 export default CameraScreen;
+const styles = StyleSheet.create({
+    recordingTimer: {
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 80,
+        height: 40,
+        fontSize: 15,
+        padding: 10,
+        backgroundColor: 'red',
+        elevation: 10,
+        position: 'absolute',
+        bottom: 150,
+        borderRadius: 25,
+    }
+})

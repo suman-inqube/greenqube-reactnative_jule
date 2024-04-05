@@ -31,7 +31,7 @@ const ViewPastRequested = () => {
         token: '',
         userID: ''
     });
-    const [farmerData, setfarmerData] = useState();
+    const [farmerData, setfarmerData] = useState([]);
     const [loanList, setLoanList] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -104,7 +104,7 @@ const ViewPastRequested = () => {
     const handleFilter = async (search) => {
         setSearchFarmerName(search);
         setSearchFarmerPhone('');
-        
+
         if (filterName === 'Farmer/Product Name') {
             const result = farmerData.filter(item =>
                 item.label.toLowerCase().includes(search.toLowerCase())

@@ -175,7 +175,7 @@ const SignUpViwer = () => {
         if (storeFinancial_data.sumInsured) {
             lic_details["sum_insured"] = storeFinancial_data.sumInsured;
         }
-
+        // const PlotSiteDetailsImage = storeProduceInfo_data.filter(e => e.rel_id == value);   
         const agri_land_user_rels = storeProduceInfo_data.map((item, index) => (
             {
                 "plot_no": item.storeProduceInfo.plotSiteName,
@@ -184,12 +184,17 @@ const SignUpViwer = () => {
                 "soil_type_id": item.storeProduceInfo.soilType && item.storeProduceInfo.soilType.value,
                 "land_unit_id": item.storeProduceInfo.landUnit,
                 "land_size": item.storeProduceInfo.plotSize,
-                "land_convert_size": item.storeProduceInfo.landUnitSize,
-                "latitude": item.storeProduceInfo.lat,
-                "longitude": item.storeProduceInfo.long,
+                "land_convert_size": item.storeProduceInfo.sizevalue == "" || item.storeProduceInfo.sizevalue == undefined || item.storeProduceInfo.sizevalue == null ? item.storeProduceInfo.plotSize * 1 : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
+                "agri_land_user_latlongs": [
+                    {
+                        "type": "land",
+                        "latitude": item.storeProduceInfo.lat,
+                        "longitude": item.storeProduceInfo.long
+                    }
+                ],
                 "daag_no": item.storeProduceInfo.daagNo,
                 "khatian_no": item.storeProduceInfo.khatianNo,
-                "plant_number": item.storeProduceInfo.noOfPlants,
+                "unique_id": item.storeProduceInfo.noOfPlants,
             }
         ))
 
@@ -204,6 +209,20 @@ const SignUpViwer = () => {
                 "total_production": "7",
                 "have_fertilizer": "Yes",
                 "buy_pesticide": "No",
+                // "agri_land_user_latlongs": [
+                //     {
+                //         "type": "crop",
+                //         "latitude": item.storeProduceInfo.treeLat,
+                //         "longitude": item.storeProduceInfo.treeLong
+                //     }
+                // ],
+                "agri_land_user_latlongs": [
+                    {
+                        "type": "crop",
+                        "latitude": "64.5256242",
+                        "longitude": "64.5256242",
+                    }
+                ],
                 "sowing_date": item.storeProduceInfo.cycleStarts,
                 "harvesting_date": item.storeProduceInfo.cycleEnds,
                 "yield_amount": item.storeProduceInfo.expectedProduction,
@@ -227,13 +246,39 @@ const SignUpViwer = () => {
         setsaveData(data);
     }
     const handleSave = async () => {
+        const { company } = storeSignup;
+        const { language } = storePersnolInfo;
         const formData = new FormData();
         formData.append('data', JSON.stringify(saveData));
         if (storePersnolInfo.img != "") {
             formData.append('photo', { uri: storePersnolInfo.img, type: storePersnolInfo.imgType, name: storePersnolInfo.imgName });
         }
+        let plotImageObj = [];
+        storeProduceInfo.map((value, e) => {
+            value.photographs.filter((data, index) => {
+                if (data.name != "") {
+                    formData.append(`plot_image_${e + 1}`, data);
+                }
+            })
+            if (value.plotRecord.uri != "") {
+                formData.append(`plot_record_${e + 1}`, value.plotRecord);
+            }
+            if (value.plotVideo.uri != "") {
+                const videoName = value.plotVideo.uri.split("cache/")
+                formData.append(`plot_video_${e + 1}`, {
+                    uri: value.plotVideo.uri,
+                    type: 'video/mov',
+                    name: videoName[1],
+                });
+            }
+        });
+        plotImageObj.map((data, i) => {
+            if (data.name != "") {
+                formData.append(`crop_image_${i + 1}`, plotImageObj[i]);
+            }
+        })
         if (netConnection) {
-            const database_res = await signupSaveAPI(formData);
+            const database_res = await signupSaveAPI(company.dbname, language.value, formData, storeProduceInfo.length);
             if (database_res) {
                 MessageDialog({ title: 'Successful', message: "Farmer Registered Successfully" })
                 navigation.navigate('Login');
@@ -251,10 +296,15 @@ const SignUpViwer = () => {
         }
     }
     const onPageLoad = async () => {
-        const storeSignup_data = await getItem('storeSignup_data');
-        const storePersnolInfo_data = await getItem('storePersnolInfo_data');
-        const storeFinancial_data = await getItem('storeFinancial_data');
-        const storeProduceInfo_data = await getItem('storeProduceInfo_data');
+        const [storeSignup_data,
+            storePersnolInfo_data,
+            storeFinancial_data,
+            storeProduceInfo_data] = await Promise.all([
+                getItem('storeSignup_data'),
+                getItem('storePersnolInfo_data'),
+                getItem('storeFinancial_data'),
+                getItem('storeProduceInfo_data')
+            ])
         setstoreSignup(storeSignup_data);
         setstorePersnolInfo(storePersnolInfo_data);
         setstoreFinancial(storeFinancial_data);
@@ -505,17 +555,17 @@ const SignUpViwer = () => {
                                                                     <Text style={styles.title}> {t('showing_date')} </Text>
                                                                 </View>
                                                                 <View style={styles.rightSection}>
-                                                                    <Text style={styles.title}>{item.storeProduceInfo && item.storeProduceInfo.cycleStarts}</Text>
+                                                                    <Text style={styles.title}>{item.storeProduceInfo && item.storeProduceInfo.cycleEnds}</Text>
                                                                 </View>
                                                             </View>
-                                                            <View style={styles.mainContainer}>
+                                                            {/* <View style={styles.mainContainer}>
                                                                 <View style={styles.leftSection}>
                                                                     <Text style={styles.title}> {t('harvesting_date_auto_calculated')} </Text>
                                                                 </View>
                                                                 <View style={styles.rightSection}>
                                                                     <Text style={styles.title}>{item.storeProduceInfo && item.storeProduceInfo.cycleEnds}</Text>
                                                                 </View>
-                                                            </View>
+                                                            </View> */}
                                                         </View>
                                                     </View>
                                                     : ''

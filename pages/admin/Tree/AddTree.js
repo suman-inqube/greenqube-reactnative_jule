@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import TreeController from '../../ViewController/TreeController';
 import { Root, SPSheet } from 'react-native-popup-confirm-toast';
-import DatePickerComp from '../../pages/Common/DatePickerComp';
+import DatePickerComp from '../../Common/DatePickerComp';
 import PlotModel from '../../Common/PlotModel';
 import LoadingScreen from '../../Common/LoadingScreen';
 import BottomSheetTakePhoto from '../../Common/BottomSheetTakePhoto';

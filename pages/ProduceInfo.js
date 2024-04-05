@@ -1,14 +1,7 @@
 import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  StatusBar,
+  StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Image, StatusBar, Pressable, Keyboard
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Logo from './Common/Logo';
 import ButtonForm from './Common/ButtonForm';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -24,13 +17,27 @@ import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
 import { isNotEmpty } from './Common/ValidationFunctions';
 import MessageDialog from './Common/MessageDialog';
 import { request, PERMISSIONS } from 'react-native-permissions';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
+import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './Common/ToastAlert';
 import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
 import { useSelector } from 'react-redux';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import DeviceInfo from './DeviceInfo';
+import BottomSheetTakePhoto from './Common/BottomSheetTakePhoto';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import {
+  useCameraPermission,
+  useMicrophonePermission,
+  useCameraDevice,
+  Camera,
+  PhotoFile,
+  TakePhotoOptions,
+  VideoFile,
+  useCodeScanner,
+} from 'react-native-vision-camera';
+import CameraScreen from './Common/VideoCamera';
+import { checkUniqueIdTree } from '../config/apiHere';
 const ProduceInfo = () => {
   const ForegroundLocationData = useSelector(state => state.locationData);
   const { netConnection } = DeviceInfo();
@@ -43,7 +50,6 @@ const ProduceInfo = () => {
   const [storeProduceInfoInArray, setstoreProduceInfoInArray] = useState([]);
   const [storeProduceInfo, setstoreProduceInfo] = useState({
     plotSiteName: '',
-    daagNo: '',
     khatianNo: '',
     noOfPlants: '',
     terrainType: '',
@@ -60,10 +66,11 @@ const ProduceInfo = () => {
     productionProcess: '',
     expectedProduction: '',
     produceProductionUnit: '',
-    cycleStarts: '',
     cycleEnds: '',
     lat: '',
     long: '',
+    treeLat: '',
+    treeLong: ''
   });
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -83,10 +90,28 @@ const ProduceInfo = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [startDate, setStartDate] = useState();
   const [isLoading, setIsLoading] = useState(false);
-  // const [location, setlocation] = useState({
-  //     lat: "",
-  //     long: ""
-  // });
+  const [produceAddDetails, setProduceAddDetails] = useState([])
+  const [photographs, setPhotographs] = useState([
+    { uri: "", type: "", name: "", id: "", oldimgName: "" },
+    { uri: "", type: "", name: "", id: "", oldimgName: "" },
+    { uri: "", type: "", name: "", id: "", oldimgName: "" },
+    { uri: "", type: "", name: "", id: "", oldimgName: "" },
+  ]);
+  const [plotRecord, setPlotRecord] = useState({
+    uri: "", type: "", name: ""
+  });
+  const [plotVideo, setPlotVideo] = useState({
+    uri: "", type: "", name: "", id: ""
+  });
+  const [individualTreeImg, setIndividualTreeImg] = useState({
+    uri: "", type: "", name: ""
+  });
+
+  const camera = useRef(null);
+  const treeIdRef = useRef(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingStart, setRecordingStart] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
   const allAPIHere = async (dbname, language_id) => {
     const axiosConfig = {
       headers: {
@@ -128,7 +153,7 @@ const ProduceInfo = () => {
         axios.get(prodctionSeasionAPI, axiosConfig1),
         axios.get(config.landunitAPI, axiosConfig),
         axios.get(config.productionProcessAPI, axiosConfig),
-        axios.get(config.produceProductionUnitAPI, axiosConfig),
+        axios.get(config.produceProductionUnitAPI, axiosConfig)
       ]);
       if (soilType_res.status == 200) {
         if (soilType_res.data.data.count > 0) {
@@ -422,14 +447,6 @@ const ProduceInfo = () => {
       console.log('Error in produceVariety API', error);
     }
   };
-  const handlecycleStart = item => {
-    const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
-    const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setStartDate(cycleStarts);
-    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts });
-  };
   const handlecycleEnd = async item => {
     const dt = new Date(item);
     const x = dt.toISOString().split('T');
@@ -437,25 +454,28 @@ const ProduceInfo = () => {
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
     setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
   };
-  const setLocation = async () => {
+  const setLocation = async (item) => {
     const fusedLocation = await getItem('fusedLocation');
     const { latitude, longitude } = fusedLocation;
-    if (
-      fusedLocation != null &&
-      longitude.toString().length == 10 &&
-      latitude.toString().length == 10
-    ) {
-      setstoreProduceInfo({
-        ...storeProduceInfo,
-        lat: latitude,
-        long: longitude,
-      });
+    // if (
+    //   fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10
+    // ) {
+    if (item == "tree") {
+      if (validationData()) {
+        setstoreProduceInfo({ ...storeProduceInfo, treeLat: latitude, treeLong: longitude });
+        handleAddProduce();
+      } else {
+        setstoreProduceInfo({ ...storeProduceInfo, treeLat: "", treeLong: "" });
+      }
     } else {
-      Toast.show({
-        text: 'Please try again to reach the accurancy',
-        ...AlertMesg[0],
-      });
+      setstoreProduceInfo({ ...storeProduceInfo, lat: latitude, long: longitude });
     }
+    // } else {
+    //   Toast.show({
+    //     text: 'Please try again to reach the accurancy',
+    //     ...AlertMesg[0],
+    //   });
+    // }
   };
   const validationData = () => {
     if (!storeProduceInfo.plotSiteName) {
@@ -568,18 +588,16 @@ const ProduceInfo = () => {
       })
       return false;
     }
-    // if (storeProduceInfo.expectedProduction == "") {
+    // if (storeProduceInfo.treeLong == "") {
     //   Toast.show({
-    //     time: 3,
-    //     text: `${t('select_enddate_first')}`,
-    //     ...AlertMesg[0],
+    //     time: 3, text: `${t('tap_to_get_latitude_and_longitude')}`, ...AlertMesg[0],
     //   });
     //   return false;
     // }
-    if (storeProduceInfo.cycleStarts == "") {
+    if (storeProduceInfo.noOfPlants == "") {
       Toast.show({
         time: 3,
-        text: `${t('select_enddate_first')}`,
+        text: `${t('plot_first')}`,
         ...AlertMesg[0],
       });
       return false;
@@ -589,7 +607,6 @@ const ProduceInfo = () => {
   const emptyFieldsValue = () => {
     setstoreProduceInfo({
       plotSiteName: '',
-      daagNo: '',
       khatianNo: '',
       noOfPlants: '',
       terrainType: '',
@@ -597,6 +614,8 @@ const ProduceInfo = () => {
       soilType: '',
       plotSize: '',
       landUnit: '',
+      landUnitName: '',
+      landUnitSize: '',
       prodctionSeasion: '',
       livelihoodType: '',
       produceName: '',
@@ -604,17 +623,29 @@ const ProduceInfo = () => {
       productionProcess: '',
       expectedProduction: '',
       produceProductionUnit: '',
-      cycleStarts: '',
       cycleEnds: '',
       lat: '',
       long: '',
+    });
+    setPhotographs([
+      { uri: "", type: "", name: "", id: "", oldimgName: "" },
+      { uri: "", type: "", name: "", id: "", oldimgName: "" },
+      { uri: "", type: "", name: "", id: "", oldimgName: "" },
+      { uri: "", type: "", name: "", id: "", oldimgName: "" },
+    ]);
+    setPlotRecord({
+      uri: "", type: "", name: ""
+    });
+    setPlotVideo({
+      uri: "", type: "", name: "", id: ""
     });
   };
   const saveInObject = async () => {
     if (validationData()) {
       const newData = [...storeProduceInfoInArray, storeProduceInfo];
-      setstoreProduceInfoInArray(newData);
-      emptyFieldsValue();
+      console.log(newData)
+      // setstoreProduceInfoInArray(newData);
+      // emptyFieldsValue();
     }
   };
   const handleLandUnit = async item => {
@@ -626,15 +657,19 @@ const ProduceInfo = () => {
     }
     setstoreProduceInfo({
       ...storeProduceInfo,
+      sizevalue: item.sizevalue,
       landUnit: item.value,
       landUnitSize: landUnitSize,
       landUnitName: item.label,
     });
   };
   const handleSave = async () => {
+    Keyboard.dismiss();
     if (storeProduceInfoInArray.length > 0) {
+      console.log(storeProduceInfo.sizevalue)
       await setItem('storeProduceInfo_data', storeProduceInfoInArray);
       navigation.navigate('SignUpViwer');
+      console.log(JSON.stringify(storeProduceInfoInArray))
     } else {
       const res = validationData();
       if (storeProduceInfoInArray.length > 0) {
@@ -661,37 +696,126 @@ const ProduceInfo = () => {
     onPageLoad();
   }, [netConnection]);
   useEffect(() => {
-    if (storeProduceInfo.cycleEnds != '') {
+    if (storeProduceInfo.treeLat != '') {
       handleAddProduce();
     }
-  }, [storeProduceInfo]);
+  }, [storeProduceInfo.treeLat]);
   const handleOpencycleEnds = () => {
     setOpencycleEnds(true);
   };
   const handleAddProduce = () => {
-    if (storeProduceInfo.cycleStarts !== '') {
+    if (storeProduceInfo.startDate !== '') {
       if (validationData()) {
         if (storeProduceInfoInArray.length < 3) {
           emptyFieldsValue();
+          console.log(photographs) //****** */
           setstoreProduceInfoInArray([
             ...storeProduceInfoInArray,
-            { storeProduceInfo },
+            {
+              storeProduceInfo,
+              photographs: photographs,
+              plotRecord: plotRecord,
+              plotVideo: plotVideo,
+              individualTreeImg: individualTreeImg
+            },
           ]);
         }
       }
     } else {
       Toast.show({
         time: 3,
-        text: 'Please select Cycle Starts date then cycle Ends date',
+        text: t('select_enddate_first'),
         ...AlertMesg[0],
       });
     }
   };
-  const produceRemoveDetails = index => {
-    const values = [...produceAddDetails];
+  const produceRemoveDetails = (index) => {
+    const values = [...storeProduceInfoInArray];
     values.splice(index, 1);
-    setProduceAddDetails(values);
+    setstoreProduceInfoInArray(values);
   };
+  const openlaunchCamera = (id, index) => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    launchCamera(options, async response => {
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+      } else if (response.error) {
+        console.log('Camera Error: ', response.error);
+      } else {
+        let imageUri = response.uri || response.assets?.[0]?.uri;
+        const photographsValue = [...photographs];
+        photographsValue[index] = { uri: response.assets[0].uri, type: response.assets[0].type, id: id, name: response.assets[0].fileName }
+        setPhotographs(photographsValue);
+        SPSheet.hide();
+      }
+    });
+  };
+  const openlaunchImageLibrary = (id, index, type) => {
+    const photographsValue = [...photographs];
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('Image picker error: ', response.error);
+      } else {
+        let imageUri = response.uri || response.assets[0].base64;
+        if (type == "plotRecord") {
+          setPlotRecord({ ...plotRecord, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName, id: id })
+        } else if (type == "individualTree") {
+          setIndividualTreeImg({ ...individualTreeImg, uri: response.assets[0].uri, type: response.assets[0].type, name: response.assets[0].fileName, id: id })
+        } else {
+          photographsValue[index] = { uri: response.assets[0].uri, type: response.assets[0].type, id: id, name: response.assets[0].fileName }
+          setPhotographs(photographsValue);
+        }
+        SPSheet.hide();
+      }
+    });
+  };
+  const onStartRecording = async (id) => {
+    if (!camera.current) {
+      return;
+    }
+    setIsRecording(true);
+    if (isRecording == false) {
+      camera.current.startRecording({
+        onRecordingFinished: (video) => {
+          setPlotVideo({
+            ...plotVideo, uri: `file:///${video.path}`, type: "", name: "", id: id
+          })
+          setIsRecording(false);
+          setRecordingStart(false);
+          console.log(video)
+        },
+        onRecordingError: (error) => {
+          setRecordingDuration(0);
+          console.error(error);
+          setIsRecording(false);
+          setRecordingStart(false);
+        },
+      });
+    } else {
+      camera.current?.stopRecording();
+      setRecordingDuration(0);
+    }
+  };
+  const checkTreeID = async (item) => {
+    const checkUniqueIdTreeRes = await checkUniqueIdTree(dbName, lanID, storeProduceInfo.noOfPlants);
+    if (checkUniqueIdTreeRes.data == 409) {
+      setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: "" })
+      treeIdRef.current.focus();
+    }
+  }
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
@@ -700,335 +824,327 @@ const ProduceInfo = () => {
           <LoadingScreen />
         </View>
       ) : null}
-      <View style={styles.container}>
-        <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
-        <Text style={styles.headersTitle}>
-          {t('reg_land_crop_information')}
-        </Text>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.formContainer}>
-            <View style={{ paddingHorizontal: 20 }}>
-              <View>
-                <Image
-                  source={require('../pages/Common/images/logo.png')}
-                  style={styles.logo}
-                />
-              </View>
-              <InputTextForm
-                label={t('pre_plot_name')}
-                color="red"
-                onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })
-                }
-                value={storeProduceInfo.plotSiteName}
-              />
-              <InputTextForm
-                label={t('daag_no')}
-                onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
-                }
-                value={storeProduceInfo.daagNo}
-              />
-              <InputTextForm
-                label={t('khatian_no')}
-                onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
-                }
-                value={storeProduceInfo.khatianNo}
-              />
-              <InputTextForm
-                label={t('no_of_plants')}
-                onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
-                }
-                value={storeProduceInfo.noOfPlants}
-              />
-              <DropdownForm
-                label={t('addland_terrain_type')}
-                color="red"
-                data={terrainTypeData}
-                onChange={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, terrainType: item })
-                }
-                val={storeProduceInfo.terrainType.label}
-              />
-              <DropdownForm
-                label={t('select_land_type')}
-                color="red"
-                data={landTypeData}
-                onChange={item => {
-                  setstoreProduceInfo({ ...storeProduceInfo, landType: item });
-                }}
-                val={storeProduceInfo.landType.label}
-              />
-              <DropdownForm
-                label={t('select_terrain_type')}
-                color="red"
-                data={soilTypeData}
-                onChange={item => {
-                  setstoreProduceInfo({ ...storeProduceInfo, soilType: item });
-                }}
-                val={storeProduceInfo.soilType.label}
-              />
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ width: '45%' }}>
+      {recordingStart ?
+        <CameraScreen recordingDuration={recordingDuration} plotVideo={plotVideo} camera={camera} isRecording={isRecording} onStartRecording={onStartRecording} setRecordingDuration={setRecordingDuration} />
+        : <>
+          <View style={styles.container}>
+            <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
+            <Text style={styles.headersTitle}>
+              {t('reg_land_crop_information')}
+            </Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={styles.formContainer}>
+                <View style={{ paddingHorizontal: 20 }}>
+                  <View>
+                    <Image
+                      source={require('../pages/Common/images/logo.png')}
+                      style={styles.logo}
+                    />
+                  </View>
                   <InputTextForm
-                    label={t('addland_landsize')}
+                    label={t('pre_plot_name')}
                     color="red"
                     onChangeText={item =>
-                      setstoreProduceInfo({ ...storeProduceInfo, plotSize: item })
+                      setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })
                     }
-                    value={storeProduceInfo.plotSize}
+                    value={storeProduceInfo.plotSiteName}
+                  />
+                  <InputTextForm
+                    label={t('khatian_no')}
+                    onChangeText={item =>
+                      setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
+                    }
+                    value={storeProduceInfo.khatianNo}
+                  />
+                  <DropdownForm
+                    label={t('addland_terrain_type')}
+                    color="red"
+                    data={terrainTypeData}
+                    onChange={item =>
+                      setstoreProduceInfo({ ...storeProduceInfo, terrainType: item })
+                    }
+                    val={storeProduceInfo.terrainType.label}
+                  />
+                  <DropdownForm
+                    label={t('select_land_type')}
+                    color="red"
+                    data={landTypeData}
+                    onChange={item => {
+                      setstoreProduceInfo({ ...storeProduceInfo, landType: item });
+                    }}
+                    val={storeProduceInfo.landType.label}
+                  />
+                  <DropdownForm
+                    label={t('select_terrain_type')}
+                    color="red"
+                    data={soilTypeData}
+                    onChange={item => {
+                      setstoreProduceInfo({ ...storeProduceInfo, soilType: item });
+                    }}
+                    val={storeProduceInfo.soilType.label}
+                  />
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <View style={{ width: '45%' }}>
+                      <InputTextForm
+                        label={t('addland_landsize')}
+                        color="red"
+                        onChangeText={item =>
+                          setstoreProduceInfo({ ...storeProduceInfo, plotSize: item })
+                        }
+                        value={storeProduceInfo.plotSize}
+                        keyboardType="numeric"
+                      />
+                    </View>
+                    <View style={{ width: '45%' }}>
+                      {/* <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} /> */}
+                      <DropdownForm
+                        label={t('addland_unit')}
+                        color="red"
+                        data={landUnitData}
+                        onChange={item => handleLandUnit(item)}
+                        val={storeProduceInfo.landUnitName}
+                      />
+                    </View>
+                  </View>
+                  <TouchableOpacity style={{ marginBottom: 4 }}>
+                    <TouchableOpacity onPress={() => setLocation("")}>
+                      {storeProduceInfo.lat ? (
+                        <View
+                          style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                          <Text style={{ color: '#000' }}>
+                            {storeProduceInfo.lat}
+                          </Text>
+                          <Text style={{ color: '#000' }}>
+                            {storeProduceInfo.long}
+                          </Text>
+                        </View>
+                      ) : (
+                        ''
+                      )}
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <Text style={{ color: 'red' }}>
+                          {t('tap_to_get_latitude_and_longitude')}
+                        </Text>
+                        <Image
+                          source={require('./Common/images/map.png')}
+                          style={{ width: 50, height: 50 }}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                  <Text style={[styles.title, { marginVertical: 20 }]}>Photographs of Plot</Text>
+                  <View style={styles.photographsContainer}>
+                    {photographs.map((data, index) => {
+                      if (index < 4) {
+                        return (
+                          <BottomSheetTakePhoto key={index}
+                            openlaunchCamera={() => openlaunchCamera(data.id, index)}
+                            openlaunchImageLibrary={() => openlaunchImageLibrary(data.id, index, "")}
+                            uploadTreeImage={data}
+                            TakePhoto={"Take Photo"}
+                            ChooseFromGallery={"Choose From Gallery"}
+                            Cancel={"Cancel"}
+                            height={250}
+                          />
+                        )
+                      }
+                    })}
+                  </View>
+                  <Text style={[styles.title, { marginVertical: 20 }]}>Upload Land Record as proof of ownership</Text>
+                  <TouchableOpacity onPress={() => openlaunchImageLibrary(plotRecord.id, 5, 'plotRecord')}>
+                    {plotRecord.name == "" ? <Image source={require('./Common/images/adobereader.png')} style={{ width: 80, height: 80 }} />
+                      : <Image
+                        source={{ uri: plotRecord.uri }}
+                        style={{ width: 60, height: 60, marginBottom: 10 }}
+                        resizeMode="contain"
+                      />}
+                  </TouchableOpacity>
+                  <View style={{ marginVertical: 20 }}>
+                    <BottomSheetTakePhoto
+                      title={"Short Video Clip of Plantation"}
+                      openlaunchCamera={() => { setRecordingStart(true), SPSheet.hide() }}
+                      openlaunchImageLibrary={() => { setRecordingStart(true), SPSheet.hide() }}
+                      // uploadTreeImage={photographsFour}
+                      TakePhoto={"Take Video"}
+                      // ChooseFromGallery={"Choose From Gallery"}
+                      Cancel={"Cancel"}
+                      height={200}
+                      VideoProps={plotVideo.uri}
+                    />
+                  </View>
+                  <Text style={[styles.title, { marginVertical: 20 }]}>Photograph of Individual Tree</Text>
+                  <TouchableOpacity onPress={() => openlaunchImageLibrary(plotRecord.id, 5, 'individualTree')} style={{ opacity: 0.7 }}>
+                    {individualTreeImg.name == "" ? <Image source={require('./Common/images/camera.jpeg')} style={{ width: 60, height: 60 }} />
+                      : <Image
+                        source={{ uri: individualTreeImg.uri }}
+                        style={{ width: 60, height: 60, marginBottom: 10 }}
+                        resizeMode="contain"
+                      />}
+                  </TouchableOpacity>
+                  <InputTextForm
+                    color={'red'}
+                    label={t('no_of_plants')}
+                    onChangeText={item =>
+                      setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
+                    }
+                    onBlur={(text) => checkTreeID(text)}
+                    refname={treeIdRef}
+                    value={storeProduceInfo.noOfPlants}
+                  />
+                  <DropdownForm
+                    label={t('addcrop_cultivating_season')}
+                    color="red"
+                    data={prodctionSeasionData}
+                    onChange={item => {
+                      setstoreProduceInfo({
+                        ...storeProduceInfo,
+                        prodctionSeasion: item,
+                        livelihoodType: "",
+                        produceName: "",
+                        produceVariety: ""
+                      });
+                    }}
+                    val={storeProduceInfo.prodctionSeasion.label}
+                  />
+                  <DropdownForm
+                    label={t('addcrop_croptype')}
+                    color="red"
+                    data={livelihoodTypeData}
+                    onChange={item => HandlelivehoodType(item)}
+                    val={storeProduceInfo.livelihoodType.label}
+                  />
+                  <DropdownForm
+                    label={t('select_crop_name')}
+                    color="red"
+                    data={produceNameData}
+                    onChange={item => HandleproduceName(item)}
+                    val={storeProduceInfo.produceName.label}
+                  />
+                  <DropdownForm
+                    label={t('select_crop_variety')}
+                    color="red"
+                    data={produceVarietyData}
+                    onChange={item => {
+                      setstoreProduceInfo({
+                        ...storeProduceInfo,
+                        produceVariety: item,
+                      });
+                    }}
+                    val={storeProduceInfo.produceVariety.label}
+                  />
+                  <DropdownForm
+                    label={t('production_system')}
+                    color="red"
+                    data={productionProcessData}
+                    onChange={item => {
+                      setstoreProduceInfo({
+                        ...storeProduceInfo,
+                        productionProcess: item,
+                      });
+                    }}
+                    val={storeProduceInfo.productionProcess.label}
+                  />
+                  <InputTextForm
+                    label={t('expected_yield')}
+                    color="red"
+                    onChangeText={item =>
+                      setstoreProduceInfo({
+                        ...storeProduceInfo,
+                        expectedProduction: item,
+                      })
+                    }
+                    value={storeProduceInfo.expectedProduction}
                     keyboardType="numeric"
                   />
-                </View>
-                <View style={{ width: '45%' }}>
-                  {/* <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} /> */}
                   <DropdownForm
-                    label={t('addland_unit')}
-                    color="red"
-                    data={landUnitData}
-                    onChange={item => handleLandUnit(item)}
-                    val={storeProduceInfo.landUnit.label}
+                    label={t('select_unit')} color="red" data={produceProductionUnitData}
+                    onChange={item => {
+                      setstoreProduceInfo({ ...storeProduceInfo, produceProductionUnit: item });
+                    }}
+                    val={storeProduceInfo.produceProductionUnit.label}
                   />
-                </View>
-              </View>
-              <TouchableOpacity style={{ marginBottom: 4 }}>
-                <TouchableOpacity onPress={setLocation}>
-                  {storeProduceInfo.lat ? (
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                      <Text style={{ color: '#000' }}>
-                        {storeProduceInfo.lat}
-                      </Text>
-                      <Text style={{ color: '#000' }}>
-                        {storeProduceInfo.long}
-                      </Text>
-                    </View>
-                  ) : (
-                    ''
-                  )}
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{ color: 'red' }}>
-                      {t('tap_to_get_latitude_and_longitude')}
+                  <View>
+                    <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
+                      {t('showing_date')}
                     </Text>
-                    <Image
-                      source={require('./Common/images/map.png')}
-                      style={{ width: 50, height: 50 }}
-                    />
-                  </View>
-                </TouchableOpacity>
-              </TouchableOpacity>
-              <DropdownForm
-                label={t('addcrop_cultivating_season')}
-                color="red"
-                data={prodctionSeasionData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    prodctionSeasion: item,
-                    livelihoodType: "",
-                    produceName: "",
-                    produceVariety: ""
-                  });
-                }}
-                val={storeProduceInfo.prodctionSeasion.label}
-              />
-              <DropdownForm
-                label={t('addcrop_croptype')}
-                color="red"
-                data={livelihoodTypeData}
-                onChange={item => HandlelivehoodType(item)}
-                val={storeProduceInfo.livelihoodType.label}
-              />
-              <DropdownForm
-                label={t('select_crop_name')}
-                color="red"
-                data={produceNameData}
-                onChange={item => HandleproduceName(item)}
-                val={storeProduceInfo.produceName.label}
-              />
-              <DropdownForm
-                label={t('select_crop_variety')}
-                color="red"
-                data={produceVarietyData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    produceVariety: item,
-                  });
-                }}
-                val={storeProduceInfo.produceVariety.label}
-              />
-              <DropdownForm
-                label={t('production_system')}
-                color="red"
-                data={productionProcessData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    productionProcess: item,
-                  });
-                }}
-                val={storeProduceInfo.productionProcess.label}
-              />
-              <InputTextForm
-                label={t('expected_yield')}
-                color="red"
-                onChangeText={item =>
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    expectedProduction: item,
-                  })
-                }
-                value={storeProduceInfo.expectedProduction}
-                keyboardType="numeric"
-              />
-              <DropdownForm
-                label={t('select_unit')}
-                color="red"
-                data={produceProductionUnitData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    produceProductionUnit: item,
-                  });
-                }}
-                val={storeProduceInfo.produceProductionUnit.label}
-              />
-              <View>
-                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
-                  Cycle Starts
-                </Text>
-                <View style={styles.passwordMainContainer}>
-                  <View style={styles.passwordContainer}>
-                    <Text
-                      style={styles.inputTextStyle}
-                      onPress={() => setOpencycleStarts(true)}>
-                      {storeProduceInfo.cycleStarts}
-                    </Text>
-                    <TouchableOpacity onPress={() => setOpencycleStarts(true)}>
-                      <ImageForm
-                        source={require('./Common/images/date.png')}
-                        resizeMode="cover"
-                        height={30}
-                        width={30}
-                      />
-                    </TouchableOpacity>
-                    <DatePicker
-                      modal
-                      mode="date"
-                      open={opencycleStarts}
-                      date={newdate}
-                      onConfirm={item => {
-                        handlecycleStart(item);
-                        setOpencycleStarts(false);
-                      }}
-                      onCancel={() => {
-                        setOpencycleStarts(false);
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-              <View>
-                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
-                  Cycle Ends
-                </Text>
-                <View style={styles.passwordMainContainer}>
-                  <View style={styles.passwordContainer}>
-                    <Text
-                      style={styles.inputTextStyle}
-                      onTouchStart={() => handleOpencycleEnds()}></Text>
-                    <TouchableOpacity onPress={() => handleOpencycleEnds()}>
-                      <ImageForm
-                        source={require('./Common/images/date.png')}
-                        resizeMode="cover"
-                        height={30}
-                        width={30}
-                      />
-                    </TouchableOpacity>
-                    <DatePicker
-                      modal
-                      mode="date"
-                      format="YYYY-MM-DD"
-                      open={opencycleEnds}
-                      date={newdate}
-                      minimumDate={
-                        storeProduceInfo.cycleStarts == ''
-                          ? ''
-                          : new Date(
-                            `${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getFullYear()}-${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getMonth() + 1
-                            }-${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getDate() + 1
-                            }`,
-                          )
-                      }
-                      onConfirm={item => {
-                        handlecycleEnd(item);
-                        setOpencycleEnds(false);
-                      }}
-                      onCancel={() => {
-                        setOpencycleEnds(false);
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-              <TouchableOpacity
-                onPress={saveInObject}
-                style={{ alignItems: 'center' }}
-                activeOpacity={0.7}>
-                <Text style={styles.addBtn}>{t('click_to_add_more_plot')}</Text>
-              </TouchableOpacity>
-              <View style={{ marginBottom: 10 }}>
-                {storeProduceInfoInArray.map((data, index) => {
-                  return (
-                    <View style={styles.moreContainer} key={index}>
-                      <View style={styles.moreTextContainer}>
-                        <Text style={styles.moreText}>
-                          {data.storeProduceInfo.plotSiteName}
-                        </Text>
-                        <Text style={styles.moreText}>
-                          {data.storeProduceInfo.produceName.label}
-                        </Text>
-                        <Text style={styles.moreText}>
-                          {data.storeProduceInfo.produceVariety.label}
-                        </Text>
-                      </View>
-                      <TouchableOpacity
-                        onPress={() => produceRemoveDetails(index)}>
-                        <Image
-                          source={require('./Common/images/x-mark.png')}
-                          style={styles.xMarkImage}
+                    <View style={styles.passwordMainContainer}>
+                      <View style={styles.passwordContainer}>
+                        <Text
+                          style={styles.inputTextStyle}
+                          onTouchStart={() => handleOpencycleEnds()}>{storeProduceInfo.cycleEnds}</Text>
+                        <TouchableOpacity onPress={() => handleOpencycleEnds()}>
+                          <ImageForm source={require('./Common/images/date.png')} resizeMode="cover" height={30} width={30} />
+                        </TouchableOpacity>
+                        <DatePicker
+                          modal mode="date" format="YYYY-MM-DD" open={opencycleEnds} date={newdate}
+                          onConfirm={item => { handlecycleEnd(item); setOpencycleEnds(false) }}
+                          onCancel={() => { setOpencycleEnds(false) }}
                         />
-                      </TouchableOpacity>
+                      </View>
                     </View>
-                  );
-                })}
+                  </View>
+                  <TouchableOpacity style={{ marginBottom: 4 }}>
+                    <TouchableOpacity onPress={() => setLocation("tree")}>
+                      {storeProduceInfo.treeLat ? (
+                        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                          <Text style={{ color: '#000' }}>{storeProduceInfo.treeLat}</Text>
+                          <Text style={{ color: '#000' }}>{storeProduceInfo.treeLong}</Text>
+                        </View>
+                      ) : (
+                        ''
+                      )}
+                      <View
+                        style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ color: 'red' }}>{t('tap_to_get_latitude_and_longitude')}</Text>
+                        <Image source={require('./Common/images/map.png')} style={{ width: 50, height: 50 }} />
+                      </View>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={saveInObject}
+                    style={{ alignItems: 'center' }}
+                    activeOpacity={0.7}>
+                    <Text style={styles.addBtn}>{t('click_to_add_more_plot')}</Text>
+                  </TouchableOpacity>
+                  <View style={{ marginBottom: 10 }}>
+                    {storeProduceInfoInArray.map((data, index) => {
+                      return (
+                        <View style={styles.moreContainer} key={index}>
+                          <View style={styles.moreTextContainer}>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.plotSiteName}
+                            </Text>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.produceName.label}
+                            </Text>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.produceVariety.label}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            onPress={() => produceRemoveDetails(index)}>
+                            <Image
+                              source={require('./Common/images/x-mark.png')}
+                              style={styles.xMarkImage}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
               </View>
-            </View>
+            </ScrollView>
           </View>
-        </ScrollView>
-      </View>
-      <ButtonForm label={t('next')} onPress={() => handleSave('SignUpViwer')} />
+          <ButtonForm label={t('next')} onPress={() => handleSave('SignUpViwer')} />
+        </>}
       <Root></Root>
     </>
   );
@@ -1107,7 +1223,8 @@ const styles = StyleSheet.create({
   },
   moreText: {
     color: '#000',
-    fontSize: 10,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14
   },
   addBtn: {
     backgroundColor: 'green',
@@ -1132,4 +1249,13 @@ const styles = StyleSheet.create({
     zIndex: 999,
     left: '45%',
   },
+  photographsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around"
+  },
+  title: {
+    color: '#000',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14
+  }
 });

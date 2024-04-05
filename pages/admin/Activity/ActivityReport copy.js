@@ -36,7 +36,7 @@ const ActivityReport = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [showingMenu, setShowingMenu] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-    const [farmerData, setfarmerData] = useState();
+    const [farmerData, setfarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
     const [searchResults, setSearchResults] = useState([]);

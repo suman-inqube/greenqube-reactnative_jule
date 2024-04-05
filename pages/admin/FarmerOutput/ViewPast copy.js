@@ -12,7 +12,7 @@ import MessageDialog from '../../Common/MessageDialog';
 
 
 const ViewPast = () => {
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");

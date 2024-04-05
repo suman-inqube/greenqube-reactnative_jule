@@ -941,18 +941,19 @@ export const numberDigitAPI = async (countryId, languageId) => {
     }
 
 }
-export const signupSaveAPI = async (inputData) => {
+export const signupSaveAPI = async (dbname, language, inputData, plotLength) => {
     const axiosHeaders = {
         headers: {
-            'information': `greenqube_farm_sme_demo_1,1`,
+            'information': `${dbname},${language}`,
             'Content-Type': 'multipart/form-data',
+            'plot_count': plotLength
         },
     };
     try {
-        let response = await axios.post(`${config.BASE_URL}farmerRoute/selfFarmerLongRegistration`, inputData, axiosHeaders);
+        let response = await axios.post(`${config.BASE_URL}greenZownRoute/growerRegistration`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error.response);
         console.log(error)
         return error.response;
     }
@@ -1615,8 +1616,6 @@ export const addUserLandAPI = async (dbname, lan_id, user_id, token, farmeruserI
             'plot_count': plotLength
         },
     }
-    console.log(axiosHeaders)
-    console.log(JSON.stringify(formData))
     try {
         let response = await axios.post(`${config.BASE_URL}greenZownRoute/addUserLand`, formData, axiosHeaders);
         return response;

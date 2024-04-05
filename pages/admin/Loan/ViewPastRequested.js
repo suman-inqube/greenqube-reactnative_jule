@@ -32,7 +32,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         token: '',
         userID: ''
     });
-    const [farmerData, setfarmerData] = useState();
+    const [farmerData, setfarmerData] = useState([]);
     const [loanList, setLoanList] = useState([]);
     const [loanListRaw, setLoanListRaw] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');

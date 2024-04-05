@@ -39,7 +39,7 @@ const ViewPastRequested = () => {
         token: '',
         userID: ''
     });
-    const [farmerData, setfarmerData] = useState();
+    const [farmerData, setfarmerData] = useState([]);
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);

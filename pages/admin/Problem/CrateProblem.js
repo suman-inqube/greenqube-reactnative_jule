@@ -36,7 +36,7 @@ const CreateProblem = ({ navigation }) => {
     const isFocused = useIsFocused();
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
     const [searchResultsList, setSearchResultsList] = useState(false);
@@ -576,6 +576,7 @@ const CreateProblem = ({ navigation }) => {
             formData.append("severity_id", saveData.severity_id);
             if (netConnection) {
                 const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
+                console.log(database_res.data)
                 if (database_res.status === 200) {
                     // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
                     Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
