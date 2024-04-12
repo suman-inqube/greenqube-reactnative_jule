@@ -45,23 +45,23 @@ const Login = ({ route }) => {
         Keyboard.dismiss();
         if (!storeLoginUser.phone) {
             Toast.show({
-                time: 3, text: 'Please enter a phone number. ', ...AlertMesg[0]
+                time: 3, text: `${t('forgotpassword_mb')}`, ...AlertMesg[0]
             })
             return false;
         }
         if (storeLoginUser.phone.length < 9) {
-            Toast.show({ time: 3, text: 'Please enter a valid phone number. ', ...AlertMesg[0] })
+            Toast.show({ time: 3, text: `${t('please_enter_valid_mobile_no')}`, ...AlertMesg[0] })
             return false;
         }
         if (!storeLoginUser.password) {
             Toast.show({
-                time: 3, text: 'Please enter a password. ', ...AlertMesg[0]
+                time: 3, text: `${t('enter_pass')}`, ...AlertMesg[0]
             })
             return false;
         }
         if (!storeLoginUser.role) {
             Toast.show({
-                time: 3, text: 'Please select a role.', ...AlertMesg[0]
+                time: 3, text: `${t('please_select_role_first')}`, ...AlertMesg[0]
             })
             return false;
         }

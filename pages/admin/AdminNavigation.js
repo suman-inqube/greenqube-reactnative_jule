@@ -51,52 +51,8 @@ import PlotSiteProduceInformation from './UserRegistation/PlotSiteProduceInforma
 import RegistationSignUpViwer from './UserRegistation/RegistationSignUpViwer';
 import ChangePassword from './ChangePassword/ChangePassword';
 import Business from './Business/Business';
-
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
-
-    // let fpoDetailsList = async (dbName, languageID, token, userID, compCode) => {
-    //     let response = await fpodetailsDataListAPI(dbName, languageID, token, userID, compCode);
-
-    //     if (response.data) {
-    //         const agri_files = response.data.data[0].agri_files;
-
-
-    //         const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
-    //         // console.log(foundbotomBannerFind);
-    //         await setItem("bottomBannerData", foundbotomBannerFind.file_path)
-
-
-    //         const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
-    //         await setItem("logoImageData", foundlogoFindFind.file_path)
-
-
-    //         const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
-    //         await setItem("topBannerData", foundtopBannerFind.file_path)
-    //     }
-
-    // }
-
-
-    // const onPageLoad = async () => {
-
-    //     const loginUser_data = await getItem('loginUser_data');
-    //     if (loginUser_data) {
-    //         // console.log(loginUser_data);
-    //         const dbName = loginUser_data.dbname;
-    //         const languageID = loginUser_data.lan_id;
-    //         const token = loginUser_data.token;
-    //         const userID = loginUser_data.user_id;
-    //         const compCode = loginUser_data.sa_company[0].company_code;
-    //         fpoDetailsList(dbName, languageID, token, userID, compCode);
-    //         await setItem("userNameData", loginUser_data.userName)
-    //         const profileImg = loginUser_data.agri_files.find((item) => item.term_type === '1');
-    //         await setItem("profileImgData", profileImg.file_path)
-    //     }
-    // };
-    // useEffect(() => {
-    //     onPageLoad();
-    // }, []);
     return (
         <Drawer.Navigator
             drawerContent={props => <CustomDrawer />}
@@ -184,7 +140,9 @@ const AdminNavigation = () => {
 
             <Drawer.Screen name="ChangePassword" component={ChangePassword} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="Business" component={Business} options={{ unmountOnBlur: true, gestureEnabled: false }} />
-        </Drawer.Navigator >
+
+
+        </Drawer.Navigator>
     )
 }
 

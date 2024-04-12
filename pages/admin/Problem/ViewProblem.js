@@ -78,41 +78,38 @@ const ViewProblem = ({ navigation }) => {
             getItem('loginUser_data')
         ]);
         if (problemData) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            // if (netConnection) {
-            if (route.params != undefined) {
-                const { comment_qid, type } = route.params;
-                if (type == "comment") {
-                    setBtnColor(2)
+            const { dbname, lan_id, token, user_id } = loginUser_data;
+            if (netConnection) {
+                if (route.params != undefined) {
+                    const { comment_qid, type } = route.params;
+                    if (type == "comment") {
+                        setBtnColor(2)
+                    } else {
+                        setBtnColor(1)
+                    }
+                    var response = await farmerProblemDetailApi(dbname, lan_id, comment_qid);
                 } else {
-                    setBtnColor(1)
+                    var response = await farmerProblemDetailApi(dbname, lan_id, problemIdData);
                 }
-                var response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
             } else {
-                var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
-            }
-            // } else {
 
-            // }
+            }
             if (response.status === 200) {
                 const { agri_user, agent_details, question_id, agri_files } = response.data.data[0];
                 setFarmerProblem(response.data.data[0]);
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
-                    dbName: dbName,
-                    languageId: languageId,
+                    dbName: dbname,
+                    languageId: lan_id,
                     token: token,
-                    supervisorId: supervisorId,
+                    supervisorId: user_id,
                     question_id: question_id,
                     question_user_fcm: agri_user.FcmUserToken,
                     question_user_agent_fcm: agent_details.FcmUserToken
                 });
                 const [commnetList, answerList] = await Promise.all([
-                    problemCommentListAPI(dbName, supervisorId, question_id),
-                    problemAnswerListAPI(dbName, languageId, token, question_id)
+                    problemCommentListAPI(dbname, user_id, question_id),
+                    problemAnswerListAPI(dbname, lan_id, token, question_id)
                 ])
                 if (commnetList.data) {
                     setcommentAll(commnetList.data.data.rows);

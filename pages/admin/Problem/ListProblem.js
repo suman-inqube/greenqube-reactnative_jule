@@ -235,7 +235,7 @@ const ListProblem = ({ navigation }) => {
                 setItem("problem_Data", response.data.data)
                 setIsLoading(false)
             }
-            if (farmerByName) {
+            if (farmerByName.status == 200) {
                 const dataArray = [];
                 farmerByName.data.data.rows.forEach(element => {
                     dataArray.push({

@@ -36,7 +36,7 @@ const CrateProblemUser = ({ navigation }) => {
         farmer_type, farmeruserID, userName } = route.params;
     const scrollOffsetY = useRef(new Animated.Value(0)).current;
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
     const [searchResultsList, setSearchResultsList] = useState(false);

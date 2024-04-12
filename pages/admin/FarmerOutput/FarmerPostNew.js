@@ -27,7 +27,7 @@ const FarmerPostNew = (props) => {
     const { t } = useTranslation();
     const navigation = useNavigation();
     const [searchResultsList, setSearchResultsList] = useState(false);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
     const [dbLanTokUsr, setdbLanTokUsr] = useState({

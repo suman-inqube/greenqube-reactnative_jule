@@ -29,7 +29,7 @@ const PostNew = (props) => {
         },
     ];
     const [searchResultsList, setSearchResultsList] = useState(false);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
     const [dbLanTokUsr, setdbLanTokUsr] = useState({

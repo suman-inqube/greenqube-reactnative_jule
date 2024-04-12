@@ -315,8 +315,8 @@ export const productionSeasonAndLivelyhoodTypeListAPI = async (dbName) => {
         let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=&crop_name_id=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
-        return console.log("error in productionSeasonAndLivelyhoodTypeListAPI " + error.response);
+        // CrashlyticsRecordError(error.response);
+        return error.response;
     }
 }
 export const produceAgainstPlotAPI = async (dbName, languageID, farmerID, relID) => {
@@ -346,7 +346,7 @@ export const productionStageAPI = async (dbName, languageID, cropTypeId, cropNam
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in productionStageAPI " + error.response);
+        return + error.response;
     }
 }
 export const setCycleDateAPI = async (dbName, language, userId, token, cuRelID, save_data) => {
@@ -424,7 +424,7 @@ export const problemListAPI = async (dbName, languageID, userID, pageNo, user_id
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in Problem api" + error.response);
+        return error.response;
     }
 }
 
@@ -506,7 +506,7 @@ export const problemSeverityAPI = async (dbName, languageID) => {
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in problemSeverityAPI " + error.response);
+        return error.response;
     }
 }
 
@@ -1507,3 +1507,123 @@ export const SupervisoroutputEnquiryViewAPI = async (dbName, languageId, token, 
         return error.response;
     }
 }
+export const calculatorRouteViewesultAPI = async (dbName, lan_id, crop_type, crop_name, growth_stage_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}calculatorRoute/NpkCalculator/1/0/1?crop_type=${crop_type}&crop_name=${crop_name}&growth_stage_id=${growth_stage_id}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const calculatorPestisideResultAPI = async (dbName, lan_id, crop_type_id, crop_name_id, crop_variety_id, growth_stage_id, problem_type_id, problem_name_id, production_system, severity_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}solutionRoute/list/1/0/1?search_key=&crop_season_id=&crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}&crop_variety_id=${crop_variety_id}&growth_stage_id=${growth_stage_id}&problem_type_id=${problem_type_id}&problem_name_id=${problem_name_id}&category_id=&production_system=${production_system}&severity_id=${severity_id}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const ProblemTypeAPI = async (dbName, lan_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}problemRoute/getProblemDropdown`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const ProblemNameAPI = async (dbName, lan_id, problem_type_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}problemRoute/getProblemDropdown?problem_type_id=${problem_type_id}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const PackageOfPracticesList = async (dbName, lan_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const POPDetails = async (dbName, lan_id, productID) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}popRoute/popdetailsbycropid/${productID}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const POPStaticMenuList = async (dbName, lan_id, productID) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}popRoute/staticmenulist/1/0/1?&search_key=&menu_type=sm`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/acd9b7b3-3c15-49f3-b56c-acd8918b3639?crop_type_id=&crop_id=9499e90d-497b-47e3-bff8-657737a2fe26&static_submenu_id=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+// 
+
+
+
+
+

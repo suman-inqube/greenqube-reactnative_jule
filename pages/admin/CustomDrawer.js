@@ -67,7 +67,8 @@ const CustomDrawer = (props) => {
                             <Image source={require('../Common/images/dash_sale_your_product_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('daily_sales_report')}</Text>
-                        </View></TouchableOpacity>
+                        </View>
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('TraingList')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/soil.png')}

@@ -41,7 +41,12 @@ import FarmerFarmIncomeExpenseView from './FarmerFarmIncomeExpense/FarmerFarmInc
 import FarmerAddIncome from './FarmerFarmIncomeExpense/FarmerAddIncome';
 import FarmerAddExpense from './FarmerFarmIncomeExpense/FarmerAddExpense';
 import Weather from './Weather/Weather';
-
+import Calculator from './Calculator';
+import PackageOfPractices from './PackageOfPractices';
+import PackageOfPracticesDetails from './PackageOfPractices/PackageOfPracticesDetails';
+import PackageItemDetails from './PackageOfPractices/PackageItemDetails';
+import SoilHealthManagement from './SoilHealth';
+import PostRequest from './SoilHealth/PostRequest';
 const Drawer = createDrawerNavigator();
 const FarmerNavigation = () => {
     return (
@@ -117,9 +122,15 @@ const FarmerNavigation = () => {
 
             <Drawer.Screen name="FarmerChangePassword" component={FarmerChangePassword} options={{ unmountOnBlur: true }} />
             <Drawer.Screen name="Weather" component={Weather} options={{ unmountOnBlur: true }} />
+            <Drawer.Screen name="Calculator" component={Calculator} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="PackageOfPractices" component={PackageOfPractices} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="PackageOfPracticesDetails" component={PackageOfPracticesDetails} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="PackageItemDetails" component={PackageItemDetails} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="SoilHealthManagement" component={SoilHealthManagement} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="PostRequest" component={PostRequest} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
 
-        </Drawer.Navigator >
+        </Drawer.Navigator>
     )
 }
 

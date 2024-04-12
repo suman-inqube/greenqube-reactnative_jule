@@ -36,14 +36,14 @@ const SplashScreenModal = (props) => {
             animationType="slide"
             transparent={true}
             visible={props.modalVisible}
-            // onRequestClose={() => {
-            //     props.setModalVisible(!props.modalVisible);
-            // }}
+        // onRequestClose={() => {
+        //     props.setModalVisible(!props.modalVisible);
+        // }}
         >
             <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} >
                 <View style={styles.modalView}>
                     <View style={{ marginHorizontal: 20, marginBottom: -20 }}>
-                        < Text style={{ fontSize: 20, color: 'black', marginTop: 25, textAlign: 'center', fontFamily: "Poppins-SemiBold" }}>Company</Text>
+                        <Text style={{ fontSize: 20, color: 'black', marginTop: 25, textAlign: 'center', fontFamily: "Poppins-SemiBold" }}>Company</Text>
                         <InputTextForm label="" onChangeText={(item) => searchDBName(item)} />
                     </View>
                     <View style={styles.modelTitleContainer}>
@@ -53,7 +53,7 @@ const SplashScreenModal = (props) => {
                             style={isKeyboardVisible ? props.companyData.length > 4 ? styles.flatContainerLengthUp : "" : data.length == 0 ? styles.flatContainer : ""}
                             renderItem={({ item }) => {
                                 return (
-                                    <TouchableOpacity style={styles.wrapper} onPress={() => {props.setModalVisible(false);handleDBName(item.db_name, item.company_id)}}>
+                                    <TouchableOpacity style={styles.wrapper} onPress={() => { props.setModalVisible(false); handleDBName(item.db_name, item.company_id) }}>
                                         <View style={styles.item}>
                                             <Text style={styles.itemText}>{item.agri_company && item.agri_company.company_name}</Text>
                                         </View>

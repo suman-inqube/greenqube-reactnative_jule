@@ -229,7 +229,7 @@ const UserList = ({ navigation }) => {
                     <View style={styles.header}>
                         <View style={{ alignItems: 'center' }}>
                             <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
-                            <Text style={styles.title}>{userList.count} {t('farmers')}</Text>
+                            <Text style={styles.title}>{userList && userList.count} {t('farmers')}</Text>
                         </View>
                         <Text style={[styles.title, { fontWeight: '700', fontSize: 17 }]}>{t('farmer_list')}</Text>
                     </View>
@@ -258,7 +258,7 @@ const UserList = ({ navigation }) => {
                                         initialNumToRender={7}
                                         showsVerticalScrollIndicator={false}
                                         data={userList.rows}
-                                        style={userList.count != 0 ? typeof userList.rows == "object" ? { marginBottom: 188, paddingTop: 10 } : "" : ""}
+                                        style={userList && userList.count != 0 ? typeof userList.rows == "object" ? { marginBottom: 188, paddingTop: 10 } : "" : ""}
                                         keyExtractor={(item) => item.user_id}
                                         renderItem={({ item, index }) => {
                                             return (
@@ -284,14 +284,14 @@ const UserList = ({ navigation }) => {
                         }
                     </View>
                     <View style={styles.prevNextPage}>
-                        {userList.count != 0 ?
+                        {userList && userList.count != 0 ?
                             <TouchableOpacity
                                 onPress={() => handlePage('previous')}
                             >
                                 <Text style={styles.title}>{t('prev_page')}</Text>
                             </TouchableOpacity> : null}
 
-                        {userList.count != 0 ? <TouchableOpacity
+                        {userList && userList.count != 0 ? <TouchableOpacity
                             onPress={() => handlePage('next')}
                         >
                             <Text style={styles.title}>{t('next_page')}</Text>

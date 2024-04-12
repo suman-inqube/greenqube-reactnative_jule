@@ -30,7 +30,7 @@ const FarmerAddExpense = ({ navigation }) => {
         userId: ""
     });
     const [searchResults, setSearchResults] = useState([]);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [plotAll, setplotAll] = useState([]);
     const [showingMenu, setShowingMenu] = useState(false);
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({

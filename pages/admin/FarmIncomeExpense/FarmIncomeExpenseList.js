@@ -24,7 +24,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
     const [farmAccount, setFarmAccount] = useState([]);
     const [farmAccountRaw, setFarmAccountRaw] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');

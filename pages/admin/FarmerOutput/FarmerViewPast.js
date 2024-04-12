@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 const FarmerViewPast = () => {
     const route = useRoute();
     const { t } = useTranslation();
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");

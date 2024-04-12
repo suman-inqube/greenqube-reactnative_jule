@@ -36,7 +36,7 @@ const CreateProblem = ({ navigation }) => {
     const isFocused = useIsFocused();
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
     const [searchResultsList, setSearchResultsList] = useState(false);
@@ -425,7 +425,7 @@ const CreateProblem = ({ navigation }) => {
                     setItem('supervisorProblemTypeName', problemName_res),
                     setItem('response' + user_id, response),
                     setItem('severity_res', severity_res)
-                ])
+                ]);
             } else {
                 var [problemName_res, response, severity_res] = await Promise.all([
                     getItem('supervisorProblemTypeName'),

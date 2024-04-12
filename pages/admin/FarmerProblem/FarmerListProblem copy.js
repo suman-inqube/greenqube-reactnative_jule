@@ -17,7 +17,7 @@ const FarmerListProblem = ({ navigation }) => {
     const isFocused = useIsFocused();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState();
+    const [farmerData, setFarmerData] = useState([]);
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         pageNo: 1
     });
