@@ -186,7 +186,7 @@ const ViewProblem = ({ navigation }) => {
         if (isFocused) {
             onPageLoad();
         }
-    }, [route.params, isFocused]);
+    }, [route.params, isFocused, netConnection]);
     useFocusEffect(
         useCallback(() => {
             // console.error("aaa")

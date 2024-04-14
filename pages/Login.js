@@ -16,12 +16,12 @@ import { AlertMesg } from './Common/ToastAlert';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
-import NotificationServices from './PushNotification/NotificationServices';
+// import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
 const Login = ({ route }) => {
     const { netConnection } = DeviceInfo();
     // const { fusedLocationData } = ForegroundLocationService();
-    const { requestUserPermission, notificationListener } = NotificationServices();
+    // const { requestUserPermission, notificationListener } = NotificationServices();
     const [isLoading, setIsLoading] = useState(false);
     const isFocused = useIsFocused();
     const navigation = useNavigation();
@@ -167,8 +167,8 @@ const Login = ({ route }) => {
             removeItem('storePersnolInfo_data'),
             removeItem('storeFinancial_data'),
             removeItem('storeProduceInfo_data'),
-            requestUserPermission(),
-            notificationListener(),
+            // requestUserPermission(),
+            // notificationListener(),
             Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
         ]);
         if (companyLanguage_data != "" && companyLanguage_data != null) {

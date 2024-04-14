@@ -33,7 +33,7 @@ import './ignoreWarnings';
 import { Provider } from 'react-redux';
 import { PermissionsAndroid, Platform } from 'react-native';
 import store from './pages/redux/store';
-import messaging from '@react-native-firebase/messaging';
+// import messaging from '@react-native-firebase/messaging';
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
 import { Alert } from 'react-native';

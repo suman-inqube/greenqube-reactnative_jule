@@ -63,12 +63,14 @@ const FarmerPostNew = (props) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
     const handleResultSelect = async (name, currentfarmerId, phone) => {

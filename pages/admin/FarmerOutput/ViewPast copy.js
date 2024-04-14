@@ -95,13 +95,14 @@ const ViewPast = () => {
     };
 
     const handleSearch = (text) => {
-
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            // console.log(result);
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                // console.log(result);
+                setSearchResults(result);
+            }
         }
     };
 

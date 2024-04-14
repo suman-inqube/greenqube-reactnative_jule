@@ -8,9 +8,10 @@ import { getItem, removeItem, setItem } from './config/getDataFromStorage';
 import SplashScreenModal from './SplashScreenModal';
 import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 import { HeaderBackButton } from 'react-navigation';
-import NotificationServices from './pages/PushNotification/NotificationServices';
+import i18next from 'i18next';
+// import NotificationServices from './pages/PushNotification/NotificationServices';
 const SplashScreen = ({ navigation }) => {
-    const { requestUserPermission, notificationListener } = NotificationServices();
+    // const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
     const [companyData, setCompanyData] = useState([]);
     const [companyDataRaw, setCompanyDataRaw] = useState([]);
@@ -87,16 +88,19 @@ const SplashScreen = ({ navigation }) => {
         const [companyLanguage_data, loginUser_data] = await Promise.all([
             getItem('companyLanguage_data'),
             getItem('loginUser_data'),
-            requestUserPermission(),
-            notificationListener(),
+            // requestUserPermission(),
+            // notificationListener(),
         ])
         if (loginUser_data) {
-            const userType = await getItem("userType");
-            if (userType === 3) {
-                navigation.navigate('AdminNavigation');
-            } else if (userType === 2) {
-                navigation.navigate('FarmerNavigation');
-            }
+            i18next.changeLanguage(`${loginUser_data.lan_id}`);
+            setTimeout(async () => {
+                const userType = await getItem("userType");
+                if (userType === 3) {
+                    navigation.navigate('AdminNavigation');
+                } else if (userType === 2) {
+                    navigation.navigate('FarmerNavigation');
+                }
+            }, 2000);
         } else {
             if (companyLanguage_data) {
                 navigation.replace('Login');

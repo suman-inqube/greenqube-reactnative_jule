@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { getItem, setItem } from '../../config/getDataFromStorage';
 import { Platform } from 'react-native';
-import ForegroundHandler from './ForegroundHandler';
+// import ForegroundHandler from './ForegroundHandler';
 const notificationServices = () => {
   const navigation = useNavigation();
   const requestUserPermission = async () => {
@@ -38,7 +38,7 @@ const notificationServices = () => {
     const userType = await getItem('userType');
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', remoteMessage);
-      <ForegroundHandler />
+      // <ForegroundHandler />
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log(

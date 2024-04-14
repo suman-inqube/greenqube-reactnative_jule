@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
         zIndex: 111
     },
     title: {
-        color: '#333',
+        color: '#000',
         fontFamily: 'Poppins-Regular',
         textAlign: 'center'
     },
