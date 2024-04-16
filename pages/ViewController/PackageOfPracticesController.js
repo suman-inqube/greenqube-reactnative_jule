@@ -166,17 +166,23 @@ const PackageOfPracticesController = () => {
         if (popRes.status == 200) {
             if (popRes.data.data.length > 0) {
                 popRes.data.data.map((data, index) => {
-                    console.log(data)
                     if (data.static_menu_id != null && data.static_submenu_id != null && data.sf_static_menu.menu_type == "csm") {
                         POPDetailsListArr.push(data);
                     }
                 });
             }
         }
-        navigation.navigate('PackageOfPracticesDetails', { POPDetailsListArr: POPDetailsListArr, thumbnails: item, popResAll: popRes.data.data })
+        navigation.navigate('PackageOfPracticesDetails', { POPDetailsListArr: POPDetailsListArr, thumbnails: item, popResAll: popRes.data.data, crop_id: value })
     }
-    const onPressPackageItemDetails = async (staticMenuId, crop_id) => {
-        const StaticMenuListDetails = await POPStaticMenuListDetails(dbname, lan_id, staticMenuId, crop_id);
+    const onPressPackageItemDetails = async (crop_id, staticMenuId, menu_name) => {
+        const StaticMenuListDetails = await POPStaticMenuListDetails(dbname, lan_id, crop_id, staticMenuId);
+        if (StaticMenuListDetails.status == 200) {
+            const { package_of_practice_list } = StaticMenuListDetails.data.data[0];
+            if (package_of_practice_list.length > 0) {
+                navigation.navigate('PackageItemDetails', { package_of_practice_list: package_of_practice_list[0].content, menu_name: menu_name })
+            }
+        }
+        // console.log(StaticMenuListDetails.data.data)
         // navigation.navigate('PackageItemDetails', { content: item, title: title, paramsData: paramsData })
     }
     return {

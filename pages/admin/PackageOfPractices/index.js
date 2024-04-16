@@ -55,9 +55,9 @@ const PackageOfPractices = () => {
                                         source={{ uri: item.agri_files[0].file_path }}
                                     /> :
                                     <Image source={require('../../Common/images/apple.png')}
-                                        style={styles.FlatListItemImg} />
+                                        style={[styles.FlatListItemImg, { width: 100, height: 100 }]} />
                             }
-                            <Text style={[styles.title, { color: '#000' }]}>{item.label}</Text>
+                            <Text style={[styles.title, { fontFamily: 'Poppins-Regular', color: '#000', position: 'absolute', color: '#000', fontSize: 16 }]}>{item.label}</Text>
                         </TouchableOpacity>
                     )
                 }}
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         // margin: 1,
-        padding: 20,
+        // padding: 20,
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         borderRadius: 10,
@@ -100,12 +100,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         height: 100,
-        margin: 5
+        margin: 5,
+        overflow: 'hidden'
     },
     FlatListItemImg: {
-        width: 60,
-        height: 60,
-        resizeMode: "contain",
+        width: '100%',
+        height: '100%',
+        // resizeMode: "contain",
     },
     loadingScreen: {
         position: 'absolute',

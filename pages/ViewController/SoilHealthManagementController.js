@@ -1,7 +1,8 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 const SoilHealthManagementController = () => {
+    const [activeBtn, setActiveBtn] = useState(1);
     const navigation = useNavigation();
     const onPageLoad = async () => {
 
@@ -13,7 +14,9 @@ const SoilHealthManagementController = () => {
         navigation.navigate(item);
     }
     return {
-        navigateToPages
+        navigateToPages,
+        activeBtn,
+        setActiveBtn
     }
 }
 

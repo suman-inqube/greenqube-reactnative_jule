@@ -1606,20 +1606,36 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
     }
 }
 
-export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
+export const POPStaticMenuListDetails = async (dbName, lan_id, crop_id, staticMenuId) => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${lan_id}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/acd9b7b3-3c15-49f3-b56c-acd8918b3639?crop_type_id=&crop_id=9499e90d-497b-47e3-bff8-657737a2fe26&static_submenu_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);
         return error.response;
     }
 }
+
+export const SoilTestLab = async (dbName, lan_id, user_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/0/0/2/${user_id}?search_date=&search_key=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
 
 // 
 

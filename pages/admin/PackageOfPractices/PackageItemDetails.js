@@ -5,33 +5,48 @@ import RenderHtml from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
 import CustomHeader from '../CustomHeader';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
+import { WebView } from 'react-native-webview';
 const PackageItemDetails = () => {
     const { width } = useWindowDimensions();
-    const { content, title, paramsData } = useRoute().params;
+    const { package_of_practice_list, menu_name } = useRoute().params;
     const tagsStyles = {
         body: { whiteSpace: 'normal', color: '#000', backgroundColor: '#FFF' },
         a: { color: 'green' },
         p: { fontSize: 15 },
-        strong: { fontSize: 20 }
+        strong: { fontSize: 20 },
+        table: {
+            border: "1px solid black"
+        }, th: {
+            border: "1px solid black"
+        }, td: {
+            border: "1px solid black"
+        },
+        table: {
+            width: "100%",
+        }
     };
     const { HandlerGoBack } = PackageOfPracticesController();
     // useEffect(() => {
     //     setPOPDetailsList(paramsData);
     // }, []);
+    const defaultTextProps = {
+        selectable: true
+    };
     return (
         <View style={styles.container}>
-            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails", paramsData)} />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails")} />
             <View style={styles.titleContainer}>
-                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.title}>{menu_name}</Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{ backgroundColor: '#FFF', paddingHorizontal: '3%' }}>
+                <View style={{ backgroundColor: '#FFF', paddingHorizontal: '3%', flex: 1 }}>
                     <RenderHtml
                         contentWidth={width}
                         source={{
-                            html: content,
+                            html: package_of_practice_list,
                         }}
                         tagsStyles={tagsStyles}
+                        defaultTextProps={defaultTextProps}
                     />
                 </View>
             </ScrollView>
@@ -44,6 +59,8 @@ export default PackageItemDetails
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        // height: 100,
+        // backgroundColor: 'blue'
     },
     titleContainer: {
         backgroundColor: '#195D06',

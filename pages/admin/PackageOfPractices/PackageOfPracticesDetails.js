@@ -15,7 +15,7 @@ const PackageOfPracticesDetails = () => {
         setPOPDetailsList,
         onPressPackageItemDetails, modalVisible,
         setModalVisible } = PackageOfPracticesController();
-    const { POPDetailsListArr, thumbnails, popResAll } = useRoute().params;
+    const { POPDetailsListArr, thumbnails, popResAll, crop_id } = useRoute().params;
     const scrollOffsetY = useRef(new Animated.Value(0)).current;
     const DynamicHeader = ({ value }) => {
         const animatedHeaderHeight = value.interpolate({
@@ -77,9 +77,9 @@ const PackageOfPracticesDetails = () => {
                 }
                 {
                     POPDetailsListArr.map((data, index) => {
-                        const { menu_name, agri_files, sf_st_menu_id } = data;
+                        const { menu_name, agri_files, sf_st_menu_id, fid } = data;
                         return (
-                            <TouchableOpacity key={index} style={styles.listItem} onPress={() => onPressPackageItemDetails(menu_name)}>
+                            <TouchableOpacity key={index} style={styles.listItem} onPress={() => onPressPackageItemDetails(crop_id, fid, menu_name)}>
                                 {agri_files[0] ? <Image
                                     style={{ width: 50, height: 50 }}
                                     source={{ uri: agri_files[0]?.file_path }}
