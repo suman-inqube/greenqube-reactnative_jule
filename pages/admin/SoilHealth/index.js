@@ -6,10 +6,10 @@ import { useTranslation } from 'react-i18next';
 import SoilHealthManagementController from '../../ViewController/SoilHealthManagementController';
 const SoilHealthManagement = () => {
     const { t } = useTranslation()
-    const { navigateToPages } = SoilHealthManagementController();
+    const { navigateToPages, HandlerGoBack } = SoilHealthManagementController('');
     return (
         <View style={styles.container}>
-            <CustomHeader />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack('FarmerDashboard')} />
             <FormsTitle title={t("soil_health_management")} />
             <View style={styles.containerItem}>
                 <TouchableOpacity style={styles.itemList} onPress={() => navigateToPages("PostRequest")}>

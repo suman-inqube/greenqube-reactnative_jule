@@ -1621,14 +1621,14 @@ export const POPStaticMenuListDetails = async (dbName, lan_id, crop_id, staticMe
     }
 }
 
-export const SoilTestLab = async (dbName, lan_id, user_id) => {
+export const SampleRequestList = async (dbName, lan_id, user_id, search_date, search_key) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName},${lan_id}`,
+            'information': `${dbName}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/0/0/2/${user_id}?search_date=&search_key=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/0/0/2/${user_id}?search_date=${search_date}&search_key=${search_key}`, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);
@@ -1636,8 +1636,49 @@ export const SoilTestLab = async (dbName, lan_id, user_id) => {
     }
 }
 
+export const SampleReport = async (dbName, lan_id, user_id, search_date, search_key) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/1/0/2/${user_id}?search_date=${search_date}&search_key=${search_key}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const soilTestLab = async (dbName, lan_id, user_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/list/1/0/1?district_id=&search_key=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const soilTestLabPostRequest = async (dbName, user_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${user_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTest`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
 
-// 
 
 
 

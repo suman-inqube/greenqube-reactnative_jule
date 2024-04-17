@@ -11,29 +11,64 @@ const MySoil = () => {
     const { t } = useTranslation();
     const {
         activeBtn,
-        setActiveBtn
-    } = SoilHealthManagementController();
+        setActiveBtn,
+        sampaleRequested,
+        newFromDate,
+        setOpenFromDate,
+        openFromDate,
+        onPressDateContainer,
+        handlecycleStart,
+        startDate,
+        onChangeByID,
+        onPressByID,
+        sampaleReportList,
+        onChangeActiveBtn,
+        isLoading,
+        HandlerGoBack
+    } = SoilHealthManagementController('sampale');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')} />
             <FormsTitle title={t('my_soil')} />
             <View style={styles.btnContainer}>
                 <View style={activeBtn === 1 ? styles.btnActive : styles.btn}>
-                    <TouchableOpacity onPress={() => setActiveBtn(1)}>
+                    <TouchableOpacity onPress={() => onChangeActiveBtn(1)}>
                         <Text style={activeBtn === 1 ? styles.btnActiveTitle : styles.btnTitle}>{t('sample_request')}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={activeBtn === 2 ? styles.btnActive : styles.btn}>
-                    <TouchableOpacity onPress={() => setActiveBtn(2)}>
+                    <TouchableOpacity onPress={() => onChangeActiveBtn(2)}>
                         <Text style={activeBtn === 2 ? styles.btnActiveTitle : styles.btnTitle}>{t('sample_report')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             {
                 activeBtn === 1 ?
-                    <SampleRequested />
+                    <SampleRequested
+                        data={sampaleRequested}
+                        newdate={newFromDate}
+                        opencycleStarts={openFromDate}
+                        onPressDateContainer={onPressDateContainer}
+                        setOpenFromDate={setOpenFromDate}
+                        handlecycleStart={handlecycleStart}
+                        selectedDate={startDate}
+                        onChangeByID={onChangeByID}
+                        onPressByID={onPressByID}
+                        isLoading={isLoading}
+                    />
                     :
-                    <SampleReport />
+                    <SampleReport
+                        data={sampaleReportList}
+                        newdate={newFromDate}
+                        opencycleStarts={openFromDate}
+                        onPressDateContainer={onPressDateContainer}
+                        setOpenFromDate={setOpenFromDate}
+                        handlecycleStart={handlecycleStart}
+                        selectedDate={startDate}
+                        onChangeByID={onChangeByID}
+                        onPressByID={onPressByID}
+                        isLoading={isLoading}
+                    />
             }
         </View>
     )
