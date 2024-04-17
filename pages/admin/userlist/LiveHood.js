@@ -1,4 +1,7 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, BackHandler, Keyboard, TouchableHighlight } from 'react-native'
+import {
+    StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
+    BackHandler, Keyboard, TouchableHighlight
+} from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import ButtonForm from '../../Common/ButtonForm'
 import InputTextForm from '../../Common/InputTextForm'
@@ -586,6 +589,7 @@ const LiveHood = ({ sendDataToParent }) => {
         }
     }
     const handleUserListUpdate = async () => {
+        Keyboard.dismiss();
         const locationArry = [];
         const latlongArr = [];
         location.map((data, index) => {

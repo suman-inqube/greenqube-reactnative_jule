@@ -1,4 +1,4 @@
-import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated } from 'react-native'
+import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
 import React, { useState, useEffect, useRef, useCallback } from 'react'
@@ -521,6 +521,7 @@ const CreateProblem = ({ navigation }) => {
         return true;
     }
     const handleSave = async () => {
+        Keyboard.dismiss();
         if (validateForm()) {
             let array = [];
             const formData = new FormData();

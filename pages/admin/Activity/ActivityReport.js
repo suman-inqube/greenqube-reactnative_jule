@@ -1,5 +1,6 @@
 import {
-    BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, FlatList, Dimensions, SafeAreaView
+    BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
+    FlatList, Dimensions, SafeAreaView, Keyboard
 } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
@@ -399,6 +400,7 @@ const ActivityReport = ({ navigation }) => {
         return true;
     }
     const handleSave = async () => {
+        Keyboard.dismiss();
         if (validateForm()) {
             const formData = new FormData();
             formData.append("act_title", "");
