@@ -44,9 +44,9 @@ const Signup = () => {
   const navigation = useNavigation();
   const language_id = 1;
   const [storeSignup, setstoreSignup] = useState({
-    country: '',
-    company: '',
-    supervisor: '',
+    country: '1',
+    company: '9',
+    supervisor: '9143f2e4-819a-463c-8f30-dbcff9b37323',
     phone: '',
     password: '',
     cpassword: '',
@@ -239,30 +239,31 @@ const Signup = () => {
   };
   const checkPhoneDigit = async () => {
     try {
-      if (netConnection) {
-        let check_phone_digit_res = await checkPhoneDigitAPI(
-          storeSignup.country.value,
-          storeSignup.company.dbname,
-          language_id,
-        );
-        if (check_phone_digit_res.data.data.contact_no_digits) {
-          let require_digit = check_phone_digit_res.data.data.contact_no_digits;
+      // if (netConnection) {
+      //   let check_phone_digit_res = await checkPhoneDigitAPI(
+      //     storeSignup.country.value,
+      //     // storeSignup.company.dbname,
+      //     'nasc_greenqube',
+      //     language_id,
+      //   );
+      //   if (check_phone_digit_res.data.data.contact_no_digits) {
+      //     let require_digit = check_phone_digit_res.data.data.contact_no_digits;
 
-          if (storeSignup.phone.length === require_digit) {
-            checkPhoneNo();
+          if (storeSignup.phone.length === 10) {
+            // checkPhoneNo();
           } else {
             // MessageDialog({ title: 'Phone', message: `Please Enter Valid Phone digit` })
             Toast.show({
               time: 3,
-              text: `Please Enter ${require_digit} digit phone no`,
+              text: `Please Enter 10 digit phone no`,
               ...AlertMesg[0],
             });
             Keyboard.dismiss();
             // phoneInputRef.current.focus();
             setstoreSignup({...storeSignup, phone: ''});
           }
-        }
-      }
+      //   }
+      // }
     } catch (error) {
       console.error('checkPhoneNo APi error code with :', error.response);
     }
@@ -271,7 +272,7 @@ const Signup = () => {
     try {
       const axiosConfig1 = {
         headers: {
-          information: `${storeSignup.company.dbname}`,
+          information: `nasc_greenqube`,
           Accept: 'application/json',
         },
       };
@@ -285,6 +286,7 @@ const Signup = () => {
         axiosConfig1,
       );
     } catch (error) {
+      console.log(error.response);
       CrashlyticsRecordError(error.response);
       MessageDialog({
         title: 'Phone',
@@ -295,7 +297,7 @@ const Signup = () => {
     }
   };
   const validateForm = () => {
-    if (!storeSignup.country.value) {
+    if (!storeSignup.country) {
       Toast.show({
         time: 3,
         text: `${t('select_country_first')}`,
@@ -303,11 +305,11 @@ const Signup = () => {
       });
       return false;
     }
-    if (!storeSignup.company.value) {
+    if (!storeSignup.company) {
       Toast.show({time: 3, text: `${t('pls_sel_com_first')}`, ...AlertMesg[0]});
       return false;
     }
-    if (!storeSignup.supervisor.value) {
+    if (!storeSignup.supervisor) {
       Toast.show({
         time: 3,
         text: `${t('select_agent_first')}`,
@@ -343,7 +345,7 @@ const Signup = () => {
     Keyboard.dismiss();
     if (validateForm()) {
       await setItem('storeSignup_data', storeSignup);
-      navigation.navigate('Persnol', {pagename: 'Financial'});
+      navigation.navigate('Persnol', {pagename: 'ProduceInfo'});
     }
   };
   const getDataFromLocalStorage = async () => {
@@ -380,12 +382,12 @@ const Signup = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={{alignItems: 'center'}}>
                 <Image
-                  source={require('../pages/Common/images/logo.png')}
+                  source={require('../pages/Common/images/greenqube_logo.png')}
                   style={styles.logo}
                 />
               </View>
               <View style={styles.formContainer}>
-                <DropdownForm
+                {/* <DropdownForm
                   data={countryData}
                   label={t('country')}
                   color="red"
@@ -411,7 +413,7 @@ const Signup = () => {
                     setstoreSignup({...storeSignup, supervisor: supervisor});
                   }}
                   val={storeSignup.supervisor.label}
-                />
+                /> */}
                 <InputTextForm
                   label={t('farmer_reg_mb')}
                   color="red"
@@ -422,6 +424,7 @@ const Signup = () => {
                   keyboardType="numeric"
                   onBlur={phone => checkPhone(phone)}
                   refname={phoneInputRef}
+                  maxLength={10}
                 />
                 <PasswordComp
                   setPasswordVisibility={setPasswordVisibility}
@@ -467,10 +470,11 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   formContainer: {
+    marginTop:10,
     marginBottom: 60,
     marginHorizontal: '2.5%',
     paddingHorizontal: '5%',
-    paddingTop: '6%',
+    paddingTop: '10%',
     paddingBottom: '4%',
     backgroundColor: '#E9FCC5',
     borderRadius: 20,

@@ -314,10 +314,11 @@ const FarmerListProblem = ({ navigation }) => {
         setFilterItem(''), setFilterOption(false);
         const loginUser_data = await getItem('loginUser_data');
         if (loginUser_data) {
+            console.log(loginUser_data);
             const dbName = loginUser_data.dbname;
             const languageId = loginUser_data.lan_id;
             const token = loginUser_data.token;
-            const supervisorId = loginUser_data.owner.user_id;
+            // const supervisorId = loginUser_data.owner.user_id;
             const farmerId = loginUser_data.user_id;
             setdbName(dbName);
             setlangID(languageId);
@@ -327,7 +328,7 @@ const FarmerListProblem = ({ navigation }) => {
                 dbName: dbName,
                 languageId: languageId,
                 token: token,
-                supervisorId: supervisorId,
+                // supervisorId: supervisorId,
                 farmerId: farmerId,
             });
             if (netConnection) {

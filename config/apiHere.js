@@ -77,6 +77,7 @@ export const supervisoryDataListAPI = async (company_id) => {
 }
 export const checkPhoneDigitAPI = async (countryId, dbName, languageId) => {
     const headers = headersWithCompanyDBlanID(dbName, languageId);
+    console.log(headers);
     let check_phone_digit_res = await axios.get(config.phoneDigitCheckAPI + countryId, { headers });
     return check_phone_digit_res;
 }
@@ -645,21 +646,49 @@ export const stateListAPI = async (dbName, languageId, token) => {
 }
 
 //input type
-export const inputListAPI = async (dbName, languageId, token, userId, category_id) => {
+// export const inputListAPI = async (dbName, languageId, token, userId, category_id) => {
+//     const axiosHeaders = {
+//         headers: {
+//             'information': `${dbName},${languageId},${userId}`,
+//             'authorization': `${token}`,
+//         },
+//     };
+//     try {
+//         let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`, axiosHeaders);
+//         return response;
+//     } catch (error) {
+//         CrashlyticsRecordError(error.response);
+//         return error.response;
+//     }
+// }
+export const inputListAPI = async (
+    dbName,
+    languageId,
+    token,
+    userId,
+    category_id,
+) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName},${languageId},${userId}`,
-            'authorization': `${token}`,
+            information: `${dbName},${languageId},${userId}`,
+            authorization: `${token}`,
         },
     };
+    console.log(
+        `${config.BASE_URL}adminRoute/listAggrSkuVariance/1/0/2?mcom_id=`,
+        axiosHeaders,
+    );
     try {
-        let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`, axiosHeaders);
+        let response = await axios.get(
+            `${config.BASE_URL}adminRoute/listAggrSkuVariance/1/0/2?mcom_id=`,
+            axiosHeaders,
+        );
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error.response);
         return error.response;
     }
-}
+};
 
 export const inputCategoryAPI = async (dbName, languageId, token, userId) => {
     const axiosHeaders = {
@@ -944,22 +973,26 @@ export const numberDigitAPI = async (countryId, languageId) => {
     }
 
 }
-export const signupSaveAPI = async (inputData) => {
+export const signupSaveAPI = async (inputData, languageId) => {
     const axiosHeaders = {
         headers: {
-            'information': `greenqube_farm_sme_demo_1,1`,
+            information: `nasc_greenqube,${languageId}`,
             'Content-Type': 'multipart/form-data',
         },
     };
     try {
-        let response = await axios.post(`${config.BASE_URL}farmerRoute/selfFarmerLongRegistration`, inputData, axiosHeaders);
+        let response = await axios.post(
+            `${config.BASE_URL}farmerRoute/selfFarmerLongRegistration`,
+            inputData,
+            axiosHeaders,
+        );
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        console.log(error)
+        console.log(error);
         return error.response;
     }
-}
+};
 
 export const InsuranceListAPI = async (dbName, languageId, token, user_id) => {
     const axiosHeaders = {
@@ -1563,6 +1596,66 @@ export const ProblemNameAPI = async (dbName, lan_id, problem_type_id) => {
         return error.response;
     }
 }
+// export const PackageOfPracticesList = async (dbName, lan_id) => {
+//     const axiosHeaders = {
+//         headers: {
+//             'information': `${dbName},${lan_id}`,
+//         },
+//     };
+//     try {
+//         let response = await axios.get(`${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`, axiosHeaders);
+//         return response;
+//     } catch (error) {
+//         // CrashlyticsRecordError(error.response);
+//         return error.response;
+//     }
+// }
+// export const POPDetails = async (dbName, lan_id, productID) => {
+//     const axiosHeaders = {
+//         headers: {
+//             'information': `${dbName},${lan_id}`,
+//         },
+//     };
+//     try {
+//         let response = await axios.get(`${config.BASE_URL}popRoute/popdetailsbycropid/${productID}`, axiosHeaders);
+//         return response;
+//     } catch (error) {
+//         // CrashlyticsRecordError(error.response);
+//         return error.response;
+//     }
+// }
+// export const POPStaticMenuList = async (dbName, lan_id, productID) => {
+//     const axiosHeaders = {
+//         headers: {
+//             'information': `${dbName},${lan_id}`,
+//         },
+//     };
+//     try {
+//         let response = await axios.get(`${config.BASE_URL}popRoute/staticmenulist/1/0/1?&search_key=&menu_type=sm`, axiosHeaders);
+//         return response;
+//     } catch (error) {
+//         // CrashlyticsRecordError(error.response);
+//         return error.response;
+//     }
+// }
+
+// export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
+//     const axiosHeaders = {
+//         headers: {
+//             'information': `${dbName},${lan_id}`,
+//         },
+//     };
+//     try {
+//         let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/acd9b7b3-3c15-49f3-b56c-acd8918b3639?crop_type_id=&crop_id=9499e90d-497b-47e3-bff8-657737a2fe26&static_submenu_id=`, axiosHeaders);
+//         return response;
+//     } catch (error) {
+//         // CrashlyticsRecordError(error.response);
+//         return error.response;
+//     }
+// }
+
+// 
+
 export const PackageOfPracticesList = async (dbName, lan_id) => {
     const axiosHeaders = {
         headers: {
@@ -1606,22 +1699,20 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
     }
 }
 
-export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
+export const POPStaticMenuListDetails = async (dbName, lan_id, crop_id, staticMenuId) => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${lan_id}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/acd9b7b3-3c15-49f3-b56c-acd8918b3639?crop_type_id=&crop_id=9499e90d-497b-47e3-bff8-657737a2fe26&static_submenu_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);
         return error.response;
     }
 }
-
-// 
 
 
 

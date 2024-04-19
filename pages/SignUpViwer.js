@@ -22,6 +22,7 @@ const SignUpViwer = () => {
     const [isstoreFinancial, setisstoreFinancial] = useState(false);
     const [isstoreProduceInfo, setisstoreProduceInfo] = useState(false);
     const [storeData, setstoreData] = useState([]);
+    const [lanId, setlanId] = useState('');
 
     const [storeSignup, setstoreSignup] = useState({});
     const [storePersnolInfo, setstorePersnolInfo] = useState({});
@@ -55,24 +56,25 @@ const SignUpViwer = () => {
 
         const userType = storePersnolInfo_data.userType === 'large Grower' ? "1" : storePersnolInfo_data.userType === 'mall holder' ? "2" : "3"
         const lan_id = storePersnolInfo_data.language.value.toString();
+        setlanId(lan_id);
         const phone = storeSignup_data.phone.toString();
         const farmer_details = {
-            "userName": storePersnolInfo_data.name,
-            "contactNumber": phone,
-            "lan_id": lan_id,
-            "gender": gender,
-            "farmer_type": userType,
-            "date_of_birth": dob,
-            "finance_agriculture_campagin": "No Loan",
-            "IMEINumber": "123456",
-            "FcmUserToken": "654321",
-            "password": storeSignup_data.password,
-            "createdBy": storeSignup_data.supervisor.value,
-        }
+          userName: storePersnolInfo_data.name,
+          contactNumber: phone,
+          lan_id: lan_id,
+          gender: gender,
+          farmer_type: userType,
+          date_of_birth: dob,
+          finance_agriculture_campagin: 'No Loan',
+          IMEINumber: '123456',
+          FcmUserToken: '654321',
+          password: storeSignup_data.password,
+          createdBy: '9143f2e4-819a-463c-8f30-dbcff9b37323',
+        };
 
         const agri_user_addresses = {
-            "country": storeSignup_data.country.value,
-            "company": storeSignup_data.company.value,
+            "country": '1',
+            "company": '9',
             "state": storePersnolInfo_data.stateInfo.value,
             "district": storePersnolInfo_data.district.value,
             "subdivision": storePersnolInfo_data.block.value,
@@ -84,17 +86,17 @@ const SignUpViwer = () => {
             "kcc_number": "12345"
         }
 
-        if (storeFinancial_data.adharCard) {
-            identity_details["aadhar_number"] = storeFinancial_data.adharCard;
-        }
+        // if (storeFinancial_data.adharCard) {
+        //     identity_details["aadhar_number"] = storeFinancial_data.adharCard;
+        // }
 
-        if (storeFinancial_data.panNo) {
-            identity_details["pan_number"] = storeFinancial_data.panNo;
-        }
+        // if (storeFinancial_data.panNo) {
+        //     identity_details["pan_number"] = storeFinancial_data.panNo;
+        // }
 
-        if (storeFinancial_data.adharCard) {
-            identity_details["voter_card_number"] = storeFinancial_data.adharCard;
-        }
+        // if (storeFinancial_data.adharCard) {
+        //     identity_details["voter_card_number"] = storeFinancial_data.adharCard;
+        // }
 
         // const bank_details = {
         //     "user_bank_account_holder": storeFinancial_data.accountHolderName,
@@ -117,64 +119,64 @@ const SignUpViwer = () => {
         //     "policy_no": storeFinancial_data.policyNumber,
         //     "sum_insured": storeFinancial_data.sumInsured,
         // }
-        const bank_details = {};
-        const pension_details = {};
-        const lic_details = {};
+        // const bank_details = {};
+        // const pension_details = {};
+        // const lic_details = {};
 
         // Check and conditionally add key-value pairs to bank_details
-        if (storeFinancial_data.accountHolderName) {
-            bank_details["user_bank_account_holder"] = storeFinancial_data.accountHolderName;
-        }
+        // if (storeFinancial_data.accountHolderName) {
+        //     bank_details["user_bank_account_holder"] = storeFinancial_data.accountHolderName;
+        // }
 
-        if (storeFinancial_data.bankAccountNo) {
-            bank_details["user_bank_account_number"] = storeFinancial_data.bankAccountNo;
-        }
+        // if (storeFinancial_data.bankAccountNo) {
+        //     bank_details["user_bank_account_number"] = storeFinancial_data.bankAccountNo;
+        // }
 
-        if (storeFinancial_data.bankName) {
-            bank_details["user_bank_account_name"] = storeFinancial_data.bankName;
-        }
+        // if (storeFinancial_data.bankName) {
+        //     bank_details["user_bank_account_name"] = storeFinancial_data.bankName;
+        // }
 
-        if (storeFinancial_data.branchName) {
-            bank_details["user_bank_branch_name"] = storeFinancial_data.branchName;
-        }
+        // if (storeFinancial_data.branchName) {
+        //     bank_details["user_bank_branch_name"] = storeFinancial_data.branchName;
+        // }
 
-        if (storeFinancial_data.ifscCode) {
-            bank_details["user_bank_ifsc_code"] = storeFinancial_data.ifscCode;
-        }
+        // if (storeFinancial_data.ifscCode) {
+        //     bank_details["user_bank_ifsc_code"] = storeFinancial_data.ifscCode;
+        // }
 
-        // Check and conditionally add key-value pairs to pension_details
-        if (storeFinancial_data.pensionProvidingAuthority) {
-            pension_details["pension_authority"] = storeFinancial_data.pensionProvidingAuthority;
-        }
+        // // Check and conditionally add key-value pairs to pension_details
+        // if (storeFinancial_data.pensionProvidingAuthority) {
+        //     pension_details["pension_authority"] = storeFinancial_data.pensionProvidingAuthority;
+        // }
 
-        if (storeFinancial_data.pensionAccountNo) {
-            pension_details["pension_account_no"] = storeFinancial_data.pensionAccountNo;
-        }
+        // if (storeFinancial_data.pensionAccountNo) {
+        //     pension_details["pension_account_no"] = storeFinancial_data.pensionAccountNo;
+        // }
 
-        if (storeFinancial_data.pensionEffectiveFrom) {
-            pension_details["effective_from"] = storeFinancial_data.pensionEffectiveFrom;
-        }
+        // if (storeFinancial_data.pensionEffectiveFrom) {
+        //     pension_details["effective_from"] = storeFinancial_data.pensionEffectiveFrom;
+        // }
 
-        if (storeFinancial_data.pensionAmount) {
-            pension_details["pension_amount"] = storeFinancial_data.pensionAmount;
-        }
+        // if (storeFinancial_data.pensionAmount) {
+        //     pension_details["pension_amount"] = storeFinancial_data.pensionAmount;
+        // }
 
-        if (storeFinancial_data.pensionPerMonth && storeFinancial_data.pensionPerMonth.value) {
-            pension_details["frequency"] = storeFinancial_data.pensionPerMonth.value;
-        }
+        // if (storeFinancial_data.pensionPerMonth && storeFinancial_data.pensionPerMonth.value) {
+        //     pension_details["frequency"] = storeFinancial_data.pensionPerMonth.value;
+        // }
 
-        // Check and conditionally add key-value pairs to lic_details
-        if (storeFinancial_data.nameOfCompany) {
-            lic_details["company_name"] = storeFinancial_data.nameOfCompany;
-        }
+        // // Check and conditionally add key-value pairs to lic_details
+        // if (storeFinancial_data.nameOfCompany) {
+        //     lic_details["company_name"] = storeFinancial_data.nameOfCompany;
+        // }
 
-        if (storeFinancial_data.policyNumber) {
-            lic_details["policy_no"] = storeFinancial_data.policyNumber;
-        }
+        // if (storeFinancial_data.policyNumber) {
+        //     lic_details["policy_no"] = storeFinancial_data.policyNumber;
+        // }
 
-        if (storeFinancial_data.sumInsured) {
-            lic_details["sum_insured"] = storeFinancial_data.sumInsured;
-        }
+        // if (storeFinancial_data.sumInsured) {
+        //     lic_details["sum_insured"] = storeFinancial_data.sumInsured;
+        // }
         const agri_land_user_rels = storeProduceInfo_data.map((item, index) => (
             {
                 "plot_no": item.storeProduceInfo.plotSiteName,
@@ -213,10 +215,10 @@ const SignUpViwer = () => {
         const data_farmer_details = {}
         const data = [];
         farmer_details['agri_user_addresses'] = agri_user_addresses;
-        farmer_details['identity_details'] = identity_details;
-        farmer_details['bank_details'] = bank_details;
-        farmer_details['pension_details'] = pension_details;
-        farmer_details['lic_details'] = lic_details;
+        // farmer_details['identity_details'] = identity_details;
+        // farmer_details['bank_details'] = bank_details;
+        // farmer_details['pension_details'] = pension_details;
+        // farmer_details['lic_details'] = lic_details;
         farmer_details['agri_land_user_rels'] = agri_land_user_rels;
         farmer_details['crop_details'] = crop_details;
         farmer_details['agri_ponds'] = agri_ponds;
@@ -232,7 +234,7 @@ const SignUpViwer = () => {
             formData.append('photo', { uri: storePersnolInfo.img, type: storePersnolInfo.imgType, name: storePersnolInfo.imgName });
         }
         if (netConnection) {
-            const database_res = await signupSaveAPI(formData);
+            const database_res = await signupSaveAPI(formData,lanId);
             if (database_res) {
                 MessageDialog({ title: 'Successful', message: "Farmer Registered Successfully" })
                 navigation.navigate('Login');
@@ -367,7 +369,7 @@ const SignUpViwer = () => {
                         </>
                     )}
                 </View>
-                <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', }}>
+                {/* <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', }}>
                     <TouchableOpacity onPress={togglestoreFinancial}>
                         <View style={styles.headerStyle}>
                             <Text style={[styles.title, { fontFamily: 'Poppins-SemiBold' }]}>
@@ -432,7 +434,7 @@ const SignUpViwer = () => {
                             }
                         </>
                     )}
-                </View>
+                </View> */}
                 <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', marginBottom: 100 }}>
                     <TouchableOpacity onPress={togglestoreProduceInfo}>
                         <View style={styles.headerStyle}>

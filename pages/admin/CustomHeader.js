@@ -64,7 +64,7 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                             resizeMode='contain'
                             style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
-                    <Image source={require('../Common/images/logo.png')}
+                    <Image source={require('../Common/images/greenqube_logo.png')}
                         style={{ width: 100, height: 45 }}
                         resizeMode='contain' />
                 </View>

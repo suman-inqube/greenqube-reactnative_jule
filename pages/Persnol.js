@@ -358,8 +358,8 @@ const Persnol = () => {
   };
   const onPageLoad = async () => {
     const storeSignup_data = await getItem('storeSignup_data');
-    setdbName(storeSignup_data.company.dbname);
-    languageDataList(storeSignup_data.company.dbname);
+    setdbName('nasc_greenqube');
+    languageDataList('nasc_greenqube');
     const storePersnolInfo_data = await getItem('storePersnolInfo_data');
     if (storePersnolInfo_data) {
       setstorePersnolInfo(storePersnolInfo_data);
@@ -561,7 +561,7 @@ const Persnol = () => {
           </ScrollView>
         </View>
       </View>
-      <ButtonForm label={t('next')} onPress={() => handleSave('Financial')} />
+      <ButtonForm label={t('next')} onPress={() => handleSave('ProduceInfo')} />
       <Root></Root>
     </>
   );

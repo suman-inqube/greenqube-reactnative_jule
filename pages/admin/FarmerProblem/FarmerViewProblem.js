@@ -82,6 +82,7 @@ const FarmerViewProblem = ({ navigation }) => {
         const token = loginUser_data.token;
         const farmerID = loginUser_data.user_id;
         if (netConnection) {
+            var response;
             if (route.params != undefined) {
                 const { comment_qid, type } = route.params;
                 if (type == "comment") {
@@ -89,14 +90,14 @@ const FarmerViewProblem = ({ navigation }) => {
                 } else {
                     setBtnColor(1)
                 }
-                var response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
+                 response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
             } else {
-                var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
+                 response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
                 // await setItem('farmerProblemDetail' + problemIdData, response);
             }
             await setItem('farmerProblemDetail' + problemIdData, response);
         } else {
-            var response = await getItem('farmerProblemDetail' + problemIdData);
+             response = await getItem('farmerProblemDetail' + problemIdData);
         }
         if (response.status === 200) {
             const { agri_user, agent_details, question_id } = response.data.data[0];
@@ -109,8 +110,8 @@ const FarmerViewProblem = ({ navigation }) => {
                 token: token,
                 farmerID: farmerID,
                 question_id: question_id,
-                question_user_fcm: agri_user.FcmUserToken,
-                question_user_agent_fcm: agent_details.FcmUserToken
+                // question_user_fcm: agri_user.FcmUserToken,
+                // question_user_agent_fcm: agent_details.FcmUserToken
             });
             const [commnetList, answerList] = await Promise.all([
                 problemCommentListAPI(dbName, farmerID, question_id),
@@ -173,7 +174,7 @@ const FarmerViewProblem = ({ navigation }) => {
         }
     }
     useEffect(() => {
-        console.error("farmer")
+        // console.error("farmer")
         if (isFocused) {
             onPageLoad();
         }

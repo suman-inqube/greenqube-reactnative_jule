@@ -1,4 +1,4 @@
-package com.inqube.greenqube;
+package com.inqube.nasc;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

@@ -59,23 +59,24 @@ const Login = ({ route }) => {
             })
             return false;
         }
-        if (!storeLoginUser.role) {
-            Toast.show({
-                time: 3, text: `${t('please_select_role_first')}`, ...AlertMesg[0]
-            })
-            return false;
-        }
+        // if (!storeLoginUser.role) {
+        //     Toast.show({
+        //         time: 3, text: `${t('please_select_role_first')}`, ...AlertMesg[0]
+        //     })
+        //     return false;
+        // }
         return true;
     };
     const saveHandle = async () => {
         if (validateForm()) {
             const inputdata = {
-                "FcmUserToken": storeLoginUser.FcmUserToken,
-                "IMEINumber": "123456",
-                "company": storeLoginUser.company,
-                "contactNumber": storeLoginUser.phone,
-                "password": storeLoginUser.password,
-                "type": storeLoginUser.role
+              FcmUserToken: storeLoginUser.FcmUserToken,
+              IMEINumber: '123456',
+              company: storeLoginUser.company,
+              contactNumber: storeLoginUser.phone,
+              password: storeLoginUser.password,
+              // "type": storeLoginUser.role
+              type: '2'
             };
             try {
                 setIsLoading(true);
@@ -179,7 +180,7 @@ const Login = ({ route }) => {
                 password: "",
                 role: "",
                 company: companyLanguage_data.company_id,
-                FcmUserToken: fcmToken_res,
+                FcmUserToken: "",
             });
         }
         if (company_res.status == 200) {
@@ -212,99 +213,153 @@ const Login = ({ route }) => {
         }
     }, [isFocused, netConnection]);
     return (
-        <Root>
-            {/* <ForegroundLocationService /> */}
-            <StatusBar barStyle="light-content" backgroundColor="#023316" />
-            <ScrollView>
-                <View>
-                    <View style={{ paddingHorizontal: 20 }}>
-                        <View>
-                            <Image source={require('../pages/Common/images/logo.png')} style={styles.logo} />
-                        </View>
-                        <View>
-                            {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
-                            <Text style={{ fontSize: 25, color: "#000", fontFamily: 'Poppins-Regular' }}>{t('sign_in')}</Text>
-                            <Text style={{ color: "#000", fontFamily: 'Poppins-Regular' }}>{t('login_with_your_registerd_phone_number_and_password')}</Text>
-                            <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_registered_Phone_no')} keyboardType="numeric" value={storeLoginUser.phone} onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} maxLength={10} />
-                            <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_Password')} secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} value={storeLoginUser.password} />
-                            <View style={{ marginTop: 20, }}>
+      <Root>
+        {/* <ForegroundLocationService /> */}
+        <StatusBar barStyle="light-content" backgroundColor="#023316" />
+        <ScrollView>
+          <View>
+            <View style={{paddingHorizontal: 20}}>
+              <View>
+                <Image
+                  source={require('../pages/Common/images/greenqube_logo.png')}
+                  style={styles.logo}
+                />
+              </View>
+              <View>
+                {isLoading ? (
+                  <View style={styles.loadingScreen}>
+                    <LoadingScreen />
+                  </View>
+                ) : null}
+                <Text
+                  style={{
+                    fontSize: 25,
+                    color: '#000',
+                    fontFamily: 'Poppins-Regular',
+                  }}>
+                  {t('sign_in')}
+                </Text>
+                <Text style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
+                  {t('login_with_your_registerd_phone_number_and_password')}
+                </Text>
+                <TextInput
+                  style={styles.simpleInputTextStyle}
+                  placeholderTextColor={'#000'}
+                  placeholder={t('enter_your_registered_Phone_no')}
+                  keyboardType="numeric"
+                  value={storeLoginUser.phone}
+                  onChangeText={phone =>
+                    setstoreLoginUser({...storeLoginUser, phone: phone})
+                  }
+                  maxLength={10}
+                />
+                <TextInput
+                  style={styles.simpleInputTextStyle}
+                  placeholderTextColor={'#000'}
+                  placeholder={t('enter_your_Password')}
+                  secureTextEntry={true}
+                  onChangeText={password =>
+                    setstoreLoginUser({...storeLoginUser, password: password})
+                  }
+                  value={storeLoginUser.password}
+                />
+                {/* <View style={{ marginTop: 20, }}>
                                 <DropdownForm data={config.roleData} label={t('select_role')} onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role.value })} val={storeLoginUser.role} />
                             </View>
                             <View style={{ marginTop: 5, }}>
                                 <DropdownForm data={companyData} label={t('select_company')} onChange={company => setstoreLoginUser({ ...storeLoginUser, company: company.value })} val={companyLanguage.company_id} />
-                            </View>
-                            <View style={{ alignItems: 'center' }} >
-                                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                                    <Text style={styles.title}>{t('forgot_Password')}</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={{ alignItems: 'center', marginTop: 10, }}>
-                                <TouchableOpacity>
-                                    <Text style={styles.title} onPress={() => navigation.navigate('Signup')}>{t('new_to_farmer')} {t('signup_now')}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
+                            </View> */}
+                <View style={{alignItems: 'center', marginTop: 30}}>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('ForgotPassword')}>
+                    <Text style={styles.title}>{t('forgot_Password')}</Text>
+                  </TouchableOpacity>
                 </View>
-            </ScrollView>
-            <View style={{ marginTop: 10 }}>
-                <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
+                <View style={{alignItems: 'center', marginTop: 10}}>
+                  <TouchableOpacity>
+                    <Text
+                      style={styles.title}
+                      onPress={() => navigation.navigate('Signup')}>
+                      {t('new_to_farmer')} {t('signup_now')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-        </Root>
-    )
+          </View>
+        </ScrollView>
+        <View>
+          <Image
+            source={require('../pages/Common/images/image_nasc.jpg')}
+            style={styles.bottomLogo}
+          />
+        </View>
+        <View style={{marginTop: 10}}>
+          <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
+        </View>
+      </Root>
+    );
 }
 
 export default Login
 
 const styles = StyleSheet.create({
-    container: {
-        margin: 10
-    },
-    simpleInputTextStyle: {
-        marginTop: 20,
-        height: 40,
-        borderBottomWidth: 1,
-        width: '100%',
-        color: '#000'
-    },
-    alert: {
-        backgroundColor: "white",
-        borderRadius: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        padding: 20,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '300',
-        color: "#000",
-        fontFamily: 'Poppins-Regular'
-    },
-    message: {
-        fontSize: 16,
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        marginTop: 10,
-    },
-    button: {
-        borderRadius: 5,
-    }, logo: {
-        width: 250,
-        height: 100,
-        resizeMode: 'contain',
-        alignItems: 'center',
-        marginTop: 30,
-        marginBottom: 20,
-        marginLeft: 40,
-    },
-    loadingScreen: {
-        position: 'absolute',
-        top: 200,
-        zIndex: 999,
-        left: '45%'
-    },
-})
+  container: {
+    margin: 10,
+  },
+  simpleInputTextStyle: {
+    marginTop: 20,
+    height: 40,
+    borderBottomWidth: 1,
+    width: '100%',
+    color: '#000',
+  },
+  alert: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '300',
+    color: '#000',
+    fontFamily: 'Poppins-Regular',
+  },
+  message: {
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  button: {
+    borderRadius: 5,
+  },
+  logo: {
+    width: 250,
+    height: 100,
+    resizeMode: 'contain',
+    alignItems: 'center',
+    marginTop: 30,
+    marginBottom: 20,
+    marginLeft: 40,
+  },
+  loadingScreen: {
+    position: 'absolute',
+    top: 200,
+    zIndex: 999,
+    left: '45%',
+  },
+  bottomLogo: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+});

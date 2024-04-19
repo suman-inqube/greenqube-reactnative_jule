@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     },
     modelTitleContainer: {
         // width: '95%',
-        // height: '80%',
+        height: '20%',
         margin: '2.5%',
         borderRadius: 10
     },

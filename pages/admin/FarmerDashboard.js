@@ -107,65 +107,98 @@ const FarmerDashboard = ({ navigation }) => {
         }
     }
     return (
-        <>
-            <BackGroundLocation />
-            <ForegroundLocationService />
-            {/* <ForegroundHandler /> */}
-            <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
-            <View name="name">
-                <View style={styles.containerimg}>
-                    {profileImg ?
-                        <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} />
-                        : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
-                    }
-                </View>
-                <View style={{ width: '90%', alignItems: 'right', }}>
-                    {/* <Marquee spacing={100} speed={1}> */}
-                    <Text style={styles.userTitle}>{t('welcome')} {userName}</Text>
-                    {/* </Marquee> */}
-                </View>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.container}>
+      <>
+        <BackGroundLocation />
+        <ForegroundLocationService />
+        {/* <ForegroundHandler /> */}
+        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
+        <View name="name">
+          <View style={styles.containerimg}>
+            {profileImg ? (
+              <ImagePlaceHolderCircleWithoutAddButton
+                imageurl={{uri: profileImg}}
+              />
+            ) : (
+              <ImagePlaceHolderCircleWithoutAddButton
+                imageurl={require('../Common/images/avatar.png')}
+              />
+            )}
+          </View>
+          <View style={{width: '90%', alignItems: 'right'}}>
+            {/* <Marquee spacing={100} speed={1}> */}
+            <Text style={styles.userTitle}>
+              {t('welcome')} {userName}
+            </Text>
+            {/* </Marquee> */}
+          </View>
+        </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* <View style={styles.container}>
                     <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigateToPages('FarmerListProblem')} />
                     <BoxDisplay text={t('acti_report_far_dash')} imageurl={require('../Common/images/activity_report_only.png')} onpress={() => navigateToPages('FarmerActivityList')} />
-                </View>
+                </View> */}
 
-                <View style={styles.container}>
-                    <BoxDisplay text={t('agri_inputs_ninquiry_far_dash')} imageurl={require('../Common/images/input_inqu_only.png')} onpress={() => navigateToPages('FarmerInputList')} />
-                    <BoxDisplay text={t('agri_output_far_dash')} imageurl={require('../Common/images/dash_sale_your_product.png')} onpress={() => navigateToPages('FarmerOutPutList')} />
-                </View>
+          <View style={styles.container}>
+            <BoxDisplay
+              text={t('agri_inputs_ninquiry_far_dash')}
+              imageurl={require('../Common/images/input_inqu_only.png')}
+              onpress={() => navigateToPages('FarmerInputList')}
+            />
+            <BoxDisplay
+              text={t('crop_prob_far_dash')}
+              imageurl={require('../Common/images/raise_problem_only.png')}
+              onpress={() => navigateToPages('FarmerListProblem')}
+            />
+            {/* <BoxDisplay text={t('agri_output_far_dash')} imageurl={require('../Common/images/dash_sale_your_product.png')} onpress={() => navigateToPages('FarmerOutPutList')} /> */}
+          </View>
 
-                <View style={styles.container}>
-                    <BoxDisplay text={t('weather_nadvisory_far_dash')} imageurl={require('../Common/images/dash_weather_advisory.png')} onpress={() => navigateToPages('Weather')} />
-                    <BoxDisplay text={t('useful_ninformation_far_dash')} imageurl={require('../Common/images/dash_useful_information.png')} onpress={() => navigateToPages('FarmerUsefulInformationList')} />
-                </View>
+          <View style={styles.container}>
+            <BoxDisplay
+              text={t('weather_nadvisory_far_dash')}
+              imageurl={require('../Common/images/dash_weather_advisory.png')}
+              onpress={() => navigateToPages('Weather')}
+            />
+            <BoxDisplay
+              text={t('useful_ninformation_far_dash')}
+              imageurl={require('../Common/images/dash_useful_information.png')}
+              onpress={() => navigateToPages('FarmerUsefulInformationList')}
+            />
+          </View>
+          <View style={{marginBottom:20}}></View>
 
-                <View style={styles.container}>
-                    <BoxDisplayDeactive text={t('market_ninformation_dash')} imageurl={require('../Common/images/market_information_white.png')} />
-                    <BoxDisplay text={t('training_support')} imageurl={require('../Common/images/training_support_green.png')} onpress={() => navigateToPages('FarmerTrainingList')} />
-                </View>
-                {bottomBanner ?
-                    <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                        <ImageForm
-                            source={{ uri: bottomBanner }}
-                            resizeMode="cover"
-                            height={320}
-                            width={'100%'}
-                        />
-                    </TouchableOpacity>
-                    : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                        <ImageForm
-                            source={require('../Common/images/ad_banner_space.jpg')}
-                            resizeMode="cover"
-                            height={200}
-                            width={'100%'}
-                        />
-                    </TouchableOpacity>}
-            </ScrollView>
-        </>
-
-    )
+          {/* <View style={styles.container}>
+            <BoxDisplayDeactive
+              text={t('market_ninformation_dash')}
+              imageurl={require('../Common/images/market_information_white.png')}
+            />
+            <BoxDisplay
+              text={t('training_support')}
+              imageurl={require('../Common/images/training_support_green.png')}
+              onpress={() => navigateToPages('FarmerTrainingList')}
+            />
+          </View> */}
+          {bottomBanner ? (
+            <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+              <ImageForm
+                source={{uri: bottomBanner}}
+                resizeMode="cover"
+                height={320}
+                width={'100%'}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+              <ImageForm
+                source={require('../Common/images/ad_banner_space.jpg')}
+                resizeMode="cover"
+                height={200}
+                width={'100%'}
+              />
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+      </>
+    );
 }
 
 export default FarmerDashboard

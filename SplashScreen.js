@@ -39,15 +39,38 @@ const SplashScreen = ({ navigation }) => {
     let databaseList = async () => {
         try {
             let company_res = await databaseListAPI();
-            if (company_res.data.data) {
-                const delay = 1000;
-                const timeout = setTimeout(() => {
-                    setModalVisible(true)
-                    setCompanyData(company_res.data.data);
-                    setCompanyDataRaw(company_res.data.data);
+            setCompanyData(company_res.data.data);
 
-                }, delay);
-            }
+            // if (company_res.data.data) {
+            //     for(let i=0; i<=company_res.data.data.size;i++){
+            //     var filteredArray = company_res.data.data.filter(
+            //       (item, index) => item.agri_company.company_type != 'aggr_com',
+            //     );
+
+            // }
+            // console.log(JSON.stringify(filteredArray));
+            //    company_res.data.data.map((item, index)=>{
+
+            //     if (item.agri_company.company_type != 'aggr_com') {
+            //         console.log(index);
+            //     }
+            //    })
+            const delay = 1000;
+            const timeout = setTimeout(() => {
+                for (let i = 0; i <= companyData.length; i++) {
+                    var filteredArray = company_res.data.data.filter(
+                        (item, index) =>
+                            item.agri_company.company_type == 'aggr_com',
+                    );
+                }
+                console.log(JSON.stringify(filteredArray));
+                setModalVisible(true)
+                setCompanyData(filteredArray);
+                setCompanyDataRaw(filteredArray);
+
+            }, delay);
+
+
         } catch (error) {
             console.error('company APi error code with :', error.response);
         }
@@ -127,7 +150,7 @@ const SplashScreen = ({ navigation }) => {
     return (
         <>
             <ImageBackground
-                source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
+                source={require('./pages/Common/images/splash_nasc.jpg')} // Replace with the path to your image
                 style={styles.backgroundImage}
             >
                 <View style={styles.container}>

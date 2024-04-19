@@ -7,7 +7,8 @@ import moment from "moment";
 // import { useNavigation } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { ScrollView } from 'react-native-gesture-handler';
+ import { ScrollView } from 'react-native-gesture-handler';
+
 import { useTranslation } from 'react-i18next';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
@@ -33,18 +34,17 @@ const FarmerUsefulInformationList = () => {
     }, [])
     function UserBoxDisplay({ item, item2, item3, item4 }) {
         return (
-
-            <View style={styles.box1}>
-                <View style={styles.box1_1}>
-                    <View>
-                        <Text style={styles.textOne}>{item}</Text>
-                        <Text>{item2}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.readMore}>{item4}</Text>
-                    </View>
-                </View>
+          <View style={styles.box1}>
+            <View style={styles.box1_1_1}>
+              <View>
+                <Text style={styles.textOne}>{item}</Text>
+              </View>
+              <View style={styles.box1_1}>
+                <Text>{item2}</Text>
+                <Text style={styles.readMore}>{item4}</Text>
+              </View>
             </View>
+          </View>
         );
     }
 
@@ -110,102 +110,103 @@ const FarmerUsefulInformationList = () => {
         navigation.navigate('FarmerDashboard');
     }
     return (
-        <View style={{ flex: 2 }}>
-            <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
-            <FormsTitle title={t('dash_useful_information')} />
+      <View style={{flex: 2}}>
+        <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} />
+        <FormsTitle title={t('dash_useful_information')} />
 
-            <ScrollView>
-                <View style={{ flex: 1 }}>
-                    {
-                        noticeList ?
-                            <FlatList
-                                data={noticeList.rows}
-                                keyExtractor={(item) => item.fid}
-                                renderItem={({ item, index }) => (
-                                    <View style={{ marginBottom: 10 }}>
-                                        <TouchableOpacity onPress={() => detailItem(item.fid)}>
-                                            <UserBoxDisplay
-                                                item={item.post_name}
-
-                                                item2={moment(item.updated_at).utc().format('YYYY-MM-DD')}
-                                                item4={t('read_more')}
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                )} />
-                            :
-                            ""
-                    }
-                </View>
-            </ScrollView>
-        </View>
-    )
+        <ScrollView>
+          <View style={{flex: 1}}>
+            {noticeList ? (
+              <FlatList
+                scrollEnabled={false}
+                data={noticeList.rows}
+                keyExtractor={item => item.fid}
+                renderItem={({item, index}) => (
+                  <View style={{marginBottom: 10}}>
+                    <TouchableOpacity onPress={() => detailItem(item.fid)}>
+                      <UserBoxDisplay
+                        item={item.post_name}
+                        item2={moment(item.updated_at)
+                          .utc()
+                          .format('YYYY-MM-DD')}
+                        item4={t('read_more')}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            ) : (
+              ''
+            )}
+          </View>
+        </ScrollView>
+      </View>
+    );
 }
 
 export default FarmerUsefulInformationList
 
 
 const styles = StyleSheet.create({
-    header:
-    {
-        flexDirection: 'row',
-        justifyContent: "space-between",
-        alignItems: 'center'
-    },
-    titleContainer: {
-        width: "95%",
-        alignItems: 'flex-end',
-        paddingVertical: 10,
-    },
-    box1:
-    {
-        // marginBottom: 10,
-        marginHorizontal: 10,
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 70,
-        backgroundColor: 'white',
-        shadowColor: 'rgba(0, 0, 0, 0.2)',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-    },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  titleContainer: {
+    width: '95%',
+    alignItems: 'flex-end',
+    paddingVertical: 10,
+  },
+  box1: {
+    // marginBottom: 10,
+    marginHorizontal: 10,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 90,
+    backgroundColor: 'white',
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+  },
+  box1_1: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
 
-    box1_1: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginHorizontal: 20,
-    },
-    boxMenu:
-    {
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 50,
-        backgroundColor: 'white',
-        shadowColor: 'rgba(0, 0, 0, 0.2)',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-    },
-    readMore:
-    {
-        color: "lightblue",
-        fontFamily: "Arial",
-        textAlign: 'right',
-        fontWeight: 'bold',
-        fontStyle: 'italic',
-        textDecorationLine: 'underline',
-        marginTop: 20,
-    },
-    textOne:
-    {
-        color: 'black',
-        // color: "black",
-        fontFamily: "Arial",
-        fontWeight: 'bold',
-    },
-})
+  box1_1_1: {
+    flex: 1,
+    flexDirection: 'column',
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+  boxMenu: {
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    backgroundColor: 'white',
+    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+  },
+  readMore: {
+    color: 'lightblue',
+    fontFamily: 'Arial',
+    textAlign: 'right',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
+    textDecorationLine: 'underline',
+  },
+  textOne: {
+    color: 'black',
+    // color: "black",
+    fontFamily: 'Arial',
+    fontWeight: 'bold',
+  },
+});

@@ -63,6 +63,7 @@ const FarmerUsefulInformation = () => {
             const languageID = loginUser_data.lan_id;
             const token = loginUser_data.token;
             let response = await noticeDetailsAPI(dbName, languageID, token, noticeId);
+            console.log(response.data);
             if (response) {
                 setNoticeDetails(response.data.data[0])
                 setNoticeFiles(response.data.data[0].agri_files)

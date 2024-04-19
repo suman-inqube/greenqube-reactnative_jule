@@ -440,22 +440,22 @@ const ProduceInfo = () => {
   const setLocation = async () => {
     const fusedLocation = await getItem('fusedLocation');
     const { latitude, longitude } = fusedLocation;
-    if (
-      fusedLocation != null &&
-      longitude.toString().length == 10 &&
-      latitude.toString().length == 10
-    ) {
+    // if (
+    //   fusedLocation != null &&
+    //   longitude.toString().length == 10 &&
+    //   latitude.toString().length == 10
+    // ) {
       setstoreProduceInfo({
         ...storeProduceInfo,
         lat: latitude,
         long: longitude,
       });
-    } else {
-      Toast.show({
-        text: 'Please try again to reach the accurancy',
-        ...AlertMesg[0],
-      });
-    }
+    // } else {
+    //   Toast.show({
+    //     text: 'Please try again to reach the accurancy',
+    //     ...AlertMesg[0],
+    //   });
+    // }
   };
   const validationData = () => {
     if (!storeProduceInfo.plotSiteName) {
@@ -654,7 +654,7 @@ const ProduceInfo = () => {
       getItem('storeSignup_data'),
       getItem('storePersnolInfo_data'),
     ]);
-    const dbName = storeSignup_data.company.dbname;
+    const dbName = 'nasc_greenqube';
     const languageID = storePersnolInfo_data.language.value;
     setdbName(dbName);
     setlanID(languageID);

@@ -1,4 +1,4 @@
-package com.inqube.greenqube;
+package com.inqube.nasc;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

@@ -55,33 +55,48 @@ const FarmerDrawer = (props) => {
         }
     };
     return (
-        <View>
-            <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} onPress={() => props.setModalVisible(!props.modalVisible)}>
-                <View style={styles.modalView}>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerProfile')}>
-                        <View style={[styles.menuItem, { marginTop: 8 }]}>
-                            <Image source={require('../Common/images/user_menu.png')}
-                                style={[{ height: 28, width: 28, tintColor: '#FFF' }]} />
-                            <Text style={styles.menuText}>{t('profile')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerLiveHood')}>
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/land.png')}
-                                style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                            <Text style={styles.menuText}>{t('plot_and_crop_details')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer}
-                    // onPress={() => navigateToPages('PackageOfPractices')}
-                    >
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/scientific_farming.png')}
-                                style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                            <Text style={styles.menuText}>{t('scientific_farming')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer}
+      <View>
+        <TouchableOpacity
+          style={[styles.container, props.style]}
+          activeOpacity={1}
+          onPress={() => props.setModalVisible(!props.modalVisible)}>
+          <View style={styles.modalView}>
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => navigateToPages('FarmerProfile')}>
+              <View style={[styles.menuItem, {marginTop: 8}]}>
+                <Image
+                  source={require('../Common/images/user_menu.png')}
+                  style={[{height: 28, width: 28, tintColor: '#FFF'}]}
+                />
+                <Text style={styles.menuText}>{t('profile')}</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => navigateToPages('FarmerLiveHood')}>
+              <View style={styles.menuItem}>
+                <Image
+                  source={require('../Common/images/land.png')}
+                  style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                />
+                <Text style={styles.menuText}>
+                  {t('plot_and_crop_details')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => navigateToPages('PackageOfPractices')}>
+              <View style={styles.menuItem}>
+                <Image
+                  source={require('../Common/images/scientific_farming.png')}
+                  style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                />
+                <Text style={styles.menuText}>{t('scientific_farming')}</Text>
+              </View>
+            </TouchableOpacity>
+            {/* <TouchableOpacity style={styles.memuContainer}
                     // onPress={() => navigateToPages('SoilHealthManagement')}
                     >
                         <View style={styles.menuItem}>
@@ -89,8 +104,8 @@ const FarmerDrawer = (props) => {
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('soil_health_management')}</Text>
                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer}
+                    </TouchableOpacity> */}
+            {/* <TouchableOpacity style={styles.memuContainer}
                     // onPress={() => navigateToPages('Calculator')}
                     >
                         <View style={styles.menuItem}>
@@ -98,15 +113,21 @@ const FarmerDrawer = (props) => {
                                 style={[{ height: 25, width: 25 }]} />
                             <Text style={styles.menuText}>{t('agri_calculator')}</Text>
                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')} >
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/insurance_menu.png')}
-                                style={[{ height: 25, width: 25 }]} />
-                            <Text style={styles.menuText}>{t('farm_income_amp_expense')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerLoan')} >
+                    </TouchableOpacity> */}
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')}>
+              <View style={styles.menuItem}>
+                <Image
+                  source={require('../Common/images/insurance_menu.png')}
+                  style={[{height: 25, width: 25}]}
+                />
+                <Text style={styles.menuText}>
+                  {t('farm_income_amp_expense')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            {/* <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerLoan')} >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/dash_apply_for_loan_off.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
@@ -119,26 +140,34 @@ const FarmerDrawer = (props) => {
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('ins_inq_far_dash')}</Text>
                         </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerChangePassword')}>
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/change_password_white.png')}
-                                style={[{ height: 30, width: 30 }]} />
-                            <Text style={styles.menuText}>{t('change_password')}</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => handleLogout()}>
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/logout.png')}
-                                style={[{ height: 25, width: 25 }]} />
-                            <Text style={styles.menuText}>{t('sign_out')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
+                    </TouchableOpacity> */}
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => navigateToPages('FarmerChangePassword')}>
+              <View style={styles.menuItem}>
+                <Image
+                  source={require('../Common/images/change_password_white.png')}
+                  style={[{height: 30, width: 30}]}
+                />
+                <Text style={styles.menuText}>{t('change_password')}</Text>
+              </View>
             </TouchableOpacity>
-        </View>
-    )
+
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => handleLogout()}>
+              <View style={styles.menuItem}>
+                <Image
+                  source={require('../Common/images/logout.png')}
+                  style={[{height: 25, width: 25}]}
+                />
+                <Text style={styles.menuText}>{t('sign_out')}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
 }
 export default FarmerDrawer
 const styles = StyleSheet.create({

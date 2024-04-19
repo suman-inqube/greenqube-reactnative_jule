@@ -531,16 +531,16 @@ const FarmerCreateProblem = ({ navigation }) => {
       const languageID = loginUser_data.lan_id;
       const token = loginUser_data.token;
       const userID = loginUser_data.user_id;
-      const { owner, FcmUserToken } = loginUser_data;
+      // const { owner, FcmUserToken } = loginUser_data;
       setdbLanTokUsr({
         ...dbLanTokUsr,
         dbName: dbName,
         languageID: languageID,
         token: token,
         userID: userID,
-        FcmUserToken: FcmUserToken,
-        owner: owner.FcmUserToken,
-        supervisor_id: owner.user_id
+        // FcmUserToken: FcmUserToken,
+        // owner: owner.FcmUserToken,
+        // supervisor_id: owner.user_id
       });
       setfarmerID(userID);
       var responsePlot = [];

@@ -74,9 +74,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.inqube.greenqube"
+    namespace "com.inqube.nasc"
     defaultConfig {
-        applicationId "com.inqube.greenqube"
+        applicationId "com.inqube.nasc"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 60

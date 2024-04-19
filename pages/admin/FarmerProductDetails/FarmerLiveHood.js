@@ -80,8 +80,8 @@ const FarmerLiveHood = ({ navigation }) => {
     const [unitAll, setUnitAll] = useState([]);
     const [location, setLocation] = useState([
         { latitude: "", longitude: "" },
-        { latitude: "", longitude: "" },
         { latitude: "", longitude: "" }
+        // { latitude: "", longitude: "" }
     ])
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         dbName: '',
@@ -252,7 +252,7 @@ const FarmerLiveHood = ({ navigation }) => {
         if (isFocused) {
             setUserData("");
             onPageLoad();
-            setLocation([{ latitude: "", longitude: "" }, { latitude: "", longitude: "" }, { latitude: "", longitude: "" }])
+            setLocation([{ latitude: "", longitude: "" }])
             const onBackPress = () => {
                 RemoveFarmerData();
                 navigation.navigate('FarmerDashboard'); return true;
@@ -639,9 +639,9 @@ const FarmerLiveHood = ({ navigation }) => {
                 buy_pesticide: "Yes",
                 yield_amount: farmerData.expectedProduction,
                 yield_unit: farmerData.unitProductValue,
-                crop_cycl_start_date: "2004-02-29",
-                // crop_cycl_start_date: farmerData.cycleStartDate,
-                latlong_data: latlongArrString,
+                // crop_cycl_start_date: "2004-02-29",
+               
+                // latlong_data: latlongArrString,
             });
             if (userData == "addUserData") {
                 const AddLandCropDetails_res = await AddLandCropDetailsAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmeruserID, dbLanTokUsr.token, save_data, '', '');
@@ -730,8 +730,8 @@ const FarmerLiveHood = ({ navigation }) => {
                                     return (
                                         <View key={index}>
                                             <View style={styles.latlongContainer}>
-                                                <Text style={styles.title}>{data.latitude == "" ? "0.0" : data.latitude}</Text>
-                                                <Text style={styles.title}>{data.longitude == "" ? "0.0" : data.longitude}</Text>
+                                                {/* <Text style={styles.title}>{data.latitude == "" ? "0.0" : data.latitude}</Text>
+                                                <Text style={styles.title}>{data.longitude == "" ? "0.0" : data.longitude}</Text> */}
                                             </View>
                                             <View style={styles.latlongContainer}>
                                                 <Text style={styles.title}>Tap to geo tag the plot/site</Text>
@@ -803,11 +803,11 @@ const FarmerLiveHood = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
-                <TouchableOpacity style={styles.locationAddMoreContainer}
+                {/* <TouchableOpacity style={styles.locationAddMoreContainer}
                     onPress={addMoreLocation}
                 >
                     <Text style={{ color: '#fff', marginRight: 15 }}>Add Location</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <ButtonFormBottom label='Submit' onPress={() => handleUserListUpdate()} />
             </Root>
         </>

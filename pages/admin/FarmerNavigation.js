@@ -47,6 +47,7 @@ import PackageOfPracticesDetails from './PackageOfPractices/PackageOfPracticesDe
 import PackageItemDetails from './PackageOfPractices/PackageItemDetails';
 import SoilHealthManagement from './SoilHealth';
 import PostRequest from './SoilHealth/PostRequest';
+
 const Drawer = createDrawerNavigator();
 const FarmerNavigation = () => {
     return (

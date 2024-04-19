@@ -9,9 +9,18 @@ const ProductOptionDropDown = ({ rate, val, onChange, currency }) => {
     const onPageLoad = async () => {
         const emptyArray = [];
         rate.forEach((element, index) => {
+            // emptyArray.push({
+            //     value: element.prod_price_id,
+            //     label: element.discounted_price == "0" || element.discounted_price == null ? `${currency}` + element.sales_price + ' ' + element.agri_unit.unit_name.substring(0, 7) + '..' : `${currency}` + element.discounted_price + ' ' + element.agri_unit.unit_name.substring(0, 7) + '..',
+            // });
             emptyArray.push({
-                value: element.prod_price_id,
-                label: element.discounted_price == "0" || element.discounted_price == null ? `${currency}` + element.sales_price + ' ' + element.agri_unit.unit_name.substring(0, 7) + '..' : `${currency}` + element.discounted_price + ' ' + element.agri_unit.unit_name.substring(0, 7) + '..',
+              value: element.fid,
+              label:
+                `${currency}` +
+                element.mrp +
+                '/' +
+                element.sku_size +
+                element.sku_unit,
             });
         });
         setPrice(emptyArray);
