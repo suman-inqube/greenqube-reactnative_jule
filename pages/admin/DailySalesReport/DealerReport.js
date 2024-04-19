@@ -239,6 +239,7 @@ const DealerReport = () => {
         }
     }
     const handleSave = async () => {
+        Keyboard.dismiss();
         if (dealerData.ChooseDealer == "") {
             validateForm(dealerData.ChooseDealer, `${t('choose_dealer')}`);
         } else if (date == "") {

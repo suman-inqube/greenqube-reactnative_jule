@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View, Image, ScrollView, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, Keyboard, View, Image, ScrollView, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import DropdownForm from '../../Common/DropdownForm';
 import DropdownForm1 from '../../Common/DropdownForm1';
@@ -356,9 +356,8 @@ const FarmerPostNew = (props) => {
         }
         return true;
     }
-
-
     const saveHandle = async () => {
+        Keyboard.dismiss();
         const res = validationData();
         if (res == true) {
             if (nextpage === 1) {

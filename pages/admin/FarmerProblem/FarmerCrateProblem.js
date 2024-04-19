@@ -11,6 +11,7 @@ import {
   Dimensions,
   Button,
   Animated,
+  Keyboard
 } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
@@ -674,6 +675,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     return true;
   };
   const handleSave = async () => {
+    Keyboard.dismiss();
     if (validateForm()) {
       let array = [];
       const formData = new FormData();

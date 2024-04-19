@@ -1664,14 +1664,15 @@ export const soilTestLab = async (dbName, lan_id, user_id) => {
         return error.response;
     }
 }
-export const soilTestLabPostRequest = async (dbName, user_id) => {
+export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${user_id}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTest`, axiosHeaders);
+        let response = await axios.post(`${config.BASE_URL}soilTestLabRoute/requestSoilTest`, inputData, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);

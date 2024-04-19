@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Keyboard, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -236,6 +236,7 @@ const FarmerWantToBuy = ({ navigation }) => {
 
 
     const saveHandle = async () => {
+        Keyboard.dismiss();
         const res = validationData()
         if (res == true) {
             if (formStep === 1) {

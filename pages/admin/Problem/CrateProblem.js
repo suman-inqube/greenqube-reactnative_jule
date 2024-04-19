@@ -1,4 +1,4 @@
-import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated } from 'react-native'
+import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Keyboard, Image, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
 import React, { useState, useEffect, useRef, useCallback } from 'react'
@@ -399,6 +399,7 @@ const CreateProblem = ({ navigation }) => {
         })
     }
     const onPageLoad = async () => {
+        setIsLoading(true);
         handleClear();
         const [loginUser_data] = await Promise.all([
             getItem('loginUser_data'),
@@ -433,7 +434,7 @@ const CreateProblem = ({ navigation }) => {
                     getItem('severity_res')
                 ])
             }
-            setProblemAll(problemName_res.data.data);
+            setProblemAll(problemName_res.data?.data);
             if (problemName_res) {
                 const dataArray = [];
                 problemName_res.data.data.forEach(element => {
@@ -442,8 +443,7 @@ const CreateProblem = ({ navigation }) => {
                         label: element.name,
                     });
                 });
-                setProblemTypeAll(dataArray)
-                setIsLoading(false)
+                setProblemTypeAll(dataArray);
             }
             if (severity_res) {
                 const dataArray = [];
@@ -468,6 +468,7 @@ const CreateProblem = ({ navigation }) => {
                 setFarmerData(dataArray)
             }
         }
+        setIsLoading(false);
     };
     const validateForm = () => {
         if (!farmerID) {
@@ -521,6 +522,7 @@ const CreateProblem = ({ navigation }) => {
         return true;
     }
     const handleSave = async () => {
+        Keyboard.dismiss();
         if (validateForm()) {
             let array = [];
             const formData = new FormData();
@@ -925,7 +927,7 @@ const styles = StyleSheet.create({
     },
 
     flatlistHeight: {
-        height: Dimensions.get('window').height / 3
+        height: Dimensions.get('window').height / 4
     },
 
 

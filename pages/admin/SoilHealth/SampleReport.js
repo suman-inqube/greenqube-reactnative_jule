@@ -2,9 +2,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, FlatList } 
 import React from 'react'
 import { useTranslation } from 'react-i18next';
 import DatePickerComp from '../../Common/DatePickerComp';
+import LoadingScreen from '../../Common/LoadingScreen';
 const SampleReport = ({ data, newdate, opencycleStarts,
     onPressDateContainer, setOpenFromDate,
-    handlecycleStart, selectedDate, onChangeByID, onPressByID }) => {
+    handlecycleStart, selectedDate, onChangeByID, onPressByID, isLoading }) => {
     const { t } = useTranslation();
     return (
         <View style={styles.container}>
@@ -19,11 +20,13 @@ const SampleReport = ({ data, newdate, opencycleStarts,
             </TouchableOpacity>
             <View style={styles.inputContainer}>
                 <TextInput placeholder={t('search_by_sample_id')} style={styles.textInput} placeholderTextColor="#000" onChangeText={(text) => onChangeByID(text, "sampleRequested")} />
-                <TouchableOpacity onPress={() => onPressByID("sampleRequested")}>
+                <TouchableOpacity onPress={() => onPressByID("SampleReport")}>
                     <Image source={require('../../Common/images/search.png')} style={styles.calendarIcon} />
                 </TouchableOpacity>
             </View>
+            {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
             <FlatList
+                showsVerticalScrollIndicator={false}
                 data={data}
                 renderItem={({ item }) => {
                     const { agri_land_user_rel, test_id, created_at } = item;
@@ -31,7 +34,7 @@ const SampleReport = ({ data, newdate, opencycleStarts,
                         <View style={styles.listContainer}>
                             <View style={styles.listItem}>
                                 <Text style={styles.title}>{test_id}</Text>
-                                <Text style={styles.title}>{agri_land_user_rel.plot_no}</Text>
+                                <Text style={styles.title}>{agri_land_user_rel?.plot_no}</Text>
                             </View>
                             <Text style={styles.title}>{created_at.substring(0, 10)}</Text>
                         </View>
@@ -101,5 +104,11 @@ const styles = StyleSheet.create({
     listItem: {
         flexDirection: 'row',
         justifyContent: 'space-between'
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: '30%',
+        zIndex: 999,
+        left: '45%'
     },
 })

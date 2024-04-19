@@ -64,7 +64,7 @@ const PackageOfPracticesDetails = () => {
                 />
             }
             <ScrollView
-                scrollEventThrottle={15}
+                scrollEventThrottle={0}
                 showsVerticalScrollIndicator={false}
                 onScroll={Animated.event(
                     [{ nativeEvent: { contentOffset: { y: scrollOffsetY } } }],

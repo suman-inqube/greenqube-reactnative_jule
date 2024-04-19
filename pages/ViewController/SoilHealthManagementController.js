@@ -1,16 +1,22 @@
 
 import React, { useEffect, useState } from 'react';
+import { Keyboard } from 'react-native';
 import {
-    SampleRequestList, SampleReport, PlotSiteUserLandDetails, soilTestLab,
-    livelihoodCropAndPlotDetailsAPI, productionStageAPI
+    SampleRequestList, SampleReport, PlotSiteUserLandDetails, soilTestLab, cropListApi,
+    livelihoodCropAndPlotDetailsAPI, productionStageAPI, soilTestLabPostRequest
 } from '../../config/apiHere';
 import loginUserDataController from './loginUserDataController';
 import { onBackPress } from '../Common/BackPressHandler';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from '../Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
+const qs = require('qs');
 const SoilHealthManagementController = (sample) => {
+    const { t } = useTranslation();
     const routename = useRoute().name;
     const { GetLoginUserData, loginUserData } = loginUserDataController();
-    const { dbname, lan_id, token, user_id } = loginUserData;
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUserData;
     const [activeBtn, setActiveBtn] = useState(1);
     const [sampaleRequested, setSampleRequested] = useState([]);
     const [sampaleReportList, setSampleReport] = useState([]);
@@ -27,6 +33,15 @@ const SoilHealthManagementController = (sample) => {
         captureLat: "",
         longValue: "",
         date: "",
+    });
+    const [plotData, setPlotData] = useState({
+        name: "", value: "",
+    });
+    const [productionStateData, setProductionStateData] = useState({
+        name: "", value: "",
+    });
+    const [soliLabData, setSoliLabData] = useState({
+        name: "", value: "",
     });
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
@@ -51,14 +66,14 @@ const SoilHealthManagementController = (sample) => {
                 }
             } else {
                 const [plotSiteDetailsRes, soilTestLabRes] = await Promise.all([
-                    PlotSiteUserLandDetails(dbname, lan_id, token, user_id),
+                    cropListApi(dbname, lan_id, user_id),
                     soilTestLab(dbname, lan_id)
                 ]);
                 if (plotSiteDetailsRes.status == 200) {
                     const dataArray = [];
-                    const { data } = plotSiteDetailsRes.data;
-                    data.map((data, index) => {
-                        const { rel_id, plot_no } = data;
+                    const { rows } = plotSiteDetailsRes.data.data;
+                    rows.map((data, index) => {
+                        const { rel_id, plot_no } = data.land_info;
                         dataArray.push({
                             value: rel_id,
                             label: plot_no
@@ -87,14 +102,6 @@ const SoilHealthManagementController = (sample) => {
         onPageLoad();
     }, [activeBtn]);
     function handleBackPress() {
-        // let paramsArr = [];
-        // const routes = navigation.getState()?.routes;
-        // routes.filter(item => {
-        //     console.log(item.name)
-        //     if (item.name == "SoilHealthManagement") {
-        //         paramsArr = item.params;
-        //     }
-        // });
         switch (routename) {
             case "SoilHealthManagement":
                 navigation.navigate("FarmerDashboard");
@@ -158,6 +165,16 @@ const SoilHealthManagementController = (sample) => {
     }
     const onChangePlot = async (item) => {
         const { label, value } = item;
+        console.log(label, value);
+        setPlotData({ ...plotData, name: label, value: value });
+        setCropDetails({
+            ...cropDetails,
+            produceName: "",
+            produceVariety: "",
+            captureLat: "",
+            longValue: "",
+            date: "",
+        });
         const cropDetails = await livelihoodCropAndPlotDetailsAPI(dbname, lan_id, user_id, value);
         if (cropDetails.status == 200) {
             const { rows, count } = cropDetails.data.data;
@@ -182,7 +199,7 @@ const SoilHealthManagementController = (sample) => {
                     produceVariety: crop_variety.name,
                     captureLat: land_info.latitude,
                     longValue: land_info.longitude,
-                    date: "",
+                    date: new Date().toISOString().slice(0, 10),
                 });
 
             }
@@ -191,9 +208,44 @@ const SoilHealthManagementController = (sample) => {
     }
     const onChangeGrothStage = (item) => {
         const { value, lable } = item;
+        setProductionStateData({
+            ...productionStateData, name: lable, value: value,
+        });
     }
     const onChangeSoilLab = (item) => {
         const { value, lable } = item;
+        setSoliLabData({
+            ...soliLabData, name: lable, value: value,
+        });
+    }
+    const saveData = async () => {
+        Keyboard.dismiss();
+        if (plotData.value == "") {
+            Toast.show({
+                time: 3, text: `${t('please_select_plot_first')}`, ...AlertMesg[0]
+            });
+        } else if (soliLabData.value == "") {
+            Toast.show({
+                time: 3, text: `${t('please_select_soil_type_first')}`, ...AlertMesg[0]
+            });
+        } else {
+            const { state, district, subdivision } = agri_user_addresses[0];
+            let save_data = qs.stringify({
+                stl_id: soliLabData.value,
+                land_rel_id: plotData.value,
+                state_id: state,
+                district_id: district,
+                subdivision_id: subdivision,
+                growth_stage_id: productionStateData.value,
+            });
+            const postResponse = await soilTestLabPostRequest(dbname, user_id, save_data)
+            if (postResponse.status == 200) {
+                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                setTimeout(() => {
+                    navigation.navigate('MySoil');
+                }, 1500);
+            }
+        }
     }
     return {
         navigateToPages,
@@ -219,7 +271,8 @@ const SoilHealthManagementController = (sample) => {
         onChangeGrothStage,
         onChangeSoilLab,
         isLoading,
-        HandlerGoBack
+        HandlerGoBack,
+        saveData
     }
 }
 

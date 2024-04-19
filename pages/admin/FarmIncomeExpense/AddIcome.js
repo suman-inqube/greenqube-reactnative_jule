@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Keyboard, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
 import React, { useState } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -217,6 +217,7 @@ const AddIcome = ({ navigation }) => {
     }
 
     const handleSave = async () => {
+        Keyboard.dismiss();
         if (saveData.crop_name_id == "") {
             Toast.show({ time: 2, text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0] });
         } else if (saveData.land_rel_id == "") {

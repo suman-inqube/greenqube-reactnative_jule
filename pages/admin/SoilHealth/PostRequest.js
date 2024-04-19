@@ -7,13 +7,14 @@ import ButtonForm from '../../Common/ButtonForm';
 import DropdownForm from '../../Common/DropdownForm';
 import SoilHealthManagementController from '../../ViewController/SoilHealthManagementController';
 import InputTextForm from '../../Common/InputTextForm';
+import { Root } from 'react-native-popup-confirm-toast';
 const PostRequest = () => {
     const { t } = useTranslation();
     const { plotList, onChangePlot, cropDetails,
         soilTestLabList, productionStage, onChangeGrothStage,
-        onChangeSoilLab, HandlerGoBack } = SoilHealthManagementController('');
+        onChangeSoilLab, HandlerGoBack, saveData } = SoilHealthManagementController('');
     return (
-        <>
+        <Root>
             <View style={styles.container}>
                 <CustomHeader HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')} />
                 <FormsTitle title={t('request_soil_testing')} />
@@ -31,7 +32,7 @@ const PostRequest = () => {
                                 <View>
                                     <Text style={styles.title}>{t('date')}</Text>
                                     <View style={styles.dateContainer}>
-                                        <Text style={styles.title}>2024/12/05</Text>
+                                        <Text style={styles.title}>{cropDetails.date}</Text>
                                         <Image source={require('../../Common/images/calendar.png')} style={styles.calendarIcon} />
                                     </View>
                                 </View>
@@ -42,8 +43,8 @@ const PostRequest = () => {
                     </View>
                 </ScrollView>
             </View>
-            <ButtonForm label={t('submit')} />
-        </>
+            <ButtonForm label={t('submit')} onPress={saveData} />
+        </Root>
     )
 }
 

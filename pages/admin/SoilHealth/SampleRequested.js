@@ -28,6 +28,7 @@ const SampleRequested = ({ data, newdate, opencycleStarts,
             </View>
             {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
             <FlatList
+                showsVerticalScrollIndicator={false}
                 data={data}
                 renderItem={({ item }) => {
                     const { agri_land_user_rel, test_id, created_at } = item;
@@ -35,7 +36,7 @@ const SampleRequested = ({ data, newdate, opencycleStarts,
                         <View style={styles.listContainer}>
                             <View style={styles.listItem}>
                                 <Text style={styles.title}>{test_id}</Text>
-                                <Text style={styles.title}>{agri_land_user_rel.plot_no}</Text>
+                                <Text style={styles.title}>{agri_land_user_rel?.plot_no}</Text>
                             </View>
                             <Text style={styles.title}>{created_at.substring(0, 10)}</Text>
                         </View>

@@ -191,7 +191,7 @@ const FarmerInputList = ({ navigation }) => {
                                                 }
                                                 <View style={{ justifyContent: 'flex-end', paddingHorizontal: 10, width: '100%' }}>
                                                     <Text style={[styles.title, { fontFamily: 'Poppins-SemiBold', color: '#013715' }]}>{item.product_name}</Text>
-                                                    <Text style={styles.title}>{item.productCategories[0].productCategory.name}</Text>
+                                                    <Text style={styles.title}>{item.productCategories[0]?.productCategory?.name}</Text>
                                                     <Text style={styles.title}>{item.product_code}</Text>
                                                     <Text style={styles.title}>{item.description.substring(0, 60) + '..'}</Text>
                                                     <View style={{ width: 220, marginBottom: 20, paddingLeft: 10 }}>
