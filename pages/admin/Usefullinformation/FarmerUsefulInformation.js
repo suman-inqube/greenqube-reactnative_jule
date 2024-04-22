@@ -1,4 +1,4 @@
-import { BackHandler, Button, FlatList, StyleSheet, Text, TouchableOpacity, View, ImageBackground, Linking, Image } from 'react-native'
+import { BackHandler, Dimensions, Button, FlatList, StyleSheet, Text, TouchableOpacity, View, ImageBackground, Linking, Image } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import ImageForm from '../../Common/ImageForm';
 import InputTextFormWithoutLabel from '../../Common/InputTextFormWithoutLabel';
@@ -14,11 +14,22 @@ import { ScrollView } from 'react-native-gesture-handler';
 import FormsTitle from '../../Common/FormsTitle';
 // import HTMLView from 'react-native-htmlview';
 
-
+const head = `
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<style>
+.iframe {
+    top: 0; left: 0; width: 100%; height: 0;
+    position: relative; padding-bottom: 56.25%;
+}
+.iframe>* {
+    top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;
+}
+</style>
+`;
 const FarmerUsefulInformation = () => {
     const [noticeDetails, setNoticeDetails] = useState([]);
     const [noticeFiles, setNoticeFiles] = useState([]);
-    const { width } = useWindowDimensions();
+    const { width, height } = useWindowDimensions();
     const navigation = useNavigation();
     const detailItem = (path) => {
         Linking.openURL(path)
@@ -51,10 +62,6 @@ const FarmerUsefulInformation = () => {
             </View>
         );
     }
-
-    const source = {
-        html: `<div style="color: black">${noticeDetails.post_desc}</div>`
-    };
     const onPageLoad = async () => {
         const noticeId = await getItem('userNoticeId');
         const loginUser_data = await getItem('loginUser_data');
@@ -63,7 +70,6 @@ const FarmerUsefulInformation = () => {
             const languageID = loginUser_data.lan_id;
             const token = loginUser_data.token;
             let response = await noticeDetailsAPI(dbName, languageID, token, noticeId);
-            console.log(response.data);
             if (response) {
                 setNoticeDetails(response.data.data[0])
                 setNoticeFiles(response.data.data[0].agri_files)
@@ -85,25 +91,30 @@ const FarmerUsefulInformation = () => {
         navigation.navigate('FarmerUsefulInformationList');
     }
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: '#fff' }}>
             <CustomHeader path={'FarmerUsefulInformationList'} HandlerGoBack={HandlerGoBack} />
             <FormsTitle title={noticeDetails.post_name} />
             <ScrollView>
-                <View style={{ marginHorizontal: '5%', }}>
-                    {/* <HTMLView
-                    value={noticeDetails.post_desc}
-                
-                />                   */}
-                    <RenderHtml
-                        contentWidth={width}
-                        source={source}
+                <View style={{ marginHorizontal: '2.5%', }}>
+                    {noticeDetails?.post_desc && <WebView
+                        style={{ height: height, width: 500, }}
+                        source={{
+                            html: `
+                            <!DOCTYPE html>
+                            <html>
+                                <head>${head}</head> 
+                                <body>
+                                ${noticeDetails?.post_desc} 
+                                </body>
+                            </html>`,
+                        }}
+                        automaticallyAdjustContentInsets={false}
                     />
+                    }
                 </View>
-
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
                     {
                         noticeFiles ?
-
                             <FlatList
                                 data={noticeFiles}
                                 keyExtractor={(item) => item.file_id}
@@ -124,7 +135,6 @@ const FarmerUsefulInformation = () => {
                     }
                 </View>
             </ScrollView>
-
         </View>
     )
 

@@ -930,11 +930,10 @@ export const noticeDetailsAPI = async (dbName, languageId, token, noticeId) => {
         },
     };
     try {
-
         let response = await axios.get(`${config.BASE_URL}generalInfoRoute/details/${noticeId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error.response);
         return console.log("error with user api" + error.response);
     }
 
