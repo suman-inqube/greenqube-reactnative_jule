@@ -65,7 +65,8 @@ const PersonalInformation = () => {
         state: "",
         district: "",
         block: "",
-    })
+    });
+    const [contact_no_digits, setcontact_no_digits] = useState(10);
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -146,8 +147,14 @@ const PersonalInformation = () => {
                 district: district,
                 block: block
             })
-            const { dbname, lan_id, token, user_id } = loginUser_data;
+            const { dbname, lan_id, token, user_id, agri_user_addresses, db_company_id } = loginUser_data;
             getState(dbname, lan_id);
+            const checkPhoneNumberDigit = await checkPhoneDigitAPI(agri_user_addresses[0].country, db_company_id, lan_id);
+            if (checkPhoneNumberDigit.status == 200) {
+                const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
+                setcontact_no_digits(contact_no_digits);
+            }
+            console.log(checkPhoneNumberDigit.data)
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 dbName: dbname,
@@ -326,8 +333,7 @@ const PersonalInformation = () => {
                             // phoneInputRef.current.focus();
                             setFarmerData({ ...farmerData, phone: "" })
                         }
-                    }
-                    else {
+                    } else {
                         Toast.show({
                             time: 3, text: `Please Enter ${require_digit} digit phone no`, ...AlertMesg[0]
                         })
@@ -391,7 +397,7 @@ const PersonalInformation = () => {
                             <InputTextForm label={t('name')} color="red" onChangeText={(value) => handleAddData('name', value)} value={farmerData.name} />
                             <InputTextForm label={t('new_reg_phone_number')} color="red" keyboardType="numeric"
                                 onChangeText={(value) => handleAddData('phone', value)} value={farmerData.phone}
-                                onBlur={(phone) => checkPhone(phone)} refname={phoneInputRef} />
+                                onBlur={(phone) => checkPhone(phone)} refname={phoneInputRef} maxLength={contact_no_digits} />
                             <View>
                                 <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
                                 <RadioForm

@@ -6,8 +6,8 @@ const SplashScreenModal = (props) => {
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [data, setData] = useState([]);
     const [length, setLength] = useState("");
-    const handleDBName = (db_name, company_id) => {
-        props.sendDataToParent(db_name, company_id);
+    const handleDBName = (db_name, company_id, country_id) => {
+        props.sendDataToParent(db_name, company_id, country_id);
     }
     const searchDBName = (text) => {
         props.searchTextData(text)
@@ -52,10 +52,11 @@ const SplashScreenModal = (props) => {
                             data={props.companyData}
                             style={isKeyboardVisible ? props.companyData.length > 4 ? styles.flatContainerLengthUp : "" : data.length == 0 ? styles.flatContainer : ""}
                             renderItem={({ item }) => {
+                                const { db_name, company_id, agri_company } = item;
                                 return (
-                                    <TouchableOpacity style={styles.wrapper} onPress={() => { props.setModalVisible(false); handleDBName(item.db_name, item.company_id) }}>
+                                    <TouchableOpacity style={styles.wrapper} onPress={() => { props.setModalVisible(false); handleDBName(db_name, company_id, agri_company.country_id) }}>
                                         <View style={styles.item}>
-                                            <Text style={styles.itemText}>{item.agri_company && item.agri_company.company_name}</Text>
+                                            <Text style={styles.itemText}>{agri_company && agri_company.company_name}</Text>
                                         </View>
                                     </TouchableOpacity>
                                 )
