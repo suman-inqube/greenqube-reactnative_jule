@@ -20,8 +20,10 @@ const FarmerUsefulInformation = () => {
     const [noticeFiles, setNoticeFiles] = useState([]);
     const { width } = useWindowDimensions();
     const navigation = useNavigation();
-    const detailItem = (path) => {
-        Linking.openURL(path)
+    const detailItem = (path, file_ext) => {
+        if (file_ext != "video/mp4") {
+            Linking.openURL(path);
+        }
     }
 
     const DocumentDisplay = (props) => {
@@ -42,10 +44,11 @@ const FarmerUsefulInformation = () => {
                     />
                 }
                 {
-                    props.file_ext == "video/mp4" && <Image
-                        resizeMode="contain"
-                        style={{ width: '100%', height: 100 }}
-                        source={require("../../Common/images/icons8-play-100.png")}
+                    props.file_ext == "video/mp4" && <WebView
+                        source={{ uri: props.item }}
+                        style={{ height: 300 }}
+                        javaScriptEnabled={true}
+                        mediaPlaybackRequiresUserAction={false}
                     />
                 }
             </View>
@@ -108,7 +111,7 @@ const FarmerUsefulInformation = () => {
                                 keyExtractor={(item) => item.file_id}
                                 renderItem={({ item, index }) => (
                                     <View style={{ width: 200, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
-                                        <TouchableOpacity onPress={() => detailItem(item.file_path)}>
+                                        <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
                                             <DocumentDisplay
                                                 item={item.file_path}
                                                 file_ext={item.file_ext}
