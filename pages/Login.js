@@ -6,7 +6,7 @@ import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
 import { getItem, removeItem, setItem } from '../config/getDataFromStorage'
-import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI } from '../config/apiHere'
+import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI, checkPhoneDigitAPI } from '../config/apiHere'
 import MessageDialog from './Common/MessageDialog'
 import i18next from './services/i18next';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,7 @@ const Login = ({ route }) => {
         language: "",
         company_id: ""
     });
+    const [contact_no_digits, setcontact_no_digits] = useState(10);
     const { t } = useTranslation();
     const [storeLoginUser, setstoreLoginUser] = useState({
         FcmUserToken: "",
@@ -49,7 +50,7 @@ const Login = ({ route }) => {
             })
             return false;
         }
-        if (storeLoginUser.phone.length < 9) {
+        if (storeLoginUser.phone.length < contact_no_digits) {
             Toast.show({ time: 3, text: `${t('please_enter_valid_mobile_no')}`, ...AlertMesg[0] })
             return false;
         }
@@ -173,6 +174,8 @@ const Login = ({ route }) => {
         ]);
         if (companyLanguage_data != "" && companyLanguage_data != null) {
             setcompanyLanguage(companyLanguage_data);
+            const { country_id, company, language } = companyLanguage_data;
+            checkPhoneNumber(country_id, company, language)
             setstoreLoginUser({
                 ...storeLoginUser,
                 phone: "",
@@ -184,13 +187,15 @@ const Login = ({ route }) => {
         }
         if (company_res.status == 200) {
             let companyArray = [];
-            company_res.data.data.forEach(element => {
+            company_res?.data?.data?.map((data, index) => {
+                const { company_id, agri_company, db_name } = data;
                 companyArray.push({
-                    value: element.company_id,
-                    label: element.agri_company.company_name,
-                    dbname: element.db_name,
+                    value: company_id,
+                    label: agri_company.company_name,
+                    dbname: db_name,
+                    country_id: agri_company.country_id,
                 });
-            });
+            })
             setCompanyData(companyArray);
         }
     };
@@ -211,6 +216,19 @@ const Login = ({ route }) => {
             console.error(err)
         }
     }, [isFocused, netConnection]);
+    const onChangeConpany = async (item) => {
+        const { country_id, dbname, value } = item;
+        const { language } = companyLanguage;
+        setstoreLoginUser({ ...storeLoginUser, company: value });
+        checkPhoneNumber(country_id, dbname, language);
+    }
+    const checkPhoneNumber = async (country_id, company, language) => {
+        const checkPhoneNumber = await checkPhoneDigitAPI(country_id, company, language);
+        if (checkPhoneNumber.status == 200) {
+            const { contact_no_digits } = checkPhoneNumber.data?.data;
+            setcontact_no_digits(contact_no_digits);
+        }
+    }
     return (
         <Root>
             {/* <ForegroundLocationService /> */}
@@ -225,13 +243,15 @@ const Login = ({ route }) => {
                             {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
                             <Text style={{ fontSize: 25, color: "#000", fontFamily: 'Poppins-Regular' }}>{t('sign_in')}</Text>
                             <Text style={{ color: "#000", fontFamily: 'Poppins-Regular' }}>{t('login_with_your_registerd_phone_number_and_password')}</Text>
-                            <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_registered_Phone_no')} keyboardType="numeric" value={storeLoginUser.phone} onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} maxLength={10} />
+                            <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_registered_Phone_no')} keyboardType="numeric" value={storeLoginUser.phone} onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} maxLength={contact_no_digits} />
                             <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_Password')} secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} value={storeLoginUser.password} />
                             <View style={{ marginTop: 20, }}>
                                 <DropdownForm data={config.roleData} label={t('select_role')} onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role.value })} val={storeLoginUser.role} />
                             </View>
                             <View style={{ marginTop: 5, }}>
-                                <DropdownForm data={companyData} label={t('select_company')} onChange={company => setstoreLoginUser({ ...storeLoginUser, company: company.value })} val={companyLanguage.company_id} />
+                                <DropdownForm data={companyData} label={t('select_company')}
+                                    onChange={company => onChangeConpany(company)}
+                                    val={companyLanguage.company_id} />
                             </View>
                             <View style={{ alignItems: 'center' }} >
                                 <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>

@@ -20,6 +20,7 @@ const SplashScreen = ({ navigation }) => {
         company: "",
         company_id: "",
         language: "",
+        country_id: "",
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleLan, setModalVisibleLan] = useState(false);
@@ -52,13 +53,13 @@ const SplashScreen = ({ navigation }) => {
             console.error('company APi error code with :', error.response);
         }
     }
-    const companyHandle = async (dbName, company_id) => {
+    const companyHandle = async (dbName, company_id, country_id) => {
         setCompanyLanguage({
             ...companyLanguage,
             company: dbName,
-            company_id: company_id
-        }
-        )
+            company_id: company_id,
+            country_id: country_id
+        });
         languageDataList(dbName);
         setModalVisible(false)
         setisLoading(true);
@@ -67,9 +68,9 @@ const SplashScreen = ({ navigation }) => {
         await setItem('companyLanguage_data', {
             language: item,
             company: companyLanguage.company,
-            company_id: companyLanguage.company_id
-        }
-        );
+            company_id: companyLanguage.company_id,
+            country_id: companyLanguage.country_id
+        });
         navigation.replace('Login');
     }
     let languageDataList = async (dbName) => {

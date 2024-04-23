@@ -126,7 +126,7 @@ const LiveHood = ({ sendDataToParent }) => {
                 const data = cropAndPlotDetails.data.data.rows[0];
                 plotSiteUserLandDetails.map((dataLandDetails, index) => {
                     if (dataLandDetails.rel_id == findData.value) {
-                        if (new Date(data.sowing_date) < new Date(data.harvesting_date) != true) {
+                        if (new Date() < new Date(data.harvesting_date) != true) {
                             setModalVisible(true)
                         } else {
                             setEdit(true);
