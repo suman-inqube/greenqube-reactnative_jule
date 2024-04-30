@@ -135,6 +135,10 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
             setLoanListRaw(response.data.data.rows)
         }
     }
+    const navigate = (FarmerLoanEnquiryDetail, item) => {
+        // store.dispatch(updateLoan(item));
+        navigation.navigate('FarmerLoanEnquiryDetail', item)
+    }
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
@@ -178,19 +182,24 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
                         <View style={styles.loadingScreen}><LoadingScreen /></View>
                         : ""}
                     <FlatList
+                        showsVerticalScrollIndicator={false}
                         data={loanList}
-                        style={filterName !== "" ? { marginBottom: 130 } : { marginBottom: 100 }}
+                        style={filterName !== "" ? { marginBottom: 30 } : { marginBottom: 30 }}
                         renderItem={({ item }) => {
                             var mydate = new Date(item.agri_user.CreateDateTime.split("T")[0]);
                             return (
-                                <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('FarmerLoanEnquiryDetail', item)}>
+                                <TouchableOpacity style={styles.flatListContainer} onPress={() => navigate('FarmerLoanEnquiryDetail', item)}>
                                     <View style={styles.flatListItem}>
-                                        <Text style={styles.title}>{t('loan_amt') + "(" + currency + ")"}:{item.loan_amount.substring(-1, 5)}...</Text>
+                                        <Text style={styles.title}>{t('loan_amt') + `(${currency})`}:{item.loan_amount.substring(-1, 5)}...</Text>
                                         <Text style={styles.title}>{t('name')}:{item.agri_user.userName}</Text>
+                                        <Text style={styles.title}>{t('sta_')}: {item.status == 1 && t('pending')} {item.status == 2 && t('Approved')} {item.status == 3 && t('Rejected')} </Text>
+                                        {item?.loan_sanctioned && <Text style={styles.title}>{t('LoanSanctioned') + `(${currency})`} :{"\n"}{item.loan_sanctioned}</Text>}
                                     </View>
                                     <View style={styles.flatListItem}>
-                                        <Text style={styles.title}>{t('date')} :{mydate.toString().substring(4, 15)}</Text>
-                                        <Text style={styles.title}>{t('number_caps')} :{item.agri_user.contactNumber}</Text>
+                                        <Text style={styles.title}>{t('date')}:{mydate.toString().substring(4, 15)}</Text>
+                                        <Text style={styles.title}>{t('number_caps')}:{item.agri_user.contactNumber}</Text>
+                                        {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')} : {"\n"}{item.sanctioned_date}</Text>}
+                                        {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')} : {"\n"}{item.loan_ord_id}</Text>}
                                     </View>
                                 </TouchableOpacity>
                             )
@@ -207,7 +216,7 @@ export default FarmerViewPastRequested
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 600
+        flex: 1,
     },
     flatListContainer: {
         marginHorizontal: '3%',

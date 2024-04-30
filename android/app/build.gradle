@@ -79,8 +79,8 @@ android {
         applicationId "com.inqube.greenqube"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 60
-        versionName "5.8"
+        versionCode 62
+        versionName "6.0"
     }
     signingConfigs {
         debug {

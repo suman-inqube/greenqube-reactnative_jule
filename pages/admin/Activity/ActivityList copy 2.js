@@ -133,7 +133,7 @@ const ActivityList = ({ navigation }) => {
             if (search == "") {
                 setSearchResultsList(false);
             } else {
-                let tempData = activityAllRow.filter(item => {
+                let tempData = activityAllRow(item => {
                     return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
                 });
                 // setProblemAll(tempData)

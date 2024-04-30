@@ -22,7 +22,8 @@ import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
 import LoadingScreen from '../Common/LoadingScreen';
 const Dashboard = ({ navigation }) => {
   const { netConnection } = DeviceInfo();
-  const locationData = useSelector(state => state.locationData);
+  // const locationData = useSelector(state => state.LoanReducer);
+  // console.log(locationData)
   // const { fusedLocationData } = ForegroundLocationService();
   // const { requestUserPermission, notificationListener } = NotificationServices();
   const { t } = useTranslation();

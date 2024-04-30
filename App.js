@@ -38,13 +38,6 @@ const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
 import { Alert } from 'react-native';
 function App() {
-  const [loginData, setLoginData] = useState([]);
-  // const onPageLoad = async () => {
-  //   const loginUser_data = await getItem('loginUser_data');
-  //   if (loginUser_data) {
-  //     setLoginData(loginUser_data);
-  //   }
-  // }
   return (
     <Provider store={store}>
       <NavigationContainer ref={navigationRef}>

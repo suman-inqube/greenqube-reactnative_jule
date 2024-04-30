@@ -65,7 +65,7 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                             style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
                     <Image source={require('../Common/images/logo.png')}
-                        style={{ width: 100, height: 45 }}
+                        style={{ width: 100, height: 50 }}
                         resizeMode='contain' />
                 </View>
                 <TouchableOpacity onPress={openDrawer}>
@@ -74,8 +74,8 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                             <ImageForm
                                 source={{ uri: logoImage }}
                                 resizeMode="contain"
-                                height={50}
-                                width={50}
+                                height={60}
+                                width={70}
                             />
                             : ''}
                         <Image source={require('../Common/images/3dot.png')} />

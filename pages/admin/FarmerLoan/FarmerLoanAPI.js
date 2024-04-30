@@ -99,3 +99,25 @@ export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID,
         return error.response;
     }
 }
+export const LoanUpdate = async (dbName, language, token, userId, formData, loanId) => {
+    console.log({
+        'authorization': `${token}`,
+        'information': `${dbName},${language},${userId}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+    })
+    const axiosHeaders = {
+        headers: {
+            'authorization': `${token}`,
+            'information': `${dbName},${language},${userId}`,
+            'Content-Type': 'multipart/form-data'
+        },
+    };
+    try {
+        console.log(`${config.BASE_URL}loanRoute/update/${loanId}`)
+        let response = await axios.put(`${config.BASE_URL}loanRoute/update/${loanId}`, formData, axiosHeaders);
+        return response;
+    } catch (error) {
+        CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}

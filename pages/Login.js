@@ -31,7 +31,7 @@ const Login = ({ route }) => {
         language: "",
         company_id: ""
     });
-    const [contact_no_digits, setcontact_no_digits] = useState(10);
+    const [contact_no_digits, setcontact_no_digits] = useState(11);
     const { t } = useTranslation();
     const [storeLoginUser, setstoreLoginUser] = useState({
         FcmUserToken: "",

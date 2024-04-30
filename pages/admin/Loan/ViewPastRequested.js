@@ -5,7 +5,7 @@ import {
 import React, { useState, useEffect } from 'react'
 import DatePickerComp from '../../Common/DatePickerComp';
 import Filter from '../../Common/Filter';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 // import { loanRouteListAPI } from '../../../config/apiHere';
 import { getItem } from '../../../config/getDataFromStorage';
 import LoadingScreen from '../../Common/LoadingScreen';
@@ -13,7 +13,11 @@ import { loanRouteFarmerListAPI, loanRouteListAPI } from './LoanAPI';
 import { useTranslation } from 'react-i18next';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
+import { useSelector } from 'react-redux';
+import store from '../../redux/store';
+import { updateLoan } from '../../redux/actions/LoanAction';
 const ViewPastRequested = ({ setActiveBtn }) => {
+    const isFocused = useIsFocused();
     const { t } = useTranslation();
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
@@ -199,6 +203,10 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     useEffect(() => {
         onPageLoad();
     }, [])
+    const navigate = (LoanEnquiryDetail, item) => {
+        store.dispatch(updateLoan(item));
+        navigation.navigate('LoanEnquiryDetail', item)
+    }
     return (
         <Root>
             <SafeAreaView style={{ flex: 1 }}>
@@ -263,14 +271,18 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             renderItem={({ item }) => {
                                 var mydate = new Date(item.agri_user.CreateDateTime.split("T")[0]);
                                 return (
-                                    <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('LoanEnquiryDetail', item)}>
+                                    <TouchableOpacity style={styles.flatListContainer} onPress={() => navigate('LoanEnquiryDetail', item)}>
                                         <View style={styles.flatListItem}>
                                             <Text style={styles.title}>{t('loan_amt') + `(${currency})`}:{item.loan_amount.substring(-1, 5)}...</Text>
                                             <Text style={styles.title}>{t('name')}:{item.agri_user.userName}</Text>
+                                            <Text style={styles.title}>{t('sta_')}:{item.status == 1 && t('pending')}{item.status == 2 && t('Approved')}{item.status == 3 && t('Rejected')} </Text>
+                                            {item?.loan_sanctioned && <Text style={styles.title}>{t('LoanSanctioned') + `(${currency})`}:{"\n"}{item.loan_sanctioned}</Text>}
                                         </View>
                                         <View style={styles.flatListItem}>
-                                            <Text style={styles.title}>{t('date')} :{mydate.toString().substring(4, 15)}</Text>
-                                            <Text style={styles.title}>{t('number_caps')} :{item.agri_user.contactNumber}</Text>
+                                            <Text style={styles.title}>{t('date')}:{mydate.toString().substring(4, 15)}</Text>
+                                            <Text style={styles.title}>{t('number_caps')}:{item.agri_user.contactNumber}</Text>
+                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')} : {"\n"}{item.sanctioned_date}</Text>}
+                                            {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')} : {"\n"}{item.loan_ord_id}</Text>}
                                         </View>
                                     </TouchableOpacity>
                                 )
