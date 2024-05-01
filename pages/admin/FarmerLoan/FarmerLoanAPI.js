@@ -60,8 +60,6 @@ export const loanRouteListAPI = async (dbName,
             'information': `${dbName},${languageId}`,
         },
     };
-    console.log(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
-
     try {
         let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
         return response;
@@ -100,11 +98,6 @@ export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID,
     }
 }
 export const LoanUpdate = async (dbName, language, token, userId, formData, loanId) => {
-    console.log({
-        'authorization': `${token}`,
-        'information': `${dbName},${language},${userId}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-    })
     const axiosHeaders = {
         headers: {
             'authorization': `${token}`,
@@ -113,7 +106,6 @@ export const LoanUpdate = async (dbName, language, token, userId, formData, loan
         },
     };
     try {
-        console.log(`${config.BASE_URL}loanRoute/update/${loanId}`)
         let response = await axios.put(`${config.BASE_URL}loanRoute/update/${loanId}`, formData, axiosHeaders);
         return response;
     } catch (error) {

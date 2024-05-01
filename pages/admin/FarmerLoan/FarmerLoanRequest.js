@@ -301,7 +301,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             formData.append("farming_type", saveData.farming_type);
             formData.append("plot_id", checkValue);
             const response = await Addloan(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData)
-            console.log(response)
             if (response.status === 200) {
                 Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                 setTimeout(() => {
@@ -309,8 +308,8 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                 }, 2000);
 
             }
-            setIsLoading(false);
         }
+        setIsLoading(false);
     }
     return (
         <>

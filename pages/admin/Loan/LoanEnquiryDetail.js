@@ -13,11 +13,13 @@ import store from '../../redux/store';
 import { useSelector } from 'react-redux';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
+import LoadingScreen from '../../Common/LoadingScreen';
 const LoanEnquiryDetail = () => {
     const loanData = useSelector(state => state.LoanReducer);
     const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
+    const [isLoading, setIsLoading] = useState(false);
     const [currency, setCurrencyt] = useState("");
     const [photo_to_be_deleted, set_photo_to_be_deleted] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
@@ -161,6 +163,7 @@ const LoanEnquiryDetail = () => {
         }, [])
     );
     const onPageLoad = async () => {
+        setIsLoading(true);
         const address_proofArr = agri_files.filter(item =>
             item.term_type === "loan_address"
         );
@@ -210,7 +213,8 @@ const LoanEnquiryDetail = () => {
         });
         // store.dispatch(updateLoan({ landProofValue: landProofValue, addressProof_value: addressProof_value }));
         setLandProof(landProofValue);
-        setAddressProof(addressProof_value)
+        setAddressProof(addressProof_value);
+        setIsLoading(false);
     }
     useEffect(() => {
         onPageLoad();
@@ -240,6 +244,7 @@ const LoanEnquiryDetail = () => {
         navigation.navigate('Loan');
     }
     const handleSave = async () => {
+        setIsLoading(true);
         const deleted_id_arr = photo_to_be_deleted.filter(item => item != "");
         const { dbName, languageID, token, userID } = dbLanTokUsr;
         const formData = new FormData();
@@ -281,6 +286,7 @@ const LoanEnquiryDetail = () => {
                 }, 1200);
             }
         }
+        setIsLoading(false);
     }
     const openURL = (path) => {
         setModalVisible(false);
@@ -288,6 +294,7 @@ const LoanEnquiryDetail = () => {
     }
     return (
         <Root>
+            {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
             <View style={{ flex: 1 }}>
                 <Modal
                     animationType="slide"
@@ -431,6 +438,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         borderRadius: 4,
         padding: '2.5%'
-    }
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: "60%",
+        zIndex: 999,
+        left: '45%'
+    },
 
 })

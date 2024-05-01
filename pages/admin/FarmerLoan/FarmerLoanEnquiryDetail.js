@@ -12,10 +12,12 @@ import { LoanUpdate } from './FarmerLoanAPI';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import ButtonForm from '../../Common/ButtonForm';
 import { AlertMesg } from '../../Common/ToastAlert';
+import LoadingScreen from '../../Common/LoadingScreen';
 const FarmerLoanEnquiryDetail = () => {
     const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
+    const [isLoading, setIsLoading] = useState(false);
     const [currency, setcurrency] = useState("");
     const [photo_to_be_deleted, set_photo_to_be_deleted] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
@@ -59,6 +61,7 @@ const FarmerLoanEnquiryDetail = () => {
         agri_files, agri_user, apx_annual_income,
         loan_amount, agri_loan_entity, existing_loan_amount, loan_plots, sanctioned_date, loan_ord_id, loan_sanctioned } = route.params;
     const onPageLoad = async () => {
+        setIsLoading(true);
         const address_proofArr = agri_files.filter(item =>
             item.term_type === "loan_address"
         );
@@ -108,7 +111,8 @@ const FarmerLoanEnquiryDetail = () => {
         });
         // store.dispatch(updateLoan({ landProofValue: landProofValue, addressProof_value: addressProof_value }));
         setLandProof(landProofValue);
-        setAddressProof(addressProof_value)
+        setAddressProof(addressProof_value);
+        setIsLoading(false);
     }
     useEffect(() => {
         onPageLoad();
@@ -239,6 +243,7 @@ const FarmerLoanEnquiryDetail = () => {
         }
     }, []);
     const handleSave = async () => {
+        setIsLoading(true);
         const deleted_id_arr = photo_to_be_deleted.filter(item => item != "");
         const { dbName, languageID, token, userID } = dbLanTokUsr;
         const formData = new FormData();
@@ -280,6 +285,7 @@ const FarmerLoanEnquiryDetail = () => {
                 }, 1200);
             }
         }
+        setIsLoading(false);
     }
     const openURL = (path) => {
         setModalVisible(false);
@@ -287,6 +293,7 @@ const FarmerLoanEnquiryDetail = () => {
     }
     return (
         <Root>
+            {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
             <View style={{ flex: 1 }}>
                 <Modal
                     animationType="slide"
@@ -430,6 +437,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         borderRadius: 4,
         padding: '2.5%'
-    }
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: "60%",
+        zIndex: 999,
+        left: '45%'
+    },
 
 })

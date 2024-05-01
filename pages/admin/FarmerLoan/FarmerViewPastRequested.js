@@ -77,11 +77,12 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
         }
     }
     const onPageLoad = async () => {
-        // requestLivePermission();
         setIsLoading(true);
-        const curr = await getItem('currency');
-        setcurrency(curr)
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, curr] = await Promise.all([
+            await getItem('loginUser_data'),
+            await getItem('currency')
+        ])
+        setcurrency(curr);
         if (loginUser_data) {
             const dbName = loginUser_data.dbname;
             const languageID = loginUser_data.lan_id;
