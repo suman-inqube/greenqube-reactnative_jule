@@ -6,23 +6,23 @@ import { useTranslation } from 'react-i18next';
 import SoilHealthManagementController from '../../ViewController/SoilHealthManagementController';
 const SoilHealthManagement = () => {
     const { t } = useTranslation()
-    const { navigateToPages } = SoilHealthManagementController();
+    const { navigateToPages, HandlerGoBack } = SoilHealthManagementController('');
     return (
         <View style={styles.container}>
-            <CustomHeader />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack('FarmerDashboard')} />
             <FormsTitle title={t("soil_health_management")} />
             <View style={styles.containerItem}>
                 <TouchableOpacity style={styles.itemList} onPress={() => navigateToPages("PostRequest")}>
                     <Image
                         style={{ width: 100, height: 100, resizeMode: 'stretch' }}
-                        source={{ uri: 'https://mygreenqube.com/agri_company_api/uploads/crops/1692013756764-313dtY-LOEL.jpg' }}
+                        source={require('../../Common/images/request_soil_testing_re.png')}
                     />
                     <Text style={styles.title}>{t('request_soil_testing')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.itemList} onPress={() => navigateToPages("PostRequest")}>
+                <TouchableOpacity style={styles.itemList} onPress={() => navigateToPages("MySoil")}>
                     <Image
                         style={{ width: 100, height: 100, resizeMode: 'stretch' }}
-                        source={{ uri: 'https://mygreenqube.com/agri_company_api/uploads/crops/1692013756764-313dtY-LOEL.jpg' }}
+                        source={require('../../Common/images/my_soil.png')}
                     />
                     <Text style={styles.title}>{t('my_soil')}</Text>
                 </TouchableOpacity>

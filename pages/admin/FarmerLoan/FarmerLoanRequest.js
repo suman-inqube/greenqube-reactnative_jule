@@ -236,7 +236,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                 setPlotSite(dataArray)
             }
             const response = await loanPurposeAPI(dbName, languageID, token, userID)
-            if (response.status === 200) {
+            if (response?.status === 200) {
                 const dataArray = [];
                 response.data.data.rows.forEach(element => {
                     dataArray.push({
@@ -301,12 +301,11 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             formData.append("farming_type", saveData.farming_type);
             formData.append("plot_id", checkValue);
             const response = await Addloan(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData)
-            if (response.status === 200) {
+            if (response?.status === 200) {
                 Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                 setTimeout(() => {
                     setActiveBtn(2);
                 }, 2000);
-
             }
         }
         setIsLoading(false);

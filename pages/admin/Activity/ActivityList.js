@@ -197,10 +197,12 @@ const ActivityList = ({ navigation }) => {
                 activityListAPI(dbName, languageId, token, supervisorId, pageNo),
                 farmerByNameAPI(dbName, languageId, token, supervisorId)
             ]);
-            await Promise.all([
-                setItem('activityList', response),
-                setItem('farmerByNameAPI', farmerByName)
-            ])
+            if (response?.status == 200) {
+                await Promise.all([
+                    setItem('activityList', response),
+                    setItem('farmerByNameAPI', farmerByName)
+                ])
+            }
         } else {
             var [response, farmerByName] = await Promise.all([
                 getItem('activityList'),
@@ -218,7 +220,7 @@ const ActivityList = ({ navigation }) => {
             });
             setFarmerData(dataArray)
         }
-        if (response.data) {
+        if (response?.data) {
             if (response.data.data.count != 0) {
                 const totalPage = Math.ceil(response.data.data.count / 20)
                 setdbLanTokUsr({

@@ -20,7 +20,7 @@ const FertilizerCalculator = () => {
     return (
         <>
             <View style={styles.comtainer}>
-                <ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <DropdownForm label={t('select_crop_type')} color={'red'} data={livelihoodType} onChange={onChangeLivelihoodType} val={livelihoodData.name} />
                     <DropdownForm label={t('select_crop_name')} color={'red'} data={produceName} onChange={onChangeProduceName} />
                     <DropdownForm label={t('select_growth_stage')} color={'red'} data={growthStage} onChange={onChangeGrowthStage} val={growthStageData.name} />

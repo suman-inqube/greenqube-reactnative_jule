@@ -47,6 +47,10 @@ import PackageOfPracticesDetails from './PackageOfPractices/PackageOfPracticesDe
 import PackageItemDetails from './PackageOfPractices/PackageItemDetails';
 import SoilHealthManagement from './SoilHealth';
 import PostRequest from './SoilHealth/PostRequest';
+import MySoil from './SoilHealth/MySoil';
+import SampleRequested from './SoilHealth/SampleRequested';
+import SampleReport from './SoilHealth/SampleReport';
+
 const Drawer = createDrawerNavigator();
 const FarmerNavigation = () => {
     return (
@@ -128,7 +132,7 @@ const FarmerNavigation = () => {
             <Drawer.Screen name="PackageItemDetails" component={PackageItemDetails} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="SoilHealthManagement" component={SoilHealthManagement} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="PostRequest" component={PostRequest} options={{ unmountOnBlur: true, gestureEnabled: false }} />
-
+            <Drawer.Screen name="MySoil" component={MySoil} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
         </Drawer.Navigator>
     )

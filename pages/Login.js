@@ -6,7 +6,7 @@ import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
 import { getItem, removeItem, setItem } from '../config/getDataFromStorage'
-import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI, checkPhoneDigitAPI } from '../config/apiHere'
+import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI, checkPhoneDigitAPI, DetailsCompany } from '../config/apiHere'
 import MessageDialog from './Common/MessageDialog'
 import i18next from './services/i18next';
 import { useTranslation } from 'react-i18next';
@@ -16,12 +16,12 @@ import { AlertMesg } from './Common/ToastAlert';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
-// import NotificationServices from './PushNotification/NotificationServices';
+import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
 const Login = ({ route }) => {
     const { netConnection } = DeviceInfo();
     // const { fusedLocationData } = ForegroundLocationService();
-    // const { requestUserPermission, notificationListener } = NotificationServices();
+    const { requestUserPermission, notificationListener } = NotificationServices();
     const [isLoading, setIsLoading] = useState(false);
     const isFocused = useIsFocused();
     const navigation = useNavigation();
@@ -80,10 +80,17 @@ const Login = ({ route }) => {
             };
             try {
                 setIsLoading(true);
-
                 let userIno = await axios.post(config.loginAPI, inputdata);
-                if (userIno.status === 200) {
+                if (userIno?.status === 200) {
                     const loginUserdata = userIno.data.data[0];
+                    const details_company_res = await DetailsCompany(loginUserdata?.dbname, loginUserdata?.lan_id, loginUserdata?.db_company_id);
+                    if (details_company_res?.status == 200) {
+                        const { soil_testing, agri_calculator } = details_company_res.data?.data[0];
+                        await setItem("side_menu_option", {
+                            soil_testing: soil_testing,
+                            agri_calculator: agri_calculator
+                        });
+                    }
                     await Promise.all([
                         setItem("userNameData", loginUserdata.userName),
                         setItem("userType", loginUserdata.userType)
@@ -168,9 +175,10 @@ const Login = ({ route }) => {
             removeItem('storePersnolInfo_data'),
             removeItem('storeFinancial_data'),
             removeItem('storeProduceInfo_data'),
-            // requestUserPermission(),
-            // notificationListener(),
+            requestUserPermission(),
+            notificationListener(),
             Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
+            removeItem("side_menu_option"),
         ]);
         if (companyLanguage_data != "" && companyLanguage_data != null) {
             setcompanyLanguage(companyLanguage_data);

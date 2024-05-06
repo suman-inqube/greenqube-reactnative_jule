@@ -41,11 +41,16 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const [loanListRaw, setLoanListRaw] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+    const [statusName, setStatusName] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
     const [currency, setCurrencyt] = useState("");
+    const [statusAll, setTtatusAll] = useState([
+        { value: 2, "label": 'Approved' },
+        { value: 1, "label": 'Pending' },
+        { value: 3, "label": 'Rejected' }]);
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -54,11 +59,16 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         }
     }
     const onchangeFilterItem = (value) => {
+        if (value == "statusFilter") {
+            setSearchResultsList(true);
+            setSearchResults(statusAll);
+        }
+        setFilterOption(false);
         setFilterName(value);
         setFilterItem(value);
-        setFilterOption(false);
         setSearchFarmerPhone('');
         setSearchFarmerName('');
+        setStatusName('')
         setfromDate("");
         setToDate("");
         setLoanList(loanListRaw);
@@ -158,6 +168,24 @@ const ViewPastRequested = ({ setActiveBtn }) => {
             if (result) {
                 setSearchResults(result);
             }
+        } else if (filterName === 'statusFilter') {
+            setStatusName(search);
+            const result = statusAll.filter(item =>
+                item.label.toLowerCase().includes(search.toLowerCase())
+            );
+            if (result) {
+                setSearchResults(result);
+            }
+            // if (search == "") {
+            //     setSearchResultsList(false);
+            //     setLoanList(loanListRaw);
+            // } else {
+            //     setSearchResultsList(true);
+            // }
+            // if (result) {
+            //     setSearchResults(result);
+            // }
+
         }
     }
     const handleResultSelect = async (name, currentfarmerId, phone) => {
@@ -165,9 +193,15 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setSearchFarmerPhone(phone)
         setSelectedName(name);
         setSearchFarmerName(name);
+        setStatusName(name);
         setSearchResults([]);
         setfarmerID(currentfarmerId)
-        if (name !== '') {
+        if (name == "Pending" || name == "Rejected" || name == "Approved") {
+            let tempData = loanListRaw.filter(item => {
+                return item.status == currentfarmerId;
+            });
+            setLoanList(tempData)
+        } else if (name !== '') {
             let tempData = loanListRaw.filter(item => {
                 return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1;;
             });
@@ -191,6 +225,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const filterDataRemove = () => {
         setSearchFarmerPhone("");
         setSearchFarmerName("");
+        setStatusName("");
         setFilterItem("");
         setFilterName("");
         setFilterOption(false);
@@ -257,7 +292,9 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             onChangeText={(item) => handleFilter(item)}
                             FarmerProductNameValue={searchFarmerName}
                             FarmerProductPhoneValue={searchFarmerPhone}
+                            statusNameValue={statusName}
                             filterDataRemove={filterDataRemove}
+                            statusFilter={true}
                         />
                     }
                     <View>
@@ -269,20 +306,21 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             data={loanList}
                             style={filterName !== "" ? { marginBottom: 130 } : { marginBottom: 90 }}
                             renderItem={({ item }) => {
-                                var mydate = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                                var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                                var sanctioned_date = new Date(item.sanctioned_date);
                                 return (
                                     <TouchableOpacity style={styles.flatListContainer} onPress={() => navigate('LoanEnquiryDetail', item)}>
                                         <View style={styles.flatListItem}>
-                                            <Text style={styles.title}>{t('loan_amt') + `(${currency})`}:{item.loan_amount.substring(-1, 5)}...</Text>
                                             <Text style={styles.title}>{t('name')}:{item.agri_user.userName}</Text>
+                                            <Text style={styles.title}>{t('loan_amt') + `(${currency})`}:{item.loan_amount.substring(-1, 4)}...</Text>
                                             <Text style={styles.title}>{t('sta_')}:{item.status == 1 && t('pending')}{item.status == 2 && t('Approved')}{item.status == 3 && t('Rejected')} </Text>
-                                            {item?.loan_sanctioned && <Text style={styles.title}>{t('LoanSanctioned') + `(${currency})`}:{"\n"}{item.loan_sanctioned}</Text>}
+                                            {item?.loan_sanctioned && <Text style={styles.title}>{t('LoanSanctioned') + `(${currency})`}:{item.loan_sanctioned.substring(-1, 3)}...</Text>}
                                         </View>
                                         <View style={styles.flatListItem}>
-                                            <Text style={styles.title}>{t('date')}:{mydate.toString().substring(4, 15)}</Text>
                                             <Text style={styles.title}>{t('number_caps')}:{item.agri_user.contactNumber}</Text>
-                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')} : {"\n"}{item.sanctioned_date}</Text>}
-                                            {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')} : {"\n"}{item.loan_ord_id}</Text>}
+                                            <Text style={styles.title}>{t('date')}:{date.toString().substring(4, 15)}</Text>
+                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{sanctioned_date.toString().substring(7, 15)}</Text>}
+                                            {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')}:{item.loan_ord_id.substring(-1, 9)}</Text>}
                                         </View>
                                     </TouchableOpacity>
                                 )
@@ -303,17 +341,16 @@ const styles = StyleSheet.create({
         marginBottom: 600
     },
     flatListContainer: {
-        marginHorizontal: '3%',
+        marginHorizontal: '2%',
         flexDirection: 'row',
         backgroundColor: '#FFF',
-        padding: 10,
+        padding: 6,
         marginBottom: 10,
         borderRadius: 10,
         elevation: 5
     },
     flatListItem: {
         width: '50%',
-
     },
     plusIcon: {
         width: 50,
@@ -337,7 +374,9 @@ const styles = StyleSheet.create({
     },
     flatlisttitle: {
         padding: 10,
-        color: '#000'
+        color: '#000',
+        fontFamily: 'Poppins-Regular',
+        fontSize: 13
     },
     flatlistHeight: {
         height: Dimensions.get('window').height / 2.5
@@ -348,7 +387,6 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#000',
-        fontSize: 12,
         marginVertical: 2,
         fontFamily: 'Poppins-Regular',
         fontSize: 14

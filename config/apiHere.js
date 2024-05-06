@@ -936,7 +936,7 @@ export const numberDigitAPI = async (countryId, languageId) => {
         },
     };
     try {
-        let response = await axios.get(config.BASE_URL + 'locationRoute/getContactNoDigitByCountryID/${countryId}', axiosHeaders);
+        let response = await axios.get(config.BASE_URL + `locationRoute/getContactNoDigitByCountryID/${countryId}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -1621,7 +1621,79 @@ export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
     }
 }
 
-// 
+export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}locationRoute/detailsCompany/${db_company_id}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+export const SampleRequestList = async (dbName, lan_id, user_id, search_date, search_key) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/0/0/2/${user_id}?search_date=${search_date}&search_key=${search_key}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+export const SampleReport = async (dbName, lan_id, user_id, search_date, search_key) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/1/0/2/${user_id}?search_date=${search_date}&search_key=${search_key}`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const soilTestLab = async (dbName, lan_id, user_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/list/1/0/1?district_id=&search_key=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${user_id}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+    };
+    try {
+        let response = await axios.post(`${config.BASE_URL}soilTestLabRoute/requestSoilTest`, inputData, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
 
 
 

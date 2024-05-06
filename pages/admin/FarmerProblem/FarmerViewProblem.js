@@ -98,9 +98,8 @@ const FarmerViewProblem = ({ navigation }) => {
         } else {
             var response = await getItem('farmerProblemDetail' + problemIdData);
         }
-        if (response.status === 200) {
+        if (response?.status === 200) {
             const { agri_user, agent_details, question_id } = response.data.data[0];
-            console.log(response.data.data[0])
             setFarmerProblem(response.data.data[0]);
             setdbLanTokUsr({
                 ...dbLanTokUsr,
@@ -173,7 +172,6 @@ const FarmerViewProblem = ({ navigation }) => {
         }
     }
     useEffect(() => {
-        console.error("farmer")
         if (isFocused) {
             onPageLoad();
         }

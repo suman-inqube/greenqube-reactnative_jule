@@ -16,7 +16,9 @@ const Filter = ({
   category,
   FarmerProductNameValue,
   FarmerProductPhoneValue,
-  filterDataRemove
+  filterDataRemove,
+  statusFilter,
+  statusNameValue
 }) => {
   const { t } = useTranslation();
   return (
@@ -33,9 +35,8 @@ const Filter = ({
                 />
               </TouchableOpacity>
               <TextInput
-                // style={styles.filterInput}
                 style={styles.input}
-                placeholder='Farmer Name'
+                placeholder={t('enter_farmer_s_name')}
                 placeholderTextColor="#000"
                 onChangeText={onChangeText}
                 value={FarmerProductNameValue}
@@ -52,7 +53,7 @@ const Filter = ({
               </TouchableOpacity>
               <TextInput
                 style={styles.input}
-                placeholder='Phone Number'
+                placeholder={t('new_reg_phone_number')}
                 placeholderTextColor="#000"
                 onChangeText={onChangeText}
                 value={FarmerProductPhoneValue}
@@ -63,10 +64,27 @@ const Filter = ({
           {filterItem === 'Category' ?
             <TextInput
               style={styles.filterInput}
-              placeholder='Category'
+              placeholder={t('category')}
               placeholderTextColor="#000"
               onChangeText={onChangeText}
             />
+            : ""}
+          {filterItem === 'statusFilter' ?
+            <View style={styles.searchSection}>
+              <TouchableOpacity onPress={filterDataRemove}>
+                <Image source={require('./images/cross100.png')}
+                  style={styles.searchIcon}
+                />
+              </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder={t('sta_')}
+                placeholderTextColor="#000"
+                onChangeText={onChangeText}
+                value={statusNameValue}
+                underlineColorAndroid="transparent"
+              />
+            </View>
             : ""}
           {filterItem === 'Date' ?
             <>
@@ -137,9 +155,16 @@ const Filter = ({
             onSelect={() => onchangeFilterItem('PhoneNumber')}
           />
           {category == true ?
-            <RadioForm label={"Category"}
+            <RadioForm label={t('category')}
               selected={filterItem === 'Category'}
               onSelect={() => onchangeFilterItem('Category')}
+            />
+            : ""
+          }
+          {statusFilter == true ?
+            <RadioForm label={t('sta_')}
+              selected={filterItem === 'statusFilter'}
+              onSelect={() => onchangeFilterItem('statusFilter')}
             />
             : ""
           }

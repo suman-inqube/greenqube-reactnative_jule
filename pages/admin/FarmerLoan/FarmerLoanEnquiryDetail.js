@@ -246,15 +246,18 @@ const FarmerLoanEnquiryDetail = () => {
         setIsLoading(true);
         const deleted_id_arr = photo_to_be_deleted.filter(item => item != "");
         const { dbName, languageID, token, userID } = dbLanTokUsr;
+        let updateStatus = null;
         const formData = new FormData();
         // formData.append("lan_id", saveData.user_id);
         // formData.append("loan_amount", saveData.loan_amount);
         // formData.append("existing_loan_amount", saveData.existing_loan_amount);
         // formData.append("farming_type", saveData.farming_type);
         if (deleted_id_arr.length > 0) {
+            updateStatus = true;
             formData.append("photo_to_be_deleted", deleted_id_arr.toString());
         }
         if (identityProof.value === "1") {
+            updateStatus = true;
             formData.append("loan_identity", identityProof);
         } else {
             formData.append("loan_identity", "");
@@ -262,14 +265,19 @@ const FarmerLoanEnquiryDetail = () => {
 
         addressProof.map((data, index) => {
             if (data.value === "1") {
+                updateStatus = true;
                 formData.append("loan_address", data);
             }
         })
         landProof.map((data, index) => {
             if (data.value === "1") {
+                updateStatus = true;
                 formData.append("loan_land", data);
             }
-        })
+        });
+        if (updateStatus == true) {
+            formData.append("status", 1);
+        }
         const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
         if (responseUpdate?.status == 200) {
             Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
@@ -308,7 +316,7 @@ const FarmerLoanEnquiryDetail = () => {
                                 <Text style={[styles.title, { fontSize: 16, padding: 7 }]}>View</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleDocumentSelection(propsData, propsIndex, propsObjData)}>
-                                <Text style={[styles.title, { fontSize: 16, padding: 7 }]} >Upload Image</Text>
+                                <Text style={[styles.title, { fontSize: 16, padding: 7 }]} >Upload Document</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
                                 <Text style={[styles.title, { fontSize: 16, padding: 7 }]}>Cancel</Text>

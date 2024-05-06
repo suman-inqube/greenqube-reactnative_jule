@@ -235,11 +235,10 @@ const LoanEnquiryDetail = () => {
             }
             // setIdentityProof(identityProofValue);
         }
-    }, [])
-
-    loan_plots.map((data, index) => {
-        plotArr.push(data.agri_land_user_rel.plot_no)
-    })
+        loan_plots.map((data, index) => {
+            plotArr.push(data?.agri_land_user_rel?.plot_no)
+        })
+    }, []);
     const HandlerGoBack = () => {
         navigation.navigate('Loan');
     }
@@ -247,43 +246,52 @@ const LoanEnquiryDetail = () => {
         setIsLoading(true);
         const deleted_id_arr = photo_to_be_deleted.filter(item => item != "");
         const { dbName, languageID, token, userID } = dbLanTokUsr;
+        let updateStatus = null;
         const formData = new FormData();
         // formData.append("lan_id", saveData.user_id);
         // formData.append("loan_amount", saveData.loan_amount);
         // formData.append("existing_loan_amount", saveData.existing_loan_amount);
         // formData.append("farming_type", saveData.farming_type);
         if (deleted_id_arr.length > 0) {
+            updateStatus = true;
             formData.append("photo_to_be_deleted", deleted_id_arr.toString());
         }
         if (identityProof.value === "1") {
+            updateStatus = true;
             formData.append("loan_identity", identityProof);
         } else {
             formData.append("loan_identity", "");
         }
-
         addressProof.map((data, index) => {
             if (data.value === "1") {
+                updateStatus = true;
                 formData.append("loan_address", data);
             }
         });
         landProof.map((data, index) => {
             if (data.value === "1") {
+                updateStatus = true;
                 formData.append("loan_land", data);
             }
         });
-        const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
-        if (responseUpdate?.status == 200) {
-            Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
-            setTimeout(() => {
-                navigation.navigate('Loan', 2)
-            }, 1200);
-        } else {
+        if (updateStatus == true) {
+            formData.append("status", 1);
+        }
+        if (formData?._parts.length > 1) {
             const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
             if (responseUpdate?.status == 200) {
                 Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('Loan', 2)
                 }, 1200);
+            } else {
+                const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
+                if (responseUpdate?.status == 200) {
+                    Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+                    setTimeout(() => {
+                        navigation.navigate('Loan', 2)
+                    }, 1200);
+                }
             }
         }
         setIsLoading(false);
@@ -309,7 +317,7 @@ const LoanEnquiryDetail = () => {
                                 <Text style={[styles.title, { fontSize: 16, padding: 7 }]}>View</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleDocumentSelection(propsData, propsIndex, propsObjData)}>
-                                <Text style={[styles.title, { fontSize: 16, padding: 7 }]} >Upload Image</Text>
+                                <Text style={[styles.title, { fontSize: 16, padding: 7 }]} >Upload Document</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
                                 <Text style={[styles.title, { fontSize: 16, padding: 7 }]}>Cancel</Text>
@@ -319,7 +327,7 @@ const LoanEnquiryDetail = () => {
                 </Modal>
                 <CustomHeader path={'Loan'} HandlerGoBack={HandlerGoBack} />
                 <FormsTitle title={'Loan Enquiry Detail'} />
-                <ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.container}>
                         <InputTextForm label={t('farmer_name')} value={agri_user.userName} editable={false} />
                         <InputTextForm label={t('farmer_number')} value={agri_user.contactNumber} editable={false} />
