@@ -421,11 +421,13 @@ const CreateProblem = ({ navigation }) => {
                     farmerByNameAPI(dbname, lan_id, token, user_id),
                     problemSeverityAPI(dbname, lan_id)
                 ]);
-                await Promise.all([
-                    setItem('supervisorProblemTypeName', problemName_res),
-                    setItem('response' + user_id, response),
-                    setItem('severity_res', severity_res)
-                ]);
+                if (problemName_res?.status == 200) {
+                    await Promise.all([
+                        setItem('supervisorProblemTypeName', problemName_res),
+                        setItem('response' + user_id, response),
+                        setItem('severity_res', severity_res)
+                    ]);
+                }
             } else {
                 var [problemName_res, response, severity_res] = await Promise.all([
                     getItem('supervisorProblemTypeName'),
@@ -433,7 +435,7 @@ const CreateProblem = ({ navigation }) => {
                     getItem('severity_res')
                 ])
             }
-            setProblemAll(problemName_res.data.data);
+            setProblemAll(problemName_res?.data?.data);
             if (problemName_res) {
                 const dataArray = [];
                 problemName_res.data.data.forEach(element => {

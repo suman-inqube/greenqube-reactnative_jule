@@ -36,7 +36,6 @@ const notificationServices = () => {
   }
   const notificationListener = async () => {
     const userType = await getItem('userType');
-    console.error(userType)
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', remoteMessage);
       // <ForegroundHandler />
@@ -48,6 +47,7 @@ const notificationServices = () => {
       );
       const { type, response } = remoteMessage.data;
       const responseCommentJson = JSON.parse(response);
+      console.log(remoteMessage.data)
       if (type == 'comment') {
         if (userType == 3) {
           navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid, type: type });
@@ -91,7 +91,7 @@ const notificationServices = () => {
           navigation.navigate("FarmerTrainingList", { io_oid: responseCommentJson.io_oid });
         }
       }
-      console.log("backgrund state", remoteMessage)
+      // console.log("backgrund state", remoteMessage)
     });
     // Check whether an initial notification is available
     messaging()
