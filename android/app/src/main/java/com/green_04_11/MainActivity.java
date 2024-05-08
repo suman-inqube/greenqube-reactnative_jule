@@ -1,4 +1,4 @@
-package com.green_04_11;
+package com.inqube.masagana;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

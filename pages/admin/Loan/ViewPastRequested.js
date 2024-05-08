@@ -15,6 +15,7 @@ import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { useSelector } from 'react-redux';
 import store from '../../redux/store';
+import { updateLoan } from '../../redux/actions/LoanAction';
 const ViewPastRequested = ({ setActiveBtn }) => {
     const isFocused = useIsFocused();
     const { t } = useTranslation();
@@ -239,6 +240,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         onPageLoad();
     }, [])
     const navigate = (LoanEnquiryDetail, item) => {
+        store.dispatch(updateLoan(item));
         navigation.navigate('LoanEnquiryDetail', item)
     }
     return (
@@ -390,4 +392,5 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular',
         fontSize: 14
     }
+
 })

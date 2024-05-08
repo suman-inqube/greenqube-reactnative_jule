@@ -42,10 +42,10 @@ const SplashScreenModal = (props) => {
         >
             <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} >
                 <View style={styles.modalView}>
-                    <View style={{ marginHorizontal: 20, marginBottom: -20 }}>
+                    {/* <View style={{ marginHorizontal: 20, marginBottom: -20 }}>
                         <Text style={{ fontSize: 20, color: 'black', marginTop: 25, textAlign: 'center', fontFamily: "Poppins-SemiBold" }}>Company</Text>
                         <InputTextForm label="" onChangeText={(item) => searchDBName(item)} />
-                    </View>
+                    </View> */}
                     <View style={styles.modelTitleContainer}>
                         <FlatList
                             showsVerticalScrollIndicator={false}
@@ -108,10 +108,10 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular'
     },
     flatContainer: {
-        height: height / 1.5
+        // height: height / 1.5
     },
     flatContainerLengthUp: {
-        height: height / 3
+        // height: height / 3
     }
 
 })

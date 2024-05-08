@@ -16,7 +16,9 @@ const FarmerFilter = ({
   FarmerProductNameValue,
   FarmerProductPhoneValue,
   onlyDate,
-  filterDataRemove
+  filterDataRemove,
+  statusFilter,
+  statusNameValue
 }) => {
   return (
     <>
@@ -48,6 +50,23 @@ const FarmerFilter = ({
               placeholderTextColor="#000"
               onChangeText={onChangeText}
             />
+            : ""}
+          {filterItem === 'statusFilter' ?
+            <View style={styles.searchSection}>
+              <TouchableOpacity onPress={filterDataRemove}>
+                <Image source={require('./images/cross100.png')}
+                  style={styles.searchIcon}
+                />
+              </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder={'Status'}
+                placeholderTextColor="#000"
+                onChangeText={onChangeText}
+                value={statusNameValue}
+                underlineColorAndroid="transparent"
+              />
+            </View>
             : ""}
           {filterItem === 'Date' ?
             <View style={styles.dataSearchContainer}>
@@ -100,6 +119,13 @@ const FarmerFilter = ({
             <RadioForm label={"Category"}
               selected={filterItem === 'Category'}
               onSelect={() => onchangeFilterItem('Category')}
+            />
+            : ""
+          }
+          {statusFilter == true ?
+            <RadioForm label={"Status"}
+              selected={filterItem === 'statusFilter'}
+              onSelect={() => onchangeFilterItem('statusFilter')}
             />
             : ""
           }
@@ -194,6 +220,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center'
-  }
+  },
+  searchSection: {
+    // flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 50,
+    height: 45,
+    marginRight: 10,
+    width: '90%',
+    marginHorizontal: '5%'
+  },
+  searchIcon: {
+    // marginHorizontal:10
+    width: 30,
+    height: 30,
+    margin: 10,
+    // borderWidth:1,
+    // borderColor:'#020202',
+    // borderRadius:50,
+  },
+  input: {
+    flex: 1,
+    paddingTop: 10,
+    paddingRight: 10,
+    paddingBottom: 10,
+    paddingLeft: 0,
+    backgroundColor: '#fff',
+    color: '#424242',
+    borderRadius: 30,
+    paddingHorizontal: 20,
+    fontFamily: 'Poppins-Regular'
+  },
 
 })

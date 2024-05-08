@@ -2,7 +2,6 @@
 const initialState = {
     locationData: null
 };
-
 const locationReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'UPDATE_LOCATION':
@@ -11,5 +10,4 @@ const locationReducer = (state = initialState, action) => {
             return state;
     }
 };
-
 export default locationReducer;

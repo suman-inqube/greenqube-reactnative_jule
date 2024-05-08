@@ -217,6 +217,11 @@ export const farmerAgainstSupervisorAPI = async (dbName, languageID, token, user
             'information': `${dbName},${languageID},${userId}`,
         }
     }
+    console.log({
+        'authorization': `${token}`,
+        'information': `${dbName},${languageID},${userId}`,
+    })
+    console.log(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=')
     try {
         let response = await axios.get(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=', axiosHeaders);
         return response;
@@ -784,18 +789,22 @@ export const livelihoodNameVarietyLandrelAPI = async (dbName, languageId, userId
     }
 }
 
-export const unitByListAPI = async (dbName, languageId) => {
+export const unitByListAPI = async (dbName, languageId, is_default = '', sub_type = '') => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageId}`,
         },
     };
+    console.log({
+        'information': `${dbName},${languageId}`,
+    })
+    console.log(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=product_unit&search_key=`)
     try {
-        let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=product_unit&search_key=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=product_unit&search_key=&is_default=${is_default}&sub_type=${sub_type}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in unitByListAPI " + error);
+        return error.response;
     }
 }
 
@@ -807,7 +816,7 @@ export const outputSaveAPI = async (dbName, languageId, token, userId, inputData
             'Content-Type': 'multipart/form-data',
         },
     };
-    // return console.log(`${config.BASE_URL}questionRoute/add`,inputData, axiosHeaders);
+    // return console.log(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
     try {
         let response = await axios.post(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
         return response;
@@ -936,7 +945,7 @@ export const numberDigitAPI = async (countryId, languageId) => {
         },
     };
     try {
-        let response = await axios.get(config.BASE_URL + 'locationRoute/getContactNoDigitByCountryID/${countryId}', axiosHeaders);
+        let response = await axios.get(config.BASE_URL + `locationRoute/getContactNoDigitByCountryID/${countryId}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -1606,14 +1615,29 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
     }
 }
 
-export const POPStaticMenuListDetails = async (dbName, lan_id, crop_id, staticMenuId) => {
+export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${lan_id}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/acd9b7b3-3c15-49f3-b56c-acd8918b3639?crop_type_id=&crop_id=9499e90d-497b-47e3-bff8-657737a2fe26&static_submenu_id=`, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
+    const axiosHeaders = {
+        headers: {
+            'information': `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}locationRoute/detailsCompany/${db_company_id}`, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);
@@ -1679,7 +1703,6 @@ export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
         return error.response;
     }
 }
-
 
 
 

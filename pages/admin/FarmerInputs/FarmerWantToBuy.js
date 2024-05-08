@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Keyboard, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -60,12 +60,14 @@ const FarmerWantToBuy = ({ navigation }) => {
         setShowingMenu(false)
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
 
@@ -236,7 +238,6 @@ const FarmerWantToBuy = ({ navigation }) => {
 
 
     const saveHandle = async () => {
-        Keyboard.dismiss();
         const res = validationData()
         if (res == true) {
             if (formStep === 1) {

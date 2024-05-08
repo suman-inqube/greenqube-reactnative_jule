@@ -74,13 +74,13 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.green_04_11"
+    namespace "com.inqube.masagana"
     defaultConfig {
-        applicationId "com.green_04_11"
+        applicationId "com.inqube.masagana"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 63
+        versionName "6.1"
     }
     signingConfigs {
         debug {
@@ -118,12 +118,12 @@ dependencies {
     }
 
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
-    // implementation platform('com.google.firebase:firebase-bom:28.2.1')
-    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
-    // implementation("com.google.firebase:firebase-crashlytics")
-    // implementation("com.google.firebase:firebase-analytics")
+    implementation platform('com.google.firebase:firebase-bom:28.2.1')
+    // implementation(platform("com.google.firebase:firebase-bom:32.7.1"))//
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
+    // implementation("com.google.firebase:firebase-crashlytics")//
+    // implementation("com.google.firebase:firebase-analytics")//
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {

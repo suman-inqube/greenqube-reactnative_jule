@@ -12,23 +12,10 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
 // import HTMLView from 'react-native-htmlview';
-
-const head = `
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<style>
-.iframe {
-    top: 0; left: 0; width: 100%; height: 0;
-    position: relative; padding-bottom: 56.25%;
-}
-.iframe>* {
-    top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;
-}
-</style>
-`;
 const UsefulInformation = () => {
     const [noticeDetails, setNoticeDetails] = useState([]);
     const [noticeFiles, setNoticeFiles] = useState([]);
-    const { width, height } = useWindowDimensions();
+    const { width } = useWindowDimensions();
     const navigation = useNavigation();
     const detailItem = (path, file_ext) => {
         if (file_ext != "video/mp4") {
@@ -63,8 +50,9 @@ const UsefulInformation = () => {
             </View>
         );
     }
+
     const source = {
-        html: noticeDetails && `${noticeDetails?.post_desc}`
+        html: noticeDetails && `${noticeDetails.post_desc}`
     };
     const onPageLoad = async () => {
         const noticeId = await getItem('userNoticeId');
@@ -99,11 +87,14 @@ const UsefulInformation = () => {
     return (
         <View style={{ flex: 1 }}>
             <CustomHeader path={'UsefulInformationList'} HandlerGoBack={HandlerGoBack} />
-            <FormsTitle title={noticeDetails?.post_name} />
+            <FormsTitle title={noticeDetails && noticeDetails.post_name} />
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={{ marginHorizontal: 7 }}>
                     <View style={{ marginHorizontal: 7, alignItems: "center" }}>
-                        <RenderHtml contentWidth={width} source={source} />
+                        <RenderHtml
+                            contentWidth={width}
+                            source={source}
+                        />
                     </View>
                     <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
                         {
@@ -129,8 +120,6 @@ const UsefulInformation = () => {
                                 ""
                         }
                     </View>
-
-
                 </View>
             </ScrollView>
         </View>

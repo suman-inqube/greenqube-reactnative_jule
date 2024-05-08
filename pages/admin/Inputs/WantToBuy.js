@@ -59,12 +59,14 @@ const WantToBuy = ({ navigation }) => {
         setShowingMenu(false)
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
 
@@ -222,7 +224,6 @@ const WantToBuy = ({ navigation }) => {
             })
             return false;
         }
-
         return true;
 
     }
@@ -256,7 +257,9 @@ const WantToBuy = ({ navigation }) => {
                 formData.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
                 const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
                 if (database_res) {
-                    MessageDialog({ title: 'Successful', message: "Data submitted successfully" })
+                    Toast.show({
+                        time: 2, text: `${t('Data submitted successfully')}`, ...AlertMesg[0]
+                    });
                     setShowingMenu(false);
                     setSearchFarmerName("");
                     setSearchFarmerPhone("");
@@ -265,8 +268,10 @@ const WantToBuy = ({ navigation }) => {
                             delete saveData[key];
                         }
                     }
-                    setFormStep(1)
-                    navigation.navigate('InputList');
+                    setFormStep(1);
+                    setTimeout(() => {
+                        navigation.navigate('InputList');
+                    }, 1000);
                 }
             }
         }
@@ -302,9 +307,6 @@ const WantToBuy = ({ navigation }) => {
                     category = entity_type.name;
                     sub_category = entity_name.name;
                 }
-                // console.log(JSON.stringify(inputSingleData.productCategories[0]));
-                // const category = inputSingleData.productCategories && inputSingleData.productCategories[0].productCategory && inputSingleData.productCategories[0].productCategory.name
-                // const sub_category = inputSingleData.productCategories && inputSingleData.productCategories[1].productCategory && inputSingleData.productCategories[1].productCategory.name
                 setSaveData({
                     ...saveData,
                     sub_category: sub_category,
@@ -449,10 +451,10 @@ const WantToBuy = ({ navigation }) => {
                     {
                         formStep === 1 ?
                             <>
-                                <InputTextForm label={t('farmer_name')} value={searchFarmerName}
+                                <InputTextForm label={t('farmer_name')} color={'red'} value={searchFarmerName}
                                     onChangeText={(farmerName) => handleSearch(farmerName)} />
 
-                                <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} />
+                                <InputTextForm label={t('farmer_number')} color={'red'} value={searchFarmerPhone} />
                                 <DropdownForm label={t('addland_select_plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} val={saveData.land_rel_id_label} />
                                 {showingMenu ?
                                     <View style={styles.plotSiteView}>
@@ -480,10 +482,10 @@ const WantToBuy = ({ navigation }) => {
 
                                 <View style={styles.quanContainer}>
                                     <View style={styles.quanContainerItem}>
-                                        <InputTextForm label={t('select_quantity_input')} onChangeText={(item) => setSaveData({ ...saveData, quantity: item })} value={saveData.quantity} />
+                                        <InputTextForm label={t('select_quantity_input')} color={'red'} onChangeText={(item) => setSaveData({ ...saveData, quantity: item })} value={saveData.quantity} />
                                     </View>
                                     <View style={styles.quanContainerItem}>
-                                        <DropdownForm label={t('select_unit_input')} data={unitData} onChange={(item) => handleUnit(item)} val={saveData.unit_id} />
+                                        <DropdownForm label={t('select_unit_input')} color={'red'} data={unitData} onChange={(item) => handleUnit(item)} val={saveData.unit_id} />
                                     </View>
                                 </View>
                             </> : <>

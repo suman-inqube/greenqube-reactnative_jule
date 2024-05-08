@@ -102,7 +102,7 @@ const AdminNavigation = () => {
             <Drawer.Screen name="PostNew" component={PostNew} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="ViewPast" component={ViewPast} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
-            <Drawer.Screen name="Loan" component={LoanEnquiry} options={{ gestureEnabled: false }} />
+            <Drawer.Screen name="Loan" component={LoanEnquiry} options={{ gestureEnabled: false, unmountOnBlur: true, }} />
             <Drawer.Screen name="LoanEnquiryDetail" component={LoanEnquiryDetail} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
             <Drawer.Screen name="InputList" component={InputList} options={{ gestureEnabled: false }} />

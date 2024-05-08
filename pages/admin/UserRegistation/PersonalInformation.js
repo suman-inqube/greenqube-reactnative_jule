@@ -66,7 +66,7 @@ const PersonalInformation = () => {
         district: "",
         block: "",
     });
-    const [contact_no_digits, setcontact_no_digits] = useState(10);
+    const [contact_no_digits, setcontact_no_digits] = useState(11);
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -149,19 +149,18 @@ const PersonalInformation = () => {
             })
             const { dbname, lan_id, token, user_id, agri_user_addresses, db_company_id } = loginUser_data;
             getState(dbname, lan_id);
-            const checkPhoneNumberDigit = await checkPhoneDigitAPI(agri_user_addresses[0].country, db_company_id, lan_id);
+            const checkPhoneNumberDigit = await checkPhoneDigitAPI(agri_user_addresses[0]?.country, db_company_id, lan_id);
             if (checkPhoneNumberDigit.status == 200) {
                 const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
                 setcontact_no_digits(contact_no_digits);
             }
-            console.log(checkPhoneNumberDigit.data)
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 dbName: dbname,
                 languageID: lan_id,
                 token: token,
                 userID: user_id,
-                country: loginUser_data.agri_user_addresses[0].country,
+                country: loginUser_data.agri_user_addresses[0]?.country,
                 company: loginUser_data.db_company_id
             })
         }
@@ -350,8 +349,8 @@ const PersonalInformation = () => {
             Toast.show({ text: `${t('please_enter_valid_name')}`, ...AlertMesg[0] });
         } else if (farmerData.phone == "") {
             Toast.show({ text: `${t('please_enter_valid_mobile_no')}`, ...AlertMesg[0] });
-        } else if (farmerData.phone.length != 10) {
-            Toast.show({ text: 'Please Enter Valid Phone Number', ...AlertMesg[0] });
+        } else if (farmerData.phone.length != contact_no_digits) {
+            Toast.show({ text: `${t('please_enter_valid_mobile_no')}`, ...AlertMesg[0] });
         } else if (farmerData.age == "") {
             Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
         } else if (farmerData.age < 18) {

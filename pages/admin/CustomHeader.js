@@ -5,6 +5,8 @@ import ImageForm from '../Common/ImageForm';
 import { useRoute, useFocusEffect, useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 const CustomHeader = ({ path, HandlerGoBack, banner }) => {
+    // const routesLength = useNavigationState(state => state.routes.length);
+    // const state = useNavigationState(state => state);
     const { t } = useTranslation();
     const navigation = useNavigation();
     const isFocused = useIsFocused();
@@ -21,7 +23,22 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
         setlogoImage(logoImageData)
         settopBanner(topBannerData);
     };
-
+    // const goBack = () => {
+    //     if (path !== "exit") {
+    //         navigation.navigate(path);
+    //     } else {
+    //         // BackHandler.exitApp();
+    //         Alert.alert(
+    //             `${t('app_name')}`,
+    //             `${t('close_app')}`,
+    //             [
+    //                 { text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+    //                 { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
+    //             ],
+    //             { cancelable: false });
+    //         return true;
+    //     }
+    // }
     useEffect(() => {
         // console.log(state.history);
         // console.log(JSON.stringify(state));
@@ -48,7 +65,7 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                             style={{ width: 30, height: 30 }} />
                     </TouchableOpacity>
                     <Image source={require('../Common/images/logo.png')}
-                        style={{ width: 100, height: 45 }}
+                        style={{ width: 100, height: 60 }}
                         resizeMode='contain' />
                 </View>
                 <TouchableOpacity onPress={openDrawer}>
@@ -57,8 +74,8 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                             <ImageForm
                                 source={{ uri: logoImage }}
                                 resizeMode="contain"
-                                height={50}
-                                width={50}
+                                height={60}
+                                width={70}
                             />
                             : ''}
                         <Image source={require('../Common/images/3dot.png')} />

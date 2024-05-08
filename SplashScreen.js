@@ -9,9 +9,9 @@ import SplashScreenModal from './SplashScreenModal';
 import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 import { HeaderBackButton } from 'react-navigation';
 import i18next from 'i18next';
-// import NotificationServices from './pages/PushNotification/NotificationServices';
+import NotificationServices from './pages/PushNotification/NotificationServices';
 const SplashScreen = ({ navigation }) => {
-    // const { requestUserPermission, notificationListener } = NotificationServices();
+    const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
     const [companyData, setCompanyData] = useState([]);
     const [companyDataRaw, setCompanyDataRaw] = useState([]);
@@ -41,11 +41,14 @@ const SplashScreen = ({ navigation }) => {
         try {
             let company_res = await databaseListAPI();
             if (company_res.data.data) {
+                const company_data = company_res.data.data.filter((data) =>
+                    data.company_id == 110
+                )
                 const delay = 1000;
                 const timeout = setTimeout(() => {
                     setModalVisible(true)
-                    setCompanyData(company_res.data.data);
-                    setCompanyDataRaw(company_res.data.data);
+                    setCompanyData(company_data);
+                    setCompanyDataRaw(company_data);
 
                 }, delay);
             }
@@ -89,8 +92,8 @@ const SplashScreen = ({ navigation }) => {
         const [companyLanguage_data, loginUser_data] = await Promise.all([
             getItem('companyLanguage_data'),
             getItem('loginUser_data'),
-            // requestUserPermission(),
-            // notificationListener(),
+            requestUserPermission(),
+            notificationListener(),
         ])
         if (loginUser_data) {
             i18next.changeLanguage(`${loginUser_data.lan_id}`);
@@ -140,7 +143,7 @@ const SplashScreen = ({ navigation }) => {
                     />
 
                     <View style={styles.content}>
-                        <Image source={require('./pages/Common/images/greenqube_logo.png')} style={styles.logo} />
+                        <Image source={require('./pages/Common/images/logo.png')} style={styles.logo} />
                     </View>
                 </View>
             </ImageBackground>
@@ -171,7 +174,7 @@ const styles = StyleSheet.create({
     },
     logo: {
         width: 250,
-        height: 150,
+        height: 250,
         resizeMode: 'contain',
     },
 });

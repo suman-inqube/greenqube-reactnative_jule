@@ -26,7 +26,7 @@ const ForegroundLocationService = () => {
                 // });
                 FusedLocation.on('fusedLocation', async (location) => {
                     // Inside the callback function, you can await asynchronous operations
-                    store.dispatch(updateLocation(location));
+                    // store.dispatch(updateLocation(location));
                     await setItem('fusedLocation', location);
                 });
 

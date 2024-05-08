@@ -1,4 +1,4 @@
-import { BackHandler, StyleSheet, Keyboard, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native'
+import { BackHandler, StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -206,13 +206,14 @@ const FarmerAddExpense = ({ navigation }) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
 
@@ -267,7 +268,6 @@ const FarmerAddExpense = ({ navigation }) => {
     }
 
     const handleSave = async () => {
-        Keyboard.dismiss();
         let expense_total = 0
         data.forEach(element => {
             expense_total += parseInt(element.amount)

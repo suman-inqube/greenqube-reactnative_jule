@@ -20,7 +20,7 @@ import {
     Addloan
 } from './FarmerLoanAPI';
 import { useNavigation } from '@react-navigation/native';
-
+import LoadingScreen from '../../Common/LoadingScreen';
 const FarmerLoanRequest = ({ setActiveBtn }) => {
     const { t } = useTranslation();
     const navigation = useNavigation();
@@ -196,7 +196,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         }
     }
     const onPageLoad = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
         const [loginUser_data, curr] = await Promise.all([
             getItem('loginUser_data'),
             getItem('currency')
@@ -236,7 +236,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                 setPlotSite(dataArray)
             }
             const response = await loanPurposeAPI(dbName, languageID, token, userID)
-            if (response.status === 200) {
+            if (response?.status === 200) {
                 const dataArray = [];
                 response.data.data.rows.forEach(element => {
                     dataArray.push({
@@ -248,6 +248,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             }
 
         }
+        setIsLoading(false)
     };
     useEffect(() => {
         onPageLoad();
@@ -256,6 +257,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         setSaveData({ ...saveData, [name]: text })
     }
     const handleSave = async () => {
+        setIsLoading(true);
         Keyboard.dismiss();
         const checkValue = [];
         Object.values(isChecked).map((data, index) => {
@@ -299,20 +301,20 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             formData.append("farming_type", saveData.farming_type);
             formData.append("plot_id", checkValue);
             const response = await Addloan(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData)
-            if (response.status === 200) {
-                Toast.show({ text: `Successfull Add Data`, ...AlertMesg[0] });
+            if (response?.status === 200) {
+                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                 setTimeout(() => {
                     setActiveBtn(2);
                 }, 2000);
-
             }
         }
+        setIsLoading(false);
     }
     return (
         <>
             <Root>
-
-                <ScrollView >
+                {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
+                <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.container}>
                         <InputTextForm label={t('farmer_name')} value={dbLanTokUsr.userName} />
                         <InputTextForm label={t('farmer_number')} value={dbLanTokUsr.userNumber} keyboardType={'numeric'} />
@@ -508,6 +510,12 @@ const styles = StyleSheet.create({
     text: {
         color: '#000',
         fontFamily: 'Poppins-Regular'
-    }
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: "60%",
+        zIndex: 999,
+        left: '45%'
+    },
 
 })

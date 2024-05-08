@@ -1,5 +1,6 @@
 import {
-    BackHandler, StyleSheet, Text, View, Keyboard, ScrollView, TouchableOpacity, Image, FlatList, Dimensions, SafeAreaView
+    BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
+    FlatList, Dimensions, SafeAreaView, Keyboard
 } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
@@ -191,12 +192,14 @@ const ActivityReport = ({ navigation }) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
     const handleDatePicker = async (item) => {

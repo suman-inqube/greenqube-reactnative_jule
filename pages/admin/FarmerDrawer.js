@@ -10,8 +10,13 @@ const FarmerDrawer = (props) => {
     const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
     const navigation = useNavigation();
+    const [side_menu_option, set_side_menu_option] = useState("")
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
+        const [loginUser_data, side_menu_option] = await Promise.all([
+            getItem('loginUser_data'),
+            getItem('side_menu_option')
+        ]);
+        set_side_menu_option(side_menu_option);
         i18next.changeLanguage(`${loginUser_data.lan_id}`);
     };
     useEffect(() => {
@@ -40,7 +45,8 @@ const FarmerDrawer = (props) => {
                 removeItem("topBannerData"),
                 removeItem("currency"),
                 removeItem('fcmToken'),
-                removeItem('company_website')
+                removeItem('company_website'),
+                removeItem("side_menu_option"),
             ]);
             const popAction = StackActions.pop(1);
             navigation.dispatch(popAction);
@@ -72,27 +78,47 @@ const FarmerDrawer = (props) => {
                             <Text style={styles.menuText}>{t('plot_and_crop_details')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('PackageOfPractices')}>
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('PackageOfPractices')} >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/scientific_farming.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
                             <Text style={styles.menuText}>{t('scientific_farming')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('SoilHealthManagement')} >
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/soil.png')}
-                                style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                            <Text style={styles.menuText}>{t('soil_health_management')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Calculator')}>
-                        <View style={styles.menuItem}>
-                            <Image source={require('../Common/images/calculator.png')}
-                                style={[{ height: 25, width: 25 }]} />
-                            <Text style={styles.menuText}>{t('agri_calculator')}</Text>
-                        </View>
-                    </TouchableOpacity>
+                    {side_menu_option?.soil_testing ?
+                        <TouchableOpacity style={styles.memuContainer}
+                            onPress={() => navigateToPages('SoilHealthManagement')}>
+                            <View style={styles.menuItem}>
+                                <Image source={require('../Common/images/soil.png')}
+                                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
+                                <Text style={styles.menuText}>{t('soil_health_management')}</Text>
+                            </View>
+                        </TouchableOpacity> :
+                        <TouchableOpacity style={styles.memuContainer}>
+                            <View style={styles.menuItem}>
+                                <Image source={require('../Common/images/soil.png')}
+                                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
+                                <Text style={styles.menuText}>{t('soil_health_management')}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    }
+                    {side_menu_option?.agri_calculator ?
+                        <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Calculator')} >
+                            <View style={styles.menuItem}>
+                                <Image source={require('../Common/images/calculator.png')}
+                                    style={[{ height: 25, width: 25 }]} />
+                                <Text style={styles.menuText}>{t('agri_calculator')}</Text>
+                            </View>
+                        </TouchableOpacity> :
+                        <TouchableOpacity style={styles.memuContainer} >
+                            <View style={styles.menuItem}>
+                                <Image source={require('../Common/images/calculator.png')}
+                                    style={[{ height: 25, width: 25 }]} />
+                                <Text style={styles.menuText}>{t('agri_calculator')}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    }
+
                     <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')} >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/insurance_menu.png')}

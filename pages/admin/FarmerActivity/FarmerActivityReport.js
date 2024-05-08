@@ -11,7 +11,6 @@ import {
   Dimensions,
   Button,
   Animated,
-  Keyboard
 } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
@@ -240,13 +239,14 @@ const FarmerActivityReport = ({ navigation }) => {
   const handleSearch = text => {
     setSearchFarmerName(text);
     setSearchFarmerPhone('');
-    const result = farmerData.filter(item =>
-      item.label.toLowerCase().includes(text.toLowerCase()),
-    );
-
-    if (result) {
-      setSearchResultsList(true);
-      setSearchResults(result);
+    if (farmerData.length > 0) {
+      const result = farmerData.filter(item =>
+        item.label.toLowerCase().includes(text.toLowerCase()),
+      );
+      if (result) {
+        setSearchResultsList(true);
+        setSearchResults(result);
+      }
     }
   };
 
@@ -594,7 +594,6 @@ const FarmerActivityReport = ({ navigation }) => {
     return true;
   };
   const handleSave = async () => {
-    Keyboard.dismiss();
     if (validateForm()) {
       const formData = new FormData();
 

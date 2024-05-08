@@ -209,17 +209,19 @@ const ListProblem = ({ navigation }) => {
                     problemListAPI(dbName, languageId, supervisorId, 1),
                     farmerByNameAPI(dbName, languageId, token, supervisorId)
                 ]);
-                await Promise.all([
-                    setItem('problemTypeName', response),
-                    setItem('farmerByName' + supervisorId, farmerByName)
-                ]);
+                if (response?.status == 200) {
+                    await Promise.all([
+                        setItem('problemTypeName', response),
+                        setItem('farmerByName' + supervisorId, farmerByName)
+                    ]);
+                }
             } else {
                 var [response, farmerByName] = await Promise.all([
                     getItem('problemTypeName'),
                     getItem('farmerByName' + supervisorId)
                 ]);
             }
-            if (response) {
+            if (response?.status == 200) {
                 setIsLoading(false);
                 const totalPage = Math.ceil(response.data.data.count / 20)
                 setdbLanTokUsr({
@@ -235,7 +237,7 @@ const ListProblem = ({ navigation }) => {
                 setItem("problem_Data", response.data.data)
                 setIsLoading(false)
             }
-            if (farmerByName.status == 200) {
+            if (farmerByName?.status == 200) {
                 const dataArray = [];
                 farmerByName.data.data.rows.forEach(element => {
                     dataArray.push({

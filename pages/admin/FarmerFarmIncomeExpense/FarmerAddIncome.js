@@ -1,4 +1,4 @@
-import { BackHandler, StyleSheet, Keyboard, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native'
+import { BackHandler, StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -237,7 +237,7 @@ const FarmerAddIncome = ({ navigation }) => {
         }
     }
     const handleSave = async () => {
-        Keyboard.dismiss();
+        // return console.log(data);
         let grand_total = 0
         data.forEach(element => {
             grand_total += parseInt(element.amount)
