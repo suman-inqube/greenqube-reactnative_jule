@@ -119,8 +119,8 @@ const PostNew = (props) => {
     const handlePlot = async (relId, plot) => {
         if (relId.label == 'other') {
             setIsOther(true)
-            const farmer_all = await farmerAgainstSupervisorAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
-            if (farmer_all.state == 200) {
+            const farmer_all = await farmerAgainstSupervisorAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, farmerID)
+            if (farmer_all?.status == 200) {
                 const problemNameFound = farmer_all.data.data.rows.find(user => user.user_id === relId.user_id);
                 if (problemNameFound) {
                     setSaveData({
@@ -208,12 +208,19 @@ const PostNew = (props) => {
             return true;
         }
     }
-    const handleUnit = (item) => {
-        setSaveData({
-            ...saveData,
-            unit_id: item.label,
-            defined_unit_value: item.defined_unit_value
-        })
+    const handleUnit = async (item) => {
+        const unitRes = await unitByListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, 1, item.sub_type);
+        if (unitRes?.status == 200) {
+            const rows = unitRes?.data?.data?.rows[0];
+            setSaveData({
+                ...saveData,
+                unit_id: item?.label,
+                unit_fid: item?.value,
+                unit_sname: item?.unit_sname,
+                defined_unit_value: item?.defined_unit_value,
+                filter_unit_fid: rows?.fid
+            });
+        }
     }
     const openImagePicker = (item) => {
         const options = {
@@ -266,9 +273,10 @@ const PostNew = (props) => {
                     dataArray.push({
                         value: element.fid,
                         label: element.unit_name,
+                        unit_sname: element.unit_sname,
+                        sub_type: element.sub_type,
                         defined_unit_value: element.defined_unit_value
                     });
-
                     setUnitData(dataArray)
                 });
             }
@@ -331,18 +339,22 @@ const PostNew = (props) => {
                 formDataObject.append('type', saveData.type);
                 formDataObject.append('user_contact_number', saveData.user_contact_number);
                 formDataObject.append('user_name', saveData.user_name);
-                formDataObject.append('unit_id', saveData.unit_id);
+                //change this key saveData.unit_sname 
+                formDataObject.append('unit_id', saveData.unit_sname);
+                //new key add
+                formDataObject.append('unit_fid', saveData.unit_fid);
+                formDataObject.append('default_unit_fid', saveData.filter_unit_fid);
+                //
                 formDataObject.append('photo', "");
                 formDataObject.append('others', saveData.others);
                 formDataObject.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
                 const database_res = await outputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, formDataObject);
-                if (database_res.status === 200) {
+                if (database_res?.status === 200) {
                     Toast.show({ text: `Successfull Add Data`, ...AlertMesg[0] });
                     setTimeout(() => {
                         props.sendDataToParent(2)
                     }, 1500);
                 }
-
             }
         }
     }

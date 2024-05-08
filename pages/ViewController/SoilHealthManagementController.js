@@ -165,7 +165,6 @@ const SoilHealthManagementController = (sample) => {
     }
     const onChangePlot = async (item) => {
         const { label, value } = item;
-        console.log(label, value);
         setPlotData({ ...plotData, name: label, value: value });
         setCropDetails({
             ...cropDetails,

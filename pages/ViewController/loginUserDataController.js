@@ -5,8 +5,7 @@ const loginUserDataController = () => {
         dbname: "",
         lan_id: "",
         token: "",
-        user_id: "",
-        agri_user_addresses: ""
+        user_id: ""
     });
     const GetLoginUserData = async () => {
         const [loginUser_data] = await Promise.all([
