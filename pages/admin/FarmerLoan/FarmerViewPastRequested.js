@@ -156,6 +156,12 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
             const result = statusAll.filter(item =>
                 item.label.toLowerCase().includes(search.toLowerCase())
             );
+            if (search == "") {
+                setSearchResultsList(false);
+                setLoanList(loanListRaw);
+            } else {
+                setSearchResultsList(true);
+            }
             if (result) {
                 setSearchResults(result);
             }

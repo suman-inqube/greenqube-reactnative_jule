@@ -284,15 +284,16 @@ const LoanEnquiryDetail = () => {
                 setTimeout(() => {
                     navigation.navigate('Loan', 2)
                 }, 1200);
-            } else {
-                const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
-                if (responseUpdate?.status == 200) {
-                    Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
-                    setTimeout(() => {
-                        navigation.navigate('Loan', 2)
-                    }, 1200);
-                }
             }
+            // else {
+            //     const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
+            //     if (responseUpdate?.status == 200) {
+            //         Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+            //         setTimeout(() => {
+            //             navigation.navigate('Loan', 2)
+            //         }, 1200);
+            //     }
+            // }
         }
         setIsLoading(false);
     }
