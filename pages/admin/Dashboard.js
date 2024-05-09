@@ -15,7 +15,7 @@ import ForegroundLocationService from '../BackgroundService/ForegroundLocationSe
 import FusedLocation from 'react-native-fused-location';
 // import NotificationServices from '../PushNotification/NotificationServices';
 // import messaging from '@react-native-firebase/messaging';
-// import ForegroundHandler from '../PushNotification/ForegroundHandler';
+import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { useSelector } from 'react-redux';
 import DeviceInfo from '../DeviceInfo'
 import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
@@ -102,7 +102,7 @@ const Dashboard = ({ navigation }) => {
     <>
       <BackGroundLocation />
       <ForegroundLocationService />
-      {/* <ForegroundHandler /> */}
+      <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
         <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
         <View name="name">
