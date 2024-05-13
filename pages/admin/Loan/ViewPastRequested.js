@@ -213,8 +213,10 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
             let tempData = loanListRaw.filter(item => {
-                return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                    item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                // return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
+                //     item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                return (item.created_at.slice(0, 10) >= fromDate &&
+                    item.created_at.slice(0, 10) <= toDate);
             });
             setLoanList(tempData)
         }
@@ -302,7 +304,8 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             data={loanList}
                             style={filterName !== "" ? { marginBottom: 130 } : { marginBottom: 90 }}
                             renderItem={({ item }) => {
-                                var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                                // var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                                var date = new Date(item.created_at.split("T")[0]);
                                 var sanctioned_date = new Date(item.sanctioned_date);
                                 return (
                                     <TouchableOpacity style={styles.flatListContainer} onPress={() => navigate('LoanEnquiryDetail', item)}>

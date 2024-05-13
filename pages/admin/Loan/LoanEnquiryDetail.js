@@ -46,7 +46,7 @@ const LoanEnquiryDetail = () => {
         token: '',
         userID: ''
     });
-    let plotArr = [];
+    const [plotArr, setplotArr] = useState([]);
     // const { user_id, id,
     //     status,
     //     agri_files, agri_user, apx_annual_income,
@@ -235,9 +235,11 @@ const LoanEnquiryDetail = () => {
             }
             // setIdentityProof(identityProofValue);
         }
-        loan_plots.map((data, index) => {
-            plotArr.push(data?.agri_land_user_rel?.plot_no)
+        let plotDataArr = [];
+        loan_plots.filter((data, index) => {
+            plotDataArr.push(data?.agri_land_user_rel?.plot_no)
         })
+        setplotArr(plotDataArr);
     }, []);
     const HandlerGoBack = () => {
         navigation.navigate('Loan');

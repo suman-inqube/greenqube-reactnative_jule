@@ -807,7 +807,7 @@ export const outputSaveAPI = async (dbName, languageId, token, userId, inputData
             'Content-Type': 'multipart/form-data',
         },
     };
-    // return console.log(`${config.BASE_URL}questionRoute/add`,inputData, axiosHeaders);
+    // return console.log(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
     try {
         let response = await axios.post(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
         return response;

@@ -533,6 +533,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       const token = loginUser_data.token;
       const userID = loginUser_data.user_id;
       const { owner, FcmUserToken } = loginUser_data;
+      console.log(JSON.stringify(loginUser_data))
       setdbLanTokUsr({
         ...dbLanTokUsr,
         dbName: dbName,

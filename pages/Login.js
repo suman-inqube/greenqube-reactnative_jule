@@ -16,12 +16,12 @@ import { AlertMesg } from './Common/ToastAlert';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
-// import NotificationServices from './PushNotification/NotificationServices';
+import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
 const Login = ({ route }) => {
     const { netConnection } = DeviceInfo();
     // const { fusedLocationData } = ForegroundLocationService();
-    // const { requestUserPermission, notificationListener } = NotificationServices();
+    const { requestUserPermission, notificationListener } = NotificationServices();
     const [isLoading, setIsLoading] = useState(false);
     const isFocused = useIsFocused();
     const navigation = useNavigation();
@@ -80,7 +80,7 @@ const Login = ({ route }) => {
             };
             try {
                 setIsLoading(true);
-
+                console.log(inputdata);
                 let userIno = await axios.post(config.loginAPI, inputdata);
                 if (userIno.status === 200) {
                     const loginUserdata = userIno.data.data[0];
@@ -160,44 +160,48 @@ const Login = ({ route }) => {
         }
     }
     const onPageLoad = async () => {
-        const [companyLanguage_data, company_res, fcmToken_res] = await Promise.all([
-            getItem('companyLanguage_data'),
-            databaseListAPI(),
-            getItem('fcmToken'),
-            removeItem('storeSignup_data'),
-            removeItem('storePersnolInfo_data'),
-            removeItem('storeFinancial_data'),
-            removeItem('storeProduceInfo_data'),
-            // requestUserPermission(),
-            // notificationListener(),
-            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
+        await Promise.all([
+            requestUserPermission(),
+            notificationListener(),
         ]);
-        if (companyLanguage_data != "" && companyLanguage_data != null) {
-            setcompanyLanguage(companyLanguage_data);
-            const { country_id, company, language } = companyLanguage_data;
-            checkPhoneNumber(country_id, company, language)
-            setstoreLoginUser({
-                ...storeLoginUser,
-                phone: "",
-                password: "",
-                role: "",
-                company: companyLanguage_data.company_id,
-                FcmUserToken: fcmToken_res,
-            });
-        }
-        if (company_res.status == 200) {
-            let companyArray = [];
-            company_res?.data?.data?.map((data, index) => {
-                const { company_id, agri_company, db_name } = data;
-                companyArray.push({
-                    value: company_id,
-                    label: agri_company.company_name,
-                    dbname: db_name,
-                    country_id: agri_company.country_id,
+        setTimeout(async () => {
+            const [companyLanguage_data, company_res, fcmToken_res] = await Promise.all([
+                getItem('companyLanguage_data'),
+                databaseListAPI(),
+                getItem('fcmToken'),
+                removeItem('storeSignup_data'),
+                removeItem('storePersnolInfo_data'),
+                removeItem('storeFinancial_data'),
+                removeItem('storeProduceInfo_data'),
+                Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
+            ]);
+            if (companyLanguage_data != "" && companyLanguage_data != null) {
+                setcompanyLanguage(companyLanguage_data);
+                const { country_id, company, language } = companyLanguage_data;
+                checkPhoneNumber(country_id, company, language)
+                setstoreLoginUser({
+                    ...storeLoginUser,
+                    phone: "",
+                    password: "",
+                    role: "",
+                    company: companyLanguage_data.company_id,
+                    FcmUserToken: fcmToken_res,
                 });
-            })
-            setCompanyData(companyArray);
-        }
+            }
+            if (company_res.status == 200) {
+                let companyArray = [];
+                company_res?.data?.data?.map((data, index) => {
+                    const { company_id, agri_company, db_name } = data;
+                    companyArray.push({
+                        value: company_id,
+                        label: agri_company.company_name,
+                        dbname: db_name,
+                        country_id: agri_company.country_id,
+                    });
+                })
+                setCompanyData(companyArray);
+            }
+        }, 1000);
     };
     useEffect(() => {
         // console.log(fusedLocationData);

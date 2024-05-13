@@ -407,6 +407,7 @@ const CreateProblem = ({ navigation }) => {
         ]);
         if (loginUser_data) {
             const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
+            console.log(JSON.stringify(loginUser_data))
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 dbName: dbname,

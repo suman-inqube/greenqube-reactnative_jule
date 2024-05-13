@@ -121,8 +121,10 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
             let tempData = loanList.filter(item => {
-                return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                    item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                // return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
+                //     item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                return (item.created_at.slice(0, 10) >= fromDate &&
+                    item.created_at.slice(0, 10) <= toDate);
             });
             setLoanList(tempData)
         }
@@ -247,22 +249,22 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
                         showsVerticalScrollIndicator={false}
                         data={loanList}
                         style={filterName !== "" ? { marginBottom: 40 } : { marginBottom: 40 }}
-                        renderItem={({ item }) => {
-                            var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                        renderItem={({ item, index }) => {
+                            var date = new Date(item.created_at.split("T")[0]);
                             var sanctioned_date = new Date(item.sanctioned_date);
                             return (
                                 <TouchableOpacity style={styles.flatListContainer} onPress={() => navigate('LoanEnquiryDetail', item)}>
                                     <View style={styles.flatListItem}>
                                         <Text style={styles.title}>{t('name')}:{item.agri_user.userName}</Text>
-                                        <Text style={styles.title}>{t('loan_amt') + `(${currency})`}:{item.loan_amount.substring(-1, 4)}...</Text>
+                                        <Text style={styles.title}>{t('loan_amt') + `(${currency})`}:{'\n' + item.loan_amount}</Text>
                                         <Text style={styles.title}>{t('sta_')}:{item.status == 1 && t('pending')}{item.status == 2 && t('Approved')}{item.status == 3 && t('Rejected')} </Text>
-                                        {item?.loan_sanctioned && <Text style={styles.title}>{t('LoanSanctioned') + `(${currency})`}:{item.loan_sanctioned.substring(-1, 3)}...</Text>}
+                                        {item?.loan_sanctioned && <Text style={styles.title}>{t('LoanSanctioned') + `(${currency})`}:{'\n' + item.loan_sanctioned}</Text>}
                                     </View>
                                     <View style={styles.flatListItem}>
                                         <Text style={styles.title}>{t('number_caps')}:{item.agri_user.contactNumber}</Text>
                                         <Text style={styles.title}>{t('date')}:{date.toString().substring(4, 15)}</Text>
-                                        {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{sanctioned_date.toString().substring(7, 15)}</Text>}
-                                        {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')}:{item.loan_ord_id.substring(-1, 9)}</Text>}
+                                        {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{'\n' + sanctioned_date.toString().substring(3, 15)}</Text>}
+                                        {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')}:{item.loan_ord_id}</Text>}
                                     </View>
                                 </TouchableOpacity>
                             )
@@ -297,7 +299,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         position: 'absolute',
-        top: 200,
+        top: 230,
         right: 20,
         zIndex: 999
     },

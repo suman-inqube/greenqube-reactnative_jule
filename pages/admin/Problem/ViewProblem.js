@@ -92,7 +92,7 @@ const ViewProblem = ({ navigation }) => {
                     var response = await farmerProblemDetailApi(dbname, lan_id, problemIdData);
                 }
             } else {
-
+                var response = await farmerProblemDetailApi(dbname, lan_id, problemIdData);
             }
             if (response.status === 200) {
                 const { agri_user, agent_details, question_id, agri_files } = response.data.data[0];

@@ -217,6 +217,7 @@ const PostNew = (props) => {
                 unit_id: item?.label,
                 unit_fid: item?.value,
                 unit_sname: item?.unit_sname,
+                unit_sub_type: item?.sub_type,
                 defined_unit_value: item?.defined_unit_value,
                 filter_unit_fid: rows?.fid
             });
@@ -342,6 +343,7 @@ const PostNew = (props) => {
                 //change this key saveData.unit_sname 
                 formDataObject.append('unit_id', saveData.unit_sname);
                 //new key add
+                formDataObject.append('sub_ftype', saveData.unit_sub_type);
                 formDataObject.append('unit_fid', saveData.unit_fid);
                 formDataObject.append('default_unit_fid', saveData.filter_unit_fid);
                 //
