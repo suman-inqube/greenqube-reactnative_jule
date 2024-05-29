@@ -691,9 +691,9 @@ const ProduceInfo = () => {
     }
   };
   const produceRemoveDetails = index => {
-    const values = [...produceAddDetails];
+    const values = [...storeProduceInfoInArray];
     values.splice(index, 1);
-    setProduceAddDetails(values);
+    setstoreProduceInfoInArray(values);
   };
   return (
     <>
@@ -793,7 +793,7 @@ const ProduceInfo = () => {
                     color="red"
                     data={landUnitData}
                     onChange={item => handleLandUnit(item)}
-                    val={storeProduceInfo.landUnit.label}
+                    val={storeProduceInfo?.landUnitName}
                   />
                 </View>
               </View>

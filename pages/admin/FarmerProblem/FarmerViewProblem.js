@@ -12,9 +12,11 @@ import MessageDialog from '../../Common/MessageDialog';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import { useTranslation } from 'react-i18next';
 import DeviceInfo from '../../DeviceInfo';
+import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const FarmerViewProblem = ({ navigation }) => {
     const isFocused = useIsFocused();
-    const netConnection = DeviceInfo();
+    const { netConnection } = DeviceInfo();
     const route = useRoute();
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
@@ -94,7 +96,9 @@ const FarmerViewProblem = ({ navigation }) => {
                 var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
                 // await setItem('farmerProblemDetail' + problemIdData, response);
             }
-            await setItem('farmerProblemDetail' + problemIdData, response);
+            if (response?.status == 200) {
+                await setItem('farmerProblemDetail' + problemIdData, response);
+            }
         } else {
             var response = await getItem('farmerProblemDetail' + problemIdData);
         }
@@ -108,8 +112,8 @@ const FarmerViewProblem = ({ navigation }) => {
                 token: token,
                 farmerID: farmerID,
                 question_id: question_id,
-                question_user_fcm: agri_user.FcmUserToken,
-                question_user_agent_fcm: agent_details.FcmUserToken
+                question_user_fcm: agri_user?.FcmUserToken,
+                question_user_agent_fcm: agent_details?.FcmUserToken
             });
             const [commnetList, answerList] = await Promise.all([
                 problemCommentListAPI(dbName, farmerID, question_id),
@@ -175,7 +179,7 @@ const FarmerViewProblem = ({ navigation }) => {
         if (isFocused) {
             onPageLoad();
         }
-    }, [route.params, isFocused]);
+    }, [route.params, isFocused, netConnection]);
     useFocusEffect(
         useCallback(() => {
             // onPageLoad();
@@ -187,8 +191,21 @@ const FarmerViewProblem = ({ navigation }) => {
     const HandlerGoBack = () => {
         navigation.navigate('FarmerListProblem');
     }
+    const soundPlay = async (path) => {
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
+    }
     return (
-        <>
+        <Root>
             {isLoading ? (
                 <LoadingScreen />
             ) : (
@@ -218,7 +235,7 @@ const FarmerViewProblem = ({ navigation }) => {
                                         </View>
                                         <View style={styles.item}>
                                             <Text style={styles.itemTitle}>{t('plot')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.agri_land_user_rel.plot_no}</Text>
+                                            <Text style={styles.itemTitle}>:  {farmerProblem.agri_land_user_rel?.plot_no}</Text>
                                         </View>
                                         <View style={styles.item}>
                                             <Text style={styles.itemTitle}>{t('addcrop_croptype')}</Text>
@@ -248,7 +265,7 @@ const FarmerViewProblem = ({ navigation }) => {
                                             <View style={styles.photoContainer}>
                                                 {
                                                     selectedRecord.firstItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.firstItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -262,7 +279,7 @@ const FarmerViewProblem = ({ navigation }) => {
                                                 }
                                                 {
                                                     selectedRecord.secondItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.secondItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -275,7 +292,7 @@ const FarmerViewProblem = ({ navigation }) => {
                                                 }
                                                 {
                                                     selectedRecord.thirdItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.thirdItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -345,22 +362,17 @@ const FarmerViewProblem = ({ navigation }) => {
                                                     {
                                                         value.agri_user.agri_files.length > 0 ?
                                                             value.agri_user.agri_files.map((value1, index1) => (
-                                                                value1.term_type === "1" ?
-                                                                    <View key={index1}>
-                                                                        <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: value1.file_path }} />
-                                                                        {/* <Image
-                                                                        source={{ uri: value1.file_path }}
-                                                                        resizeMode="cover" style={{ width: 50, height: 50 }}
-                                                                    /> */}
-                                                                    </View>
-                                                                    :
-                                                                    <View>
-                                                                        <Image
-                                                                            source={require('../../Common/images/avatar.png')}
+                                                                value1.term_type === "1" &&
+                                                                <View key={index1}>
+                                                                    {
+                                                                        value1.file_path != "" ? <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: value1.file_path }} /> : <Image
+                                                                            source={{ uri: value1.file_path }}
                                                                             resizeMode="cover" style={{ width: 50, height: 50 }}
                                                                         />
-                                                                    </View>
-                                                            )) : <View style={{ marginVertical: 10 }}>
+                                                                    }
+                                                                </View>
+                                                            ))
+                                                            : <View style={{ marginVertical: 10 }}>
                                                                 <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../../Common/images/avatar.png')} />
                                                             </View>
                                                     }
@@ -376,7 +388,6 @@ const FarmerViewProblem = ({ navigation }) => {
                                                     </Text>
                                                     <Text style={styles.AnsTitle}>{t('date')}: {formatDateToMMDDYYYY(value.CreateDateTime)}</Text>
                                                     <Text style={styles.AnsTitle}>{t('comments')} : {value.comment_content}</Text>
-
                                                 </View>
                                             </View>
                                         ))
@@ -389,8 +400,7 @@ const FarmerViewProblem = ({ navigation }) => {
                 </>
             )
             }
-        </>
-
+        </Root>
     )
 }
 

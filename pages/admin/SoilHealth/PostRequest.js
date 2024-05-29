@@ -27,7 +27,7 @@ const PostRequest = () => {
                             <>
                                 <InputTextForm label={t('produce_name')} value={cropDetails?.produceName} />
                                 <InputTextForm label={t('crop_veriety')} value={cropDetails?.produceVariety} />
-                                <InputTextForm label={t('addland_capturelat')} value={cropDetails?.captureLat.captureLat} />
+                                <InputTextForm label={t('addland_capturelat')} value={cropDetails?.captureLat} />
                                 <InputTextForm label={t('addland_capturelong')} value={cropDetails?.longValue} />
                                 <View>
                                     <Text style={styles.title}>{t('date')}</Text>

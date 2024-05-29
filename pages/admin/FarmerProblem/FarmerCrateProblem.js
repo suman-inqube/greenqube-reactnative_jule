@@ -11,6 +11,7 @@ import {
   Dimensions,
   Button,
   Animated,
+  Modal
 } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
@@ -43,7 +44,7 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
+import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import {
   useRoute,
@@ -54,8 +55,10 @@ import {
 import SoundRecord from '../../Common/SoundRecord';
 import { useTranslation } from 'react-i18next';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { AudioPlayer } from 'react-native-simple-audio-player';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import DeviceInfo from '../../DeviceInfo';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const FarmerCreateProblem = ({ navigation }) => {
   const { netConnection } = DeviceInfo();
   const { t } = useTranslation();
@@ -736,9 +739,12 @@ const FarmerCreateProblem = ({ navigation }) => {
           formData,
         );
         if (database_res.status === 200) {
-          MessageDialog({ title: 'Successful', message: 'Data submitted successfully' });
-          handleClear();
-          navigation.navigate('FarmerListProblem');
+          Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+          // MessageDialog({ title: 'Successful', message: 'Data submitted successfully' });
+          setTimeout(() => {
+            handleClear();
+            navigation.navigate('FarmerListProblem');
+          }, 1000);
         }
       } else {
         let timeStamp = Date.now();
@@ -753,12 +759,14 @@ const FarmerCreateProblem = ({ navigation }) => {
         } else {
           await setItem('offlineFarmerProblemData', '00,off' + timeStamp);
         }
-        MessageDialog({
-          title: 'Successful',
-          message: 'Data submitted successfully',
-        });
-        handleClear();
-        navigation.navigate('FarmerListProblem');
+        // MessageDialog({
+        //   title: 'Successful',
+        //   message: 'Data submitted successfully',
+        // });
+        setTimeout(() => {
+          handleClear();
+          navigation.navigate('FarmerListProblem');
+        }, 1000);
       }
     }
   };
@@ -772,7 +780,10 @@ const FarmerCreateProblem = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      // console.log('Recording . . . ', e.currentPosition);
+      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+        onStopRecordFirstItem();
+        setModalVisibleRecordFirstItem(false);
+      }
       return;
     });
   };
@@ -786,7 +797,10 @@ const FarmerCreateProblem = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      // console.log('Recording . . . ', e.currentPosition);
+      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+        onStopRecordSecoundItem();
+        setModalVisibleRecordSecoundItem(false);
+      }
       return;
     });
   };
@@ -801,6 +815,10 @@ const FarmerCreateProblem = ({ navigation }) => {
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
       // console.log('Recording . . . ', e.currentPosition);
+      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+        onStopRecordThirdItem();
+        setModalVisibleRecordThirdItem(false);
+      }
       return;
     });
   };
@@ -883,6 +901,56 @@ const FarmerCreateProblem = ({ navigation }) => {
   const HandlerGoBack = () => {
     navigation.navigate('FarmerListProblem');
   };
+  const cancelRecord = async (item) => {
+    await audioRecorderPlayer.stopPlayer();
+    if (item == "firstItem") {
+      setSoundRecordFirstItem({
+        item: '1',
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result: ""
+      });
+
+    } else if (item == "secoundItem") {
+      setSoundRecordSecoundItem({
+        item: '2',
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result: ""
+      });
+    } else if (item == "thirdItem") {
+      setSoundRecordThirdItem({
+        item: '3',
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result: ""
+      });
+    }
+  }
+  const soundPlay = async (item) => {
+    let path;
+    if (item == "firstItem") {
+      path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
+    } else if (item == "secoundItem") {
+      path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
+    } else if (item == "thirdItem") {
+      path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
+    }
+    SPSheet.show({
+      component: () => <AudioPlayerView path={path} />,
+      dragFromTopOnly: true,
+      onCloseComplete: () => {
+        // alert('onCloseComplete');
+      },
+      onOpenComplete: () => {
+        // console.log(SPSheet)
+      },
+      height: 260
+    });
+  }
   return (
     <View style={styles.container}>
       <CustomHeader path="FarmerListProblem" HandlerGoBack={HandlerGoBack} />
@@ -920,7 +988,6 @@ const FarmerCreateProblem = ({ navigation }) => {
           soundRecord={soundRecordThirdItem}
         />
       ) : null}
-
       <ScrollView>
         {isLoading ? (
           <View style={styles.loadingScreen}>
@@ -1062,13 +1129,13 @@ const FarmerCreateProblem = ({ navigation }) => {
               title={t('record_your_comment_optional')}
               // onPress={handleRecord}
               setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-              setModalVisibleRecordSecoundItem={
-                setModalVisibleRecordSecoundItem
-              }
+              setModalVisibleRecordSecoundItem={setModalVisibleRecordSecoundItem}
               setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
               soundRecordFirstItem={soundRecordFirstItem}
               soundRecordSecoundItem={soundRecordSecoundItem}
               soundRecordThirdItem={soundRecordThirdItem}
+              cancelRecord={cancelRecord}
+              soundPlay={soundPlay}
             />
           </View>
         )}

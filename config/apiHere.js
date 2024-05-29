@@ -518,7 +518,9 @@ export const problemSaveAPI = async (dbName, languageId, token, userId, inputDat
             'Content-Type': 'multipart/form-data',
         },
     };
-    //   console.log(`${config.BASE_URL}questionRoute/add`,inputData, axiosHeaders);
+    // console.log(JSON.stringify(inputData))
+    // console.log(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
+    // return;
     try {
         // console.log(response);
         let response = await axios.post(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
@@ -784,18 +786,18 @@ export const livelihoodNameVarietyLandrelAPI = async (dbName, languageId, userId
     }
 }
 
-export const unitByListAPI = async (dbName, languageId) => {
+export const unitByListAPI = async (dbName, languageId, is_default = "", sub_type = "") => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageId}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=product_unit&search_key=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?search_key=&is_default=${is_default}&sub_type=${sub_type}&unit_type=product_unit`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
-        return console.log("error in unitByListAPI " + error);
+        // CrashlyticsRecordError(error.response);
+        return error.response;
     }
 }
 
@@ -1324,8 +1326,6 @@ export const farmerProblemListAPI = async (dbName, languageID, userID, farmer_ty
             'information': `${dbName},${userID}`,
         },
     };
-    console.log(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
-
     try {
         let response = await axios.get(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
         return response;
@@ -1606,20 +1606,27 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
     }
 }
 
-export const POPStaticMenuListDetails = async (dbName, lan_id, productID) => {
+export const POPStaticMenuListDetails = async (
+    dbName,
+    lan_id,
+    crop_id,
+    staticMenuId,
+) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName},${lan_id}`,
+            information: `${dbName},${lan_id}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/acd9b7b3-3c15-49f3-b56c-acd8918b3639?crop_type_id=&crop_id=9499e90d-497b-47e3-bff8-657737a2fe26&static_submenu_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`,
+            axiosHeaders,
+        );
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error.response);
         return error.response;
     }
-}
+};
 
 export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
     const axiosHeaders = {

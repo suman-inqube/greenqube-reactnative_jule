@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native'
 import React from 'react'
 import { useRoute } from '@react-navigation/native';
 import RenderHtml from 'react-native-render-html';
@@ -6,8 +6,19 @@ import { useWindowDimensions } from 'react-native';
 import CustomHeader from '../CustomHeader';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
 import { WebView } from 'react-native-webview';
+// .iframe>* {
+const head = `
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+    iframe {
+    width:100%;
+    }
+    </style>
+    `;
+// top: 0; left: 0; width: 70%; height: 100%; position: absolute; border: 0;
+// }
 const PackageItemDetails = () => {
-    const { width } = useWindowDimensions();
+    const { width, height } = useWindowDimensions();
     const { package_of_practice_list, menu_name } = useRoute().params;
     const tagsStyles = {
         body: { whiteSpace: 'normal', color: '#000', backgroundColor: '#FFF' },
@@ -39,14 +50,24 @@ const PackageItemDetails = () => {
                 <Text style={styles.title}>{menu_name}</Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{ backgroundColor: '#FFF', paddingHorizontal: '3%', flex: 1 }}>
-                    <RenderHtml
-                        contentWidth={width}
-                        source={{
-                            html: package_of_practice_list,
+                <View >
+                    <WebView
+                        style={{
+                            height: height,
+                            width: width,
+                            marginBottom: 50
                         }}
-                        tagsStyles={tagsStyles}
-                        defaultTextProps={defaultTextProps}
+                        source={{
+                            html: `
+                            <!DOCTYPE html>
+                            <html>
+                                <head>${head}</head> 
+                                <body>
+                                ${package_of_practice_list} 
+                                </body>
+                            </html>`,
+                        }}
+                        automaticallyAdjustContentInsets={false}
                     />
                 </View>
             </ScrollView>

@@ -35,6 +35,7 @@ const notificationServices = () => {
   }
   const notificationListener = async () => {
     const userType = await getItem('userType');
+    console.warn(userType)
     // const unsubscribe = messaging().onMessage(async remoteMessage => {
     //   console.log('A new FCM message arrived!', remoteMessage);
     // });
@@ -57,7 +58,7 @@ const notificationServices = () => {
         } else {
           navigation.navigate("FarmerListProblem");
         }
-      } else if (type == 'procure_fulfillment output-list') {
+      } else if (type == 'procure_fulfillment') {
         if (userType == 3) {
           navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
         } else {
@@ -104,7 +105,7 @@ const notificationServices = () => {
             } else {
               navigation.navigate("FarmerListProblem");
             }
-          } else if (type == 'procure_fulfillment output-list') {
+          } else if (type == 'procure_fulfillment') {
             if (userType == 3) {
               navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
             } else {

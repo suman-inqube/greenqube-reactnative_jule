@@ -10,6 +10,8 @@ import CustomHeader from '../CustomHeader';
 import { useTranslation } from 'react-i18next';
 import { formatDateToDateName } from '../../Common/DateChanger';
 import FormsTitle from '../../Common/FormsTitle';
+import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const ActivityDetail = () => {
     const { t } = useTranslation();
     const navigation = useNavigation();
@@ -150,8 +152,21 @@ const ActivityDetail = () => {
     const HandlerGoBack = () => {
         navigation.navigate('activityList');
     }
+    const soundPlay = async (path) => {
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
+    }
     return (
-        <>
+        <Root>
             {
                 isLoading ? (
                     <LoadingScreen />
@@ -208,7 +223,7 @@ const ActivityDetail = () => {
                                         <InputTextForm label={t('water_used')} value={farmerActivity.water_used} />
                                         <InputTextForm label={t('power_used')} value={farmerActivity.power_used} />
                                         <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} />
-                                        <RecordComp selectedRecord={selectedRecord} title={t('record_your_comment_optional')} />
+                                        <RecordComp selectedRecord={selectedRecord} title={t('record_your_comment_optional')} soundPlay={soundPlay} />
                                     </View>
                                     :
                                     ''
@@ -219,7 +234,7 @@ const ActivityDetail = () => {
                 )
             }
 
-        </>
+        </Root>
     )
 }
 

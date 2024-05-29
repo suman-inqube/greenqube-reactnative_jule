@@ -12,17 +12,18 @@ const loginUserDataController = () => {
             getItem('loginUser_data')
         ]);
         if (loginUser_data) {
-            const { dbname, lan_id, token, user_id, owner } = loginUser_data;
+            const { dbname, lan_id, token, user_id, owner, agri_user_addresses } = loginUser_data;
             setloginUserData({
                 ...loginUserData,
                 dbname: dbname,
                 lan_id: lan_id,
                 token: token,
                 user_id: user_id,
-                owner: owner
+                owner: owner,
+                agri_user_addresses: agri_user_addresses
             });
             return {
-                dbname, lan_id, token, user_id, owner
+                dbname, lan_id, token, user_id, owner, agri_user_addresses
             }
         }
     }

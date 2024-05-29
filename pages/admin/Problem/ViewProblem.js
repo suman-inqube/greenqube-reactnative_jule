@@ -1,7 +1,7 @@
 import { BackHandler, StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, TextInput, FlatList, Linking } from 'react-native'
 import React, { useEffect, useState, useCallback } from 'react'
 import FormsTitle from '../../Common/FormsTitle';
-import { getItem } from '../../../config/getDataFromStorage';
+import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -10,10 +10,12 @@ import CustomHeader from '../CustomHeader';
 import MessageDialog from '../../Common/MessageDialog';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
 import DeviceInfo from '../../DeviceInfo';
+import AudioPlayerView from '../../Common/AudioPlayerView';
+import { AudioPlayer } from 'react-native-simple-audio-player';
 const ViewProblem = ({ navigation }) => {
     const { netConnection } = DeviceInfo();
     const isFocused = useIsFocused();
@@ -91,11 +93,14 @@ const ViewProblem = ({ navigation }) => {
                 } else {
                     var response = await farmerProblemDetailApi(dbname, lan_id, problemIdData);
                 }
+                if (response?.status == 200) {
+                    await setItem('farmerProblemDetail' + problemIdData, response);
+                }
             } else {
-
+                var response = await getItem('farmerProblemDetail' + problemIdData);
             }
             if (response?.status === 200) {
-                const { agri_user, agent_details, question_id, agri_files } = response.data.data[0];
+                const { agri_audio_files, agri_user, agent_details, question_id, agri_files } = response.data.data[0];
                 setFarmerProblem(response.data.data[0]);
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
@@ -127,8 +132,8 @@ const ViewProblem = ({ navigation }) => {
                     const agri_files_image = agri_files.filter(function (v, i) {
                         return ((v["file_ext"] == "image/jpeg"));
                     });
-                    const agri_files_mp3 = agri_files.filter(function (v, i) {
-                        return ((v["file_ext"] == "audio/mp3"));
+                    const agri_files_mp3 = agri_audio_files.filter(function (v, i) {
+                        return (v);
                     });
                     for (let i = 0; i < 3; i++) {
                         if (agri_files_image[0] != undefined) {
@@ -186,7 +191,7 @@ const ViewProblem = ({ navigation }) => {
         if (isFocused) {
             onPageLoad();
         }
-    }, [route.params, isFocused, netConnection]);
+    }, [route.params, netConnection, isFocused]);
     useFocusEffect(
         useCallback(() => {
             // console.error("aaa")
@@ -196,6 +201,19 @@ const ViewProblem = ({ navigation }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [route.params, isFocused])
     );
+    const soundPlay = async (path) => {
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
+    }
     return (
         <Root>
             {isLoading ? (
@@ -257,7 +275,7 @@ const ViewProblem = ({ navigation }) => {
                                             <View style={styles.photoContainer}>
                                                 {
                                                     selectedRecord.firstItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.firstItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -265,27 +283,27 @@ const ViewProblem = ({ navigation }) => {
                                                             />
                                                         </TouchableOpacity> :
                                                         <Image
-                                                            source={require('../../Common/images/play.png')}
+                                                            source={require('../../Common/images/microphone.png')}
                                                             style={{ width: 70, height: 70, opacity: 0.7 }}
 
                                                         />
                                                 }
                                                 {
                                                     selectedRecord.secondItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.secondItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
                                                             />
                                                         </TouchableOpacity> :
                                                         <Image
-                                                            source={require('../../Common/images/play.png')}
+                                                            source={require('../../Common/images/microphone.png')}
                                                             style={{ width: 70, height: 70, opacity: 0.7 }}
                                                         />
                                                 }
                                                 {
                                                     selectedRecord.thirdItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.thirdItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -293,7 +311,7 @@ const ViewProblem = ({ navigation }) => {
                                                             />
                                                         </TouchableOpacity> :
                                                         <Image
-                                                            source={require('../../Common/images/play.png')}
+                                                            source={require('../../Common/images/microphone.png')}
                                                             style={{ width: 70, height: 70, opacity: 0.7 }}
                                                         />
                                                 }
@@ -356,22 +374,17 @@ const ViewProblem = ({ navigation }) => {
                                                         {
                                                             value.agri_user.agri_files.length > 0 ?
                                                                 value.agri_user.agri_files.map((value1, index1) => (
-                                                                    value1.term_type === "1" ?
-                                                                        <View key={index1}>
-                                                                            <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: value1.file_path }} />
-                                                                            {/* <Image
-                                                                        source={{ uri: value1.file_path }}
-                                                                        resizeMode="cover" style={{ width: 50, height: 50 }}
-                                                                    /> */}
-                                                                        </View>
-                                                                        :
-                                                                        <View>
-                                                                            <Image
-                                                                                source={require('../../Common/images/avatar.png')}
-                                                                                resizeMode="cover" style={{ width: 40, height: 40 }}
+                                                                    value1.term_type === "1" &&
+                                                                    <View key={index1}>
+                                                                        {
+                                                                            value1.file_path != "" ? <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: value1.file_path }} /> : <Image
+                                                                                source={{ uri: value1.file_path }}
+                                                                                resizeMode="cover" style={{ width: 50, height: 50 }}
                                                                             />
-                                                                        </View>
-                                                                )) : <View style={{ marginVertical: 10 }}>
+                                                                        }
+                                                                    </View>
+                                                                ))
+                                                                : <View style={{ marginVertical: 10 }}>
                                                                     <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../../Common/images/avatar.png')} />
                                                                 </View>
                                                         }
@@ -396,7 +409,7 @@ const ViewProblem = ({ navigation }) => {
                                 </View>
                             }
                         </View>
-                    </ScrollView >
+                    </ScrollView>
                 </>
             )
             }

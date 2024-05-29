@@ -10,6 +10,8 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import { useTranslation } from 'react-i18next';
+import { SPSheet, Root } from 'react-native-popup-confirm-toast';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const FarmerActivityDetail = () => {
     const { t } = useTranslation();
     const navigation = useNavigation();
@@ -52,9 +54,7 @@ const FarmerActivityDetail = () => {
         if (activityData) {
             const farmerFound = activityData.find(user => user.uact_id === uact_id_data);
             setIsLoading(false)
-            console.log(JSON.stringify(farmerFound, null, 2));
-
-            if (farmerFound.agri_files) {
+            if (farmerFound?.agri_files) {
                 let Imag1 = ''
                 let Imag2 = ''
                 let Imag3 = ''
@@ -138,10 +138,22 @@ const FarmerActivityDetail = () => {
     const HandlerGoBack = () => {
         navigation.navigate('FarmerActivityList');
     }
+    const soundPlay = async (path) => {
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
+    }
     return (
-        <>
+        <Root>
             {
-
                 isLoading ? (
                     <LoadingScreen />
                 ) : (
@@ -219,7 +231,7 @@ const FarmerActivityDetail = () => {
                                             <View style={styles.photoContainer}>
                                                 {
                                                     selectedRecord.firstItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.firstItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -233,7 +245,7 @@ const FarmerActivityDetail = () => {
                                                 }
                                                 {
                                                     selectedRecord.secondItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.secondItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -246,7 +258,7 @@ const FarmerActivityDetail = () => {
                                                 }
                                                 {
                                                     selectedRecord.thirdItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.thirdItemRecord)}>
+                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
                                                             <Image
                                                                 source={require('../../Common/images/play.png')}
                                                                 style={{ width: 70, height: 70 }}
@@ -270,7 +282,7 @@ const FarmerActivityDetail = () => {
                 )
             }
 
-        </>
+        </Root>
     )
 }
 

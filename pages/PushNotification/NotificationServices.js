@@ -98,70 +98,81 @@ const notificationServices = () => {
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
-          console.log(remoteMessage)
+          // console.log(remoteMessage)
           const { type, response } = remoteMessage.data;
           const responseCommentJson = JSON.parse(response);
+          // console.log("********")
+          // console.log(responseCommentJson);
           if (type == 'comment') {
             if (userType == 3) {
               setTimeout(() => {
+                navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid, type: type });
+              }, 1300);
+            } else if (userType == 2) {
+              setTimeout(() => {
+                navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid, type: type });
+              }, 1300);
+            }
+          } else if (type == 'answer') {
+            if (userType == 3) {
+              setTimeout(() => {
                 navigation.navigate("ProblemView", { comment_qid: responseCommentJson.question_id, type: type });
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.question_id, type: type });
-              }, 1200);
+              }, 1300);
             }
-          } else if (type == 'answer') {
 
           } else if (type == 'problem') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("ProblemList");
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerListProblem");
-              }, 1200);
+              }, 1300);
             }
           } else if (type == 'procure_fulfillment output-list') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerOutPutList", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             }
           } else if (type == 'supply_fulfillment') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("PastEnquiry", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerPastEnquiry", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             }
           } else if (responseCommentJson.post_type == "general_info") {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("UsefulInformationList");
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerUsefulInformationList");
-              }, 1200);
+              }, 1300);
             }
           } else if (responseCommentJson.post_type == "training") {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("TraingList");
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerTrainingList");
-              }, 1200);
+              }, 1300);
             }
           }
           // console.log(remoteMessage.data.type)

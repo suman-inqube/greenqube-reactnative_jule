@@ -59,7 +59,7 @@ const FarmerLoanEnquiryDetail = () => {
     const { user_id, id,
         status,
         agri_files, agri_user, apx_annual_income,
-        loan_amount, agri_loan_entity, existing_loan_amount, loan_plots, sanctioned_date, loan_ord_id, loan_sanctioned } = route.params;
+        loan_amount, agri_loan_entity, existing_loan_amount, loan_plots, sanctioned_date, loan_ord_id, loan_sanctioned, comment } = route.params;
     const onPageLoad = async () => {
         setIsLoading(true);
         const address_proofArr = agri_files.filter(item =>
@@ -262,7 +262,6 @@ const FarmerLoanEnquiryDetail = () => {
         } else {
             formData.append("loan_identity", "");
         }
-
         addressProof.map((data, index) => {
             if (data.value === "1") {
                 updateStatus = true;
@@ -284,15 +283,16 @@ const FarmerLoanEnquiryDetail = () => {
             setTimeout(() => {
                 navigation.navigate('FarmerLoan', 2)
             }, 1200);
-        } else {
-            const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
-            if (responseUpdate?.status == 200) {
-                Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
-                setTimeout(() => {
-                    navigation.navigate('FarmerLoan', 2)
-                }, 1200);
-            }
         }
+        // else {
+        //     const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
+        //     if (responseUpdate?.status == 200) {
+        //         Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+        //         setTimeout(() => {
+        //             navigation.navigate('FarmerLoan', 2)
+        //         }, 1200);
+        //     }
+        // }
         setIsLoading(false);
     }
     const openURL = (path) => {
@@ -328,6 +328,12 @@ const FarmerLoanEnquiryDetail = () => {
                 <FormsTitle title={'Loan Enquiry Detail'} />
                 <ScrollView>
                     <View style={styles.container}>
+                        {
+                            status == 3 &&
+                            <View style={styles.commentContainer}>
+                                <Text style={styles.title}>{comment}</Text>
+                            </View>
+                        }
                         <InputTextForm label={t('farmer_name')} value={agri_user.userName} editable={false} />
                         <InputTextForm label={t('farmer_number')} value={agri_user.contactNumber} editable={false} />
                         <InputTextForm label={t('loan_required_in_rupees') + ` (${currency})`} value={saveData.loan_amount} onChangeText={(text) => handledataAdd('loan_amount', text)} editable={false} />
@@ -452,5 +458,14 @@ const styles = StyleSheet.create({
         zIndex: 999,
         left: '45%'
     },
+    commentContainer: {
+        padding: 12,
+        // borderWidth: 1,
+        elevation: 1,
+        marginBottom: 10,
+        borderColor: '#CA8586',
+        backgroundColor: '#ECC8C5',
+        borderRadius: 10
+    }
 
 })

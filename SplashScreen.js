@@ -86,22 +86,23 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        const [companyLanguage_data, loginUser_data] = await Promise.all([
+        const [companyLanguage_data, loginUser_data, userType] = await Promise.all([
             getItem('companyLanguage_data'),
             getItem('loginUser_data'),
+            getItem("userType"),
             requestUserPermission(),
             notificationListener(),
         ])
         if (loginUser_data) {
             i18next.changeLanguage(`${loginUser_data.lan_id}`);
-            setTimeout(async () => {
-                const userType = await getItem("userType");
-                if (userType === 3) {
-                    navigation.navigate('AdminNavigation');
-                } else if (userType === 2) {
-                    navigation.navigate('FarmerNavigation');
-                }
-            }, 2000);
+            // setTimeout(async () => {
+            // const userType = await getItem("userType");
+            if (userType === 3) {
+                navigation.navigate('AdminNavigation');
+            } else if (userType === 2) {
+                navigation.navigate('FarmerNavigation');
+            }
+            // }, 2000);
         } else {
             if (companyLanguage_data) {
                 navigation.replace('Login');

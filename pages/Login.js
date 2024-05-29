@@ -69,9 +69,12 @@ const Login = ({ route }) => {
         return true;
     };
     const saveHandle = async () => {
+        const [fcmToken_res] = await Promise.all([
+            getItem('fcmToken'),
+        ])
         if (validateForm()) {
             const inputdata = {
-                "FcmUserToken": storeLoginUser.FcmUserToken,
+                "FcmUserToken": fcmToken_res,
                 "IMEINumber": "123456",
                 "company": storeLoginUser.company,
                 "contactNumber": storeLoginUser.phone,
@@ -79,16 +82,16 @@ const Login = ({ route }) => {
                 "type": storeLoginUser.role
             };
             try {
+                console.log(inputdata)
                 setIsLoading(true);
                 let userIno = await axios.post(config.loginAPI, inputdata);
                 if (userIno?.status === 200) {
                     const loginUserdata = userIno.data.data[0];
                     const details_company_res = await DetailsCompany(loginUserdata?.dbname, loginUserdata?.lan_id, loginUserdata?.db_company_id);
                     if (details_company_res?.status == 200) {
-                        const { soil_testing, agri_calculator } = details_company_res.data?.data[0];
                         await setItem("side_menu_option", {
-                            soil_testing: soil_testing,
-                            agri_calculator: agri_calculator
+                            soil_testing: details_company_res?.data?.data[0]?.soil_testing,
+                            agri_calculator: details_company_res?.data?.data[0]?.agri_calculator
                         });
                     }
                     await Promise.all([
@@ -167,10 +170,9 @@ const Login = ({ route }) => {
         }
     }
     const onPageLoad = async () => {
-        const [companyLanguage_data, company_res, fcmToken_res] = await Promise.all([
+        const [companyLanguage_data, company_res] = await Promise.all([
             getItem('companyLanguage_data'),
             databaseListAPI(),
-            getItem('fcmToken'),
             removeItem('storeSignup_data'),
             removeItem('storePersnolInfo_data'),
             removeItem('storeFinancial_data'),
@@ -190,7 +192,7 @@ const Login = ({ route }) => {
                 password: "",
                 role: "",
                 company: companyLanguage_data.company_id,
-                FcmUserToken: fcmToken_res,
+                // FcmUserToken: fcmToken_res,
             });
         }
         if (company_res.status == 200) {

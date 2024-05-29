@@ -15,7 +15,6 @@ import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { useSelector } from 'react-redux';
 import store from '../../redux/store';
-import { updateLoan } from '../../redux/actions/LoanAction';
 const ViewPastRequested = ({ setActiveBtn }) => {
     const isFocused = useIsFocused();
     const { t } = useTranslation();
@@ -169,22 +168,20 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                 setSearchResults(result);
             }
         } else if (filterName === 'statusFilter') {
+            setSearchResultsList(true);
             setStatusName(search);
             const result = statusAll.filter(item =>
                 item.label.toLowerCase().includes(search.toLowerCase())
             );
+            if (search == "") {
+                setSearchResultsList(false);
+                setLoanList(loanListRaw);
+            } else {
+                setSearchResultsList(true);
+            }
             if (result) {
                 setSearchResults(result);
             }
-            // if (search == "") {
-            //     setSearchResultsList(false);
-            //     setLoanList(loanListRaw);
-            // } else {
-            //     setSearchResultsList(true);
-            // }
-            // if (result) {
-            //     setSearchResults(result);
-            // }
 
         }
     }
@@ -216,8 +213,10 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
             let tempData = loanListRaw.filter(item => {
-                return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                    item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                // return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
+                //     item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                return (item.created_at.slice(0, 10) >= fromDate &&
+                    item.created_at.slice(0, 10) <= toDate);
             });
             setLoanList(tempData)
         }
@@ -239,7 +238,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         onPageLoad();
     }, [])
     const navigate = (LoanEnquiryDetail, item) => {
-        store.dispatch(updateLoan(item));
         navigation.navigate('LoanEnquiryDetail', item)
     }
     return (
@@ -306,7 +304,8 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             data={loanList}
                             style={filterName !== "" ? { marginBottom: 130 } : { marginBottom: 90 }}
                             renderItem={({ item }) => {
-                                var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                                // var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+                                var date = new Date(item.created_at.split("T")[0]);
                                 var sanctioned_date = new Date(item.sanctioned_date);
                                 return (
                                     <TouchableOpacity style={styles.flatListContainer} onPress={() => navigate('LoanEnquiryDetail', item)}>
@@ -319,7 +318,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                                         <View style={styles.flatListItem}>
                                             <Text style={styles.title}>{t('number_caps')}:{item.agri_user.contactNumber}</Text>
                                             <Text style={styles.title}>{t('date')}:{date.toString().substring(4, 15)}</Text>
-                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{sanctioned_date.toString().substring(7, 15)}</Text>}
+                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{sanctioned_date.toString().substring(3, 15)}</Text>}
                                             {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')}:{item.loan_ord_id.substring(-1, 9)}</Text>}
                                         </View>
                                     </TouchableOpacity>
@@ -391,5 +390,4 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular',
         fontSize: 14
     }
-
 })

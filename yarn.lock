@@ -1765,6 +1765,11 @@
   dependencies:
     "invariant" "^2.2.4"
 
+"@react-native-community/slider@^4.5.2":
+  "integrity" "sha512-DbFyCyI7rwl0FkBkp0lzEVp+5mNfS5qU/nM2sK2aSguWhj0Odkt1aKHP2iW/ljruOhgS/O4dEixXlne4OdZJDQ=="
+  "resolved" "https://registry.npmjs.org/@react-native-community/slider/-/slider-4.5.2.tgz"
+  "version" "4.5.2"
+
 "@react-native-firebase/app@^18.8.0":
   "integrity" "sha512-kMY4HVWxfz0YjQ5n9oyW9uifI5CkQfLfj2FEeQrI9mCwaCNuRw04x9Yc8LeFpew7NPEDVfty7tlL3WEjDpvNEw=="
   "resolved" "https://registry.npmjs.org/@react-native-firebase/app/-/app-18.9.0.tgz"
@@ -2589,7 +2594,7 @@
   "resolved" "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
   "version" "1.0.2"
 
-"base-64@^0.1.0":
+"base-64@^0.1.0", "base-64@0.1.0":
   "integrity" "sha512-Y5gU45svrR5tI2Vt/X9GPd3L0HNIKzGu202EjxrXMpuc2V2CiKgemAbUUsqYmZJvPtCXoUKjNZwBJzsNScUbXA=="
   "resolved" "https://registry.npmjs.org/base-64/-/base-64-0.1.0.tgz"
   "version" "0.1.0"
@@ -3935,6 +3940,18 @@
     "once" "^1.3.0"
     "path-is-absolute" "^1.0.0"
 
+"glob@7.0.6":
+  "integrity" "sha512-f8c0rE8JiCxpa52kWPAOa3ZaYEnzofDzCQLCn3Vdk0Z5OVLq3BsRFJI4S4ykpeVW6QMGBUkMeUpoEgWnMTnw5Q=="
+  "resolved" "https://registry.npmjs.org/glob/-/glob-7.0.6.tgz"
+  "version" "7.0.6"
+  dependencies:
+    "fs.realpath" "^1.0.0"
+    "inflight" "^1.0.4"
+    "inherits" "2"
+    "minimatch" "^3.0.2"
+    "once" "^1.3.0"
+    "path-is-absolute" "^1.0.0"
+
 "globals@^11.1.0":
   "integrity" "sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA=="
   "resolved" "https://registry.npmjs.org/globals/-/globals-11.12.0.tgz"
@@ -4108,7 +4125,7 @@
   dependencies:
     "@babel/runtime" "^7.22.5"
 
-"ieee754@^1.1.13":
+"ieee754@^1.1.13", "ieee754@^1.2.1":
   "integrity" "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA=="
   "resolved" "https://registry.npmjs.org/ieee754/-/ieee754-1.2.1.tgz"
   "version" "1.2.1"
@@ -6082,6 +6099,11 @@
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   "version" "17.0.2"
 
+"react-native-audio-record@^0.2.2":
+  "integrity" "sha512-+JEY3AWz21xylePbXZ81DLHcqU5oJYztn3Uel3ay53P3ZrvJlwfmOmyOuoavA9boPV1O0dLLQIu9gC7xbKwNvQ=="
+  "resolved" "https://registry.npmjs.org/react-native-audio-record/-/react-native-audio-record-0.2.2.tgz"
+  "version" "0.2.2"
+
 "react-native-audio-recorder-player@^3.6.0":
   "integrity" "sha512-m0TTYUpQmUFHlIc9X6Djz1oULh4+2ljcyrvCup0WYstC9jTvp0HUrPc9T5k6YOBX+hJzHtkN0AFRXdAAjj0RAQ=="
   "resolved" "https://registry.npmjs.org/react-native-audio-recorder-player/-/react-native-audio-recorder-player-3.6.2.tgz"
@@ -6095,6 +6117,19 @@
   "version" "3.0.1"
   dependencies:
     "eventemitter3" "^4.0.7"
+
+"react-native-base64@^0.2.1":
+  "integrity" "sha512-eHgt/MA8y5ZF0aHfZ1aTPcIkDWxza9AaEk4GcpIX+ZYfZ04RcaNahO+527KR7J44/mD3efYfM23O2C1N44ByWA=="
+  "resolved" "https://registry.npmjs.org/react-native-base64/-/react-native-base64-0.2.1.tgz"
+  "version" "0.2.1"
+
+"react-native-buffer@^6.0.3":
+  "integrity" "sha512-zZ0+TytQukFkdq7l9VQ8eypY83qQLMYNNVA+1skHQWcjXWRxsJvR6TAW4/HwD1FTLIySQt7cyvbNYSO30RuNvA=="
+  "resolved" "https://registry.npmjs.org/react-native-buffer/-/react-native-buffer-6.0.3.tgz"
+  "version" "6.0.3"
+  dependencies:
+    "ieee754" "^1.2.1"
+    "react-native-fast-base64" "^0.1.1"
 
 "react-native-check-box@^2.1.7":
   "integrity" "sha512-dPVOoz4jKs2je2HSHp7+XJXNyZFq8Kij7IHutigrQKzB550Dko6ZAQu/1mG1FzdUMFxxkZ2nX59KmbR0Co0T8Q=="
@@ -6133,6 +6168,11 @@
   "version" "2.10.0"
   dependencies:
     "lodash" "^4.17.21"
+
+"react-native-fast-base64@^0.1.1":
+  "integrity" "sha512-LBwGGdAQirfU++1r4DX1ufkWKUhY6wwVEbVhyH247YXeubW0jxl7+yl8xlOchz6W/J1KFzXrGTcMiHlv+OpIig=="
+  "resolved" "https://registry.npmjs.org/react-native-fast-base64/-/react-native-fast-base64-0.1.2.tgz"
+  "version" "0.1.2"
 
 "react-native-fs@^2.20.0":
   "integrity" "sha512-VkTBzs7fIDUiy/XajOSNk0XazFE9l+QlMAce7lGuebZcag5CnjszB+u4BdqzwaQOdcYb5wsJIsqq4kxInIRpJQ=="
@@ -6238,10 +6278,37 @@
     "react-freeze" "^1.0.0"
     "warn-once" "^0.1.0"
 
+"react-native-simple-audio-player@^1.0.3":
+  "integrity" "sha512-yO3PB2S77NyLMGSBu1l7RacVjwMrpN4qpN//LJ1u6upZHTMj7IAmgurOoW0vYnDdhLque5/a+CaW9c1oZy3v+Q=="
+  "resolved" "https://registry.npmjs.org/react-native-simple-audio-player/-/react-native-simple-audio-player-1.0.3.tgz"
+  "version" "1.0.3"
+
+"react-native-sound-playerview@^1.0.0":
+  "integrity" "sha512-KdEs3egnQy2njjx2StR8CW9WDJiWpSpp50YoLrTaWfmSIeo3ROIIvh/hlbzxDxNTvn5tAq6VyvymIw52pDAMdQ=="
+  "resolved" "https://registry.npmjs.org/react-native-sound-playerview/-/react-native-sound-playerview-1.0.0.tgz"
+  "version" "1.0.0"
+  dependencies:
+    "react-native-sound" "*"
+
+"react-native-sound@*", "react-native-sound@^0.11.2":
+  "integrity" "sha512-LmGc8lgOK3qecYMVQpyHvww/C+wgT6sWeMpVbOe4NCRGC2yKd4fo4U0KBUo9PO7AqKESO3I/2GZg1/C0+bwiiA=="
+  "resolved" "https://registry.npmjs.org/react-native-sound/-/react-native-sound-0.11.2.tgz"
+  "version" "0.11.2"
+
 "react-native-sqlite-storage@^6.0.1":
   "integrity" "sha512-1tDFjrint6X6qSYKf3gDyz+XB+X79jfiL6xTugKHPRtF0WvqMtVgdLuNqZunIXjNEvNtNVEbXaeZ6MsguFu00A=="
   "resolved" "https://registry.npmjs.org/react-native-sqlite-storage/-/react-native-sqlite-storage-6.0.1.tgz"
   "version" "6.0.1"
+
+"react-native-track-player@^4.1.1":
+  "integrity" "sha512-E5N/eK/+HtAVJUAzXpm1cWz8ROheV9jb0TI6h2bM+333U+DWibTTnT2T1122FkCoXLXIYavtm2FR2if+5jH8cA=="
+  "resolved" "https://registry.npmjs.org/react-native-track-player/-/react-native-track-player-4.1.1.tgz"
+  "version" "4.1.1"
+
+"react-native-video@^6.0.0":
+  "integrity" "sha512-G1b2L2DDbRWgyBRoQLonUEiOcsTSCfNPxGbzd6lYdhOUIyoAeBXarfFSg+89xMF6R36j7f+147FVxkjz6r60jQ=="
+  "resolved" "https://registry.npmjs.org/react-native-video/-/react-native-video-6.0.0.tgz"
+  "version" "6.0.0"
 
 "react-native-view-shot@^3.8.0":
   "integrity" "sha512-4cU8SOhMn3YQIrskh+5Q8VvVRxQOu8/s1M9NAL4z5BY1Rm0HXMWkQJ4N0XsZ42+Yca+y86ISF3LC5qdLPvPuiA=="
@@ -6529,6 +6596,14 @@
   "version" "2.6.3"
   dependencies:
     "glob" "^7.1.3"
+
+"rn-fetch-blob@^0.12.0":
+  "integrity" "sha512-+QnR7AsJ14zqpVVUbzbtAjq0iI8c9tCg49tIoKO2ezjzRunN7YL6zFSFSWZm6d+mE/l9r+OeDM3jmb2tBb2WbA=="
+  "resolved" "https://registry.npmjs.org/rn-fetch-blob/-/rn-fetch-blob-0.12.0.tgz"
+  "version" "0.12.0"
+  dependencies:
+    "base-64" "0.1.0"
+    "glob" "7.0.6"
 
 "run-parallel@^1.1.9":
   "integrity" "sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA=="

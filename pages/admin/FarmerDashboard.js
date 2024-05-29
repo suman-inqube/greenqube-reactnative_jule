@@ -9,7 +9,7 @@ import i18next from '../services/i18next';
 import { useTranslation } from 'react-i18next';
 import { Marquee } from '@animatereactnative/marquee';
 import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
-// import ForegroundHandler from '../PushNotification/ForegroundHandler';
+import ForegroundHandler from '../PushNotification/ForegroundHandler';
 // import Geolocation from '@react-native-community/geolocation';
 import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
@@ -110,7 +110,7 @@ const FarmerDashboard = ({ navigation }) => {
         <>
             <BackGroundLocation />
             <ForegroundLocationService />
-            {/* <ForegroundHandler /> */}
+            <ForegroundHandler />
             <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
             <View name="name">
                 <View style={styles.containerimg}>

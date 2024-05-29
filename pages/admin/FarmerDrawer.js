@@ -78,7 +78,9 @@ const FarmerDrawer = (props) => {
                             <Text style={styles.menuText}>{t('plot_and_crop_details')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('PackageOfPractices')} >
+                    <TouchableOpacity style={styles.memuContainer}
+                        onPress={() => navigateToPages('PackageOfPractices')}
+                    >
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/scientific_farming.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
@@ -87,7 +89,8 @@ const FarmerDrawer = (props) => {
                     </TouchableOpacity>
                     {side_menu_option?.soil_testing ?
                         <TouchableOpacity style={styles.memuContainer}
-                            onPress={() => navigateToPages('SoilHealthManagement')}>
+                            onPress={() => navigateToPages('SoilHealthManagement')}
+                        >
                             <View style={styles.menuItem}>
                                 <Image source={require('../Common/images/soil.png')}
                                     style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
@@ -103,7 +106,9 @@ const FarmerDrawer = (props) => {
                         </TouchableOpacity>
                     }
                     {side_menu_option?.agri_calculator ?
-                        <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Calculator')} >
+                        <TouchableOpacity style={styles.memuContainer}
+                            onPress={() => navigateToPages('Calculator')}
+                        >
                             <View style={styles.menuItem}>
                                 <Image source={require('../Common/images/calculator.png')}
                                     style={[{ height: 25, width: 25 }]} />

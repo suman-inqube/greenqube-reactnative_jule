@@ -160,7 +160,7 @@ const FarmerLiveHood = ({ navigation }) => {
                             produceVarietyValue: data.crop_variety.fid,
                             productionProcess: data.farmer_production_system.name,
                             productionProcessValue: data.farmer_production_system.fid,
-                            unitProduct: data.agri_unit.unit_name,
+                            unitProduct: data.agri_unit?.unit_name,
                             unitProductValue: data.agri_unit.fid,
                             unit_value: dataLandDetails.land_unit.unit_value
                         })
@@ -553,7 +553,7 @@ const FarmerLiveHood = ({ navigation }) => {
             ProductionUnitRes.data.data.rows.map((data, index) => {
                 productionUnitArr.push({
                     value: data.fid,
-                    label: data.unit_name,
+                    label: data?.unit_name,
                 });
             })
             setProductionUnit(productionUnitArr)

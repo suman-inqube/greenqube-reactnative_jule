@@ -1,4 +1,4 @@
-// import crashlytics from "@react-native-firebase/crashlytics";
+import crashlytics from "@react-native-firebase/crashlytics";
 export const CrashlyticsRecordError = async (error) => {
-    // crashlytics().recordError(error);
+    crashlytics().recordError(error);
 }

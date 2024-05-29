@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
         color: '#000'
     },
     flatlistHeight: {
-        height: Dimensions.get('window').height / 3
+        height: Dimensions.get('window').height / 4
     }
 
 })
