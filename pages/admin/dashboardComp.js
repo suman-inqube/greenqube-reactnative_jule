@@ -17,9 +17,9 @@ export const BoxDisplay = ({ text, text1, imageurl, onpress }) => {
                     <Text style={text != "Market" ? styles.box1_1 : {
                         marginLeft: 20,
                         fontWeight: '400',
-                        fontFamily:'Poppins-Regular',
+                        fontFamily: 'Poppins-Regular',
                         color: '#bbbbbb',
-                        fontSize:14
+                        fontSize: 14
                     }}>{text}</Text>
                 </View>
             </View>
@@ -66,7 +66,7 @@ export const BoxDisplaySingleLine = ({ name, imageurl }) => {
 }
 const styles = StyleSheet.create({
     boxContainer: {
-        flex: 1,        
+        flex: 1,
     },
     box1:
     {
@@ -79,23 +79,23 @@ const styles = StyleSheet.create({
         // shadowOffset: { width: 0, height: 2 },
         // shadowOpacity: 0.8,
         shadowRadius: 20,
-        margin:10,
+        margin: 10,
         elevation: 3
     },
     box1_1: {
         marginLeft: 12,
         fontWeight: '400',
         color: '#000',
-        fontSize:16,
-        fontFamily:'Poppins-Regular',
-        fontSize:15,
+        fontSize: 16,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 15,
     },
     box1_de: {
         marginLeft: 20,
         fontWeight: 'bold',
         color: '#B2BEB5',
-        fontFamily:'Poppins-Regular',
-        fontSize:15,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 15,
     }
 
 })

@@ -70,7 +70,7 @@ const PackageOfPracticesDetails = () => {
                     [{ nativeEvent: { contentOffset: { y: scrollOffsetY } } }],
                     { useNativeDriver: false, },
                 )}>
-                {popResAll[0]?.agri_crop_related?.description && <TouchableOpacity style={[styles.description]} onPress={() => setModalVisible(true)}>
+                {popResAll[0]?.agri_crop_related?.description && popResAll[0]?.agri_crop_related?.description != "null" && <TouchableOpacity style={[styles.description]} onPress={() => setModalVisible(true)}>
                     <Text style={styles.title}>{popResAll[0].agri_crop_related.description.substring(0, 50)}</Text>
                     <Text style={[styles.title, styles.readMore]}>{t('read_more')}</Text>
                 </TouchableOpacity>

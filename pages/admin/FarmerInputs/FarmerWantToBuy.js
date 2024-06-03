@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Keyboard, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -60,12 +60,14 @@ const FarmerWantToBuy = ({ navigation }) => {
         setShowingMenu(false)
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
 
@@ -177,35 +179,47 @@ const FarmerWantToBuy = ({ navigation }) => {
         // console.log(item);
         // onChange={(item) =>setSaveData({...saveData,io_prod_id: item.value,unit_id:item.label})}
     }
-    const handleUnit = (item) => {
+    const handleUnit = async (item) => {
         //    return console.log(JSON.stringify(inputSingle,null,2));
         let entity_type_id = "";
         let entity_name_id = "";
         let io_prod_id = inputSingle.fid;
         let unit_id = item.label;
         let entity_variety_id = item.value;
-        const defined_unit_value = inputSingle.agri_product_prices.filter(function (v, i) {
-            return ((v.prod_price_id == item.value));
-        })
-        inputSingle.productCategories.forEach(element => {
-            if (element.productCategory.iotype) {
-                entity_type_id = element.productCategory.iotype.entity_type_id;
-                entity_name_id = element.productCategory.iotype.entity_name_id;
-            } else {
-                entity_type_id = element.productCategory.ioname.entity_type_id;
-                entity_name_id = element.productCategory.ioname.entity_name_id;
-            }
-            setSaveData({
-                ...saveData,
-                entity_type_id: entity_type_id,
-                entity_name_id: entity_name_id,
-                entity_variety_id: entity_variety_id,
-                io_prod_id: io_prod_id,
-                unit_id: unit_id,
-                defined_unit_value: defined_unit_value[0].agri_unit.defined_unit_value
+        let pp_qty = item.pp_qty;
+        const unitRes = await unitByListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, 1, item.sub_type);
+        if (unitRes?.status == 200) {
+            const rows = unitRes?.data?.data?.rows[0];
+            const defined_unit_value = inputSingle.agri_product_prices.filter(function (v, i) {
+                return ((v.prod_price_id == item.value));
             })
+            inputSingle.productCategories.forEach(element => {
+                if (element.productCategory.iotype) {
+                    entity_type_id = element.productCategory.iotype.entity_type_id;
+                    entity_name_id = element.productCategory.iotype.entity_name_id;
+                } else {
+                    entity_type_id = element.productCategory.ioname.entity_type_id;
+                    entity_name_id = element.productCategory.ioname.entity_name_id;
+                }
+                setSaveData({
+                    ...saveData,
+                    entity_type_id: entity_type_id,
+                    entity_name_id: entity_name_id,
+                    entity_variety_id: entity_variety_id,
+                    io_prod_id: io_prod_id,
+                    // unit_id: unit_id,
+                    // defined_unit_value: defined_unit_value[0].agri_unit.defined_unit_value,
+                    unit_id: item?.label,
+                    unit_fid: item?.value,
+                    unit_sname: item?.unit_sname,
+                    unit_sub_type: item?.sub_type,
+                    defined_unit_value: item?.defined_unit_value,
+                    filter_unit_fid: rows?.fid,
+                    pp_qty: pp_qty
+                })
 
-        });
+            });
+        }
 
     }
 
@@ -236,7 +250,6 @@ const FarmerWantToBuy = ({ navigation }) => {
 
 
     const saveHandle = async () => {
-        Keyboard.dismiss();
         const res = validationData()
         if (res == true) {
             if (formStep === 1) {
@@ -259,8 +272,16 @@ const FarmerWantToBuy = ({ navigation }) => {
                 formData.append('user_contact_number', saveData.user_contact_number);
                 formData.append('user_name', saveData.user_name);
                 formData.append('io_prod_id', saveData.io_prod_id);
-                formData.append('unit_id', saveData.unit_id);
+                // formData.append('unit_id', saveData.unit_id);
                 formData.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
+                //change this key saveData.unit_sname 
+                formData.append('unit_id', saveData.unit_sname);
+                //new key add
+                formData.append('sub_ftype', saveData.unit_sub_type);
+                formData.append('unit_fid', saveData.unit_fid);
+                formData.append('default_unit_fid', saveData.filter_unit_fid);
+                //
+                formData.append('pp_qty', saveData.pp_qty);
                 const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
                 if (database_res) {
                     MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
@@ -352,7 +373,12 @@ const FarmerWantToBuy = ({ navigation }) => {
                 inputSingleData.agri_product_prices.forEach(element => {
                     dataArray.push({
                         value: element.prod_price_id,
-                        label: element.agri_unit.unit_name,
+                        label: `${element.quantity}/${element.agri_unit.unit_name}`,
+                        pp_qty: element.quantity,
+                        fid: element?.agri_unit?.fid,
+                        unit_sname: element?.agri_unit?.unit_sname,
+                        sub_type: element?.agri_unit?.sub_type,
+                        defined_unit_value: element?.agri_unit?.defined_unit_value
                     });
                 });
                 setUnitData(dataArray)
@@ -385,6 +411,7 @@ const FarmerWantToBuy = ({ navigation }) => {
             ref_code: "",
             land_rel_id: "",
             date: "",
+            pp_qty: ""
         })
 
         setFormStep(1)

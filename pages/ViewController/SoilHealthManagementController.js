@@ -55,12 +55,12 @@ const SoilHealthManagementController = (sample) => {
             if (sample != "") {
                 if (activeBtn == 1) {
                     const sampleRequestedRes = await SampleRequestList(dbname, lan_id, user_id, '', '');
-                    if (sampleRequestedRes.status == 200) {
+                    if (sampleRequestedRes?.status == 200) {
                         setSampleRequested(sampleRequestedRes.data.data)
                     }
                 } else {
                     const samplereportRes = await SampleReport(dbname, lan_id, user_id, '', '');
-                    if (samplereportRes.status == 200) {
+                    if (samplereportRes?.status == 200) {
                         setSampleReport(samplereportRes.data.data)
                     }
                 }
@@ -69,7 +69,7 @@ const SoilHealthManagementController = (sample) => {
                     cropListApi(dbname, lan_id, user_id),
                     soilTestLab(dbname, lan_id)
                 ]);
-                if (plotSiteDetailsRes.status == 200) {
+                if (plotSiteDetailsRes?.status == 200) {
                     const dataArray = [];
                     const { rows } = plotSiteDetailsRes.data.data;
                     rows.map((data, index) => {
@@ -81,7 +81,7 @@ const SoilHealthManagementController = (sample) => {
                     })
                     setPlotList(dataArray)
                 }
-                if (soilTestLabRes.status == 200) {
+                if (soilTestLabRes?.status == 200) {
                     const dataArray = [];
                     const { rows } = soilTestLabRes.data.data;
                     rows.map((data, index) => {
@@ -92,7 +92,6 @@ const SoilHealthManagementController = (sample) => {
                         });
                     })
                     setSoilTestLabList(dataArray);
-                    // setSoilTestLabList
                 }
             }
         }
@@ -132,12 +131,12 @@ const SoilHealthManagementController = (sample) => {
         setStartDate(date[0]);
         if (activeBtn == 1) {
             const sampleRequestedRes = await SampleRequestList(dbname, lan_id, user_id, date[0], searchById);
-            if (sampleRequestedRes.status == 200) {
+            if (sampleRequestedRes?.status == 200) {
                 setSampleRequested(sampleRequestedRes.data.data)
             }
         } else {
             const samplereportRes = await SampleReport(dbname, lan_id, user_id, date[0], searchById);
-            if (samplereportRes.status == 200) {
+            if (samplereportRes?.status == 200) {
                 setSampleReport(samplereportRes.data.data)
             }
         }
@@ -148,12 +147,12 @@ const SoilHealthManagementController = (sample) => {
     const onPressByID = async (type) => {
         if (type == "sampleRequested") {
             const sampleRequestedRes = await SampleRequestList(dbname, lan_id, user_id, startDate, searchById);
-            if (sampleRequestedRes.status == 200) {
+            if (sampleRequestedRes?.status == 200) {
                 setSampleRequested(sampleRequestedRes.data.data);
             }
         } else {
             const samplereportRes = await SampleReport(dbname, lan_id, user_id, startDate, searchById);
-            if (samplereportRes.status == 200) {
+            if (samplereportRes?.status == 200) {
                 setSampleReport(samplereportRes.data.data);
             }
         }
@@ -175,12 +174,12 @@ const SoilHealthManagementController = (sample) => {
             date: "",
         });
         const cropDetails = await livelihoodCropAndPlotDetailsAPI(dbname, lan_id, user_id, value);
-        if (cropDetails.status == 200) {
+        if (cropDetails?.status == 200) {
             const { rows, count } = cropDetails.data.data;
             if (count > 0) {
                 const { crop_name, crop_variety, land_info, crop_type_id, crop_name_id } = rows[0];
                 const productionStage_res = await productionStageAPI(dbname, lan_id, crop_type_id, crop_name_id);
-                if (productionStage_res.status == 200) {
+                if (productionStage_res?.status == 200) {
                     const dataArray = [];
                     const { growth_stage } = productionStage_res.data.data;
                     growth_stage.map((data, index) => {
@@ -237,8 +236,8 @@ const SoilHealthManagementController = (sample) => {
                 subdivision_id: subdivision,
                 growth_stage_id: productionStateData.value,
             });
-            const postResponse = await soilTestLabPostRequest(dbname, user_id, save_data)
-            if (postResponse.status == 200) {
+            const postResponse = await soilTestLabPostRequest(dbname, user_id, save_data);
+            if (postResponse?.status == 200) {
                 Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('MySoil');

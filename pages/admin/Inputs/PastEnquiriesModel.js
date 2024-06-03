@@ -60,7 +60,7 @@ const PastEnquiriesModel = (props) => {
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('qty_amp_unit')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.quantity} - {props.pastEnquirySingle.unit_id}</Text>
+                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.quantity} - {props.pastEnquirySingle.pp_qty}/{props.pastEnquirySingle.unit_id}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('required_date')}</Text>

@@ -13,19 +13,22 @@ import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import BackGroundLocation from '../BackgroundService/BackGroundLocation';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
 import FusedLocation from 'react-native-fused-location';
-import NotificationServices from '../PushNotification/NotificationServices';
-import messaging from '@react-native-firebase/messaging';
+// import NotificationServices from '../PushNotification/NotificationServices';
+// import messaging from '@react-native-firebase/messaging';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { useSelector } from 'react-redux';
 import DeviceInfo from '../DeviceInfo'
 import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
+import LoadingScreen from '../Common/LoadingScreen';
 const Dashboard = ({ navigation }) => {
   const { netConnection } = DeviceInfo();
-  const locationData = useSelector(state => state.locationData);
+  // const locationData = useSelector(state => state.LoanReducer);
+  // console.log(locationData)
   // const { fusedLocationData } = ForegroundLocationService();
-  const { requestUserPermission, notificationListener } = NotificationServices();
+  // const { requestUserPermission, notificationListener } = NotificationServices();
   const { t } = useTranslation();
   const isFocused = useIsFocused();
+  const [isLoading, setIsLoading] = useState(true);
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
@@ -51,7 +54,7 @@ const Dashboard = ({ navigation }) => {
         // getCurrentLatLong(),
         Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
       ]);
-    i18next.changeLanguage(`${loginUser_data.lan_id}`);
+    // i18next.changeLanguage(`${loginUser_data.lan_id}`);
     setcompany_website(company_website);
     setbottomBanner(bottomBannerData);
     setuserName(userNameData);
@@ -61,23 +64,11 @@ const Dashboard = ({ navigation }) => {
     exit();
   }
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (appState) => {
-      if (appState !== 'active') {
-        console.log("deactive")
-      } else {
-        console.log("active")
-      }
-
-      // Run custom logic
-
-      subscription.remove();
-    });
-  }, [])
-  useEffect(() => {
     // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    requestUserPermission();
-    notificationListener();
+    // requestUserPermission();
+    // notificationListener();
     if (isFocused) {
+      setTimeout(() => setIsLoading(false), 2000);
       // const microphonePermission = async () => { await Permission.checkPermission(PERMISSIONS_TYPE.fineLocation) }
       // console.log(microphonePermission);
       onPageLoad();
@@ -88,6 +79,7 @@ const Dashboard = ({ navigation }) => {
       BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }
+
   }, [isFocused]);
   const exit = () => {
     Alert.alert(
@@ -196,5 +188,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     marginRight: 20,
     marginTop: 8,
-  }
+  },
+  loadingScreen: {
+    position: 'absolute',
+    top: '50%',
+    zIndex: 999,
+    left: '45%'
+  },
 })

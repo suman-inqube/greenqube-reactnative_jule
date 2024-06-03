@@ -1,4 +1,4 @@
-import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Keyboard, Image, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated } from 'react-native'
+import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated, Linking } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
 import React, { useState, useEffect, useRef, useCallback } from 'react'
@@ -22,14 +22,16 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
+import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import { useTranslation } from 'react-i18next';
 import HarvestedModel from '../../Common/HarvestedModel';
 const audioRecorderPlayer = new AudioRecorderPlayer();
+// audioRecorderPlayer.setSubscriptionDuration(0.09);
 import DeviceInfo from '../../DeviceInfo';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const CreateProblem = ({ navigation }) => {
     const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
@@ -399,7 +401,6 @@ const CreateProblem = ({ navigation }) => {
         })
     }
     const onPageLoad = async () => {
-        setIsLoading(true);
         handleClear();
         const [loginUser_data] = await Promise.all([
             getItem('loginUser_data'),
@@ -407,7 +408,6 @@ const CreateProblem = ({ navigation }) => {
         ]);
         if (loginUser_data) {
             const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
-            console.log(JSON.stringify(loginUser_data))
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 dbName: dbname,
@@ -423,11 +423,13 @@ const CreateProblem = ({ navigation }) => {
                     farmerByNameAPI(dbname, lan_id, token, user_id),
                     problemSeverityAPI(dbname, lan_id)
                 ]);
-                await Promise.all([
-                    setItem('supervisorProblemTypeName', problemName_res),
-                    setItem('response' + user_id, response),
-                    setItem('severity_res', severity_res)
-                ]);
+                if (problemName_res?.status == 200) {
+                    await Promise.all([
+                        setItem('supervisorProblemTypeName', problemName_res),
+                        setItem('response' + user_id, response),
+                        setItem('severity_res', severity_res)
+                    ]);
+                }
             } else {
                 var [problemName_res, response, severity_res] = await Promise.all([
                     getItem('supervisorProblemTypeName'),
@@ -435,7 +437,7 @@ const CreateProblem = ({ navigation }) => {
                     getItem('severity_res')
                 ])
             }
-            setProblemAll(problemName_res.data?.data);
+            setProblemAll(problemName_res?.data?.data);
             if (problemName_res) {
                 const dataArray = [];
                 problemName_res.data.data.forEach(element => {
@@ -444,7 +446,8 @@ const CreateProblem = ({ navigation }) => {
                         label: element.name,
                     });
                 });
-                setProblemTypeAll(dataArray);
+                setProblemTypeAll(dataArray)
+                setIsLoading(false)
             }
             if (severity_res) {
                 const dataArray = [];
@@ -469,7 +472,6 @@ const CreateProblem = ({ navigation }) => {
                 setFarmerData(dataArray)
             }
         }
-        setIsLoading(false);
     };
     const validateForm = () => {
         if (!farmerID) {
@@ -577,9 +579,10 @@ const CreateProblem = ({ navigation }) => {
             formData.append("question_title", saveData.question_title);
             formData.append("question_desc", saveData.question_desc);
             formData.append("severity_id", saveData.severity_id);
+            console.log(JSON.stringify(formData))
             if (netConnection) {
                 const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
-                if (database_res?.status === 200) {
+                if (database_res.status === 200) {
                     // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
                     Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                     handleClear();
@@ -617,7 +620,10 @@ const CreateProblem = ({ navigation }) => {
                     Math.floor(e.currentPosition),
                 ),
             });
-            // console.log('Recording . . . ', e.currentPosition);
+            if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+                onStopRecordFirstItem();
+                setModalVisibleRecordFirstItem(false);
+            }
             return;
         });
     };
@@ -633,7 +639,10 @@ const CreateProblem = ({ navigation }) => {
                     Math.floor(e.currentPosition),
                 ),
             });
-            // console.log('Recording . . . ', e.currentPosition);
+            if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+                onStopRecordSecoundItem();
+                setModalVisibleRecordSecoundItem(false);
+            }
             return;
         });
     };
@@ -649,7 +658,10 @@ const CreateProblem = ({ navigation }) => {
                     Math.floor(e.currentPosition),
                 ),
             });
-            // console.log('Recording . . . ', e.currentPosition);
+            if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+                onStopRecordThirdItem();
+                setModalVisibleRecordThirdItem(false);
+            }
             return;
         });
     };
@@ -719,7 +731,57 @@ const CreateProblem = ({ navigation }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }
     }, [isFocused, netConnection]);
+    const cancelRecord = async (item) => {
+        await audioRecorderPlayer.stopPlayer();
+        console.warn(item)
+        if (item == "firstItem") {
+            setSoundRecordFirstItem({
+                item: '1',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
 
+        } else if (item == "secoundItem") {
+            setSoundRecordSecoundItem({
+                item: '2',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+        } else if (item == "thirdItem") {
+            setSoundRecordThirdItem({
+                item: '3',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+        }
+    }
+    const soundPlay = async (item) => {
+        let path;
+        if (item == "firstItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
+        } else if (item == "secoundItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
+        } else if (item == "thirdItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
+        }
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
+    }
     return (
         <View style={styles.container}>
             <CustomHeader path='ProblemList' HandlerGoBack={HandlerGoBack} />
@@ -840,7 +902,10 @@ const CreateProblem = ({ navigation }) => {
                         setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
                         soundRecordFirstItem={soundRecordFirstItem}
                         soundRecordSecoundItem={soundRecordSecoundItem}
-                        soundRecordThirdItem={soundRecordThirdItem} />
+                        soundRecordThirdItem={soundRecordThirdItem}
+                        cancelRecord={cancelRecord}
+                        soundPlay={soundPlay}
+                    />
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10 }}>

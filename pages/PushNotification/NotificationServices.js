@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { getItem, setItem } from '../../config/getDataFromStorage';
 import { Platform } from 'react-native';
-import ForegroundHandler from './ForegroundHandler';
+// import ForegroundHandler from './ForegroundHandler';
 const notificationServices = () => {
   const navigation = useNavigation();
   const requestUserPermission = async () => {
@@ -38,7 +38,7 @@ const notificationServices = () => {
     const userType = await getItem('userType');
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log('A new FCM message arrived!', remoteMessage);
-      <ForegroundHandler />
+      // <ForegroundHandler />
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       console.log(
@@ -47,6 +47,7 @@ const notificationServices = () => {
       );
       const { type, response } = remoteMessage.data;
       const responseCommentJson = JSON.parse(response);
+      console.log(remoteMessage.data)
       if (type == 'comment') {
         if (userType == 3) {
           navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid, type: type });
@@ -97,69 +98,81 @@ const notificationServices = () => {
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
+          // console.log(remoteMessage)
           const { type, response } = remoteMessage.data;
           const responseCommentJson = JSON.parse(response);
+          // console.log("********")
+          // console.log(responseCommentJson);
           if (type == 'comment') {
             if (userType == 3) {
               setTimeout(() => {
+                navigation.navigate("ProblemView", { comment_qid: responseCommentJson.comment_qid, type: type });
+              }, 1300);
+            } else if (userType == 2) {
+              setTimeout(() => {
+                navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.comment_qid, type: type });
+              }, 1300);
+            }
+          } else if (type == 'answer') {
+            if (userType == 3) {
+              setTimeout(() => {
                 navigation.navigate("ProblemView", { comment_qid: responseCommentJson.question_id, type: type });
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerViewProblem", { comment_qid: responseCommentJson.question_id, type: type });
-              }, 1200);
+              }, 1300);
             }
-          } else if (type == 'answer') {
 
           } else if (type == 'problem') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("ProblemList");
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerListProblem");
-              }, 1200);
+              }, 1300);
             }
           } else if (type == 'procure_fulfillment output-list') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerOutPutList", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             }
           } else if (type == 'supply_fulfillment') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("PastEnquiry", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerPastEnquiry", { io_oid: responseCommentJson.io_oid });
-              }, 1200);
+              }, 1300);
             }
           } else if (responseCommentJson.post_type == "general_info") {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("UsefulInformationList");
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerUsefulInformationList");
-              }, 1200);
+              }, 1300);
             }
           } else if (responseCommentJson.post_type == "training") {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("TraingList");
-              }, 1200);
+              }, 1300);
             } else if (userType == 2) {
               setTimeout(() => {
                 navigation.navigate("FarmerTrainingList");
-              }, 1200);
+              }, 1300);
             }
           }
           // console.log(remoteMessage.data.type)

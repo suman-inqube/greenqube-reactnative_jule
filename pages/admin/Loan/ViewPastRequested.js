@@ -318,7 +318,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                                         <View style={styles.flatListItem}>
                                             <Text style={styles.title}>{t('number_caps')}:{item.agri_user.contactNumber}</Text>
                                             <Text style={styles.title}>{t('date')}:{date.toString().substring(4, 15)}</Text>
-                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{sanctioned_date.toString().substring(7, 15)}</Text>}
+                                            {item?.sanctioned_date && <Text style={styles.title}>{t('SanctionedDate')}:{sanctioned_date.toString().substring(3, 15)}</Text>}
                                             {item?.loan_ord_id && <Text style={styles.title}>{t('LoanOrderID')}:{item.loan_ord_id.substring(-1, 9)}</Text>}
                                         </View>
                                     </TouchableOpacity>

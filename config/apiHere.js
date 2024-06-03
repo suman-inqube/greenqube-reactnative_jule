@@ -518,7 +518,9 @@ export const problemSaveAPI = async (dbName, languageId, token, userId, inputDat
             'Content-Type': 'multipart/form-data',
         },
     };
-    //   console.log(`${config.BASE_URL}questionRoute/add`,inputData, axiosHeaders);
+    // console.log(JSON.stringify(inputData))
+    // console.log(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
+    // return;
     try {
         // console.log(response);
         let response = await axios.post(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
@@ -784,18 +786,18 @@ export const livelihoodNameVarietyLandrelAPI = async (dbName, languageId, userId
     }
 }
 
-export const unitByListAPI = async (dbName, languageId) => {
+export const unitByListAPI = async (dbName, languageId, is_default = "", sub_type = "") => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageId}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=product_unit&search_key=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?search_key=&is_default=${is_default}&sub_type=${sub_type}&unit_type=product_unit`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
-        return console.log("error in unitByListAPI " + error);
+        // CrashlyticsRecordError(error.response);
+        return error.response;
     }
 }
 
@@ -807,7 +809,7 @@ export const outputSaveAPI = async (dbName, languageId, token, userId, inputData
             'Content-Type': 'multipart/form-data',
         },
     };
-    // return console.log(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
+    // return console.log(`${config.BASE_URL}questionRoute/add`,inputData, axiosHeaders);
     try {
         let response = await axios.post(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
         return response;
@@ -936,7 +938,7 @@ export const numberDigitAPI = async (countryId, languageId) => {
         },
     };
     try {
-        let response = await axios.get(config.BASE_URL + 'locationRoute/getContactNoDigitByCountryID/${countryId}', axiosHeaders);
+        let response = await axios.get(config.BASE_URL + `locationRoute/getContactNoDigitByCountryID/${countryId}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -1324,8 +1326,6 @@ export const farmerProblemListAPI = async (dbName, languageID, userID, farmer_ty
             'information': `${dbName},${userID}`,
         },
     };
-    console.log(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
-
     try {
         let response = await axios.get(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
         return response;
@@ -1606,14 +1606,36 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
     }
 }
 
-export const POPStaticMenuListDetails = async (dbName, lan_id, crop_id, staticMenuId) => {
+export const POPStaticMenuListDetails = async (
+    dbName,
+    lan_id,
+    crop_id,
+    staticMenuId,
+) => {
+    const axiosHeaders = {
+        headers: {
+            information: `${dbName},${lan_id}`,
+        },
+    };
+    try {
+        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`,
+            axiosHeaders,
+        );
+        return response;
+    } catch (error) {
+        CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+};
+
+export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${lan_id}`,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}locationRoute/detailsCompany/${db_company_id}`, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);
@@ -1679,7 +1701,6 @@ export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
         return error.response;
     }
 }
-
 
 
 

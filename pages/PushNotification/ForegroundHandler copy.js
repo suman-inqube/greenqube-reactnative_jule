@@ -1,6 +1,6 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import React, { useEffect } from 'react';
-import messaging from '@react-native-firebase/messaging';
+// import messaging from '@react-native-firebase/messaging';
 import { Platform, Alert } from 'react-native';
 import PushNotification from "react-native-push-notification";
 import { useNavigation } from '@react-navigation/native';

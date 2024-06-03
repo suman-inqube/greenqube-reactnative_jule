@@ -11,7 +11,7 @@ const ProductOptionDropDown = ({ rate, val, onChange, currency }) => {
         rate.forEach((element, index) => {
             emptyArray.push({
                 value: element.prod_price_id,
-                label: element.discounted_price == "0" || element.discounted_price == null ? `${currency}` + element.sales_price + ' ' + element.agri_unit.unit_name.substring(0, 7) + '..' : `${currency}` + element.discounted_price + ' ' + element.agri_unit.unit_name.substring(0, 7) + '..',
+                label: element?.discounted_price == "0" || element?.discounted_price == null ? `${currency} ` + element?.sales_price + ' ' + element?.quantity + '/' + element?.agri_unit?.unit_name.substring(0, 7) + '..' : `${currency} ` + element?.discounted_price + ' ' + element?.quantity + '/' + element?.agri_unit?.unit_name.substring(0, 7) + '..',
             });
         });
         setPrice(emptyArray);
@@ -27,7 +27,7 @@ const ProductOptionDropDown = ({ rate, val, onChange, currency }) => {
                     mode='modal'
                     style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
                     laceholderStyle={[styles.placeholderStyle, { color: 'black', fontFamily: 'Poppins-Regular' }]}
-                    selectedTextStyle={[styles.selectedTextStyle, { color: 'black', fontFamily: 'Poppins-Regular' }]}
+                    selectedTextStyle={[styles.selectedTextStyle, { color: 'black', fontFamily: 'Poppins-Regular', height: 50, fontSize: 14 }]}
                     inputSearchStyle={[styles.inputSearchStyle, { color: 'black', fontFamily: 'Poppins-Regular' }]}
                     iconStyle={styles.iconStyle}
                     itemTextStyle={styles.itemTextStyle}
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         // borderRadius: 8,
         // paddingHorizontal: 8,
         // backgroundColor: 'white',
-        width: '80%',
+        // width: '80%',
     },
     itemTextStyle: {
         color: '#000',

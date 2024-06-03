@@ -173,7 +173,6 @@ const FarmerReport = () => {
         if (item == "") { Toast.show({ text: msg, ...AlertMesg[0] }); return false; } else { return true; }
     }
     const handleSave = async () => {
-        Keyboard.dismiss();
         if (farmerID == "") {
             validateForm(farmerID, 'Select Farmer First');
         } else if (date == "") {

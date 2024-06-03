@@ -6,7 +6,7 @@ import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
 import { getItem, removeItem, setItem } from '../config/getDataFromStorage'
-import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI, checkPhoneDigitAPI } from '../config/apiHere'
+import { databaseListAPI, fpodetailsDataListAPI, reginalDataServiceAPI, checkPhoneDigitAPI, DetailsCompany } from '../config/apiHere'
 import MessageDialog from './Common/MessageDialog'
 import i18next from './services/i18next';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +31,7 @@ const Login = ({ route }) => {
         language: "",
         company_id: ""
     });
-    const [contact_no_digits, setcontact_no_digits] = useState(10);
+    const [contact_no_digits, setcontact_no_digits] = useState(11);
     const { t } = useTranslation();
     const [storeLoginUser, setstoreLoginUser] = useState({
         FcmUserToken: "",
@@ -69,9 +69,12 @@ const Login = ({ route }) => {
         return true;
     };
     const saveHandle = async () => {
+        const [fcmToken_res] = await Promise.all([
+            getItem('fcmToken'),
+        ])
         if (validateForm()) {
             const inputdata = {
-                "FcmUserToken": storeLoginUser.FcmUserToken,
+                "FcmUserToken": fcmToken_res,
                 "IMEINumber": "123456",
                 "company": storeLoginUser.company,
                 "contactNumber": storeLoginUser.phone,
@@ -79,11 +82,18 @@ const Login = ({ route }) => {
                 "type": storeLoginUser.role
             };
             try {
+                console.log(inputdata)
                 setIsLoading(true);
-                console.log(inputdata);
                 let userIno = await axios.post(config.loginAPI, inputdata);
-                if (userIno.status === 200) {
+                if (userIno?.status === 200) {
                     const loginUserdata = userIno.data.data[0];
+                    const details_company_res = await DetailsCompany(loginUserdata?.dbname, loginUserdata?.lan_id, loginUserdata?.db_company_id);
+                    if (details_company_res?.status == 200) {
+                        await setItem("side_menu_option", {
+                            soil_testing: details_company_res?.data?.data[0]?.soil_testing,
+                            agri_calculator: details_company_res?.data?.data[0]?.agri_calculator
+                        });
+                    }
                     await Promise.all([
                         setItem("userNameData", loginUserdata.userName),
                         setItem("userType", loginUserdata.userType)
@@ -160,48 +170,44 @@ const Login = ({ route }) => {
         }
     }
     const onPageLoad = async () => {
-        await Promise.all([
+        const [companyLanguage_data, company_res] = await Promise.all([
+            getItem('companyLanguage_data'),
+            databaseListAPI(),
+            removeItem('storeSignup_data'),
+            removeItem('storePersnolInfo_data'),
+            removeItem('storeFinancial_data'),
+            removeItem('storeProduceInfo_data'),
             requestUserPermission(),
             notificationListener(),
+            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
+            removeItem("side_menu_option"),
         ]);
-        setTimeout(async () => {
-            const [companyLanguage_data, company_res, fcmToken_res] = await Promise.all([
-                getItem('companyLanguage_data'),
-                databaseListAPI(),
-                getItem('fcmToken'),
-                removeItem('storeSignup_data'),
-                removeItem('storePersnolInfo_data'),
-                removeItem('storeFinancial_data'),
-                removeItem('storeProduceInfo_data'),
-                Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications]),
-            ]);
-            if (companyLanguage_data != "" && companyLanguage_data != null) {
-                setcompanyLanguage(companyLanguage_data);
-                const { country_id, company, language } = companyLanguage_data;
-                checkPhoneNumber(country_id, company, language)
-                setstoreLoginUser({
-                    ...storeLoginUser,
-                    phone: "",
-                    password: "",
-                    role: "",
-                    company: companyLanguage_data.company_id,
-                    FcmUserToken: fcmToken_res,
+        if (companyLanguage_data != "" && companyLanguage_data != null) {
+            setcompanyLanguage(companyLanguage_data);
+            const { country_id, company, language } = companyLanguage_data;
+            checkPhoneNumber(country_id, company, language)
+            setstoreLoginUser({
+                ...storeLoginUser,
+                phone: "",
+                password: "",
+                role: "",
+                company: companyLanguage_data.company_id,
+                // FcmUserToken: fcmToken_res,
+            });
+        }
+        if (company_res.status == 200) {
+            let companyArray = [];
+            company_res?.data?.data?.map((data, index) => {
+                const { company_id, agri_company, db_name } = data;
+                companyArray.push({
+                    value: company_id,
+                    label: agri_company.company_name,
+                    dbname: db_name,
+                    country_id: agri_company.country_id,
                 });
-            }
-            if (company_res.status == 200) {
-                let companyArray = [];
-                company_res?.data?.data?.map((data, index) => {
-                    const { company_id, agri_company, db_name } = data;
-                    companyArray.push({
-                        value: company_id,
-                        label: agri_company.company_name,
-                        dbname: db_name,
-                        country_id: agri_company.country_id,
-                    });
-                })
-                setCompanyData(companyArray);
-            }
-        }, 1000);
+            })
+            setCompanyData(companyArray);
+        }
     };
     useEffect(() => {
         // console.log(fusedLocationData);

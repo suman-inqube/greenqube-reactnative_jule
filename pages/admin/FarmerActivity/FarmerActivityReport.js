@@ -11,7 +11,6 @@ import {
   Dimensions,
   Button,
   Animated,
-  Keyboard
 } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
@@ -43,12 +42,13 @@ import MessageDialog from '../../Common/MessageDialog';
 import CustomHeader from '../CustomHeader';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import { useFocusEffect } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 // import i18next from '../services/i18next';
 import { useTranslation } from 'react-i18next';
 import SoundRecord from '../../Common/SoundRecord';
 import DeviceInfo from '../../DeviceInfo';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
 const FarmerActivityReport = ({ navigation }) => {
@@ -115,6 +115,7 @@ const FarmerActivityReport = ({ navigation }) => {
     recordSecs: 0,
     recordTime: '00:00:00',
     result: '',
+    base64: ''
   });
   const [soundRecordSecoundItem, setSoundRecordSecoundItem] = useState({
     item: '2',
@@ -240,13 +241,14 @@ const FarmerActivityReport = ({ navigation }) => {
   const handleSearch = text => {
     setSearchFarmerName(text);
     setSearchFarmerPhone('');
-    const result = farmerData.filter(item =>
-      item.label.toLowerCase().includes(text.toLowerCase()),
-    );
-
-    if (result) {
-      setSearchResultsList(true);
-      setSearchResults(result);
+    if (farmerData.length > 0) {
+      const result = farmerData.filter(item =>
+        item.label.toLowerCase().includes(text.toLowerCase()),
+      );
+      if (result) {
+        setSearchResultsList(true);
+        setSearchResults(result);
+      }
     }
   };
 
@@ -316,7 +318,7 @@ const FarmerActivityReport = ({ navigation }) => {
   const setCycleDate = async () => {
     setIsButtonDisabled(true);
     let save_data = qs.stringify({
-      crop_cycl_start_date: cycleDtartDate,
+      crop_cycl_start_date: cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate,
     });
     const productionStage_res = await setCycleDateAPI(
       dbLanTokUsr.dbName,
@@ -444,7 +446,10 @@ const FarmerActivityReport = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      // console.log('Recording . . . ', e.currentPosition);
+      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+        onStopRecordFirstItem();
+        setModalVisibleRecordFirstItem(false);
+      }
       return;
     });
   };
@@ -458,7 +463,10 @@ const FarmerActivityReport = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      // console.log('Recording . . . ', e.currentPosition);
+      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+        onStopRecordSecoundItem();
+        setModalVisibleRecordSecoundItem(false);
+      }
       return;
     });
   };
@@ -472,12 +480,14 @@ const FarmerActivityReport = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      // console.log('Recording . . . ', e.currentPosition);
+      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+        onStopRecordThirdItem();
+        setModalVisibleRecordThirdItem(false);
+      }
       return;
     });
   };
   const onStopRecordFirstItem = useCallback(async () => {
-    // if (record == "firstItem") {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
@@ -486,38 +496,35 @@ const FarmerActivityReport = ({ navigation }) => {
         isLoggingIn: false,
         result: result,
       });
+      // RNFS.readFile(result, 'base64')
+      //   .then(res => {
+      //   })
+      //   .catch(err => {
+      //     console.error(err);
+      //   });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
-    // }
   }, []);
   const onStopRecordSecoundItem = useCallback(async () => {
-    // if (record == "firstItem") {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
       setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
-    // }
   }, []);
   const onStopRecordThirdItem = useCallback(async () => {
-    // if (record == "firstItem") {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
       setSoundRecordThirdItem({ isLoggingIn: false, result: result });
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
-    // }
   }, []);
 
   const validateForm = () => {
@@ -594,7 +601,6 @@ const FarmerActivityReport = ({ navigation }) => {
     return true;
   };
   const handleSave = async () => {
-    Keyboard.dismiss();
     if (validateForm()) {
       const formData = new FormData();
 
@@ -654,9 +660,12 @@ const FarmerActivityReport = ({ navigation }) => {
           formData,
         );
         if (database_res.status === 200) {
-          MessageDialog({ title: 'Successful', message: 'Data submitted successfully' });
-          handleClear();
-          navigation.navigate('FarmerActivityList');
+          // MessageDialog({ title: 'Successful', message: 'Data submitted successfully' });
+          Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+          setTimeout(() => {
+            handleClear();
+            navigation.navigate('FarmerActivityList');
+          }, 1000);
         }
       } else {
         let timeStamp = Date.now();
@@ -671,12 +680,11 @@ const FarmerActivityReport = ({ navigation }) => {
         } else {
           await setItem('offlineFarmerActivityData', 'off' + timeStamp);
         }
-        MessageDialog({
-          title: 'Successful',
-          message: 'Data submitted successfully',
-        });
-        handleClear();
-        navigation.navigate('FarmerActivityList');
+        Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+        setTimeout(() => {
+          handleClear();
+          navigation.navigate('FarmerActivityList');
+        }, 1000);
       }
     }
   };
@@ -836,6 +844,7 @@ const FarmerActivityReport = ({ navigation }) => {
       recordSecs: 0,
       recordTime: '00:00:00',
       result: '',
+      base64: ''
     });
     setSoundRecordSecoundItem({
       item: '2',
@@ -843,6 +852,7 @@ const FarmerActivityReport = ({ navigation }) => {
       recordSecs: 0,
       recordTime: '00:00:00',
       result: '',
+      base64: ''
     });
     setSoundRecordThirdItem({
       item: '3',
@@ -850,6 +860,7 @@ const FarmerActivityReport = ({ navigation }) => {
       recordSecs: 0,
       recordTime: '00:00:00',
       result: '',
+      base64: ''
     });
   }
 
@@ -942,6 +953,7 @@ const FarmerActivityReport = ({ navigation }) => {
       recordSecs: 0,
       recordTime: '00:00:00',
       result: '',
+      base64: ''
     });
     setSoundRecordSecoundItem({
       item: '2',
@@ -962,6 +974,56 @@ const FarmerActivityReport = ({ navigation }) => {
   const HandlerGoBack = () => {
     navigation.navigate('FarmerActivityList');
   };
+  const cancelRecord = async (item) => {
+    await audioRecorderPlayer.stopPlayer();
+    if (item == "firstItem") {
+      setSoundRecordFirstItem({
+        item: '1',
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result: ""
+      });
+
+    } else if (item == "secoundItem") {
+      setSoundRecordSecoundItem({
+        item: '2',
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result: ""
+      });
+    } else if (item == "thirdItem") {
+      setSoundRecordThirdItem({
+        item: '3',
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result: ""
+      });
+    }
+  }
+  const soundPlay = async (item) => {
+    let path;
+    if (item == "firstItem") {
+      path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
+    } else if (item == "secoundItem") {
+      path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
+    } else if (item == "thirdItem") {
+      path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
+    }
+    SPSheet.show({
+      component: () => <AudioPlayerView path={path} />,
+      dragFromTopOnly: true,
+      onCloseComplete: () => {
+        // alert('onCloseComplete');
+      },
+      onOpenComplete: () => {
+        // console.log(SPSheet)
+      },
+      height: 260
+    });
+  }
   return (
     <>
       <View style={styles.container}>
@@ -1213,6 +1275,8 @@ const FarmerActivityReport = ({ navigation }) => {
               soundRecordFirstItem={soundRecordFirstItem}
               soundRecordSecoundItem={soundRecordSecoundItem}
               soundRecordThirdItem={soundRecordThirdItem}
+              cancelRecord={cancelRecord}
+              soundPlay={soundPlay}
             />
           </View>
         </ScrollView>

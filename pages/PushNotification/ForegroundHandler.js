@@ -62,7 +62,7 @@ const ForegroundHandler = () => {
                                 } else {
                                     navigation.navigate("FarmerListProblem");
                                 }
-                            } else if (type == 'procure_fulfillment output-list') {
+                            } else if (type == 'procure_fulfillment') {
                                 if (userType == 3) {
                                     navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
                                 } else {

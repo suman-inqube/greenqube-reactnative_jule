@@ -49,7 +49,7 @@ const PackageOfPracticesController = () => {
                 value: "",
                 label: "All"
             }];
-            if (packageListRes.status == 200) {
+            if (packageListRes?.status == 200) {
                 const { rows } = packageListRes.data.data;
                 if (rows != null) {
                     rows.map((data, index) => {
@@ -63,7 +63,7 @@ const PackageOfPracticesController = () => {
                 }
             }
             setPackageList(PackageListArr);
-            if (livehoodTypeRes.status == 200) {
+            if (livehoodTypeRes?.status == 200) {
                 const { crop_type } = livehoodTypeRes.data.data;
                 crop_type.map((data, index) => {
                     const { fid, name } = data;
@@ -120,7 +120,7 @@ const PackageOfPracticesController = () => {
         } else {
             fliterRes = await productionStageAPI(dbname, lan_id, value, '');
         }
-        if (fliterRes.status == 200) {
+        if (fliterRes?.status == 200) {
             if (label == "All") {
                 const { rows } = fliterRes.data.data;
                 if (rows != null) {
@@ -157,13 +157,13 @@ const PackageOfPracticesController = () => {
             POPStaticMenuList(dbname, lan_id),
             POPDetails(dbname, lan_id, value)
         ]);
-        if (popStaticMenuListRes.status == 200) {
+        if (popStaticMenuListRes?.status == 200) {
             const { rows } = popStaticMenuListRes.data.data;
             rows.map((data, index) => {
                 POPDetailsListArr.push(data);
             });
         }
-        if (popRes.status == 200) {
+        if (popRes?.status == 200) {
             if (popRes.data.data.length > 0) {
                 popRes.data.data.map((data, index) => {
                     if (data.static_menu_id != null && data.static_submenu_id != null && data.sf_static_menu.menu_type == "csm") {
@@ -176,7 +176,7 @@ const PackageOfPracticesController = () => {
     }
     const onPressPackageItemDetails = async (crop_id, staticMenuId, menu_name) => {
         const StaticMenuListDetails = await POPStaticMenuListDetails(dbname, lan_id, crop_id, staticMenuId);
-        if (StaticMenuListDetails.status == 200) {
+        if (StaticMenuListDetails?.status == 200) {
             const { package_of_practice_list } = StaticMenuListDetails.data.data[0];
             if (package_of_practice_list.length > 0) {
                 navigation.navigate('PackageItemDetails', { package_of_practice_list: package_of_practice_list[0].content, menu_name: menu_name })

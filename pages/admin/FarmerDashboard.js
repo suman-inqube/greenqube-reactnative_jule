@@ -14,15 +14,17 @@ import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
-import NotificationServices from '../PushNotification/NotificationServices';
+// import NotificationServices from '../PushNotification/NotificationServices';
 import DeviceInfo from '../DeviceInfo'
 import BackGroundLocation from '../BackgroundService/BackGroundLocation';
+import LoadingScreen from '../Common/LoadingScreen';
 const FarmerDashboard = ({ navigation }) => {
     const { netConnection } = DeviceInfo();
     // const locationData = useSelector(state => state.locationData);
-    const { requestUserPermission, notificationListener } = NotificationServices();
+    // const { requestUserPermission, notificationListener } = NotificationServices();
     const { t } = useTranslation();
     const isFocused = useIsFocused();
+    const [isLoading, setIsLoading] = useState(true);
     const [bottomBanner, setbottomBanner] = useState();
     const [userListShow, setuserListShow] = useState(false);
     const [isMenuShow, setisMenuShow] = useState();
@@ -67,8 +69,8 @@ const FarmerDashboard = ({ navigation }) => {
     };
 
     useEffect(() => {
-        requestUserPermission();
-        notificationListener();
+        // requestUserPermission();
+        // notificationListener();
         onPageLoad();
     }, []);
     const HandlerGoBack = () => {
@@ -199,5 +201,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-SemiBold',
         marginRight: 20,
         marginTop: 10,
-    }
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: '50%',
+        zIndex: 999,
+        left: '45%'
+    },
 })

@@ -110,8 +110,8 @@ const FarmerUsefulInformation = () => {
                                 data={noticeFiles}
                                 keyExtractor={(item) => item.file_id}
                                 renderItem={({ item, index }) => (
-                                    <View style={{ width: 200, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
-                                        <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
+                                    <View style={{ width: width, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
+                                        <TouchableOpacity onPress={() => detailItem(item.file_path)}>
                                             <DocumentDisplay
                                                 item={item.file_path}
                                                 file_ext={item.file_ext}

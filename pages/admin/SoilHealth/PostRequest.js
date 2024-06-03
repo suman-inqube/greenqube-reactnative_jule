@@ -23,12 +23,12 @@ const PostRequest = () => {
                         <DropdownForm label={t('agent_crop_problem_plot')}
                             data={plotList} onChange={onChangePlot}
                         />
-                        {cropDetails.produceName != "" &&
+                        {cropDetails?.produceName != "" &&
                             <>
-                                <InputTextForm label={t('produce_name')} value={cropDetails.produceName} />
-                                <InputTextForm label={t('crop_veriety')} value={cropDetails.produceVariety} />
-                                <InputTextForm label={t('addland_capturelat')} value={cropDetails.captureLat} />
-                                <InputTextForm label={t('addland_capturelong')} value={cropDetails.longValue} />
+                                <InputTextForm label={t('produce_name')} value={cropDetails?.produceName} />
+                                <InputTextForm label={t('crop_veriety')} value={cropDetails?.produceVariety} />
+                                <InputTextForm label={t('addland_capturelat')} value={cropDetails?.captureLat} />
+                                <InputTextForm label={t('addland_capturelong')} value={cropDetails?.longValue} />
                                 <View>
                                     <Text style={styles.title}>{t('date')}</Text>
                                     <View style={styles.dateContainer}>

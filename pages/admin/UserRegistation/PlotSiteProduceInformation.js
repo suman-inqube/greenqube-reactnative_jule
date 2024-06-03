@@ -122,7 +122,7 @@ const PlotSiteProduceInformation = () => {
                     ProduceProductionUnitDataAPI(dbName, languageID),
                 ]);
                 if (tterrainType_res.status === 200) {
-                    tterrainType_res.data.data.rows.forEach(element => {
+                    tterrainType_res?.data?.data?.rows.forEach(element => {
                         terraintypeArray.push({
                             value: element.id,
                             label: element.name,
@@ -130,7 +130,7 @@ const PlotSiteProduceInformation = () => {
                     });
                 }
                 if (landType_res.status === 200) {
-                    landType_res.data.data.rows.forEach(element => {
+                    landType_res?.data?.data?.rows.forEach(element => {
                         landTypeArray.push({
                             value: element.id,
                             label: element.name,
@@ -139,7 +139,7 @@ const PlotSiteProduceInformation = () => {
 
                 }
                 if (soilType_res.status === 200) {
-                    soilType_res.data.data.rows.forEach(element => {
+                    soilType_res?.data?.data?.rows.forEach(element => {
                         soilTypeArray.push({
                             value: element.id,
                             label: element.name,
@@ -148,7 +148,7 @@ const PlotSiteProduceInformation = () => {
 
                 }
                 if (landUnit_res.status === 200) {
-                    landUnit_res.data.data.rows.forEach(element => {
+                    landUnit_res?.data?.data?.rows.forEach(element => {
                         landUnitArray.push({
                             value: element.id,
                             label: element.name,
@@ -156,32 +156,32 @@ const PlotSiteProduceInformation = () => {
                         });
                     });
                 }
-                if (producceSeasion_res.status === 200) {
-                    producceSeasion_res.data.data.crop_season.forEach(element => {
+                if (producceSeasion_res?.status === 200) {
+                    producceSeasion_res?.data?.data?.crop_season.forEach(element => {
                         prodctionSeasionArray.push({
                             value: element.fid,
                             label: element.name,
                         });
                     });
                 }
-                if (livelihoodType_res.status === 200) {
-                    livelihoodType_res.data.data.crop_type.forEach(element => {
+                if (livelihoodType_res?.status === 200) {
+                    livelihoodType_res?.data?.data?.crop_type.forEach(element => {
                         livelihoodTypeArray.push({
                             value: element.fid,
                             label: element.name,
                         });
                     });
                 }
-                if (productionProcessData_res.status === 200) {
-                    productionProcessData_res.data.data.rows.forEach(element => {
+                if (productionProcessData_res?.status === 200) {
+                    productionProcessData_res?.data?.data?.rows.forEach(element => {
                         productionProcessArray.push({
                             value: element.fid,
                             label: element.name,
                         });
                     });
                 }
-                if (produceProductionUnitData_res.status === 200) {
-                    produceProductionUnitData_res.data.data.rows.forEach(element => {
+                if (produceProductionUnitData_res?.status === 200) {
+                    produceProductionUnitData_res?.data?.data?.rows.forEach(element => {
                         produceProductionUnitArray.push({
                             value: element.fid,
                             label: element.unit_name,
@@ -564,12 +564,12 @@ const PlotSiteProduceInformation = () => {
         //         ],
         //         { cancelable: false });
         // }
-        if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
-            setstoreProduceInfo({ ...storeProduceInfo, lat: fusedLocation.latitude, long: fusedLocation.longitude });
+        // if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
+        setstoreProduceInfo({ ...storeProduceInfo, lat: fusedLocation.latitude, long: fusedLocation.longitude });
 
-        } else {
-            Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
-        }
+        // } else {
+        //     Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
+        // }
         setIsLoading(false);
     }
     const emptyFieldsValue = () => {
@@ -599,7 +599,8 @@ const PlotSiteProduceInformation = () => {
     const handleSave = async () => {
         Keyboard.dismiss();
         if (typeof route.params != "undefined" && route.params.arrayIndex != undefined) {
-            const values = [...storeProduceInfoInArray];
+            const storeArr = await getItem('storeProduceInfo_data')
+            const values = [...storeArr];
             values[route.params.arrayIndex] = storeProduceInfo;
             await setItem('storeProduceInfo_data', values);
             if (validationData()) {
@@ -610,8 +611,8 @@ const PlotSiteProduceInformation = () => {
             navigation.navigate('RegistationSignUpViwer', { data: remove });
         } else if (storeProduceInfoInArray.length === 0) {
             if (validationData()) {
-                await setItem('storeProduceInfo_data', storeProduceInfoInArray);
-                navigation.navigate('RegistationSignUpViwer', { data: remove });
+                // await setItem('storeProduceInfo_data', storeProduceInfoInArray);
+                // navigation.navigate('RegistationSignUpViwer', { data: remove });
             }
         }
     }

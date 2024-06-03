@@ -1,5 +1,6 @@
 import {
-    BackHandler, StyleSheet, Text, View, Keyboard, ScrollView, TouchableOpacity, Image, FlatList, Dimensions, SafeAreaView
+    BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
+    FlatList, Dimensions, SafeAreaView, Keyboard
 } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
@@ -21,7 +22,7 @@ import axios from 'axios';
 import MessageDialog from '../../Common/MessageDialog';
 import CustomHeader from '../CustomHeader';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
@@ -33,6 +34,7 @@ import FormsTitle from '../../Common/FormsTitle';
 const qs = require('qs');
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from '../../DeviceInfo';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const ActivityReport = ({ navigation }) => {
     const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
@@ -191,12 +193,14 @@ const ActivityReport = ({ navigation }) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
     const handleDatePicker = async (item) => {
@@ -328,10 +332,10 @@ const ActivityReport = ({ navigation }) => {
     const setCycleDate = async () => {
         setIsButtonDisabled(true);
         let save_data = qs.stringify({
-            crop_cycl_start_date: cycleDtartDate,
+            crop_cycl_start_date: cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate,
         });
         const productionStage_res = await setCycleDateAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, dbLanTokUsr.token, saveData.cu_rel_id, save_data);
-        console.log(productionStage_res)
+        // console.log(productionStage_res.data)
     }
     const validateForm = () => {
         if (!saveData.user_id) {
@@ -666,7 +670,10 @@ const ActivityReport = ({ navigation }) => {
                     Math.floor(e.currentPosition),
                 ),
             });
-            // console.log('Recording . . . ', e.currentPosition);
+            if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+                onStopRecordFirstItem();
+                setModalVisibleRecordFirstItem(false);
+            }
             return;
         });
     };
@@ -682,7 +689,10 @@ const ActivityReport = ({ navigation }) => {
                     Math.floor(e.currentPosition),
                 ),
             });
-            // console.log('Recording . . . ', e.currentPosition);
+            if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+                onStopRecordSecoundItem();
+                setModalVisibleRecordSecoundItem(false);
+            }
             return;
         });
     };
@@ -698,7 +708,10 @@ const ActivityReport = ({ navigation }) => {
                     Math.floor(e.currentPosition),
                 ),
             });
-            // console.log('Recording . . . ', e.currentPosition);
+            if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+                onStopRecordThirdItem();
+                setModalVisibleRecordThirdItem(false);
+            }
             return;
         });
     };
@@ -741,6 +754,56 @@ const ActivityReport = ({ navigation }) => {
         }
         // }
     }, []);
+    const cancelRecord = async (item) => {
+        await audioRecorderPlayer.stopPlayer();
+        if (item == "firstItem") {
+            setSoundRecordFirstItem({
+                item: '1',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+
+        } else if (item == "secoundItem") {
+            setSoundRecordSecoundItem({
+                item: '2',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+        } else if (item == "thirdItem") {
+            setSoundRecordThirdItem({
+                item: '3',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+        }
+    }
+    const soundPlay = async (item) => {
+        let path;
+        if (item == "firstItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
+        } else if (item == "secoundItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
+        } else if (item == "thirdItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
+        }
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
+    }
     return (
         <Root>
             <>
@@ -879,6 +942,8 @@ const ActivityReport = ({ navigation }) => {
                                 soundRecordSecoundItem={soundRecordSecoundItem}
                                 soundRecordThirdItem={soundRecordThirdItem}
                                 title={t('record_your_comment_optional')}
+                                cancelRecord={cancelRecord}
+                                soundPlay={soundPlay}
                             />
                         </View>
                     </ScrollView>
@@ -978,7 +1043,7 @@ const styles = StyleSheet.create({
         color: '#000'
     },
     flatlistHeight: {
-        height: Dimensions.get('window').height / 3
+        height: Dimensions.get('window').height / 4
     },
     plotSiteContainer: {
         flexDirection: 'row',

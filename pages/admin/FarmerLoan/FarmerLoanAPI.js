@@ -97,7 +97,6 @@ export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID,
         return error.response;
     }
 }
-
 export const LoanUpdate = async (dbName, language, token, userId, formData, loanId) => {
     const axiosHeaders = {
         headers: {

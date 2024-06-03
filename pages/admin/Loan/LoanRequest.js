@@ -20,6 +20,7 @@ import {
 } from './LoanAPI';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import LoadingScreen from '../../Common/LoadingScreen';
 const LoanRequest = ({ setActiveBtn }) => {
     const { t } = useTranslation();
     const navigation = useNavigation();
@@ -102,7 +103,7 @@ const LoanRequest = ({ setActiveBtn }) => {
                 setLandProof(values);
             }
         } catch (err) {
-            //   console.warn(err);
+            console.error(err);
         }
     }, []);
     const handleSearch = (text) => {
@@ -197,7 +198,7 @@ const LoanRequest = ({ setActiveBtn }) => {
     }
 
     const onPageLoad = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
         const [loginUser_data, currency_res] = await Promise.all([
             getItem('loginUser_data'),
             getItem('currency')
@@ -228,6 +229,7 @@ const LoanRequest = ({ setActiveBtn }) => {
                 setloanFarmerList(dataArray)
             }
         }
+        setIsLoading(false);
     };
     useEffect(() => {
         onPageLoad();
@@ -236,6 +238,7 @@ const LoanRequest = ({ setActiveBtn }) => {
         setSaveData({ ...saveData, [name]: text })
     }
     const handleSave = async () => {
+        setIsLoading(true);
         Keyboard.dismiss();
         const checkValue = [];
         Object.values(isChecked).map((data, index) => {
@@ -280,14 +283,20 @@ const LoanRequest = ({ setActiveBtn }) => {
             formData.append("farming_type", saveData.farming_type);
             formData.append("plot_id", checkValue);
             const response = await Addloan(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData)
-            if (response.status === 200) {
-                setActiveBtn(2);
+            if (response?.status === 200) {
+                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                setTimeout(() => {
+                    setActiveBtn(2);
+                }, 2000);
+
             }
+            setIsLoading(false);
         }
     }
     return (
         <>
             <Root>
+                {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
                 <SafeAreaView>
                     {
                         searchResultsList && searchResultsList ?
@@ -389,7 +398,6 @@ const LoanRequest = ({ setActiveBtn }) => {
                                         )
                                     })
                                 }
-
                             </View>
                         </View>
                         <View style={styles.idcontainer}>
@@ -510,6 +518,11 @@ const styles = StyleSheet.create({
         color: '#000',
         fontFamily: "Poppins-Regular",
         fontSize: 14
-    }
-
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: "60%",
+        zIndex: 999,
+        left: '45%'
+    },
 })

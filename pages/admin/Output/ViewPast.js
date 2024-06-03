@@ -280,9 +280,6 @@ const ViewPast = (props) => {
     }
     return (
         <>
-            <TouchableOpacity style={styles.plusIcon} onPress={() => props.sendDataToParent(1)}>
-                <Image source={require('../../Common/images/plus.png')} style={{ width: 50, height: 50 }} />
-            </TouchableOpacity>
             <View>
                 {isLoading ?
                     <View style={styles.loadingScreen}><LoadingScreen /></View>
@@ -305,6 +302,10 @@ const ViewPast = (props) => {
                             pastEnquiryView={pastEnquiryView} qty={result}
                             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
                         />
+                        <TouchableOpacity style={styles.plusIcon} onPress={() => props.sendDataToParent(1)}>
+                            <Image source={require('../../Common/images/plus.png')} style={{ width: 50, height: 50 }} />
+                        </TouchableOpacity>
+
                         <Filter
                             filterItem={filterItem}
                             filterOption={filterOption}
@@ -336,7 +337,7 @@ const ViewPast = (props) => {
                                     </View> : ""
                             }
                         </SafeAreaView>
-                        <View >
+                        <View style={{ paddingBottom: 40, height: '82%' }}>
                             <FlatList
                                 showsVerticalScrollIndicator={false}
                                 style={{ marginBottom: filterItem != "" ? 50 : 0 }}
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         position: 'absolute',
-        top: 300,
+        top: '50%',
         right: 20,
         zIndex: 999,
         elevation: 5
@@ -405,7 +406,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
     flatlistHeight: {
-        height: Dimensions.get('window').height / 4
+        height: Dimensions.get('window').height / 2.5
     },
 
     flatlisttitle: {

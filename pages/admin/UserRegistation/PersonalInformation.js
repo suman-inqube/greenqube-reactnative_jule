@@ -66,7 +66,7 @@ const PersonalInformation = () => {
         district: "",
         block: "",
     });
-    const [contact_no_digits, setcontact_no_digits] = useState(10);
+    const [contact_no_digits, setcontact_no_digits] = useState(11);
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -154,7 +154,6 @@ const PersonalInformation = () => {
                 const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
                 setcontact_no_digits(contact_no_digits);
             }
-            console.log(checkPhoneNumberDigit.data)
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 dbName: dbname,
@@ -350,8 +349,8 @@ const PersonalInformation = () => {
             Toast.show({ text: `${t('please_enter_valid_name')}`, ...AlertMesg[0] });
         } else if (farmerData.phone == "") {
             Toast.show({ text: `${t('please_enter_valid_mobile_no')}`, ...AlertMesg[0] });
-        } else if (farmerData.phone.length != 10) {
-            Toast.show({ text: 'Please Enter Valid Phone Number', ...AlertMesg[0] });
+        } else if (farmerData.phone.length != contact_no_digits) {
+            Toast.show({ text: `${t('please_enter_valid_mobile_no')}`, ...AlertMesg[0] });
         } else if (farmerData.age == "") {
             Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
         } else if (farmerData.age < 18) {

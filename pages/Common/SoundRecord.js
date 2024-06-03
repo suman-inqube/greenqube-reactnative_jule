@@ -29,9 +29,9 @@ const SoundRecord = ({
                             /> :
                             <View></View>
                         }
-                        <Text>{soundRecord.recordTime}</Text>
+                        <Text style={styles.text}>{soundRecord.recordTime}</Text>
                         {soundRecord.isLoggingIn ?
-                            <TouchableOpacity onPress={()=>{onStopRecordFirstItem();setModalVisibleRecord(!modalVisibleRecord)}}>
+                            <TouchableOpacity onPress={() => { onStopRecordFirstItem(); setModalVisibleRecord(!modalVisibleRecord) }}>
                                 <Image
                                     source={require('../Common/images/stop.png')}
                                     style={{ width: 40, height: 40, }}
@@ -93,6 +93,9 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: 'center',
         color: '#000'
+    },
+    text: {
+        color: '#000000d4'
     },
     modalHedingText: {
         color: '#000',

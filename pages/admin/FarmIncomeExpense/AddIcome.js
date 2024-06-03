@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, Keyboard, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
 import React, { useState } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
@@ -162,12 +162,14 @@ const AddIcome = ({ navigation }) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
     const handlePlot = async (relId) => {
@@ -217,7 +219,6 @@ const AddIcome = ({ navigation }) => {
     }
 
     const handleSave = async () => {
-        Keyboard.dismiss();
         if (saveData.crop_name_id == "") {
             Toast.show({ time: 2, text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0] });
         } else if (saveData.land_rel_id == "") {

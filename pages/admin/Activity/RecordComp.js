@@ -11,7 +11,9 @@ const RecordComp = ({
     soundRecordFirstItem,
     soundRecordSecoundItem,
     soundRecordThirdItem,
-    title
+    title,
+    cancelRecord,
+    soundPlay
 }) => {
     return (
         <>
@@ -20,16 +22,30 @@ const RecordComp = ({
                 <TouchableOpacity style={styles.item_recording} onPress={() => setModalVisibleRecordFirstItem && setModalVisibleRecordFirstItem(true)}>
                     {selectedRecord.firstItemRecord == "" ?
                         soundRecordFirstItem && soundRecordFirstItem.result != "" && soundRecordFirstItem.isLoggingIn == false ? <>
-                            <Image
-                                source={require('../../Common/images/microphone.png')}
-                                style={{ width: 70, height: 80 }}
-                            />
+                            <View>
+                                <TouchableOpacity style={{ position: 'absolute', zIndex: 99999, top: -13, right: '-15%' }} onPress={() => cancelRecord("firstItem")}>
+                                    <Image
+                                        source={require('../../Common/images/cancel.png')}
+                                        // style={styles.image}
+                                        style={{ width: 25, height: 25 }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => soundPlay("firstItem")}>
+                                    <Image
+                                        source={require('../../Common/images/play.png')}
+                                        // style={styles.image}
+                                        style={{ width: 70, height: 70 }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </> :
                             <Image
                                 source={require('../../Common/images/microphone.png')}
                                 style={{ width: 70, height: 80, opacity: 0.7 }}
                             /> :
-                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.firstItemRecord)}>
+                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
                             <Image
                                 source={require('../../Common/images/play.png')}
                                 // style={styles.image}
@@ -42,16 +58,30 @@ const RecordComp = ({
                 <TouchableOpacity style={styles.item_recording} onPress={() => setModalVisibleRecordSecoundItem(true)}>
                     {selectedRecord.secondItemRecord == "" ?
                         soundRecordSecoundItem && soundRecordSecoundItem.result != "" && soundRecordSecoundItem.isLoggingIn == false ? <>
-                            <Image
-                                source={require('../../Common/images/microphone.png')}
-                                style={{ width: 70, height: 80 }}
-                            />
+                            <View>
+                                <TouchableOpacity style={{ position: 'absolute', zIndex: 99999, top: -13, right: '-15%' }} onPress={() => cancelRecord("secoundItem")}>
+                                    <Image
+                                        source={require('../../Common/images/cancel.png')}
+                                        // style={styles.image}
+                                        style={{ width: 25, height: 25 }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => soundPlay("secoundItem")}>
+                                    <Image
+                                        source={require('../../Common/images/play.png')}
+                                        // style={styles.image}
+                                        style={{ width: 70, height: 70 }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </> :
                             <Image
                                 source={require('../../Common/images/microphone.png')}
                                 style={{ width: 70, height: 80, opacity: 0.7 }}
                             /> :
-                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.secondItemRecord)}>
+                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
                             <Image
                                 source={require('../../Common/images/play.png')}
                                 // style={styles.image}
@@ -61,20 +91,33 @@ const RecordComp = ({
                         </TouchableOpacity>
                     }
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.item_recording} onPress={() => setModalVisibleRecordThirdItem(true)}>
                     {selectedRecord.thirdItemRecord == "" ?
                         soundRecordThirdItem && soundRecordThirdItem.result != "" && soundRecordThirdItem.isLoggingIn == false ? <>
-                            <Image
-                                source={require('../../Common/images/microphone.png')}
-                                style={{ width: 70, height: 80 }}
-                            />
+                            <View>
+                                <TouchableOpacity style={{ position: 'absolute', zIndex: 99999, top: -13, right: '-15%' }} onPress={() => cancelRecord("thirdItem")}>
+                                    <Image
+                                        source={require('../../Common/images/cancel.png')}
+                                        // style={styles.image}
+                                        style={{ width: 25, height: 25 }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => soundPlay("thirdItem")}>
+                                    <Image
+                                        source={require('../../Common/images/play.png')}
+                                        // style={styles.image}
+                                        style={{ width: 70, height: 70 }}
+                                        resizeMode="contain"
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </> :
                             <Image
                                 source={require('../../Common/images/microphone.png')}
                                 style={{ width: 70, height: 80, opacity: 0.7 }}
                             /> :
-                        <TouchableOpacity onPress={() => Linking.openURL(selectedRecord.thirdItemRecord)}>
+                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
                             <Image
                                 source={require('../../Common/images/play.png')}
                                 // style={styles.image}

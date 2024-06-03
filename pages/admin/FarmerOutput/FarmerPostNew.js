@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, Keyboard, View, Image, ScrollView, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, Image, ScrollView, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import DropdownForm from '../../Common/DropdownForm';
 import DropdownForm1 from '../../Common/DropdownForm1';
@@ -63,12 +63,14 @@ const FarmerPostNew = (props) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setSearchResultsList(true)
-            setSearchResults(result);
+        if (farmerData.length > 0) {
+            const result = farmerData.filter(item =>
+                item.label.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setSearchResultsList(true)
+                setSearchResults(result);
+            }
         }
     };
     const handleResultSelect = async (name, currentfarmerId, phone) => {
@@ -224,13 +226,20 @@ const FarmerPostNew = (props) => {
             return true;
         }
     }
-    const handleUnit = (item) => {
-
-        setSaveData({
-            ...saveData,
-            unit_id: item.label,
-            defined_unit_value: item.defined_unit_value
-        })
+    const handleUnit = async (item) => {
+        const unitRes = await unitByListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, 1, item.sub_type);
+        if (unitRes?.status == 200) {
+            const rows = unitRes?.data?.data?.rows[0];
+            setSaveData({
+                ...saveData,
+                unit_id: item?.label,
+                unit_fid: item?.value,
+                unit_sname: item?.unit_sname,
+                unit_sub_type: item?.sub_type,
+                defined_unit_value: item?.defined_unit_value,
+                filter_unit_fid: rows?.fid
+            });
+        }
     }
 
     const openImagePicker = (item) => {
@@ -312,6 +321,8 @@ const FarmerPostNew = (props) => {
                     dataArray.push({
                         value: element.fid,
                         label: element.unit_name,
+                        unit_sname: element.unit_sname,
+                        sub_type: element.sub_type,
                         defined_unit_value: element.defined_unit_value
                     });
 
@@ -356,8 +367,9 @@ const FarmerPostNew = (props) => {
         }
         return true;
     }
+
+
     const saveHandle = async () => {
-        Keyboard.dismiss();
         const res = validationData();
         if (res == true) {
             if (nextpage === 1) {
@@ -382,11 +394,18 @@ const FarmerPostNew = (props) => {
                 formDataObject.append('type', saveData.type);
                 formDataObject.append('user_contact_number', saveData.user_contact_number);
                 formDataObject.append('user_name', saveData.user_name);
-                formDataObject.append('unit_id', saveData.unit_id);
+                // formDataObject.append('unit_id', saveData.unit_id);
                 formDataObject.append('photo', "");
                 formDataObject.append('others', saveData.others);
                 formDataObject.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
-                //return console.log(formDataObject);   
+                //return console.log(formDataObject);  
+                //change this key saveData.unit_sname 
+                formDataObject.append('unit_id', saveData.unit_sname);
+                //new key add
+                formDataObject.append('sub_ftype', saveData.unit_sub_type);
+                formDataObject.append('unit_fid', saveData.unit_fid);
+                formDataObject.append('default_unit_fid', saveData.filter_unit_fid);
+                // 
                 const database_res = await outputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, formDataObject);
 
                 // console.log(database_res);
@@ -482,7 +501,6 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginBottom: 50
     },
-
     appromimateContainer: {
         borderWidth: 0.5,
         padding: 5,
@@ -493,7 +511,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 10
-
     },
     takePhotoContainer: {
         borderWidth: 0.5,
@@ -503,7 +520,6 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         marginVertical: 10
     },
-
     flatContainer: {
         backgroundColor: '#ffffff',
         position: 'absolute',
@@ -516,12 +532,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10
     },
-
     flatlisttitle: {
         padding: 10,
         color: '#000'
     },
-
     flatlistHeight: {
         height: Dimensions.get('window').height / 2.5
     }

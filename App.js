@@ -33,18 +33,11 @@ import './ignoreWarnings';
 import { Provider } from 'react-redux';
 import { PermissionsAndroid, Platform } from 'react-native';
 import store from './pages/redux/store';
-import messaging from '@react-native-firebase/messaging';
+// import messaging from '@react-native-firebase/messaging';
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
 import { Alert } from 'react-native';
 function App() {
-  const [loginData, setLoginData] = useState([]);
-  // const onPageLoad = async () => {
-  //   const loginUser_data = await getItem('loginUser_data');
-  //   if (loginUser_data) {
-  //     setLoginData(loginUser_data);
-  //   }
-  // }
   return (
     <Provider store={store}>
       <NavigationContainer ref={navigationRef}>
