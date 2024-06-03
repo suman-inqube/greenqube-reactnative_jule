@@ -258,6 +258,7 @@ const WantToBuy = ({ navigation }) => {
                 formData.append('quantity', saveData.quantity);
                 formData.append('ref_code', saveData.ref_code);
                 formData.append('block_id', saveData.subdiv_id);
+                formData.append('state_id', saveData.state_id);
                 formData.append('transaction_type', saveData.transaction_type);
                 formData.append('type', saveData.type);
                 formData.append('user_contact_number', saveData.user_contact_number);
@@ -335,7 +336,7 @@ const WantToBuy = ({ navigation }) => {
                 inputSingleData.agri_product_prices.forEach(element => {
                     dataArray.push({
                         value: element.prod_price_id,
-                        label: `${element.quantity}/${element.agri_unit.unit_name}`,
+                        label: `${element.quantity} ${element.agri_unit.unit_name}`,
                         pp_qty: element.quantity,
                         fid: element?.agri_unit?.fid,
                         unit_sname: element?.agri_unit?.unit_sname,

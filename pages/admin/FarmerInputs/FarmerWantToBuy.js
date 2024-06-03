@@ -267,6 +267,7 @@ const FarmerWantToBuy = ({ navigation }) => {
                 formData.append('quantity', saveData.quantity);
                 formData.append('ref_code', saveData.ref_code);
                 formData.append('block_id', saveData.subdiv_id);
+                formData.append('state_id', saveData.state_id);//
                 formData.append('transaction_type', saveData.transaction_type);
                 formData.append('type', saveData.type);
                 formData.append('user_contact_number', saveData.user_contact_number);
@@ -322,18 +323,15 @@ const FarmerWantToBuy = ({ navigation }) => {
             const min = 1000000000000;
             const max = 9999999999999;
             const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-
             setSaveData({
                 ...saveData,
                 user_name: loginUser_data.userName,
                 user_contact_number: loginUser_data.contactNumber,
                 ref_code: randomNumber,
             })
-
             setfarmerID(currentfarmerId)
             const response = await problemPlotAgainstFarmerAPI(dbName, languageID, token, currentfarmerId)
             if (response) {
-
                 const dataArray = [];
                 response.data.data.forEach(element => {
                     dataArray.push({
@@ -343,9 +341,7 @@ const FarmerWantToBuy = ({ navigation }) => {
                     });
                 });
                 setplotAll(dataArray)
-
             }
-
             if (inputSingleData) {
                 setInputSingle(inputSingleData)
                 let category = "";
@@ -373,7 +369,7 @@ const FarmerWantToBuy = ({ navigation }) => {
                 inputSingleData.agri_product_prices.forEach(element => {
                     dataArray.push({
                         value: element.prod_price_id,
-                        label: `${element.quantity}/${element.agri_unit.unit_name}`,
+                        label: `${element.quantity} ${element.agri_unit.unit_name}`,
                         pp_qty: element.quantity,
                         fid: element?.agri_unit?.fid,
                         unit_sname: element?.agri_unit?.unit_sname,

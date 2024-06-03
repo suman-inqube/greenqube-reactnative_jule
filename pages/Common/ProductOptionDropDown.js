@@ -11,7 +11,7 @@ const ProductOptionDropDown = ({ rate, val, onChange, currency }) => {
         rate.forEach((element, index) => {
             emptyArray.push({
                 value: element.prod_price_id,
-                label: element?.discounted_price == "0" || element?.discounted_price == null ? `${currency} ` + element?.sales_price + ' ' + element?.quantity + '/' + element?.agri_unit?.unit_name.substring(0, 7) + '..' : `${currency} ` + element?.discounted_price + ' ' + element?.quantity + '/' + element?.agri_unit?.unit_name.substring(0, 7) + '..',
+                label: element?.discounted_price == "0" || element?.discounted_price == null ? `${currency} ` + element?.sales_price + '/' + element?.quantity + ' ' + element?.agri_unit?.unit_name.substring(0, 7) + '..' : `${currency} ` + element?.discounted_price + '/' + element?.quantity + ' ' + element?.agri_unit?.unit_name.substring(0, 7) + '..',
             });
         });
         setPrice(emptyArray);
