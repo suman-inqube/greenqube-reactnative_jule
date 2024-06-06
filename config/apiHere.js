@@ -946,10 +946,10 @@ export const numberDigitAPI = async (countryId, languageId) => {
     }
 
 }
-export const signupSaveAPI = async (inputData) => {
+export const signupSaveAPI = async (inputData, dbname = '', language = '') => {
     const axiosHeaders = {
         headers: {
-            'information': `greenqube_farm_sme_demo_1,1`,
+            'information': `${dbname},${language}`,
             'Content-Type': 'multipart/form-data',
         },
     };

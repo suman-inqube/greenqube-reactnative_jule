@@ -1,5 +1,5 @@
 import { StatusBar, StyleSheet, Text, View, ScrollView, Keyboard, BackHandler, TouchableOpacity, Image } from 'react-native'
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
 import ImagePlaceHolderCircle from '../../Common/ImagePlaceHolderCircle';
@@ -21,7 +21,12 @@ import { useTranslation } from 'react-i18next';
 import DatePickerComp from '../../Common/DatePickerComp';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from '../../DeviceInfo';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { onBackPress } from '../../Common/BackPressHandler';
 const PersonalInformation = () => {
+    //GQR-65
+    const { dbLanTokUsr } = useContext(userCreateContext);
+    //GQR-65
     const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
     const navigation = useNavigation();
@@ -34,14 +39,6 @@ const PersonalInformation = () => {
     const [blockAll, setblockAll] = useState([]);
     const [cpasswordVisibility, setcPasswordVisibility] = useState('');
     const [passwordVisibility, setPasswordVisibility] = useState('');
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-        country: '',
-        company: ''
-    });
     const phoneInputRef = useRef(null);
     const [farmerData, setFarmerData] = useState({
         userImg: {},
@@ -90,14 +87,9 @@ const PersonalInformation = () => {
     const getState = async (dbName, languageID) => {
         var dataArray = [];
         if (netConnection) {
-            const response = await fetchStateAPI(dbName, languageID)
+            const response = await fetchStateAPI(dbName, languageID);
             if (response.status == 200) {
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.state_name,
-                    });
-                });
+                dataArray = response?.data?.data?.rows?.map(data => ({ value: data.fid, label: data.state_name }))
                 await setItem('fetchStateAPI', dataArray)
             }
         } else {
@@ -108,61 +100,24 @@ const PersonalInformation = () => {
         }
         setstateAll(dataArray);
     }
-    const getDistrict = async (dbName, languageID, stateID) => {
-        const response = await fetchDistrictAPI(dbName, languageID, stateID)
-        if (response.status === 200) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.district_name,
-                });
-            });
-            setdistrictAll(dataArray);
-        }
-    }
-    const getBlock = async (dbName, languageID, districtID) => {
-        const response = await fetchBlockAPI(dbName, languageID, districtID)
-        const dataArray = [];
-        response.data.data.rows.forEach(element => {
-            dataArray.push({
-                value: element.fid,
-                label: element.subdiv_name,
-            });
-        });
-        setblockAll(dataArray);
-    }
     const onPageLoad = async () => {
-        const [loginUser_data, state, district, block
+        const [state, district, block
         ] = await Promise.all([
-            getItem('loginUser_data'),
             getItem("state"),
             getItem("district"),
             getItem("block")
         ]);
-        if (loginUser_data) {
-            setregionaldatas({
-                ...regionaldatas,
-                state: state,
-                district: district,
-                block: block
-            })
-            const { dbname, lan_id, token, user_id, agri_user_addresses, db_company_id } = loginUser_data;
-            getState(dbname, lan_id);
-            const checkPhoneNumberDigit = await checkPhoneDigitAPI(agri_user_addresses[0].country, db_company_id, lan_id);
-            if (checkPhoneNumberDigit.status == 200) {
-                const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
-                setcontact_no_digits(contact_no_digits);
-            }
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id,
-                country: loginUser_data.agri_user_addresses[0].country,
-                company: loginUser_data.db_company_id
-            })
+        setregionaldatas({ ...regionaldatas, state: state, district: district, block: block })
+        //GQR-65
+        const { dbName, languageId, token, supervisorId, company, country } = dbLanTokUsr;
+        //GQR-65
+        const [checkPhoneNumberDigit] = await Promise.all([
+            checkPhoneDigitAPI(country, company, languageId),
+            getState(dbName, languageId)
+        ])
+        if (checkPhoneNumberDigit?.status == 200) {
+            const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
+            setcontact_no_digits(contact_no_digits);
         }
     }
     useEffect(() => {
@@ -170,11 +125,9 @@ const PersonalInformation = () => {
             if (typeof route.params != "undefined") {
                 if (route.params.data === "remove") {
                     if (remove == "remove") {
-                        setRemove("");
-                        setSelectedImage(null);
+                        setRemove(""); setSelectedImage(null);
                     } else {
-                        setRemove("remove");
-                        setSelectedImage(null);
+                        setRemove("remove"); setSelectedImage(null);
                     }
                     emptyData();
                 }
@@ -184,21 +137,18 @@ const PersonalInformation = () => {
                     setPath("");
                 }
             } else {
-                setPath("");
-                setRemove("");
+                setPath(""); setRemove("");
             }
             onPageLoad();
         }
-    }, [isFocused, netConnection]);
+    }, [isFocused]);
+    const handleBackPress = () => {
+        navigation.navigate(path != "" ? path : 'Dashboard');
+        return true // disable normal behaviour
+    }
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate(path != "" ? path : 'Dashboard');
-                return true // disable normal behaviour
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress); // detect back button press
-            return () =>
-                BackHandler.removeEventListener('hardwareBackPress');
+            onBackPress(handleBackPress);
         })
     );
     const emptyData = () => {
@@ -227,14 +177,9 @@ const PersonalInformation = () => {
         var distric_list_arr = [];
         let fetchDistrict_local_data = await getItem('fetchDistrictAPI');
         if (netConnection) {
-            const response = await fetchDistrictAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value)
-            if (response.status === 200) {
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.district_name,
-                    });
-                });
+            const response = await fetchDistrictAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, item.value)
+            if (response?.status === 200) {
+                dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.district_name }));
                 if (fetchDistrict_local_data != null && fetchDistrict_local_data.length > 0) {
                     if (fetchDistrict_local_data[0][item.value] != undefined) {
                         JSON.parse(fetchDistrict_local_data[0][item.value]).push({ [item.value]: JSON.stringify(dataArray) });
@@ -269,13 +214,8 @@ const PersonalInformation = () => {
         var dlock_list_arr = [];
         let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
         if (netConnection) {
-            const response = await fetchBlockAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value)
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.subdiv_name,
-                });
-            });
+            const response = await fetchBlockAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, item.value)
+            dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.subdiv_name }));
             if (fetchBlockAPI_local_data != null && fetchBlockAPI_local_data.length > 0) {
                 if (fetchBlockAPI_local_data[0][item.value] != undefined) {
                     JSON.parse(fetchBlockAPI_local_data[0][item.value]).push({ [item.value]: JSON.stringify(dataArray) });
@@ -309,7 +249,7 @@ const PersonalInformation = () => {
     }
     const checkPhone = async () => {
         if (netConnection) {
-            const check_phone_digit_res = await checkPhoneDigitAPI(dbLanTokUsr.country, dbLanTokUsr.company, dbLanTokUsr.languageID)
+            const check_phone_digit_res = await checkPhoneDigitAPI(dbLanTokUsr.country, dbLanTokUsr.company, dbLanTokUsr.languageId)
             if (check_phone_digit_res) {
                 if (check_phone_digit_res.data.data.contact_no_digits) {
                     let require_digit = check_phone_digit_res.data.data.contact_no_digits;

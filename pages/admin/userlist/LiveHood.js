@@ -1,12 +1,7 @@
-import {
-    StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
-    BackHandler, Keyboard, TouchableHighlight
-} from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import ButtonForm from '../../Common/ButtonForm'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Keyboard, } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import InputTextForm from '../../Common/InputTextForm'
 import DropdownForm from '../../Common/DropdownForm'
-import { getItem } from '../../../config/getDataFromStorage'
 import {
     fetchBlockAPI, fetchDistrictAPI, fetchStateAPI,
     ProductionSeasonAndApi, ProductionProcessAPI, ProductionUnitAPI,
@@ -19,22 +14,15 @@ import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
 import DatePickerComp from '../../Common/DatePickerComp';
 import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import Geolocation from '@react-native-community/geolocation';
 import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import LoadingScreen from '../../Common/LoadingScreen';
 const qs = require('qs');
 import HarvestedModel from './HarvestedModel';
-import { useTranslation } from 'react-i18next';
-// import FusedLocation from 'react-native-fused-location';
-// import GetLocation from 'react-native-get-location';
-import { useSelector } from 'react-redux';
-import ForegroundLocationService from '../../BackgroundService/ForegroundLocationService'
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+//GQR-65
+import { userCreateContext } from '../../Context/usersCreateContext';
 const LiveHood = ({ sendDataToParent }) => {
-    // const { fusedLocationData } = ForegroundLocationService();
-    // const locationData = useSelector(state => state.locationData);
-    const { t } = useTranslation();
+    const { dbLanTokUsr, t, AlertMesg, onBackPress, getItem } = useContext(userCreateContext);
     const navigation = useNavigation();
     const route = useRoute();
     const isFocused = useIsFocused();
@@ -90,12 +78,6 @@ const LiveHood = ({ sendDataToParent }) => {
         { latitude: "", longitude: "" },
         { latitude: "", longitude: "" }
     ])
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-    });
     const [newDate, setnewDate] = useState(new Date());
     const [penCycleStart, setopenCycleStart] = useState(false);
     const [penCycleEnd, setopenCycleEnd] = useState(false);
@@ -114,12 +96,9 @@ const LiveHood = ({ sendDataToParent }) => {
     const handlePlot = async (findData) => {
         setIsLoading(true);
         setHarvested("");
-        const [productSeasonresRes, cropAndPlotDetails,
-            // plotSiteUserLandDetails_res
-        ] = await Promise.all([
+        const [productSeasonresRes, cropAndPlotDetails,] = await Promise.all([
             ProductionSeasonAndApi(dbLanTokUsr.dbName, dbLanTokUsr.languageID, ''),
             livelihoodCropAndPlotDetailsAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmeruserID, findData.value),
-            // PlotSiteUserLandDetails(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmeruserID)
         ]);
         if (cropAndPlotDetails.status === 200) {
             if (cropAndPlotDetails.data.data.rows.length != 0) {
@@ -134,7 +113,7 @@ const LiveHood = ({ sendDataToParent }) => {
                         setIsLoading(false);
                         setfarmerData({
                             ...farmerData,
-                            createdBy: dbLanTokUsr.userID,
+                            createdBy: dbLanTokUsr.supervisorId,
                             plot_no: data.land_info.plot_no,
                             cu_rel_id: data.cu_rel_id,
                             land_rel_id: findData.value,
@@ -196,24 +175,11 @@ const LiveHood = ({ sendDataToParent }) => {
                     })
                     setLocation(values);
                 }
-
             }
         }
-        if (productSeasonresRes.status === 200) {
-            const productSeasonresResArr = [];
-            const livelihoodTypeArr = [];
-            productSeasonresRes.data.data.crop_season.map((data, index) => {
-                productSeasonresResArr.push({
-                    value: data.fid,
-                    label: data.name,
-                });
-            });
-            productSeasonresRes.data.data.crop_type.map((data, index) => {
-                livelihoodTypeArr.push({
-                    value: data.fid,
-                    label: data.name,
-                });
-            });
+        if (productSeasonresRes?.status === 200) {
+            const productSeasonresResArr = productSeasonresRes?.data?.data?.crop_season.map(data => ({ value: data.fid, label: data.name }));
+            const livelihoodTypeArr = productSeasonresRes?.data?.data?.crop_type.map(data => ({ value: data.fid, label: data.name }));
             setProductionSeason(productSeasonresResArr);
             setLivelihoodType(livelihoodTypeArr);
         }
@@ -224,60 +190,36 @@ const LiveHood = ({ sendDataToParent }) => {
     }
     const onPageLoad = async () => {
         try {
-            const [loginUser_data] = await Promise.all([
-                getItem('loginUser_data'),
-                // getCurrentLatLong()
-            ]);
-            if (loginUser_data) {
-                const dbName = loginUser_data.dbname;
-                const languageID = loginUser_data.lan_id;
-                const user_id = loginUser_data.user_id;
-                const token = loginUser_data.token;
-                const axiosConfig = {
-                    headers: {
-                        'information': `${dbName},${languageID}`,
-                        'Accept': 'application/json'
-                    },
-                };
-                const [plotSiteUserLandDetails_res] = await Promise.all([
-                    PlotSiteUserLandDetails(dbName, languageID, token, farmeruserID),
-                    terraintype_resAPI(axiosConfig),
-                    soilType_resAPI(axiosConfig),
-                    landType_resAPI(axiosConfig),
-                    landunit_resAPI(axiosConfig),
-                    produceVarietyAPI(dbName, languageID),
-                    productionProcessAPI(dbName, languageID),
-                ]);
-                if (plotSiteUserLandDetails_res.status === 200) {
-                    setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
-                }
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    dbName: dbName,
-                    languageID: languageID,
-                    userID: user_id,
-                    token: token
-                })
+            const { dbName, languageId, token, supervisorId } = dbLanTokUsr;
+            const axiosConfig = {
+                headers: {
+                    'information': `${dbName},${languageId}`,
+                    'Accept': 'application/json'
+                },
             };
+            const [plotSiteUserLandDetails_res] = await Promise.all([
+                PlotSiteUserLandDetails(dbName, languageId, token, farmeruserID),
+                terraintype_resAPI(axiosConfig),
+                soilType_resAPI(axiosConfig),
+                landType_resAPI(axiosConfig),
+                landunit_resAPI(axiosConfig),
+                produceVarietyAPI(dbName, languageId),
+                productionProcessAPI(dbName, languageId),
+            ]);
+            if (plotSiteUserLandDetails_res.status === 200) {
+                setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
+            }
         } catch (error) {
             CrashlyticsRecordError(error)
         }
     }
+    const handleBackPress = () => {
+        navigation.navigate('userList'); return true;
+    }
     useEffect(() => {
-
-        // RemoveFarmerData();
-        // if (isFocused) {
-        // setUserData("");
         onPageLoad();
-        // getLocation();
         locationEmpty();
-        const onBackPress = () => {
-            // RemoveFarmerData();
-            navigation.navigate('userList'); return true;
-        };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        // }
+        onBackPress(handleBackPress);
     }, []);
 
     const RemoveFarmerData = () => {
@@ -368,15 +310,6 @@ const LiveHood = ({ sendDataToParent }) => {
     const addMoreLocation = async () => {
         setLocation([...location, { lat: "", long: "" }])
     }
-    // const handleCurrentLatLong = useCallback(async (index) => {
-    //     const fusedLocation = await getItem('fusedLocation');
-    //     const values = [...location];
-    //     const { latitude, longitude } = fusedLocation;
-    //     if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
-    //     values[index] = { "latitude": latitude, "longitude": latitude }
-    //     setLocation(values);
-    //     }
-    // }, [location])
     const handleCurrentLatLong = async (index) => {
         const fusedLocation = await getItem('fusedLocation');
         const values = [...location];
@@ -398,11 +331,9 @@ const LiveHood = ({ sendDataToParent }) => {
                     }
                 });
             }
-            ///****** *///
             setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value, ['unit_value']: selectUnitValue })
         } else {
             setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value });
-            /******/
             if (name === "terrainType") {
                 livelihoodTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value, '');
             }
@@ -452,18 +383,11 @@ const LiveHood = ({ sendDataToParent }) => {
             produceNameAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerData.livelihoodTypeValue, item.value);
         }
     }
-
     const terraintype_resAPI = async (axiosConfig) => {
         try {
             let terraintype_res = await axios.get(config.terraintypeAPI, axiosConfig);
-            let terraintypeArray = [];
-            if (terraintype_res.data.data.count > 0) {
-                terraintype_res.data.data.rows.forEach(element => {
-                    terraintypeArray.push({
-                        value: element.id,
-                        label: element.name,
-                    });
-                });
+            if (terraintype_res?.status == 200) {
+                const terraintypeArray = terraintype_res.data.data.rows.map(data => ({ value: data.id, label: data.name }))
                 setterrainTypeAll(terraintypeArray);
             }
         } catch (error) {
@@ -473,14 +397,8 @@ const LiveHood = ({ sendDataToParent }) => {
     const soilType_resAPI = async (axiosConfig) => {
         try {
             let soilType_res = await axios.get(config.soiltypeAPI, axiosConfig);
-            let soilTypeArray = [];
-            if (soilType_res.data.data.count > 0) {
-                soilType_res.data.data.rows.forEach(element => {
-                    soilTypeArray.push({
-                        value: element.id,
-                        label: element.name,
-                    });
-                });
+            if (soilType_res?.status == 200) {
+                const soilTypeArray = soilType_res?.data?.data?.rows.map(data => ({ value: data.id, label: data.name }));
                 setsetsoilTypeAll(soilTypeArray);
             }
         } catch (error) {
@@ -490,14 +408,8 @@ const LiveHood = ({ sendDataToParent }) => {
     const landType_resAPI = async (axiosConfig) => {
         try {
             let landType_res = await axios.get(config.landtypeAPI, axiosConfig);
-            let landTypeArray = [];
-            if (landType_res.data.data.count > 0) {
-                landType_res.data.data.rows.forEach(element => {
-                    landTypeArray.push({
-                        value: element.id,
-                        label: element.name,
-                    });
-                });
+            if (landType_res?.status == 200) {
+                const landTypeArray = landType_res?.data?.data?.rows.map(data => ({ value: data.id, label: data.name }));
                 setlandTypeAll(landTypeArray);
             }
         } catch (error) {
@@ -507,15 +419,9 @@ const LiveHood = ({ sendDataToParent }) => {
     const landunit_resAPI = async (axiosConfig) => {
         try {
             let landunitAPI = await axios.get(config.landunitAPI, axiosConfig);
-            const landunitArray = [];
-            if (landunitAPI.data.data.count > 0) {
-                setfarmerData({ ...farmerData, unit_valueArr: JSON.stringify(landunitAPI.data.data.rows) })
-                landunitAPI.data.data.rows.forEach(element => {
-                    landunitArray.push({
-                        value: element.id,
-                        label: element.name,
-                    });
-                });
+            if (landunitAPI?.status == 200) {
+                setfarmerData({ ...farmerData, unit_valueArr: JSON.stringify(landunitAPI.data.data.rows) });
+                const landunitArray = landunitAPI?.data?.data?.rows.map(data => ({ value: data.id, label: data.name }));
                 setUnitAll(landunitArray);
             }
         } catch (error) {
@@ -524,68 +430,34 @@ const LiveHood = ({ sendDataToParent }) => {
     }
     const livelihoodTypeAPI = async (dbName, languageID, crop_type_id, crop_name_id) => {
         const productSeasonresRes = await ProductionSeasonAndApi(dbName, languageID, crop_type_id, crop_name_id);
-        if (productSeasonresRes.status === 200) {
-            const productSeasonresResArr = [];
-            const livelihoodTypeArr = [];
-            const produceNameArr = [];
-            productSeasonresRes.data.data.crop_season.map((data, index) => {
-                productSeasonresResArr.push({
-                    value: data.fid,
-                    label: data.name,
-                });
-            });
-            productSeasonresRes.data.data.crop_type.map((data, index) => {
-                livelihoodTypeArr.push({
-                    value: data.fid,
-                    label: data.name,
-                });
-            });
-            productSeasonresRes.data.data.crop_name.map((data, index) => {
-                produceNameArr.push({
-                    value: data.crop_name.fid,
-                    label: data.crop_name.name,
-                });
-            });
+        if (productSeasonresRes?.status === 200) {
+            const productSeasonresResArr = productSeasonresRes?.data?.data?.crop_season.map(data => ({ value: data.fid, label: data.name }));
+            const livelihoodTypeArr = productSeasonresRes?.data?.data?.crop_type.map(data => ({ value: data.fid, label: data.name }));
+            const produceNameArr = productSeasonresRes?.data?.data?.crop_name.map(data => ({ value: data.crop_name.fid, label: data.crop_name.name }))
             setProductionSeason(productSeasonresResArr);
             setLivelihoodType(livelihoodTypeArr);
-            setProduceName(produceNameArr)
+            setProduceName(produceNameArr);
         }
     }
     const produceNameAPI = async (dbName, languageID, crop_type_id, crop_name_id) => {
-        const produceVariety = [];
         const productSeasonresRes = await ProductionSeasonAndApi(dbName, languageID, crop_type_id, crop_name_id);
-        productSeasonresRes.data.data.crop_variety.map((data, index) => {
-            produceVariety.push({
-                value: data.crop_variety.fid,
-                label: data.crop_variety.name,
-            });
-        })
-        setProduceVariety(produceVariety)
+        if (productSeasonresRes?.status == 200) {
+            const produceVariety = productSeasonresRes?.data?.data?.crop_variety.map(data => ({ value: data.crop_variety.fid, label: data.crop_variety.name }))
+            setProduceVariety(produceVariety);
+        }
     }
     const produceVarietyAPI = async (dbName, languageID) => {
-        const productionProcessArr = [];
         const productionProcessRes = await ProductionProcessAPI(dbName, languageID);
-        if (productionProcessRes.status == 200) {
-            productionProcessRes.data.data.rows.map((data, index) => {
-                productionProcessArr.push({
-                    value: data.fid,
-                    label: data.name,
-                });
-            })
-            setProductionProcess(productionProcessArr)
+        if (productionProcessRes?.status == 200) {
+            const productionProcessArr = productionProcessRes?.data?.data?.rows.map(data => ({ value: data.fid, label: data.name, }));
+            setProductionProcess(productionProcessArr);
         }
     }
     const productionProcessAPI = async (dbName, languageID) => {
-        const productionUnitArr = [];
         const ProductionUnitRes = await ProductionUnitAPI(dbName, languageID);
-        if (ProductionUnitRes.status == 200) {
-            ProductionUnitRes.data.data.rows.map((data, index) => {
-                productionUnitArr.push({
-                    value: data.fid,
-                    label: data.unit_name,
-                });
-            })
-            setProductionUnit(productionUnitArr)
+        if (ProductionUnitRes?.status == 200) {
+            const productionUnitArr = ProductionUnitRes?.data?.data?.rows.map(data => ({ value: data.fid, label: data.unit_name }));
+            setProductionUnit(productionUnitArr);
         }
     }
     const handleUserListUpdate = async () => {
@@ -642,7 +514,7 @@ const LiveHood = ({ sendDataToParent }) => {
             const latlongArrString = JSON.stringify(latlongArr);
             let save_data = qs.stringify({
                 plot_no: farmerData.plot_Site_Name,
-                createdBy: dbLanTokUsr.userID,
+                createdBy: dbLanTokUsr.supervisorId,
                 daag_no: farmerData.daag_no,
                 khatian_no: farmerData.khatian_no,
                 plant_number: farmerData.plant_number,
@@ -678,22 +550,14 @@ const LiveHood = ({ sendDataToParent }) => {
                 if (AddLandCropDetails_res.status === 200) {
                     locationEmpty();
                     Toast.show({ text: 'Plot/Site Produce Add Succesfully', ...AlertMesg[0] });
-                    // RemoveFarmerData();
-                    setTimeout(() => {
-                        // RemoveFarmerData();
-                        navigation.navigate('Dashboard')
-                    }, 2000);
+                    setTimeout(() => { navigation.navigate('Dashboard') }, 2000);
                 }
             } else {
                 const updateLandCropdetails_res = await UpdateLandCropdetailsAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmeruserID, dbLanTokUsr.token, save_data, farmerData.land_rel_id, farmerData.cu_rel_id)
                 if (updateLandCropdetails_res.status === 200) {
                     locationEmpty();
                     Toast.show({ text: 'Plot/Site Produce Updateed Succesfully', ...AlertMesg[0] });
-                    // RemoveFarmerData();
-                    setTimeout(() => {
-                        // RemoveFarmerData();
-                        navigation.navigate('Dashboard')
-                    }, 2000);
+                    setTimeout(() => { navigation.navigate('Dashboard') }, 2000);
                 }
             }
         }
@@ -704,34 +568,12 @@ const LiveHood = ({ sendDataToParent }) => {
         RemoveFarmerData();
         locationEmpty();
     }
-
     const handleAddUserData = (name, data) => {
         setfarmerData({ ...farmerData, [`${name}`]: data });
     }
     const HandlerGoBack = () => {
         navigation.navigate('userList');
     }
-    useEffect(() => {
-        // const getLocation = async () => {
-        //     try {
-        //         const location = await GetLocation.getCurrentPosition({
-        //             enableHighAccuracy: true,
-        //             timeout: 15000, // 15 seconds
-        //         });
-        //         setLocationBackground(location);
-        //     } catch (error) {
-        //         const { code, message } = error;
-        //         console.warn(code, message);
-        //     }
-        // };
-
-        // getLocation(); // Get initial location
-
-        // const interval = setInterval(() => {
-        //     getLocation(); // Get location periodically
-        // }, 1000); // Every 1 second
-        // return () => clearInterval(interval);
-    }, []);
     return (
         <>
             <Root>

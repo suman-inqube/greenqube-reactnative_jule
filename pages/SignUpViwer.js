@@ -1,11 +1,8 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, TextInput } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import ButtonForm from './Common/ButtonForm'
 import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
 import { useNavigation } from '@react-navigation/native';
-import ProduceInfo from './ProduceInfo';
-import axios from 'axios';
-import config from '../config';
 import MessageDialog from './Common/MessageDialog';
 import { useFocusEffect } from '@react-navigation/native';
 import { signupSaveAPI } from '../config/apiHere';
@@ -13,37 +10,31 @@ import { useTranslation } from 'react-i18next';
 import { onBackPress } from './Common/BackPressHandler';
 import DeviceInfo from './DeviceInfo';
 import FormsTitle from './Common/FormsTitle';
+import { userCreateContext } from './Context/usersCreateContext';
 const SignUpViwer = () => {
+    //GQR-65
+    const { AllFarmerList } = useContext(userCreateContext);
     const { t } = useTranslation();
     const { netConnection } = DeviceInfo();
     const navigation = useNavigation();
-    const [isstoreSignup, setisstoreSignup] = useState(false);
     const [isstorePersnolInfo, setisstorePersnolInfo] = useState(false);
     const [isstoreFinancial, setisstoreFinancial] = useState(false);
     const [isstoreProduceInfo, setisstoreProduceInfo] = useState(false);
-    const [storeData, setstoreData] = useState([]);
-
     const [storeSignup, setstoreSignup] = useState({});
     const [storePersnolInfo, setstorePersnolInfo] = useState({});
     const [storeFinancial, setstoreFinancial] = useState({});
     const [storeProduceInfo, setstoreProduceInfo] = useState([]);
     const [saveData, setsaveData] = useState([]);
-
-
     const togglestorePersnolInfo = () => {
         setisstorePersnolInfo(!isstorePersnolInfo);
     };
-
     const togglestoreFinancial = () => {
         setisstoreFinancial(!isstoreFinancial);
     };
-
     const togglestoreProduceInfo = () => {
         setisstoreProduceInfo(!isstoreProduceInfo);
     };
-
     const InputDataHere = async (storeSignup_data, storePersnolInfo_data, storeFinancial_data, storeProduceInfo_data) => {
-
         const gender = storePersnolInfo_data.gender === 'male' ? "1" : "2";
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
@@ -52,7 +43,6 @@ const SignUpViwer = () => {
         const month = currentDate.getMonth() + 1;
         const newYear = currentYear - yearsToSubtract;
         const dob = `${newYear}-${month}-${day}`;
-
         const userType = storePersnolInfo_data.userType === 'large Grower' ? "1" : storePersnolInfo_data.userType === 'mall holder' ? "2" : "3"
         const lan_id = storePersnolInfo_data.language.value.toString();
         const phone = storeSignup_data.phone.toString();
@@ -69,7 +59,6 @@ const SignUpViwer = () => {
             "password": storeSignup_data.password,
             "createdBy": storeSignup_data.supervisor.value,
         }
-
         const agri_user_addresses = {
             "country": storeSignup_data.country.value,
             "company": storeSignup_data.company.value,
@@ -79,15 +68,12 @@ const SignUpViwer = () => {
             "address": storePersnolInfo_data.address,
             "pincode": storePersnolInfo_data.zip,
         }
-
         const identity_details = {
             "kcc_number": "12345"
         }
-
         if (storeFinancial_data.adharCard) {
             identity_details["aadhar_number"] = storeFinancial_data.adharCard;
         }
-
         if (storeFinancial_data.panNo) {
             identity_details["pan_number"] = storeFinancial_data.panNo;
         }
@@ -95,83 +81,45 @@ const SignUpViwer = () => {
         if (storeFinancial_data.adharCard) {
             identity_details["voter_card_number"] = storeFinancial_data.adharCard;
         }
-
-        // const bank_details = {
-        //     "user_bank_account_holder": storeFinancial_data.accountHolderName,
-        //     "user_bank_account_number": storeFinancial_data.bankAccountNo,
-        //     "user_bank_account_name": storeFinancial_data.bankName,
-        //     "user_bank_branch_name": storeFinancial_data.branchName,
-        //     "user_bank_ifsc_code": storeFinancial_data.ifscCode,
-        // }
-
-        // const pension_details = {
-        //     "pension_authority": storeFinancial_data.pensionProvidingAuthority,
-        //     "pension_account_no": storeFinancial_data.pensionAccountNo,
-        //     "effective_from": storeFinancial_data.pensionEffectiveFrom,
-        //     "pension_amount": storeFinancial_data.pensionAmount,
-        //     "frequency": storeFinancial_data.pensionPerMonth && storeFinancial_data.pensionPerMonth.value,
-        // }
-
-        // const lic_details = {
-        //     "company_name": storeFinancial_data.nameOfCompany,
-        //     "policy_no": storeFinancial_data.policyNumber,
-        //     "sum_insured": storeFinancial_data.sumInsured,
-        // }
         const bank_details = {};
         const pension_details = {};
         const lic_details = {};
-
-        // Check and conditionally add key-value pairs to bank_details
         if (storeFinancial_data.accountHolderName) {
             bank_details["user_bank_account_holder"] = storeFinancial_data.accountHolderName;
         }
-
         if (storeFinancial_data.bankAccountNo) {
             bank_details["user_bank_account_number"] = storeFinancial_data.bankAccountNo;
         }
-
         if (storeFinancial_data.bankName) {
             bank_details["user_bank_account_name"] = storeFinancial_data.bankName;
         }
-
         if (storeFinancial_data.branchName) {
             bank_details["user_bank_branch_name"] = storeFinancial_data.branchName;
         }
-
         if (storeFinancial_data.ifscCode) {
             bank_details["user_bank_ifsc_code"] = storeFinancial_data.ifscCode;
         }
-
-        // Check and conditionally add key-value pairs to pension_details
         if (storeFinancial_data.pensionProvidingAuthority) {
             pension_details["pension_authority"] = storeFinancial_data.pensionProvidingAuthority;
         }
-
         if (storeFinancial_data.pensionAccountNo) {
             pension_details["pension_account_no"] = storeFinancial_data.pensionAccountNo;
         }
-
         if (storeFinancial_data.pensionEffectiveFrom) {
             pension_details["effective_from"] = storeFinancial_data.pensionEffectiveFrom;
         }
-
         if (storeFinancial_data.pensionAmount) {
             pension_details["pension_amount"] = storeFinancial_data.pensionAmount;
         }
-
         if (storeFinancial_data.pensionPerMonth && storeFinancial_data.pensionPerMonth.value) {
             pension_details["frequency"] = storeFinancial_data.pensionPerMonth.value;
         }
-
-        // Check and conditionally add key-value pairs to lic_details
         if (storeFinancial_data.nameOfCompany) {
             lic_details["company_name"] = storeFinancial_data.nameOfCompany;
         }
-
         if (storeFinancial_data.policyNumber) {
             lic_details["policy_no"] = storeFinancial_data.policyNumber;
         }
-
         if (storeFinancial_data.sumInsured) {
             lic_details["sum_insured"] = storeFinancial_data.sumInsured;
         }
@@ -191,7 +139,6 @@ const SignUpViwer = () => {
                 "plant_number": item.storeProduceInfo.noOfPlants,
             }
         ))
-
         const crop_details = storeProduceInfo_data.map((item, index) => (
             {
                 "crop_season_id": item.storeProduceInfo.prodctionSeasion && item.storeProduceInfo.prodctionSeasion.value,
@@ -226,14 +173,23 @@ const SignUpViwer = () => {
         setsaveData(data);
     }
     const handleSave = async () => {
+        let dbname = "";
+        let language = "";
+        if (storeSignup?.company?.dbname) {
+            dbname = storeSignup?.company?.dbname;
+        }
+        if (storePersnolInfo?.language?.value) {
+            language = storePersnolInfo?.language?.value;
+        }
         const formData = new FormData();
         formData.append('data', JSON.stringify(saveData));
         if (storePersnolInfo.img != "") {
             formData.append('photo', { uri: storePersnolInfo.img, type: storePersnolInfo.imgType, name: storePersnolInfo.imgName });
         }
         if (netConnection) {
-            const database_res = await signupSaveAPI(formData);
-            if (database_res) {
+            const database_res = await signupSaveAPI(formData, dbname, language);
+            if (database_res?.status == 200) {
+                AllFarmerList();
                 MessageDialog({ title: 'Successful', message: "Farmer Registered Successfully" })
                 navigation.navigate('Login');
             }
@@ -250,10 +206,12 @@ const SignUpViwer = () => {
         }
     }
     const onPageLoad = async () => {
-        const storeSignup_data = await getItem('storeSignup_data');
-        const storePersnolInfo_data = await getItem('storePersnolInfo_data');
-        const storeFinancial_data = await getItem('storeFinancial_data');
-        const storeProduceInfo_data = await getItem('storeProduceInfo_data');
+        const [storeSignup_data, storePersnolInfo_data, storeFinancial_data, storeProduceInfo_data] = await Promise.all([
+            getItem('storeSignup_data'),
+            getItem('storePersnolInfo_data'),
+            getItem('storeFinancial_data'),
+            getItem('storeProduceInfo_data')
+        ]);
         setstoreSignup(storeSignup_data);
         setstorePersnolInfo(storePersnolInfo_data);
         setstoreFinancial(storeFinancial_data);
@@ -360,10 +318,8 @@ const SignUpViwer = () => {
                                             </View>
                                         </View>
                                         : ""
-                                    :
-                                    ""
+                                    : ""
                             }
-
                         </>
                     )}
                 </View>
@@ -373,64 +329,60 @@ const SignUpViwer = () => {
                             <Text style={[styles.title, { fontFamily: 'Poppins-SemiBold' }]}>
                                 {isstoreFinancial ? `${t('financial_information')}` : `${t('financial_information')}`}
                             </Text>
-
                             {isstoreFinancial ? <Image source={require('./Common/images/sub.png')} style={{ width: 20, height: 20 }} />
                                 :
                                 <Image source={require('./Common/images/add.png')} style={{ width: 20, height: 20 }} />
                             }
-
                         </View>
                     </TouchableOpacity>
                     {isstoreFinancial && (
-                        <>
-                            {
-                                storeFinancial ?
-                                    <View style={{ margin: 10, }}>
-                                        <View style={styles.bodyContainer}>
-                                            <View style={{ alignItems: 'flex-end' }}>
-                                                <TouchableOpacity onPress={() => navigation.navigate('FinancialUpdate', {
-                                                    pagename: "SignUpViwer"
-                                                })}>
-                                                    <Image source={require('./Common/images/edit.png')} style={{ width: 30, height: 30 }} />
-                                                </TouchableOpacity>
+                        <>{
+                            storeFinancial ?
+                                <View style={{ margin: 10, }}>
+                                    <View style={styles.bodyContainer}>
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <TouchableOpacity onPress={() => navigation.navigate('FinancialUpdate', {
+                                                pagename: "SignUpViwer"
+                                            })}>
+                                                <Image source={require('./Common/images/edit.png')} style={{ width: 30, height: 30 }} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={styles.mainContainer}>
+                                            <View style={styles.leftSection}>
+                                                <Text style={styles.title}> {t('account_holder_name')} </Text>
                                             </View>
-                                            <View style={styles.mainContainer}>
-                                                <View style={styles.leftSection}>
-                                                    <Text style={styles.title}> {t('account_holder_name')} </Text>
-                                                </View>
-                                                <View style={styles.rightSection}>
-                                                    <Text style={styles.title}>{storeFinancial.accountHolderName}</Text>
-                                                </View>
+                                            <View style={styles.rightSection}>
+                                                <Text style={styles.title}>{storeFinancial.accountHolderName}</Text>
                                             </View>
-                                            <View style={styles.mainContainer}>
-                                                <View style={styles.leftSection}>
-                                                    <Text style={styles.title}> {t('adhar_no')} </Text>
-                                                </View>
-                                                <View style={styles.rightSection}>
-                                                    <Text style={styles.title}>{storeFinancial.adharCard}</Text>
-                                                </View>
+                                        </View>
+                                        <View style={styles.mainContainer}>
+                                            <View style={styles.leftSection}>
+                                                <Text style={styles.title}> {t('adhar_no')} </Text>
                                             </View>
-                                            <View style={styles.mainContainer}>
-                                                <View style={styles.leftSection}>
-                                                    <Text style={styles.title}> {t('lic_name_of_company')} </Text>
-                                                </View>
-                                                <View style={styles.rightSection}>
-                                                    <Text style={styles.title}>{storeFinancial.ifscCode}</Text>
-                                                </View>
+                                            <View style={styles.rightSection}>
+                                                <Text style={styles.title}>{storeFinancial.adharCard}</Text>
                                             </View>
-                                            <View style={styles.mainContainer}>
-                                                <View style={styles.leftSection}>
-                                                    <Text style={styles.title}>{t('pension_providing_authority')} </Text>
-                                                </View>
-                                                <View style={styles.rightSection}>
-                                                    <Text style={styles.title}>{storeFinancial.pensionProvidingAuthority}</Text>
-                                                </View>
+                                        </View>
+                                        <View style={styles.mainContainer}>
+                                            <View style={styles.leftSection}>
+                                                <Text style={styles.title}> {t('lic_name_of_company')} </Text>
+                                            </View>
+                                            <View style={styles.rightSection}>
+                                                <Text style={styles.title}>{storeFinancial.ifscCode}</Text>
+                                            </View>
+                                        </View>
+                                        <View style={styles.mainContainer}>
+                                            <View style={styles.leftSection}>
+                                                <Text style={styles.title}>{t('pension_providing_authority')} </Text>
+                                            </View>
+                                            <View style={styles.rightSection}>
+                                                <Text style={styles.title}>{storeFinancial.pensionProvidingAuthority}</Text>
                                             </View>
                                         </View>
                                     </View>
-                                    : ""
-                            }
-                        </>
+                                </View>
+                                : ""
+                        }</>
                     )}
                 </View>
                 <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', marginBottom: 100 }}>

@@ -16,11 +16,14 @@ import { Root as PopupRootProvider } from 'react-native-popup-confirm-toast';
 import 'react-native-gesture-handler';
 // import crashlytics from '@react-native-firebase/crashlytics';
 // crashlytics().setCrashlyticsCollectionEnabled(true);
+import { UserCreateContextProvider } from './pages/Context/usersCreateContext';
 export default function Main() {
     return (
-        <PopupRootProvider>
-            <App />
-        </PopupRootProvider>
+        <UserCreateContextProvider>
+            <PopupRootProvider>
+                <App />
+            </PopupRootProvider>
+        </UserCreateContextProvider>
     );
 }
 
