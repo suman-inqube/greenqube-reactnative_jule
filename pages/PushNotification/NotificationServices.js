@@ -66,7 +66,7 @@ const notificationServices = () => {
         } else if (userType == 2) {
           navigation.navigate("FarmerListProblem");
         }
-      } else if (type == 'procure_fulfillment output-list') {
+      } else if (type == 'procure_fulfillment') {
         if (userType == 3) {
           navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
         } else if (userType == 2) {
@@ -134,7 +134,7 @@ const notificationServices = () => {
                 navigation.navigate("FarmerListProblem");
               }, 1300);
             }
-          } else if (type == 'procure_fulfillment output-list') {
+          } else if (type == 'procure_fulfillment') {
             if (userType == 3) {
               setTimeout(() => {
                 navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
