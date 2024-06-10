@@ -1,16 +1,7 @@
-import { StyleSheet, Text, View, ScrollView, Keyboard, TouchableOpacity, Image, CheckBox, Button, BackHandler, PermissionsAndroid, Linking, Alert } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Keyboard, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState, useCallback, useContext } from 'react'
-import ButtonForm from '../../Common/ButtonForm';
 import { useNavigation, useRoute, useIsFocused, useFocusEffect } from '@react-navigation/native';
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
 import ImageForm from '../../Common/ImageForm';
-import DatePicker from 'react-native-date-picker';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import Geolocation from '@react-native-community/geolocation';
 import {
     TterrainTypeAPI,
     landTypeAPI,
@@ -23,18 +14,13 @@ import {
     ProductionProcessDataAPI,
     ProduceProductionUnitDataAPI
 } from './UserRegistationAPI';
-import { getItem, setItem, removeItem } from '../../../config/getDataFromStorage';
-import { useTranslation } from 'react-i18next';
-import LoadingScreen from '../../Common/LoadingScreen';
 import { userCreateContext } from '../../Context/usersCreateContext';
-import DeviceInfo from '../../DeviceInfo';
-import { onBackPress } from '../../Common/BackPressHandler';
 const PlotSiteProduceInformation = () => {
     //GQR-65
-    const { dbLanTokUsr } = useContext(userCreateContext);
+    const { dbLanTokUsr, InputTextForm, getItem, setItem, AlertMesg, t, ButtonForm, onBackPress, DeviceInfo,
+        DropdownForm, Root, Toast, CustomHeader, FormsTitle, logoImage, topBanner, DatePicker, LoadingScreen } = useContext(userCreateContext);
     //GQR-65
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const route = useRoute();
     const isFocused = useIsFocused();
     const navigation = useNavigation();
@@ -132,6 +118,17 @@ const PlotSiteProduceInformation = () => {
             if (produceProductionUnitData_res?.status === 200) {
                 produceProductionUnitArray = produceProductionUnitData_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.unit_name }))
             }
+            // const [terraintypeArray, landTypeArray, soilTypeArray, landUnitArray, prodctionSeasionArray,
+            //     livelihoodTypeArray, productionProcessArray, produceProductionUnitArray] = await Promise.all([
+            //         tterrainType_res?.data?.data?.rows?.map(data => ({ value: data.id, label: data.name })),
+            //         landType_res?.data?.data?.rows?.map(data => ({ value: data.id, label: data.name })),
+            //         soilType_res?.data?.data?.rows?.map(data => ({ value: data.id, label: data.name })),
+            //         landUnit_res?.data?.data?.rows.map(data => ({ value: data.id, label: data.name, sizevalue: data.unit_value })),
+            //         producceSeasion_res?.data?.data?.crop_season?.map(data => ({ value: data.fid, label: data.name })),
+            //         livelihoodType_res?.data?.data?.crop_type?.map(data => ({ value: data.fid, label: data.name })),
+            //         productionProcessData_res?.data?.data?.rows?.map(data => ({ value: data.fid, label: data.name })),
+            //         produceProductionUnitData_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.unit_name }))
+            //     ])
             //GQR-65
             await Promise.all([
                 setItem('terraintypeArray', terraintypeArray),
@@ -395,7 +392,6 @@ const PlotSiteProduceInformation = () => {
             Toast.show({ time: 3, text: `${t('select_enddate_first')}`, ...AlertMesg[0] })
             return false;
         }
-
         return true;
     }
     const handleLandUnit = async (item) => {
@@ -471,7 +467,7 @@ const PlotSiteProduceInformation = () => {
     }
     return (
         <>
-            <CustomHeader path={path != "" ? path : 'FinancialInformation'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={path != "" ? path : 'FinancialInformation'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('reg_land_crop_information')} />
             <View style={styles.container}>
                 {isLoading ?
@@ -531,10 +527,8 @@ const PlotSiteProduceInformation = () => {
                                             <Text style={styles.text}>{storeProduceInfo.cycleStarts}</Text>
                                         </View>
                                         <ImageForm source={require('../../Common/images/date.png')} resizeMode="cover" height={30} width={30} />
-                                        <DatePicker modal mode="date" open={opencycleStarts} date={newdate}
-                                            onConfirm={(item) => { handlecycleStart(item); setOpencycleStarts(false) }}
-                                            onCancel={() => { setOpencycleStarts(false) }}
-                                        />
+                                        <DatePicker modal mode="date" open={opencycleStarts} date={newdate} onConfirm={(item) => { handlecycleStart(item); setOpencycleStarts(false) }}
+                                            onCancel={() => { setOpencycleStarts(false) }} />
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -545,12 +539,7 @@ const PlotSiteProduceInformation = () => {
                                         <View style={{ width: '90%' }}>
                                             <Text style={styles.text}>{storeProduceInfo.cycleEnds}</Text>
                                         </View>
-                                        <ImageForm
-                                            source={require('../../Common/images/date.png')}
-                                            resizeMode="cover"
-                                            height={30}
-                                            width={30}
-                                        />
+                                        <ImageForm source={require('../../Common/images/date.png')} resizeMode="cover" height={30} width={30} />
                                         <DatePicker modal mode="date" format="YYYY-MM-DD" open={opencycleEnds} date={newdate}
                                             minimumDate={storeProduceInfo.cycleStarts == "" ? "" : new Date(`${new Date(storeProduceInfo.cycleStarts).getFullYear()}-${new Date(storeProduceInfo.cycleStarts).getMonth() + 1}-${new Date(storeProduceInfo.cycleStarts).getDate() + 1}`)}
                                             onConfirm={(item) => { handlecycleEnd(item); setOpencycleEnds(false) }}

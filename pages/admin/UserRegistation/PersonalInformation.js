@@ -1,34 +1,17 @@
-import { StatusBar, StyleSheet, Text, View, ScrollView, Keyboard, BackHandler, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Keyboard } from 'react-native'
 import React, { useState, useEffect, useRef, useCallback, useContext } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import ImagePlaceHolderCircle from '../../Common/ImagePlaceHolderCircle';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import InputTextForm from '../../Common/InputTextForm';
-import RadioForm from '../../Common/RadioForm';
-import DropdownForm from '../../Common/DropdownForm';
 import { fetchDistrictAPI, fetchStateAPI, fetchBlockAPI } from '../userlist/UsersAPI';
-import PasswordComp from '../../Common/PasswordComp';
-import ButtonForm from '../../Common/ButtonForm';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { getItem, removeItem, setItem } from '../../../config/getDataFromStorage';
-import { useNavigation, useRoute, useIsFocused, useFocusEffect, StackActions, CommonActions } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { checkPhoneDigitAPI } from '../../../config/apiHere';
-import axios from 'axios';
-import config from '../../../config';
-import { useTranslation } from 'react-i18next';
-import DatePickerComp from '../../Common/DatePickerComp';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import DeviceInfo from '../../DeviceInfo';
 import { userCreateContext } from '../../Context/usersCreateContext';
-import { onBackPress } from '../../Common/BackPressHandler';
 const PersonalInformation = () => {
     //GQR-65
-    const { dbLanTokUsr } = useContext(userCreateContext);
+    const { dbLanTokUsr, InputTextForm, RadioForm, getItem, setItem, AlertMesg, t, PasswordComp, ButtonForm, onBackPress, axios, config, DeviceInfo,
+        DropdownForm, Root, Toast, CustomHeader, FormsTitle, ImagePlaceHolderCircle, logoImage, topBanner } = useContext(userCreateContext);
     //GQR-65
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
     const isFocused = useIsFocused();
@@ -328,7 +311,7 @@ const PersonalInformation = () => {
         <>
             <Root>
                 <View style={{ flex: 1 }}>
-                    <CustomHeader path={path != '' ? path : 'Dashboard'} HandlerGoBack={HandlerGoBack} />
+                    <CustomHeader path={path != '' ? path : 'Dashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     <FormsTitle title={t('personal_information')} />
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <View style={styles.container}>

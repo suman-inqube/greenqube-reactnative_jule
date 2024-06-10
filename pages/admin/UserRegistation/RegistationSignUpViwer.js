@@ -1,23 +1,13 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, TextInput, BackHandler } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
-import ButtonForm from '../../Common/ButtonForm';
-import { signupSaveAPI } from '../../../config/apiHere';
 import { UserRegisterAPI } from './UserRegistationAPI';
 import { useFocusEffect, useNavigation, useIsFocused, CommonActions } from '@react-navigation/native';
-import { getItem, setItem, removeItem } from '../../../config/getDataFromStorage';
-import CustomHeader from '../CustomHeader';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
-import DeviceInfo from '../../DeviceInfo';
-import { onBackPress } from '../../Common/BackPressHandler';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const RegistationSignUpViwer = () => {
     //GQR-65
-    const { dbLanTokUsr } = useContext(userCreateContext);
+    const { dbLanTokUsr, getItem, setItem, CustomHeader, ButtonForm, t, DeviceInfo, onBackPress, Root, Toast, logoImage, topBanner, AlertMesg } = useContext(userCreateContext);
     //GQR-65
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const navigation = useNavigation();
     const isFocused = useIsFocused();
     const [isstorePersnolInfo, setisstorePersnolInfo] = useState(true);
@@ -195,10 +185,10 @@ const RegistationSignUpViwer = () => {
             getItem('storeFinancial_data'),
             getItem('storeProduceInfo_data')
         ]);
-        setstoreSignup(storeSignup_data);
-        setstorePersnolInfo(storePersnolInfo_data);
-        setstoreFinancial(storeFinancial_data);
-        setstoreProduceInfo(storeProduceInfo_data);
+        await Promise.all([setstoreSignup(storeSignup_data),
+        setstorePersnolInfo(storePersnolInfo_data),
+        setstoreFinancial(storeFinancial_data),
+        setstoreProduceInfo(storeProduceInfo_data)])
     };
     const handleBackPress = () => {
         navigation.navigate('RegistationSignUpViwer');
@@ -214,7 +204,7 @@ const RegistationSignUpViwer = () => {
     return (
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <Root>
-                <CustomHeader path='RegistationSignUpViwer' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='RegistationSignUpViwer' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginBottom: 100 }}>
                         <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', marginTop: 15 }}>
