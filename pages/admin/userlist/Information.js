@@ -1,27 +1,20 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, BackHandler, Keyboard } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import ButtonForm from '../../Common/ButtonForm'
-import InputTextForm from '../../Common/InputTextForm'
-import DropdownForm from '../../Common/DropdownForm'
-import RadioForm from '../../Common/RadioForm'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import ImageForm from '../../Common/ImageForm'
-import ImagePlaceHolderCircle from '../../Common/ImagePlaceHolderCircle'
-import { getItem } from '../../../config/getDataFromStorage'
 import { fetchBlockAPI, fetchDistrictAPI, fetchStateAPI, UserInformationUpdate } from './UsersAPI'
 import { launchImageLibrary } from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker'
 import config from '../../../config'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle'
 import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert'
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext'
 const Information = ({ sendDataToParent, farmerID }) => {
-    const { t } = useTranslation();
+    //GQR-66
+    const { t, AlertMesg, onBackPress, getItem, logoImage, topBanner, Root, Toast,
+        FormsTitle, CustomHeader, ButtonForm, InputTextForm, DropdownForm, ImagePlaceHolderCircle, RadioForm,
+        effective_dates, loginUser_data } = useContext(userCreateContext);
+    //GQR-66
     const navigation = useNavigation();
     const route = useRoute();
-    const isFocused = useIsFocused();
     const { farmeruserID, userName, contactNumber, profileImage, gender, farmer_type } = route.params;
     const [newdate, setnewDate] = useState(new Date())
     const [open, setOpen] = useState(false)
@@ -89,40 +82,24 @@ const Information = ({ sendDataToParent, farmerID }) => {
 
     const getState = async (dbName, languageID) => {
         const response = await fetchStateAPI(dbName, languageID)
-        if (response.data) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.state_name,
-                });
-            });
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.state_name }));
             setstateAll(dataArray);
         }
     }
     const getDistrict = async (dbName, languageID, stateID) => {
         const response = await fetchDistrictAPI(dbName, languageID, stateID)
-        if (response.status === 200) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.district_name,
-                });
-            });
+        if (response?.status === 200) {
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.district_name, }));
             setdistrictAll(dataArray);
         }
     }
     const getBlock = async (dbName, languageID, districtID) => {
-        const response = await fetchBlockAPI(dbName, languageID, districtID)
-        const dataArray = [];
-        response.data.data.rows.forEach(element => {
-            dataArray.push({
-                value: element.fid,
-                label: element.subdiv_name,
-            });
-        });
-        setblockAll(dataArray);
+        const response = await fetchBlockAPI(dbName, languageID, districtID);
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.subdiv_name, }));
+            setblockAll(dataArray);
+        }
     }
     const handleStateDistrictBlock = (moduleName, data) => {
         setfarmerData({ ...farmerData, [moduleName]: data.value, [`${moduleName}Name`]: data.label })
@@ -135,20 +112,13 @@ const Information = ({ sendDataToParent, farmerID }) => {
             getBlock(dbName, languageID, districtID)
         }
     }
-    const handleEffectFrom = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setfarmerData({ ...farmerData, effective_from: cycleEnds })
-    }
+    const handleEffectFrom = async (item) => setfarmerData({ ...farmerData, effective_from: effective_dates(item) });
     const onPageLoad = async () => {
-        const [loginUser_data, userListData,
+        const [userListData,
             state,
             district,
             block, curr
         ] = await Promise.all([
-            getItem('loginUser_data'),
             getItem('userListData'),
             getItem("state"),
             getItem("district"),
@@ -157,7 +127,6 @@ const Information = ({ sendDataToParent, farmerID }) => {
         ]);
         if (loginUser_data) {
             setcurrency(curr)
-            const compCode = loginUser_data.sa_company[0].company_code;
             const { dbname, lan_id, token, user_id } = loginUser_data;
             setregionaldatas({
                 ...regionaldatas,
@@ -222,21 +191,13 @@ const Information = ({ sendDataToParent, farmerID }) => {
             }
         }
     };
-    const sendDataToParentOnClick = () => {
-        sendDataToParent(null);
-    };
+    const handleBackPress = () => {
+        navigation.navigate('userList'); return true;
+    }
     useEffect(() => {
-        // if (isFocused) {
-        // setmyPhoto({ uri: "", type: "", name: "" });
         setSelectedImage(null);
         onPageLoad();
-        const onBackPress = () => {
-            // RemoveFarmerData();
-            navigation.navigate('userList'); return true;
-        };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        // }
+        onBackPress(handleBackPress);
     }, []);
     const handleUserListUpdate = async () => {
         Keyboard.dismiss();
@@ -283,47 +244,15 @@ const Information = ({ sendDataToParent, farmerID }) => {
         if (userDataUpdate.status === 200) {
             Toast.show({ text: 'User information update successfully', ...AlertMesg[0] });
             setTimeout(() => {
-                // RemoveFarmerData();
                 navigation.navigate('Dashboard')
             }, 2000);
         }
     }
-    // const RemoveFarmerData = () => {
-    //     setfarmerData({
-    //         userName: "",
-    //         contactNumber: "",
-    //         gender: "",
-    //         farmer_type: "",
-    //         age: "",
-    //         state: "",
-    //         district: "",
-    //         block: "",
-    //         aadhar_number: "",
-    //         pan_number: "",
-    //         voter_card_number: "",
-    //         kcc_number: "",
-    //         user_bank_account_holder: "",
-    //         user_bank_account_name: "",
-    //         user_bank_branch_name: "",
-    //         user_bank_account_number: "",
-    //         user_bank_ifsc_code: "",
-    //         pension_authority: "",
-    //         pension_account_no: "",
-    //         effective_from: "",
-    //         pension_amount: "",
-    //         frequency: "",
-    //         company_name: "",
-    //         policy_no: "",
-    //         sum_insured: ""
-    //     });
-    // }
-    const HandlerGoBack = () => {
-        navigation.navigate('userList');
-    }
+    const HandlerGoBack = () => navigation.navigate('userList');
     return (
         <>
             <Root>
-                <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={'User Profile'} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginHorizontal: 20, backgroundColor: '#FFFFF' }}>

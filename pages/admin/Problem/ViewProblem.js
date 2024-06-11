@@ -1,25 +1,20 @@
-import { BackHandler, StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, TextInput, FlatList, Linking } from 'react-native'
-import React, { useEffect, useState, useCallback } from 'react'
-import FormsTitle from '../../Common/FormsTitle';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
+import React, { useEffect, useState, useCallback, useContext } from 'react'
 import { useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { problemAnswerListAPI, problemCommentListAPI, problemCommentSaveAPI, farmerProblemDetailApi } from '../../../config/apiHere';
-import CustomHeader from '../CustomHeader';
-import MessageDialog from '../../Common/MessageDialog';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
-import DeviceInfo from '../../DeviceInfo';
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { AudioPlayer } from 'react-native-simple-audio-player';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewProblem = ({ navigation }) => {
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const { netConnection } = DeviceInfo();
     const isFocused = useIsFocused();
-    const { t } = useTranslation();
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
     const [btnColor, setBtnColor] = useState(1);
@@ -30,10 +25,9 @@ const ViewProblem = ({ navigation }) => {
         thirdItem: "",
     });
     const [comment1, setComment1] = useState("");
-    const [showComment, setshowComment] = useState(false);
     const [commentAll, setcommentAll] = useState([]);
     const [answerAll, setAnswerAll] = useState([]);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({});
+    // const [dbLanTokUsr, setdbLanTokUsr] = useState({});
     const [selectedRecord, setSelectedRecord] = useState({
         firstItemRecord: "",
         secondItemRecord: "",
@@ -53,12 +47,12 @@ const ViewProblem = ({ navigation }) => {
             formData.append("farmer_fcm", dbLanTokUsr.question_user_fcm);
             // formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
             formData.append("photo", "");
-            const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, formData);
+            const database_res = await problemCommentSaveAPI(dbname, lan_id, user_id, formData);
             if (database_res) {
                 Toast.show({ text: `${t('comment_is_added')}`, ...AlertMesg[0] });
                 // MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
                 setComment1("")
-                const commnetList = await problemCommentListAPI(dbLanTokUsr.dbName, dbLanTokUsr.supervisorId, dbLanTokUsr.question_id)
+                const commnetList = await problemCommentListAPI(dbname, user_id, dbLanTokUsr.question_id)
                 if (commnetList.data) {
                     setcommentAll(commnetList.data.data.rows);
                     navigation.navigate('ProblemView');
@@ -74,13 +68,11 @@ const ViewProblem = ({ navigation }) => {
             secondItem: "",
             thirdItem: "",
         })
-        const [problemData, problemIdData, loginUser_data] = await Promise.all([
+        const [problemData, problemIdData] = await Promise.all([
             getItem('problem_Data'),
             getItem('problem_id_data'),
-            getItem('loginUser_data')
         ]);
         if (problemData) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
             if (netConnection) {
                 if (route.params != undefined) {
                     const { comment_qid, type } = route.params;
@@ -104,9 +96,6 @@ const ViewProblem = ({ navigation }) => {
                 setFarmerProblem(response.data.data[0]);
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
-                    dbName: dbname,
-                    languageId: lan_id,
-                    token: token,
                     supervisorId: user_id,
                     question_id: question_id,
                     question_user_fcm: agri_user.FcmUserToken,
@@ -116,10 +105,10 @@ const ViewProblem = ({ navigation }) => {
                     problemCommentListAPI(dbname, user_id, question_id),
                     problemAnswerListAPI(dbname, lan_id, token, question_id)
                 ])
-                if (commnetList.data) {
+                if (commnetList?.data) {
                     setcommentAll(commnetList.data.data.rows);
                 }
-                if (answerList.data) {
+                if (answerList?.data) {
                     setAnswerAll(answerList.data.data);
                 }
                 if (agri_files) {
@@ -179,7 +168,6 @@ const ViewProblem = ({ navigation }) => {
                         thirdItem: Imag3,
                     })
                     setIsLoading(false)
-                    // console.log(selectedRecord);
                 }
             }
         }
@@ -192,25 +180,18 @@ const ViewProblem = ({ navigation }) => {
             onPageLoad();
         }
     }, [route.params, netConnection, isFocused]);
+    const handleBackPress = () => { navigation.navigate('ProblemList'); return true; }
     useFocusEffect(
         useCallback(() => {
-            // console.error("aaa")
-            // onPageLoad();
-            const onBackPress = () => { navigation.navigate('ProblemList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }, [route.params, isFocused])
     );
     const soundPlay = async (path) => {
         SPSheet.show({
             component: () => <AudioPlayerView path={path} />,
             dragFromTopOnly: true,
-            onCloseComplete: () => {
-                // alert('onCloseComplete');
-            },
-            onOpenComplete: () => {
-                // console.log(SPSheet)
-            },
+            onCloseComplete: () => { },
+            onOpenComplete: () => { },
             height: 260
         });
     }
@@ -220,7 +201,7 @@ const ViewProblem = ({ navigation }) => {
                 <LoadingScreen />
             ) : (
                 <>
-                    <CustomHeader path="ProblemList" HandlerGoBack={HandlerGoBack} />
+                    <CustomHeader path="ProblemList" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     <FormsTitle title={t('plot_and_crop_problem')} />
                     <ScrollView>
                         <View >

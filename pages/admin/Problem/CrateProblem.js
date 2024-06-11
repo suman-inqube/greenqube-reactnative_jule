@@ -1,40 +1,29 @@
-import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated, Linking } from 'react-native'
-import { PermissionsAndroid } from 'react-native'
-import Geolocation from '@react-native-community/geolocation';
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import FormsTitle from '../../Common/FormsTitle';
-import RadioForm from '../../Common/RadioForm';
-import DropdownForm from '../../Common/DropdownForm';
-import DropdownForm1 from '../../Common/DropdownForm1';
-import InputTextForm from '../../Common/InputTextForm';
-import DatePickerComp from '../../Common/DatePickerComp';
+import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Marker, { Position, TextBackgroundType } from "react-native-image-marker";
 import ButtonForm from '../../Common/ButtonForm';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
-import MessageDialog from '../../Common/MessageDialog';
-import axios from 'axios';
-import CustomHeader from '../CustomHeader';
-import LoadingScreen from '../../Common/LoadingScreen';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
-import { useTranslation } from 'react-i18next';
 import HarvestedModel from '../../Common/HarvestedModel';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 // audioRecorderPlayer.setSubscriptionDuration(0.09);
-import DeviceInfo from '../../DeviceInfo';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const CreateProblem = ({ navigation }) => {
+    //GQR-65
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle, DropdownForm, effective_dates,
+        InputTextForm, DatePickerComp } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
+    //GQR-65
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const isFocused = useIsFocused();
     const [modalVisible, setModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -42,22 +31,7 @@ const CreateProblem = ({ navigation }) => {
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
     const [searchResultsList, setSearchResultsList] = useState(false);
-    const [CropType, setCropType] = useState();
-    const [CropName, setCropName] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-        userType: '',
-        FcmUserToken: '',
-        owner: '',
-    });
-    const [isToggleRecordingFirst, setToggleRecordingFirst] = useState(true);
-    const [isToggleRecordingSecound, setToggleRecordingSecound] = useState(true);
-    const [isToggleRecordingThird, setToggleRecordingThird] = useState(true);
     const [searchResults, setSearchResults] = useState([]);
-    const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
     const [plotAll, setplotAll] = useState([]);
     const [productionStageAll, setproductionStageAll] = useState([]);
@@ -102,8 +76,6 @@ const CreateProblem = ({ navigation }) => {
     });
     const [myphotoAll, setmyPhotoAll] = useState([]);
     const [myTitleAll, setMyTitleAll] = useState([]);
-    const [myphoto, setmyPhoto] = useState(null);
-    const [myphotoTitle, setmyPhotoTitle] = useState([]);
     const [showingMenu, setShowingMenu] = useState(false);
     const [modalVisibleRecordFirstItem, setModalVisibleRecordFirstItem] = useState(false);
     const [modalVisibleRecordSecoundItem, setModalVisibleRecordSecoundItem] = useState(false);
@@ -132,41 +104,33 @@ const CreateProblem = ({ navigation }) => {
     const handleResultSelect = async (name, currentfarmerId, phone, FcmUserToken) => {
         setSearchResultsList(false);
         setSearchFarmerPhone(phone);
-        setSelectedName(name);
+        // setSelectedName(name);
         setSearchFarmerName(name);
         setShowingMenu(false);
         setSearchResults([]);
         setfarmerID(currentfarmerId);
         setSaveData({ ...saveData, farmer_fcm: FcmUserToken })
         if (netConnection) {
-            var response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
+            var response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
             await setItem('problemPlotAgainstFarmer' + currentfarmerId, response);
         } else {
             var response = await getItem('problemPlotAgainstFarmer' + currentfarmerId);
         }
         if (response) {
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
+            //GQR-65
+            const dataArray = response.data.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
+            //GQR-65
             setplotAll(dataArray)
         }
     }
     const handlePlot = async (relId) => {
-        const [fcmToken, userType] = await Promise.all([
-            getItem('fcmToken'),
-            getItem('userType'),
-        ])
         if (netConnection) {
-            var response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, relId.value);
+            var response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value);
             await setItem('problemProduceAgainstPlot' + farmerID + relId.value, response);
         } else {
             var response = await getItem('problemProduceAgainstPlot' + farmerID + relId.value);
         }
-        if (response) {
+        if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
                 name: response.data.data.rows[0].crop_name.name,
@@ -190,33 +154,25 @@ const CreateProblem = ({ navigation }) => {
                     harvesting_date: response.data.data.rows[0].harvesting_date,
                     sowing_date: response.data.data.rows[0].sowing_date,
                     production_system: response.data.data.rows[0].farmer_production_system.fa_id,
-                    agent_id: dbLanTokUsr.userID,
+                    agent_id: user_id,
                 })
-                setCropType(response.data.data.rows[0].crop_type.fid);
-                setCropName(response.data.data.rows[0].crop_name.fid);
                 if (netConnection) {
-                    var productionStage_res = await problemProductionStageAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, response.data.data.rows[0].crop_type_id, response.data.data.rows[0].crop_name_id)
+                    var productionStage_res = await problemProductionStageAPI(dbname, lan_id, response.data.data.rows[0].crop_type_id, response.data.data.rows[0].crop_name_id)
                     await setItem('problemProductionStage' + response.data.data.rows[0].crop_type_id + response.data.data.rows[0].crop_name_id, productionStage_res);
                 } else {
                     var productionStage_res = await getItem('problemProductionStage' + response.data.data.rows[0].crop_type_id + response.data.data.rows[0].crop_name_id);
                 }
                 if (productionStage_res) {
-                    const dataArray = [];
-                    productionStage_res.data.data.growth_stage.forEach(element => {
-                        dataArray.push({
-                            value: element.growth_stage.fid,
-                            label: element.growth_stage.name
-                        });
-                    });
-                    setproductionStageAll(dataArray)
+                    //GQR-65
+                    const dataArray = productionStage_res?.data?.data?.growth_stage.map(data => ({ value: data.growth_stage.fid, label: data.growth_stage.name }))
+                    //GQR-65
+                    setproductionStageAll(dataArray);
                 }
             } else {
                 setModalVisible(true);
-                // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
                 setSearchFarmerName('')
                 setSearchFarmerPhone('')
                 setplotAll([])
-                // navigation.navigate('Dashboard');
             }
         }
     }
@@ -259,7 +215,6 @@ const CreateProblem = ({ navigation }) => {
                     }],
                     scale: 1,
                     quality: 100,
-
                     filename: `${response.assets[0].fileName}`,
                     saveFormat: `${response.assets[0].type}`,
                     maxSize: 1000,
@@ -269,16 +224,9 @@ const CreateProblem = ({ navigation }) => {
                     ...selectedImage, [item]: `file://${path}`
                 });
                 const newPhoto = { uri: `file://${path}`, type: 'image/jpeg', name: `file://${path}` }
-                // const newTitle = {}
                 addPhoto(newPhoto);
-
-                // let imageUri = response.uri || response.assets?.[0]?.uri;
-                // setSelectedImage({ ...selectedImage, [item]: imageUri });
-                // const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri }
                 const newTitle = {}
-                // addPhoto(newPhoto);
                 addTitle(newTitle)
-
             }
         });
     };
@@ -289,10 +237,7 @@ const CreateProblem = ({ navigation }) => {
         setMyTitleAll([...myTitleAll, newTitle]);
     };
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item)
         setaffectedDate(effective_date)
         setSaveData({ ...saveData, affected_date: effective_date })
     }
@@ -308,13 +253,9 @@ const CreateProblem = ({ navigation }) => {
         })
         const problemNameFound = problemAll.find(user => user.fid === problem_type.value);
         if (problemNameFound) {
-            const dataArray = [];
-            problemNameFound.problem_type.forEach(element => {
-                dataArray.push({
-                    value: element.problem_name.fid,
-                    label: element.problem_name.name,
-                });
-            });
+            //GQR-65
+            const dataArray = problemNameFound?.problem_type.map(data => ({ value: data.problem_name.fid, label: data.problem_name.name, }))
+            //GQR-65
             setProblemNameAll(dataArray)
         }
     };
@@ -334,29 +275,6 @@ const CreateProblem = ({ navigation }) => {
         if (result) {
             setSearchResultsList(true)
             setSearchResults(result);
-        }
-    };
-    const soundRecordingFirstItem = async () => {
-        const path = RNFS.DocumentDirectoryPath + '/recording.aac';
-        try {
-            // Check if the directory exists, if not, create it
-            await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-
-            // Start recording
-            await audioRecorderPlayer.startRecorder(path);
-
-        } catch (error) {
-            console.error('Error starting recording:', error);
-        }
-    }
-    const requestLivePermission = async () => {
-        const { latitude, longitude } = await getItem('fusedLocation');
-        if (latitude != null) {
-            setSaveData({
-                ...saveData,
-                latitude: latitude,
-                longitude: longitude,
-            })
         }
     };
     function handleClear() {
@@ -401,76 +319,48 @@ const CreateProblem = ({ navigation }) => {
         })
     }
     const onPageLoad = async () => {
-        handleClear();
-        const [loginUser_data] = await Promise.all([
-            getItem('loginUser_data'),
-            requestLivePermission()
-        ]);
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id,
-                FcmUserToken: FcmUserToken,
-                owner: owner.FcmUserToken
-            })
-            if (netConnection) {
-                var [problemName_res, response, severity_res] = await Promise.all([
-                    problemTypeNameAPI(dbname, lan_id, token),
-                    farmerByNameAPI(dbname, lan_id, token, user_id),
-                    problemSeverityAPI(dbname, lan_id)
+        setdbLanTokUsr({
+            ...dbLanTokUsr, FcmUserToken: FcmUserToken, owner: owner.FcmUserToken
+        })
+        if (netConnection) {
+            var [problemName_res, response, severity_res] = await Promise.all([
+                problemTypeNameAPI(dbname, lan_id, token),
+                farmerByNameAPI(dbname, lan_id, token, user_id),
+                problemSeverityAPI(dbname, lan_id)
+            ]);
+            if (problemName_res?.status == 200) {
+                await Promise.all([
+                    setItem('supervisorProblemTypeName', problemName_res),
+                    setItem('response' + user_id, response),
+                    setItem('severity_res', severity_res)
                 ]);
-                if (problemName_res?.status == 200) {
-                    await Promise.all([
-                        setItem('supervisorProblemTypeName', problemName_res),
-                        setItem('response' + user_id, response),
-                        setItem('severity_res', severity_res)
-                    ]);
-                }
-            } else {
-                var [problemName_res, response, severity_res] = await Promise.all([
-                    getItem('supervisorProblemTypeName'),
-                    getItem('response' + user_id),
-                    getItem('severity_res')
-                ])
             }
-            setProblemAll(problemName_res?.data?.data);
-            if (problemName_res) {
-                const dataArray = [];
-                problemName_res.data.data.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.name,
-                    });
-                });
-                setProblemTypeAll(dataArray)
-                setIsLoading(false)
-            }
-            if (severity_res) {
-                const dataArray = [];
-                severity_res.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.name,
-                    });
-                });
-                setSeverityAll(dataArray)
-            }
-            if (response) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                        FcmUserToken: element.FcmUserToken
-                    });
-                });
-                setFarmerData(dataArray)
-            }
+        } else {
+            var [problemName_res, response, severity_res] = await Promise.all([
+                getItem('supervisorProblemTypeName'),
+                getItem('response' + user_id),
+                getItem('severity_res')
+            ])
+        }
+        setProblemAll(problemName_res?.data?.data);
+        if (problemName_res) {
+            //GQR-65
+            const dataArray = problemName_res?.data?.data.map(data => ({ value: data.fid, label: data.name, }));
+            //GQR-65
+            setProblemTypeAll(dataArray)
+            setIsLoading(false)
+        }
+        if (severity_res) {
+            //GQR-65
+            const dataArray = severity_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.name }));
+            //GQR-65
+            setSeverityAll(dataArray)
+        }
+        if (response) {
+            //GQR-65
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber, FcmUserToken: data.FcmUserToken }));
+            //GQR-65
+            setFarmerData(dataArray)
         }
     };
     const validateForm = () => {
@@ -579,13 +469,12 @@ const CreateProblem = ({ navigation }) => {
             formData.append("question_title", saveData.question_title);
             formData.append("question_desc", saveData.question_desc);
             formData.append("severity_id", saveData.severity_id);
-            console.log(JSON.stringify(formData))
             if (netConnection) {
-                const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
+                const database_res = await problemSaveAPI(dbname, lan_id, token, farmerID, formData);
                 if (database_res.status === 200) {
                     // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
                     Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
-                    handleClear();
+                    // handleClear();
                     setTimeout(() => {
                         navigation.navigate('ProblemList');
                     }, 1200);
@@ -692,9 +581,7 @@ const CreateProblem = ({ navigation }) => {
             console.error("Error stopping the recording:", error);
         }
     }, []);
-    const HandlerGoBack = () => {
-        navigation.navigate('ProblemList');
-    }
+    const HandlerGoBack = () => navigation.navigate('ProblemList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('ProblemList');
@@ -702,6 +589,7 @@ const CreateProblem = ({ navigation }) => {
             navigation.navigate('Dashboard');
         }
     }
+    const handleBackPress = () => { navigation.navigate('ProblemList'); return true; }
     useEffect(() => {
         if (isFocused) {
             onPageLoad();
@@ -726,9 +614,7 @@ const CreateProblem = ({ navigation }) => {
                 recordTime: '00:00:00',
                 result: ""
             });
-            const onBackPress = () => { navigation.navigate('ProblemList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }
     }, [isFocused, netConnection]);
     const cancelRecord = async (item) => {
@@ -784,7 +670,7 @@ const CreateProblem = ({ navigation }) => {
     }
     return (
         <View style={styles.container}>
-            <CustomHeader path='ProblemList' HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path='ProblemList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <DatePickerComp
                 openDate={addAffectedDate}
                 newDate={newFromDate}

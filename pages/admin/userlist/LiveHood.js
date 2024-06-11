@@ -1,31 +1,24 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Keyboard, } from 'react-native'
 import React, { useState, useEffect, useCallback, useContext } from 'react'
-import InputTextForm from '../../Common/InputTextForm'
-import DropdownForm from '../../Common/DropdownForm'
 import {
-    fetchBlockAPI, fetchDistrictAPI, fetchStateAPI,
     ProductionSeasonAndApi, ProductionProcessAPI, ProductionUnitAPI,
     livelihoodCropAndPlotDetailsAPI, PlotSiteUserLandDetails, UpdateLandCropdetailsAPI, AddLandCropDetailsAPI
 } from '../../../config/apiHere'
 import config from '../../../config';
 import axios from 'axios';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import LoadingScreen from '../../Common/LoadingScreen';
+import { useRoute, useNavigation } from '@react-navigation/native';
 const qs = require('qs');
 import HarvestedModel from './HarvestedModel';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 //GQR-65
 import { userCreateContext } from '../../Context/usersCreateContext';
 const LiveHood = ({ sendDataToParent }) => {
-    const { dbLanTokUsr, t, AlertMesg, onBackPress, getItem } = useContext(userCreateContext);
+    //GQR-65
+    const { dbLanTokUsr, t, AlertMesg, onBackPress, getItem, logoImage, topBanner, Root, Toast, LoadingScreen, DatePickerComp,
+        FormsTitle, CustomHeader, ButtonFormBottom, InputTextForm, DropdownForm, effective_dates } = useContext(userCreateContext);
+    //GQR-65
     const navigation = useNavigation();
     const route = useRoute();
-    const isFocused = useIsFocused();
     const { farmeruserID, agri_land_user_rels } = route.params;
     const [isLoading, setIsLoading] = useState(false);
     const [farmerData, setfarmerData] = useState({
@@ -65,10 +58,6 @@ const LiveHood = ({ sendDataToParent }) => {
         unit_valueArr: "",
         unit_value: "",
     });
-    const [currentlatlong, setCurrentlatlong] = useState({
-        lat: "",
-        long: ""
-    })
     const [terrainTypeAll, setterrainTypeAll] = useState([]);
     const [soilTypeAll, setsetsoilTypeAll] = useState([]);
     const [landTypeAll, setlandTypeAll] = useState([]);
@@ -100,7 +89,7 @@ const LiveHood = ({ sendDataToParent }) => {
             ProductionSeasonAndApi(dbLanTokUsr.dbName, dbLanTokUsr.languageID, ''),
             livelihoodCropAndPlotDetailsAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmeruserID, findData.value),
         ]);
-        if (cropAndPlotDetails.status === 200) {
+        if (cropAndPlotDetails?.status === 200) {
             if (cropAndPlotDetails.data.data.rows.length != 0) {
                 const data = cropAndPlotDetails.data.data.rows[0];
                 plotSiteUserLandDetails.map((dataLandDetails, index) => {
@@ -206,7 +195,7 @@ const LiveHood = ({ sendDataToParent }) => {
                 produceVarietyAPI(dbName, languageId),
                 productionProcessAPI(dbName, languageId),
             ]);
-            if (plotSiteUserLandDetails_res.status === 200) {
+            if (plotSiteUserLandDetails_res?.status === 200) {
                 setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
             }
         } catch (error) {
@@ -293,23 +282,9 @@ const LiveHood = ({ sendDataToParent }) => {
             });
         }
     }
-    const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setfarmerData({ ...farmerData, cycleStartDate: effective_date })
-    }
-    const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setfarmerData({ ...farmerData, cycleEndDate: effective_date })
-    }
-    const addMoreLocation = async () => {
-        setLocation([...location, { lat: "", long: "" }])
-    }
+    const handleDatePicker = (item) => setfarmerData({ ...farmerData, cycleStartDate: effective_dates(item) });
+    const handleDatePicker2 = (item) => setfarmerData({ ...farmerData, cycleEndDate: effective_dates(item) });
+    const addMoreLocation = async () => setLocation([...location, { lat: "", long: "" }]);
     const handleCurrentLatLong = async (index) => {
         const fusedLocation = await getItem('fusedLocation');
         const values = [...location];
@@ -568,12 +543,8 @@ const LiveHood = ({ sendDataToParent }) => {
         RemoveFarmerData();
         locationEmpty();
     }
-    const handleAddUserData = (name, data) => {
-        setfarmerData({ ...farmerData, [`${name}`]: data });
-    }
-    const HandlerGoBack = () => {
-        navigation.navigate('userList');
-    }
+    const handleAddUserData = (name, data) => setfarmerData({ ...farmerData, [`${name}`]: data });
+    const HandlerGoBack = () => navigation.navigate('userList');
     return (
         <>
             <Root>
@@ -589,7 +560,7 @@ const LiveHood = ({ sendDataToParent }) => {
                     minimumDate={farmerData.cycleStartDate == "" ? "" : new Date(`${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1}-${new Date(farmerData.cycleStartDate).getDate() + 1}`)}
                     setOpenDate={setopenCycleEnd}
                     handleDatePicker={handleDatePicker2} />
-                <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('plot_and_crop_details')} />
                 {isLoading ? <View style={styles.LoadingScreen}>
                     <LoadingScreen />
@@ -715,9 +686,7 @@ const LiveHood = ({ sendDataToParent }) => {
         </>
     )
 }
-
-export default LiveHood
-
+export default LiveHood;
 const styles = StyleSheet.create({
     passwordMainContainer: {
         flex: 1,

@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState, lazy } from 'react'
 import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
 // const { netConnection } = DeviceInfo();
 const userCreateContext = createContext();
-import { farmerByNameAPI } from '../../config/apiHere';
+import { farmerByNameAPI, problemListAPI } from '../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../Common/ToastAlert';
 import { Root, Toast, Popup, SPSheet } from 'react-native-popup-confirm-toast';
@@ -39,35 +39,85 @@ const UserCreateContextProvider = (props) => {
             getItem('logoImageData'),
             getItem('topBannerData')
         ]);
-        setlogoImage(logoImageData)
+        setlogoImage(logoImageData);
         settopBanner(topBannerData);
-        const { dbname, lan_id, token, user_id, agri_user_addresses,
-            db_company_id } = loginUser_data;
         setloginUser_data(loginUser_data);
-        const farmer_response = await farmerByNameAPI(dbname, lan_id, token, user_id);
+        const farmer_response = await farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id);
         if (farmer_response?.status == 200) {
             setdbLanTokUsr({
                 ...dbLanTokUsr,
-                dbName: dbname,
-                languageId: lan_id,
-                token: token,
-                supervisorId: user_id,
-                agri_user_addresses: agri_user_addresses,
-                country: agri_user_addresses[0].country,
-                company: db_company_id
+                dbName: loginUser_data?.dbname,
+                languageId: loginUser_data?.lan_id,
+                token: loginUser_data?.token,
+                supervisorId: loginUser_data?.user_id,
+                agri_user_addresses: loginUser_data?.agri_user_addresses,
+                country: loginUser_data?.agri_user_addresses[0].country,
+                company: loginUser_data?.db_company_id
             });
-            const dataArray = farmer_response?.data?.data.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
+            const dataArray = farmer_response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
             setFarmerData(dataArray)
         }
     }
     useEffect(() => {
         AllFarmerList()
-    }, [])
+    }, []);
     const effective_dates = (item) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
         const x1 = x[0].split('-');
         return x1[0] + '-' + x1[1] + '-' + x1[2];
+    }
+    const handleFilter = (search, filterName, farmerData, problemAllRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setProblemAll, setSearchResults) => {
+        if (filterName === 'Farmer/Product Name') {
+            setSearchFarmerPhone('');
+            setSearchFarmerName(search);
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
+            if (search == "") {
+                setSearchResultsList(false);
+                setProblemAll(problemAllRaw);
+            } else {
+                setSearchResultsList(true);
+            }
+            if (result) {
+                setSearchResults(result);
+            }
+        } else if (filterName === 'PhoneNumber') {
+            setSearchFarmerName('');
+            setSearchFarmerPhone(search);
+            const result = farmerData.filter(item => item.phone.toLowerCase().includes(search.toLowerCase()));
+            if (search == "") {
+                setSearchResultsList(false);
+                setProblemAll(problemAllRaw);
+            } else {
+                setSearchResultsList(true);
+            }
+            if (result) {
+                setSearchResults(result);
+            }
+        }
+    }
+    const handleResultSelect = async (name, user_id, phone, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll) => {
+        setIsLoading(true)
+        setSearchResultsList(false);
+        setSearchFarmerPhone(phone)
+        setSearchFarmerName(name);
+        setSearchResults([]);
+        if (name !== '') {
+            let from_date = ''
+            let to_date = ''
+            let mobileNo = ''
+            const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, user_id, 0, user_id, from_date, to_date, mobileNo)
+            if (response?.status == 200) {
+                setIsLoading(false)
+                setProblemAll(response?.data?.data?.rows)
+                // setProblemAllRaw(response.data.data.rows)
+            }
+        } else {
+            let tempData = problemAll.filter(item => {
+                return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;;
+            });
+            setProblemAll(tempData)
+        }
     }
     return (
         <userCreateContext.Provider value={{
@@ -100,12 +150,16 @@ const UserCreateContextProvider = (props) => {
             ImagePlaceHolderCircle: ImagePlaceHolderCircle,
             logoImage: logoImage,
             topBanner: topBanner,
+            setlogoImage: setlogoImage,
+            settopBanner: settopBanner,
             DatePicker: DatePicker,
             LoadingScreen: LoadingScreen,
             DatePickerComp: DatePickerComp,
             ButtonFormBottom: ButtonFormBottom,
             effective_dates: effective_dates,
-            Filter: Filter
+            Filter: Filter,
+            handleFilter: handleFilter,
+            handleResultSelect: handleResultSelect
         }}>
             {props.children}
         </userCreateContext.Provider>

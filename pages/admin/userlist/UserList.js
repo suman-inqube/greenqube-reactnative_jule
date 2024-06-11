@@ -2,14 +2,15 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View, TextInput, Keyboard
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import ImageForm from '../../Common/ImageForm';
 import { userDataListAPI } from './UsersAPI';
-import CustomHeader from '../CustomHeader';
 import { useIsFocused } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-//GQR-65
+//GQR-66
 import { userCreateContext } from '../../Context/usersCreateContext';
+//GQR-66
 const UserList = ({ navigation }) => {
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, t, AlertMesg, onBackPress, getItem, setItem } = useContext(userCreateContext);
+    //GQR-66
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
+    //GQR-66
     const isFocused = useIsFocused();
     const [isLoading, setIsLoading] = useState(false);
     const [userList, setuserList] = useState([]);
@@ -171,7 +172,7 @@ const UserList = ({ navigation }) => {
     return (
         <Root>
             <View style={{ flex: 1, backgroundColor: '#fff' }}>
-                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={{ marginTop: 10, flex: 1 }}>
                     <View style={styles.header}>
                         <View style={{ alignItems: 'center' }}>

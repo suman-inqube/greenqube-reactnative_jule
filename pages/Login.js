@@ -1,5 +1,5 @@
 import { PermissionsAndroid, Keyboard, Image, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Button, StatusBar } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
@@ -13,12 +13,14 @@ import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen'
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './Common/ToastAlert';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useIsFocused, StackActions } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
+import { userCreateContext } from './Context/usersCreateContext';
 const Login = ({ route }) => {
+    const { setlogoImage, settopBanner, AllFarmerList } = useContext(userCreateContext);
     const { netConnection } = DeviceInfo();
     // const { fusedLocationData } = ForegroundLocationService();
     const { requestUserPermission, notificationListener } = NotificationServices();
@@ -69,9 +71,7 @@ const Login = ({ route }) => {
         return true;
     };
     const saveHandle = async () => {
-        const [fcmToken_res] = await Promise.all([
-            getItem('fcmToken'),
-        ])
+        const [fcmToken_res] = await Promise.all([getItem('fcmToken')]);
         if (validateForm()) {
             const inputdata = {
                 "FcmUserToken": fcmToken_res,
@@ -82,7 +82,6 @@ const Login = ({ route }) => {
                 "type": storeLoginUser.role
             };
             try {
-                console.log(inputdata)
                 setIsLoading(true);
                 let userIno = await axios.post(config.loginAPI, inputdata);
                 if (userIno?.status === 200) {
@@ -117,7 +116,7 @@ const Login = ({ route }) => {
                         fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
                         reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
                     ]);
-                    if (fpoDetailsList_res.status === 200) {
+                    if (fpoDetailsList_res?.status === 200) {
                         const { company_website } = fpoDetailsList_res.data.data[0];
                         var url_regex = /^(http|https)/;
                         if (url_regex.test(String(company_website).toLowerCase()) == true) {
@@ -126,8 +125,8 @@ const Login = ({ route }) => {
                             await setItem("company_website", `https://${company_website}`);
                         }
                     }
-                    if (reginalRes.status === 200) {
-                        const datam = reginalRes.data.data.rows;
+                    if (reginalRes?.status === 200) {
+                        const datam = reginalRes?.data?.data?.rows;
                         datam.map(async (item) => {
                             if (item.static_cid === 1) {
                                 await setItem("state", item.categoryName);
@@ -140,8 +139,8 @@ const Login = ({ route }) => {
                             }
                         });
                     }
-                    if (fpoDetailsList_res.status === 200) {
-                        const agri_files = fpoDetailsList_res.data.data[0].agri_files;
+                    if (fpoDetailsList_res?.status === 200) {
+                        const agri_files = fpoDetailsList_res?.data?.data[0]?.agri_files;
                         const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
                         if (typeof foundbotomBannerFind != "undefined") {
                             await setItem("bottomBannerData", foundbotomBannerFind.file_path);
@@ -149,22 +148,26 @@ const Login = ({ route }) => {
                         const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
                         if (typeof foundlogoFindFind != "undefined") {
                             await setItem("logoImageData", foundlogoFindFind.file_path);
+                            setlogoImage(foundlogoFindFind.file_path);
                         }
                         const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
                         if (typeof foundtopBannerFind != "undefined") {
                             await setItem("topBannerData", foundtopBannerFind.file_path);
+                            settopBanner(foundtopBannerFind.file_path);
                         }
-                        const userType = await getItem("userType");
-                        setIsLoading(false);
-                        if (userType === 3) {
-                            navigation.navigate('AdminNavigation');
-                        } else if (userType === 2) {
+                        if (loginUserdata.userType === 3) {
+                            AllFarmerList();
+                            setTimeout(() => {
+                                navigation.navigate('AdminNavigation');
+                            }, 1500);
+                        } else if (loginUserdata.userType === 2) {
                             navigation.navigate('FarmerNavigation');
                         }
+                        // setIsLoading(false);
                     }
                 }
             } catch (error) {
-                Toast.show({ text: `${error.response.data.error.errorMessage}`, ...AlertMesg[0] })
+                Toast.show({ text: `${error.response?.data?.error?.errorMessage}`, ...AlertMesg[0] })
                 setIsLoading(false);
             }
         }

@@ -14,13 +14,15 @@ import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { userCreateContext } from '../Context/usersCreateContext';
 const Dashboard = ({ navigation }) => {
   //GQR-65
-  const { getItem, t, DeviceInfo, CustomHeader, logoImage, topBanner, onBackPress } = useContext(userCreateContext);
+  const { getItem, t, DeviceInfo, CustomHeader, onBackPress, logoImage, topBanner } = useContext(userCreateContext);
   const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
   const [company_website, setcompany_website] = useState("");
+  const [logoImg, setlogoImage] = useState(logoImage);
+  const [topBannerImg, settopBanner] = useState(topBanner);
   const navigateToPages = (pageName) => {
     if (netConnection) {
       navigation.navigate(pageName, { data: 'remove' });
@@ -33,15 +35,27 @@ const Dashboard = ({ navigation }) => {
   const onPageLoad = async () => {
     const [bottomBannerData,
       userNameData,
-      profileImgData, loginUser_data, company_website] = await Promise.all([
+      profileImgData, loginUser_data, company_website, logoImageData, topBannerData] = await Promise.all([
         getItem('bottomBannerData'),
         getItem('userNameData'),
         getItem('profileImgData'),
         // getItem('loginUser_data'),
         getItem('company_website'),
+        getItem('logoImageData'),
+        getItem('topBannerData'),
         // getCurrentLatLong(),
         Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
       ]);
+    if (logoImage != null) {
+      setlogoImage(logoImage)
+    } else {
+      setlogoImage(logoImageData)
+    }
+    if (topBanner != null) {
+      settopBanner(topBanner)
+    } else {
+      settopBanner(topBannerData)
+    }
     setcompany_website(company_website);
     setbottomBanner(bottomBannerData);
     setuserName(userNameData);
@@ -50,9 +64,10 @@ const Dashboard = ({ navigation }) => {
   const HandlerGoBack = () => exit()
   useEffect(() => {
     if (isFocused) {
-      onPageLoad(); onBackPress(exit);
+      onPageLoad();
+      onBackPress(exit);
     }
-  }, [isFocused]);
+  }, [isFocused, topBanner]);
   const exit = () => {
     Alert.alert(`${t('app_name')}`, `${t('close_app')}`,
       [{ text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' }, { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() }],
