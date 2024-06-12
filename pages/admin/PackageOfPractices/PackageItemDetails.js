@@ -20,6 +20,7 @@ const head = `
 const PackageItemDetails = () => {
     const { width, height } = useWindowDimensions();
     const { package_of_practice_list, menu_name } = useRoute().params;
+    console.log(package_of_practice_list)
     const tagsStyles = {
         body: { whiteSpace: 'normal', color: '#000', backgroundColor: '#FFF' },
         a: { color: 'green' },
@@ -53,7 +54,7 @@ const PackageItemDetails = () => {
                 <View >
                     <WebView
                         style={{
-                            height: height,
+                            height: height / 0.5,
                             width: width,
                             marginBottom: 50
                         }}
@@ -62,7 +63,7 @@ const PackageItemDetails = () => {
                             <!DOCTYPE html>
                             <html>
                                 <head>${head}</head> 
-                                <body>
+                                <body style="height: :'100%';overflow: "scroll";">
                                 ${package_of_practice_list} 
                                 </body>
                             </html>`,

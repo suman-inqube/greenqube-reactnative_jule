@@ -78,9 +78,7 @@ const FarmerDrawer = (props) => {
                             <Text style={styles.menuText}>{t('plot_and_crop_details')}</Text>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.memuContainer}
-                        onPress={() => navigateToPages('PackageOfPractices')}
-                    >
+                    <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('PackageOfPractices')}>
                         <View style={styles.menuItem}>
                             <Image source={require('../Common/images/scientific_farming.png')}
                                 style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
