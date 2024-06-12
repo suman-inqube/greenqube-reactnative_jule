@@ -203,9 +203,7 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
             onPageLoad()
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerDashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     return (
         <View style={{ flex: 1 }}>
             <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />

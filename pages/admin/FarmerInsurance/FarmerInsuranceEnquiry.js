@@ -10,9 +10,7 @@ import FarmerViewPastRequested from './FarmerViewPastRequested';
 import { onBackPress } from '../../Common/BackPressHandler';
 const FarmerInsuranceEnquiry = ({ navigation }) => {
     const [activeBtn, setActiveBtn] = useState(2);
-    const HandlerGoBack = () => {
-        navigation.navigate("FarmerDashboard");
-    }
+    const HandlerGoBack = () => navigation.navigate("FarmerDashboard");
     function handleBackPress() {
         navigation.navigate("FarmerDashboard");
         return true;

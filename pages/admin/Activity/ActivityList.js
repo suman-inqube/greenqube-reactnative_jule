@@ -1,36 +1,21 @@
 import {
-    StyleSheet,
-    Text,
-    View,
-    FlatList,
-    TouchableOpacity,
-    ScrollView,
-    TextInput,
-    Image,
-    StatusBar,
-    BackHandler,
-    Keyboard,
-    Dimensions
+    StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions
 } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import WidgetsSide from '../../Common/WidgetsSide';
 import Filter from '../../Common/Filter';
 import { activityListAPI, farmerByNameAPI } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-import ActivityDetail from './ActivityDetail';
-import ActivityReport from './ActivityReport';
-import LoadingScreen from '../../Common/LoadingScreen';
-import CustomHeader from '../CustomHeader';
-import MessageDialog from '../../Common/MessageDialog';
-import { useTranslation } from 'react-i18next';
 import { useIsFocused } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import DeviceInfo from '../../DeviceInfo';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityList = ({ navigation }) => {
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, handleFilter, effective_dates } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const isFocused = useIsFocused();
     const [isLoading, setIsLoading] = useState(true);
     const [searchResultsList, setSearchResultsList] = useState(false);
@@ -43,7 +28,6 @@ const ActivityList = ({ navigation }) => {
     const [newToDate, setnewToDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false)
     const [openToDate, setOpenToDate] = useState(false);
-    const [currentPage, setcurrentPage] = useState(1);
     const [fromDate, setfromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -51,9 +35,9 @@ const ActivityList = ({ navigation }) => {
     const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        pageNo: 1
-    });
+    // const [dbLanTokUsr, setdbLanTokUsr] = useState({
+    //     pageNo: 1
+    // });
     const [fromDateFilter, setFromDateFilter] = useState('');
     const filterOptionShow = () => {
         if (!filterOption) {
@@ -73,105 +57,18 @@ const ActivityList = ({ navigation }) => {
         setSearchFarmerPhone("");
     }
     const handlePage = async (value) => {
-        const currentPageNo = dbLanTokUsr.pageNo
-        const totalPage = dbLanTokUsr.totalPage
-        if (value === 'next') {
-            setIsLoading(true);
-            if (totalPage === currentPageNo) {
-                setIsLoading(false);
-                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-                // no_data_found
-                // const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
-                // if (response) {
-                setactivityAll([]);
-                //     setItem("activity_Data", response.data.data.rows)
-
-                // }
-            } else {
-                const nextPage = currentPageNo + 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage)
-                if (response) {
-                    setIsLoading(false);
-                    setactivityAll(response.data.data.rows);
-                    setItem("activity_Data", response.data.data.rows)
-                }
-            }
-        }
-        if (value === 'previous') {
-            if (currentPageNo === 1) {
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
-                if (response) {
-                    setIsLoading(false);
-                    setactivityAll(response.data.data.rows);
-                    setItem("activity_Data", response.data.data.rows)
-                }
-            } else {
-                setIsLoading(true);
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage)
-                if (response) {
-                    setIsLoading(false);
-                    setactivityAll(response.data.data.rows);
-                    setItem("activity_Data", response.data.data.rows)
-                }
-            }
-        }
+        handlePageList(value, setIsLoading, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id);
     }
-    const handleFilter = async (search) => {
-        if (filterName === 'Farmer/Product Name') {
-            setSearchFarmerPhone('');
-            setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-            } else {
-                let tempData = activityAllRow.filter(item => {
-                    return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
-                });
-                // setProblemAll(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        } else if (filterName === 'PhoneNumber') {
-            setSearchFarmerName('');
-            setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-            } else {
-                // let tempData = problemAllRaw.filter(item => {
-                //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;
-                // });
-                // setProblemAll(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        }
-
+    const handleFilterList = async (item) => {
+        handleFilter(item, filterName, farmerData, activityAllRow, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setactivityAll, setSearchResults);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date);
         setFromDateFilter(effective_date);
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDateFilter) {
             const item = '';
@@ -185,16 +82,14 @@ const ActivityList = ({ navigation }) => {
             Toast.show({ time: 3, text: 'Please Select First data', ...AlertMesg[0] })
         }
     }
-    const navigateToPages = async (pageName, uact_id) => {
-        // setItem("uact_id_data", uact_id)
+    const navigateToPages = useCallback(async (pageName, uact_id) => {
         navigation.navigate(pageName, uact_id);
-        // setIsLoading(true)
-    };
+    }, []);
     const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
         setIsLoading(true);
         if (netConnection) {
             var [response, farmerByName] = await Promise.all([
-                activityListAPI(dbName, languageId, token, supervisorId, pageNo),
+                activityListAPI(dbName, languageId, supervisorId, pageNo),
                 farmerByNameAPI(dbName, languageId, token, supervisorId)
             ]);
             if (response?.status == 200) {
@@ -210,30 +105,16 @@ const ActivityList = ({ navigation }) => {
             ]);
         }
         if (farmerByName) {
-            const dataArray = [];
-            farmerByName.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.user_id,
-                    label: element.userName,
-                    phone: element.contactNumber,
-                });
-            });
+            const dataArray = farmerByName.data.data.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }))
             setFarmerData(dataArray)
         }
         if (response?.data) {
             if (response.data.data.count != 0) {
                 const totalPage = Math.ceil(response.data.data.count / 20)
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    dbName: dbName,
-                    languageId: languageId,
-                    token: token,
-                    supervisorId: supervisorId,
-                    totalPage: totalPage,
-                });
-                setactivityAll(response.data.data.rows)
-                setactivityAllRow(response.data.data.rows)
-                setItem("activity_Data", response.data.data.rows)
+                setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
+                setactivityAll(response.data.data.rows);
+                setactivityAllRow(response.data.data.rows);
+                setItem("activity_Data", response.data.data.rows);
                 setIsLoading(false);
             } else {
                 setIsLoading(false);
@@ -242,14 +123,8 @@ const ActivityList = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            fatchActivityListAPI(dbName, languageId, token, supervisorId, 1)
-        }
+        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
+        fatchActivityListAPI(dbname, lan_id, token, user_id, 1);
     };
     const filterDataRemove = () => {
         setFilterItem("");
@@ -265,6 +140,8 @@ const ActivityList = ({ navigation }) => {
         setSearchResultsList(false);
         setfromDate("");
         setToDate("");
+        // setactivityAll([]);
+        // setactivityAllRow([]);
         navigation.navigate('Dashboard');
     }
     const handleResultSelect = async (name, user_id1, phone) => {
@@ -279,24 +156,25 @@ const ActivityList = ({ navigation }) => {
             Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
         }
     }
+    const handleBackPress = () => {
+        setFilterItem("");
+        setFilterOption(false);
+        setSearchFarmerName("");
+        setSearchFarmerPhone("");
+        setSearchResultsList(false);
+        setfromDate("");
+        setToDate("");
+        // setactivityAll([]);
+        // setactivityAllRow([]);
+        navigation.navigate('Dashboard');
+        return true;
+    }
     useEffect(() => {
         if (isFocused) {
             if (fromDate == "" && toDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
                 onPageLoad();
             }
-            const onBackPress = () => {
-                setFilterItem("");
-                setFilterOption(false);
-                setSearchFarmerName("");
-                setSearchFarmerPhone("");
-                setSearchResultsList(false);
-                setfromDate("");
-                setToDate("");
-                navigation.navigate('Dashboard');
-                return true;
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }
     }, [isFocused, netConnection]);
     useEffect(() => {
@@ -315,7 +193,7 @@ const ActivityList = ({ navigation }) => {
     }, [isFocused]);
     return (
         <Root>
-            <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View style={{ flex: 1 }}>
                 {openFromDate && <DatePickerComp
                     openDate={openFromDate}
@@ -340,7 +218,7 @@ const ActivityList = ({ navigation }) => {
                     setOpenFromDate={setOpenFromDate}
                     filterOptionShow={filterOptionShow}
                     onchangeFilterItem={onchangeFilterItem}
-                    onChangeText={(item) => handleFilter(item)}
+                    onChangeText={(item) => handleFilterList(item)}
                     title={t('my_activities')}
                     filterDataRemove={filterDataRemove}
                     FarmerProductNameValue={searchFarmerName}
@@ -373,17 +251,17 @@ const ActivityList = ({ navigation }) => {
                         <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
                             <View style={styles.activityListContainer}>
                                 <View style={styles.activityListItem}>
-                                    <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item.agri_user.userName.substring(0, 4) + '...'}</Text>
-                                    <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info.plot_no.substring(0, 8) + '...'}</Text>
-                                    <Text style={styles.title}>{t('perf_date')} : {item.act_perform_date.substring(0, 4) + '...'}</Text>
+                                    <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item?.agri_user?.userName.substring(0, 4) + '...'}</Text>
+                                    <Text style={styles.title}>{t('addcrop_plot')} : {item?.land_info?.plot_no.substring(0, 8) + '...'}</Text>
+                                    <Text style={styles.title}>{t('perf_date')} : {item?.act_perform_date?.substring(0, 4) + '...'}</Text>
                                 </View>
                                 <View style={styles.activityListItem}>
-                                    <Text style={styles.title}>{t('farmer_number')} : {item.agri_user.contactNumber.substring(0, 7) + '...'}</Text>
-                                    <Text style={styles.title}>{t('crop_name')} : {item.cropName.name.substring(0, 7) + '..'}</Text>
-                                    <Text style={styles.title}>{t('deviation')} : {item.deviation}{t('days')}</Text>
+                                    <Text style={styles.title}>{t('farmer_number')} : {item?.agri_user?.contactNumber.substring(0, 7) + '...'}</Text>
+                                    <Text style={styles.title}>{t('crop_name')} : {item?.cropName?.name.substring(0, 7) + '..'}</Text>
+                                    <Text style={styles.title}>{t('deviation')} : {item?.deviation}{t('days')}</Text>
                                 </View>
                             </View>
-                            <Text style={styles.title}>{t('cycle_start_date')} : {item.cycle_start_date}</Text>
+                            <Text style={styles.title}>{t('cycle_start_date')} : {item?.cycle_start_date}</Text>
                         </TouchableOpacity>
                     )
                     }

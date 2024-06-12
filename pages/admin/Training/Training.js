@@ -1,14 +1,15 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, Image, ImageBackground, Linking, BackHandler } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, Image, Linking, BackHandler } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import { noticeDetailsAPI } from '../../../config/apiHere';
-
-import { WebView } from 'react-native-webview';
 import RenderHtml from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
-import { getItem } from '../../../config/getDataFromStorage';
-import CustomHeader from '../CustomHeader';
 import { useNavigation, useRoute, useIsFocused, StackActions } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const Training = () => {
+    //GQR-67
+    const { loginUser_data, CustomHeader, onBackPress, getItem, logoImage, topBanner } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
     const navigation = useNavigation();
     const [noticeDetails, setNoticeDetails] = useState([]);
@@ -23,22 +24,19 @@ const Training = () => {
                 {props.file_ext == "application/pdf" &&
                     <Image
                         style={{ width: '100%', height: 100 }}
-                        resizeMode="contain"
-                        source={require("../../Common/images/icons8-pdf-50.png")}
+                        resizeMode="contain" source={require("../../Common/images/icons8-pdf-50.png")}
                     />
                 }
                 {
                     props.file_ext == "image/jpeg" && <Image
                         // resizeMode="contain"
-                        style={{ width: '100%', height: 200 }}
-                        source={{ uri: props.item }}
+                        style={{ width: '100%', height: 200 }} source={{ uri: props.item }}
                     />
                 }
                 {
                     props.file_ext == "video/mp4" && <Image
                         resizeMode="contain"
-                        style={{ width: '100%', height: 100 }}
-                        source={require("../../Common/images/icons8-play-100.png")}
+                        style={{ width: '100%', height: 100 }} source={require("../../Common/images/icons8-play-100.png")}
                     />
                 }
             </View>
@@ -49,12 +47,8 @@ const Training = () => {
     };
     const onPageLoad = async () => {
         const noticeId = await getItem('userNoticeId');
-        const loginUser_data = await getItem('loginUser_data');
         if (noticeId) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            let response = await noticeDetailsAPI(dbName, languageID, token, noticeId);
+            let response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
             if (response) {
                 setNoticeDetails(response.data.data[0])
                 setNoticeFiles(response.data.data[0].agri_files)
@@ -64,17 +58,13 @@ const Training = () => {
     useEffect(() => {
         if (isFocused) {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('TraingList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('TraingList'); return true; });
         }
     }, [isFocused]);
-    const HandlerGoBack = () => {
-        navigation.navigate('TraingList')
-    }
+    const HandlerGoBack = () => navigation.navigate('TraingList');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View style={{ marginHorizontal: 7, marginTop: 20, }}>
                 <View style={styles.titleContainer}>
                     <Text style={[styles.title, {

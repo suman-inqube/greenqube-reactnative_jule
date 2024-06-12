@@ -230,10 +230,10 @@ export const farmerAgainstSupervisorAPI = async (dbName, languageID, token, user
 
 
 // activity
-export const activityListAPI = async (dbName, languageID, token, userID, pageNO, searchItem = '', from_date = '', to_date = '') => {
+export const activityListAPI = async (dbName, languageID, userID, pageNO, searchItem = '', from_date = '', to_date = '') => {
     const axiosHeaders = {
         headers: {
-            'authorization': `${token}`,
+            // 'authorization': `${token}`,
             'information': `${dbName},${languageID},${userID}`,
         },
     };
@@ -890,7 +890,7 @@ export const usefulInfoListAPI = async (dbName, languageId, userId, state_id, di
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error with user api" + error.response);
+        return error.response;
     }
 
 }

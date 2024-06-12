@@ -152,10 +152,7 @@ const FarmerLoanEnquiryDetail = () => {
     loan_plots.map((data, index) => {
         plotArr.push(data.agri_land_user_rel.plot_no)
     })
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerLoan');
-    }
-
+    const HandlerGoBack = () => navigation.navigate('FarmerLoan');
     const loan_identityArr = agri_files.filter(item =>
         item.term_type === "loan_identity"
     );

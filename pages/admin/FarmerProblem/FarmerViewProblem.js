@@ -188,9 +188,7 @@ const FarmerViewProblem = ({ navigation }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [route.params, isFocused])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerListProblem');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerListProblem');
     const soundPlay = async (path) => {
         SPSheet.show({
             component: () => <AudioPlayerView path={path} />,

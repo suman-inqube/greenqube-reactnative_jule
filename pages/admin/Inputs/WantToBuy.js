@@ -1,24 +1,17 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Keyboard, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
-import DropdownForm1 from '../../Common/DropdownForm1';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import DatePickerComp from '../../Common/DatePickerComp';
 import { farmerAgainstSupervisorAPI, farmerByNameAPI, inputSaveAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, unitByListAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
-import MessageDialog from '../../Common/MessageDialog';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
 import HarvestedModel from '../../Common/HarvestedModel';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const WantToBuy = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle, effective_dates, InputTextForm, DropdownForm, ButtonFormBottom } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const unitFarm = [
         {
             value: 1,
@@ -32,7 +25,7 @@ const WantToBuy = ({ navigation }) => {
     const [showingMenu, setShowingMenu] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({});
+    // const [dbLanTokUsr, setdbLanTokUsr] = useState({});
     const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [plotAll, setplotAll] = useState([]);
@@ -87,16 +80,8 @@ const WantToBuy = ({ navigation }) => {
         setSearchResults([]);
         setfarmerID(currentfarmerId)
         const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
-        if (response) {
-            //    return console.warn(JSON.stringify(response.data.data,null,2));
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no,
-                    user_id: element.user_id
-                });
-            });
+        if (response?.status == 200) {
+            const dataArray = response.data.data.map(data => ({ value: data.rel_id, label: data.plot_no, user_id: data.user_id }));
             setplotAll(dataArray)
         }
     }
@@ -145,10 +130,7 @@ const WantToBuy = ({ navigation }) => {
         }
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setSaveData({ ...saveData, date: effective_date })
         setApproximateDate(effective_date)
 
@@ -298,66 +280,42 @@ const WantToBuy = ({ navigation }) => {
     }
     const onPageLoad = async () => {
         // handleClear()
-        const [loginUser_data, inputSingleData] = await Promise.all([
-            getItem('loginUser_data'),
+        const [inputSingleData] = await Promise.all([
             getItem('input_single_data')
         ])
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
+        if (inputSingleData) {
+            setInputSingle(inputSingleData)
+            let category = "";
+            let sub_category = "";
+            if (inputSingleData.productCategories[0].productCategory.iotype != null) {
+                const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.iotype;
+                category = entity_type.name;
+                sub_category = entity_name.name;
+            } else {
+                const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.ioname;
+                category = entity_type.name;
+                sub_category = entity_name.name;
+            }
+            setSaveData({
+                ...saveData,
+                sub_category: sub_category,
+                category: category
             })
-            if (inputSingleData) {
-                setInputSingle(inputSingleData)
-                let category = "";
-                let sub_category = "";
-                if (inputSingleData.productCategories[0].productCategory.iotype != null) {
-                    const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.iotype;
-                    category = entity_type.name;
-                    sub_category = entity_name.name;
-                } else {
-                    const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.ioname;
-                    category = entity_type.name;
-                    sub_category = entity_name.name;
-                }
-                setSaveData({
-                    ...saveData,
-                    sub_category: sub_category,
-                    category: category
-                })
-                const dataArray = [];
-                inputSingleData.agri_product_prices.forEach(element => {
-                    dataArray.push({
-                        value: element.prod_price_id,
-                        label: `${element.quantity} ${element.agri_unit.unit_name}`,
-                        pp_qty: element.quantity,
-                        fid: element?.agri_unit?.fid,
-                        unit_sname: element?.agri_unit?.unit_sname,
-                        sub_type: element?.agri_unit?.sub_type,
-                        defined_unit_value: element?.agri_unit?.defined_unit_value
-                    });
-                });
-                setUnitData(dataArray)
-            }
-            const response = await farmerByNameAPI(dbName, languageID, token, userID)
-            if (response) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
+            const dataArray = inputSingleData.agri_product_prices.map(data => ({
+                value: data.prod_price_id,
+                label: `${data.quantity} ${data.agri_unit.unit_name}`,
+                pp_qty: data.quantity,
+                fid: data?.agri_unit?.fid,
+                unit_sname: data?.agri_unit?.unit_sname,
+                sub_type: data?.agri_unit?.sub_type,
+                defined_unit_value: data?.agri_unit?.defined_unit_value
+            }));
+            setUnitData(dataArray)
+        }
+        const response = await farmerByNameAPI(dbname, lan_id, token, user_id)
+        if (response?.status == 200) {
+            const dataArray = response.data.data.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
+            setFarmerData(dataArray)
         }
     };
     function handleClear() {
@@ -413,15 +371,15 @@ const WantToBuy = ({ navigation }) => {
             BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
         };
     }, [formStep]);
-    // useEffect(() => {
-    //     if (isFocused) {
-    //         onBackPress(handleBackPress);
-    //     }
-    // }, [isFocused]);
-    // function handleBackPress() {
-    //     navigation.navigate("InputList");
-    //     return true;
-    // }
+    useEffect(() => {
+        if (isFocused) {
+            onBackPress(handleBackPress);
+        }
+    }, [isFocused]);
+    const handleBackPress = () => {
+        navigation.navigate("InputList");
+        return true;
+    }
     useFocusEffect(
         useCallback(() => {
             handleClear()
@@ -431,11 +389,7 @@ const WantToBuy = ({ navigation }) => {
             // return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
-
-
-    const HandlerGoBack = () => {
-        navigation.navigate('InputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('InputList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('Dashboard');
@@ -451,7 +405,7 @@ const WantToBuy = ({ navigation }) => {
                 setOpenDate={setOpenDatePicker}
                 handleDatePicker={handleDatePicker}
             />}
-            <CustomHeader path={'InputList'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'InputList'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('want_to_buy_seed_de')} />
             <SafeAreaView>
                 {

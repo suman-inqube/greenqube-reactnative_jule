@@ -1,43 +1,22 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, ScrollView, BackHandler } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { DailySalesReportGetAPI } from '../../../config/apiHere';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { useTranslation } from 'react-i18next';
 import { useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const DailySalesReport = ({ navigation }) => {
+    //GQR-67
+    const { loginUser_data, LoadingScreen, CustomHeader, t, FormsTitle, setItem, logoImage, topBanner } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
-    const { t } = useTranslation();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const [isLoading, setIsLoading] = useState(false);
     const [dailySalesReportData, setDailySalesReportData] = useState([]);
     const onPageLoad = async () => {
         setIsLoading(true);
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const response = await DailySalesReportGetAPI(dbName, languageID, token, userID);
-            if (response) {
-                setIsLoading(false);
-                setDailySalesReportData(response.data.data.rows);
-            }
+        const response = await DailySalesReportGetAPI(dbname, lan_id, token, user_id);
+        if (response?.status == 200) {
+            setIsLoading(false);
+            setDailySalesReportData(response.data.data.rows);
         }
     };
     useEffect(() => {
@@ -51,12 +30,10 @@ const DailySalesReport = ({ navigation }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }
     }, [isFocused])
-    const HandlerGoBack = () => {
-        navigation.navigate('Dashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={"Daily Sales Report"} />
             <View style={styles.btnContainer}>
                 <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('DealerReport')}>
@@ -70,21 +47,20 @@ const DailySalesReport = ({ navigation }) => {
             <FlatList
                 showsVerticalScrollIndicator={false}
                 data={dailySalesReportData}
-                renderItem={({ item }) => {
-                    return (
-                        <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('SalesDetail', item)}>
-                            <View style={styles.flatListItemLeft}>
-                                <Text style={styles.flatTitle}>{t('name')}: {item.salesUser.userName.substring(-1, 12)}{item.salesUser.userName.length > 11 ? "..." : ""}</Text>
-                                <Text style={styles.flatTitle}>{t('number_caps')} : {item.salesUser.contactNumber.substring(-1, 10)}</Text>
-                            </View>
-                            <View style={styles.flatListItemRight}>
-                                <Text style={styles.flatTitle}>{item.srProducts.length != 0 && item.srProducts[0].salesProduct != null ? `${t('product_name')}: ${item.srProducts[0].salesProduct.product_name}` : item.srProducts.length != 0 && item.srProducts[0].salesProduceName != null ? `${t('product_name')}: ${item.srProducts[0].salesProduceName.name}` : ""}</Text>
-                                {/* <Text style={styles.flatTitle}>{item.srProducts.length != 0 ? item.srProducts[0].qty != null || item.srProducts[0].unit != null ? `${t('select_quantity_input')}: ${item.srProducts[0].qty != null ? item.srProducts[0].qty : ''}  ${item.srProducts[0].unit != null ? item.srProducts[0].unit.substring(-1, 2) + "..." : ''}` : null : null}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.flatListContainer} onPress={() => navigation.navigate('SalesDetail', item)}>
+                        <View style={styles.flatListItemLeft}>
+                            <Text style={styles.flatTitle}>{t('name')}: {item.salesUser.userName.substring(-1, 12)}{item.salesUser.userName.length > 11 ? "..." : ""}</Text>
+                            <Text style={styles.flatTitle}>{t('number_caps')} : {item.salesUser.contactNumber.substring(-1, 10)}</Text>
+                        </View>
+                        <View style={styles.flatListItemRight}>
+                            <Text style={styles.flatTitle}>{item.srProducts.length != 0 && item.srProducts[0].salesProduct != null ? `${t('product_name')}: ${item.srProducts[0].salesProduct.product_name}` : item.srProducts.length != 0 && item.srProducts[0].salesProduceName != null ? `${t('product_name')}: ${item.srProducts[0].salesProduceName.name}` : ""}</Text>
+                            {/* <Text style={styles.flatTitle}>{item.srProducts.length != 0 ? item.srProducts[0].qty != null || item.srProducts[0].unit != null ? `${t('select_quantity_input')}: ${item.srProducts[0].qty != null ? item.srProducts[0].qty : ''}  ${item.srProducts[0].unit != null ? item.srProducts[0].unit.substring(-1, 2) + "..." : ''}` : null : null}
                                 </Text> */}
-                            </View>
-                        </TouchableOpacity>
-                    )
-                }}
+                        </View>
+                    </TouchableOpacity>
+                )
+                }
                 keyExtractor={(item, index) => index}
             />
         </View>

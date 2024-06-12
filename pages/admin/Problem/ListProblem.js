@@ -6,8 +6,8 @@ import { useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const ListProblem = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter, handleResultSelect } = useContext(userCreateContext);
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter, handleResultSelect, handlePageList } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -33,8 +33,9 @@ const ListProblem = ({ navigation }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [filterName, setFilterName] = useState("");
     const handleDatePicker = (item) => {
-        setfromDate(effective_dates(item))
-        setFromDateFilter(effective_dates(item))
+        const effective_date = effective_dates(item);
+        setfromDate(effective_date);
+        setFromDateFilter(effective_date);
     }
     const handleDatePicker2 = async (item) => {
         const effective_date = effective_dates(item);
@@ -71,47 +72,7 @@ const ListProblem = ({ navigation }) => {
         setToDate("");
     }
     const handlePage = async (value) => {
-        setIsLoading(true)
-        const currentPageNo = pageNo
-        const totalPage = totalPage
-        if (value === 'next') {
-            if (totalPage === currentPageNo) {
-                setProblemAll([])
-                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-                setIsLoading(false)
-                return;
-            } else {
-                const nextPage = currentPageNo + 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-                const response = await problemListAPI(dbname, lan_id, user_id, nextPage)
-                if (response?.status == 200) {
-                    setProblemAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
-                    setIsLoading(false)
-                }
-            }
-        }
-        if (value === 'previous') {
-            if (currentPageNo === 1) {
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await problemListAPI(dbname, lan_id, user_id, prePage)
-                if (response?.status == 200) {
-                    setProblemAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
-                    setIsLoading(false)
-                }
-            } else {
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
-                const response = await problemListAPI(dbname, lan_id, user_id, prePage)
-                if (response?.status == 200) {
-                    setProblemAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
-                    setIsLoading(false)
-                }
-            }
-        }
+        handlePageList(value, setIsLoading, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id);
     }
     const navigateToPages = (pageName, fid) => {
         setItem("problem_id_data", fid)
@@ -139,10 +100,7 @@ const ListProblem = ({ navigation }) => {
         if (response?.status == 200) {
             setIsLoading(false);
             const totalPage = Math.ceil(response.data.data.count / 20)
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                totalPage: totalPage,
-            });
+            setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage, pageNo: 1 });
             setProblemAll(response.data.data.rows)
             setProblemAllRaw(response.data.data.rows)
             setItem("problem_Data", response.data.data)
@@ -171,6 +129,8 @@ const ListProblem = ({ navigation }) => {
         setSearchFarmerName("");
         setFilterOption(false);
         setSearchResultsList(false);
+        // setProblemAll([]);
+        // setProblemAllRaw([]);
         navigation.navigate('Dashboard');
     }
     const handleBackPress = () => {
@@ -181,6 +141,8 @@ const ListProblem = ({ navigation }) => {
         setSearchFarmerName("");
         setFilterOption(false);
         setSearchResultsList(false);
+        // setProblemAll([]);
+        // setProblemAllRaw([]);
         navigation.navigate('Dashboard');
         return true;
     }
@@ -205,7 +167,7 @@ const ListProblem = ({ navigation }) => {
     }
     const handleResultSelectList = (item) => {
         const { label, value, phone } = item
-        handleResultSelect(label, value, phone, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)
+        handleResultSelect(label, value, phone, problemAll, problemListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)
     }
     return (
         <Root>

@@ -1,27 +1,22 @@
-import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View, useColorScheme, BackHandler } from 'react-native'
-import React, { useState, useEffect } from 'react'
-// import { userDataListAPI, trainingListAPI } from '../../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, BackHandler } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import moment from "moment";
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { trainingListAPI } from '../../../config/apiHere';
-import CustomHeader from '../CustomHeader';
 import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import FormsTitle from '../../Common/FormsTitle';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const TrainingList = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, CustomHeader, t, AlertMesg, onBackPress, getItem, setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
-    const scheme = useColorScheme();
     const navigation = useNavigation();
     const [noticeList, setTrainingList] = useState([]);
     const detailItem = async (itemId) => {
         await setItem("userNoticeId", itemId);
-        const userNoticeListData = await getItem('userNoticeId')
-        // console.log(userNoticeListData);
         navigation.navigate('Training', { pagename: 'Training', noticeId: itemId });
-
     }
     function UserBoxDisplay({ item, item2, item3, item4 }) {
         return (
@@ -39,10 +34,6 @@ const TrainingList = () => {
         );
     }
     const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id) => {
-        // const trainingListData = await getItem('userTrainingList');
-        // if (trainingListData) {
-        //     setTrainingList(trainingListData)
-        // } else {
         let response = await trainingListAPI(dbName, languageID, userID, state_id, district_id, subdiv_id, "supervisor", "training");
         if (response) {
             if (response.data.data.rows != 0) {
@@ -52,27 +43,15 @@ const TrainingList = () => {
                 Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] })
             }
         }
-        // }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const state_id = loginUser_data.agri_user_addresses[0].agri_state.fid;
-            const district_id = loginUser_data.agri_user_addresses[0].agri_district.fid;
-            const subdiv_id = loginUser_data.agri_user_addresses[0].agri_subdivision.fid;
-            trainingList(dbName, languageID, userID, state_id, district_id, subdiv_id)
-        }
+        const { agri_state, agri_district, agri_subdivision } = agri_user_addresses[0];
+        trainingList(dbname, lan_id, user_id, agri_state.fid, agri_district.fid, agri_subdivision.fid);
     };
     useEffect(() => {
         if (isFocused) {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('Dashboard'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('Dashboard'); return true; })
         }
     }, [isFocused]);
     const HandlerGoBack = () => {
@@ -81,7 +60,7 @@ const TrainingList = () => {
     return (
         <>
             <View style={{ flex: 1 }} >
-                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('training_support')} />
                 <View>
                     {

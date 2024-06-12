@@ -427,9 +427,7 @@ const WantToBuy = ({ navigation }) => {
     );
 
 
-    const HandlerGoBack = () => {
-        navigation.navigate('InputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('InputList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('Dashboard');

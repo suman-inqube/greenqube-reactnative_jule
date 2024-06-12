@@ -276,9 +276,7 @@ const AddExpense = ({ navigation }) => {
                 });
         }
     }
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmIncomeExpenseList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('FarmIncomeExpenseList');

@@ -1,19 +1,15 @@
-import { BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import { StyleSheet, Text, View, ScrollView, Image } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
-import { getItem } from '../../../config/getDataFromStorage';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
-import { useTranslation } from 'react-i18next';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { formatDateToDateName } from '../../Common/DateChanger';
 import FormsTitle from '../../Common/FormsTitle';
-import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityDetail = () => {
-    const { t } = useTranslation();
+    const { LoadingScreen, CustomHeader, t, onBackPress, getItem, logoImage, topBanner, Root, SPSheet } = useContext(userCreateContext);
     const navigation = useNavigation();
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
@@ -143,15 +139,12 @@ const ActivityDetail = () => {
             })
         }
     }
+    const handleBackPress = () => { navigation.navigate('activityList'); return true; }
     useEffect(() => {
         onPageLoad();
-        const onBackPress = () => { navigation.navigate('activityList'); return true; };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        onBackPress(handleBackPress);
     }, []);
-    const HandlerGoBack = () => {
-        navigation.navigate('activityList');
-    }
+    const HandlerGoBack = () => navigation.navigate('activityList');
     const soundPlay = async (path) => {
         SPSheet.show({
             component: () => <AudioPlayerView path={path} />,
@@ -172,7 +165,7 @@ const ActivityDetail = () => {
                     <LoadingScreen />
                 ) : (
                     <View style={styles.container}>
-                        <CustomHeader path='activityList' HandlerGoBack={HandlerGoBack} />
+                        <CustomHeader path='activityList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                         <FormsTitle title={t('act_detail_')} />
                         <ScrollView showsVerticalScrollIndicator={false}>
                             {

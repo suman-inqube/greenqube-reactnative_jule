@@ -382,9 +382,7 @@ const FarmerListProblem = ({ navigation }) => {
             };
         }, [netConnection]),
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerDashboard');
-    };
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     function handleBackPress() {
         navigation.navigate('FarmerDashboard');
         return true;

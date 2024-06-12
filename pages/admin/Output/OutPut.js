@@ -1,20 +1,16 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import FormsTitle from '../../Common/FormsTitle';
+import React, { useState, useEffect, useContext } from 'react'
 import ViewPast from './ViewPast';
 import PostNew from './PostNew';
-import CustomHeader from '../CustomHeader';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { useTranslation } from 'react-i18next';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { useNavigation } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const OutPut = () => {
+    //GQR-67
+    const { CustomHeader, t, onBackPress, logoImage, topBanner, Root, FormsTitle } = useContext(userCreateContext);
+    //GQR-67
     const navigation = useNavigation();
-    const { t } = useTranslation();
     const [activeBtn, setActiveBtn] = useState(2);
-    const onDataReceived = (data) => {
-        setActiveBtn(data)
-    }
+    const onDataReceived = (data) => setActiveBtn(data)
     const HandlerGoBack = () => {
         if (activeBtn == 2) {
             navigation.navigate("Dashboard");
@@ -22,17 +18,14 @@ const OutPut = () => {
             setActiveBtn(2)
         }
     }
-    function handleBackPress() {
-        navigation.navigate("Dashboard");
-        return true;
-    }
+    function handleBackPress() { navigation.navigate("Dashboard"); return true }
     useEffect(() => {
         onBackPress(handleBackPress);
     }, [])
     return (
         <Root>
             <View style={{ flex: 1 }}>
-                <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={styles.container}>
                     <FormsTitle title={t('want_to_sell')} />
                     <View style={styles.btnContainer}>

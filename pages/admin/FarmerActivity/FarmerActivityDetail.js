@@ -135,9 +135,7 @@ const FarmerActivityDetail = () => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerActivityList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerActivityList');
     const soundPlay = async (path) => {
         SPSheet.show({
             component: () => <AudioPlayerView path={path} />,

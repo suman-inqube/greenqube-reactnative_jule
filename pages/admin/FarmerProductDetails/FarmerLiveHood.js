@@ -670,9 +670,7 @@ const FarmerLiveHood = ({ navigation }) => {
     const handleAddUserData = (name, data) => {
         setfarmerData({ ...farmerData, [`${name}`]: data });
     }
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerDashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     return (
         <>
             <Root>

@@ -1,22 +1,16 @@
 import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Keyboard, FlatList, Dimensions, BackHandler } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
-import DatePickerComp from '../../Common/DatePickerComp';
-import RadioForm from '../../Common/RadioForm';
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import TakePhoto from '../Activity/TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import ButtonForm from '../../Common/ButtonForm';
-import { getItem } from '../../../config/getDataFromStorage';
 import { loanRouteFarmerListAPI, produceAgainstPlotAPI, FarmerDailysalesreportAdd } from '../../../config/apiHere';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import DropdownForm from '../../Common/DropdownForm';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerReport = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, CustomHeader, t, AlertMesg, onBackPress, logoImage, topBanner, Root, Toast, effective_dates, ButtonForm, DropdownForm, FormsTitle,
+        InputTextForm, DatePickerComp } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [newDate, setnewDate] = useState(new Date());
@@ -26,12 +20,6 @@ const FarmerReport = () => {
         firstItem: "",
         secondItem: "",
         thirdItem: "",
-    });
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
     });
     const [loanFarmerList, setloanFarmerList] = useState();
     const [isLoading, setIsLoading] = useState(false);
@@ -54,10 +42,7 @@ const FarmerReport = () => {
     });
     const [farmerID, setfarmerID] = useState("");
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setDate(effective_date)
     }
     const openImagePicker = (item) => {
@@ -81,34 +66,16 @@ const FarmerReport = () => {
     };
     const onPageLoad = async () => {
         setIsLoading(true)
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const response = await loanRouteFarmerListAPI(dbName, languageID, token, userID)
-            if (response.status === 200) {
-                setIsLoading(false);
-                setloanFarmerList(response.data.data.rows)
-            }
+        const response = await loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
+        if (response?.status === 200) {
+            setIsLoading(false);
+            setloanFarmerList(response.data.data.rows)
         }
     };
     useEffect(() => {
         onPageLoad();
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow', () => { setKeyboardVisible(true); }
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide', () => { setKeyboardVisible(false); }
-        );
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true) });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false) });
         return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove(); };
     }, []);
     const handleSearch = (text) => {
@@ -158,14 +125,14 @@ const FarmerReport = () => {
     }
     const handlePlot = async (relId) => {
         setSaveData({ ...saveData, ['plot_id']: relId.value })
-        const response = await produceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, relId.value);
-        if (response) {
+        const response = await produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value);
+        if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
-                name: response.data.data.rows[0].crop_name.name,
-                name_fid: response.data.data.rows[0].crop_name.fid,
-                varity: response.data.data.rows[0].crop_variety.name,
-                varity_fid: response.data.data.rows[0].crop_variety.fid,
+                name: response?.data?.data?.rows[0].crop_name.name,
+                name_fid: response?.data?.data?.rows[0].crop_name.fid,
+                varity: response?.data?.data?.rows[0].crop_variety.name,
+                varity_fid: response?.data?.data?.rows[0].crop_variety.fid,
             })
         }
     }
@@ -193,8 +160,8 @@ const FarmerReport = () => {
             myphoto.forEach((photo) => {
                 formData.append("photo", photo);
             });
-            const response = await FarmerDailysalesreportAdd(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData);
-            if (response.status === 200) {
+            const response = await FarmerDailysalesreportAdd(dbname, lan_id, token, user_id, formData);
+            if (response?.status === 200) {
                 validateForm("", `${t('your_request_submitted')}`);
                 setTimeout(() => {
                     navigation.navigate('DailySalesReport');
@@ -202,24 +169,16 @@ const FarmerReport = () => {
             }
         }
     }
+    const handleBackPress = () => {
+        navigation.navigate('DailySalesReport');
+        return true;
+    };
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('DailySalesReport');
-                return true;
-            };
-            BackHandler.addEventListener(
-                'hardwareBackPress', onBackPress
-            );
-            return () =>
-                BackHandler.removeEventListener(
-                    'hardwareBackPress', onBackPress
-                );
+            onBackPress(handleBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('DailySalesReport');
-    }
+    const HandlerGoBack = () => navigation.navigate('DailySalesReport');
     return (
         <>
             <Root>
@@ -229,7 +188,7 @@ const FarmerReport = () => {
                     setOpenDate={setopenNewDate}
                     handleDatePicker={handleDatePicker} />
                 }
-                <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('farmer_report')} />
                 {
                     searchResultsList && searchResultsList ?

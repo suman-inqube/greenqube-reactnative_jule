@@ -70,9 +70,8 @@ const FarmIncomeExpenseView = ({ route }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmIncomeExpenseList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');
+
     return (
         <View style={{ flex: 1 }}>
             <CustomHeader path={'FarmIncomeExpenseList'} HandlerGoBack={HandlerGoBack} />

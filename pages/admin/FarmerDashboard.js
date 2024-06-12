@@ -73,9 +73,7 @@ const FarmerDashboard = ({ navigation }) => {
         // notificationListener();
         onPageLoad();
     }, []);
-    const HandlerGoBack = () => {
-        exit();
-    }
+    const HandlerGoBack = () => exit();
     useEffect(() => {
         if (isFocused) {
             Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation]);

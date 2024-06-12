@@ -277,9 +277,7 @@ const FarmerAddIncome = ({ navigation }) => {
                 console.log(error);
             });
     }
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerFarmIncomeExpenseList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerFarmIncomeExpenseList');
     return (
         <>
             <View style={{ flex: 1 }}>

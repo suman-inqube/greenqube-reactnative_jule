@@ -1,30 +1,17 @@
-import {
-    Button, FlatList, StyleSheet, Text, TouchableOpacity, View,
-    ScrollView, Image, KeyboardAvoidingView, BackHandler
-} from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Image, BackHandler } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { userDetailAPI } from '../../../config/apiHere';
-import { getItem, setItem, removeItem } from '../../../config/getDataFromStorage';
-import InputTextForm from '../../Common/InputTextForm';
-// import DropdownForm1 from '../../Common/DropdownForm1';
-import DropdownForm from '../../Common/DropdownForm';
-import ButtonForm from '../../Common/ButtonForm';
-// import DatePickerComp from '../../Common/DatePickerComp';
-import { useFocusEffect } from '@react-navigation/native';
 import MessageDialog from '../../Common/MessageDialog';
-import { updateUserInfoAPI, blockDataListAPI, districtDataListAPI1, districtDataListAPI, blockDataListAPI1, firstLanguageListAPI, stateListAPI, languageDataListAPI, stateInfoDataListAPI } from '../../../config/apiHere';
-import CustomHeader from '../CustomHeader';
-import { useTranslation } from 'react-i18next';
-import { useNavigation, useRoute, useIsFocused, CommonActions } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import { updateUserInfoAPI, districtDataListAPI1, blockDataListAPI1, firstLanguageListAPI, stateListAPI } from '../../../config/apiHere';
+import { useNavigation, useIsFocused, CommonActions } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const Profile = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, CustomHeader, t, AlertMesg, getItem, removeItem, logoImage, topBanner, Root, Toast, InputTextForm, DropdownForm, ButtonForm } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
     const navigation = useNavigation();
-    const [dbName, setdbName] = useState();
-    const [token, setToken] = useState();
-    // const [userDetail, setuserDetails] = useState({});
     const [languageData, setlanguageData] = useState([]);
     const [stateInfoData, setstateInfoData] = useState([]);
     const [districtData, setDistrictData] = useState([]);
@@ -69,7 +56,7 @@ const Profile = () => {
             formData.append("status", "1");
             formData.append("userName", storePersnolInfo.userName);
             formData.append("date_of_birth", storePersnolInfo.date_of_birth);
-            let submitRes = await updateUserInfoAPI(dbName, storePersnolInfo.language, storePersnolInfo.userId, token, formData);
+            let submitRes = await updateUserInfoAPI(dbname, storePersnolInfo.language, storePersnolInfo.userId, token, formData);
             if (submitRes.status === 200) {
                 MessageDialog({ title: 'Successful', message: "Successfull SignUp Data" })
                 handleLogout();
@@ -115,13 +102,13 @@ const Profile = () => {
         // if (language.value !== storePersnolInfo.langId) {
         //     setstorePersnolInfo({ ...storePersnolInfo, state: "", langId: language.value, locale: language.sName })
         // }
-        stateInfoDataList(dbName, language.value, token)
+        stateInfoDataList(dbname, language.value, token)
 
     }
-    let stateInfoDataList = async (dbName, language, token) => {
+    let stateInfoDataList = async (dbname, language, token) => {
         try {
             let stateArray = [];
-            let state_res = await stateListAPI(dbName, language, token);
+            let state_res = await stateListAPI(dbname, language, token);
             if (state_res.data.data.count > 0) {
                 state_res.data.data.rows.forEach(element => {
                     stateArray.push({
@@ -145,12 +132,12 @@ const Profile = () => {
             district: "",
             districtName: "",
         })
-        districtDataList(dbName, storePersnolInfo.langId, state.value);
+        districtDataList(dbname, storePersnolInfo.langId, state.value);
     }
-    let districtDataList = async (dbName, language, state) => {
+    let districtDataList = async (dbname, language, state) => {
         try {
             let districtArray = [];
-            let district_res = await districtDataListAPI1(dbName, language, state);
+            let district_res = await districtDataListAPI1(dbname, language, state);
             if (district_res.data.data) {
                 district_res.data.data.rows.forEach(element => {
                     districtArray.push({
@@ -172,12 +159,12 @@ const Profile = () => {
             block: "",
             blockName: "",
         })
-        blockDataList(dbName, storePersnolInfo.langId, district.value);
+        blockDataList(dbname, storePersnolInfo.langId, district.value);
     }
-    let blockDataList = async (dbName, language, district) => {
+    let blockDataList = async (dbname, language, district) => {
         try {
             let blocktArray = [];
-            let block_res = await blockDataListAPI1(dbName, language, district);
+            let block_res = await blockDataListAPI1(dbname, language, district);
             if (block_res.data.data) {
                 block_res.data.data.rows.forEach(element => {
                     blocktArray.push({
@@ -191,8 +178,8 @@ const Profile = () => {
             console.log("Error in Block API", error).response;
         }
     }
-    const userDetails = async (dbName, languageId, token, user_id) => {
-        let response = await userDetailAPI(dbName, languageId, token, user_id);
+    const userDetails = async (dbname, languageId, token, user_id) => {
+        let response = await userDetailAPI(dbname, languageId, token, user_id);
         if (response.data) {
             setstorePersnolInfo({
                 ...storePersnolInfo,
@@ -210,15 +197,15 @@ const Profile = () => {
                 block: response.data.data[0].agri_user_addresses[0].agri_subdivision.fid,
                 blockName: response.data.data[0].agri_user_addresses[0].agri_subdivision.subdiv_name,
             })
-            languageDataList(dbName)
+            languageDataList(dbname)
             if (response.data.data[0].agri_language.id) {
-                stateInfoDataList(dbName, response.data.data[0].agri_language.id, token)
+                stateInfoDataList(dbname, response.data.data[0].agri_language.id, token)
             }
             if (response.data.data[0].agri_user_addresses[0].agri_state.fid) {
-                districtDataList(dbName, response.data.data[0].agri_language.id, response.data.data[0].agri_user_addresses[0].agri_state.fid);
+                districtDataList(dbname, response.data.data[0].agri_language.id, response.data.data[0].agri_user_addresses[0].agri_state.fid);
             }
             if (response.data.data[0].agri_user_addresses[0].agri_district.fid) {
-                blockDataList(dbName, response.data.data[0].agri_language.id, response.data.data[0].agri_user_addresses[0].agri_district.fid);
+                blockDataList(dbname, response.data.data[0].agri_language.id, response.data.data[0].agri_user_addresses[0].agri_district.fid);
             }
         }
     }
@@ -238,8 +225,6 @@ const Profile = () => {
                 block: block,
             })
             const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbName(dbname)
-            setToken(token)
             userDetails(dbname, lan_id, token, user_id)
         }
     };
@@ -292,14 +277,12 @@ const Profile = () => {
     //             );
     //     }, [])
     // );
-    const HandlerGoBack = () => {
-        navigation.navigate('Dashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (
         <>
             <Root>
                 <View style={styles.container}>
-                    <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+                    <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     <View style={styles.titleContainer}>
                         <Text style={[styles.title, { paddingBottom: 8, paddingTop: 4, fontWeight: '700', fontSize: 18 }]}>
                             Profile

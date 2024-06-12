@@ -432,9 +432,8 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             sum_insured: ""
         });
     }
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerDashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+
     return (
         <>
             <Root>

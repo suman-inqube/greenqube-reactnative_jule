@@ -1,4 +1,4 @@
-import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';

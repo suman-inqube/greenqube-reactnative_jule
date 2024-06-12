@@ -437,9 +437,7 @@ const FarmerWantToBuy = ({ navigation }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerInputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerInputList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('FarmerDashboard');

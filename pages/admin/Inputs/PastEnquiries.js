@@ -9,36 +9,33 @@ import {
   PermissionsAndroid,
   SafeAreaView,
 } from 'react-native';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import {
   inputEnquiryViewAPI,
   inputPastEnquiryListAPI,
-  problemListAPI,
-  farmerByNameAPI,
 } from '../../../config/apiHere';
-import Geolocation from '@react-native-community/geolocation';
-import CustomHeader from '../CustomHeader';
 import PastEnquiriesModel from './PastEnquiriesModel';
 import Filter from '../../Common/Filter';
-import LoadingScreen from '../../Common/LoadingScreen';
 import {
   useRoute,
   useFocusEffect,
   useNavigation,
   useIsFocused,
 } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PastEnquiries = ({ navigation }) => {
+  //GQR-67
+  const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+    setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle, farmerData, effective_dates, handleFilter
+  } = useContext(userCreateContext);
+  const { dbname, lan_id, token, user_id } = loginUser_data;
+  //GQR-67
   const isFocused = useIsFocused();
-  const { t } = useTranslation();
   const route = useRoute();
-  const [farmerData, setFarmerData] = useState([]);
+  // const [farmerData, setFarmerData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [dbLanTokUsr, setdbLanTokUsr] = useState({});
+  // const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [inputPastEnquiryAll, setInputPastEnquiryAll] = useState([]);
   const [inputPastEnquiryRaw, setInputPastEnquiryRaw] = useState([]);
   const [filterItem, setFilterItem] = useState('');
@@ -82,17 +79,11 @@ const PastEnquiries = ({ navigation }) => {
     setFilterItem(value);
     setFilterOption(false);
   };
-  const navigateToPages = async (fid, dbname, lan_id, token, user_id) => {
+  const navigateToPages = useCallback(async (fid, dbname, lan_id, token, user_id) => {
     const input_past_enquiry_Data = await getItem('input_past_enquiry_Data');
     const EnquiryFound = input_past_enquiry_Data.find(user => user.fid === fid);
     setPastEnquirySingle(EnquiryFound);
-    const response = await inputEnquiryViewAPI(
-      dbname,
-      lan_id,
-      token,
-      user_id,
-      fid,
-    );
+    const response = await inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid);
     setIsLoading(false);
     if (response) {
       setPastEnquiryView(response.data.data);
@@ -115,57 +106,28 @@ const PastEnquiries = ({ navigation }) => {
       });
     }
     setPastEnquiries(true);
-  };
+  }, []);
   const onPageLoad = async () => {
     setIsLoading(true);
-    const loginUser_data = await getItem('loginUser_data');
-    if (loginUser_data) {
-      const { dbname, lan_id, token, user_id } = loginUser_data;
-      const [response, farmerByName] = await Promise.all([
-        inputPastEnquiryListAPI(dbname, lan_id, token, user_id),
-        farmerByNameAPI(dbname, lan_id, token, user_id),
-      ]);
-      if (farmerByName.status === 200) {
-        const dataArray = [];
-        farmerByName.data.data.rows.forEach(element => {
-          dataArray.push({
-            value: element.user_id,
-            label: element.userName,
-            phone: element.contactNumber,
-          });
-        });
-        setFarmerData(dataArray);
-      }
-      if (response.status === 200) {
-        setIsLoading(false);
-        setdbLanTokUsr({
-          ...dbLanTokUsr,
-          dbName: dbname,
-          languageId: lan_id,
-          token: token,
-          supervisorId: user_id,
-        });
-        setInputPastEnquiryAll(response.data.data.rows);
-        setInputPastEnquiryRaw(response.data.data.rows);
-        setItem('input_past_enquiry_Data', response.data.data.rows);
-        if (route.params != undefined) {
-          navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id);
-        }
+    const [response] = await Promise.all([
+      inputPastEnquiryListAPI(dbname, lan_id, token, user_id),
+    ]);
+    if (response?.status === 200) {
+      setIsLoading(false);
+      setInputPastEnquiryAll(response.data.data.rows);
+      setInputPastEnquiryRaw(response.data.data.rows);
+      setItem('input_past_enquiry_Data', response.data.data.rows);
+      if (route.params != undefined) {
+        navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id);
       }
     }
   };
   const handleDatePicker = item => {
-    const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
-    const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+    const effective_date = effective_dates(item);
     setProblemFromDate(effective_date);
   };
   const handleDatePicker2 = item => {
-    const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
-    const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+    const effective_date = effective_dates(item);
     setProblemToDate(effective_date);
   };
   const requestCameraPermission = async () => {
@@ -194,49 +156,9 @@ const PastEnquiries = ({ navigation }) => {
   //         return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
   //     }, [])
   // );
-  const handleFilter = async search => {
+  const handleFilterList = async item => {
     setFilterOption(false);
-    if (filterName === 'Farmer/Product Name') {
-      setSearchFarmerPhone('');
-      setSearchFarmerName(search);
-      const result = farmerData.filter(item =>
-        item.label.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setInputPastEnquiryAll(inputPastEnquiryRaw);
-      } else {
-        setInputPastEnquiryAll(inputPastEnquiryRaw);
-        // let tempData = inputPastEnquiryAll.filter(item => {
-        //     return item.users.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-        // });
-        // setInputPastEnquiryAll(tempData)
-        setSearchResultsList(true);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
-    } else if (filterName === 'PhoneNumber') {
-      setSearchFarmerName('');
-      setSearchFarmerPhone(search);
-      const result = farmerData.filter(item =>
-        item.phone.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setInputPastEnquiryAll(inputPastEnquiryRaw);
-      } else {
-        setInputPastEnquiryAll(inputPastEnquiryRaw);
-        // let tempData = outputListAll.filter(item => {
-        //     return item.users.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-        // });
-        // setInputPastEnquiryAll(tempData)
-        setSearchResultsList(true);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
-    }
+    handleFilter(item, filterName, farmerData, inputPastEnquiryRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setInputPastEnquiryAll, setSearchResults);
   };
   const handleResultSelect = async (name, phone) => {
     setSearchResultsList(false);
@@ -244,22 +166,13 @@ const PastEnquiries = ({ navigation }) => {
     setSearchFarmerName(name);
     setSearchResults([]);
     if (name !== '') {
-      let tempData = inputPastEnquiryAll.filter(item => {
-        return (
-          item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1
-        );
-      });
+      let tempData = inputPastEnquiryAll.filter(item => { return (item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1) });
       setInputPastEnquiryAll(tempData);
       if (tempData.length === 0) {
         Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
       }
     } else {
-      let tempData = inputPastEnquiryAll.filter(item => {
-        return (
-          item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) >
-          -1
-        );
-      });
+      let tempData = inputPastEnquiryAll.filter(item => { return (item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1) });
       setInputPastEnquiryAll(tempData);
       if (tempData.length === 0) {
         Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
@@ -268,12 +181,7 @@ const PastEnquiries = ({ navigation }) => {
   };
   const filterfromAndToDate = () => {
     if (problemFromDate != '' && problemToDate != '') {
-      let tempData = inputPastEnquiryRaw.filter(item => {
-        return (
-          item.created_at.slice(0, 10) >= problemFromDate &&
-          item.created_at.slice(0, 10) <= problemToDate
-        );
-      });
+      let tempData = inputPastEnquiryRaw.filter(item => { return (item.created_at.slice(0, 10) >= problemFromDate && item.created_at.slice(0, 10) <= problemToDate) });
       if (tempData.length === 0) {
         Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
       }
@@ -314,7 +222,7 @@ const PastEnquiries = ({ navigation }) => {
     <>
       <Root>
         <View style={{ flex: 1 }}>
-          <CustomHeader path="InputList" HandlerGoBack={HandlerGoBack} />
+          <CustomHeader path="InputList" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
           {openFromDate && <DatePickerComp
             openDate={openFromDate}
             newDate={newFromDate}
@@ -339,7 +247,7 @@ const PastEnquiries = ({ navigation }) => {
             setOpenFromDate={setOpenFromDate}
             fromDate={problemFromDate}
             newToDate={problemToDate}
-            onChangeText={item => handleFilter(item)}
+            onChangeText={item => handleFilterList(item)}
             FarmerProductNameValue={searchFarmerName}
             FarmerProductPhoneValue={searchFarmerPhone}
             setFilterOption={setFilterOption}
@@ -381,46 +289,32 @@ const PastEnquiries = ({ navigation }) => {
               backgroundColor: 'rgba(0,0,0,0.5)',
             }}
           />
-          {isLoading ? (
-            <View style={styles.loadingScreen}>
-              <LoadingScreen />
-            </View>
-          ) : (
-            <FlatList
-              data={inputPastEnquiryAll}
-              renderItem={({ item }) => {
-                return (
-                  <TouchableOpacity
-                    style={styles.wrapper}
-                    onPress={() =>
-                      navigateToPages(
-                        item.fid,
-                        dbLanTokUsr.dbName,
-                        dbLanTokUsr.languageId,
-                        dbLanTokUsr.token,
-                        dbLanTokUsr.supervisorId,
-                      )
-                    }>
-                    <Text style={styles.title}>
-                      {t('product_name')} :{' '}
-                      {item.ioProduPrice &&
-                        item.ioProduPrice.mk_product.product_name}
-                    </Text>
-                    <View style={styles.flatListItem}>
-                      <Text style={styles.title}>
-                        {t('name')} : {item.users && item.users.userName}
-                      </Text>
-                      <Text style={styles.title}>
-                        {t('far_list_number')} :{' '}
-                        {item.users && item.users.contactNumber}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
-              keyExtractor={(item, index) => index}
-            />
-          )}
+          {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
+          <FlatList
+            data={inputPastEnquiryAll}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.wrapper}
+                onPress={() => navigateToPages(item.fid, dbname, lan_id, token, user_id)}>
+                <Text style={styles.title}>
+                  {t('product_name')} :{' '}
+                  {item.ioProduPrice &&
+                    item.ioProduPrice.mk_product.product_name}
+                </Text>
+                <View style={styles.flatListItem}>
+                  <Text style={styles.title}>
+                    {t('name')} : {item.users && item.users.userName}
+                  </Text>
+                  <Text style={styles.title}>
+                    {t('far_list_number')} :{' '}
+                    {item.users && item.users.contactNumber}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )
+            }
+            keyExtractor={(item, index) => index}
+          />
         </View>
       </Root>
     </>

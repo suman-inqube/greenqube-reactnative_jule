@@ -152,9 +152,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerInputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerInputList');
     const filterDataRemove = async () => {
         setFilterItem("");
         setFilterOption(false);

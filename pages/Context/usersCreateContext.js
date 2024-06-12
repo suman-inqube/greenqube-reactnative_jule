@@ -67,14 +67,14 @@ const UserCreateContextProvider = (props) => {
         const x1 = x[0].split('-');
         return x1[0] + '-' + x1[1] + '-' + x1[2];
     }
-    const handleFilter = (search, filterName, farmerData, problemAllRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setProblemAll, setSearchResults) => {
+    const handleFilter = (search, filterName, farmerData, AllRawData, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setAllData, setSearchResults) => {
         if (filterName === 'Farmer/Product Name') {
             setSearchFarmerPhone('');
             setSearchFarmerName(search);
             const result = farmerData.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
-                setProblemAll(problemAllRaw);
+                setAllData(AllRawData);
             } else {
                 setSearchResultsList(true);
             }
@@ -87,7 +87,7 @@ const UserCreateContextProvider = (props) => {
             const result = farmerData.filter(item => item.phone.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
-                setProblemAll(problemAllRaw);
+                setAllData(AllRawData);
             } else {
                 setSearchResultsList(true);
             }
@@ -96,7 +96,7 @@ const UserCreateContextProvider = (props) => {
             }
         }
     }
-    const handleResultSelect = async (name, user_id, phone, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll) => {
+    const handleResultSelect = async (name, user_id, phone, allData, ListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setAllData) => {
         setIsLoading(true)
         setSearchResultsList(false);
         setSearchFarmerPhone(phone)
@@ -106,17 +106,73 @@ const UserCreateContextProvider = (props) => {
             let from_date = ''
             let to_date = ''
             let mobileNo = ''
-            const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, user_id, 0, user_id, from_date, to_date, mobileNo)
+            const response = await ListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, user_id, 0, user_id, from_date, to_date, mobileNo)
             if (response?.status == 200) {
-                setIsLoading(false)
-                setProblemAll(response?.data?.data?.rows)
-                // setProblemAllRaw(response.data.data.rows)
+                setIsLoading(false);
+                setAllData(response?.data?.data?.rows);
             }
         } else {
-            let tempData = problemAll.filter(item => {
-                return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;;
-            });
-            setProblemAll(tempData)
+            let tempData = allData.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
+            setAllData(tempData);
+        }
+    };
+    const handlePageList = async (value, setIsLoading, pageNo, Api, setDataAll, dbname, lan_id, user_id) => {
+        setIsLoading(true);
+        const currentPageNo = pageNo
+        const totalPage = totalPage;
+        if (value === 'next') {
+            if (totalPage === currentPageNo) {
+                setDataAll([])
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
+                setIsLoading(false)
+                return;
+            } else {
+                const nextPage = currentPageNo + 1
+                const response = await Api(dbname, lan_id, user_id, nextPage)
+                if (response?.status == 200) {
+                    if (response.data.data.rows.length == 0) {
+                        Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
+                    } else {
+                        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage });
+                    }
+                    setDataAll(response.data.data.rows)
+                    setItem("problem_Data", response.data.data)
+                    setIsLoading(false);
+                }
+            }
+        }
+        if (value === 'previous') {
+            if (pageNo > 1) {
+                if (currentPageNo === 1) {
+                    const prePage = currentPageNo - 1
+                    const response = await Api(dbname, lan_id, user_id, 1);
+                    if (response?.status == 200) {
+                        if (response.data.data.rows.length == 0) {
+                            Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
+                        } else {
+                            setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
+                        }
+                        setDataAll(response.data.data.rows);
+                        setItem("problem_Data", response.data.data);
+                        setIsLoading(false);
+                    }
+                } else {
+                    const prePage = currentPageNo - 1
+                    setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
+                    const response = await problemListAPI(dbname, lan_id, user_id, prePage)
+                    if (response?.status == 200) {
+                        if (response.data.data.rows.length == 0) {
+                            Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
+                        } else {
+                            setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
+                        }
+                        setDataAll(response.data.data.rows);
+                        setItem("problem_Data", response.data.data);
+                        setIsLoading(false);
+                    }
+                }
+            }
+            setIsLoading(false);
         }
     }
     return (
@@ -159,7 +215,8 @@ const UserCreateContextProvider = (props) => {
             effective_dates: effective_dates,
             Filter: Filter,
             handleFilter: handleFilter,
-            handleResultSelect: handleResultSelect
+            handleResultSelect: handleResultSelect,
+            handlePageList: handlePageList
         }}>
             {props.children}
         </userCreateContext.Provider>

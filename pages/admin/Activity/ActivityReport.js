@@ -1,43 +1,33 @@
 import {
-    BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
+    StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
     FlatList, Dimensions, SafeAreaView, Keyboard
 } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
-import React, { useEffect, useState, useCallback } from 'react';
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
-import RadioForm from '../../Common/RadioForm';
-import { request, PERMISSIONS } from 'react-native-permissions';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import TakePhoto from './TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Marker, { Position, TextBackgroundType } from "react-native-image-marker";
 import RecordComp from './RecordComp';
-import ButtonForm from '../../Common/ButtonForm';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { getItem, removeItem, setItem } from '../../../config/getDataFromStorage';
 import { activityInfoAPI, activitySaveAPI, activityTypeAPI, farmerByNameAPI, plotAgainstFarmerAPI, produceAgainstPlotAPI, productionStageAPI, setCycleDateAPI } from '../../../config/apiHere';
-import axios from 'axios';
-import MessageDialog from '../../Common/MessageDialog';
-import CustomHeader from '../CustomHeader';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
-import LoadingScreen from '../../Common/LoadingScreen';
 const audioRecorderPlayer = new AudioRecorderPlayer();
-import { useTranslation } from 'react-i18next';
-import FormsTitle from '../../Common/FormsTitle';
 const qs = require('qs');
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import DeviceInfo from '../../DeviceInfo';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityReport = ({ navigation }) => {
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, effective_dates, FormsTitle
+        , RadioForm, InputTextForm, DropdownForm, ButtonForm, DatePickerComp } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    // const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(true);
     const [showingMenu, setShowingMenu] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -54,17 +44,17 @@ const ActivityReport = ({ navigation }) => {
     const [singlePlot, setsinglePlot] = useState({});
     const [CropType, setCropType] = useState();
     const [CropName, setCropName] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
+    // const [dbLanTokUsr, setdbLanTokUsr] = useState({
+    //     dbName: '',
+    //     languageID: '',
+    //     token: '',
+    //     userID: ''
+    // });
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [newFromDate, setnewFromDate] = useState(new Date());
-    const [newToDate, setnewToDate] = useState(new Date());
-    const [openFromDate, setOpenFromDate] = useState(false)
-    const [openToDate, setOpenToDate] = useState(false)
+    // const [newToDate, setnewToDate] = useState(new Date());
+    // const [openFromDate, setOpenFromDate] = useState(false)
+    // const [openToDate, setOpenToDate] = useState(false)
     const [cycleStartDate, srtCycleStartDate] = useState(false);
     const [activityPreDate, setActivityPreDate] = useState(false);
     const [cycleDtartDate, setCycleStartDate] = useState("");
@@ -194,9 +184,7 @@ const ActivityReport = ({ navigation }) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
         if (farmerData.length > 0) {
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(text.toLowerCase()));
             if (result) {
                 setSearchResultsList(true)
                 setSearchResults(result);
@@ -204,17 +192,11 @@ const ActivityReport = ({ navigation }) => {
         }
     };
     const handleDatePicker = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setCycleStartDate(effective_date);
     }
     const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setActivityPreFormDate(effective_date)
         setSaveData({ ...saveData, act_perform_date: effective_date })
     }
@@ -228,34 +210,22 @@ const ActivityReport = ({ navigation }) => {
         setSaveData({ ...saveData, plot_id: "", plot_Name: "" });
         setNameVarityStartEnd({ ...nameVarityStartEnd, name: "", varity: "", cycleStarts: "", cycleEnd: "" })
         if (netConnection) {
-            var response = await plotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
+            var response = await plotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
             await setItem('plotAgainstFarmer' + currentfarmerId, response)
         } else {
             var response = await getItem('plotAgainstFarmer' + currentfarmerId)
         }
         if (response) {
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
+            const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             setplotAll(dataArray)
             if (netConnection) {
-                var activityType_res = await activityTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, currentfarmerId)
+                var activityType_res = await activityTypeAPI(dbname, lan_id, currentfarmerId)
                 await setItem('activityType' + currentfarmerId, activityType_res)
             } else {
                 var activityType_res = await getItem('activityType' + currentfarmerId)
             }
             if (activityType_res) {
-                const dataArray = [];
-                activityType_res.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.categoryId,
-                        label: element.categoryName
-                    });
-                });
+                const dataArray = activityType_res?.data?.data?.rows.map(data => ({ value: data.categoryId, label: data.categoryName }));
                 setactivityTypeAll(dataArray)
             }
         }
@@ -263,7 +233,7 @@ const ActivityReport = ({ navigation }) => {
     const handlePlot = async (relId) => {
         setIsLoading(true);
         if (netConnection) {
-            var response = await produceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, relId.value)
+            var response = await produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
             await setItem('produceAgainstPlot' + farmerID + relId.value, response)
         } else {
             var response = await getItem('produceAgainstPlot' + farmerID + relId.value)
@@ -302,19 +272,13 @@ const ActivityReport = ({ navigation }) => {
                 setCropType(data.crop_type.fid);
                 setCropName(data.crop_name.fid);
                 if (netConnection) {
-                    var productionStage_res = await productionStageAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, data.crop_type_id, data.crop_name_id)
+                    var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
                     await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
                 } else {
                     var productionStage_res = await getItem('productionStageAPI' + data.crop_type_id + data.crop_type_id)
                 }
                 if (productionStage_res) {
-                    const dataArray = [];
-                    productionStage_res.data.data.growth_stage.forEach(element => {
-                        dataArray.push({
-                            value: element.growth_stage.fid,
-                            label: element.growth_stage.name
-                        });
-                    });
+                    const dataArray = productionStage_res?.data?.data?.growth_stage.map(data => ({ value: data.growth_stage.fid, label: data.growth_stage.name }));
                     setproductionStageAll(dataArray)
                 }
                 setIsLoading(false);
@@ -334,7 +298,7 @@ const ActivityReport = ({ navigation }) => {
         let save_data = qs.stringify({
             crop_cycl_start_date: cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate,
         });
-        const productionStage_res = await setCycleDateAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, dbLanTokUsr.token, saveData.cu_rel_id, save_data);
+        const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
         // console.log(productionStage_res.data)
     }
     const validateForm = () => {
@@ -451,10 +415,8 @@ const ActivityReport = ({ navigation }) => {
             formData.append("material_used", saveData.material_used);
             formData.append("water_used", saveData.water_used);
             formData.append("power_used", saveData.power_used);
-            // console.log(JSON.stringify(formData, null, 2));
             if (netConnection) {
-                // setCycleDate();
-                const database_res = await activitySaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.user_id, formData)
+                const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData)
                 if (database_res) {
                     Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
                     setTimeout(() => {
@@ -491,14 +453,13 @@ const ActivityReport = ({ navigation }) => {
     }
     const handleActivityType = async (item) => {
         if (netConnection) {
-            var response = await activityInfoAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, CropType, CropName, item.value)
+            var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
             await setItem('activityInfo' + farmerID + CropType + CropName + item.value, response)
         } else {
             var response = await getItem('activityInfo' + farmerID + CropType + CropName + item.value)
         }
         setSaveData({ ...saveData, act_ref_type: item.value });
         if (response.data.data.count > 0) {
-            const dataArray = [];
             response.data.data.rows.forEach(element => {
                 const monthNames = [
                     "January", "February", "March", "April", "May", "June",
@@ -568,82 +529,24 @@ const ActivityReport = ({ navigation }) => {
             console.warn(err);
         }
     };
-    // function handleClear() {
-    //     setSearchFarmerName('')
-    //     setSearchFarmerPhone('')
-    //     setSaveData({
-    //         type: "",
-    //         audio: "",
-    //         latitude: "",
-    //         longitude: "",
-    //         user_id: "",
-    //         plot_id: "",
-    //         plot_Name: "",
-    //         crop_name: "",
-    //         crop_variety: "",
-    //         cycle_start_date: "",
-    //         growth_stage: "",
-    //         act_perform_date: "",
-    //         act_ref_type: "",
-    //         act_to_date: "",
-    //         act_start_date: "",
-    //         act_ref: "",
-    //         act_desc: "",
-    //         material_used: "",
-    //         water_used: "",
-    //         power_used: "",
-    //         act_pattern: 'regular',
-    //     })
-    //     setShowingMenu(false)
-    //     setCycleStartDate("")
-    //     setActivityPreFormDate('')
-    //     setSelectedImage({
-    //         firstItem: "",
-    //         secondItem: "",
-    //         thirdItem: "",
-    //     });
-    // }
     const onPageLoad = async () => {
-        /* handleClear();*/
         requestLivePermission();
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            if (netConnection) {
-                var response = await farmerByNameAPI(dbName, languageID, token, userID)
-                await setItem('farmerByNameAPI', response);
-            } else {
-                var response = await getItem('farmerByNameAPI');
-            }
-            if (response) {
-                setIsLoading(false);
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setfarmerData(dataArray)
-            }
+        if (netConnection) {
+            var response = await farmerByNameAPI(dbname, lan_id, token, user_id)
+            await setItem('farmerByNameAPI', response);
+        } else {
+            var response = await getItem('farmerByNameAPI');
+        }
+        if (response) {
+            setIsLoading(false);
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
+            setfarmerData(dataArray)
         }
     };
+    const handleBackPress = () => { navigation.navigate('activityList'); return true; }
     useEffect(() => {
         onPageLoad();
-        const onBackPress = () => { /*handleClear();*/ navigation.navigate('activityList'); return true; };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        onBackPress(handleBackPress);
     }, [netConnection]);
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
@@ -652,9 +555,7 @@ const ActivityReport = ({ navigation }) => {
             navigation.navigate('Dashboard');
         }
     }
-    const HandlerGoBack = () => {
-        navigation.navigate('activityList');
-    }
+    const HandlerGoBack = () => navigation.navigate('activityList');
     const handleRecord = (item) => {
         // setModalVisibleRecord(true);
     }
@@ -808,7 +709,7 @@ const ActivityReport = ({ navigation }) => {
         <Root>
             <>
                 <View style={styles.container}>
-                    <CustomHeader path='activityList' HandlerGoBack={HandlerGoBack} />
+                    <CustomHeader path='activityList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     <DatePickerComp
                         openDate={cycleStartDate}
                         newDate={newFromDate}

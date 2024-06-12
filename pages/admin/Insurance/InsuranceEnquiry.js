@@ -14,10 +14,7 @@ const InsuranceEnquiry = () => {
     const { t } = useTranslation();
     const navigation = useNavigation();
     const [activeBtn, setActiveBtn] = useState(2);
-    const HandlerGoBack = () => {
-        navigation.navigate("Dashboard");
-
-    }
+    const HandlerGoBack = () => navigation.navigate("Dashboard");
     return (
         <View style={{ flex: 1, height: Dimensions.get('window').height / 2 }}>
             <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} />

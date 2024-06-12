@@ -100,9 +100,7 @@ const ChangePassword = ({ sendDataToParent }) => {
         BackHandler.addEventListener('hardwareBackPress', onBackPress);
         return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }, []);
-    const HandlerGoBack = () => {
-        navigation.navigate('Dashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (
         <>
             <Root>
