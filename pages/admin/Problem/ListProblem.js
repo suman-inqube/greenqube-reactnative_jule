@@ -7,7 +7,8 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 const ListProblem = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter, handleResultSelect, handlePageList } = useContext(userCreateContext);
+        setItem, logoImage, topBanner, Root, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter,
+        handleResultSelect, handlePageList, farmerData } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -15,7 +16,7 @@ const ListProblem = ({ navigation }) => {
     const isFocused = useIsFocused();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState([]);
+    // const [farmerData, setFarmerData] = useState([]);
     const [problemAll, setProblemAll] = useState([]);
     const [problemAllRaw, setProblemAllRaw] = useState([]);
     const [filterItem, setFilterItem] = useState("");
@@ -80,22 +81,12 @@ const ListProblem = ({ navigation }) => {
     };
     const onPageLoad = async () => {
         setIsLoading(true);
+        var response = [];
         if (netConnection) {
-            var [response, farmerByName] = await Promise.all([
-                problemListAPI(dbname, lan_id, user_id, 1),
-                farmerByNameAPI(dbname, lan_id, token, user_id)
-            ]);
-            if (response?.status == 200) {
-                await Promise.all([
-                    setItem('problemTypeName', response),
-                    setItem('farmerByName' + user_id, farmerByName)
-                ]);
-            }
+            response = await problemListAPI(dbname, lan_id, user_id, 1);
+            if (response?.status == 200) { await setItem('problemTypeName', response) }
         } else {
-            var [response, farmerByName] = await Promise.all([
-                getItem('problemTypeName'),
-                getItem('farmerByName' + user_id)
-            ]);
+            response = await getItem('problemTypeName');
         }
         if (response?.status == 200) {
             setIsLoading(false);
@@ -106,12 +97,12 @@ const ListProblem = ({ navigation }) => {
             setItem("problem_Data", response.data.data)
             setIsLoading(false)
         }
-        if (farmerByName?.status == 200) {
-            //GQR-67
-            const dataArray = farmerByName?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }))
-            //GQR-67
-            setFarmerData(dataArray)
-        }
+        // if (farmerByName?.status == 200) {
+        //     //GQR-67
+        //     const dataArray = farmerByName?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }))
+        //     //GQR-67
+        //     setFarmerData(dataArray)
+        // }
     };
     const filterDataRemove = () => {
         setSearchFarmerPhone("");
@@ -163,10 +154,30 @@ const ListProblem = ({ navigation }) => {
         }, [])
     );
     const handleFilterList = (item) => {
+        /*
+        ** [1] It is use to search by farmer's name and phone number value.
+        ** [2] It is use for filter type ['Farmer/Product Name','PhoneNumber'].
+        ** [3] it is use for all farmer list.
+        ** [4] item List can't modify data.
+        ** [5,6] farmer's name and phone number  selected value set.
+        ** [7] farmer list show and hide poup.
+        ** [8] set all list value.
+        ** [9] search result value set.
+        */
         handleFilter(item, filterName, farmerData, problemAllRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setProblemAll, setSearchResults);
     }
     const handleResultSelectList = (item) => {
         const { label, value, phone } = item
+        /*
+        ** [1,2,3] label,value,phone farmer data.
+        ** [4] all list data.
+        ** [5] api end point.
+        ** [6] loader [true/false] data set
+        ** [7] farmer list show and hide poup.
+        ** [8,9] farmer's name and phone number  selected value set.
+        ** [10] select result data set value.
+        ** [8] set all list value.
+        */
         handleResultSelect(label, value, phone, problemAll, problemListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)
     }
     return (

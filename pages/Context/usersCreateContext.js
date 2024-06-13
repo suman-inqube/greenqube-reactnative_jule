@@ -24,6 +24,7 @@ import DatePickerComp from '../Common/DatePickerComp';
 import ButtonFormBottom from '../Common/ButtonFormBottom';
 import Filter from '../Common/Filter';
 const UserCreateContextProvider = (props) => {
+    const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         pageNo: 1, dbName: '', languageId: '', token: '', supervisorId: '', country: '', company: '', agri_user_addresses: '',
@@ -34,6 +35,7 @@ const UserCreateContextProvider = (props) => {
     const [logoImage, setlogoImage] = useState("");
     const [topBanner, settopBanner] = useState("");
     const AllFarmerList = async () => {
+        var farmer_response = [];
         const [loginUser_data, logoImageData, topBannerData] = await Promise.all([
             getItem('loginUser_data'),
             getItem('logoImageData'),
@@ -42,7 +44,14 @@ const UserCreateContextProvider = (props) => {
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data(loginUser_data);
-        const farmer_response = await farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id);
+        if (netConnection) {
+            farmer_response = await farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id);
+            if (farmer_response?.status == 200) {
+                await setItem('farmerByNameAPI', farmer_response);
+            }
+        } else {
+            farmer_response = await getItem('farmerByNameAPI');
+        }
         if (farmer_response?.status == 200) {
             setdbLanTokUsr({
                 ...dbLanTokUsr,
@@ -60,7 +69,7 @@ const UserCreateContextProvider = (props) => {
     }
     useEffect(() => {
         AllFarmerList()
-    }, []);
+    }, [netConnection]);
     const effective_dates = (item) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
@@ -106,7 +115,7 @@ const UserCreateContextProvider = (props) => {
             let from_date = ''
             let to_date = ''
             let mobileNo = ''
-            const response = await ListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, user_id, 0, user_id, from_date, to_date, mobileNo)
+            const response = await ListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, user_id, 1, user_id, from_date, to_date, mobileNo)
             if (response?.status == 200) {
                 setIsLoading(false);
                 setAllData(response?.data?.data?.rows);

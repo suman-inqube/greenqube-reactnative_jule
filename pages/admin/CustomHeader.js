@@ -39,13 +39,9 @@ const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner }) => 
                 </TouchableOpacity>
             </View>
             <View>
-                {banner !== true && topBanner &&
-                    <ImageForm
-                        source={{ uri: topBanner }}
-                        resizeMode="cover"
-                        height={200}
-                        width={'100%'}
-                    />
+                {topBanner != undefined || topBanner != null ?
+                    <ImageForm source={{ uri: topBanner }} resizeMode="cover" height={200} width={'100%'} />
+                    : <Image source={require('../Common/images/dashboard.jpeg')} style={{ width: '100%', height: 200 }} />
                 }
             </View>
         </View>

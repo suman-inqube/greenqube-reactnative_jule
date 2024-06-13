@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView, Dimensions, BackHandler } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import Filter from '../../Common/Filter';
 import CustomHeader from '../CustomHeader';
 import DatePickerComp from '../../Common/DatePickerComp';
@@ -11,20 +11,18 @@ import { formatDateToDateName } from '../../Common/DateChanger';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmIncomeExpenseList = ({ navigation }) => {
-    const { t } = useTranslation();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: "",
-        totalPage: "",
-        pageNo: 1,
-    });
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, effective_dates, farmerData, handleFilter } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const [farmAccount, setFarmAccount] = useState([]);
     const [farmAccountRaw, setFarmAccountRaw] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState([]);
+    // const [farmerData, setFarmerData] = useState([]);
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -52,44 +50,16 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         setFilterOption(false);
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            const farmerId = '';
-            const fromDate = '';
-            const toDate = '';
-            var response = await farmaccountsListAPI(dbName, languageId, token, supervisorId, 1, farmerId, fromDate, toDate)
-            if (response.status == 200) {
-                const totalPage = Math.ceil(response.data.data.count / 20)
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    dbName: dbName,
-                    languageId: languageId,
-                    token: token,
-                    supervisorId: supervisorId,
-                    totalPage: totalPage,
-                    pageNo: 1,
-                });
-                setFarmAccount(response.data.data.rows)
-                setFarmAccountRaw(response.data.data.rows)
-                // setItem("farm_account", response.data.data.rows)
-                setIsLoading(false)
-            }
-            const farmerByName = await farmerByNameAPI(dbName, languageId, token, supervisorId)
-            if (farmerByName) {
-                const dataArray = [];
-                farmerByName.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
+        const farmerId = '';
+        const fromDate = '';
+        const toDate = '';
+        var response = await farmaccountsListAPI(dbname, lan_id, token, user_id, 1, farmerId, fromDate, toDate)
+        if (response?.status == 200) {
+            const totalPage = Math.ceil(response.data.data.count / 20)
+            setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage, pageNo: 1 });
+            setFarmAccount(response.data.data.rows);
+            setFarmAccountRaw(response.data.data.rows);
+            setIsLoading(false)
         }
     };
     const ShowIncome = (props) => {
@@ -113,6 +83,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         }
     }
     const handlePage = async (value) => {
+        // handlePageList(value, setIsLoading, pageNo, farmaccountsListAPI, setFarmAccount, dbname, lan_id, user_id);
         setIsLoading(true)
         const currentPageNo = dbLanTokUsr.pageNo
         const totalPage = dbLanTokUsr.totalPage
@@ -127,7 +98,8 @@ const FarmIncomeExpenseList = ({ navigation }) => {
                 const farmerId = '';
                 const fromDate = '';
                 const toDate = '';
-                const response = await farmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage, farmerId, fromDate, toDate)
+                const response = await farmaccountsListAPI(dbname, lan_id, token, user_id, nextPage, farmerId, fromDate, toDate);
+                console.log(response.data)
                 if (response) {
                     setFarmAccount(response.data.data.rows)
                     // setFarmAccountRaw(response.data.data.rows)
@@ -146,7 +118,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
                 const toDate = '';
                 const prePage = currentPageNo - 1
                 setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await farmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage, farmerId, fromDate, toDate)
+                const response = await farmaccountsListAPI(dbname, lan_id, token, user_id, prePage, farmerId, fromDate, toDate)
                 if (response) {
                     setFarmAccount(response.data.data.rows)
                     // setFarmAccountRaw(response.data.data.rows)
@@ -156,47 +128,48 @@ const FarmIncomeExpenseList = ({ navigation }) => {
             }
         }
     }
-    const handleFilter = async (search) => {
-        if (filterName === 'Farmer/Product Name') {
-            setSearchFarmerPhone('');
-            setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setFarmAccount(farmAccountRaw)
-            } else {
+    const handleFilterList = async (item) => {
+        handleFilter(item, filterName, farmerData, farmAccountRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setFarmAccount, setSearchResults);
+        // if (filterName === 'Farmer/Product Name') {
+        //     setSearchFarmerPhone('');
+        //     setSearchFarmerName(search);
+        //     const result = farmerData.filter(item =>
+        //         item.label.toLowerCase().includes(search.toLowerCase())
+        //     );
+        //     if (search == "") {
+        //         setSearchResultsList(false);
+        //         setFarmAccount(farmAccountRaw)
+        //     } else {
 
-                // let tempData = farmAccount.filter(item => {
-                //     item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
-                // });
-                // setFarmAccount(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        } else if (filterName === 'PhoneNumber') {
-            setSearchFarmerName('');
-            setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setFarmAccount(farmAccountRaw)
-            } else {
-                // let tempData = farmAccount.filter(item => {
-                //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                // });
-                // setFarmAccount(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        }
+        //         // let tempData = farmAccount.filter(item => {
+        //         //     item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
+        //         // });
+        //         // setFarmAccount(tempData)
+        //         setSearchResultsList(true);
+        //     }
+        //     if (result) {
+        //         setSearchResults(result);
+        //     }
+        // } else if (filterName === 'PhoneNumber') {
+        //     setSearchFarmerName('');
+        //     setSearchFarmerPhone(search);
+        //     const result = farmerData.filter(item =>
+        //         item.phone.toLowerCase().includes(search.toLowerCase())
+        //     );
+        //     if (search == "") {
+        //         setSearchResultsList(false);
+        //         setFarmAccount(farmAccountRaw)
+        //     } else {
+        //         // let tempData = farmAccount.filter(item => {
+        //         //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
+        //         // });
+        //         // setFarmAccount(tempData)
+        //         setSearchResultsList(true);
+        //     }
+        //     if (result) {
+        //         setSearchResults(result);
+        //     }
+        // }
     }
     const handleResultSelect = async (name, user_id1, phone) => {
         setSearchResultsList(false);
@@ -207,7 +180,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
             const farmerId = user_id1
             const fromDate = '';
             const toDate = '';
-            const response = await farmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, 0, farmerId, fromDate, toDate)
+            const response = await farmaccountsListAPI(dbname, lan_id, token, user_id, 0, farmerId, fromDate, toDate)
             if (response) {
                 const totalPage = Math.ceil(response.data.data.count / 20)
                 setFarmAccount(response.data.data.rows)
@@ -220,24 +193,18 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         }
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         setFromDateFilter(effective_date)
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDateFilter) {
             const farmerId = '';
             const fromDate = fromDateFilter;
             const toDate = effective_date;
-            const response = await farmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, 0, farmerId, fromDate, toDate)
+            const response = await farmaccountsListAPI(dbname, lan_id, token, user_id, 0, farmerId, fromDate, toDate)
             if (response) {
                 setFarmAccount(response.data.data.rows)
                 // setFarmAccountRaw(response.data.data.rows)
@@ -274,12 +241,9 @@ const FarmIncomeExpenseList = ({ navigation }) => {
     return (
         <Root>
             <View style={{ flex: 1 }}>
-                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
-                {openFromDate && <DatePickerComp
-                    openDate={openFromDate}
-                    newDate={newFromDate}
-                    setOpenDate={setOpenFromDate}
-                    handleDatePicker={handleDatePicker}
+                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage}
+                    topBanner={topBanner} />
+                {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker}
                 />}
                 {openToDate && <DatePickerComp
                     openDate={openToDate}
@@ -297,7 +261,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
                     setOpenFromDate={setOpenFromDate}
                     filterOptionShow={filterOptionShow}
                     onchangeFilterItem={onchangeFilterItem}
-                    onChangeText={(item) => handleFilter(item)}
+                    onChangeText={(item) => handleFilterList(item)}
                     FarmerProductNameValue={searchFarmerName}
                     FarmerProductPhoneValue={searchFarmerPhone}
                     title={t('income_expense_list')}
@@ -370,7 +334,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
                             </View>
                         </>
                 }
-            </View >
+            </View>
         </Root>
     )
 }
@@ -447,7 +411,8 @@ const styles = StyleSheet.create({
     flatlisttitle: {
         color: '#000',
         fontFamily: 'Poppins-Regular',
-        fontSize: 14
+        fontSize: 14,
+        marginVertical: 5
     },
     flatlistitem: {
     },

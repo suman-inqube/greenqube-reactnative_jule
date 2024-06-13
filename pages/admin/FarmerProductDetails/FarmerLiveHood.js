@@ -142,26 +142,26 @@ const FarmerLiveHood = ({ navigation }) => {
                             expectedProduction: data.yield_amount,
                             cycleStartDate: data.sowing_date,
                             cycleEndDate: data.harvesting_date.substring(-1, 10),
-                            terrainType: dataLandDetails.terrain_type?.name,
-                            terrainTypeValue: dataLandDetails.terrain_type?.fid,
-                            landType: dataLandDetails.lan_type?.name,
-                            landTypeValue: dataLandDetails.lan_type?.fid,
-                            soilType: dataLandDetails.soil_type?.name,
-                            soilTypeValue: dataLandDetails.soil_type?.fid,
-                            unit: dataLandDetails.land_unit?.name,
-                            unitValue: dataLandDetails.land_unit?.fid,
-                            productionSeason: data.crop_season?.name,
-                            productionSeasonValue: data.crop_season?.fid,
-                            livelihoodType: data.crop_type?.name,
-                            livelihoodTypeValue: data.crop_type?.fid,
-                            produceName: data.crop_name?.name,
-                            produceNameValue: data.crop_name?.fid,
-                            produceVariety: data.crop_variety?.name,
-                            produceVarietyValue: data.crop_variety?.fid,
-                            productionProcess: data.farmer_production_system?.name,
-                            productionProcessValue: data.farmer_production_system?.fid,
+                            terrainType: dataLandDetails.terrain_type.name,
+                            terrainTypeValue: dataLandDetails.terrain_type.fid,
+                            landType: dataLandDetails.lan_type.name,
+                            landTypeValue: dataLandDetails.lan_type.fid,
+                            soilType: dataLandDetails.soil_type.name,
+                            soilTypeValue: dataLandDetails.soil_type.fid,
+                            unit: dataLandDetails.land_unit.name,
+                            unitValue: dataLandDetails.land_unit.fid,
+                            productionSeason: data.crop_season.name,
+                            productionSeasonValue: data.crop_season.fid,
+                            livelihoodType: data.crop_type.name,
+                            livelihoodTypeValue: data.crop_type.fid,
+                            produceName: data.crop_name.name,
+                            produceNameValue: data.crop_name.fid,
+                            produceVariety: data.crop_variety.name,
+                            produceVarietyValue: data.crop_variety.fid,
+                            productionProcess: data.farmer_production_system.name,
+                            productionProcessValue: data.farmer_production_system.fid,
                             unitProduct: data.agri_unit?.unit_name,
-                            unitProductValue: data.agri_unit?.fid,
+                            unitProductValue: data.agri_unit.fid,
                             unit_value: dataLandDetails.land_unit.unit_value
                         })
                         return;
@@ -181,14 +181,14 @@ const FarmerLiveHood = ({ navigation }) => {
             const livelihoodTypeArr = [];
             productSeasonresRes.data.data.crop_season.map((data, index) => {
                 productSeasonresResArr.push({
-                    value: data?.fid,
-                    label: data?.name,
+                    value: data.fid,
+                    label: data.name,
                 });
             });
             productSeasonresRes.data.data.crop_type.map((data, index) => {
                 livelihoodTypeArr.push({
-                    value: data?.fid,
-                    label: data?.name,
+                    value: data.fid,
+                    label: data.name,
                 });
             });
             setProductionSeason(productSeasonresResArr);
@@ -365,7 +365,7 @@ const FarmerLiveHood = ({ navigation }) => {
         if (name === 'unit') {
             if (farmerData.unit_valueArr != "") {
                 JSON.parse(farmerData.unit_valueArr).map((data, index) => {
-                    if (item.value === data?.fid) {
+                    if (item.value === data.fid) {
                         selectUnitValue = data.unit_value;
                     }
                 });
@@ -432,7 +432,7 @@ const FarmerLiveHood = ({ navigation }) => {
                 terraintype_res.data.data.rows.forEach(element => {
                     terraintypeArray.push({
                         value: element.id,
-                        label: element?.name,
+                        label: element.name,
                     });
                 });
                 setterrainTypeAll(terraintypeArray);
@@ -449,7 +449,7 @@ const FarmerLiveHood = ({ navigation }) => {
                 soilType_res.data.data.rows.forEach(element => {
                     soilTypeArray.push({
                         value: element.id,
-                        label: element?.name,
+                        label: element.name,
                     });
                 });
                 setsetsoilTypeAll(soilTypeArray);
@@ -466,7 +466,7 @@ const FarmerLiveHood = ({ navigation }) => {
                 landType_res.data.data.rows.forEach(element => {
                     landTypeArray.push({
                         value: element.id,
-                        label: element?.name,
+                        label: element.name,
                     });
                 });
                 setlandTypeAll(landTypeArray);
@@ -484,7 +484,7 @@ const FarmerLiveHood = ({ navigation }) => {
                 landunitAPI.data.data.rows.forEach(element => {
                     landunitArray.push({
                         value: element.id,
-                        label: element?.name,
+                        label: element.name,
                     });
                 });
                 setUnitAll(landunitArray);
@@ -501,19 +501,19 @@ const FarmerLiveHood = ({ navigation }) => {
             const produceNameArr = [];
             productSeasonresRes.data.data.crop_season.map((data, index) => {
                 productSeasonresResArr.push({
-                    value: data?.fid,
-                    label: data?.name,
+                    value: data.fid,
+                    label: data.name,
                 });
             });
             productSeasonresRes.data.data.crop_type.map((data, index) => {
                 livelihoodTypeArr.push({
-                    value: data?.fid,
-                    label: data?.name,
+                    value: data.fid,
+                    label: data.name,
                 });
             });
             productSeasonresRes.data.data.crop_name.map((data, index) => {
                 produceNameArr.push({
-                    value: data.crop_name?.fid,
+                    value: data.crop_name.fid,
                     label: data.crop_name.name,
                 });
             });
@@ -527,7 +527,7 @@ const FarmerLiveHood = ({ navigation }) => {
         const productSeasonresRes = await ProductionSeasonAndApi(dbName, languageID, crop_type_id, crop_name_id);
         productSeasonresRes.data.data.crop_variety.map((data, index) => {
             produceVariety.push({
-                value: data.crop_variety?.fid,
+                value: data.crop_variety.fid,
                 label: data.crop_variety.name,
             });
         })
@@ -539,7 +539,7 @@ const FarmerLiveHood = ({ navigation }) => {
         if (productionProcessRes.status == 200) {
             productionProcessRes.data.data.rows.map((data, index) => {
                 productionProcessArr.push({
-                    value: data?.fid,
+                    value: data.fid,
                     label: data.name,
                 });
             })
@@ -552,7 +552,7 @@ const FarmerLiveHood = ({ navigation }) => {
         if (ProductionUnitRes.status == 200) {
             ProductionUnitRes.data.data.rows.map((data, index) => {
                 productionUnitArr.push({
-                    value: data?.fid,
+                    value: data.fid,
                     label: data?.unit_name,
                 });
             })
@@ -670,7 +670,9 @@ const FarmerLiveHood = ({ navigation }) => {
     const handleAddUserData = (name, data) => {
         setfarmerData({ ...farmerData, [`${name}`]: data });
     }
-    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+    const HandlerGoBack = () => {
+        navigation.navigate('FarmerDashboard');
+    }
     return (
         <>
             <Root>
@@ -686,7 +688,7 @@ const FarmerLiveHood = ({ navigation }) => {
                     setOpenDate={setopenCycleEnd}
                     handleDatePicker={handleDatePicker2} />
                 <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
-                <FormsTitle title={'Plot/Site & Produce Details'} />
+                <FormsTitle title={t('plot_and_crop_details')} />
                 {isLoading ? <View style={styles.LoadingScreen}>
                     <LoadingScreen />
                 </View> : null}
@@ -695,29 +697,29 @@ const FarmerLiveHood = ({ navigation }) => {
                     <View style={{ marginBottom: 40, }}>
                         {
                             userData == "addUserData" ?
-                                <InputTextForm label="Plot/Site" color="red" value={farmerData.plot_Site_Name} onChangeText={(text) => handleAddUserData("plot_Site_Name", text)} />
-                                : <DropdownForm label="Plot/Site" color="red" data={plotAll} onChange={(relId) => handlePlot(relId)} val={farmerData.plot_Site_Name} />
+                                <InputTextForm label={t('addland_select_plot')} color="red" value={farmerData.plot_Site_Name} onChangeText={(text) => handleAddUserData("plot_Site_Name", text)} />
+                                : <DropdownForm label={t('addland_select_plot')} color="red" data={plotAll} onChange={(relId) => handlePlot(relId)} val={farmerData.plot_Site_Name} />
                         }
-                        <InputTextForm label="Plot/Site Record Detail (Daag No.)" value={farmerData.daag_no} onChangeText={(text) => handleAddUserData("daag_no", text)} />
-                        <InputTextForm label="Plot/Site Record Detail (Khatian No.)" value={farmerData.khatian_no} onChangeText={(text) => handleAddUserData("khatian_no", text)} />
+                        <InputTextForm label={t('daag_no')} value={farmerData.daag_no} onChangeText={(text) => handleAddUserData("daag_no", text)} />
+                        <InputTextForm label={t('khatian_no')} value={farmerData.khatian_no} onChangeText={(text) => handleAddUserData("khatian_no", text)} />
 
-                        <InputTextForm label="No. of Plants/Livestock" value={farmerData.plant_number} onChangeText={(text) => handleAddUserData("plant_number", text)} />
+                        <InputTextForm label={t('no_of_plants')} value={farmerData.plant_number} onChangeText={(text) => handleAddUserData("plant_number", text)} />
 
-                        <DropdownForm label="Terrain Type" color="red"
+                        <DropdownForm label={t('select_terrain_type')} color="red"
                             data={terrainTypeAll} val={farmerData.terrainType}
                             onChange={item => { handleAddData(item, 'terrainType', 'terrainTypeValue') }} />
-                        <DropdownForm label="Land Type" color="red" data={landTypeAll}
+                        <DropdownForm label={t('select_land_type')} color="red" data={landTypeAll}
                             onChange={item => { handleAddData(item, 'landType', 'landTypeValue') }}
                             val={farmerData.landTypeValue} />
-                        <DropdownForm label="Soil Type" color="red" data={soilTypeAll}
+                        <DropdownForm label={t('addland_soil_type_dv')} color="red" data={soilTypeAll}
                             onChange={item => { handleAddData(item, 'soilType', 'soilTypeValue') }}
                             val={farmerData.soilType} />
                         <View style={styles.plotSiteUnit}>
                             <View style={{ width: '45%' }}>
-                                <InputTextForm label="Plot/Site Size" color="red" value={farmerData.land_size} onChangeText={(text) => handleAddUserData("land_size", text)} />
+                                <InputTextForm label={t('pre_land_size')} color="red" value={farmerData.land_size} onChangeText={(text) => handleAddUserData("land_size", text)} />
                             </View>
                             <View style={{ width: '45%' }}>
-                                <DropdownForm label="Unit" color="red" data={unitAll}
+                                <DropdownForm label={t('select_unit')} color="red" data={unitAll}
                                     onChange={item => { handleAddData(item, 'unit', 'unitValue') }}
                                     val={farmerData.unit} />
                             </View>
@@ -732,7 +734,7 @@ const FarmerLiveHood = ({ navigation }) => {
                                                 <Text style={styles.title}>{data.longitude == "" ? "0.0" : data.longitude}</Text>
                                             </View>
                                             <View style={styles.latlongContainer}>
-                                                <Text style={styles.title}>Tap to geo tag the plot/site</Text>
+                                                <Text style={styles.title}>{t('tap_to_get_latitude_and_longitude')}</Text>
                                                 <TouchableOpacity onPress={() => handleCurrentLatLong(index)}>
                                                     <Image
                                                         source={require('../../Common/images/location.png')}
@@ -746,38 +748,38 @@ const FarmerLiveHood = ({ navigation }) => {
                                 })
                             }
                         </View>
-                        <DropdownForm label="Production Season" color="red"
+                        <DropdownForm label={t('addcrop_select_cultivating_season')} color="red"
                             data={productionSeason}
                             onChange={item => { handleAddDataproductionSeason(item, 'productionSeason', 'productionSeasonValue') }}
                             val={farmerData.productionSeason} disable={edit} />
-                        <DropdownForm label="Livelihood Type" color="red"
+                        <DropdownForm label={t('addcrop_croptype')} color="red"
                             data={livelihoodType}
                             onChange={item => { handleAddDatalivelihoodType(item, 'livelihoodType', 'livelihoodTypeValue') }}
                             val={farmerData.livelihoodType} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
-                        <DropdownForm label="Produce Name" color="red"
+                        <DropdownForm label={t('crop_name')} color="red"
                             data={produceName}
                             onChange={item => { handleAddDataproduceName(item, 'produceName', 'produceNameValue') }}
                             val={farmerData.produceName} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
-                        <DropdownForm label="Produce Variety" color="red"
+                        <DropdownForm label={t('crop_veriety')} color="red"
                             data={produceVariety}
                             onChange={item => { handleAddData(item, 'produceVariety', 'produceVarietyValue') }}
                             val={farmerData.produceVariety} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
-                        <DropdownForm label="Production Process" color="red"
+                        <DropdownForm label={t('production_system')} color="red"
                             data={productionProcess}
                             onChange={item => { handleAddData(item, 'productionProcess', 'productionProcessValue') }}
                             val={farmerData.productionProcess} disable={edit} />
                         <View style={styles.plotSiteUnit}>
                             <View style={{ width: '45%' }}>
-                                <InputTextForm label={"Expected \nProduction"} color="red" value={farmerData.expectedProduction} onChangeText={(text) => handleAddUserData("expectedProduction", text)} />
+                                <InputTextForm label={t('expected_yield')} color="red" value={farmerData.expectedProduction} onChangeText={(text) => handleAddUserData("expectedProduction", text)} />
                             </View>
                             <View style={{ width: '45%' }}>
-                                <DropdownForm label={"Unit\n"} color="red" data={productionUnit}
+                                <DropdownForm label={`${t('select_unit_input')}` + "\n"} color="red" data={productionUnit}
                                     onChange={item => { handleAddData(item, 'unitProduct', 'unitProductValue') }}
                                     val={farmerData.unitProduct} disable={edit} />
                             </View>
                         </View>
                         <TouchableOpacity onPress={() => setopenCycleStart(true)} activeOpacity={9}>
-                            <Text style={{ marginBottom: 5, color: '#f40000' }}>Cycle Starts</Text>
+                            <Text style={{ marginBottom: 5, color: '#f40000' }}>{t('showing_date')}</Text>
                             <View style={styles.calenderContainer} >
                                 <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
                                 <Image
@@ -797,7 +799,7 @@ const FarmerLiveHood = ({ navigation }) => {
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.clickAddMorePlots} onPress={() => handleUserData()}>
-                            <Text style={styles.clickAddMorePlotsTitle}>CLICK TO ADD MORE PLOTS/SITES</Text>
+                            <Text style={styles.clickAddMorePlotsTitle}>{t('click_to_add_more_plot')}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

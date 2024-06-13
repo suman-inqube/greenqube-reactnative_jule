@@ -11,7 +11,7 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityList = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, handleFilter, effective_dates } = useContext(userCreateContext);
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, farmerData } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -32,12 +32,9 @@ const ActivityList = ({ navigation }) => {
     const [toDate, setToDate] = useState("");
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-    const [farmerData, setFarmerData] = useState([]);
+    // const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    // const [dbLanTokUsr, setdbLanTokUsr] = useState({
-    //     pageNo: 1
-    // });
     const [fromDateFilter, setFromDateFilter] = useState('');
     const filterOptionShow = () => {
         if (!filterOption) {
@@ -59,8 +56,33 @@ const ActivityList = ({ navigation }) => {
     const handlePage = async (value) => {
         handlePageList(value, setIsLoading, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id);
     }
+
     const handleFilterList = async (item) => {
+        /*
+        *(1) It is use to search by farmer's name and phone number
+        *(2) It is use for filter type ('Farmer/Product Name','PhoneNumber')
+        *(3) it is use for all farmer list
+        *(4) it is use for all item list
+        *(5) item List can't modify data
+        *(6,7) it is use use selected value set 
+        *(8) farmer list show and hide poup
+        *(9) filter data clear all the value set  list data
+        *(10) it is use set the filters search value set
+        */
         handleFilter(item, filterName, farmerData, activityAllRow, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setactivityAll, setSearchResults);
+    }
+
+    const handleResultSelectList = async (item) => {
+        const { label, value, phone } = item
+        // handleResultSelect(label, value, phone, activityAll, activityListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setactivityAll)
+        setSearchFarmerName(label);
+        setSearchFarmerPhone(phone);
+        let tempData = activityAllRow.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
+        setactivityAll(tempData)
+        setSearchResultsList(false);
+        if (tempData.length == 0) {
+            Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
+        }
     }
     const handleDatePicker = (item) => {
         const effective_date = effective_dates(item);
@@ -75,7 +97,7 @@ const ActivityList = ({ navigation }) => {
             const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, fromDateFilter, effective_date)
             if (response) {
                 setactivityAll(response.data.data.rows);
-                setItem("activity_Data", response.data.data.rows)
+                setItem("activity_Data", response.data.data.rows);
             }
         } else {
             // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
@@ -88,25 +110,10 @@ const ActivityList = ({ navigation }) => {
     const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
         setIsLoading(true);
         if (netConnection) {
-            var [response, farmerByName] = await Promise.all([
-                activityListAPI(dbName, languageId, supervisorId, pageNo),
-                farmerByNameAPI(dbName, languageId, token, supervisorId)
-            ]);
-            if (response?.status == 200) {
-                await Promise.all([
-                    setItem('activityList', response),
-                    setItem('farmerByNameAPI', farmerByName)
-                ])
-            }
+            var response = await activityListAPI(dbName, languageId, supervisorId, pageNo);
+            if (response?.status == 200) { await setItem('activityList', response); }
         } else {
-            var [response, farmerByName] = await Promise.all([
-                getItem('activityList'),
-                getItem('farmerByNameAPI')
-            ]);
-        }
-        if (farmerByName) {
-            const dataArray = farmerByName.data.data.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }))
-            setFarmerData(dataArray)
+            var response = await getItem('activityList');
         }
         if (response?.data) {
             if (response.data.data.count != 0) {
@@ -143,18 +150,6 @@ const ActivityList = ({ navigation }) => {
         // setactivityAll([]);
         // setactivityAllRow([]);
         navigation.navigate('Dashboard');
-    }
-    const handleResultSelect = async (name, user_id1, phone) => {
-        setSearchFarmerName(name);
-        setSearchFarmerPhone(phone);
-        let tempData = activityAllRow.filter(item => {
-            return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;
-        });
-        setactivityAll(tempData)
-        setSearchResultsList(false);
-        if (tempData.length == 0) {
-            Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-        }
     }
     const handleBackPress = () => {
         setFilterItem("");
@@ -232,7 +227,7 @@ const ActivityList = ({ navigation }) => {
                                     style={searchResults.length > 8 ? styles.flatlistHeight : ""}
                                     data={searchResults}
                                     renderItem={({ item }) => (
-                                        <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
+                                        <TouchableOpacity onPress={() => handleResultSelectList(item)} style={styles.flatlistitem}>
                                             <Text style={[styles.flatlisttitle, { color: 'black' }]}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
                                         </TouchableOpacity>
                                     )}

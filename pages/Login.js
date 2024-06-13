@@ -163,7 +163,7 @@ const Login = ({ route }) => {
                         } else if (loginUserdata.userType === 2) {
                             navigation.navigate('FarmerNavigation');
                         }
-                        // setIsLoading(false);
+                        setIsLoading(false);
                     }
                 }
             } catch (error) {
