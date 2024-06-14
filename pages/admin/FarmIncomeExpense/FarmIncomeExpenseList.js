@@ -1,28 +1,18 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView, Dimensions, BackHandler } from 'react-native'
 import React, { useState, useEffect, useCallback, useContext } from 'react'
-import Filter from '../../Common/Filter';
-import CustomHeader from '../CustomHeader';
 import DatePickerComp from '../../Common/DatePickerComp';
-import { useFocusEffect } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
 import { farmaccountsListAPI, farmerByNameAPI } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { formatDateToDateName } from '../../Common/DateChanger';
-import { useTranslation } from 'react-i18next';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmIncomeExpenseList = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, effective_dates, farmerData, handleFilter } = useContext(userCreateContext);
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, effective_dates, farmerData, handleFilter, Filter } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
     const [farmAccount, setFarmAccount] = useState([]);
     const [farmAccountRaw, setFarmAccountRaw] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    // const [farmerData, setFarmerData] = useState([]);
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -83,93 +73,10 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         }
     }
     const handlePage = async (value) => {
-        // handlePageList(value, setIsLoading, pageNo, farmaccountsListAPI, setFarmAccount, dbname, lan_id, user_id);
-        setIsLoading(true)
-        const currentPageNo = dbLanTokUsr.pageNo
-        const totalPage = dbLanTokUsr.totalPage
-        if (value === 'next') {
-            if (totalPage === currentPageNo) {
-                setIsLoading(false);
-                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
-                setFarmAccount([]);
-            } else {
-                const nextPage = currentPageNo + 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-                const farmerId = '';
-                const fromDate = '';
-                const toDate = '';
-                const response = await farmaccountsListAPI(dbname, lan_id, token, user_id, nextPage, farmerId, fromDate, toDate);
-                console.log(response.data)
-                if (response) {
-                    setFarmAccount(response.data.data.rows)
-                    // setFarmAccountRaw(response.data.data.rows)
-                    setItem("farm_account", response.data.data.rows)
-                    setIsLoading(false)
-                }
-            }
-        }
-        if (value === 'previous') {
-            if (currentPageNo === 1) {
-                setIsLoading(false)
-                return;
-            } else {
-                const farmerId = '';
-                const fromDate = '';
-                const toDate = '';
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await farmaccountsListAPI(dbname, lan_id, token, user_id, prePage, farmerId, fromDate, toDate)
-                if (response) {
-                    setFarmAccount(response.data.data.rows)
-                    // setFarmAccountRaw(response.data.data.rows)
-                    setItem("farm_account", response.data.data.rows)
-                    setIsLoading(false)
-                }
-            }
-        }
+        handlePageList(value, setIsLoading, token, pageNo, farmaccountsListAPI, setFarmAccount, dbname, lan_id, user_id);
     }
     const handleFilterList = async (item) => {
         handleFilter(item, filterName, farmerData, farmAccountRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setFarmAccount, setSearchResults);
-        // if (filterName === 'Farmer/Product Name') {
-        //     setSearchFarmerPhone('');
-        //     setSearchFarmerName(search);
-        //     const result = farmerData.filter(item =>
-        //         item.label.toLowerCase().includes(search.toLowerCase())
-        //     );
-        //     if (search == "") {
-        //         setSearchResultsList(false);
-        //         setFarmAccount(farmAccountRaw)
-        //     } else {
-
-        //         // let tempData = farmAccount.filter(item => {
-        //         //     item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
-        //         // });
-        //         // setFarmAccount(tempData)
-        //         setSearchResultsList(true);
-        //     }
-        //     if (result) {
-        //         setSearchResults(result);
-        //     }
-        // } else if (filterName === 'PhoneNumber') {
-        //     setSearchFarmerName('');
-        //     setSearchFarmerPhone(search);
-        //     const result = farmerData.filter(item =>
-        //         item.phone.toLowerCase().includes(search.toLowerCase())
-        //     );
-        //     if (search == "") {
-        //         setSearchResultsList(false);
-        //         setFarmAccount(farmAccountRaw)
-        //     } else {
-        //         // let tempData = farmAccount.filter(item => {
-        //         //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-        //         // });
-        //         // setFarmAccount(tempData)
-        //         setSearchResultsList(true);
-        //     }
-        //     if (result) {
-        //         setSearchResults(result);
-        //     }
-        // }
     }
     const handleResultSelect = async (name, user_id1, phone) => {
         setSearchResultsList(false);
@@ -231,11 +138,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
     }
     useEffect(() => {
         onPageLoad();
-        const onBackPress = () => {
-            navigation.navigate('Dashboard'); return true;
-        };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        onBackPress(() => { navigation.navigate('Dashboard'); return true });
     }, []);
     const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (

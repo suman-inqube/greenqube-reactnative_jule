@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
 import InputTextForm from '../../Common/InputTextForm';
@@ -19,19 +19,19 @@ import { Root, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import HarvestedModel from '../../Common/HarvestedModel';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const AddIcome = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, setItem, logoImage,
+        topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, effective_dates, farmerData, handleFilter, Filter } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: ""
-    });
     const [searchResults, setSearchResults] = useState([]);
-    const [farmerData, setFarmerData] = useState([]);
+    // const [farmerData, setFarmerData] = useState([]);
     const [plotAll, setplotAll] = useState([]);
     const [showingMenu, setShowingMenu] = useState(false);
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -101,33 +101,32 @@ const AddIcome = ({ navigation }) => {
 
     const onPageLoad = async () => {
         handleClear();
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageId: languageId,
-                token: token,
-                supervisorId: supervisorId
-            })
+        // if (loginUser_data) {
+        //     const dbName = loginUser_data.dbname;
+        //     const languageId = loginUser_data.lan_id;
+        //     const token = loginUser_data.token;
+        //     const supervisorId = loginUser_data.user_id;
+        //     setdbLanTokUsr({
+        //         ...dbLanTokUsr,
+        //         dbName: dbName,
+        //         languageId: languageId,
+        //         token: token,
+        //         supervisorId: supervisorId
+        //     })
 
-            const response = await farmerByNameAPI(dbName, languageId, token, supervisorId)
-            if (response) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
-        }
+        //     const response = await farmerByNameAPI(dbName, languageId, token, supervisorId)
+        //     if (response) {
+        //         const dataArray = [];
+        //         response.data.data.rows.forEach(element => {
+        //             dataArray.push({
+        //                 value: element.user_id,
+        //                 label: element.userName,
+        //                 phone: element.contactNumber,
+        //             });
+        //         });
+        //         setFarmerData(dataArray)
+        //     }
+        // }
     };
     useFocusEffect(
         React.useCallback(() => {
@@ -139,23 +138,12 @@ const AddIcome = ({ navigation }) => {
     );
     const handleResultSelect = async (name, currentfarmerId, phone) => {
         setSearchResultsList(false)
-        // console.warn(name, currentfarmerId, phone);
-        // console.warn(JSON.stringify(searchResults, null, 2));
         setSearchFarmerPhone(phone)
-        // setSelectedName(name);
         setSearchFarmerName(name);
-        // setSearchResults([]);
         setfarmerID(currentfarmerId)
-        // console.warn(currentfarmerId);
         const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, currentfarmerId)
-        if (response) {
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             setplotAll(dataArray)
         }
     }
@@ -163,9 +151,7 @@ const AddIcome = ({ navigation }) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
         if (farmerData.length > 0) {
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(text.toLowerCase()));
             if (result) {
                 setSearchResultsList(true)
                 setSearchResults(result);
@@ -174,7 +160,7 @@ const AddIcome = ({ navigation }) => {
     };
     const handlePlot = async (relId) => {
         const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, relId.value)
-        if (response) {
+        if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
                 name: response.data.data.rows[0].crop_name.name,
@@ -191,21 +177,13 @@ const AddIcome = ({ navigation }) => {
                     crop_name_id: response.data.data.rows[0].crop_name_id,
                     harvesting_date: response.data.data.rows[0].harvesting_date,
                     sowing_date: response.data.data.rows[0].sowing_date,
-                    // plot_size: response.data.data.rows[0].land_info.land_size,
-                    // plot_size: response.data.data.rows[0].land_info.land_unit.name,
                     plot_size: response.data.data.rows[0].land_info.land_size + " " + response.data.data.rows[0].land_info.land_unit.name,
                     createdBy: dbLanTokUsr.supervisorId,
                 })
                 const response_farmIncome = await farmaccountsIncomeListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
-                if (response_farmIncome) {
-                    const dataArray = [];
-                    response_farmIncome.data.data.rows.forEach(element => {
-                        dataArray.push({
-                            value: element.fid,
-                            label: element.categoryName,
-                        });
-                    });
-                    setInComeAll(dataArray)
+                if (response_farmIncome?.status == 200) {
+                    const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName, }));
+                    setInComeAll(dataArray);
                 }
             } else {
                 // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
@@ -281,7 +259,7 @@ const AddIcome = ({ navigation }) => {
                     setOpenDate={setOpenFromDate}
                     handleDatePicker={handleDatePicker}
                 />
-                <CustomHeader path='FarmIncomeExpenseList' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='FarmIncomeExpenseList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('add_income')} />
                 <SafeAreaView>
                     {

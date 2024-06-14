@@ -230,10 +230,10 @@ export const farmerAgainstSupervisorAPI = async (dbName, languageID, token, user
 
 
 // activity
-export const activityListAPI = async (dbName, languageID, userID, pageNO, searchItem = '', from_date = '', to_date = '') => {
+export const activityListAPI = async (dbName, languageID, token, userID, pageNO, searchItem = '', from_date = '', to_date = '') => {
     const axiosHeaders = {
         headers: {
-            // 'authorization': `${token}`,
+            'authorization': `${token}`,
             'information': `${dbName},${languageID},${userID}`,
         },
     };
@@ -413,7 +413,7 @@ export const activitySaveAPI = async (dbName, languageId, token, userId, inputDa
     }
 }
 // Problem
-export const problemListAPI = async (dbName, languageID, userID, pageNo, user_id = '', from_date = '', to_date = '', mobileNo = '') => {
+export const problemListAPI = async (dbName, languageID, token, userID, pageNo, user_id = '', from_date = '', to_date = '', mobileNo = '') => {
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageID}`,

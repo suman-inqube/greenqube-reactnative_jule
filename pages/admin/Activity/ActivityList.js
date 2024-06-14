@@ -54,7 +54,7 @@ const ActivityList = ({ navigation }) => {
         setSearchFarmerPhone("");
     }
     const handlePage = async (value) => {
-        handlePageList(value, setIsLoading, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id);
+        handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id);
     }
 
     const handleFilterList = async (item) => {
@@ -94,7 +94,7 @@ const ActivityList = ({ navigation }) => {
         setToDate(effective_date)
         if (fromDateFilter) {
             const item = '';
-            const response = await activityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, fromDateFilter, effective_date)
+            const response = await activityListAPI(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date)
             if (response) {
                 setactivityAll(response.data.data.rows);
                 setItem("activity_Data", response.data.data.rows);
@@ -110,7 +110,7 @@ const ActivityList = ({ navigation }) => {
     const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
         setIsLoading(true);
         if (netConnection) {
-            var response = await activityListAPI(dbName, languageId, supervisorId, pageNo);
+            var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo);
             if (response?.status == 200) { await setItem('activityList', response); }
         } else {
             var response = await getItem('activityList');

@@ -46,7 +46,7 @@ const ListProblem = ({ navigation }) => {
             const from_date = fromDateFilter;
             const to_date = effective_date;
             const mobileNo = '';
-            const response = await problemListAPI(dbname, lan_id, user_id, pageNo, searchItem, from_date, to_date, mobileNo)
+            const response = await problemListAPI(dbname, lan_id, token, user_id, pageNo, searchItem, from_date, to_date, mobileNo)
             if (response?.status == 200) {
                 setProblemAll(response.data.data.rows)
                 setItem("problem_Data", response.data.data)
@@ -73,7 +73,7 @@ const ListProblem = ({ navigation }) => {
         setToDate("");
     }
     const handlePage = async (value) => {
-        handlePageList(value, setIsLoading, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id);
+        handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id);
     }
     const navigateToPages = (pageName, fid) => {
         setItem("problem_id_data", fid)
@@ -83,7 +83,7 @@ const ListProblem = ({ navigation }) => {
         setIsLoading(true);
         var response = [];
         if (netConnection) {
-            response = await problemListAPI(dbname, lan_id, user_id, 1);
+            response = await problemListAPI(dbname, lan_id, token, user_id, 1);
             if (response?.status == 200) { await setItem('problemTypeName', response) }
         } else {
             response = await getItem('problemTypeName');

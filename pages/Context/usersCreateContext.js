@@ -115,7 +115,7 @@ const UserCreateContextProvider = (props) => {
             let from_date = ''
             let to_date = ''
             let mobileNo = ''
-            const response = await ListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, user_id, 1, user_id, from_date, to_date, mobileNo)
+            const response = await ListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, user_id, 1, user_id, from_date, to_date, mobileNo)
             if (response?.status == 200) {
                 setIsLoading(false);
                 setAllData(response?.data?.data?.rows);
@@ -125,7 +125,7 @@ const UserCreateContextProvider = (props) => {
             setAllData(tempData);
         }
     };
-    const handlePageList = async (value, setIsLoading, pageNo, Api, setDataAll, dbname, lan_id, user_id) => {
+    const handlePageList = async (value, setIsLoading, token = '', pageNo, Api, setDataAll, dbname, lan_id, user_id) => {
         setIsLoading(true);
         const currentPageNo = pageNo
         const totalPage = totalPage;
@@ -137,7 +137,7 @@ const UserCreateContextProvider = (props) => {
                 return;
             } else {
                 const nextPage = currentPageNo + 1
-                const response = await Api(dbname, lan_id, user_id, nextPage)
+                const response = await Api(dbname, lan_id, token, user_id, nextPage)
                 if (response?.status == 200) {
                     if (response.data.data.rows.length == 0) {
                         Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
@@ -154,7 +154,7 @@ const UserCreateContextProvider = (props) => {
             if (pageNo > 1) {
                 if (currentPageNo === 1) {
                     const prePage = currentPageNo - 1
-                    const response = await Api(dbname, lan_id, user_id, 1);
+                    const response = await Api(dbname, lan_id, token, user_id, 1);
                     if (response?.status == 200) {
                         if (response.data.data.rows.length == 0) {
                             Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
@@ -168,7 +168,8 @@ const UserCreateContextProvider = (props) => {
                 } else {
                     const prePage = currentPageNo - 1
                     setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
-                    const response = await problemListAPI(dbname, lan_id, user_id, prePage)
+                    const response = await Api(dbname, lan_id, token, user_id, prePage);
+
                     if (response?.status == 200) {
                         if (response.data.data.rows.length == 0) {
                             Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
