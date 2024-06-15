@@ -1,23 +1,18 @@
 import {
     StyleSheet, Text, View, FlatList, TouchableOpacity,
-    Image, Dimensions, ScrollView, BackHandler, SafeAreaView
+    Image, Dimensions, SafeAreaView
 } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import DatePickerComp from '../../Common/DatePickerComp';
-import Filter from '../../Common/Filter';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
-// import { loanRouteListAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { loanRouteFarmerListAPI, loanRouteListAPI } from './LoanAPI';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useSelector } from 'react-redux';
-import store from '../../redux/store';
+import React, { useState, useEffect, useContext } from 'react'
+import { useNavigation } from '@react-navigation/native';
+import { loanRouteListAPI } from './LoanAPI';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewPastRequested = ({ setActiveBtn }) => {
-    const isFocused = useIsFocused();
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, LoadingScreen, t, Toast,
+        AlertMesg, getItem, Root, effective_dates, DatePickerComp, Filter,
+        farmerData } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const [filterOption, setFilterOption] = useState(false);
@@ -29,13 +24,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const [openToDate, setOpenToDate] = useState(false);
     const [fromDate, setfromDate] = useState("");
     const [toDate, setToDate] = useState("");
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
-    const [farmerData, setfarmerData] = useState([]);
     const [loanList, setLoanList] = useState([]);
     const [loanListRaw, setLoanListRaw] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -73,77 +61,38 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setLoanList(loanListRaw);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
     }
     const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
     }
     const onPageLoad = async () => {
         // requestLivePermission();
         setIsLoading(true);
-        const [loginUser_data, currency_res] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('currency')
-        ]);
+        const currency_res = await getItem('currency');
         setCurrencyt(currency_res)
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id
-            })
-            const [response, farmerByName] = await Promise.all([
-                loanRouteListAPI(dbname, lan_id, token, user_id, "", "", ""),
-                loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
-            ]);
-            if (response.status == 200) {
-                if (response.data.data.rows.length != 0) {
-                    setIsLoading(false);
-                    setLoanList(response.data.data.rows);
-                    setLoanListRaw(response.data.data.rows)
-                } else {
-                    setIsLoading(false);
-                    Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
-                }
-            }
-            if (farmerByName.status == 200) {
-                const dataArray = [];
-                farmerByName.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setfarmerData(dataArray)
+        const response = await loanRouteListAPI(dbname, lan_id, token, user_id, "", "", "");
+        if (response?.status == 200) {
+            if (response.data.data.rows.length != 0) {
+                setIsLoading(false);
+                setLoanList(response.data.data.rows);
+                setLoanListRaw(response.data.data.rows)
+            } else {
+                setIsLoading(false);
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
             }
         }
-    };
-    const handleFilter = async (search) => {
+    }
+    const handleFilterList = async (search) => {
         if (filterName === 'Farmer/Product Name') {
             setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setLoanList(loanListRaw);
             } else {
-                // let tempData = loanListRaw.filter(item => {
-                //     return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                // });
-                // setLoanList(tempData)
                 setSearchResultsList(true);
             }
             if (result) {
@@ -151,17 +100,11 @@ const ViewPastRequested = ({ setActiveBtn }) => {
             }
         } else if (filterName === 'PhoneNumber') {
             setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.phone.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setLoanList(loanListRaw);
             } else {
-                // let tempData = loanListRaw.filter(item => {
-                //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                // });
-                // setLoanList(tempData)
                 setSearchResultsList(true);
             }
             if (result) {
@@ -170,9 +113,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         } else if (filterName === 'statusFilter') {
             setSearchResultsList(true);
             setStatusName(search);
-            const result = statusAll.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = statusAll.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setLoanList(loanListRaw);
@@ -182,7 +123,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
             if (result) {
                 setSearchResults(result);
             }
-
         }
     }
     const handleResultSelect = async (name, currentfarmerId, phone) => {
@@ -194,30 +134,19 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setSearchResults([]);
         setfarmerID(currentfarmerId)
         if (name == "Pending" || name == "Rejected" || name == "Approved") {
-            let tempData = loanListRaw.filter(item => {
-                return item.status == currentfarmerId;
-            });
+            let tempData = loanListRaw.filter(item => { return item.status == currentfarmerId });
             setLoanList(tempData)
         } else if (name !== '') {
-            let tempData = loanListRaw.filter(item => {
-                return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1;;
-            });
+            let tempData = loanListRaw.filter(item => { return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1 });
             setLoanList(tempData)
         } else {
-            let tempData = loanListRaw.filter(item => {
-                return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;;
-            });
+            let tempData = loanListRaw.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
             setLoanList(tempData)
         }
     }
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
-            let tempData = loanListRaw.filter(item => {
-                // return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                //     item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
-                return (item.created_at.slice(0, 10) >= fromDate &&
-                    item.created_at.slice(0, 10) <= toDate);
-            });
+            let tempData = loanListRaw.filter(item => { return (item.created_at.slice(0, 10) >= fromDate && item.created_at.slice(0, 10) <= toDate) });
             setLoanList(tempData)
         }
     }
@@ -287,7 +216,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             setOpenFromDate={setOpenFromDate}
                             filterOptionShow={filterOptionShow}
                             onchangeFilterItem={onchangeFilterItem}
-                            onChangeText={(item) => handleFilter(item)}
+                            onChangeText={(item) => handleFilterList(item)}
                             FarmerProductNameValue={searchFarmerName}
                             FarmerProductPhoneValue={searchFarmerPhone}
                             statusNameValue={statusName}

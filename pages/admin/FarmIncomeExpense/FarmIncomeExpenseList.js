@@ -188,55 +188,54 @@ const FarmIncomeExpenseList = ({ navigation }) => {
                     }
                 </SafeAreaView>
                 {
-                    isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> :
-                        <>
-                            <FlatList
-                                data={farmAccount}
-                                renderItem={({ item, index }) => {
-                                    return (
-                                        <TouchableOpacity style={styles.wrapper} key={index} onPress={() => navigateToPages('FarmIncomeExpenseView', index)}>
-                                            <View style={styles.activityListContainer}>
-                                                <View style={styles.activityListItem}>
-                                                    <Text style={styles.title}>{t('name')} : {item.agri_user && item.agri_user.userName.substring(0, 14) + '..'} </Text>
-                                                    <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info && item.land_info.plot_no.substring(0, 17) + '..'}</Text>
-                                                    <Text style={styles.title}>{t('showing_date')} : {formatDateToDateName(item.sowing_date).substring(0, 7) + '..'}</Text>
-                                                    <Text style={styles.title}>
-                                                        {t('total_income_sum')} (Rs.): {
-                                                            <ShowIncome income={item.income_expense} />
-                                                        }
-                                                    </Text>
-                                                </View>
-                                                <View style={styles.activityListItem}>
-                                                    <Text style={styles.title}>{t('farmer_number')} : {item.agri_user && item.agri_user.contactNumber.substring(0, 5) + '..'}</Text>
-                                                    <Text style={styles.title}>{t('knowyourplot_cropinfo_cropname').substring(0, 13)} : {item.crop_name && item.crop_name.name.substring(0, 4) + '..'}</Text>
-                                                    <Text style={styles.title}>{t('harvesting_date_auto_calculated')} : {formatDateToDateName(item.harvesting_date).substring(0, 6) + '..'}</Text>
-                                                    <Text style={styles.title}>
-                                                        {t('total_exp_sum')} (Rs.): {<ShowExpense expense={item.income_expense} />}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </TouchableOpacity>
-                                    )
-                                }}
-                                keyExtractor={(item, index) => index}
-                                showsVerticalScrollIndicator={false}
-                            />
-                            <TouchableOpacity style={styles.addExpense} onPress={() => navigation.navigate("AddExpense")}>
-                                <Text style={styles.addExpenseTitle}>{t('add_expense')}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.addIncome} onPress={() => navigation.navigate("AddIcome")}>
-                                <Text style={styles.addIncomTitle}>{t('add_income')}</Text>
-                            </TouchableOpacity>
-                            <View style={styles.prevNextPage}>
-                                <TouchableOpacity onPress={() => handlePage('previous')}>
-                                    <Text style={styles.title}>{t('prev_page')}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handlePage('next')}>
-                                    <Text style={styles.title}>{t('next_page')}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </>
+                    isLoading &&
+                    <View style={styles.loadingScreen}><LoadingScreen /></View>
                 }
+                <FlatList
+                    data={farmAccount}
+                    renderItem={({ item, index }) => {
+                        return (
+                            <TouchableOpacity style={styles.wrapper} key={index} onPress={() => navigateToPages('FarmIncomeExpenseView', index)}>
+                                <View style={styles.activityListContainer}>
+                                    <View style={styles.activityListItem}>
+                                        <Text style={styles.title}>{t('name')} : {item.agri_user && item.agri_user.userName.substring(0, 14) + '..'} </Text>
+                                        <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info && item.land_info.plot_no.substring(0, 17) + '..'}</Text>
+                                        <Text style={styles.title}>{t('showing_date')} : {formatDateToDateName(item.sowing_date).substring(0, 7) + '..'}</Text>
+                                        <Text style={styles.title}>
+                                            {t('total_income_sum')} (Rs.): {
+                                                <ShowIncome income={item.income_expense} />
+                                            }
+                                        </Text>
+                                    </View>
+                                    <View style={styles.activityListItem}>
+                                        <Text style={styles.title}>{t('farmer_number')} : {item.agri_user && item.agri_user.contactNumber.substring(0, 5) + '..'}</Text>
+                                        <Text style={styles.title}>{t('knowyourplot_cropinfo_cropname').substring(0, 13)} : {item.crop_name && item.crop_name.name.substring(0, 4) + '..'}</Text>
+                                        <Text style={styles.title}>{t('harvesting_date_auto_calculated')} : {formatDateToDateName(item.harvesting_date).substring(0, 6) + '..'}</Text>
+                                        <Text style={styles.title}>
+                                            {t('total_exp_sum')} (Rs.): {<ShowExpense expense={item.income_expense} />}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    }}
+                    keyExtractor={(item, index) => index}
+                    showsVerticalScrollIndicator={false}
+                />
+                <TouchableOpacity style={styles.addExpense} onPress={() => navigation.navigate("AddExpense")}>
+                    <Text style={styles.addExpenseTitle}>{t('add_expense')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.addIncome} onPress={() => navigation.navigate("AddIcome")}>
+                    <Text style={styles.addIncomTitle}>{t('add_income')}</Text>
+                </TouchableOpacity>
+                <View style={styles.prevNextPage}>
+                    <TouchableOpacity onPress={() => handlePage('previous')}>
+                        <Text style={styles.title}>{t('prev_page')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handlePage('next')}>
+                        <Text style={styles.title}>{t('next_page')}</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </Root>
     )
@@ -329,6 +328,7 @@ const styles = StyleSheet.create({
     },
     loadingScreen: {
         position: 'relative',
-        top: 100
+        top: 100,
+        zIndex: 999
     },
 })

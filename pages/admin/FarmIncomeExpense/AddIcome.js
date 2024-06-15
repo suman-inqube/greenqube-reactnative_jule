@@ -1,31 +1,17 @@
-import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, } from 'react-native'
 import React, { useState, useContext } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
 import HeadDropDown from './HeadDropDown';
-import DatePickerComp from '../../Common/DatePickerComp';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
 import { useFocusEffect } from '@react-navigation/native';
-import { farmIncomeExpenceSaveAPI, farmaccountsIncomeListAPI, farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
-import DropdownForm from '../../Common/DropdownForm';
-import MessageDialog from '../../Common/MessageDialog';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import { farmaccountsIncomeListAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI } from '../../../config/apiHere';
 import axios from 'axios';
-import config from '../../../config';
-import { useTranslation } from 'react-i18next';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import HarvestedModel from '../../Common/HarvestedModel';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const AddIcome = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, setItem, logoImage,
-        topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, effective_dates, farmerData, handleFilter, Filter } = useContext(userCreateContext);
-    const { dbname, lan_id, token, user_id } = loginUser_data;
-    const { pageNo } = dbLanTokUsr;
+    const { dbLanTokUsr, setdbLanTokUsr, DropdownForm, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, setItem, logoImage,
+        topBanner, Root, Toast, FormsTitle, InputTextForm, DatePickerComp
+        , ButtonFormBottom, effective_dates, farmerData, } = useContext(userCreateContext);
     //GQR-67
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState();
@@ -63,31 +49,24 @@ const AddIcome = ({ navigation }) => {
         setData([...data, { type: "cost_production", cat_id: "", amount: "0", date: "" }])
     }
     const handleChangeAddExpense = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text;
         setData(values);
     }
     const handleChangeAddCatID = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text.value;
         setData(values);
     }
     const handleChangeAddDate = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text;
         setData(values);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
-        handleChangeAddDate(isIndex, effective_date, "date")
-        // console.log(isIndex);
+        handleChangeAddDate(isIndex, effective_date, "date");
     }
     function handleClear() {
         setSearchFarmerName('')
@@ -131,9 +110,7 @@ const AddIcome = ({ navigation }) => {
     useFocusEffect(
         React.useCallback(() => {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmIncomeExpenseList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmIncomeExpenseList'); return true; });
         }, [])
     );
     const handleResultSelect = async (name, currentfarmerId, phone) => {

@@ -1,37 +1,22 @@
 import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
+import React, { useState, useEffect, useContext } from 'react'
 import HeadDropDown from './HeadDropDown';
-import DatePickerComp from '../../Common/DatePickerComp';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
-import { useFocusEffect } from '@react-navigation/native';
 import { farmIncomeExpenceSaveAPI, farmaccountsExpenseListAPI, farmaccountsIncomeListAPI, farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
-import DropdownForm from '../../Common/DropdownForm';
-import MessageDialog from '../../Common/MessageDialog';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import axios from 'axios';
-import config from '../../../config';
-import { useTranslation } from 'react-i18next';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import HarvestedModel from '../../Common/HarvestedModel';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const AddExpense = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, DropdownForm, LoadingScreen, CustomHeader, t,
+        AlertMesg, onBackPress, setItem, logoImage,
+        topBanner, Root, Toast, FormsTitle, InputTextForm, DatePickerComp
+        , ButtonFormBottom, effective_dates, farmerData, } = useContext(userCreateContext);
+    //GQR-67
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: ""
-    });
     const [searchResults, setSearchResults] = useState([]);
-    const [farmerData, setFarmerData] = useState([]);
     const [plotAll, setplotAll] = useState([]);
     const [showingMenu, setShowingMenu] = useState(false);
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -107,32 +92,32 @@ const AddExpense = ({ navigation }) => {
     // }
     const onPageLoad = async () => {
         // handleClear();
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageId: languageId,
-                token: token,
-                supervisorId: supervisorId
-            })
-            const response = await farmerByNameAPI(dbName, languageId, token, supervisorId)
-            if (response) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
-        }
+        // const loginUser_data = await getItem('loginUser_data');
+        // if (loginUser_data) {
+        //     const dbName = loginUser_data.dbname;
+        //     const languageId = loginUser_data.lan_id;
+        //     const token = loginUser_data.token;
+        //     const supervisorId = loginUser_data.user_id;
+        //     setdbLanTokUsr({
+        //         ...dbLanTokUsr,
+        //         dbName: dbName,
+        //         languageId: languageId,
+        //         token: token,
+        //         supervisorId: supervisorId
+        //     })
+        //     const response = await farmerByNameAPI(dbName, languageId, token, supervisorId)
+        //     if (response) {
+        //         const dataArray = [];
+        //         response.data.data.rows.forEach(element => {
+        //             dataArray.push({
+        //                 value: element.user_id,
+        //                 label: element.userName,
+        //                 phone: element.contactNumber,
+        //             });
+        //         });
+        //         setFarmerData(dataArray)
+        //     }
+        // }
     };
 
     useEffect(() => {
@@ -144,28 +129,13 @@ const AddExpense = ({ navigation }) => {
 
     const handleResultSelect = async (name, currentfarmerId, phone) => {
         setSearchResultsList(false)
-        // console.warn(name, currentfarmerId, phone);
-        // console.warn(JSON.stringify(searchResults, null, 2));
         setSearchFarmerPhone(phone)
-        // setSelectedName(name);
         setSearchFarmerName(name);
-        // setSearchResults([]);
         setfarmerID(currentfarmerId)
-        // console.warn(currentfarmerId);
         const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, currentfarmerId)
-
-        if (response) {
-            // console.warn(JSON.stringify(response.data.data,null,2));
-            // return;
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
-            setplotAll(dataArray)
-
+        if (response?.status == 200) {
+            const dataArray = response.data.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
+            setplotAll(dataArray);
         }
     }
 
@@ -173,9 +143,7 @@ const AddExpense = ({ navigation }) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
         if (farmerData.length > 0) {
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(text.toLowerCase()));
             if (result) {
                 setSearchResultsList(true)
                 setSearchResults(result);
@@ -184,12 +152,8 @@ const AddExpense = ({ navigation }) => {
     };
 
     const handlePlot = async (relId) => {
-        // console.log("relid:", relId.value, "farmarid:", farmerID);
-        // console.warn(dbLanTokUsr);
         const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, relId.value)
-
-        if (response) {
-            //   console.warn(JSON.stringify(response.data.data.rows,null,2));
+        if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
                 name: response.data.data.rows[0].crop_name.name,
@@ -211,23 +175,15 @@ const AddExpense = ({ navigation }) => {
                     createdBy: dbLanTokUsr.supervisorId,
                 })
                 const response_farmIncome = await farmaccountsExpenseListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
-                if (response_farmIncome) {
-                    const dataArray = [];
-                    response_farmIncome.data.data.rows.forEach(element => {
-                        dataArray.push({
-                            value: element.fid,
-                            label: element.categoryName,
-                        });
-                    });
-                    setInComeAll(dataArray)
+                if (response_farmIncome?.status == 200) {
+                    const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName, }))
+                    setInComeAll(dataArray);
                 }
             } else {
                 setModalVisible(true);
-                // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
                 setSearchFarmerName('')
                 setSearchFarmerPhone('')
                 setplotAll([])
-                // navigation.navigate('Dashboard');
             }
         }
     }
@@ -293,7 +249,7 @@ const AddExpense = ({ navigation }) => {
                     setOpenDate={setOpenFromDate}
                     handleDatePicker={handleDatePicker}
                 />
-                <CustomHeader path='FarmIncomeExpenseList' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='FarmIncomeExpenseList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('add_expense')} />
                 <SafeAreaView>
                     {
@@ -315,12 +271,9 @@ const AddExpense = ({ navigation }) => {
                 {modalVisible && <HarvestedModel setModalVisible={setModalVisible} modalVisible={modalVisible} handleHarvested={handleHarvested} />}
                 <View style={styles.formContainer}>
                     <ScrollView showsVerticalScrollIndicator={false}>
-
                         <InputTextForm label={t('farmer_name')} value={searchFarmerName}
                             onChangeText={(farmerName) => handleSearch(farmerName)} />
-
                         <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} />
-
                         <DropdownForm label={t('plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} />
                         {
                             showingMenu

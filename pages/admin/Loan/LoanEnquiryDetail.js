@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { getItem } from '../../../config/getDataFromStorage';
 import ButtonForm from '../../Common/ButtonForm';
 import { LoanUpdate } from './LoanAPI';
-import store from '../../redux/store';
 import { useSelector } from 'react-redux';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';

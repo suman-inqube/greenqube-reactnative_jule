@@ -451,10 +451,7 @@ const ProduceInfo = () => {
         long: longitude,
       });
     } else {
-      Toast.show({
-        text: 'Please try again to reach the accurancy',
-        ...AlertMesg[0],
-      });
+      Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
     }
   };
   const validationData = () => {
