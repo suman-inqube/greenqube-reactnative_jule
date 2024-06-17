@@ -1,6 +1,6 @@
 
-// const BASE_URL = "http://142.93.208.31:4003/";
-const BASE_URL = "https://mygreenqube.com:4003/";
+const BASE_URL = "http://142.93.208.31:4003/";
+// const BASE_URL = "https://mygreenqube.com:4003/";
 // import { BASE_URL } from "@env"
 const countryAPI = BASE_URL + 'locationRoute/countryList/1/0/2?search_key=';
 const companyAPI = BASE_URL + 'locationRoute/locationHierarchy/';

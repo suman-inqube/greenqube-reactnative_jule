@@ -241,7 +241,9 @@ export const activityListAPI = async (dbName, languageID, token, userID, pageNO,
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        console.log("***********");
+        console.log(error);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 

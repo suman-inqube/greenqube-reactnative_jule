@@ -187,7 +187,7 @@ const RegistationSignUpViwer = () => {
         if (netConnection) {
             const database_res = await UserRegisterAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID,
                 dbLanTokUsr.token, dbLanTokUsr.userID, formData);
-            if (database_res.status === 200) {
+            if (database_res?.status === 200) {
                 Toast.show({ text: `The farmer/producer has been registered successfully`, ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.dispatch({
@@ -196,7 +196,7 @@ const RegistationSignUpViwer = () => {
                             routes: [{ name: "AdminNavigation" }]
                         })
                     });
-                }, 2000);
+                }, 1000);
             }
         } else {
             let offlineDataArr = await getItem('offlineUserRegistrationData');
@@ -214,7 +214,7 @@ const RegistationSignUpViwer = () => {
                         routes: [{ name: "AdminNavigation" }]
                     })
                 });
-            }, 2000);
+            }, 1000);
         }
     }
     const onPageLoad = async () => {
