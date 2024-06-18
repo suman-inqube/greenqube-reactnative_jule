@@ -20,7 +20,7 @@ const head = `
 const PackageItemDetails = () => {
     const { width, height } = useWindowDimensions();
     const { package_of_practice_list, menu_name } = useRoute().params;
-    console.log(package_of_practice_list)
+    // console.log(package_of_practice_list)
     const tagsStyles = {
         body: { whiteSpace: 'normal', color: '#000', backgroundColor: '#FFF' },
         a: { color: 'green' },
@@ -51,26 +51,28 @@ const PackageItemDetails = () => {
                 <Text style={styles.title}>{menu_name}</Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View >
-                    <WebView
-                        style={{
-                            height: height / 0.5,
-                            width: width,
-                            marginBottom: 50
-                        }}
-                        source={{
-                            html: `
+                {/* <View > */}
+                <WebView
+                    style={{
+                        height: height / 1.7,
+                        width: width,
+                        flex: 1
+                        // marginBottom: 50
+                    }}
+                    originWhitelist={['*']}
+                    source={{
+                        html: `
                             <!DOCTYPE html>
                             <html>
                                 <head>${head}</head> 
-                                <body style="height: :'100%';overflow: "scroll";">
+                                <body>
                                 ${package_of_practice_list} 
                                 </body>
                             </html>`,
-                        }}
-                        automaticallyAdjustContentInsets={false}
-                    />
-                </View>
+                    }}
+                    automaticallyAdjustContentInsets={false}
+                />
+                {/* </View> */}
             </ScrollView>
         </View>
     )
@@ -86,11 +88,11 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         backgroundColor: '#195D06',
-        padding: 10
+        padding: 15
     },
     title: {
         color: '#FFF',
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 16,
+        fontSize: 18,
     },
 })

@@ -1,26 +1,37 @@
 {
   "project_info": {
-    "project_number": "1027787124363",
-    "project_id": "react-native-notificatio-a0da7",
-    "storage_bucket": "react-native-notificatio-a0da7.appspot.com"
+    "project_number": "670509201641",
+    "firebase_url": "https://fcmdemo-41be2.firebaseio.com",
+    "project_id": "fcmdemo-41be2",
+    "storage_bucket": "fcmdemo-41be2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1027787124363:android:5ff09c802cec6547a32e8e",
+        "mobilesdk_app_id": "1:670509201641:android:295c7387af56769ebe1878",
         "android_client_info": {
           "package_name": "com.inqube.greenqube"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "670509201641-ur10e6lutr7179r9vodo3bp70o56onnt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDemnj9IL1Ni65EULNB_H98ubxYyAuKruY"
+          "current_key": "AIzaSyDdJMFf2yZCrKx9Vc0tgToblNVZ36MX0Io"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "670509201641-ur10e6lutr7179r9vodo3bp70o56onnt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

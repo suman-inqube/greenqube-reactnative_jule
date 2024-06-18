@@ -4,7 +4,8 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
-
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import android.os.Bundle;
 public class MainActivity extends ReactActivity {
 
   /**
@@ -21,12 +22,37 @@ public class MainActivity extends ReactActivity {
    * DefaultReactActivityDelegate} which allows you to easily enable Fabric and Concurrent React
    * (aka React 18) with two boolean flags.
    */
+  //   @Override
+  // protected ReactActivityDelegate createReactActivityDelegate() {
+  //   return new DefaultReactActivityDelegate(
+  //       this,
+  //       getMainComponentName(),
+  //       // If you opted-in for the New Architecture, we enable the Fabric Renderer.
+  //       DefaultNewArchitectureEntryPoint.getFabricEnabled());
+  // }
+    public DefaultReactActivityDelegate activityDelegate;
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
-    return new DefaultReactActivityDelegate(
+    System.out.println("FirebaseCrashlytics createReactActivityDelegate");
+    try{
+    activityDelegate =  new DefaultReactActivityDelegate(
         this,
         getMainComponentName(),
         // If you opted-in for the New Architecture, we enable the Fabric Renderer.
         DefaultNewArchitectureEntryPoint.getFabricEnabled());
+    }catch(Exception e){
+//        throw new RuntimeException("Crash"+e.getCause().fillInStackTrace());
+        System.out.println("FirebaseCrashlytics ");
+        FirebaseCrashlytics.getInstance().recordException(e.getCause().fillInStackTrace());
+    }
+        return activityDelegate;
   }
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//
+//        // Forcing a test crash
+//       FirebaseCrashlytics.getInstance().log("MainActivity onCreate");
+//       throw new RuntimeException("Test Crash"); // Force a crash
+//    }
 }

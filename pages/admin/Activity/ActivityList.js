@@ -28,6 +28,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import DeviceInfo from '../../DeviceInfo';
+import crashlytics from "@react-native-firebase/crashlytics";
 const ActivityList = ({ navigation }) => {
     const { netConnection } = DeviceInfo();
     const { t } = useTranslation();
@@ -280,6 +281,7 @@ const ActivityList = ({ navigation }) => {
         }
     }
     useEffect(() => {
+
         if (isFocused) {
             if (fromDate == "" && toDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
                 onPageLoad();

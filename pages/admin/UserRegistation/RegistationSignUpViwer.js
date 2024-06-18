@@ -196,7 +196,7 @@ const RegistationSignUpViwer = () => {
                             routes: [{ name: "AdminNavigation" }]
                         })
                     });
-                }, 1000);
+                }, 500);
             }
         } else {
             let offlineDataArr = await getItem('offlineUserRegistrationData');
@@ -214,7 +214,7 @@ const RegistationSignUpViwer = () => {
                         routes: [{ name: "AdminNavigation" }]
                     })
                 });
-            }, 1000);
+            }, 500);
         }
     }
     const onPageLoad = async () => {
@@ -631,7 +631,7 @@ const RegistationSignUpViwer = () => {
                         </View>
                     </View>
                 </ScrollView>
-                <ButtonForm label={t('save')} onPress={handleSave} />
+                <ButtonForm label={t('save')} onPress={() => handleSave()} />
             </Root>
         </View>
     )

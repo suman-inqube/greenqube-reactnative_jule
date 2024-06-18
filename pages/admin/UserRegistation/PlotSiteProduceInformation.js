@@ -717,7 +717,7 @@ const PlotSiteProduceInformation = () => {
                                             height={30}
                                             width={30}
                                         />
-                                        <DatePicker
+                                        {opencycleStarts && <DatePicker
                                             modal
                                             mode="date"
                                             open={opencycleStarts}
@@ -730,7 +730,7 @@ const PlotSiteProduceInformation = () => {
                                             onCancel={() => {
                                                 setOpencycleStarts(false)
                                             }}
-                                        />
+                                        />}
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -747,7 +747,7 @@ const PlotSiteProduceInformation = () => {
                                             height={30}
                                             width={30}
                                         />
-                                        <DatePicker
+                                        {opencycleEnds && <DatePicker
                                             modal
                                             mode="date"
                                             format="YYYY-MM-DD"
@@ -761,7 +761,7 @@ const PlotSiteProduceInformation = () => {
                                             onCancel={() => {
                                                 setOpencycleEnds(false)
                                             }}
-                                        />
+                                        />}
                                     </TouchableOpacity>
                                 </View>
                             </View>

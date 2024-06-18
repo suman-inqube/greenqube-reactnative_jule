@@ -177,6 +177,7 @@ export const UserRegisterAPI = async (dbName, language, token, userId, inputData
         let response = await axios.post(`${config.BASE_URL}agentRoute/farmerLongReg`, inputData, axiosHeaders);
         return response;
     } catch (error) {
+        console.log(error)
         CrashlyticsRecordError(error.response)
         return error.response;
     }

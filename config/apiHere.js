@@ -56,7 +56,7 @@ export const firstLanguageListAPI = async (dbName) => {
         let response = axios.get(config.BASE_URL + "locationRoute/getLang?status=1&search", axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("firstLanguageListAPI" + error.response.data);
     }
 }
@@ -117,7 +117,7 @@ export const fetchStateAPI = async (dbName, languageID) => {
         return state_res
 
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with state api" + error.response);
     }
 }
@@ -134,7 +134,7 @@ export const fetchDistrictAPI = async (dbName, languageID, stateID) => {
         let district_res = await axios.get(config.districtAPI + stateID, { headers });
         return district_res;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with district api" + error.response);
     }
 }
@@ -151,7 +151,7 @@ export const fetchBlockAPI = async (dbName, languageID, districtID) => {
         let block_res = await axios.get(config.blockAPI + districtID, { headers });
         return block_res;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with Block api" + error.response);
     }
 }
@@ -168,7 +168,7 @@ export const dashboardDataListAPI = async (dbName, languageID, token, userID) =>
         let response = await axios.get(config.BASE_URL + 'agentRoute/dashBoard/' + userID, axiosHeaders);
         return response.data;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with fpodetails api" + error.response);
     }
 }
@@ -185,7 +185,7 @@ export const userDataListAPI = async (dbName, languageId, token, user_id) => {
         let response = await axios.get(config.BASE_URL + 'agentRoute/listFarmer/1/1/2?search_key=', axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -202,7 +202,7 @@ export const fpodetailsDataListAPI = async (dbName, languageID, token, userID, c
         let response = await axios.get(config.BASE_URL + 'loginSignupRoute/fpodetails/' + compCode, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 
@@ -221,14 +221,14 @@ export const farmerAgainstSupervisorAPI = async (dbName, languageID, token, user
         let response = await axios.get(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=', axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 
 }
 
 
-
+import crashlytics from "@react-native-firebase/crashlytics";
 // activity
 export const activityListAPI = async (dbName, languageID, token, userID, pageNO, searchItem = '', from_date = '', to_date = '') => {
     const axiosHeaders = {
@@ -241,8 +241,8 @@ export const activityListAPI = async (dbName, languageID, token, userID, pageNO,
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
         return response;
     } catch (error) {
-        console.log("***********");
-        console.log(error);
+        // const errorMessage = error.response ? `Response error: ${error.response.status} - ${error.response.data}` : `Network error: ${error.message}`;
+        // crashlytics().recordError(new Error(errorMessage));
         CrashlyticsRecordError(error);
         return error.response;
     }
@@ -263,7 +263,7 @@ export const farmerActivityListAPI = async (dbName, languageID, token, userID, p
         return response;
         //  return console.log(response.data.data);
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in Activity api" + error.response);
     }
 
@@ -283,7 +283,7 @@ export const farmerByNameAPI = async (dbName, languageID, token, userID) => {
         return response;
 
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -299,7 +299,7 @@ export const plotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) 
         let response = await axios.get(`${config.BASE_URL}landRoute/userLandDetails/${farmerID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in plotAgainstFarmerAPI " + error.response.data);
     }
 }
@@ -317,7 +317,7 @@ export const productionSeasonAndLivelyhoodTypeListAPI = async (dbName) => {
         let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=&crop_name_id=`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -332,7 +332,7 @@ export const produceAgainstPlotAPI = async (dbName, languageID, farmerID, relID)
         let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in produceAgainstPlotAPI " + error.response);
     }
 }
@@ -347,7 +347,7 @@ export const productionStageAPI = async (dbName, languageID, cropTypeId, cropNam
         let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return + error.response;
     }
 }
@@ -363,7 +363,7 @@ export const setCycleDateAPI = async (dbName, language, userId, token, cuRelID, 
         let response = await axios.put(`${config.BASE_URL}cropRoute/editUserCrop/${cuRelID}`, save_data, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -377,7 +377,7 @@ export const activityTypeAPI = async (dbName, languageID, farmerID) => {
         let response = await axios.get(`${config.BASE_URL}categoryRoute/list/1/1/2?categoryType=activity_type_master&search_key=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in activityTypeAPI " + error.response);
     }
 }
@@ -394,7 +394,7 @@ export const activityInfoAPI = async (dbName, languageID, token, farmerID, cropT
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in activityInfoAPI " + error.response);
     }
 }
@@ -407,10 +407,10 @@ export const activitySaveAPI = async (dbName, languageId, token, userId, inputDa
         },
     };
     try {
-        let response = await axios.post(`${config.BASE_URL}inputOutputRoute/addUserActivity`, inputData, axiosHeaders);
+        // let response = await axios.post(`${config.BASE_URL}inputOutputRoute/addUserActivity`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -425,7 +425,7 @@ export const problemListAPI = async (dbName, languageID, userID, pageNo, user_id
         let response = await axios.get(`${config.BASE_URL}questionRoute/list/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -441,7 +441,7 @@ export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, far
         let response = await axios.get(`${config.BASE_URL}landRoute/userLandDetails/${farmerID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("plotAgainstFarmerAPI " + JSON.stringify(error.response.data, null, 2));
     }
 }
@@ -458,7 +458,7 @@ export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID,
         let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in produceAgainstPlotAPI " + error.response);
     }
 }
@@ -475,7 +475,7 @@ export const problemProductionStageAPI = async (dbName, languageID, cropTypeId, 
         let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in productionStageAPI " + error.response);
     }
 }
@@ -492,7 +492,7 @@ export const problemTypeNameAPI = async (dbName, languageID, token) => {
         let response = await axios.get(`${config.BASE_URL}problemRoute/problemtypename?farming_type=crop`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in problemTypeNameAPI " + error.response);
     }
 }
@@ -507,7 +507,7 @@ export const problemSeverityAPI = async (dbName, languageID) => {
         let response = await axios.get(`${config.BASE_URL}cropRoute/list/1/0/1?type=severity&search_key`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -528,7 +528,7 @@ export const problemSaveAPI = async (dbName, languageId, token, userId, inputDat
         let response = await axios.post(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -545,7 +545,7 @@ export const problemCommentListAPI = async (dbName, userId, questionId) => {
         let response = await axios.get(`${config.BASE_URL}questionRoute/listComment/1/0/2?search_key=&comment_type=2&comment_qid=${questionId}&farming_type=crop`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in problemCommentListAPI " + error.response);
     }
 }
@@ -562,7 +562,7 @@ export const problemCommentSaveAPI = async (dbName, languageId, userId, inputDat
         let response = await axios.post(`${config.BASE_URL}questionRoute/addComment`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in problemCommentSaveAPI " + error);
     }
 }
@@ -579,7 +579,7 @@ export const problemAnswerListAPI = async (dbName, languageId, token, problem_id
         let response = await axios.get(`${config.BASE_URL}solutionRoute/viewQuestionSolution/${problem_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in problemAnswerListAPI " + error);
     }
 }
@@ -611,7 +611,7 @@ export const userDetailAPI = async (dbName, languageId, token, user_id) => {
         let response = await axios.get(config.BASE_URL + 'loginSignupRoute/details/' + user_id, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -629,7 +629,7 @@ export const updateUserInfoAPI = async (dbName, language, userId, token, formDat
         let response = await axios.put(`${config.BASE_URL}loginSignupRoute/update/${userId}`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error;
     }
 
@@ -660,7 +660,7 @@ export const inputListAPI = async (dbName, languageId, token, userId, category_i
         let response = await axios.get(`${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -676,7 +676,7 @@ export const inputCategoryAPI = async (dbName, languageId, token, userId) => {
         let response = await axios.get(`${config.BASE_URL}inputOutputEntityRoute/listEntityTypes/1/0/2`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in inputCategoryAPI " + error);
     }
 }
@@ -695,7 +695,7 @@ export const inputSubCategoryAPI = async (dbName, languageId, token, userId, cat
         let response = await axios.get(`${config.BASE_URL}inputOutputEntityRoute/listEntities/1/0/2?entity_type_id=${category_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in inputCategoryAPI " + error);
     }
 }
@@ -713,7 +713,7 @@ export const inputPastEnquiryListAPI = async (dbName, languageId, token, userId)
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/list/1/0/2?farmer_id=&transaction_type=1&entity_type_id=&from_date=&to_date=&farmer_mobile=&agent_id=${userId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in inputPastEnquiryListAPI " + error);
     }
 }
@@ -730,7 +730,7 @@ export const inputEnquiryViewAPI = async (dbName, languageId, token, userId, far
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/stofdetails/${farmer_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -748,7 +748,7 @@ export const inputSaveAPI = async (dbName, languageId, token, farmerId, inputDat
         let response = await axios.post(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("outputSaveAPI:", error.response.data);
     }
 }
@@ -767,7 +767,7 @@ export const outputListAPI = async (dbName, languageId, token, userId, farmer_id
         farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in outputListAPI " + error);
     }
 }
@@ -783,7 +783,7 @@ export const livelihoodNameVarietyLandrelAPI = async (dbName, languageId, userId
         let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("livelihoodNameVarietyLandrelAPI :" + JSON.stringify(error.response.data, null, 2));
     }
 }
@@ -798,7 +798,7 @@ export const unitByListAPI = async (dbName, languageId, is_default = "", sub_typ
         let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?search_key=&is_default=${is_default}&sub_type=${sub_type}&unit_type=product_unit`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -816,7 +816,7 @@ export const outputSaveAPI = async (dbName, languageId, token, userId, inputData
         let response = await axios.post(`${config.BASE_URL}inputOutputRoute/add`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("outputSaveAPI:", error.response.data);
     }
 }
@@ -837,7 +837,7 @@ export const loanPurposeAPI = async (dbName, languageId, token) => {
         let response = await axios.get(config.BASE_URL + "loanEntityRoute/list/1/0/1?entity_type=loan_purpose", axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in updateUserInfoAPI api" + error.response.data);
     }
 }
@@ -857,7 +857,7 @@ export const loanRouteListAPI = async (dbName,
         let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in updateUserInfoAPI api" + error.response.data);
     }
 }
@@ -873,7 +873,7 @@ export const loanRouteFarmerListAPI = async (dbName, languageId, token, user_id)
         let response = await axios.get(config.BASE_URL + 'agentRoute/listFarmer/1/0/2?search_key=', axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in updateUserInfoAPI api" + error.response.data);
     }
 }
@@ -891,7 +891,7 @@ export const usefulInfoListAPI = async (dbName, languageId, userId, state_id, di
         let response = await axios.get(`${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -909,7 +909,7 @@ export const noticeDetailsAPI = async (dbName, languageId, token, noticeId) => {
         let response = await axios.get(`${config.BASE_URL}generalInfoRoute/details/${noticeId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -927,7 +927,7 @@ export const trainingListAPI = async (dbName, languageId, userId, state_id, dist
         // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -943,7 +943,7 @@ export const numberDigitAPI = async (countryId, languageId) => {
         let response = await axios.get(config.BASE_URL + `locationRoute/getContactNoDigitByCountryID/${countryId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -959,7 +959,7 @@ export const signupSaveAPI = async (inputData) => {
         let response = await axios.post(`${config.BASE_URL}farmerRoute/selfFarmerLongRegistration`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         console.log(error)
         return error.response;
     }
@@ -976,7 +976,7 @@ export const InsuranceListAPI = async (dbName, languageId, token, user_id) => {
         let response = await axios.get(config.BASE_URL + `insuranceRoute/list/1/0/2?&user_id=&from_date=&to_date=&agent_id=${user_id}&farmer_mobile=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -992,7 +992,7 @@ export const InsuranceAddAPI = async (dbName, languageId, token, user_id, inputD
         let response = await axios.post(config.BASE_URL + `insuranceRoute/add`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1010,7 +1010,7 @@ export const DailySalesReportGetAPI = async (dbName, languageId, token, user_id)
         let response = await axios.get(config.BASE_URL + `optionRoute/srList/1/0/1?search_key=&user_fid=&from_date=&to_date=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1025,7 +1025,7 @@ export const ChooseDealerAPI = async (dbName, languageId, user_id) => {
         let response = await axios.get(config.BASE_URL + `loginSignupRoute/listDealerAdmin/1/1/2?userType=9&search_key=&createdBy=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in ChooseDealerAPI api" + error.response);
     }
 }
@@ -1040,7 +1040,7 @@ export const AllProductCategoryListAPI = async (dbName, languageId, token, user_
         let response = await axios.get(config.BASE_URL + `inputOutputEntityRoute/listEntityTypes/1/0/1`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1055,7 +1055,7 @@ export const AllProductSubCategoryListAPI = async (dbName, languageId, token, us
         let response = await axios.get(config.BASE_URL + `inputOutputEntityRoute/listEntityNames/1/0/1?entity_type_id=${categoryID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1070,7 +1070,7 @@ export const AllProductNameList = async (dbName, languageId, token, user_id, sub
         let response = await axios.get(config.BASE_URL + `marketRoute/listproduct/1/0/2?search_key=&category_id=${subCategoryID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1086,7 +1086,7 @@ export const FarmerDailysalesreportAdd = async (dbName, languageId, token, userI
         let response = await axios.post(`${config.BASE_URL}optionRoute/salesReport`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1102,7 +1102,7 @@ export const DealerDailysalesreportAdd = async (dbName, languageId, token, userI
         let response = await axios.post(`${config.BASE_URL}optionRoute/salesReport`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1120,7 +1120,7 @@ export const farmaccountsListAPI = async (dbName, languageId, token, userId, pag
         const response = await axios.get(`${config.BASE_URL}cropRoute/listUserCropRelsNew/1/1/2/?search_key=&user_id=${farmerId}&from_date=${fromDate}&to_date=${toDate}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 
@@ -1138,7 +1138,7 @@ export const farmaccountsIncomeListAPI = async (dbName, languageId, token, farme
         const response = await axios.get(`${config.BASE_URL}categoryRoute/list/1/0/2?search_key=&categoryType=income`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("farmaccountsIncomeListAPI : " + error.response.data);
     }
 
@@ -1155,7 +1155,7 @@ export const farmaccountsExpenseListAPI = async (dbName, languageId, token, farm
         const response = await axios.get(`${config.BASE_URL}categoryRoute/list/1/0/2?search_key=&categoryType=expense`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("farmaccountsExpenseListAPI : " + error.response.data);
     }
 
@@ -1175,7 +1175,7 @@ export const farmIncomeExpenceSaveAPI = async (dbName, languageId, token, farmer
         let response = await axios.post(`${config.BASE_URL}cropRoute/addUserCropRels`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("farmIncomeExpenceSaveAPI:", error.response.data);
     }
 }
@@ -1190,7 +1190,7 @@ export const livelihoodCropAndPlotDetailsAPI = async (dbName, languageId, userId
         let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1204,7 +1204,7 @@ export const ProductionSeasonAndApi = async (dbName, lanId, crop_type_id, crop_n
         let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/${lanId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1218,7 +1218,7 @@ export const ProductionProcessAPI = async (dbName, languageId) => {
         let response = await axios.get(`${config.BASE_URL}farmerRoute/listfardata/1/0/2?type=production_system&search_key=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1233,7 +1233,7 @@ export const ProductionUnitAPI = async (dbName, languageId) => {
         let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=yield_unit&search_key=`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1248,7 +1248,7 @@ export const PlotSiteUserLandDetails = async (dbName, languageId, token, farmeru
         let response = await axios.get(`${config.BASE_URL}landRoute/userLandDetails/${farmeruserID}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1264,7 +1264,7 @@ export const UpdateLandCropdetailsAPI = async (dbName, language, userId, token, 
         let response = await axios.put(`${config.BASE_URL}landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 
@@ -1281,7 +1281,7 @@ export const AddLandCropDetailsAPI = async (dbName, language, userId, token, for
         let response = await axios.post(`${config.BASE_URL}landRoute/multiLatLong`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 
@@ -1298,7 +1298,7 @@ export const NewForgotPassword = async (dbName, language, userId, formData) => {
         let response = await axios.post(`${config.BASE_URL}loginSignupRoute/newForgotPassword`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1315,7 +1315,7 @@ export const ChangePasswordApi = async (dbName, language, userId, formData) => {
         let response = await axios.post(`${config.BASE_URL}loginSignupRoute/newChangePassword`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1332,7 +1332,7 @@ export const farmerProblemListAPI = async (dbName, languageID, userID, farmer_ty
         let response = await axios.get(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in Problem api" + error.response);
     }
 
@@ -1349,7 +1349,7 @@ export const farmerFarmaccountsListAPI = async (dbName, languageId, token, userI
         const response = await axios.get(`${config.BASE_URL}cropRoute/listUserCropRelsNew/1/${pageNo}/2/?search_key=&user_id=${userId}&from_date=${fromDate}&to_date=${toDate}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 
@@ -1365,7 +1365,7 @@ export const farmerProblemDetailApi = async (dbName, languageID, quesId) => {
         return response;
         // return console.log(JSON.stringify(response.data.data,null,2));
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in Problem api" + error.response);
     }
 
@@ -1381,7 +1381,7 @@ export const reginalDataServiceAPI = async (dbName, languageID) => {
         let response = await axios.get(config.BASE_URL + 'categoryRoute/list/1/0/2?search_key=&categoryType=regionaldata', axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with reginalDataServiceAPI " + error.response);
     }
 
@@ -1398,7 +1398,7 @@ export const FarmerinputPastEnquiryListAPI = async (dbName, languageId, token, u
 
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in inputPastEnquiryListAPI " + error);
     }
 }
@@ -1413,7 +1413,7 @@ export const FarmeroutputListAPI = async (dbName, languageId, token, farmer_id, 
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/list/1/0/2?farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in outputListAPI " + error);
     }
 }
@@ -1429,7 +1429,7 @@ export const cropListApi = async (dbName, languageId, userId) => {
         let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -1444,7 +1444,7 @@ export const farmerUsefulInfoListAPI = async (dbName, languageId, userId, state_
         let response = await axios.get(`${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 }
@@ -1459,7 +1459,7 @@ export const faremerTrainingListAPI = async (dbName, languageId, userId, state_i
         // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error with user api" + error.response);
     }
 
@@ -1475,7 +1475,7 @@ export const outputEnquiryViewAPI = async (dbName, languageId, token, userId, fa
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/protofdetails/${farmer_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return console.log("error in inputListAPI " + error);
     }
 }
@@ -1490,7 +1490,7 @@ export const FarmerInsuranceListAPI = async (dbName, languageId, token, user_id,
         let response = await axios.get(`${config.BASE_URL}insuranceRoute/list/1/0/2?&user_id=${user_id}&from_date=${fromDate}&to_date=${toDate}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1505,7 +1505,7 @@ export const SupervisoroutputEnquiryViewAPI = async (dbName, languageId, token, 
         let response = await axios.get(`${config.BASE_URL}inputOutputRoute/protofdetails/${id}`, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1519,7 +1519,7 @@ export const calculatorRouteViewesultAPI = async (dbName, lan_id, crop_type, cro
         let response = await axios.get(`${config.BASE_URL}calculatorRoute/NpkCalculator/1/0/1?crop_type=${crop_type}&crop_name=${crop_name}&growth_stage_id=${growth_stage_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1533,7 +1533,7 @@ export const calculatorPestisideResultAPI = async (dbName, lan_id, crop_type_id,
         let response = await axios.get(`${config.BASE_URL}solutionRoute/list/1/0/1?search_key=&crop_season_id=&crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}&crop_variety_id=${crop_variety_id}&growth_stage_id=${growth_stage_id}&problem_type_id=${problem_type_id}&problem_name_id=${problem_name_id}&category_id=&production_system=${production_system}&severity_id=${severity_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1547,7 +1547,7 @@ export const ProblemTypeAPI = async (dbName, lan_id) => {
         let response = await axios.get(`${config.BASE_URL}problemRoute/getProblemDropdown`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1561,7 +1561,7 @@ export const ProblemNameAPI = async (dbName, lan_id, problem_type_id) => {
         let response = await axios.get(`${config.BASE_URL}problemRoute/getProblemDropdown?problem_type_id=${problem_type_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1575,7 +1575,7 @@ export const PackageOfPracticesList = async (dbName, lan_id) => {
         let response = await axios.get(`${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1589,7 +1589,7 @@ export const POPDetails = async (dbName, lan_id, productID) => {
         let response = await axios.get(`${config.BASE_URL}popRoute/popdetailsbycropid/${productID}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1603,7 +1603,7 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
         let response = await axios.get(`${config.BASE_URL}popRoute/staticmenulist/1/0/1?&search_key=&menu_type=sm`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1619,13 +1619,15 @@ export const POPStaticMenuListDetails = async (
             information: `${dbName},${lan_id}`,
         },
     };
+    console.log(axiosHeaders)
+    console.log(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`)
     try {
         let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`,
             axiosHeaders,
         );
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error);
         return error.response;
     }
 };
@@ -1640,7 +1642,7 @@ export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
         let response = await axios.get(`${config.BASE_URL}locationRoute/detailsCompany/${db_company_id}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1655,7 +1657,7 @@ export const SampleRequestList = async (dbName, lan_id, user_id, search_date, se
         let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/0/0/2/${user_id}?search_date=${search_date}&search_key=${search_key}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1670,7 +1672,7 @@ export const SampleReport = async (dbName, lan_id, user_id, search_date, search_
         let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/requestSoilTestList/1/0/2/${user_id}?search_date=${search_date}&search_key=${search_key}`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1684,7 +1686,7 @@ export const soilTestLab = async (dbName, lan_id, user_id) => {
         let response = await axios.get(`${config.BASE_URL}soilTestLabRoute/list/1/0/1?district_id=&search_key=`, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }
@@ -1699,7 +1701,7 @@ export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
         let response = await axios.post(`${config.BASE_URL}soilTestLabRoute/requestSoilTest`, inputData, axiosHeaders);
         return response;
     } catch (error) {
-        // CrashlyticsRecordError(error.response);
+        // CrashlyticsRecordError(error);
         return error.response;
     }
 }

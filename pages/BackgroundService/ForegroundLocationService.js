@@ -37,7 +37,7 @@ const ForegroundLocationService = () => {
                 };
             } catch (error) {
                 setFusedLocationData(error)
-                console.log(error)
+                // console.log(error)
             }
         };
         startLocationUpdates();

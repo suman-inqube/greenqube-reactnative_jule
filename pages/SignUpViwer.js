@@ -233,7 +233,7 @@ const SignUpViwer = () => {
         }
         if (netConnection) {
             const database_res = await signupSaveAPI(formData);
-            if (database_res) {
+            if (database_res?.status == 200) {
                 MessageDialog({ title: 'Successful', message: "Farmer Registered Successfully" })
                 navigation.navigate('Login');
             }
@@ -250,10 +250,13 @@ const SignUpViwer = () => {
         }
     }
     const onPageLoad = async () => {
-        const storeSignup_data = await getItem('storeSignup_data');
-        const storePersnolInfo_data = await getItem('storePersnolInfo_data');
-        const storeFinancial_data = await getItem('storeFinancial_data');
-        const storeProduceInfo_data = await getItem('storeProduceInfo_data');
+        const [storeSignup_data, storePersnolInfo_data,
+            storeFinancial_data, storeProduceInfo_data] = await Promise.all([
+                getItem('storeSignup_data'),
+                getItem('storePersnolInfo_data'),
+                getItem('storeFinancial_data'),
+                getItem('storeProduceInfo_data')
+            ]);
         setstoreSignup(storeSignup_data);
         setstorePersnolInfo(storePersnolInfo_data);
         setstoreFinancial(storeFinancial_data);
@@ -531,7 +534,7 @@ const SignUpViwer = () => {
 
             </ScrollView>
             <View style={{ marginTop: 10, backgroundColor: '#D5FFD0' }}>
-                <ButtonForm label={t('save')} onPress={handleSave} />
+                <ButtonForm label={t('save')} onPress={() => handleSave()} />
             </View>
 
         </View>

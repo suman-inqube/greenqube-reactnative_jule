@@ -22,6 +22,7 @@ const LoanEnquiry = () => {
       return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     }, [])
   );
+  // return () => { };
   const HandlerGoBack = () => {
     navigation.navigate('Dashboard');
   }

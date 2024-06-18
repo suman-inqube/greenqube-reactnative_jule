@@ -239,6 +239,10 @@ const Login = ({ route }) => {
             setcontact_no_digits(contact_no_digits);
         }
     }
+    const roleData = [
+        { label: t('login_farmer'), value: '2' },
+        { label: t('retailer'), value: '3' }
+    ];
     return (
         <Root>
             {/* <ForegroundLocationService /> */}
@@ -256,7 +260,7 @@ const Login = ({ route }) => {
                             <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_registered_Phone_no')} keyboardType="numeric" value={storeLoginUser.phone} onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} maxLength={contact_no_digits} />
                             <TextInput style={styles.simpleInputTextStyle} placeholderTextColor={'#000'} placeholder={t('enter_your_Password')} secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} value={storeLoginUser.password} />
                             <View style={{ marginTop: 20, }}>
-                                <DropdownForm data={config.roleData} label={t('select_role')} onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role.value })} val={storeLoginUser.role} />
+                                <DropdownForm data={roleData} label={t('select_role')} onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role.value })} val={storeLoginUser.role} />
                             </View>
                             <View style={{ marginTop: 5, }}>
                                 <DropdownForm data={companyData} label={t('select_company')}

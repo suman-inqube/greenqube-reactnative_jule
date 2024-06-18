@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, Linking, TouchableOpacity, AppState, View, Text, StyleSheet, StatusBar, ScrollView, BackHandler, Alert } from 'react-native';
+import {
+  Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert
+} from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import { getItem, removeItem } from '../../config/getDataFromStorage';
 import { BoxDisplay } from './dashboardComp';
@@ -20,6 +22,7 @@ import { useSelector } from 'react-redux';
 import DeviceInfo from '../DeviceInfo'
 import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
 import LoadingScreen from '../Common/LoadingScreen';
+import { AlertMesg } from '../Common/ToastAlert';
 const Dashboard = ({ navigation }) => {
   const { netConnection } = DeviceInfo();
   // const locationData = useSelector(state => state.LoanReducer);
@@ -63,7 +66,9 @@ const Dashboard = ({ navigation }) => {
   const HandlerGoBack = () => {
     exit();
   }
+
   useEffect(() => {
+    // ErrorUtils.setGlobalHandler(myErrorHandler)
     // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     // requestUserPermission();
     // notificationListener();
@@ -100,7 +105,7 @@ const Dashboard = ({ navigation }) => {
   }
   return (
     <>
-      <BackGroundLocation />
+      {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
