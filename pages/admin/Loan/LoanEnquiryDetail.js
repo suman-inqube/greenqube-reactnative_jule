@@ -1,21 +1,15 @@
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, Modal, Linking, BackHandler } from 'react-native'
-import React, { useCallback, useEffect, useLayoutEffect, useState, memo } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
+import React, { useCallback, useEffect, useLayoutEffect, useState, memo, useContext } from 'react'
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { getItem } from '../../../config/getDataFromStorage';
-import ButtonForm from '../../Common/ButtonForm';
 import { LoanUpdate } from './LoanAPI';
-import { useSelector } from 'react-redux';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import LoadingScreen from '../../Common/LoadingScreen';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const LoanEnquiryDetail = () => {
-    const loanData = useSelector(state => state.LoanReducer);
-    const { t } = useTranslation();
+    //GQR-67
+    const { LoadingScreen, t, Toast,
+        AlertMesg, getItem, Root, CustomHeader,
+        FormsTitle, InputTextForm, ButtonForm, logoImage, topBanner, } = useContext(userCreateContext);
+    //GQR-67
     const navigation = useNavigation();
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
@@ -39,12 +33,6 @@ const LoanEnquiryDetail = () => {
         { uri: "", name: "", type: "", fileName: "", value: "" },
         { uri: "", name: "", type: "", fileName: "", value: "" },
     ]);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const [plotArr, setplotArr] = useState([]);
     // const { user_id, id,
     //     status,
@@ -163,28 +151,11 @@ const LoanEnquiryDetail = () => {
     );
     const onPageLoad = async () => {
         setIsLoading(true);
-        const address_proofArr = agri_files.filter(item =>
-            item.term_type === "loan_address"
-        );
-        const loan_landArr = agri_files.filter(item =>
-            item.term_type === "loan_land"
-        );
-        const [currency_res, loginUser_data] = await Promise.all([
-            getItem('currency'),
-            getItem('loginUser_data'),
-        ]);
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id
-            })
-        }
+        const address_proofArr = agri_files.filter(item => item.term_type === "loan_address");
+        const loan_landArr = agri_files.filter(item => item.term_type === "loan_land");
+        const currency_res = await getItem('currency');
+        // const { dbname, lan_id, token, user_id } = loginUser_data;
         setCurrencyt(currency_res);
-        let loanLandArr = [];
         setSaveData({
             ...saveData, ...{
                 user_id: user_id,
@@ -219,11 +190,8 @@ const LoanEnquiryDetail = () => {
         onPageLoad();
     }, []);
     useEffect(() => {
-        const loan_identityArr = agri_files.filter(item =>
-            item.term_type === "loan_identity"
-        );
+        const loan_identityArr = agri_files.filter(item => item.term_type === "loan_identity");
         if (loan_identityArr.length > 0) {
-            // const identityProofValue = [...identityProof];
             if (loan_identityArr[0] != undefined) {
                 setIdentityProof({
                     uri: loan_identityArr[0]?.file_path,
@@ -232,12 +200,9 @@ const LoanEnquiryDetail = () => {
                     fileName: loan_identityArr[0]?.file_name
                 });
             }
-            // setIdentityProof(identityProofValue);
         }
         let plotDataArr = [];
-        loan_plots.filter((data, index) => {
-            plotDataArr.push(data?.agri_land_user_rel?.plot_no)
-        })
+        loan_plots.filter((data, index) => { plotDataArr.push(data?.agri_land_user_rel?.plot_no) })
         setplotArr(plotDataArr);
     }, []);
     const HandlerGoBack = () => {
@@ -306,7 +271,7 @@ const LoanEnquiryDetail = () => {
         <Root>
             {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
             <View style={{ flex: 1 }}>
-                <Modal
+                {modalVisible && <Modal
                     animationType="slide"
                     transparent={true}
                     visible={modalVisible}
@@ -326,8 +291,8 @@ const LoanEnquiryDetail = () => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
-                <CustomHeader path={'Loan'} HandlerGoBack={HandlerGoBack} />
+                </Modal>}
+                <CustomHeader path={'Loan'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={'Loan Enquiry Detail'} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.container}>

@@ -54,7 +54,7 @@ const PackageItemDetails = () => {
                 <View >
                     <WebView
                         style={{
-                            height: height / 0.5,
+                            height: height / 1.7,
                             width: width,
                             marginBottom: 50
                         }}

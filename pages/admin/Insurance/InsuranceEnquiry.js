@@ -1,23 +1,19 @@
-import {
-    StyleSheet, Text, View,
-    TouchableOpacity, Image, Dimensions
-} from 'react-native'
-import React, { useState } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useState, useContext } from 'react'
 import RequestForInsurance from './RequestForInsurance';
 import ViewPastRequested from './ViewPastRequested';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const InsuranceEnquiry = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { t, CustomHeader, FormsTitle, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-67
     const navigation = useNavigation();
     const [activeBtn, setActiveBtn] = useState(2);
     const HandlerGoBack = () => navigation.navigate("Dashboard");
     return (
         <View style={{ flex: 1, height: Dimensions.get('window').height / 2 }}>
-            <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('insurance_inquiry')} />
             <View style={styles.container}>
                 <View style={styles.btnContainer}>
@@ -29,13 +25,7 @@ const InsuranceEnquiry = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            {
-                activeBtn === 1 ? <>
-                    <RequestForInsurance setActiveBtn={setActiveBtn} />
-                </> :
-                    <ViewPastRequested setActiveBtn={setActiveBtn} />
-
-            }
+            {activeBtn === 1 ? <> <RequestForInsurance setActiveBtn={setActiveBtn} /> </> : <ViewPastRequested setActiveBtn={setActiveBtn} />}
         </View>
     )
 }

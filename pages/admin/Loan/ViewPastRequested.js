@@ -9,7 +9,7 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewPastRequested = ({ setActiveBtn }) => {
     //GQR-67
     const { loginUser_data, LoadingScreen, t, Toast,
-        AlertMesg, getItem, Root, effective_dates, DatePickerComp, Filter,
+        AlertMesg, getItem, Root, effective_dates, DatePickerComp, Filter, handleFilter,
         farmerData } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     //GQR-67
@@ -69,47 +69,30 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setToDate(effective_date)
     }
     const onPageLoad = async () => {
-        // requestLivePermission();
         setIsLoading(true);
-        const currency_res = await getItem('currency');
-        setCurrencyt(currency_res)
-        const response = await loanRouteListAPI(dbname, lan_id, token, user_id, "", "", "");
+        const [currency_res, response] = await Promise.all([
+            getItem('currency'),
+            loanRouteListAPI(dbname, lan_id, token, user_id, "", "", "")
+        ])
         if (response?.status == 200) {
             if (response.data.data.rows.length != 0) {
-                setIsLoading(false);
-                setLoanList(response.data.data.rows);
-                setLoanListRaw(response.data.data.rows)
+                Promise.all([
+                    setIsLoading(false),
+                    setLoanList(response.data.data.rows),
+                    setLoanListRaw(response.data.data.rows),
+                    setCurrencyt(currency_res)
+                ])
             } else {
                 setIsLoading(false);
                 Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
             }
         }
     }
-    const handleFilterList = async (search) => {
+    const handleFilterList = async (item) => {
         if (filterName === 'Farmer/Product Name') {
-            setSearchFarmerName(search);
-            const result = farmerData.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
-            if (search == "") {
-                setSearchResultsList(false);
-                setLoanList(loanListRaw);
-            } else {
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
+            handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
         } else if (filterName === 'PhoneNumber') {
-            setSearchFarmerPhone(search);
-            const result = farmerData.filter(item => item.phone.toLowerCase().includes(search.toLowerCase()));
-            if (search == "") {
-                setSearchResultsList(false);
-                setLoanList(loanListRaw);
-            } else {
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
+            handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
         } else if (filterName === 'statusFilter') {
             setSearchResultsList(true);
             setStatusName(search);

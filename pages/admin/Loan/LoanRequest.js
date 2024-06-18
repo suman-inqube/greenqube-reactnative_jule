@@ -14,11 +14,11 @@ import {
 import { userCreateContext } from '../../Context/usersCreateContext';
 const LoanRequest = ({ setActiveBtn }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, Toast,
-        AlertMesg, onBackPress, getItem, InputTextForm, DropdownForm, ButtonFormBottom,
-        setItem, logoImage, topBanner, Root, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter,
+    const { loginUser_data, LoadingScreen, t, Toast,
+        AlertMesg, getItem, InputTextForm, DropdownForm, ButtonFormBottom,
+        Root,
         // handleResultSelect,
-        handlePageList, farmerData } = useContext(userCreateContext);
+        farmerData } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     //GQR-67
     const [isLoading, setIsLoading] = useState(false);

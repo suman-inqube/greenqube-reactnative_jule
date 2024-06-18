@@ -249,7 +249,7 @@ const Login = ({ route }) => {
             <ScrollView>
                 <View>
                     <View style={{ paddingHorizontal: 20 }}>
-                        <View>
+                        <View style={{ flex: 1, alignItems: 'center', marginTop: 50 }}>
                             <Image source={require('../pages/Common/images/logo.png')} style={styles.logo} />
                         </View>
                         <View>
@@ -325,14 +325,15 @@ const styles = StyleSheet.create({
     },
     button: {
         borderRadius: 5,
-    }, logo: {
+    },
+    logo: {
         width: 250,
         height: 100,
         resizeMode: 'contain',
         alignItems: 'center',
-        marginTop: 30,
-        marginBottom: 20,
-        marginLeft: 40,
+        // marginTop: 30,
+        // marginBottom: 20,
+        // marginLeft: 40,
     },
     loadingScreen: {
         position: 'absolute',

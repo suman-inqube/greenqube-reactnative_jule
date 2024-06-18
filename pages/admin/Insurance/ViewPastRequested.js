@@ -1,23 +1,20 @@
 import {
     StyleSheet, Text,
-    View, FlatList, TouchableOpacity, Image, SafeAreaView, ScrollView, Dimensions
+    View, FlatList, TouchableOpacity, Image, Dimensions
 } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import DatePickerComp from '../../Common/DatePickerComp';
-import Filter from '../../Common/Filter';
+import React, { useState, useEffect, useContext } from 'react'
 import ViewPast from './ViewPast';
 import {
     InsuranceListAPI,
 } from '../../../config/apiHere';
-import { loanRouteFarmerListAPI } from '../Loan/LoanAPI';
-import { getItem } from '../../../config/getDataFromStorage';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
-import { AlertMesg } from '../../Common/ToastAlert';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewPastRequested = ({ setActiveBtn }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, LoadingScreen, t, Toast,
+        AlertMesg, Root, DatePickerComp
+        , Filter, farmerData, effective_dates, handleFilter } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");
     const [filterName, setFilterName] = useState("");
@@ -36,13 +33,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [modalVisibleData, setModalVisibleData] = useState({});
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
-    const [farmerData, setfarmerData] = useState([]);
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -62,126 +52,44 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setSearchResultsList(false);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setfromDate(effective_date)
-        // console.log(effective_date);
+        const effective_date = effective_dates(item);
+        setfromDate(effective_date);
     }
     const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setToDate(effective_date)
+        const effective_date = effective_dates(item);
+        setToDate(effective_date);
     }
-    const handleFilter = (search) => {
-        if (filterName === 'Farmer/Product Name') {
-            setSearchFarmerPhone('');
-            setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setInsuranceList(insuranceListRow);
-            } else {
-                let tempData = insuranceListRow.filter(item => {
-                    return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                });
-                setInsuranceList(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        } else if (filterName === 'PhoneNumber') {
-            setSearchFarmerName('');
-            setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setInsuranceList(insuranceListRow)
-            } else {
-                let tempData = insuranceListRow.filter(item => {
-                    return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                });
-                setInsuranceList(tempData);
-                setSearchResultsList(false);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        }
+    const handleFilterList = (item) => {
+        handleFilter(item, filterName, farmerData, insuranceListRow, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, insuranceList, setSearchResults);
     }
-    const handleResultSelect = async (name, currentfarmerId, phone) => {
+    const handleResultSelectList = async (name, currentfarmerId, phone) => {
         setSearchResultsList(false);
         setSearchFarmerPhone(phone)
         setSearchFarmerName(name);
         setSearchResults([]);
         if (name !== '') {
-            let tempData = insuranceListRow.filter(item => {
-                return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1;;
-            });
+            let tempData = insuranceListRow.filter(item => { return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1 });
             setInsuranceList(tempData);
         } else {
-            let tempData = insuranceListRow.filter(item => {
-                return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;;
-            });
+            let tempData = insuranceListRow.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
             setInsuranceList(tempData);
         }
     }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const [response, farmerByName] = await Promise.all([
-                InsuranceListAPI(dbName, languageID, token, userID, "", "", ""),
-                loanRouteFarmerListAPI(dbName, languageID, token, userID)
-            ]);
-            if (response) {
-                if (response.data.data.rows.length == 0) {
-                    Toast.show({
-                        text: `${t('no_data_found')}`, ...AlertMesg[0]
-                    })
-                }
-                setIsLoading(false);
-                setInsuranceList(response.data.data.rows);
-                setInsuranceListRow(response.data.data.rows)
+        const response = await InsuranceListAPI(dbname, lan_id, token, user_id, "", "", "");
+        if (response?.status == 200) {
+            if (response.data.data.rows.length == 0) {
+                Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] })
             }
-            if (farmerByName.status === 200) {
-                const dataArray = [];
-                farmerByName.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setfarmerData(dataArray)
-            }
+            setIsLoading(false);
+            setInsuranceList(response.data.data.rows);
+            setInsuranceListRow(response.data.data.rows)
         }
     };
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
-            let tempData = insuranceListRow.filter(item => {
-                return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                    item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
-            });
+            let tempData = insuranceListRow.filter(item => { return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate && item.agri_user.CreateDateTime.slice(0, 10) <= toDate) });
             setInsuranceList(tempData)
         }
     }
@@ -226,7 +134,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                                 style={searchResults.length > 8 ? styles.flatlistHeight : ""}
                                 data={searchResults}
                                 renderItem={({ item }) => (
-                                    <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
+                                    <TouchableOpacity onPress={() => handleResultSelectList(item)} style={styles.flatlistitem}>
                                         <Text style={styles.flatlisttitle}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
                                     </TouchableOpacity>
                                 )}
@@ -256,7 +164,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                         setOpenFromDate={setOpenFromDate}
                         filterOptionShow={filterOptionShow}
                         onchangeFilterItem={onchangeFilterItem}
-                        onChangeText={(item) => handleFilter(item)}
+                        onChangeText={(item) => handleFilterList(item)}
                         FarmerProductNameValue={searchFarmerName}
                         FarmerProductPhoneValue={searchFarmerPhone}
                         filterDataRemove={filterDataRemove}
