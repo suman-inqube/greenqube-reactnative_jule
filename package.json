@@ -66,6 +66,7 @@
     "react-native-sound-playerview": "^1.0.0",
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-track-player": "^4.1.1",
+    "react-native-version-check": "^3.4.7",
     "react-native-video": "^6.0.0",
     "react-native-view-shot": "^3.8.0",
     "react-native-webview": "^13.6.2",

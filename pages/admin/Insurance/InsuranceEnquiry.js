@@ -25,7 +25,7 @@ const InsuranceEnquiry = () => {
                     </TouchableOpacity>
                 </View>
             </View>
-            {activeBtn === 1 ? <> <RequestForInsurance setActiveBtn={setActiveBtn} /> </> : <ViewPastRequested setActiveBtn={setActiveBtn} />}
+            {activeBtn === 1 ? <RequestForInsurance setActiveBtn={setActiveBtn} /> : <ViewPastRequested setActiveBtn={setActiveBtn} />}
         </View>
     )
 }

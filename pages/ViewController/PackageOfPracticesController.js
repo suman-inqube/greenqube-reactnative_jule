@@ -180,10 +180,17 @@ const PackageOfPracticesController = () => {
             const { package_of_practice_list } = StaticMenuListDetails.data.data[0];
             if (package_of_practice_list.length > 0) {
                 navigation.navigate('PackageItemDetails', { package_of_practice_list: package_of_practice_list[0].content, menu_name: menu_name })
+                for (i = 0; i <= package_of_practice_list.length; i++) {
+                    if (null === package_of_practice_list[i]?.static_submenu_id) {
+                        navigation.navigate('PackageItemDetails', {
+                            package_of_practice_list:
+                                package_of_practice_list[i].content,
+                            menu_name: menu_name,
+                        });
+                    }
+                }
             }
         }
-        // console.log(StaticMenuListDetails.data.data)
-        // navigation.navigate('PackageItemDetails', { content: item, title: title, paramsData: paramsData })
     }
     return {
         HandlerGoBack,

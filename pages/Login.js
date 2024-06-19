@@ -157,9 +157,7 @@ const Login = ({ route }) => {
                         }
                         if (loginUserdata.userType === 3) {
                             AllFarmerList();
-                            setTimeout(() => {
-                                navigation.navigate('AdminNavigation');
-                            }, 1500);
+                            navigation.navigate('AdminNavigation');
                         } else if (loginUserdata.userType === 2) {
                             navigation.navigate('FarmerNavigation');
                         }

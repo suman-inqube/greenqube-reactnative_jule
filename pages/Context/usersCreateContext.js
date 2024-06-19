@@ -169,7 +169,6 @@ const UserCreateContextProvider = (props) => {
                     const prePage = currentPageNo - 1
                     setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
                     const response = await Api(dbname, lan_id, token, user_id, prePage);
-
                     if (response?.status == 200) {
                         if (response.data.data.rows.length == 0) {
                             Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
