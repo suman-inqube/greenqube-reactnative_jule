@@ -1932,6 +1932,146 @@
     "color" "^4.2.3"
     "warn-once" "^0.1.0"
 
+"@sentry-internal/feedback@7.117.0":
+  "integrity" "sha512-4X+NnnY17W74TymgLFH7/KPTVYpEtoMMJh8HzVdCmHTOE6j32XKBeBMRaXBhmNYmEgovgyRKKf2KvtSfgw+V1Q=="
+  "resolved" "https://registry.npmjs.org/@sentry-internal/feedback/-/feedback-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/core" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry-internal/replay-canvas@7.117.0":
+  "integrity" "sha512-7hjIhwEcoosr+BIa0AyEssB5xwvvlzUpvD5fXu4scd3I3qfX8gdnofO96a8r+LrQm3bSj+eN+4TfKEtWb7bU5A=="
+  "resolved" "https://registry.npmjs.org/@sentry-internal/replay-canvas/-/replay-canvas-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/core" "7.117.0"
+    "@sentry/replay" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry-internal/tracing@7.117.0":
+  "integrity" "sha512-fAIyijNvKBZNA12IcKo+dOYDRTNrzNsdzbm3DP37vJRKVQu19ucqP4Y6InvKokffDP2HZPzFPDoGXYuXkDhUZg=="
+  "resolved" "https://registry.npmjs.org/@sentry-internal/tracing/-/tracing-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/core" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry/browser@7.117.0":
+  "integrity" "sha512-29X9HlvDEKIaWp6XKlNPPSNND0U6P/ede5WA2nVHfs1zJLWdZ7/ijuMc0sH/CueEkqHe/7gt94hBcI7HOU/wSw=="
+  "resolved" "https://registry.npmjs.org/@sentry/browser/-/browser-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry-internal/feedback" "7.117.0"
+    "@sentry-internal/replay-canvas" "7.117.0"
+    "@sentry-internal/tracing" "7.117.0"
+    "@sentry/core" "7.117.0"
+    "@sentry/integrations" "7.117.0"
+    "@sentry/replay" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry/cli-win32-x64@2.31.2":
+  "integrity" "sha512-XIzyRnJu539NhpFa+JYkotzVwv3NrZ/4GfHB/JWA2zReRvsk39jJG8D5HOmm0B9JA63QQT7Dt39RW8g3lkmb6w=="
+  "resolved" "https://registry.npmjs.org/@sentry/cli-win32-x64/-/cli-win32-x64-2.31.2.tgz"
+  "version" "2.31.2"
+
+"@sentry/cli@2.31.2":
+  "integrity" "sha512-2aKyUx6La2P+pplL8+2vO67qJ+c1C79KYWAyQBE0JIT5kvKK9JpwtdNoK1F0/2mRpwhhYPADCz3sVIRqmL8cQQ=="
+  "resolved" "https://registry.npmjs.org/@sentry/cli/-/cli-2.31.2.tgz"
+  "version" "2.31.2"
+  dependencies:
+    "https-proxy-agent" "^5.0.0"
+    "node-fetch" "^2.6.7"
+    "progress" "^2.0.3"
+    "proxy-from-env" "^1.1.0"
+    "which" "^2.0.2"
+  optionalDependencies:
+    "@sentry/cli-darwin" "2.31.2"
+    "@sentry/cli-linux-arm" "2.31.2"
+    "@sentry/cli-linux-arm64" "2.31.2"
+    "@sentry/cli-linux-i686" "2.31.2"
+    "@sentry/cli-linux-x64" "2.31.2"
+    "@sentry/cli-win32-i686" "2.31.2"
+    "@sentry/cli-win32-x64" "2.31.2"
+
+"@sentry/core@7.117.0":
+  "integrity" "sha512-1XZ4/d/DEwnfM2zBMloXDwX+W7s76lGKQMgd8bwgPJZjjEztMJ7X0uopKAGwlQcjn242q+hsCBR6C+fSuI5kvg=="
+  "resolved" "https://registry.npmjs.org/@sentry/core/-/core-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry/hub@7.117.0":
+  "integrity" "sha512-pQrXnbzsRHCUsVIqz/sZ0vggnxuuHqsmyjoy2Ha1qn1Ya4QbyAWEEGoZTnZx6I/Vt3dzVvRnR3YCywatdkaFxg=="
+  "resolved" "https://registry.npmjs.org/@sentry/hub/-/hub-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/core" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry/integrations@7.117.0":
+  "integrity" "sha512-U3suSZysmU9EiQqg0ga5CxveAyNbi9IVdsapMDq5EQGNcVDvheXtULs+BOc11WYP3Kw2yWB38VDqLepfc/Fg2g=="
+  "resolved" "https://registry.npmjs.org/@sentry/integrations/-/integrations-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/core" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+    "localforage" "^1.8.1"
+
+"@sentry/react-native@^5.24.0":
+  "integrity" "sha512-f+niMF7lQHbz32iEDbS67tyCDpjsz6IpiG2GGgsRmGWRLE7vOg1Q+fo6o6QQ6AbsyaPLQPnmIHhQVzwNQa9XYg=="
+  "resolved" "https://registry.npmjs.org/@sentry/react-native/-/react-native-5.24.0.tgz"
+  "version" "5.24.0"
+  dependencies:
+    "@sentry/browser" "7.117.0"
+    "@sentry/cli" "2.31.2"
+    "@sentry/core" "7.117.0"
+    "@sentry/hub" "7.117.0"
+    "@sentry/integrations" "7.117.0"
+    "@sentry/react" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry/react@7.117.0":
+  "integrity" "sha512-aK+yaEP2esBhaczGU96Y7wkqB4umSIlRAzobv7ER88EGHzZulRaocTpQO8HJJGDHm4D8rD+E893BHnghkoqp4Q=="
+  "resolved" "https://registry.npmjs.org/@sentry/react/-/react-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/browser" "7.117.0"
+    "@sentry/core" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+    "hoist-non-react-statics" "^3.3.2"
+
+"@sentry/replay@7.117.0":
+  "integrity" "sha512-V4DfU+x4UsA4BsufbQ8jHYa5H0q5PYUgso2X1PR31g1fpx7yiYguSmCfz1UryM6KkH92dfTnqXapDB44kXOqzQ=="
+  "resolved" "https://registry.npmjs.org/@sentry/replay/-/replay-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry-internal/tracing" "7.117.0"
+    "@sentry/core" "7.117.0"
+    "@sentry/types" "7.117.0"
+    "@sentry/utils" "7.117.0"
+
+"@sentry/types@7.117.0":
+  "integrity" "sha512-5dtdulcUttc3F0Te7ekZmpSp/ebt/CA71ELx0uyqVGjWsSAINwskFD77sdcjqvZWek//WjiYX1+GRKlpJ1QqsA=="
+  "resolved" "https://registry.npmjs.org/@sentry/types/-/types-7.117.0.tgz"
+  "version" "7.117.0"
+
+"@sentry/utils@7.117.0":
+  "integrity" "sha512-KkcLY8643SGBiDyPvMQOubBkwVX5IPknMHInc7jYC8pDVncGp7C65Wi506bCNPpKCWspUd/0VDNWOOen51/qKA=="
+  "resolved" "https://registry.npmjs.org/@sentry/utils/-/utils-7.117.0.tgz"
+  "version" "7.117.0"
+  dependencies:
+    "@sentry/types" "7.117.0"
+
 "@sideway/address@^4.1.3":
   "integrity" "sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw=="
   "resolved" "https://registry.npmjs.org/@sideway/address/-/address-4.1.4.tgz"
@@ -2241,6 +2381,13 @@
   "integrity" "sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w=="
   "resolved" "https://registry.npmjs.org/acorn/-/acorn-8.11.2.tgz"
   "version" "8.11.2"
+
+"agent-base@6":
+  "integrity" "sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ=="
+  "resolved" "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz"
+  "version" "6.0.2"
+  dependencies:
+    "debug" "4"
 
 "ajv@^6.12.4":
   "integrity" "sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g=="
@@ -3038,7 +3185,7 @@
   dependencies:
     "ms" "2.0.0"
 
-"debug@^4.1.0", "debug@^4.1.1", "debug@^4.3.2", "debug@^4.3.4":
+"debug@^4.1.0", "debug@^4.1.1", "debug@^4.3.2", "debug@^4.3.4", "debug@4":
   "integrity" "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ=="
   "resolved" "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
   "version" "4.3.4"
@@ -4065,7 +4212,7 @@
   dependencies:
     "source-map" "^0.7.3"
 
-"hoist-non-react-statics@^3.3.0":
+"hoist-non-react-statics@^3.3.0", "hoist-non-react-statics@^3.3.2":
   "integrity" "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="
   "resolved" "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz"
   "version" "3.3.2"
@@ -4113,6 +4260,14 @@
     "statuses" "2.0.1"
     "toidentifier" "1.0.1"
 
+"https-proxy-agent@^5.0.0":
+  "integrity" "sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA=="
+  "resolved" "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-5.0.1.tgz"
+  "version" "5.0.1"
+  dependencies:
+    "agent-base" "6"
+    "debug" "4"
+
 "human-signals@^2.1.0":
   "integrity" "sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw=="
   "resolved" "https://registry.npmjs.org/human-signals/-/human-signals-2.1.0.tgz"
@@ -4141,6 +4296,11 @@
   "version" "1.0.2"
   dependencies:
     "queue" "6.0.2"
+
+"immediate@~3.0.5":
+  "integrity" "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ=="
+  "resolved" "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz"
+  "version" "3.0.6"
 
 "import-fresh@^2.0.0":
   "integrity" "sha512-eZ5H8rcgYazHbKC3PG4ClHNykCSxtAhxSSEM+2mb+7evD2CKF5V7c0dNum7AdpDh0ZdICwZY9sRSn8f+KH96sg=="
@@ -5062,10 +5222,24 @@
     "prelude-ls" "^1.2.1"
     "type-check" "~0.4.0"
 
+"lie@3.1.1":
+  "integrity" "sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw=="
+  "resolved" "https://registry.npmjs.org/lie/-/lie-3.1.1.tgz"
+  "version" "3.1.1"
+  dependencies:
+    "immediate" "~3.0.5"
+
 "lines-and-columns@^1.1.6":
   "integrity" "sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg=="
   "resolved" "https://registry.npmjs.org/lines-and-columns/-/lines-and-columns-1.2.4.tgz"
   "version" "1.2.4"
+
+"localforage@^1.8.1":
+  "integrity" "sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg=="
+  "resolved" "https://registry.npmjs.org/localforage/-/localforage-1.10.0.tgz"
+  "version" "1.10.0"
+  dependencies:
+    "lie" "3.1.1"
 
 "locate-path@^3.0.0":
   "integrity" "sha512-7AO748wWnIhNqAuaty2ZWHkQHRSNfPVIsPIfwEOWO22AmaoVrWavlOcMR5nzTLNYvp36X220/maaRsrec1G65A=="
@@ -5586,7 +5760,7 @@
   dependencies:
     "minimatch" "^3.0.2"
 
-"node-fetch@^2.2.0", "node-fetch@^2.6.0", "node-fetch@^2.6.12":
+"node-fetch@^2.2.0", "node-fetch@^2.6.0", "node-fetch@^2.6.12", "node-fetch@^2.6.7":
   "integrity" "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A=="
   "resolved" "https://registry.npmjs.org/node-fetch/-/node-fetch-2.7.0.tgz"
   "version" "2.7.0"
@@ -5959,6 +6133,11 @@
   "resolved" "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
   "version" "2.0.1"
 
+"progress@^2.0.3":
+  "integrity" "sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA=="
+  "resolved" "https://registry.npmjs.org/progress/-/progress-2.0.3.tgz"
+  "version" "2.0.3"
+
 "promise@^7.1.1":
   "integrity" "sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg=="
   "resolved" "https://registry.npmjs.org/promise/-/promise-7.3.1.tgz"
@@ -6168,6 +6347,16 @@
   "version" "2.10.0"
   dependencies:
     "lodash" "^4.17.21"
+
+"react-native-error-boundary@^1.2.4":
+  "integrity" "sha512-PF5xn+3mGKk8uzf9GpOQa1kvxsG3Bs3XMwJZNqqUG//jC1FDp+WRGxg4r2sPG70MveSOQmQNuHnAycCPYQNg6g=="
+  "resolved" "https://registry.npmjs.org/react-native-error-boundary/-/react-native-error-boundary-1.2.4.tgz"
+  "version" "1.2.4"
+
+"react-native-exception-handler@^2.10.10":
+  "integrity" "sha512-otAXGoZDl1689OoUJWN/rXxVbdoZ3xcmyF1uq/CsizdLwwyZqVGd6d+p/vbYvnF996FfEyAEBnHrdFxulTn51w=="
+  "resolved" "https://registry.npmjs.org/react-native-exception-handler/-/react-native-exception-handler-2.10.10.tgz"
+  "version" "2.10.10"
 
 "react-native-fast-base64@^0.1.1":
   "integrity" "sha512-LBwGGdAQirfU++1r4DX1ufkWKUhY6wwVEbVhyH247YXeubW0jxl7+yl8xlOchz6W/J1KFzXrGTcMiHlv+OpIig=="
@@ -7515,7 +7704,7 @@
     "gopd" "^1.0.1"
     "has-tostringtag" "^1.0.0"
 
-"which@^2.0.1":
+"which@^2.0.1", "which@^2.0.2":
   "integrity" "sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA=="
   "resolved" "https://registry.npmjs.org/which/-/which-2.0.2.tgz"
   "version" "2.0.2"

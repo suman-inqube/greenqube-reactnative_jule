@@ -1619,8 +1619,8 @@ export const POPStaticMenuListDetails = async (
             information: `${dbName},${lan_id}`,
         },
     };
-    console.log(axiosHeaders)
-    console.log(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`)
+    // console.log(axiosHeaders)
+    // console.log(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`)
     try {
         let response = await axios.get(`${config.BASE_URL}popRoute/listPopByStaticMenuId/${staticMenuId}?crop_type_id=&crop_id=${crop_id}&static_submenu_id=`,
             axiosHeaders,

@@ -36,81 +36,83 @@ import store from './pages/redux/store';
 // import messaging from '@react-native-firebase/messaging';
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
-import { Alert } from 'react-native';
+import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 function App() {
   return (
-    <Provider store={store}>
-      <NavigationContainer ref={navigationRef}>
-        <Stack.Navigator initialRouteName="SplashScreen">
-          {/* <Stack.Navigator > */}
-          {/* <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }}/> */}
-          {/* <Stack.Screen name="Products" component={Products} options={{ headerShown: false }} />
+    <MyErrorBoundary>
+      <Provider store={store}>
+        <NavigationContainer ref={navigationRef}>
+          <Stack.Navigator initialRouteName="SplashScreen">
+            {/* <Stack.Navigator > */}
+            {/* <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }}/> */}
+            {/* <Stack.Screen name="Products" component={Products} options={{ headerShown: false }} />
         <Stack.Screen name="PostEnquiries" component={PostEnquiries} options={{ headerShown: false }} />
         <Stack.Screen name="PostEnquiriesModel" component={PostEnquiriesModel} options={{ headerShown: false }} /> */}
-          <Stack.Screen
-            name="FarmerNavigation"
-            component={FarmerNavigation}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="AdminNavigation"
-            component={AdminNavigation}
-            options={{ headerShown: false }}
-          />
+            <Stack.Screen
+              name="FarmerNavigation"
+              component={FarmerNavigation}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="AdminNavigation"
+              component={AdminNavigation}
+              options={{ headerShown: false }}
+            />
 
-          <Stack.Screen
-            name="SplashScreen"
-            component={SplashScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ProduceInfo"
-            component={ProduceInfo}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Signup"
-            component={Signup}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Persnol"
-            component={Persnol}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SignUpViwer"
-            component={SignUpViwer}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Financial"
-            component={Financial}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ProduceInfoUpdate"
-            component={ProduceInfoUpdate}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="PersnolUpdate"
-            component={PersnolUpdate}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="FinancialUpdate"
-            component={FinancialUpdate}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </Provider>
+            <Stack.Screen
+              name="SplashScreen"
+              component={SplashScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ProduceInfo"
+              component={ProduceInfo}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Signup"
+              component={Signup}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Persnol"
+              component={Persnol}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SignUpViwer"
+              component={SignUpViwer}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Financial"
+              component={Financial}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ProduceInfoUpdate"
+              component={ProduceInfoUpdate}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="PersnolUpdate"
+              component={PersnolUpdate}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="FinancialUpdate"
+              component={FinancialUpdate}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
+    </MyErrorBoundary>
   );
 }
 

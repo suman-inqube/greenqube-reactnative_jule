@@ -282,7 +282,7 @@ const Login = ({ route }) => {
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10 }}>
-                <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
+                <ButtonForm label={t('sign_in_submit')} onPress={() => saveHandle()} />
             </View>
         </Root>
     )
