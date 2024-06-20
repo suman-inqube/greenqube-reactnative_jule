@@ -353,12 +353,12 @@ const FarmerLiveHood = ({ navigation }) => {
         const fusedLocation = await getItem('fusedLocation');
         const { latitude, longitude } = fusedLocation;
         const values = [...location];
-        if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
-            values[index] = { "latitude": latitude, "longitude": longitude }
-            setLocation(values);
-        } else {
-            Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
-        }
+        // if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
+        values[index] = { "latitude": latitude, "longitude": longitude }
+        setLocation(values);
+        // } else {
+        //     Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
+        // }
     }
     const handleAddData = async (item, name, value) => {
         let selectUnitValue = "";

@@ -72,102 +72,103 @@ const Login = ({ route }) => {
         const [fcmToken_res] = await Promise.all([
             getItem('fcmToken'),
         ])
-        if (validateForm()) {
-            const inputdata = {
-                "FcmUserToken": fcmToken_res,
-                "IMEINumber": "123456",
-                "company": storeLoginUser.company,
-                "contactNumber": storeLoginUser.phone,
-                "password": storeLoginUser.password,
-                "type": storeLoginUser.role
-            };
-            try {
-                console.log(inputdata)
-                setIsLoading(true);
-                let userIno = await axios.post(config.loginAPI, inputdata);
-                if (userIno?.status === 200) {
-                    const loginUserdata = userIno.data.data[0];
-                    const details_company_res = await DetailsCompany(loginUserdata?.dbname, loginUserdata?.lan_id, loginUserdata?.db_company_id);
-                    if (details_company_res?.status == 200) {
-                        await setItem("side_menu_option", {
-                            soil_testing: details_company_res?.data?.data[0]?.soil_testing,
-                            agri_calculator: details_company_res?.data?.data[0]?.agri_calculator
-                        });
+        // if (validateForm()) {
+        const inputdata = {
+            "FcmUserToken": fcmToken_res,
+            "IMEINumber": "123456",
+            "company": storeLoginUser.company,
+            "contactNumber": storeLoginUser.phone,
+            "password": storeLoginUser.password,
+            "type": storeLoginUser.role
+        };
+        try {
+            console.log(config.loginAPI)
+            console.log(inputdata)
+            setIsLoading(true);
+            let userIno = await axios.post(config.loginAPI, inputdata);
+            if (userIno?.status === 200) {
+                const loginUserdata = userIno.data.data[0];
+                const details_company_res = await DetailsCompany(loginUserdata?.dbname, loginUserdata?.lan_id, loginUserdata?.db_company_id);
+                if (details_company_res?.status == 200) {
+                    await setItem("side_menu_option", {
+                        soil_testing: details_company_res?.data?.data[0]?.soil_testing,
+                        agri_calculator: details_company_res?.data?.data[0]?.agri_calculator
+                    });
+                }
+                await Promise.all([
+                    setItem("userNameData", loginUserdata.userName),
+                    setItem("userType", loginUserdata.userType)
+                ]);
+                if (loginUserdata.agri_files.length > 0) {
+                    const profileImg = loginUserdata.agri_files.find((item) => item.term_type === '1');
+                    if (typeof profileImg != "undefined") {
+                        await setItem("profileImgData", profileImg.file_path)
                     }
-                    await Promise.all([
-                        setItem("userNameData", loginUserdata.userName),
-                        setItem("userType", loginUserdata.userType)
-                    ]);
-                    if (loginUserdata.agri_files.length > 0) {
-                        const profileImg = loginUserdata.agri_files.find((item) => item.term_type === '1');
-                        if (typeof profileImg != "undefined") {
-                            await setItem("profileImgData", profileImg.file_path)
-                        }
+                } else {
+                    await setItem("profileImgData", "");
+                }
+                await setItem('loginUser_data', loginUserdata);
+                setstoreLoginUser({
+                    ...storeLoginUser,
+                    phone: "",
+                    password: "",
+                    role: ""
+                })
+                const [fpoDetailsList_res, reginalRes] = await Promise.all([
+                    fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
+                    reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
+                ]);
+                if (fpoDetailsList_res.status === 200) {
+                    const { company_website } = fpoDetailsList_res.data.data[0];
+                    var url_regex = /^(http|https)/;
+                    if (url_regex.test(String(company_website).toLowerCase()) == true) {
+                        await setItem("company_website", company_website);
                     } else {
-                        await setItem("profileImgData", "");
-                    }
-                    await setItem('loginUser_data', loginUserdata);
-                    setstoreLoginUser({
-                        ...storeLoginUser,
-                        phone: "",
-                        password: "",
-                        role: ""
-                    })
-                    const [fpoDetailsList_res, reginalRes] = await Promise.all([
-                        fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
-                        reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
-                    ]);
-                    if (fpoDetailsList_res.status === 200) {
-                        const { company_website } = fpoDetailsList_res.data.data[0];
-                        var url_regex = /^(http|https)/;
-                        if (url_regex.test(String(company_website).toLowerCase()) == true) {
-                            await setItem("company_website", company_website);
-                        } else {
-                            await setItem("company_website", `https://${company_website}`);
-                        }
-                    }
-                    if (reginalRes.status === 200) {
-                        const datam = reginalRes.data.data.rows;
-                        datam.map(async (item) => {
-                            if (item.static_cid === 1) {
-                                await setItem("state", item.categoryName);
-                            } else if (item.static_cid === 2) {
-                                await setItem("district", item.categoryName);
-                            } else if (item.static_cid === 3) {
-                                await setItem("block", item.categoryName);
-                            } else if (item.static_cid === 4) {
-                                await setItem("currency", item.categoryName);
-                            }
-                        });
-                    }
-                    if (fpoDetailsList_res.status === 200) {
-                        const agri_files = fpoDetailsList_res.data.data[0].agri_files;
-                        const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
-                        if (typeof foundbotomBannerFind != "undefined") {
-                            await setItem("bottomBannerData", foundbotomBannerFind.file_path);
-                        }
-                        const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
-                        if (typeof foundlogoFindFind != "undefined") {
-                            await setItem("logoImageData", foundlogoFindFind.file_path);
-                        }
-                        const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
-                        if (typeof foundtopBannerFind != "undefined") {
-                            await setItem("topBannerData", foundtopBannerFind.file_path);
-                        }
-                        const userType = await getItem("userType");
-                        setIsLoading(false);
-                        if (userType === 3) {
-                            navigation.navigate('AdminNavigation');
-                        } else if (userType === 2) {
-                            navigation.navigate('FarmerNavigation');
-                        }
+                        await setItem("company_website", `https://${company_website}`);
                     }
                 }
-            } catch (error) {
-                Toast.show({ text: `${error.response.data.error.errorMessage}`, ...AlertMesg[0] })
-                setIsLoading(false);
+                if (reginalRes.status === 200) {
+                    const datam = reginalRes.data.data.rows;
+                    datam.map(async (item) => {
+                        if (item.static_cid === 1) {
+                            await setItem("state", item.categoryName);
+                        } else if (item.static_cid === 2) {
+                            await setItem("district", item.categoryName);
+                        } else if (item.static_cid === 3) {
+                            await setItem("block", item.categoryName);
+                        } else if (item.static_cid === 4) {
+                            await setItem("currency", item.categoryName);
+                        }
+                    });
+                }
+                if (fpoDetailsList_res.status === 200) {
+                    const agri_files = fpoDetailsList_res.data.data[0].agri_files;
+                    const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
+                    if (typeof foundbotomBannerFind != "undefined") {
+                        await setItem("bottomBannerData", foundbotomBannerFind.file_path);
+                    }
+                    const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
+                    if (typeof foundlogoFindFind != "undefined") {
+                        await setItem("logoImageData", foundlogoFindFind.file_path);
+                    }
+                    const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
+                    if (typeof foundtopBannerFind != "undefined") {
+                        await setItem("topBannerData", foundtopBannerFind.file_path);
+                    }
+                    const userType = await getItem("userType");
+                    setIsLoading(false);
+                    if (userType === 3) {
+                        navigation.navigate('AdminNavigation');
+                    } else if (userType === 2) {
+                        navigation.navigate('FarmerNavigation');
+                    }
+                }
             }
+        } catch (error) {
+            Toast.show({ text: `${error.response.data.error.errorMessage}`, ...AlertMesg[0] })
+            setIsLoading(false);
         }
+        // }
     }
     const onPageLoad = async () => {
         const [companyLanguage_data, company_res] = await Promise.all([

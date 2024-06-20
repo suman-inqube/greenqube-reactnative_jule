@@ -252,7 +252,7 @@ const FarmerCreateProblem = ({ navigation }) => {
             response.data.data.rows[0].crop_name_id,
           );
         }
-        if (productionStage_res) {
+        if (productionStage_res?.status == 200) {
           const dataArray = [];
           productionStage_res.data.data.growth_stage.forEach(element => {
             dataArray.push({

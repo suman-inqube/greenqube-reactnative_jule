@@ -465,7 +465,6 @@ export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID,
 
 export const problemProductionStageAPI = async (dbName, languageID, cropTypeId, cropNameID) => {
     // return console.log(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`);
-
     const axiosHeaders = {
         headers: {
             'information': `${dbName},${languageID}`,

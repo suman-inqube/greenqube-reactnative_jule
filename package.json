@@ -61,7 +61,7 @@
     "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "~2.2.0",
     "react-native-render-html": "^6.3.4",
-    "react-native-safe-area-context": "^4.7.2",
+    "react-native-safe-area-context": "^3.0.6",
     "react-native-screens": "^3.25.0",
     "react-native-simple-audio-player": "^1.0.3",
     "react-native-sound": "^0.11.2",
