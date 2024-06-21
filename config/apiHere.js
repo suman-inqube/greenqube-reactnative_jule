@@ -1317,25 +1317,18 @@ export const ChangePasswordApi = async (dbName, language, userId, formData) => {
         return error.response;
     }
 }
-
-
 /******farmerProblem*****/
-export const farmerProblemListAPI = async (dbName, languageID, userID, farmer_type, question_type, page_no) => {
-    const axiosHeaders = {
-        headers: {
-            'information': `${dbName},${userID}`,
-        },
-    };
+export const farmerProblemListAPI = async (dbName, languageID, token, userID, page_no, farmer_type, question_type) => {
+    const axiosHeaders = { headers: { 'information': `${dbName},${userID}` } };
     try {
         let response = await axios.get(`${config.BASE_URL}questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
-        return console.log("error in Problem api" + error.response);
+        return error.response;
     }
 
 }
-
 export const farmerFarmaccountsListAPI = async (dbName, languageId, token, userId, pageNo, fromDate, toDate) => {
     const axiosHeaders = {
         headers: {

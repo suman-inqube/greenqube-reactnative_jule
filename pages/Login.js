@@ -155,8 +155,8 @@ const Login = ({ route }) => {
                             await setItem("topBannerData", foundtopBannerFind.file_path);
                             settopBanner(foundtopBannerFind.file_path);
                         }
+                        AllFarmerList();
                         if (loginUserdata.userType === 3) {
-                            AllFarmerList();
                             navigation.navigate('AdminNavigation');
                         } else if (loginUserdata.userType === 2) {
                             navigation.navigate('FarmerNavigation');

@@ -28,7 +28,7 @@ const UserCreateContextProvider = (props) => {
     const { t } = useTranslation();
     const [dbLanTokUsr, setdbLanTokUsr] = useState({
         pageNo: 1, dbName: '', languageId: '', token: '', supervisorId: '', country: '', company: '', agri_user_addresses: '',
-        currentPage: '', totalPage: '', userType: '', FcmUserToken: '', owner: '',
+        currentPage: '', totalPage: '', userType: '', FcmUserToken: '', owner: '', farmerId: ''
     });
     const [farmerData, setFarmerData] = useState([]);
     const [loginUser_data, setloginUser_data] = useState({});
@@ -53,15 +53,24 @@ const UserCreateContextProvider = (props) => {
             farmer_response = await getItem('farmerByNameAPI');
         }
         if (farmer_response?.status == 200) {
+            let supervisorId = '';
+            if (loginUser_data.userType == 2) {
+                supervisorId = loginUser_data?.owner?.user_id
+            } else if (loginUser_data.userType == 3) {
+                supervisorId = loginUser_data?.user_id
+            }
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 dbName: loginUser_data?.dbname,
                 languageId: loginUser_data?.lan_id,
                 token: loginUser_data?.token,
-                supervisorId: loginUser_data?.user_id,
+                supervisorId: supervisorId,
+                farmerId: loginUser_data?.user_id,
                 agri_user_addresses: loginUser_data?.agri_user_addresses,
                 country: loginUser_data?.agri_user_addresses[0].country,
-                company: loginUser_data?.db_company_id
+                company: loginUser_data?.db_company_id,
+                owner: loginUser_data?.owner?.FcmUserToken,
+                FcmUserToken: loginUser_data?.FcmUserToken
             });
             const dataArray = farmer_response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
             setFarmerData(dataArray)
@@ -125,7 +134,7 @@ const UserCreateContextProvider = (props) => {
             setAllData(tempData);
         }
     };
-    const handlePageList = async (value, setIsLoading, token = '', pageNo, Api, setDataAll, dbname, lan_id, user_id) => {
+    const handlePageList = async (value, setIsLoading, token = '', pageNo, Api, setDataAll, dbname, lan_id, user_id, farmer_type = '', question_type = '') => {
         setIsLoading(true);
         const currentPageNo = pageNo
         const totalPage = totalPage;
@@ -137,7 +146,7 @@ const UserCreateContextProvider = (props) => {
                 return;
             } else {
                 const nextPage = currentPageNo + 1
-                const response = await Api(dbname, lan_id, token, user_id, nextPage)
+                const response = await Api(dbname, lan_id, token, user_id, nextPage, farmer_type, question_type)
                 if (response?.status == 200) {
                     if (response.data.data.rows.length == 0) {
                         Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
@@ -151,10 +160,10 @@ const UserCreateContextProvider = (props) => {
             }
         }
         if (value === 'previous') {
-            if (pageNo > 1) {
+            if (pageNo >= 1) {
                 if (currentPageNo === 1) {
                     const prePage = currentPageNo - 1
-                    const response = await Api(dbname, lan_id, token, user_id, 1);
+                    const response = await Api(dbname, lan_id, token, user_id, 1, farmer_type, question_type);
                     if (response?.status == 200) {
                         if (response.data.data.rows.length == 0) {
                             Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
@@ -166,9 +175,9 @@ const UserCreateContextProvider = (props) => {
                         setIsLoading(false);
                     }
                 } else {
-                    const prePage = currentPageNo - 1
+                    const prePage = currentPageNo - 1;
                     setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
-                    const response = await Api(dbname, lan_id, token, user_id, prePage);
+                    const response = await Api(dbname, lan_id, token, user_id, prePage, farmer_type, question_type);
                     if (response?.status == 200) {
                         if (response.data.data.rows.length == 0) {
                             Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });

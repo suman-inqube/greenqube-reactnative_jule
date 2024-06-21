@@ -1,33 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, StatusBar, Alert, BackHandler, ScrollView } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { getItem, removeItem } from '../../config/getDataFromStorage';
 import { BoxDisplay, BoxDisplayDeactive } from './dashboardComp';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-import CustomHeader from './CustomHeader';
-import i18next from '../services/i18next';
-import { useTranslation } from 'react-i18next';
-import { Marquee } from '@animatereactnative/marquee';
 import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
-// import Geolocation from '@react-native-community/geolocation';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
-// import NotificationServices from '../PushNotification/NotificationServices';
-import DeviceInfo from '../DeviceInfo'
 import BackGroundLocation from '../BackgroundService/BackGroundLocation';
-import LoadingScreen from '../Common/LoadingScreen';
+import { userCreateContext } from '../Context/usersCreateContext';
 const FarmerDashboard = ({ navigation }) => {
+    //GQR-65
+    const { getItem, t, DeviceInfo, CustomHeader, onBackPress, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-65
     const { netConnection } = DeviceInfo();
-    // const locationData = useSelector(state => state.locationData);
-    // const { requestUserPermission, notificationListener } = NotificationServices();
-    const { t } = useTranslation();
     const isFocused = useIsFocused();
-    const [isLoading, setIsLoading] = useState(true);
     const [bottomBanner, setbottomBanner] = useState();
-    const [userListShow, setuserListShow] = useState(false);
-    const [isMenuShow, setisMenuShow] = useState();
     const [userName, setuserName] = useState();
     const [profileImg, setprofileImg] = useState();
     const [latLong, setLatLong] = useState({
@@ -48,20 +36,15 @@ const FarmerDashboard = ({ navigation }) => {
         }
     };
     const onPageLoad = async () => {
-        const [bottomBannerData,
-            userNameData,
+        const [userNameData,
             profileImgData, loginUser_data, company_website] = await Promise.all([
-                getItem('bottomBannerData'),
                 getItem('userNameData'),
                 getItem('profileImgData'),
                 getItem('loginUser_data'),
                 getItem('company_website'),
+                Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation])
                 // GeolocationApi(),
             ]);
-        // console.log(loginUser_data.lan_id)
-
-        i18next.changeLanguage(`${loginUser_data.lan_id}`);
-        setbottomBanner(bottomBannerData);
         setcompany_website(company_website);
         setuserName(userNameData);
         setprofileImg(profileImgData);
@@ -73,19 +56,14 @@ const FarmerDashboard = ({ navigation }) => {
         // notificationListener();
         onPageLoad();
     }, []);
+
     const HandlerGoBack = () => exit();
     useEffect(() => {
         if (isFocused) {
-            Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation]);
-            // Permission.checkPermission(PERMISSIONS_TYPE.microphone)
-            const onBackPress = () => {
-                exit();
-                return true;
-            };
+            const onBackPress = () => { exit(); return true };
             BackHandler.addEventListener('hardwareBackPress', onBackPress);
             return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }
-        // i18next.changeLanguage("bng")
     }, [isFocused]);
     const exit = () => {
         Alert.alert(
@@ -109,7 +87,7 @@ const FarmerDashboard = ({ navigation }) => {
             <BackGroundLocation />
             <ForegroundLocationService />
             <ForegroundHandler />
-            <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View name="name">
                 <View style={styles.containerimg}>
                     {profileImg ?

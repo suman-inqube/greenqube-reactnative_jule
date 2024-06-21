@@ -10,30 +10,22 @@ import {
   StatusBar,
   BackHandler,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import ImageForm from '../../Common/ImageForm';
-import RadioForm from '../../Common/RadioForm';
+import React, { useEffect, useState, useContext } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import WidgetsSide from '../../Common/WidgetsSide';
-import Filter from '../../Common/Filter';
 import { farmerActivityListAPI } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-import FarmerActivityDetail from './FarmerActivityDetail';
-import FarmerActivityReport from './FarmerActivityReport';
-import LoadingScreen from '../../Common/LoadingScreen';
 import { useFocusEffect } from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
 import MessageDialog from '../../Common/MessageDialog';
-import { useTranslation } from 'react-i18next';
 import FarmerFilter from '../../Common/FarmerFilter';
-import DeviceInfo from '../../DeviceInfo';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerActivityList = ({ navigation }) => {
-  const { t } = useTranslation();
+  //GQR-67
+  const { handlePageList, Root, dbLanTokUsr, setdbLanTokUsr, loginUser_data, effective_dates, LoadingScreen, CustomHeader, t, onBackPress, getItem, setItem, logoImage, topBanner, DeviceInfo } = useContext(userCreateContext);
+  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const { farmerId, pageNo } = dbLanTokUsr;
+  //GQR-67
   const { netConnection } = DeviceInfo();
   const [isLoading, setIsLoading] = useState(true);
-  const [reloadList, setReloadList] = useState(false);
   const [activityAll, setactivityAll] = useState([]);
   const [filterOption, setFilterOption] = useState(false);
   const [filterItem, setFilterItem] = useState('');
@@ -42,21 +34,9 @@ const FarmerActivityList = ({ navigation }) => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [dbName, setDbName] = useState('');
-  const [languageID, setLanguageID] = useState('');
-  const [userID, setUserID] = useState('');
-  const [token, setToken] = useState('');
-  const [totalPage, settotalPage] = useState(1);
-  const [currentPage, setcurrentPage] = useState(1);
-  const [showMenu, setshowMenu] = useState('');
-  const [farmerID, setfarmerID] = useState();
   const [fromDate, setfromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [dbLanTokUsr, setdbLanTokUsr] = useState({
-    pageNo: 1,
-  });
   const [fromDateFilter, setFromDateFilter] = useState('');
-
   const filterOptionShow = () => {
     if (!filterOption) {
       setFilterOption(true);
@@ -73,47 +53,8 @@ const FarmerActivityList = ({ navigation }) => {
   };
 
   const handlePage = async (value) => {
-    const currentPageNo = dbLanTokUsr.pageNo
-    const totalPage = dbLanTokUsr.totalPage
-    if (value === 'next') {
-      setIsLoading(true);
-      if (totalPage === currentPageNo) {
-        setIsLoading(false);
-        Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-        setactivityAll([]);
-        const nextPage = currentPageNo + 1
-        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-      } else {
-        const nextPage = currentPageNo + 1
-        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-        const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage)
-        if (response) {
-          setIsLoading(false);
-          setactivityAll(response.data.data.rows);
-          setItem("activity_Data", response.data.data.rows)
-        }
-      }
-    }
-    if (value === 'previous') {
-      if (currentPageNo === 1) {
-        const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage)
-        if (response) {
-          setIsLoading(false);
-          setactivityAll(response.data.data.rows);
-          setItem("activity_Data", response.data.data.rows)
-        }
-      } else {
-        setIsLoading(true);
-        const prePage = currentPageNo - 1
-        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-        const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage)
-        if (response) {
-          setIsLoading(false);
-          setactivityAll(response.data.data.rows);
-          setItem("activity_Data", response.data.data.rows)
-        }
-      }
-    }
+    handlePageList(value, setIsLoading, token, pageNo, farmerActivityListAPI, setactivityAll, dbname, lan_id, user_id);
+
   }
 
   const handleFilter = async item => {
@@ -140,32 +81,16 @@ const FarmerActivityList = ({ navigation }) => {
     }
   };
   const handleDatePicker = item => {
-    const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
-    const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+    const effective_date = effective_dates(item);
     setfromDate(effective_date);
     setFromDateFilter(effective_date);
-    // console.log(fromAndToDate);
   };
   const handleDatePicker2 = async item => {
-    const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
-    const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+    const effective_date = effective_dates(item);
     setToDate(effective_date);
     if (fromDateFilter) {
       const item = '';
-      const response = await farmerActivityListAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        dbLanTokUsr.token,
-        dbLanTokUsr.supervisorId,
-        dbLanTokUsr.pageNo,
-        item,
-        fromDateFilter,
-        effective_date,
-      );
+      const response = await farmerActivityListAPI(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date,);
       if (response) {
         setactivityAll(response.data.data.rows);
         setItem('activity_Data', response.data.data.rows);
@@ -180,35 +105,16 @@ const FarmerActivityList = ({ navigation }) => {
     setIsLoading(true);
   };
 
-  const fatchActivityListAPI = async (
-    dbName,
-    languageId,
-    token,
-    supervisorId,
-    pageNo,
-  ) => {
+  const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo,) => {
     if (netConnection) {
-      var response = await farmerActivityListAPI(
-        dbName,
-        languageId,
-        token,
-        supervisorId,
-        pageNo,
-      );
+      var response = await farmerActivityListAPI(dbName, languageId, token, supervisorId, pageNo,);
       await setItem('farmerActivityList' + supervisorId, response);
     } else {
       var response = await getItem('farmerActivityList' + supervisorId);
     }
     if (response.data) {
       const totalPage = Math.ceil(response.data.data.count / 20);
-      setdbLanTokUsr({
-        ...dbLanTokUsr,
-        dbName: dbName,
-        languageId: languageId,
-        token: token,
-        supervisorId: supervisorId,
-        totalPage: totalPage,
-      });
+      setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
       setactivityAll(response.data.data.rows);
       setItem('activity_Data', response.data.data.rows);
       setIsLoading(false);
@@ -219,14 +125,7 @@ const FarmerActivityList = ({ navigation }) => {
     setfromDate('');
     setToDate('');
     setFilterItem(''), setFilterOption(false);
-    const loginUser_data = await getItem('loginUser_data');
-    if (loginUser_data) {
-      const dbName = loginUser_data.dbname;
-      const languageId = loginUser_data.lan_id;
-      const token = loginUser_data.token;
-      const supervisorId = loginUser_data.user_id;
-      fatchActivityListAPI(dbName, languageId, token, supervisorId, 1);
-    }
+    fatchActivityListAPI(dbname, lan_id, token, user_id, 1);
   };
 
   useFocusEffect(
@@ -265,34 +164,11 @@ const FarmerActivityList = ({ navigation }) => {
   };
   return (
     <Root>
-      <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} />
+      <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
       <View style={{ flex: 1 }}>
-        <DatePickerComp
-          openDate={openFromDate}
-          newDate={newFromDate}
-          setOpenDate={setOpenFromDate}
-          handleDatePicker={handleDatePicker}
-        />
-        <DatePickerComp
-          openDate={openToDate}
-          newDate={newToDate}
-          setOpenDate={setOpenToDate}
-          handleDatePicker={handleDatePicker2}
-          minimumDate={
-            fromDate == ''
-              ? ''
-              : new Date(
-                `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
-                }-${new Date(fromDate).getDate() + 1}`,
-              )
-          }
-        />
-
-        <WidgetsSide
-          location={'FarmerActivityReport'}
-          title={t('add_recent_incident')}
-          onPress={() => navigateToPages('FarmerActivityReport', 123)}
-        />
+        <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
+        <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == '' ? '' : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`,)} />
+        <WidgetsSide location={'FarmerActivityReport'} title={t('add_recent_incident')} onPress={() => navigateToPages('FarmerActivityReport', 123)} />
 
         <FarmerFilter
           filterItem={filterItem}

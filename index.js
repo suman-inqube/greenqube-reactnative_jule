@@ -19,18 +19,8 @@ import 'react-native-gesture-handler';
 // import crashlytics from '@react-native-firebase/crashlytics';
 // crashlytics().setCrashlyticsCollectionEnabled(true);
 import { UserCreateContextProvider } from './pages/Context/usersCreateContext';
-import {
-    setJSExceptionHandler,
-    setNativeExceptionHandler,
-} from 'react-native-exception-handler';
 import VersionCheck from 'react-native-version-check';
 export default function Main() {
-    setJSExceptionHandler((error, isFatal) => {
-        // This is your custom global error handler
-        // You do stuff like show an error dialog
-        // or hit google analytics to track crashes
-        // or hit a custom api to inform the dev team.
-    });
     useEffect(() => {
         const checkAppVersion = async () => {
             try {
@@ -48,7 +38,7 @@ export default function Main() {
             }
         };
 
-        checkAppVersion();
+        // checkAppVersion();
     }, []);
     return (
         <UserCreateContextProvider>
