@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native'
 import React from 'react'
 import { useRoute } from '@react-navigation/native';
-import RenderHtml from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
 import CustomHeader from '../CustomHeader';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
@@ -20,7 +19,6 @@ const head = `
 const PackageItemDetails = () => {
     const { width, height } = useWindowDimensions();
     const { package_of_practice_list, menu_name } = useRoute().params;
-    console.log(package_of_practice_list)
     const tagsStyles = {
         body: { whiteSpace: 'normal', color: '#000', backgroundColor: '#FFF' },
         a: { color: 'green' },
@@ -55,6 +53,7 @@ const PackageItemDetails = () => {
                     <WebView
                         style={{
                             height: height / 0.05,
+                            // height: height / 1.5,
                             width: width,
                             marginBottom: 50
                         }}

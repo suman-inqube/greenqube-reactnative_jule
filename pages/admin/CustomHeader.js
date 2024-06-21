@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { TouchableOpacity, Image, Text, View, StyleSheet, StatusBar, BackHandler, Alert } from 'react-native';
-import ImageForm from '../Common/ImageForm';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
+import React, { useEffect, lazy } from 'react';
+import { TouchableOpacity, Image, View, StyleSheet, StatusBar } from 'react-native';
+const ImageForm = lazy(() => import('../Common/ImageForm'));
+import { useNavigation, } from '@react-navigation/native';
 const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner }) => {
     const navigation = useNavigation();
     const openDrawer = () => {
@@ -39,9 +39,11 @@ const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner }) => 
                 </TouchableOpacity>
             </View>
             <View>
-                {topBanner != undefined || topBanner != null ?
-                    <ImageForm source={{ uri: topBanner }} resizeMode="cover" height={200} width={'100%'} />
-                    : <Image source={require('../Common/images/dashboard.jpeg')} style={{ width: '100%', height: 200 }} />
+                {banner != true && <>
+                    {topBanner != undefined || topBanner != null ?
+                        <ImageForm source={{ uri: topBanner }} resizeMode="cover" height={200} width={'100%'} />
+                        : <Image source={require('../Common/images/dashboard.jpeg')} style={{ width: '100%', height: 200 }} />
+                    }</>
                 }
             </View>
         </View>

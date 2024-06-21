@@ -120,7 +120,7 @@ const FarmerLiveHood = ({ navigation }) => {
                 const data = cropAndPlotDetails.data.data.rows[0];
                 // if (plotSiteUserLandDetails_res.status === 200) {
                 plotSiteUserLandDetails.map((dataLandDetails, index) => {
-                    if (dataLandDetails.rel_id == findData.value) {
+                    if (dataLandDetails?.rel_id == findData.value) {
                         if (new Date(data.sowing_date) < new Date(data.harvesting_date) != true) {
                             setModalVisible(true)
                         } else {
@@ -130,39 +130,39 @@ const FarmerLiveHood = ({ navigation }) => {
                         setfarmerData({
                             ...farmerData,
                             createdBy: dbLanTokUsr.supervisorID,
-                            plot_no: data.land_info.plot_no,
-                            cu_rel_id: data.cu_rel_id,
-                            land_rel_id: findData.value,
-                            daag_no: dataLandDetails.daag_no,
-                            khatian_no: dataLandDetails.khatian_no,
-                            plant_number: dataLandDetails.plant_number,
-                            land_size: dataLandDetails.land_size,
+                            plot_no: data?.land_info?.plot_no,
+                            cu_rel_id: data?.cu_rel_id,
+                            land_rel_id: findData?.value,
+                            daag_no: dataLandDetails?.daag_no,
+                            khatian_no: dataLandDetails?.khatian_no,
+                            plant_number: dataLandDetails?.plant_number,
+                            land_size: dataLandDetails?.land_size,
                             plot_Site: findData.value,
                             plot_Site_Name: findData.label,
                             expectedProduction: data.yield_amount,
                             cycleStartDate: data.sowing_date,
                             cycleEndDate: data.harvesting_date.substring(-1, 10),
-                            terrainType: dataLandDetails.terrain_type.name,
-                            terrainTypeValue: dataLandDetails.terrain_type.fid,
-                            landType: dataLandDetails.lan_type.name,
-                            landTypeValue: dataLandDetails.lan_type.fid,
-                            soilType: dataLandDetails.soil_type.name,
-                            soilTypeValue: dataLandDetails.soil_type.fid,
-                            unit: dataLandDetails.land_unit.name,
-                            unitValue: dataLandDetails.land_unit.fid,
-                            productionSeason: data.crop_season.name,
-                            productionSeasonValue: data.crop_season.fid,
-                            livelihoodType: data.crop_type.name,
-                            livelihoodTypeValue: data.crop_type.fid,
-                            produceName: data.crop_name.name,
-                            produceNameValue: data.crop_name.fid,
-                            produceVariety: data.crop_variety.name,
-                            produceVarietyValue: data.crop_variety.fid,
-                            productionProcess: data.farmer_production_system.name,
-                            productionProcessValue: data.farmer_production_system.fid,
-                            unitProduct: data.agri_unit?.unit_name,
-                            unitProductValue: data.agri_unit.fid,
-                            unit_value: dataLandDetails.land_unit.unit_value
+                            terrainType: dataLandDetails?.terrain_type.name,
+                            terrainTypeValue: dataLandDetails?.terrain_type?.fid,
+                            landType: dataLandDetails?.lan_type.name,
+                            landTypeValue: dataLandDetails?.lan_type?.fid,
+                            soilType: dataLandDetails?.soil_type.name,
+                            soilTypeValue: dataLandDetails?.soil_type?.fid,
+                            unit: dataLandDetails?.land_unit.name,
+                            unitValue: dataLandDetails?.land_unit?.fid,
+                            productionSeason: data?.crop_season?.name,
+                            productionSeasonValue: data?.crop_season?.fid,
+                            livelihoodType: data?.crop_type?.name,
+                            livelihoodTypeValue: data?.crop_type?.fid,
+                            produceName: data?.crop_name?.name,
+                            produceNameValue: data?.crop_name?.fid,
+                            produceVariety: data?.crop_variety?.name,
+                            produceVarietyValue: data?.crop_variety?.fid,
+                            productionProcess: data?.farmer_production_system?.name,
+                            productionProcessValue: data?.farmer_production_system?.fid,
+                            unitProduct: data?.agri_unit?.unit_name,
+                            unitProductValue: data?.agri_unit?.fid,
+                            unit_value: dataLandDetails?.land_unit?.unit_value
                         })
                         return;
                     }
@@ -179,13 +179,13 @@ const FarmerLiveHood = ({ navigation }) => {
         if (productSeasonresRes.status === 200) {
             const productSeasonresResArr = [];
             const livelihoodTypeArr = [];
-            productSeasonresRes.data.data.crop_season.map((data, index) => {
+            productSeasonresRes.data.data?.crop_season?.map((data, index) => {
                 productSeasonresResArr.push({
                     value: data.fid,
                     label: data.name,
                 });
             });
-            productSeasonresRes.data.data.crop_type.map((data, index) => {
+            productSeasonresRes.data.data?.crop_type?.map((data, index) => {
                 livelihoodTypeArr.push({
                     value: data.fid,
                     label: data.name,
@@ -499,13 +499,13 @@ const FarmerLiveHood = ({ navigation }) => {
             const productSeasonresResArr = [];
             const livelihoodTypeArr = [];
             const produceNameArr = [];
-            productSeasonresRes.data.data.crop_season.map((data, index) => {
+            productSeasonresRes.data.data?.crop_season?.map((data, index) => {
                 productSeasonresResArr.push({
                     value: data.fid,
                     label: data.name,
                 });
             });
-            productSeasonresRes.data.data.crop_type.map((data, index) => {
+            productSeasonresRes.data.data?.crop_type?.map((data, index) => {
                 livelihoodTypeArr.push({
                     value: data.fid,
                     label: data.name,

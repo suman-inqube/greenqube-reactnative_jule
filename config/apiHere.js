@@ -470,7 +470,7 @@ export const problemProductionStageAPI = async (dbName, languageID, cropTypeId, 
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/${languageID}?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);

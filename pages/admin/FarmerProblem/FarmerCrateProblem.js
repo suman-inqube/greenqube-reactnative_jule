@@ -119,10 +119,7 @@ const FarmerCreateProblem = ({ navigation }) => {
         production_process:
           response?.data?.data?.rows[0]?.farmer_production_system.name,
       });
-      const dateString = response?.data?.data?.rows[0]?.harvesting_date;
-      const harvesting_date = new Date(dateString);
-      const currentDate = new Date();
-      if (harvesting_date > currentDate) {
+      if (new Date() < new Date(response?.data?.data?.rows[0]?.harvesting_date)) {
         setShowingMenu(true);
         setSaveData({
           ...saveData,
@@ -136,8 +133,6 @@ const FarmerCreateProblem = ({ navigation }) => {
           production_system: response?.data?.data?.rows[0]?.farmer_production_system.fa_id,
           agent_id: supervisorId,
         });
-        // setCropType(response?.data?.data?.rows[0]?.crop_type.fid);
-        // setCropName(response?.data?.data?.rows[0]?.crop_name.fid);
         if (netConnection) {
           var productionStage_res = await problemProductionStageAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, response?.data?.data?.rows[0]?.crop_type_id, response?.data?.data?.rows[0]?.crop_name_id);
           await setItem('problemProductionStage' + response?.data?.data?.rows[0]?.crop_type_id + response?.data?.data?.rows[0]?.crop_name_id, productionStage_res);
