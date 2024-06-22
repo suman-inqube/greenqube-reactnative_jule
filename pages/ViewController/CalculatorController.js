@@ -77,7 +77,7 @@ const CalculatorController = () => {
         if (GetLoginUserDataRes) {
             const { dbname, lan_id, token, user_id } = GetLoginUserDataRes;
             const [liveHoodTypeRes] = await Promise.all([
-                productionSeasonAndLivelyhoodTypeListAPI(dbname),
+                productionSeasonAndLivelyhoodTypeListAPI(dbname, lan_id),
                 // ProblemTypeAPI(dbname),
             ]);
             if (liveHoodTypeRes.status == 200) {

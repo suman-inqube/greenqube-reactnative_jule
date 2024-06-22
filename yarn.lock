@@ -5268,10 +5268,25 @@
   "resolved" "https://registry.npmjs.org/lodash.debounce/-/lodash.debounce-4.0.8.tgz"
   "version" "4.0.8"
 
+"lodash.isfunction@^3.0.9":
+  "integrity" "sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw=="
+  "resolved" "https://registry.npmjs.org/lodash.isfunction/-/lodash.isfunction-3.0.9.tgz"
+  "version" "3.0.9"
+
+"lodash.isnil@^4.0.0":
+  "integrity" "sha512-up2Mzq3545mwVnMhTDMdfoG1OurpA/s5t88JmQX809eH3C8491iu2sfKhTfhQtKY78oPNhiaHJUpT/dUDAAtng=="
+  "resolved" "https://registry.npmjs.org/lodash.isnil/-/lodash.isnil-4.0.0.tgz"
+  "version" "4.0.0"
+
 "lodash.merge@^4.6.2":
   "integrity" "sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ=="
   "resolved" "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"
   "version" "4.6.2"
+
+"lodash.pick@^4.4.0":
+  "integrity" "sha512-hXt6Ul/5yWjfklSGvLQl8vM//l3FtyHZeuelpzK6mm99pNvN9yTDruNZPEJZD1oWrqo+izBmB7oUfWgcCX7s4Q=="
+  "resolved" "https://registry.npmjs.org/lodash.pick/-/lodash.pick-4.4.0.tgz"
+  "version" "4.4.0"
 
 "lodash.throttle@^4.1.1":
   "integrity" "sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ=="
@@ -6494,6 +6509,16 @@
   "resolved" "https://registry.npmjs.org/react-native-track-player/-/react-native-track-player-4.1.1.tgz"
   "version" "4.1.1"
 
+"react-native-version-check@^3.4.7":
+  "integrity" "sha512-fkUFaKTiT9DcQSigyTTFcRpClehQlo7MBF1odmX617oFr7zOceUGx6A3bm2GjnfECBsQZoX3WyEBbtdRQlqi2Q=="
+  "resolved" "https://registry.npmjs.org/react-native-version-check/-/react-native-version-check-3.4.7.tgz"
+  "version" "3.4.7"
+  dependencies:
+    "lodash.isfunction" "^3.0.9"
+    "lodash.isnil" "^4.0.0"
+    "lodash.pick" "^4.4.0"
+    "semver" "^6.1.1"
+
 "react-native-video@^6.0.0":
   "integrity" "sha512-G1b2L2DDbRWgyBRoQLonUEiOcsTSCfNPxGbzd6lYdhOUIyoAeBXarfFSg+89xMF6R36j7f+147FVxkjz6r60jQ=="
   "resolved" "https://registry.npmjs.org/react-native-video/-/react-native-video-6.0.0.tgz"
@@ -6849,7 +6874,7 @@
   "resolved" "https://registry.npmjs.org/semver/-/semver-5.7.2.tgz"
   "version" "5.7.2"
 
-"semver@^6.3.0", "semver@^6.3.1":
+"semver@^6.1.1", "semver@^6.3.0", "semver@^6.3.1":
   "integrity" "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="
   "resolved" "https://registry.npmjs.org/semver/-/semver-6.3.1.tgz"
   "version" "6.3.1"

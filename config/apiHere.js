@@ -306,7 +306,7 @@ export const plotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) 
 
 // Production season And Livelyhood type List
 
-export const productionSeasonAndLivelyhoodTypeListAPI = async (dbName) => {
+export const productionSeasonAndLivelyhoodTypeListAPI = async (dbName, lan_id = '') => {
     // return console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`);
     const axiosHeaders = {
         headers: {
@@ -314,7 +314,7 @@ export const productionSeasonAndLivelyhoodTypeListAPI = async (dbName) => {
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=&crop_name_id=`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/${lan_id}?crop_type_id=&crop_name_id=`, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error);
@@ -344,7 +344,7 @@ export const productionStageAPI = async (dbName, languageID, cropTypeId, cropNam
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/${languageID}?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error);
@@ -471,7 +471,7 @@ export const problemProductionStageAPI = async (dbName, languageID, cropTypeId, 
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/1?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/getCropRelationDropdown/${languageID}?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error);

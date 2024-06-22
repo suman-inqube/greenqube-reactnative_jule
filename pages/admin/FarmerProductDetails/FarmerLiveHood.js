@@ -353,12 +353,12 @@ const FarmerLiveHood = ({ navigation }) => {
         const fusedLocation = await getItem('fusedLocation');
         const { latitude, longitude } = fusedLocation;
         const values = [...location];
-        // if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
-        values[index] = { "latitude": latitude, "longitude": longitude }
-        setLocation(values);
-        // } else {
-        //     Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
-        // }
+        if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
+            values[index] = { "latitude": latitude, "longitude": longitude }
+            setLocation(values);
+        } else {
+            Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
+        }
     }
     const handleAddData = async (item, name, value) => {
         let selectUnitValue = "";
@@ -710,7 +710,7 @@ const FarmerLiveHood = ({ navigation }) => {
                             onChange={item => { handleAddData(item, 'terrainType', 'terrainTypeValue') }} />
                         <DropdownForm label={t('select_land_type')} color="red" data={landTypeAll}
                             onChange={item => { handleAddData(item, 'landType', 'landTypeValue') }}
-                            val={farmerData.landTypeValue} />
+                            val={farmerData.landType} />
                         <DropdownForm label={t('addland_soil_type_dv')} color="red" data={soilTypeAll}
                             onChange={item => { handleAddData(item, 'soilType', 'soilTypeValue') }}
                             val={farmerData.soilType} />

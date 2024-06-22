@@ -41,7 +41,7 @@ const PackageOfPracticesController = () => {
         if (GetLoginUserDataRes) {
             const { dbname, lan_id, token, user_id } = GetLoginUserDataRes;
             const [livehoodTypeRes, packageListRes] = await Promise.all([
-                productionSeasonAndLivelyhoodTypeListAPI(dbname),
+                productionSeasonAndLivelyhoodTypeListAPI(dbname, lan_id),
                 PackageOfPracticesList(dbname, lan_id),
             ])
             let PackageListArr = [];
