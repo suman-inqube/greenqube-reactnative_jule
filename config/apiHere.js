@@ -327,7 +327,7 @@ export const produceAgainstPlotAPI = async (dbName, languageID, farmerID, relID)
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/${languageID}/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -453,7 +453,7 @@ export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID,
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/${languageID}/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -778,7 +778,7 @@ export const livelihoodNameVarietyLandrelAPI = async (dbName, languageId, userId
     };
     // console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/${languageId}/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -1185,7 +1185,7 @@ export const livelihoodCropAndPlotDetailsAPI = async (dbName, languageId, userId
         },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/${languageId}/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -1417,7 +1417,7 @@ export const cropListApi = async (dbName, languageId, userId) => {
     };
     try {
 
-        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/${languageId}/0/1?user_id=${userId}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);

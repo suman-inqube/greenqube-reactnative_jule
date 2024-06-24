@@ -676,17 +676,8 @@ const FarmerLiveHood = ({ navigation }) => {
     return (
         <>
             <Root>
-                <DatePickerComp
-                    openDate={penCycleStart}
-                    newDate={newDate}
-                    setOpenDate={setopenCycleStart}
-                    handleDatePicker={handleDatePicker} />
-                <DatePickerComp
-                    openDate={penCycleEnd}
-                    newDate={issuenewDate}
-                    minimumDate={farmerData.cycleStartDate == "" ? "" : new Date(`${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1}-${new Date(farmerData.cycleStartDate).getDate() + 1}`)}
-                    setOpenDate={setopenCycleEnd}
-                    handleDatePicker={handleDatePicker2} />
+                <DatePickerComp openDate={penCycleStart} newDate={newDate} setOpenDate={setopenCycleStart} handleDatePicker={handleDatePicker} />
+                <DatePickerComp openDate={penCycleEnd} newDate={issuenewDate} minimumDate={farmerData.cycleStartDate == "" ? "" : new Date(`${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1}-${new Date(farmerData.cycleStartDate).getDate() + 1}`)} setOpenDate={setopenCycleEnd} handleDatePicker={handleDatePicker2} />
                 <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
                 <FormsTitle title={t('plot_and_crop_details')} />
                 {isLoading ? <View style={styles.LoadingScreen}>
@@ -705,12 +696,8 @@ const FarmerLiveHood = ({ navigation }) => {
 
                         <InputTextForm label={t('no_of_plants')} value={farmerData.plant_number} onChangeText={(text) => handleAddUserData("plant_number", text)} />
 
-                        <DropdownForm label={t('select_terrain_type')} color="red"
-                            data={terrainTypeAll} val={farmerData.terrainType}
-                            onChange={item => { handleAddData(item, 'terrainType', 'terrainTypeValue') }} />
-                        <DropdownForm label={t('select_land_type')} color="red" data={landTypeAll}
-                            onChange={item => { handleAddData(item, 'landType', 'landTypeValue') }}
-                            val={farmerData.landTypeValue} />
+                        <DropdownForm label={t('select_terrain_type')} color="red" data={terrainTypeAll} val={farmerData.terrainType} onChange={item => { handleAddData(item, 'terrainType', 'terrainTypeValue') }} />
+                        <DropdownForm label={t('select_land_type')} color="red" data={landTypeAll} onChange={item => { handleAddData(item, 'landType', 'landTypeValue') }} val={farmerData.landType} />
                         <DropdownForm label={t('addland_soil_type_dv')} color="red" data={soilTypeAll}
                             onChange={item => { handleAddData(item, 'soilType', 'soilTypeValue') }}
                             val={farmerData.soilType} />
@@ -719,9 +706,7 @@ const FarmerLiveHood = ({ navigation }) => {
                                 <InputTextForm label={t('pre_land_size')} color="red" value={farmerData.land_size} onChangeText={(text) => handleAddUserData("land_size", text)} />
                             </View>
                             <View style={{ width: '45%' }}>
-                                <DropdownForm label={t('select_unit')} color="red" data={unitAll}
-                                    onChange={item => { handleAddData(item, 'unit', 'unitValue') }}
-                                    val={farmerData.unit} />
+                                <DropdownForm label={t('select_unit')} color="red" data={unitAll} onChange={item => { handleAddData(item, 'unit', 'unitValue') }} val={farmerData.unit} />
                             </View>
                         </View>
                         <View style={styles.locationContainer}>
@@ -736,11 +721,7 @@ const FarmerLiveHood = ({ navigation }) => {
                                             <View style={styles.latlongContainer}>
                                                 <Text style={styles.title}>{t('tap_to_get_latitude_and_longitude')}</Text>
                                                 <TouchableOpacity onPress={() => handleCurrentLatLong(index)}>
-                                                    <Image
-                                                        source={require('../../Common/images/location.png')}
-                                                        style={{ width: 35, height: 35 }}
-                                                        resizeMode="contain"
-                                                    />
+                                                    <Image source={require('../../Common/images/location.png')} style={{ width: 35, height: 35 }} resizeMode="contain" />
                                                 </TouchableOpacity>
                                             </View>
                                         </View>
@@ -748,54 +729,31 @@ const FarmerLiveHood = ({ navigation }) => {
                                 })
                             }
                         </View>
-                        <DropdownForm label={t('addcrop_select_cultivating_season')} color="red"
-                            data={productionSeason}
-                            onChange={item => { handleAddDataproductionSeason(item, 'productionSeason', 'productionSeasonValue') }}
-                            val={farmerData.productionSeason} disable={edit} />
-                        <DropdownForm label={t('addcrop_croptype')} color="red"
-                            data={livelihoodType}
-                            onChange={item => { handleAddDatalivelihoodType(item, 'livelihoodType', 'livelihoodTypeValue') }}
-                            val={farmerData.livelihoodType} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
-                        <DropdownForm label={t('crop_name')} color="red"
-                            data={produceName}
-                            onChange={item => { handleAddDataproduceName(item, 'produceName', 'produceNameValue') }}
-                            val={farmerData.produceName} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
-                        <DropdownForm label={t('crop_veriety')} color="red"
-                            data={produceVariety}
-                            onChange={item => { handleAddData(item, 'produceVariety', 'produceVarietyValue') }}
-                            val={farmerData.produceVariety} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
-                        <DropdownForm label={t('production_system')} color="red"
-                            data={productionProcess}
-                            onChange={item => { handleAddData(item, 'productionProcess', 'productionProcessValue') }}
-                            val={farmerData.productionProcess} disable={edit} />
+                        <DropdownForm label={t('addcrop_select_cultivating_season')} color="red" data={productionSeason} onChange={item => { handleAddDataproductionSeason(item, 'productionSeason', 'productionSeasonValue') }} val={farmerData.productionSeason} disable={edit} />
+                        <DropdownForm label={t('addcrop_croptype')} color="red" data={livelihoodType} onChange={item => { handleAddDatalivelihoodType(item, 'livelihoodType', 'livelihoodTypeValue') }} val={farmerData.livelihoodType} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
+                        <DropdownForm label={t('crop_name')} color="red" data={produceName} onChange={item => { handleAddDataproduceName(item, 'produceName', 'produceNameValue') }} val={farmerData.produceName} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
+                        <DropdownForm label={t('crop_veriety')} color="red" data={produceVariety} onChange={item => { handleAddData(item, 'produceVariety', 'produceVarietyValue') }} val={farmerData.produceVariety} disable={edit == "" ? harvested == "same produce" ? true : false : edit} />
+                        <DropdownForm label={t('production_system')} color="red" data={productionProcess} onChange={item => { handleAddData(item, 'productionProcess', 'productionProcessValue') }} val={farmerData.productionProcess} disable={edit} />
                         <View style={styles.plotSiteUnit}>
                             <View style={{ width: '45%' }}>
                                 <InputTextForm label={t('expected_yield')} color="red" value={farmerData.expectedProduction} onChangeText={(text) => handleAddUserData("expectedProduction", text)} />
                             </View>
                             <View style={{ width: '45%' }}>
-                                <DropdownForm label={`${t('select_unit_input')}` + "\n"} color="red" data={productionUnit}
-                                    onChange={item => { handleAddData(item, 'unitProduct', 'unitProductValue') }}
-                                    val={farmerData.unitProduct} disable={edit} />
+                                <DropdownForm label={`${t('select_unit_input')}` + "\n"} color="red" data={productionUnit} onChange={item => { handleAddData(item, 'unitProduct', 'unitProductValue') }} val={farmerData.unitProduct} disable={edit} />
                             </View>
                         </View>
                         <TouchableOpacity onPress={() => setopenCycleStart(true)} activeOpacity={9}>
                             <Text style={{ marginBottom: 5, color: '#f40000' }}>{t('showing_date')}</Text>
                             <View style={styles.calenderContainer} >
                                 <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
-                                <Image
-                                    source={require('../../Common/images/calendar.png')}
-                                    style={{ width: 20, height: 20 }}
-                                />
+                                <Image source={require('../../Common/images/calendar.png')} style={{ width: 20, height: 20 }} />
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setopenCycleEnd(true)} activeOpacity={9}>
                             <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>Cycle Ends</Text>
                             <View style={styles.calenderContainer} >
                                 <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
-                                <Image
-                                    source={require('../../Common/images/calendar.png')}
-                                    style={{ width: 20, height: 20 }}
-                                />
+                                <Image source={require('../../Common/images/calendar.png')} style={{ width: 20, height: 20 }} />
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.clickAddMorePlots} onPress={() => handleUserData()}>
@@ -803,9 +761,7 @@ const FarmerLiveHood = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
-                <TouchableOpacity style={styles.locationAddMoreContainer}
-                    onPress={addMoreLocation}
-                >
+                <TouchableOpacity style={styles.locationAddMoreContainer} onPress={addMoreLocation}                >
                     <Text style={{ color: '#fff', marginRight: 15 }}>Add Location</Text>
                 </TouchableOpacity>
                 <ButtonFormBottom label='Submit' onPress={() => handleUserListUpdate()} />

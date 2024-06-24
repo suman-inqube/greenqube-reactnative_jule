@@ -1,37 +1,26 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
+import React, { useState, useEffect, useContext } from 'react'
 import FarmerModalCompProduct from './FarmerModalCompProduct';
 import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
-// import DropdownForm from '../../Common/DropdownForm1';
-// import SearchByCategoryModal from './SearchByCategoryModal';
 import { inputCategoryAPI, inputListAPI, inputSubCategoryAPI } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { useFocusEffect } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
 import FarmerSearchBy from './FarmerSearchBy';
 import FarmerSearchSubBy from './FarmerSearchSubBy';
 import { useIsFocused } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerInputList = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem, setItem, logoImage, topBanner, FormsTitle } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
     const [isLoading, setIsLoading] = useState(true);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: ""
-    });
     const [modalVisible, setModalVisible] = useState(false);
     const [inputListAll, setInputListAll] = useState([]);
     const [inputListAllRaw, setInputListAllRaw] = useState([]);
     const [inputCategory, setInputCategory] = useState([]);
     const [inputSubCategory, setInputSubCategory] = useState([]);
     const [inputSingle, setInputSingle] = useState({});
-    const [dataArray, setPrice] = useState([]);
     const [category, setCategory] = useState();
     const [subCategory, setSubCategory] = useState("");
     const [currency, setCurrencyt] = useState("");
@@ -50,8 +39,8 @@ const FarmerInputList = ({ navigation }) => {
         }
         else {
             const [inputFound, inputSubCategoryList] = await Promise.all([
-                inputListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value),
-                inputSubCategoryAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value)
+                inputListAPI(dbname, lan_id, token, user_id, search.value),
+                inputSubCategoryAPI(dbname, lan_id, token, user_id, search.value)
             ])
             if (inputFound.status == 200) {
                 setInputListAll(inputFound.data.data.rows);
@@ -70,55 +59,38 @@ const FarmerInputList = ({ navigation }) => {
 
     }
     const handleSubCategory = async (search) => {
-        const inputList = await inputListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, search.value);
+        const inputList = await inputListAPI(dbname, lan_id, token, user_id, search.value);
         if (inputList.status == 200) {
             setInputListAll(inputList.data.data.rows)
         }
     }
     const onPageLoad = async () => {
-        const [loginUser_data, currency_res] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('currency'),
-        ]);
+        const currency_res = await getItem('currency');
         setCurrencyt(currency_res);
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageId: languageId,
-                token: token,
-                supervisorId: supervisorId
-            });
-            const [inputList, inputCategoryList,] = await Promise.all([
-                inputListAPI(dbName, languageId, token, supervisorId, ''),
-                inputCategoryAPI(dbName, languageId, token, supervisorId)
-            ])
-            if (inputList.status == 200) {
-                setInputListAll(inputList.data.data.rows);
-                setInputListAllRaw(inputList.data.data.rows);
-                setItem("input_data", inputList.data.data.rows);
-                setIsLoading(false)
-            }
-            if (inputCategoryList) {
-                const dataArray1 = [{
-                    value: "0",
-                    label: "All"
-                }];
-                inputCategoryList.data.data.rows.forEach(element => {
-                    dataArray1.push({
-                        value: element.fid,
-                        label: element.name
-                    });
+        const [inputList, inputCategoryList,] = await Promise.all([
+            inputListAPI(dbname, lan_id, token, user_id, ''),
+            inputCategoryAPI(dbname, lan_id, token, user_id)
+        ])
+        if (inputList.status == 200) {
+            setInputListAll(inputList.data.data.rows);
+            setInputListAllRaw(inputList.data.data.rows);
+            setItem("input_data", inputList.data.data.rows);
+            setIsLoading(false)
+        }
+        if (inputCategoryList) {
+            const dataArray1 = [{
+                value: "0",
+                label: "All"
+            }];
+            inputCategoryList.data.data.rows.forEach(element => {
+                dataArray1.push({
+                    value: element.fid,
+                    label: element.name
                 });
-                setInputCategory(dataArray1)
-                setInputSubCategory([])
-                setIsLoading(false)
-            }
-
+            });
+            setInputCategory(dataArray1)
+            setInputSubCategory([])
+            setIsLoading(false)
         }
     };
 
@@ -149,7 +121,7 @@ const FarmerInputList = ({ navigation }) => {
     const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View style={styles.container}>
                 <FormsTitle title={t('products')} />
                 <View style={styles.searchByCategoryContainer}>
