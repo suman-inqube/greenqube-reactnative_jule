@@ -1,34 +1,28 @@
-import {
-    StyleSheet, Text, View,
-    TouchableOpacity, Image, Dimensions
-} from 'react-native'
-import React, { useState, useEffect } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import FarmerRequestForInsurance from './FarmerRequestForInsurance';
 import FarmerViewPastRequested from './FarmerViewPastRequested';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerInsuranceEnquiry = ({ navigation }) => {
+    //GQR-67
+    const { FormsTitle, onBackPress, CustomHeader, t, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-67
     const [activeBtn, setActiveBtn] = useState(2);
     const HandlerGoBack = () => navigation.navigate("FarmerDashboard");
-    function handleBackPress() {
-        navigation.navigate("FarmerDashboard");
-        return true;
-    }
     useEffect(() => {
-        onBackPress(handleBackPress);
+        onBackPress(() => { navigation.navigate("FarmerDashboard"); return true; });
     }, [])
     return (
         <View style={{ flex: 1, height: Dimensions.get('window').height / 2 }}>
-            <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={'Insurance Enquiry'} />
             <View style={styles.container}>
                 <View style={styles.btnContainer}>
                     <TouchableOpacity style={activeBtn === 1 ? styles.btnActive : styles.btn} onPress={() => setActiveBtn(1)}>
-                        <Text style={activeBtn === 1 ? styles.btnActiveTitle : styles.btnTitle}>{'Request for \nInsurance'}</Text>
+                        <Text style={activeBtn === 1 ? styles.btnActiveTitle : styles.btnTitle}>{t('request_for_ninsurance')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={activeBtn === 2 ? styles.btnActive : styles.btn} onPress={() => setActiveBtn(2)}>
-                        <Text style={activeBtn === 2 ? styles.btnActiveTitle : styles.btnTitle}>{'View Past \n Requested'}</Text>
+                        <Text style={activeBtn === 2 ? styles.btnActiveTitle : styles.btnTitle}>{t('view_insurance_nrequested')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -42,9 +36,7 @@ const FarmerInsuranceEnquiry = ({ navigation }) => {
         </View>
     )
 }
-
-export default FarmerInsuranceEnquiry
-
+export default FarmerInsuranceEnquiry;
 const styles = StyleSheet.create({
     container: {
         marginHorizontal: '3%',

@@ -1168,7 +1168,6 @@ export const farmIncomeExpenceSaveAPI = async (dbName, languageId, token, farmer
             'authorization': `${token}`,
         },
     };
-    console.log(`${config.BASE_URL}cropRoute/addUserCropRels`, inputData, axiosHeaders);
     try {
         let response = await axios.post(`${config.BASE_URL}cropRoute/addUserCropRels`, inputData, axiosHeaders);
         return response;

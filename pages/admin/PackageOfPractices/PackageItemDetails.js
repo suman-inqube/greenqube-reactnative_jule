@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import React, { useContext } from 'react'
 import { useRoute } from '@react-navigation/native';
 import { useWindowDimensions } from 'react-native';
-import CustomHeader from '../CustomHeader';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
 import { WebView } from 'react-native-webview';
 // .iframe>* {
@@ -16,7 +15,9 @@ const head = `
     `;
 // top: 0; left: 0; width: 70%; height: 100%; position: absolute; border: 0;
 // }
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PackageItemDetails = () => {
+    const { CustomHeader, logoImage, topBanner, } = useContext(userCreateContext);
     const { width, height } = useWindowDimensions();
     const { package_of_practice_list, menu_name } = useRoute().params;
     const tagsStyles = {
@@ -44,7 +45,7 @@ const PackageItemDetails = () => {
     };
     return (
         <View style={styles.container}>
-            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails")} />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails")} logoImage={logoImage} topBanner={topBanner} />
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>{menu_name}</Text>
             </View>

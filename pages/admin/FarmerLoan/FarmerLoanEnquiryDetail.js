@@ -1,29 +1,22 @@
-import { ScrollView, Modal, StyleSheet, Text, View, TouchableOpacity, Image, Linking, BackHandler } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
-
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
-import { getItem } from '../../../config/getDataFromStorage';
+import { ScrollView, Modal, StyleSheet, Text, View, TouchableOpacity, Image, Linking } from 'react-native'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import DocumentPicker, { types } from 'react-native-document-picker';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 import { LoanUpdate } from './FarmerLoanAPI';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import ButtonForm from '../../Common/ButtonForm';
-import { AlertMesg } from '../../Common/ToastAlert';
-import LoadingScreen from '../../Common/LoadingScreen';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerLoanEnquiryDetail = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, FormsTitle, ButtonForm, CustomHeader, t, AlertMesg,
+        LoadingScreen, getItem, InputTextForm, Root, Toast, onBackPress, logoImage, topBanner } = useContext(userCreateContext);
+    const { dbname, lan_id, token, owner } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
     const [currency, setcurrency] = useState("");
     const [photo_to_be_deleted, set_photo_to_be_deleted] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
-    const [identityProof, setIdentityProof] = useState(
-        { uri: "", id: "", name: "", type: "", fileName: "", value: "" }
-    );
+    const [identityProof, setIdentityProof] = useState({ uri: "", id: "", name: "", type: "", fileName: "", value: "" });
     const [addressProof, setAddressProof] = useState([
         { uri: "", id: "", name: "", type: "", fileName: "", value: "" },
         { uri: "", id: "", name: "", type: "", fileName: "", value: "" },
@@ -38,12 +31,6 @@ const FarmerLoanEnquiryDetail = () => {
         { uri: "", name: "", type: "", fileName: "", value: "" },
         { uri: "", name: "", type: "", fileName: "", value: "" },
     ]);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const [saveData, setSaveData] = useState({
         user_id: "",
         loan_amount: "",
@@ -62,26 +49,9 @@ const FarmerLoanEnquiryDetail = () => {
         loan_amount, agri_loan_entity, existing_loan_amount, loan_plots, sanctioned_date, loan_ord_id, loan_sanctioned, comment } = route.params;
     const onPageLoad = async () => {
         setIsLoading(true);
-        const address_proofArr = agri_files.filter(item =>
-            item.term_type === "loan_address"
-        );
-        const loan_landArr = agri_files.filter(item =>
-            item.term_type === "loan_land"
-        );
-        const [currency_res, loginUser_data] = await Promise.all([
-            getItem('currency'),
-            getItem('loginUser_data'),
-        ]);
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id
-            })
-        }
+        const address_proofArr = agri_files.filter(item => item.term_type === "loan_address");
+        const loan_landArr = agri_files.filter(item => item.term_type === "loan_land");
+        const currency_res = await getItem('currency');
         setcurrency(currency_res);
         let loanLandArr = [];
         setSaveData({
@@ -118,11 +88,8 @@ const FarmerLoanEnquiryDetail = () => {
         onPageLoad();
     }, []);
     useEffect(() => {
-        const loan_identityArr = agri_files.filter(item =>
-            item.term_type === "loan_identity"
-        );
+        const loan_identityArr = agri_files.filter(item => item.term_type === "loan_identity");
         if (loan_identityArr.length > 0) {
-            // const identityProofValue = [...identityProof];
             if (loan_identityArr[0] != undefined) {
                 setIdentityProof({
                     uri: loan_identityArr[0]?.file_path,
@@ -136,32 +103,16 @@ const FarmerLoanEnquiryDetail = () => {
     }, [])
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('FarmerLoan');
-                return true;
-            };
-            BackHandler.addEventListener(
-                'hardwareBackPress', onBackPress
-            );
-            return () =>
-                BackHandler.removeEventListener(
-                    'hardwareBackPress', onBackPress
-                );
+            onBackPress(() => { navigation.navigate('FarmerLoan'); return true; });
         }, [])
     );
     loan_plots.map((data, index) => {
         plotArr.push(data.agri_land_user_rel.plot_no)
     })
     const HandlerGoBack = () => navigation.navigate('FarmerLoan');
-    const loan_identityArr = agri_files.filter(item =>
-        item.term_type === "loan_identity"
-    );
-    const address_proofArr = agri_files.filter(item =>
-        item.term_type === "loan_address"
-    );
-    const loan_landArr = agri_files.filter(item =>
-        item.term_type === "loan_land"
-    );
+    const loan_identityArr = agri_files.filter(item => item.term_type === "loan_identity");
+    const address_proofArr = agri_files.filter(item => item.term_type === "loan_address");
+    const loan_landArr = agri_files.filter(item => item.term_type === "loan_land");
     const [propsData, setPropsData] = useState('');
     const [propsIndex, setPropsIndex] = useState('');
     const [propsObjData, setPropsObjData] = useState({});
@@ -180,8 +131,7 @@ const FarmerLoanEnquiryDetail = () => {
     const handleDocumentSelection = useCallback(async (data, index, objData) => {
         try {
             const response = await DocumentPicker.pick({
-                presentationStyle: 'fullScreen',
-                type: [types.pdf, types.images]
+                presentationStyle: 'fullScreen', type: [types.pdf, types.images]
             });
             if (data == "IdentityProof") {
                 setIdentityProof(
@@ -242,7 +192,6 @@ const FarmerLoanEnquiryDetail = () => {
     const handleSave = async () => {
         setIsLoading(true);
         const deleted_id_arr = photo_to_be_deleted.filter(item => item != "");
-        const { dbName, languageID, token, userID } = dbLanTokUsr;
         let updateStatus = null;
         const formData = new FormData();
         // formData.append("lan_id", saveData.user_id);
@@ -274,22 +223,13 @@ const FarmerLoanEnquiryDetail = () => {
         if (updateStatus == true) {
             formData.append("status", 1);
         }
-        const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
+        const responseUpdate = await LoanUpdate(dbname, lan_id, token, saveData.user_id, formData, id);
         if (responseUpdate?.status == 200) {
             Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
             setTimeout(() => {
                 navigation.navigate('FarmerLoan', 2)
             }, 1200);
         }
-        // else {
-        //     const responseUpdate = await LoanUpdate(dbName, languageID, token, saveData.user_id, formData, id);
-        //     if (responseUpdate?.status == 200) {
-        //         Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
-        //         setTimeout(() => {
-        //             navigation.navigate('FarmerLoan', 2)
-        //         }, 1200);
-        //     }
-        // }
         setIsLoading(false);
     }
     const openURL = (path) => {
@@ -321,7 +261,7 @@ const FarmerLoanEnquiryDetail = () => {
                         </View>
                     </View>
                 </Modal>
-                <CustomHeader path={'FarmerLoan'} HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path={'FarmerLoan'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={'Loan Enquiry Detail'} />
                 <ScrollView>
                     <View style={styles.container}>

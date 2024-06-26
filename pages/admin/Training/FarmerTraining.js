@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, Image, ImageBackground, Linking, BackHandler } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { noticeDetailsAPI } from '../../../config/apiHere';
 
 import { WebView } from 'react-native-webview';
@@ -10,9 +10,12 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import { ScrollView } from 'react-native-gesture-handler';
 // import HTMLView from 'react-native-htmlview';
-
-
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerTraining = () => {
+    //GQR-67
+    const { loginUser_data, t, FormsTitle, getItem, logoImage, topBanner, onBackPress, setItem, CustomHeader } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [noticeDetails, setNoticeDetails] = useState([]);
     const [noticeFiles, setNoticeFiles] = useState([]);
@@ -47,62 +50,40 @@ const FarmerTraining = () => {
             </View>
         );
     }
-
-
     const source = {
         html: `<div style="color: black">${noticeDetails.post_desc}</div>`
     };
     const onPageLoad = async () => {
         const noticeId = await getItem('userNoticeId');
-        const loginUser_data = await getItem('loginUser_data');
         if (noticeId) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            let response = await noticeDetailsAPI(dbName, languageID, token, noticeId);
-            if (response) {
-                setNoticeDetails(response.data.data[0])
-                setNoticeFiles(response.data.data[0].agri_files)
+            let response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
+            if (response?.status == 200) {
+                setNoticeDetails(response?.data?.data[0])
+                setNoticeFiles(response?.data?.data[0]?.agri_files)
             }
         }
     };
+    const handleBackPress = () => { navigation.navigate('FarmerTrainingList'); return true; }
     useEffect(() => {
         onPageLoad();
+        onBackPress(handleBackPress);
     }, []);
-    useFocusEffect(
-        useCallback(() => {
-            onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerTrainingList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
-    );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerTrainingList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerTrainingList');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader HandlerGoBack={HandlerGoBack} />
+            <CustomHeader HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View style={styles.titleContainer}>
-                <Text style={[styles.title, {
-                    paddingBottom: 8, paddingTop: 4, fontWeight: '700', fontWeight: 'bold', color: "black",
-                    fontFamily: "Arial", fontSize: 18
-                }]}>
+                <Text style={[styles.title, { paddingBottom: 8, paddingTop: 4, fontWeight: '700', fontWeight: 'bold', color: "black", fontFamily: "Arial", fontSize: 18 }]}>
                     {noticeDetails.post_name}
                 </Text>
             </View>
             <ScrollView>
                 <View style={{ marginHorizontal: '5%', }}>
-                    <RenderHtml
-                        contentWidth={width}
-                        source={source}
-                    />
+                    <RenderHtml contentWidth={width} source={source} />
                 </View>
-
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
                     {
                         noticeFiles ?
-
                             <FlatList
                                 data={noticeFiles}
                                 keyExtractor={(item) => item.file_id}
@@ -122,18 +103,11 @@ const FarmerTraining = () => {
                             ""
                     }
                 </View>
-
             </ScrollView>
-
-
-
         </View>
     )
-
 }
-
 export default FarmerTraining
-
 const styles = StyleSheet.create({
     header:
     {

@@ -21,9 +21,9 @@ import AudioPlayerView from '../../Common/AudioPlayerView';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityReport = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+    const { loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
         setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, effective_dates, FormsTitle
-        , RadioForm, InputTextForm, DropdownForm, ButtonForm, DatePickerComp } = useContext(userCreateContext);
+        , RadioForm, InputTextForm, DropdownForm, ButtonForm, DatePickerComp, isOnline } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     // const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -209,7 +209,7 @@ const ActivityReport = ({ navigation }) => {
         setfarmerID(currentfarmerId)
         setSaveData({ ...saveData, plot_id: "", plot_Name: "" });
         setNameVarityStartEnd({ ...nameVarityStartEnd, name: "", varity: "", cycleStarts: "", cycleEnd: "" })
-        if (netConnection) {
+        if (isOnline) {
             var response = await plotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
             await setItem('plotAgainstFarmer' + currentfarmerId, response)
         } else {
@@ -218,7 +218,7 @@ const ActivityReport = ({ navigation }) => {
         if (response) {
             const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             setplotAll(dataArray)
-            if (netConnection) {
+            if (isOnline) {
                 var activityType_res = await activityTypeAPI(dbname, lan_id, currentfarmerId)
                 await setItem('activityType' + currentfarmerId, activityType_res)
             } else {
@@ -232,7 +232,7 @@ const ActivityReport = ({ navigation }) => {
     }
     const handlePlot = async (relId) => {
         setIsLoading(true);
-        if (netConnection) {
+        if (isOnline) {
             var response = await produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
             await setItem('produceAgainstPlot' + farmerID + relId.value, response)
         } else {
@@ -271,7 +271,7 @@ const ActivityReport = ({ navigation }) => {
                 setsinglePlot(response.data.data.rows);
                 setCropType(data.crop_type.fid);
                 setCropName(data.crop_name.fid);
-                if (netConnection) {
+                if (isOnline) {
                     var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
                     await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
                 } else {
@@ -415,7 +415,7 @@ const ActivityReport = ({ navigation }) => {
             formData.append("material_used", saveData.material_used);
             formData.append("water_used", saveData.water_used);
             formData.append("power_used", saveData.power_used);
-            if (netConnection) {
+            if (isOnline) {
                 const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData)
                 if (database_res) {
                     Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
@@ -452,7 +452,7 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityType = async (item) => {
-        if (netConnection) {
+        if (isOnline) {
             var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
             await setItem('activityInfo' + farmerID + CropType + CropName + item.value, response)
         } else {
@@ -531,7 +531,7 @@ const ActivityReport = ({ navigation }) => {
     };
     const onPageLoad = async () => {
         requestLivePermission();
-        if (netConnection) {
+        if (isOnline) {
             var response = await farmerByNameAPI(dbname, lan_id, token, user_id)
             await setItem('farmerByNameAPI', response);
         } else {
@@ -547,7 +547,7 @@ const ActivityReport = ({ navigation }) => {
     useEffect(() => {
         onPageLoad();
         onBackPress(handleBackPress);
-    }, [netConnection]);
+    }, []);
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('activityList');

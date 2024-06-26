@@ -1,73 +1,22 @@
-import {
-    BackHandler,
-    StyleSheet,
-    View,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    TextInput,
-    Image,
-    Keyboard
-} from 'react-native'
-
-import React, { useEffect, useState, useCallback } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, Keyboard } from 'react-native'
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { getItem } from '../../../config/getDataFromStorage'
-import ButtonForm from '../../Common/ButtonForm';
-import MessageDialog from '../../Common/MessageDialog';
-import CustomHeader from '../CustomHeader';
 import { UserPasswordUpdate } from '../userlist/UsersAPI'
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert'
 const qs = require('qs');
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerChangePassword = ({ navigation }) => {
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
+    //GQR-67
+    const { loginUser_data, ButtonForm, Root, Toast, AlertMesg, t, onBackPress, CustomHeader, logoImage, topBanner } = useContext(userCreateContext);
+    const { dbname, lan_id, token, owner, user_id, } = loginUser_data;
+    //GQR-67
     const [nPasswordVisibility, setnPasswordVisibility] = useState('');
     const [oPasswordVisibility, setoPasswordVisibility] = useState('');
-    const [Password, setPassword] = useState({
-        opassword: '',
-        cpassword: '',
-    });
-
-
-    const onPageLoad = async () => {
-
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-
-
-        }
-    };
-
+    const [Password, setPassword] = useState({ opassword: '', cpassword: '' });
     useFocusEffect(
         useCallback(() => {
-            onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerDashboard'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmerDashboard'); return true; })
         }, [])
     );
-
-    useEffect(() => {
-        onPageLoad();
-    }, []);
-
     const validation = () => {
         Keyboard.dismiss();
         if (Password.opassword == "") {
@@ -86,8 +35,7 @@ const FarmerChangePassword = ({ navigation }) => {
                 newPassword: Password.cpassword,
                 userType: "2"
             });
-
-            const userDataUpdate = await UserPasswordUpdate(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, dbLanTokUsr.token, formData);
+            const userDataUpdate = await UserPasswordUpdate(dbname, lan_id, user_id, token, formData);
             if (userDataUpdate.status === 200) {
                 setPassword({
                     ...Password,
@@ -109,7 +57,7 @@ const FarmerChangePassword = ({ navigation }) => {
     return (
         <>
             <Root>
-                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={styles.container} >
                     <View style={styles.forgotContainer} >
                         <Text style={styles.titleForgot}>Change Password</Text>

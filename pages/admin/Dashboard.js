@@ -14,7 +14,7 @@ import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { userCreateContext } from '../Context/usersCreateContext';
 const Dashboard = ({ navigation }) => {
   //GQR-65
-  const { getItem, t, DeviceInfo, CustomHeader, onBackPress, logoImage, topBanner } = useContext(userCreateContext);
+  const { getItem, t, DeviceInfo, CustomHeader, onBackPress, logoImage, topBanner, isOnline } = useContext(userCreateContext);
   const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
@@ -24,7 +24,7 @@ const Dashboard = ({ navigation }) => {
   const [logoImg, setlogoImage] = useState(logoImage);
   const [topBannerImg, settopBanner] = useState(topBanner);
   const navigateToPages = (pageName) => {
-    if (netConnection) {
+    if (isOnline) {
       navigation.navigate(pageName, { data: 'remove' });
     } else {
       if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {

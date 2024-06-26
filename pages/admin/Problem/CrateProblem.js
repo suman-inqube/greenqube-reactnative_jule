@@ -2,9 +2,8 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, Keyboard, ScrollView, 
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import Marker, { Position, TextBackgroundType } from "react-native-image-marker";
-import ButtonForm from '../../Common/ButtonForm';
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from "react-native-image-marker";
 import { farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
@@ -20,7 +19,7 @@ const CreateProblem = ({ navigation }) => {
     //GQR-65
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
         setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle, DropdownForm, effective_dates,
-        InputTextForm, DatePickerComp } = useContext(userCreateContext);
+        InputTextForm, DatePickerComp, ButtonForm, isOnline } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
     //GQR-65
     const { netConnection } = DeviceInfo();
@@ -39,27 +38,12 @@ const CreateProblem = ({ navigation }) => {
     const [problemTypeAll, setProblemTypeAll] = useState([]);
     const [problemNameAll, setProblemNameAll] = useState([]);
     const [severityAll, setSeverityAll] = useState([]);
-    const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
-        name: "",
-        varity: "",
-        cycleStarts: "",
-        cycleEnd: "",
-        production_process: "",
-        question_title1: "",
-    });
+    const [nameVarityStartEnd, setNameVarityStartEnd] = useState({ name: "", varity: "", cycleStarts: "", cycleEnd: "", production_process: "", question_title1: "" });
     const [affectedDate, setaffectedDate] = useState("");
     const [newFromDate, setnewFromDate] = useState(new Date());
     const [addAffectedDate, setaddAffectedDate] = useState(false);
-    const [selectedImage, setSelectedImage] = useState({
-        firstItem: "",
-        secondItem: "",
-        thirdItem: "",
-    });
-    const [selectedRecord, setSelectedRecord] = useState({
-        firstItemRecord: "",
-        secondItemRecord: "",
-        thirdItemRecord: "",
-    });
+    const [selectedImage, setSelectedImage] = useState({ firstItem: "", secondItem: "", thirdItem: "" });
+    const [selectedRecord, setSelectedRecord] = useState({ firstItemRecord: "", secondItemRecord: "", thirdItemRecord: "" });
     const [saveData, setSaveData] = useState({
         agent_fcm: "",
         farmer_fcm: "",
@@ -80,27 +64,9 @@ const CreateProblem = ({ navigation }) => {
     const [modalVisibleRecordFirstItem, setModalVisibleRecordFirstItem] = useState(false);
     const [modalVisibleRecordSecoundItem, setModalVisibleRecordSecoundItem] = useState(false);
     const [modalVisibleRecordThirdItem, setModalVisibleRecordThirdItem] = useState(false);
-    const [soundRecordFirstItem, setSoundRecordFirstItem] = useState({
-        item: '1',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: ""
-    });
-    const [soundRecordSecoundItem, setSoundRecordSecoundItem] = useState({
-        item: '2',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: ""
-    });
-    const [soundRecordThirdItem, setSoundRecordThirdItem] = useState({
-        item: '3',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: ""
-    });
+    const [soundRecordFirstItem, setSoundRecordFirstItem] = useState({ item: '1', isLoggingIn: false, recordSecs: 0, recordTime: '00:00:00', result: "" });
+    const [soundRecordSecoundItem, setSoundRecordSecoundItem] = useState({ item: '2', isLoggingIn: false, recordSecs: 0, recordTime: '00:00:00', result: "" });
+    const [soundRecordThirdItem, setSoundRecordThirdItem] = useState({ item: '3', isLoggingIn: false, recordSecs: 0, recordTime: '00:00:00', result: "" });
     const handleResultSelect = async (name, currentfarmerId, phone, FcmUserToken) => {
         setSearchResultsList(false);
         setSearchFarmerPhone(phone);
@@ -110,7 +76,7 @@ const CreateProblem = ({ navigation }) => {
         setSearchResults([]);
         setfarmerID(currentfarmerId);
         setSaveData({ ...saveData, farmer_fcm: FcmUserToken })
-        if (netConnection) {
+        if (isOnline) {
             var response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
             await setItem('problemPlotAgainstFarmer' + currentfarmerId, response);
         } else {
@@ -118,13 +84,13 @@ const CreateProblem = ({ navigation }) => {
         }
         if (response) {
             //GQR-65
-            const dataArray = response.data.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
+            const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             //GQR-65
             setplotAll(dataArray)
         }
     }
     const handlePlot = async (relId) => {
-        if (netConnection) {
+        if (isOnline) {
             var response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value);
             await setItem('problemProduceAgainstPlot' + farmerID + relId.value, response);
         } else {
@@ -133,34 +99,34 @@ const CreateProblem = ({ navigation }) => {
         if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
-                name: response.data.data.rows[0].crop_name.name,
-                varity: response.data.data.rows[0].crop_variety.name,
-                cycleStarts: response.data.data.rows[0].sowing_date,
-                cycleEnd: response.data.data.rows[0].harvesting_date,
-                production_process: response.data.data.rows[0].farmer_production_system.name,
+                name: response?.data?.data?.rows[0]?.crop_name.name,
+                varity: response?.data?.data?.rows[0]?.crop_variety.name,
+                cycleStarts: response?.data?.data?.rows[0]?.sowing_date,
+                cycleEnd: response?.data?.data?.rows[0]?.harvesting_date,
+                production_process: response?.data?.data?.rows[0]?.farmer_production_system.name,
             })
-            const dateString = response.data.data.rows[0].harvesting_date;
+            const dateString = response?.data?.data?.rows[0]?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
                 setShowingMenu(true)
                 setSaveData({
                     ...saveData,
-                    crop_season_id: response.data.data.rows[0].crop_season_id,
-                    crop_type_id: response.data.data.rows[0].crop_type_id,
-                    crop_variety_id: response.data.data.rows[0].crop_variety_id,
-                    crop_name_id: response.data.data.rows[0].crop_name_id,
+                    crop_season_id: response?.data?.data?.rows[0]?.crop_season_id,
+                    crop_type_id: response?.data?.data?.rows[0]?.crop_type_id,
+                    crop_variety_id: response?.data?.data?.rows[0]?.crop_variety_id,
+                    crop_name_id: response?.data?.data?.rows[0]?.crop_name_id,
                     plot_id: relId.value,
-                    harvesting_date: response.data.data.rows[0].harvesting_date,
-                    sowing_date: response.data.data.rows[0].sowing_date,
-                    production_system: response.data.data.rows[0].farmer_production_system.fa_id,
+                    harvesting_date: response?.data?.data?.rows[0]?.harvesting_date,
+                    sowing_date: response?.data?.data?.rows[0]?.sowing_date,
+                    production_system: response?.data?.data?.rows[0]?.farmer_production_system.fa_id,
                     agent_id: user_id,
                 })
-                if (netConnection) {
-                    var productionStage_res = await problemProductionStageAPI(dbname, lan_id, response.data.data.rows[0].crop_type_id, response.data.data.rows[0].crop_name_id)
-                    await setItem('problemProductionStage' + response.data.data.rows[0].crop_type_id + response.data.data.rows[0].crop_name_id, productionStage_res);
+                if (isOnline) {
+                    var productionStage_res = await problemProductionStageAPI(dbname, lan_id, response?.data?.data?.rows[0]?.crop_type_id, response?.data?.data?.rows[0]?.crop_name_id)
+                    await setItem('problemProductionStage' + response?.data?.data?.rows[0]?.crop_type_id + response?.data?.data?.rows[0]?.crop_name_id, productionStage_res);
                 } else {
-                    var productionStage_res = await getItem('problemProductionStage' + response.data.data.rows[0].crop_type_id + response.data.data.rows[0].crop_name_id);
+                    var productionStage_res = await getItem('problemProductionStage' + response?.data?.data?.rows[0]?.crop_type_id + response?.data?.data?.rows[0]?.crop_name_id);
                 }
                 if (productionStage_res) {
                     //GQR-65
@@ -192,25 +158,15 @@ const CreateProblem = ({ navigation }) => {
                 const timestamp = Date.now();
                 let imageUri = response.uri || response.assets?.[0]?.uri;
                 const options = {
-
-                    backgroundImage: {
-                        src: imageUri,
-                        scale: 1,
-                    },
+                    backgroundImage: { src: imageUri, scale: 1 },
                     watermarkTexts: [{
                         text: `${saveData.latitude},${saveData.longitude},${new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(timestamp)}`,
-
-                        positionOptions: {
-                            position: Position.bottomLeft,
-                        },
+                        positionOptions: { position: Position.bottomLeft },
                         style: {
                             color: '#df2020',
                             fontSize: 2,
                             fontName: 'Arial',
-                            textBackgroundStyle: {
-                                padding: '10% 10%',
-                                color: '#00000000',
-                            },
+                            textBackgroundStyle: { padding: '10% 10%', color: '#00000000' },
                         },
                     }],
                     scale: 1,
@@ -220,9 +176,7 @@ const CreateProblem = ({ navigation }) => {
                     maxSize: 1000,
                 };
                 let path = await Marker.markText(options)
-                setSelectedImage({
-                    ...selectedImage, [item]: `file://${path}`
-                });
+                setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
                 const newPhoto = { uri: `file://${path}`, type: 'image/jpeg', name: `file://${path}` }
                 addPhoto(newPhoto);
                 const newTitle = {}
@@ -242,15 +196,8 @@ const CreateProblem = ({ navigation }) => {
         setSaveData({ ...saveData, affected_date: effective_date })
     }
     const handleProblemType = (problem_type) => {
-        setSaveData({
-            ...saveData,
-            problem_type_id: problem_type.value,
-        })
-        setNameVarityStartEnd({
-            ...nameVarityStartEnd,
-            question_title1: problem_type.label,
-
-        })
+        setSaveData({ ...saveData, problem_type_id: problem_type.value })
+        setNameVarityStartEnd({ ...nameVarityStartEnd, question_title1: problem_type.label })
         const problemNameFound = problemAll.find(user => user.fid === problem_type.value);
         if (problemNameFound) {
             //GQR-65
@@ -260,18 +207,12 @@ const CreateProblem = ({ navigation }) => {
         }
     };
     const handleProblemName = (problem_name) => {
-        setSaveData({
-            ...saveData,
-            problem_name_id: problem_name.value,
-            question_title: nameVarityStartEnd.name + "," + nameVarityStartEnd.question_title1 + "," + problem_name.label
-        })
+        setSaveData({ ...saveData, problem_name_id: problem_name.value, question_title: nameVarityStartEnd.name + "," + nameVarityStartEnd.question_title1 + "," + problem_name.label })
     };
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        const result = farmerData.filter(item =>
-            item.label.toLowerCase().includes(text.toLowerCase())
-        );
+        const result = farmerData.filter(item => item.label.toLowerCase().includes(text.toLowerCase()));
         if (result) {
             setSearchResultsList(true)
             setSearchResults(result);
@@ -309,20 +250,11 @@ const CreateProblem = ({ navigation }) => {
             secondItem: "",
             thirdItem: "",
         });
-        setNameVarityStartEnd({
-            ...nameVarityStartEnd,
-            name: "",
-            varity: "",
-            cycleStarts: "",
-            cycleEnd: "",
-            production_process: "",
-        })
+        setNameVarityStartEnd({ ...nameVarityStartEnd, name: "", varity: "", cycleStarts: "", cycleEnd: "", production_process: "" });
     }
     const onPageLoad = async () => {
-        setdbLanTokUsr({
-            ...dbLanTokUsr, FcmUserToken: FcmUserToken, owner: owner.FcmUserToken
-        })
-        if (netConnection) {
+        setdbLanTokUsr({ ...dbLanTokUsr, FcmUserToken: FcmUserToken, owner: owner.FcmUserToken })
+        if (isOnline) {
             var [problemName_res, response, severity_res] = await Promise.all([
                 problemTypeNameAPI(dbname, lan_id, token),
                 farmerByNameAPI(dbname, lan_id, token, user_id),
@@ -344,72 +276,56 @@ const CreateProblem = ({ navigation }) => {
         }
         setProblemAll(problemName_res?.data?.data);
         if (problemName_res) {
-            //GQR-65
-            const dataArray = problemName_res?.data?.data.map(data => ({ value: data.fid, label: data.name, }));
-            //GQR-65
+            const dataArray = problemName_res?.data?.data.map(data => ({ value: data.fid, label: data.name }));
             setProblemTypeAll(dataArray)
             setIsLoading(false)
         }
         if (severity_res) {
-            //GQR-65
             const dataArray = severity_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.name }));
-            //GQR-65
             setSeverityAll(dataArray)
         }
         if (response) {
-            //GQR-65
             const dataArray = response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber, FcmUserToken: data.FcmUserToken }));
-            //GQR-65
             setFarmerData(dataArray)
+        }
+    };
+    const requestLivePermission = async () => {
+        const { latitude, longitude } = await getItem('fusedLocation');
+        if (latitude != null) {
+            setSaveData({ ...saveData, latitude: latitude, longitude: longitude });
         }
     };
     const validateForm = () => {
         if (!farmerID) {
-            Toast.show({
-                time: 2, text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.plot_id) {
-            Toast.show({
-                time: 2, text: `${t('please_select_plot_first')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_select_plot_first')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.growth_stage) {
-            Toast.show({
-                time: 2, text: `${t('please_select_cultiveting_season_first')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_select_cultiveting_season_first')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.problem_type_id) {
-            Toast.show({
-                time: 2, text: `${t('please_select_problem_type')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_select_problem_type')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.problem_name_id) {
-            Toast.show({
-                time: 2, text: `${t('please_select_problem')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_select_problem')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.severity_id) {
-            Toast.show({
-                time: 2, text: `${t('please_select_severity')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_select_severity')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.affected_date) {
-            Toast.show({
-                time: 2, text: 'Please enter perform date', ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: 'Please enter perform date', ...AlertMesg[0] });
             return false;
         }
         if (!saveData.latitude) {
-            Toast.show({
-                time: 2, text: `${t('gpsalertdialogmessage')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('gpsalertdialogmessage')}`, ...AlertMesg[0] });
             return false;
         }
         return true;
@@ -469,11 +385,11 @@ const CreateProblem = ({ navigation }) => {
             formData.append("question_title", saveData.question_title);
             formData.append("question_desc", saveData.question_desc);
             formData.append("severity_id", saveData.severity_id);
-            if (netConnection) {
+            if (isOnline) {
                 const database_res = await problemSaveAPI(dbname, lan_id, token, farmerID, formData);
                 if (database_res.status === 200) {
                     // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
-                    Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                    Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });;
                     // handleClear();
                     setTimeout(() => {
                         navigation.navigate('ProblemList');
@@ -489,7 +405,7 @@ const CreateProblem = ({ navigation }) => {
                 } else {
                     await setItem('offlineSupervisorProblemData', 'off' + timeStamp)
                 }
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });;
                 handleClear();
                 setTimeout(() => {
                     navigation.navigate('ProblemList');
@@ -593,6 +509,7 @@ const CreateProblem = ({ navigation }) => {
     useEffect(() => {
         if (isFocused) {
             onPageLoad();
+            requestLivePermission();
             setSoundRecordFirstItem({
                 item: '1',
                 isLoggingIn: false,
@@ -616,7 +533,7 @@ const CreateProblem = ({ navigation }) => {
             });
             onBackPress(handleBackPress);
         }
-    }, [isFocused, netConnection]);
+    }, [isFocused]);
     const cancelRecord = async (item) => {
         await audioRecorderPlayer.stopPlayer();
         console.warn(item)

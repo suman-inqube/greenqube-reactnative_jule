@@ -1,101 +1,28 @@
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, FlatList, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm1';
-import ButtonForm from '../../Common/ButtonForm';
-import { loanRouteFarmerListAPI } from '../Loan/LoanAPI';
-import { getItem } from '../../../config/getDataFromStorage';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import React, { useEffect, useState, useContext } from 'react'
 import { problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, InsuranceAddAPI } from '../../../config/apiHere';
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const RequestForInsurance = ({ setActiveBtn }) => {
-    const { t } = useTranslation();
-    const [isLoading, setIsLoading] = useState(false);
-    const [searchResultsList, setSearchResultsList] = useState(false);
-    const [farmerList, setFarmerList] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
-    const [searchFarmerName, setSearchFarmerName] = useState('');
-    const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-    const [selectedName, setSelectedName] = useState('');
+    //GQR-67
+    const { loginUser_data, ButtonForm, InputTextForm, Root, Toast, AlertMesg, t } = useContext(userCreateContext);
+    const { dbname, lan_id, token, owner, user_id, userName, contactNumber, aadhar_number, kcc_number } = loginUser_data;
+    //GQR-67
     const [farmerID, setfarmerID] = useState('');
-    const [farmerData, setFarmerData] = useState({});
     const [plotSite, setPlotSite] = useState([]);
     const [isChecked, setIsChecked] = useState({});
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
     const [pickPlot, setPickPlot] = useState([])
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-        userName: '',
-        userNumber: ''
-    });
     const onPageLoad = async () => {
-        setIsLoading(true)
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const userName = loginUser_data.userName;
-            const userContactNumber = loginUser_data.contactNumber;
-            const aadharNumber = loginUser_data.aadhar_number;
-            const kcc_number = loginUser_data.kcc_number;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID,
-                userName: userName,
-                userNumber: userContactNumber,
-                aadharNumber: aadharNumber,
-                kcc_number: kcc_number
-            })
-            setfarmerID(loginUser_data.user_id);
-            const plotSiteApi = await problemPlotAgainstFarmerAPI(dbName, languageID, token, loginUser_data.user_id);
-            if (plotSiteApi) {
-                setPlotSite(plotSiteApi.data.data)
-            }
+        setfarmerID(user_id);
+        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, user_id);
+        if (plotSiteApi?.status == 200) {
+            setPlotSite(plotSiteApi?.data?.data);
         }
     };
     useEffect(() => {
         onPageLoad();
     }, []);
-    const handleSearch = (text) => {
-        setSearchFarmerName(text);
-        setSearchFarmerPhone('');
-        if (farmerList.length !== 0) {
-            const result = farmerList.filter(item =>
-                item.userName.toLowerCase().includes(text.toLowerCase())
-            );
-            if (result) {
-                setSearchResults(result);
-            }
-        }
-        if (text == "") {
-            setSearchResultsList(false);
-        } else {
-            setSearchResultsList(true);
-        }
-    };
-    const handleResultSelect = async (item) => {
-        setSearchFarmerPhone(item.contactNumber);
-        setSelectedName(item.userName);
-        setSearchFarmerName(item.userName);
-        setSearchResults([]);
-        setfarmerID(item.user_id)
-        setSearchResultsList(false);
-        setFarmerData(item);
-        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, item.user_id);
-        if (plotSiteApi) {
-            setPlotSite(plotSiteApi.data.data)
-        }
-    }
     const handlePlot = async (value, label, index) => {
         if (isChecked[index] === value) {
             setIsChecked({ ...isChecked, [index]: "" });
@@ -123,7 +50,7 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             });
             setPickPlot(plotArray)
             setIsChecked({ ...isChecked, [index]: value });
-            const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, value);
+            const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value);
             if (response) {
                 setNameVarityStartEnd([...nameVarityStartEnd, {
                     plot_no: response.data.data.rows[0].land_info.plot_no,
@@ -149,9 +76,9 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             Toast.show({ text: 'Please select plot', ...AlertMesg[0] });
         } else {
             const formData = new FormData();
-            formData.append("user_id", dbLanTokUsr.userID);
+            formData.append("user_id", user_id);
             formData.append("plot_id", checkValue);
-            const addInsurance = await InsuranceAddAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData);
+            const addInsurance = await InsuranceAddAPI(dbname, lan_id, token, user_id, formData);
             if (addInsurance.status === 200) {
                 setActiveBtn(2)
             }
@@ -162,10 +89,10 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             <Root>
                 <ScrollView>
                     <View style={styles.container}>
-                        <InputTextForm label={t('farmer_name')} value={dbLanTokUsr.userName} />
-                        <InputTextForm label={t('farmer_number')} value={dbLanTokUsr.userNumber} />
-                        <InputTextForm label={t('adhar_no')} value={dbLanTokUsr.aadharNumber} />
-                        <InputTextForm label={t('kcc_no')} value={dbLanTokUsr.kcc_number} />
+                        <InputTextForm label={t('farmer_name')} value={userName} />
+                        <InputTextForm label={t('farmer_number')} value={contactNumber} />
+                        <InputTextForm label={t('adhar_no')} value={aadhar_number} />
+                        <InputTextForm label={t('kcc_no')} value={kcc_number} />
                         <Text style={styles.plotTitle}>Plot/Site</Text>
                         <View style={styles.PlotSiteList}>
                             {

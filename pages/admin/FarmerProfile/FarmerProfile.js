@@ -1,29 +1,18 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, BackHandler, Keyboard } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import ButtonForm from '../../Common/ButtonForm'
-import InputTextForm from '../../Common/InputTextForm'
-import DropdownForm from '../../Common/DropdownForm'
-import RadioForm from '../../Common/RadioForm'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Keyboard } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import ImageForm from '../../Common/ImageForm'
-import ImagePlaceHolderCircle from '../../Common/ImagePlaceHolderCircle'
-import { getItem, removeItem } from '../../../config/getDataFromStorage'
-import {
-    fetchBlockAPI, fetchDistrictAPI, fetchStateAPI, UserInformationUpdate, farmerProfileInformation, firstLanguageListAPI,
-    UserProfileUpdate
-} from '../userlist/UsersAPI'
+import { fetchBlockAPI, fetchDistrictAPI, fetchStateAPI, farmerProfileInformation, firstLanguageListAPI, UserProfileUpdate } from '../userlist/UsersAPI'
 import { launchImageLibrary } from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker'
 import config from '../../../config'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle'
-import { useRoute, useFocusEffect, useNavigation, useIsFocused, StackActions, CommonActions } from '@react-navigation/native';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert'
-import { useTranslation } from 'react-i18next';
+import { useNavigation, useIsFocused, CommonActions } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerProfile = ({ sendDataToParent, farmerID }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, ButtonForm, InputTextForm, DropdownForm, RadioForm, t, ImagePlaceHolderCircle, Root, Toast, AlertMesg, getItem, logoImage, topBanner, onBackPress, setItem, CustomHeader, effective_dates } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
-    const route = useRoute();
     const isFocused = useIsFocused();
     // const { farmeruserID, userName, contactNumber, profileImage, gender, farmer_type } = route.params;
     const [newdate, setnewDate] = useState(new Date())
@@ -65,11 +54,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         policy_no: "",
         sum_insured: ""
     });
-    const [regionaldatas, setregionaldatas] = useState({
-        state: "",
-        district: "",
-        block: "",
-    })
+    const [regionaldatas, setregionaldatas] = useState({ state: "", district: "", block: "" })
     const openImagePicker = () => {
         const options = {
             mediaType: 'photo',
@@ -89,100 +74,52 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             }
         });
     }
-
     let languageDataList = async (dbname) => {
-
         try {
-            let languageArray = [];
             let language_res = await firstLanguageListAPI(dbname);
-            // console.log(JSON.stringify(language_res, null, 2));
-            if (language_res.data) {
-                language_res.data.data.forEach(element => {
-
-                    languageArray.push({
-                        value: element.id,
-                        label: element.name,
-                        sName: element.sname,
-                    });
-                });
+            if (language_res?.status == 200) {
+                let languageArray = language_res?.data?.data.map(data => ({ value: data.id, label: data.name, sName: data.sname }));
                 setlanguageData(languageArray);
             }
         } catch (error) {
             console.log("Error in language API", error.response);
         }
     }
-
     const handleLanguage = (data) => {
         setlanguageID(data.value);
         setfarmerData({ ...farmerData, lan_id: data.value, lanName: data.label, lanSname: data.sName })
-        setfarmerData({
-            ...farmerData,
-            state: "",
-            stateName: "",
-            district: "",
-            districtName: "",
-            block: "",
-            blockName: ""
-        })
+        setfarmerData({ ...farmerData, state: "", stateName: "", district: "", districtName: "", block: "", blockName: "" })
         getState(dbName, data.value);
 
     }
-
     const getState = async (dbName, languageID) => {
-        console.log(languageID)
         const response = await fetchStateAPI(dbName, languageID)
-        if (response.data) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.state_name,
-                });
-            });
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.state_name }));
             setstateAll(dataArray);
         }
     }
     const getDistrict = async (dbName, languageID, stateID) => {
         const response = await fetchDistrictAPI(dbName, languageID, stateID)
-        if (response.status === 200) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.district_name,
-                });
-            });
+        if (response?.status === 200) {
+            const dataArray = response.data.data.rows.map(data => ({ value: data.fid, label: data.district_name }));
             setdistrictAll(dataArray);
         }
     }
     const getBlock = async (dbName, languageID, districtID) => {
-        const response = await fetchBlockAPI(dbName, languageID, districtID)
-        const dataArray = [];
-        response.data.data.rows.forEach(element => {
-            dataArray.push({
-                value: element.fid,
-                label: element.subdiv_name,
-            });
-        });
-        setblockAll(dataArray);
+        const response = await fetchBlockAPI(dbName, languageID, districtID);
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.subdiv_name }));
+            setblockAll(dataArray);
+        }
     }
-
     const handleStateDistrictBlock = (moduleName, data) => {
         setfarmerData({ ...farmerData, [moduleName]: data.value, [`${moduleName}Name`]: data.label })
         if (moduleName === 'state') {
-            setfarmerData({
-                ...farmerData,
-                state: data.value,
-                stateName: data.label,
-                district: "",
-                districtName: "",
-                block: "",
-                blockName: ""
-            })
+            setfarmerData({ ...farmerData, state: data.value, stateName: data.label, district: "", districtName: "", block: "", blockName: "" })
             const stateID = data.value;
             getDistrict(dbName, languageID, stateID);
-        }
-        else if (moduleName === 'district') {
+        } else if (moduleName === 'district') {
             const dataArray = [];
             setblockAll(dataArray);
             const districtID = data.value;
@@ -190,109 +127,84 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         }
     }
     const handleEffectFrom = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setfarmerData({ ...farmerData, effective_from: cycleEnds })
+        const cycleEnds = effective_dates(item);
+        setfarmerData({ ...farmerData, effective_from: cycleEnds });
     }
     const onPageLoad = async () => {
-        const [loginUser_data, state,
-            district, block] = await Promise.all([
-                getItem('loginUser_data'),
-                getItem("state"),
-                getItem("district"),
-                getItem("block")
-            ])
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setregionaldatas({
-                ...regionaldatas,
-                state: state,
-                district: district,
-                block: block,
-            })
-            const res = await farmerProfileInformation(dbName, languageID, token, userID)
-            const farmerFound = res.data.data[0];
-            if (farmerFound) {
-                const dob = new Date(farmerFound.date_of_birth);
-                const currentDate = new Date();
-                const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
-                if (farmerFound.agri_user_addresses[0].agri_district) {
-                    await Promise.all([
-                        getDistrict(dbName, languageID, farmerFound.agri_user_addresses[0].agri_state.fid),
-                        getBlock(dbName, languageID, farmerFound.agri_user_addresses[0].agri_district.fid)
-                    ]);
-                }
-                if (farmerFound.agri_files[0] != undefined) {
-                    setSelectedImage(farmerFound.agri_files[0].file_path);
-                }
+        const [state, district, block] = await Promise.all([getItem("state"), getItem("district"), getItem("block")])
+        setregionaldatas({ ...regionaldatas, state: state, district: district, block: block })
+        const res = await farmerProfileInformation(dbname, lan_id, token, user_id)
+        const farmerFound = res?.data?.data[0];
+        if (farmerFound) {
+            const dob = new Date(farmerFound?.date_of_birth);
+            const currentDate = new Date();
+            const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
+            if (farmerFound?.agri_user_addresses[0].agri_district) {
+                await Promise.all([
+                    getDistrict(dbname, lan_id, agri_user_addresses[0].agri_state.fid),
+                    getBlock(dbname, lan_id, agri_user_addresses[0].agri_district.fid),
+                    setLoginUserId(user_id),
+                    setLoginUserToken(token),
+                ]);
+            }
+            if (farmerFound?.agri_files[0] != undefined) {
+                setSelectedImage(farmerFound?.agri_files[0].file_path);
+            }
+            await Promise.all([
+                languageDataList(dbname),
+                getState(dbname, lan_id),
+                setdbName(dbname),
+                setlanguageID(lan_id),
                 setfarmerData({
                     ...farmerData,
-                    userName: farmerFound.userName,
-                    contactNumber: farmerFound.contactNumber,
-                    gender: farmerFound.gender,
-                    farmer_type: farmerFound.farmer_type,
-                    date_of_birth: farmerFound.date_of_birth,
+                    userName: farmerFound?.userName,
+                    contactNumber: farmerFound?.contactNumber,
+                    gender: farmerFound?.gender,
+                    farmer_type: farmerFound?.farmer_type,
+                    date_of_birth: farmerFound?.date_of_birth,
                     age: yearsDiff.toString(),
-                    country: farmerFound.agri_user_addresses[0].country,
-                    lan_id: farmerFound.agri_language.id,
-                    lanName: farmerFound.agri_language.name,
-                    lanSname: farmerFound.agri_language.sname,
-                    state: farmerFound.agri_user_addresses[0].agri_state.fid,
-                    stateName: farmerFound.agri_user_addresses[0].agri_state.state_name,
-                    district: farmerFound.agri_user_addresses[0].agri_district.fid,
-                    districtName: farmerFound.agri_user_addresses[0].agri_district.district_name,
-                    block: farmerFound.agri_user_addresses[0].agri_subdivision.fid,
-                    blockName: farmerFound.agri_user_addresses[0].agri_subdivision.subdiv_name,
-                    aadhar_number: farmerFound.aadhar_number,
-                    pan_number: farmerFound.pan_number,
-                    voter_card_number: farmerFound.voter_card_number,
-                    kcc_number: farmerFound.kcc_number,
-                    user_bank_account_holder: farmerFound.user_bank_account_holder,
-                    user_bank_account_name: farmerFound.user_bank_account_name,
-                    user_bank_branch_name: farmerFound.user_bank_branch_name,
-                    user_bank_account_number: farmerFound.user_bank_account_number,
-                    user_bank_ifsc_code: farmerFound.user_bank_ifsc_code,
-                    pension_authority: farmerFound.pension_details.pension_authority,
-                    pension_account_no: farmerFound.pension_details.pension_account_no,
-                    effective_from: farmerFound.pension_details.effective_from,
-                    pension_amount: farmerFound.pension_details.pension_amount,
-                    frequency: farmerFound.pension_details.frequency,
-                    company_name: farmerFound.lic_details.company_name,
-                    policy_no: farmerFound.lic_details.policy_no,
-                    sum_insured: farmerFound.lic_details.sum_insured
+                    country: farmerFound?.agri_user_addresses[0].country,
+                    lan_id: farmerFound?.agri_language.id,
+                    lanName: farmerFound?.agri_language.name,
+                    lanSname: farmerFound?.agri_language.sname,
+                    state: farmerFound?.agri_user_addresses[0].agri_state.fid,
+                    stateName: farmerFound?.agri_user_addresses[0].agri_state.state_name,
+                    district: farmerFound?.agri_user_addresses[0].agri_district.fid,
+                    districtName: farmerFound?.agri_user_addresses[0].agri_district.district_name,
+                    block: farmerFound?.agri_user_addresses[0].agri_subdivision.fid,
+                    blockName: farmerFound?.agri_user_addresses[0].agri_subdivision.subdiv_name,
+                    aadhar_number: farmerFound?.aadhar_number,
+                    pan_number: farmerFound?.pan_number,
+                    voter_card_number: farmerFound?.voter_card_number,
+                    kcc_number: farmerFound?.kcc_number,
+                    user_bank_account_holder: farmerFound?.user_bank_account_holder,
+                    user_bank_account_name: farmerFound?.user_bank_account_name,
+                    user_bank_branch_name: farmerFound?.user_bank_branch_name,
+                    user_bank_account_number: farmerFound?.user_bank_account_number,
+                    user_bank_ifsc_code: farmerFound?.user_bank_ifsc_code,
+                    pension_authority: farmerFound?.pension_details.pension_authority,
+                    pension_account_no: farmerFound?.pension_details.pension_account_no,
+                    effective_from: farmerFound?.pension_details.effective_from,
+                    pension_amount: farmerFound?.pension_details.pension_amount,
+                    frequency: farmerFound?.pension_details.frequency,
+                    company_name: farmerFound?.lic_details.company_name,
+                    policy_no: farmerFound?.lic_details.policy_no,
+                    sum_insured: farmerFound?.lic_details.sum_insured
                 })
-            }
-            setdbName(dbName);
-            setlanguageID(languageID);
-            setLoginUserId(userID);
-            setLoginUserToken(token);
-
-            languageDataList(dbName)
-            getState(dbName, languageID);
+            ]);
         }
     };
+    const handleBackPress = () => { navigation.navigate('FarmerDashboard'); return true; }
     useEffect(() => {
         if (isFocused) {
             setmyPhoto({ uri: "", type: "", name: "" });
             setSelectedImage(null);
             onPageLoad();
-            const onBackPress = () => {
-                RemoveFarmerData();
-                navigation.navigate('FarmerDashboard'); return true;
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }
     }, [isFocused]);
     const handleUserListUpdate = async () => {
-
         if (validateForm()) {
-
             const currentDate = new Date();
             const currentYear = currentDate.getFullYear();
             const yearsToSubtract = farmerData.age;
@@ -300,8 +212,6 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             const month = currentDate.getMonth() + 1;
             const newYear = currentYear - yearsToSubtract;
             const dob = `${newYear}-${month}-${day}`;
-
-
             Keyboard.dismiss();
             const formData = new FormData();
             formData.append("meta", []);
@@ -363,23 +273,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             }
         }
     }
-    // const handleLogout = async () => {
-    //     await Promise.all([
-    //         removeItem("logoImageData"),
-    //         removeItem('loginUser_data'),
-    //         removeItem("profileImgData"),
-    //         removeItem("userNameData"),
-    //         removeItem("userType"),
-    //         removeItem("bottomBannerData"),
-    //         removeItem("topBannerData")
-    //     ]);
-    //     const popAction = StackActions.pop(1);
-    //     navigation.dispatch(popAction);
-    //     navigation.navigate('Login');
-    // }
-
     const validateForm = () => {
-
         Keyboard.dismiss();
         if (farmerData.userName.length < 1) {
             Toast.show({ text: t('please_enter_valid_name'), ...AlertMesg[0] });
@@ -403,42 +297,11 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         return true;
 
     }
-    const RemoveFarmerData = () => {
-        setfarmerData({
-            userName: "",
-            contactNumber: "",
-            gender: "",
-            farmer_type: "",
-            age: "",
-            state: "",
-            district: "",
-            block: "",
-            aadhar_number: "",
-            pan_number: "",
-            voter_card_number: "",
-            kcc_number: "",
-            user_bank_account_holder: "",
-            user_bank_account_name: "",
-            user_bank_branch_name: "",
-            user_bank_account_number: "",
-            user_bank_ifsc_code: "",
-            pension_authority: "",
-            pension_account_no: "",
-            effective_from: "",
-            pension_amount: "",
-            frequency: "",
-            company_name: "",
-            policy_no: "",
-            sum_insured: ""
-        });
-    }
     const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
-
     return (
         <>
             <Root>
-                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
-                {/* <FormsTitle title={'User Profile'} /> */}
+                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <ScrollView >
                     <View style={{ marginHorizontal: 20, backgroundColor: '#FFFFF' }}>
                         <View style={{ backgroundColor: '#E9FCC5', marginTop: 30, borderRadius: 20, elevation: 3 }}>
@@ -468,18 +331,18 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                                     <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>{t('far_reg_far_type')}</Text>
                                     <RadioForm
                                         label={t('grower')}
-                                        selected={farmerData.farmer_type === '1'}
-                                        onSelect={() => setfarmerData({ ...farmerData, farmerType: '1' })}
+                                        selected={farmerData.farmer_type == "1"}
+                                        onSelect={() => setfarmerData({ ...farmerData, farmer_type: "1" })}
                                     />
                                     <RadioForm
                                         label={t('small_holder')}
-                                        selected={farmerData.farmer_type === '2'}
-                                        onSelect={() => setfarmerData({ ...farmerData, farmerType: '2' })}
+                                        selected={farmerData.farmer_type == "2"}
+                                        onSelect={() => setfarmerData({ ...farmerData, farmer_type: "2" })}
                                     />
                                     <RadioForm
                                         label={t('farm_worker')}
-                                        selected={farmerData.farmer_type === '3'}
-                                        onSelect={() => setfarmerData({ ...farmerData, farmerType: '3' })}
+                                        selected={farmerData.farmer_type == "3"}
+                                        onSelect={() => setfarmerData({ ...farmerData, farmer_type: "3" })}
                                     />
                                 </View>
                                 <InputTextForm label={t('age')} value={farmerData.age ?? farmerData.age} keyboardType="numeric"

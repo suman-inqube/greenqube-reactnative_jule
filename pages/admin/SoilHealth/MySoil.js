@@ -1,14 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { useTranslation } from 'react-i18next';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
 import SoilHealthManagementController from '../../ViewController/SoilHealthManagementController';
 import SampleRequested from './SampleRequested';
 import SampleReport from './SampleReport';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const MySoil = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { t, CustomHeader, FormsTitle, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-67
     const {
         activeBtn,
         setActiveBtn,
@@ -28,7 +27,7 @@ const MySoil = () => {
     } = SoilHealthManagementController('sampale');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')} />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('my_soil')} />
             <View style={styles.btnContainer}>
                 <View style={activeBtn === 1 ? styles.btnActive : styles.btn}>

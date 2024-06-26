@@ -1,39 +1,30 @@
-import { BackHandler, Button, FlatList, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import { faremerTrainingListAPI, cropListApi } from '../../../config/apiHere';
-import { userDataListAPI, farmerUsefulInfoListAPI, } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
+import { cropListApi } from '../../../config/apiHere';
+import { farmerUsefulInfoListAPI, } from '../../../config/apiHere';
 import moment from "moment";
 // import { useNavigation } from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
-import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import FormsTitle from '../../Common/FormsTitle';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerUsefulInformationList = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, t, FormsTitle, getItem, logoImage, topBanner, onBackPress, setItem, CustomHeader } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
-    const scheme = useColorScheme();
     const navigation = useNavigation();
     const [noticeList, setNoticeList] = useState([]);
     const detailItem = async (itemId) => {
         await setItem("userNoticeId", itemId);
-        const userNoticeListData = await getItem('userNoticeId');
         navigation.navigate('FarmerUsefulInformation', { pagename: 'FarmerUsefulInformation', noticeId: itemId });
     }
-    function handleBackPress() {
-        navigation.navigate("FarmerDashboard");
-        return true;
-    }
+    const handleBackPress = () => { navigation.navigate("FarmerDashboard"); return true; }
     useEffect(() => {
         onBackPress(handleBackPress);
     }, [])
     function UserBoxDisplay({ item, item2, item3, item4 }) {
         return (
-
             <View style={styles.box1}>
                 <View style={styles.box1_1}>
                     <View>
@@ -47,51 +38,21 @@ const FarmerUsefulInformationList = () => {
             </View>
         );
     }
-
     const usefulInfoList = async (dbName, languageID, userID, state_id, district_id, subdiv_id, newCropId) => {
-        const userNoticeListData = await getItem('userNoticeList');
-        // if (userNoticeListData) {
-        //     setNoticeList(userNoticeListData)
-        // } else {
         let response = await farmerUsefulInfoListAPI(dbName, languageID, userID, state_id, district_id, subdiv_id, newCropId, "farmer", "general_info");
-        // console.log(JSON.stringify(response.data, null, 2));
-        if (response) {
-            setNoticeList(response.data.data)
-            setItem("userNoticeList", response.data.data)
+        if (response?.status == 200) {
+            setNoticeList(response?.data?.data)
+            setItem("userNoticeList", response?.data?.data)
         }
-
-        // }
     }
-
-
-
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const state_id = loginUser_data.agri_user_addresses[0].agri_state.fid;
-            const district_id = loginUser_data.agri_user_addresses[0].agri_district.fid;
-            const subdiv_id = loginUser_data.agri_user_addresses[0].agri_subdivision.fid;
-
-
-            const response = await cropListApi(dbName, languageID, userID);
-            if (response.status == 200) {
-                let cropId = "";
-                const datam = response.data.data.rows
-                datam.map(async (item) => {
-
-                    cropId = cropId + item.crop_name_id + ",";
-
-                });
-                const newCropId = cropId.substring(0, cropId.length - 1);
-                usefulInfoList(dbName, languageID, userID, state_id, district_id, subdiv_id, newCropId)
-                // trainingList(dbName, languageID, userID, state_id, district_id, subdiv_id, newCropId)
-                // console.log(JSON.stringify(newCropId, null, 2));
-
-            }
+        const response = await cropListApi(dbname, lan_id, user_id);
+        if (response?.status == 200) {
+            let cropId = "";
+            const datam = response?.data?.data?.rows
+            datam.map(async (item) => { cropId = cropId + item.crop_name_id + ","; });
+            const newCropId = cropId.substring(0, cropId.length - 1);
+            usefulInfoList(dbname, lan_id, user_id, agri_user_addresses[0].agri_state.fid, agri_user_addresses[0].agri_district.fid, agri_user_addresses[0].agri_subdivision.fid, newCropId)
         }
     };
     useEffect(() => {
@@ -99,19 +60,19 @@ const FarmerUsefulInformationList = () => {
             onPageLoad();
         }
     }, [isFocused]);
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => { navigation.navigate('FarmerDashboard'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
-    );
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         const onBackPress = () => { navigation.navigate('FarmerDashboard'); return true; };
+    //         BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    //         return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    //     }, [])
+    // );
     const HandlerGoBack = () => {
         navigation.navigate('FarmerDashboard');
     }
     return (
         <View style={{ flex: 2 }}>
-            <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('dash_useful_information')} />
 
             <ScrollView>

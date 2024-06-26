@@ -2,23 +2,15 @@ import {
     StyleSheet, Text, TouchableOpacity,
     View, Image, ScrollView, BackHandler, FlatList, SafeAreaView, Dimensions, Keyboard
 } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import DropdownForm from '../../Common/DropdownForm';
-import DropdownForm1 from '../../Common/DropdownForm1';
-import InputTextForm from '../../Common/InputTextForm';
-import ButtonForm from '../../Common/ButtonForm';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { getItem } from '../../../config/getDataFromStorage';
-import { farmerAgainstSupervisorAPI, farmerByNameAPI, livelihoodNameVarietyLandrelAPI, outputSaveAPI, problemPlotAgainstFarmerAPI, produceAgainstPlotAPI, unitByListAPI } from '../../../config/apiHere';
-import axios from 'axios';
-import MessageDialog from '../../Common/MessageDialog';
-
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import React, { useState, useEffect, useContext } from 'react'
+import { launchCamera } from 'react-native-image-picker';
+import { farmerAgainstSupervisorAPI, farmerByNameAPI, livelihoodNameVarietyLandrelAPI, outputSaveAPI, problemPlotAgainstFarmerAPI, unitByListAPI } from '../../../config/apiHere';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PostNew = (props) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, t, Root, AlertMesg, DropdownForm, InputTextForm, ButtonForm, DatePickerComp, Toast, getItem, farmerData } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const unitFarm = [
         {
             value: 1,
@@ -29,48 +21,28 @@ const PostNew = (props) => {
         },
     ];
     const [searchResultsList, setSearchResultsList] = useState(false);
-    const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: ""
-    });
-    const [saveData, setSaveData] = useState({
-        plot_name: ""
-    });
+    const [saveData, setSaveData] = useState({ plot_name: "" });
     const [farmerID, setfarmerID] = useState();
     const [searchResults, setSearchResults] = useState([]);
     const [plotAll, setplotAll] = useState([]);
     const [liveliHoodType, setLiveliHoodType] = useState([]);
     const [produceName, setProduceName] = useState([]);
     const [produceVariety, setProduceVariety] = useState([]);
-    const [nameVarityLivelihood, setNameVarityLivelihood] = useState({
-        name: "",
-        varity: "",
-        livelihood: "",
-    });
+    const [nameVarityLivelihood, setNameVarityLivelihood] = useState({ name: "", varity: "", livelihood: "" });
     const [unitData, setUnitData] = useState([]);
     const [nextpage, setNextPage] = useState(1);
-    const [takePhotoModel, setTakePhotoModel] = useState(false);
     const [newDate, setNewDate] = useState(new Date());
     const [approximateDate, setApproximateDate] = useState("");
     const [openDatePicker, setOpenDatePicker] = useState(false)
     const [isOther, setIsOther] = useState(false);
-    const [regionaldatas, setregionaldatas] = useState({
-        state: "",
-        district: "",
-        block: "",
-    })
+    const [regionaldatas, setregionaldatas] = useState({ state: "", district: "", block: "" })
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
         if (farmerData) {
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(text.toLowerCase()));
             if (result) {
                 setSearchResultsList(true)
                 setSearchResults(result);
@@ -99,7 +71,7 @@ const PostNew = (props) => {
         setSearchFarmerName(name);
         setSearchResults([]);
         setfarmerID(currentfarmerId);
-        const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, currentfarmerId)
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
         if (response) {
             const dataArray = [{
                 value: currentfarmerId,
@@ -107,11 +79,7 @@ const PostNew = (props) => {
                 user_id: currentfarmerId,
             }];
             response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no,
-                    user_id: element.user_id,
-                });
+                dataArray.push({ value: element.rel_id, label: element.plot_no, user_id: element.user_id });
             });
             setplotAll(dataArray);
         }
@@ -119,7 +87,7 @@ const PostNew = (props) => {
     const handlePlot = async (relId, plot) => {
         if (relId.label == 'other') {
             setIsOther(true)
-            const farmer_all = await farmerAgainstSupervisorAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, farmerID)
+            const farmer_all = await farmerAgainstSupervisorAPI(dbname, lan_id, token, farmerID)
             if (farmer_all?.status == 200) {
                 const problemNameFound = farmer_all.data.data.rows.find(user => user.user_id === relId.user_id);
                 if (problemNameFound) {
@@ -132,20 +100,20 @@ const PostNew = (props) => {
                         fulfill_status: 0,
                         // plot_name: plot != undefined && relId.label,
                         plot_name: relId.label,
-                        state_name: problemNameFound.agri_user_addresses[0].agri_state.state_name,
-                        district_name: problemNameFound.agri_user_addresses[0].agri_district.district_name,
-                        subdiv_name: problemNameFound.agri_user_addresses[0].agri_subdivision.subdiv_name,
-                        state_id: problemNameFound.agri_user_addresses[0].state,
-                        district_id: problemNameFound.agri_user_addresses[0].district,
-                        block_id: problemNameFound.agri_user_addresses[0].subdivision,
+                        state_name: problemNameFound?.agri_user_addresses[0]?.agri_state.state_name,
+                        district_name: problemNameFound?.agri_user_addresses[0]?.agri_district.district_name,
+                        subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision.subdiv_name,
+                        state_id: problemNameFound?.agri_user_addresses[0]?.state,
+                        district_id: problemNameFound?.agri_user_addresses[0]?.district,
+                        block_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
                     })
                 }
             }
         } else {
             setIsOther(false);
             const [livelyhoodNameVerity, farmer_all] = await Promise.all([
-                livelihoodNameVarietyLandrelAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, relId.user_id, relId.value),
-                farmerAgainstSupervisorAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
+                livelihoodNameVarietyLandrelAPI(dbname, lan_id, relId.user_id, relId.value),
+                farmerAgainstSupervisorAPI(dbname, lan_id, farmerID)
             ]);
             if (livelyhoodNameVerity) {
                 const problemNameFound = farmer_all.data.data.rows.find(user => user.user_id === relId.user_id);
@@ -180,12 +148,12 @@ const PostNew = (props) => {
                         transaction_type: 2,
                         fulfill_status: 0,
                         plot_name: relId.label,
-                        state_name: problemNameFound.agri_user_addresses[0].agri_state.state_name,
-                        district_name: problemNameFound.agri_user_addresses[0].agri_district.district_name,
-                        subdiv_name: problemNameFound.agri_user_addresses[0].agri_subdivision.subdiv_name,
-                        state_id: problemNameFound.agri_user_addresses[0].state,
-                        district_id: problemNameFound.agri_user_addresses[0].district,
-                        block_id: problemNameFound.agri_user_addresses[0].subdivision,
+                        state_name: problemNameFound?.agri_user_addresses[0]?.agri_state.state_name,
+                        district_name: problemNameFound?.agri_user_addresses[0]?.agri_district.district_name,
+                        subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision.subdiv_name,
+                        state_id: problemNameFound?.agri_user_addresses[0]?.state,
+                        district_id: problemNameFound?.agri_user_addresses[0]?.district,
+                        block_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
                         entity_type_id: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
                         entity_name_id: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
                         entity_variety_id: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
@@ -209,7 +177,7 @@ const PostNew = (props) => {
         }
     }
     const handleUnit = async (item) => {
-        const unitRes = await unitByListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, 1, item.sub_type);
+        const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
         if (unitRes?.status == 200) {
             const rows = unitRes?.data?.data?.rows[0];
             setSaveData({
@@ -242,56 +210,26 @@ const PostNew = (props) => {
         });
     };
     const onPageLoad = async () => {
-        const [loginUser_data, state,
-            district, block] = await Promise.all([
-                getItem('loginUser_data'),
-                getItem("state"),
-                getItem("district"),
-                getItem("block")
-            ])
-        if (loginUser_data) {
-            setregionaldatas({
-                ...regionaldatas,
-                state: state,
-                district: district,
-                block: block,
-            })
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageId: lan_id,
-                token: token,
-                supervisorId: user_id
-            })
-            const [unitByList, response] = await Promise.all([
-                unitByListAPI(dbname, lan_id),
-                farmerByNameAPI(dbname, lan_id, token, user_id)
-            ]);
-            if (unitByList.status === 200) {
-                const dataArray = [];
-                unitByList.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.unit_name,
-                        unit_sname: element.unit_sname,
-                        sub_type: element.sub_type,
-                        defined_unit_value: element.defined_unit_value
-                    });
-                    setUnitData(dataArray)
+        const [state, district, block] = await Promise.all([getItem("state"), getItem("district"), getItem("block")])
+        setregionaldatas({
+            ...regionaldatas,
+            state: state,
+            district: district,
+            block: block,
+        })
+        const unitByList = await unitByListAPI(dbname, lan_id);
+        if (unitByList.status === 200) {
+            const dataArray = [];
+            unitByList?.data?.data?.rows.forEach(element => {
+                dataArray.push({
+                    value: element.fid,
+                    label: element.unit_name,
+                    unit_sname: element.unit_sname,
+                    sub_type: element.sub_type,
+                    defined_unit_value: element.defined_unit_value
                 });
-            }
-            if (response.status === 200) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
+                setUnitData(dataArray)
+            });
         }
     };
     const validationData = () => {
@@ -350,7 +288,7 @@ const PostNew = (props) => {
                 formDataObject.append('photo', "");
                 formDataObject.append('others', saveData.others);
                 formDataObject.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
-                const database_res = await outputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, formDataObject);
+                const database_res = await outputSaveAPI(dbname, lan_id, token, user_id, formDataObject);
                 if (database_res?.status === 200) {
                     Toast.show({ text: `Successfull Add Data`, ...AlertMesg[0] });
                     setTimeout(() => {

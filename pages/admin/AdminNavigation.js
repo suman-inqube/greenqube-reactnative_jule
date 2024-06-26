@@ -133,10 +133,10 @@ const AdminNavigation = () => {
             <Drawer.Screen name="AddIcome" component={AddIcome} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="AddExpense" component={AddExpense} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
-            <Drawer.Screen name="PersonalInformation" component={PersonalInformation} options={{ gestureEnabled: false }} />
-            <Drawer.Screen name="FinancialInformation" component={FinancialInformation} options={{ gestureEnabled: false }} />
-            <Drawer.Screen name="PlotSiteProduceInformation" component={PlotSiteProduceInformation} options={{ gestureEnabled: false }} />
-            <Drawer.Screen name="RegistationSignUpViwer" component={RegistationSignUpViwer} options={{ gestureEnabled: false }} />
+            <Drawer.Screen name="PersonalInformation" component={PersonalInformation} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="FinancialInformation" component={FinancialInformation} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="PlotSiteProduceInformation" component={PlotSiteProduceInformation} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="RegistationSignUpViwer" component={RegistationSignUpViwer} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
             <Drawer.Screen name="ChangePassword" component={ChangePassword} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="Business" component={Business} options={{ unmountOnBlur: true, gestureEnabled: false }} />

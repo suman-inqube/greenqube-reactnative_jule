@@ -2,16 +2,17 @@ import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpaci
 import React, { useState, useContext } from 'react'
 import HeadDropDown from './HeadDropDown';
 import { useFocusEffect } from '@react-navigation/native';
-import { farmaccountsIncomeListAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI } from '../../../config/apiHere';
+import { farmaccountsIncomeListAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, farmIncomeExpenceSaveAPI } from '../../../config/apiHere';
 import axios from 'axios';
 import HarvestedModel from '../../Common/HarvestedModel';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const AddIcome = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, DropdownForm, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, setItem, logoImage,
+    const { loginUser_data, DropdownForm, CustomHeader, t, AlertMesg, onBackPress, setItem, logoImage,
         topBanner, Root, Toast, FormsTitle, InputTextForm, DatePickerComp
         , ButtonFormBottom, effective_dates, farmerData, } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner } = loginUser_data;
     //GQR-67
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState();
@@ -118,7 +119,7 @@ const AddIcome = ({ navigation }) => {
         setSearchFarmerPhone(phone)
         setSearchFarmerName(name);
         setfarmerID(currentfarmerId)
-        const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, currentfarmerId)
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
         if (response?.status == 200) {
             const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             setplotAll(dataArray)
@@ -136,14 +137,10 @@ const AddIcome = ({ navigation }) => {
         }
     };
     const handlePlot = async (relId) => {
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, relId.value)
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
         if (response?.status == 200) {
-            setNameVarityStartEnd({
-                ...nameVarityStartEnd,
-                name: response.data.data.rows[0].crop_name.name,
-                varity: response.data.data.rows[0].crop_variety.name,
-            })
-            const dateString = response.data.data.rows[0].harvesting_date;
+            setNameVarityStartEnd({ ...nameVarityStartEnd, name: response?.data?.data?.rows[0]?.crop_name.name, varity: response?.data?.data?.rows[0]?.crop_variety.name })
+            const dateString = response?.data?.data?.rows[0]?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
@@ -151,13 +148,13 @@ const AddIcome = ({ navigation }) => {
                 setSaveData({
                     ...saveData,
                     land_rel_id: relId.value,
-                    crop_name_id: response.data.data.rows[0].crop_name_id,
-                    harvesting_date: response.data.data.rows[0].harvesting_date,
-                    sowing_date: response.data.data.rows[0].sowing_date,
-                    plot_size: response.data.data.rows[0].land_info.land_size + " " + response.data.data.rows[0].land_info.land_unit.name,
-                    createdBy: dbLanTokUsr.supervisorId,
+                    crop_name_id: response?.data?.data?.rows[0]?.crop_name_id,
+                    harvesting_date: response?.data?.data?.rows[0]?.harvesting_date,
+                    sowing_date: response?.data?.data?.rows[0]?.sowing_date,
+                    plot_size: response?.data?.data?.rows[0]?.land_info.land_size + " " + response?.data?.data?.rows[0]?.land_info.land_unit.name,
+                    createdBy: user_id,
                 })
-                const response_farmIncome = await farmaccountsIncomeListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
+                const response_farmIncome = await farmaccountsIncomeListAPI(dbname, lan_id, farmerID)
                 if (response_farmIncome?.status == 200) {
                     const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName, }));
                     setInComeAll(dataArray);
@@ -196,27 +193,10 @@ const AddIcome = ({ navigation }) => {
                 'expense_total': '0',
                 'cost_head': JSON.stringify(data)
             });
-            let config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'http://142.93.208.31:4003/cropRoute/addUserCropRels',
-                headers: {
-                    'authorization': dbLanTokUsr.token,
-                    'information': `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${farmerID}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: save_data
-            };
-            axios.request(config)
-                .then((response) => {
-                    console.log(JSON.stringify(response.data));
-                    handleClear()
-                    navigation.navigate('FarmIncomeExpenseList');
-                })
-                .catch((error) => {
-                    CrashlyticsRecordError(error)
-                    console.log(error);
-                });
+            const response = await farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
+            if (response?.status == 200) {
+                navigation.navigate('FarmIncomeExpenseList');
+            }
         }
     }
     const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');

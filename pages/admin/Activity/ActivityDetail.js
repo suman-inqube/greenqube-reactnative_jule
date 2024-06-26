@@ -63,17 +63,17 @@ const ActivityDetail = () => {
         if (activityData) {
             const farmerFound = activityData.find(user => user.uact_id === route.params);
             setIsLoading(false)
-            if (farmerFound.agri_files) {
+            if (farmerFound?.agri_files) {
                 let Imag1 = '';
                 let Imag2 = '';
                 let Imag3 = '';
                 let audio1 = '';
                 let audio2 = '';
                 let audio3 = '';
-                const agri_files_image = farmerFound.agri_files.filter(function (v, i) {
+                const agri_files_image = farmerFound?.agri_files.filter(function (v, i) {
                     return ((v["file_ext"] == "image/jpeg"));
                 })
-                const agri_files_mp3 = farmerFound.agri_files.filter(function (v, i) {
+                const agri_files_mp3 = farmerFound?.agri_files.filter(function (v, i) {
                     return ((v["file_ext"] == "audio/mp3"));
                 })
                 for (let i = 0; i < 3; i++) {
@@ -122,20 +122,20 @@ const ActivityDetail = () => {
             }
             setfarmerActivity({
                 ...farmerActivity,
-                userName: farmerFound.agri_user.userName,
-                contactNumber: farmerFound.agri_user.contactNumber,
-                activitycategoryName: farmerFound.typeActivity,
-                cropActivitycategoryName: farmerFound.cropActivity,
-                plot_no: farmerFound.land_info.plot_no,
-                cropName: farmerFound.cropName.name,
-                growthStage: farmerFound.growthStage.name,
-                act_perform_date: farmerFound.updatedAt,
-                act_desc: farmerFound.act_desc,
-                material_used: farmerFound.material_used,
-                water_used: farmerFound.water_used,
-                power_used: farmerFound.power_used,
-                act_start_date: farmerFound.act_start_date,
-                act_to_date: farmerFound.act_to_date
+                userName: farmerFound?.agri_user.userName,
+                contactNumber: farmerFound?.agri_user.contactNumber,
+                activitycategoryName: farmerFound?.typeActivity,
+                cropActivitycategoryName: farmerFound?.cropActivity,
+                plot_no: farmerFound?.land_info.plot_no,
+                cropName: farmerFound?.cropName?.name,
+                growthStage: farmerFound?.growthStage?.name,
+                act_perform_date: farmerFound?.updatedAt,
+                act_desc: farmerFound?.act_desc,
+                material_used: farmerFound?.material_used,
+                water_used: farmerFound?.water_used,
+                power_used: farmerFound?.power_used,
+                act_start_date: farmerFound?.act_start_date,
+                act_to_date: farmerFound?.act_to_date
             })
         }
     }

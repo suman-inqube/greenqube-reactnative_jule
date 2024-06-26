@@ -70,16 +70,9 @@ const Profile = () => {
     }
     let languageDataList = async (dbname) => {
         try {
-            let languageArray = [];
             let language_res = await firstLanguageListAPI(dbname);
-            if (language_res.data) {
-                language_res.data.data.forEach(element => {
-                    languageArray.push({
-                        value: element.id,
-                        label: element.name,
-                        sName: element.sname,
-                    });
-                });
+            if (language_res?.status == 200) {
+                let languageArray = language_res?.data?.data?.map(data => ({ value: data.id, label: data.name, sName: data.sname }))
                 setlanguageData(languageArray);
             }
         } catch (error) {
@@ -107,15 +100,9 @@ const Profile = () => {
     }
     let stateInfoDataList = async (dbname, language, token) => {
         try {
-            let stateArray = [];
             let state_res = await stateListAPI(dbname, language, token);
-            if (state_res.data.data.count > 0) {
-                state_res.data.data.rows.forEach(element => {
-                    stateArray.push({
-                        value: element.fid,
-                        label: element.state_name,
-                    });
-                });
+            if (state_res?.status == 200) {
+                let stateArray = state_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.state_name }));
                 setstateInfoData(stateArray);
             }
         } catch (error) {
@@ -136,15 +123,9 @@ const Profile = () => {
     }
     let districtDataList = async (dbname, language, state) => {
         try {
-            let districtArray = [];
             let district_res = await districtDataListAPI1(dbname, language, state);
-            if (district_res.data.data) {
-                district_res.data.data.rows.forEach(element => {
-                    districtArray.push({
-                        value: element.fid,
-                        label: element.district_name,
-                    });
-                });
+            if (district_res?.status == 200) {
+                let districtArray = district_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.district_name }))
                 setDistrictData(districtArray);
             }
         } catch (error) {
@@ -163,15 +144,9 @@ const Profile = () => {
     }
     let blockDataList = async (dbname, language, district) => {
         try {
-            let blocktArray = [];
             let block_res = await blockDataListAPI1(dbname, language, district);
-            if (block_res.data.data) {
-                block_res.data.data.rows.forEach(element => {
-                    blocktArray.push({
-                        value: element.fid,
-                        label: element.subdiv_name,
-                    });
-                });
+            if (block_res?.status == 200) {
+                let blocktArray = block_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.subdiv_name }))
                 setBlockData(blocktArray);
             }
         } catch (error) {
@@ -180,32 +155,32 @@ const Profile = () => {
     }
     const userDetails = async (dbname, languageId, token, user_id) => {
         let response = await userDetailAPI(dbname, languageId, token, user_id);
-        if (response.data) {
+        if (response?.status == 200) {
             setstorePersnolInfo({
                 ...storePersnolInfo,
                 userId: user_id,
-                userName: response.data.data[0].userName,
-                contactNumber: response.data.data[0].contactNumber,
-                date_of_birth: response.data.data[0].date_of_birth,
-                langId: response.data.data[0].agri_language.id,
-                langIdName: response.data.data[0].agri_language.name,
-                locale: response.data.data[0].agri_language.sname,
-                state: response.data.data[0].agri_user_addresses[0].agri_state.fid,
-                stateName: response.data.data[0].agri_user_addresses[0].agri_state.state_name,
-                district: response.data.data[0].agri_user_addresses[0].agri_district.fid,
-                districtName: response.data.data[0].agri_user_addresses[0].agri_district.district_name,
-                block: response.data.data[0].agri_user_addresses[0].agri_subdivision.fid,
-                blockName: response.data.data[0].agri_user_addresses[0].agri_subdivision.subdiv_name,
+                userName: response?.data?.data[0]?.userName,
+                contactNumber: response?.data?.data[0]?.contactNumber,
+                date_of_birth: response?.data?.data[0]?.date_of_birth,
+                langId: response?.data?.data[0]?.agri_language.id,
+                langIdName: response?.data?.data[0]?.agri_language.name,
+                locale: response?.data?.data[0]?.agri_language.sname,
+                state: response?.data?.data[0]?.agri_user_addresses[0].agri_state.fid,
+                stateName: response?.data?.data[0]?.agri_user_addresses[0].agri_state.state_name,
+                district: response?.data?.data[0]?.agri_user_addresses[0].agri_district.fid,
+                districtName: response?.data?.data[0]?.agri_user_addresses[0].agri_district.district_name,
+                block: response?.data?.data[0]?.agri_user_addresses[0].agri_subdivision.fid,
+                blockName: response?.data?.data[0]?.agri_user_addresses[0].agri_subdivision.subdiv_name,
             })
             languageDataList(dbname)
-            if (response.data.data[0].agri_language.id) {
-                stateInfoDataList(dbname, response.data.data[0].agri_language.id, token)
+            if (response?.data?.data[0]?.agri_language.id) {
+                stateInfoDataList(dbname, response?.data?.data[0]?.agri_language.id, token)
             }
-            if (response.data.data[0].agri_user_addresses[0].agri_state.fid) {
-                districtDataList(dbname, response.data.data[0].agri_language.id, response.data.data[0].agri_user_addresses[0].agri_state.fid);
+            if (response?.data?.data[0]?.agri_user_addresses[0].agri_state.fid) {
+                districtDataList(dbname, response?.data?.data[0]?.agri_language.id, response?.data?.data[0]?.agri_user_addresses[0].agri_state.fid);
             }
-            if (response.data.data[0].agri_user_addresses[0].agri_district.fid) {
-                blockDataList(dbname, response.data.data[0].agri_language.id, response.data.data[0].agri_user_addresses[0].agri_district.fid);
+            if (response?.data?.data[0]?.agri_user_addresses[0].agri_district.fid) {
+                blockDataList(dbname, response?.data?.data[0]?.agri_language.id, response?.data?.data[0]?.agri_user_addresses[0].agri_district.fid);
             }
         }
     }

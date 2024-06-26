@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, SafeAreaView, Dimensions, Keyboard, BackHandler } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react';
-import { farmerByNameAPI, problemListAPI } from '../../../config/apiHere';
+import { problemListAPI } from '../../../config/apiHere';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
@@ -8,7 +8,7 @@ const ListProblem = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem,
         setItem, logoImage, topBanner, Root, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter,
-        handleResultSelect, handlePageList, farmerData } = useContext(userCreateContext);
+        handleResultSelect, handlePageList, farmerData, isOnline } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -16,7 +16,6 @@ const ListProblem = ({ navigation }) => {
     const isFocused = useIsFocused();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    // const [farmerData, setFarmerData] = useState([]);
     const [problemAll, setProblemAll] = useState([]);
     const [problemAllRaw, setProblemAllRaw] = useState([]);
     const [filterItem, setFilterItem] = useState("");
@@ -48,8 +47,8 @@ const ListProblem = ({ navigation }) => {
             const mobileNo = '';
             const response = await problemListAPI(dbname, lan_id, token, user_id, pageNo, searchItem, from_date, to_date, mobileNo)
             if (response?.status == 200) {
-                setProblemAll(response.data.data.rows)
-                setItem("problem_Data", response.data.data)
+                setProblemAll(response?.data?.data?.rows)
+                setItem("problem_Data", response?.data?.data)
             }
         } else {
             MessageDialog({ title: 'Require', message: 'Please Select First data.' })
@@ -82,7 +81,7 @@ const ListProblem = ({ navigation }) => {
     const onPageLoad = async () => {
         setIsLoading(true);
         var response = [];
-        if (netConnection) {
+        if (isOnline) {
             response = await problemListAPI(dbname, lan_id, token, user_id, 1);
             if (response?.status == 200) { await setItem('problemTypeName', response) }
         } else {
@@ -90,19 +89,13 @@ const ListProblem = ({ navigation }) => {
         }
         if (response?.status == 200) {
             setIsLoading(false);
-            const totalPage = Math.ceil(response.data.data.count / 20)
+            const totalPage = Math.ceil(response?.data?.data.count / 20)
             setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage, pageNo: 1 });
-            setProblemAll(response.data.data.rows)
-            setProblemAllRaw(response.data.data.rows)
-            setItem("problem_Data", response.data.data)
+            setProblemAll(response?.data?.data?.rows)
+            setProblemAllRaw(response?.data?.data?.rows)
+            setItem("problem_Data", response?.data?.data)
             setIsLoading(false)
         }
-        // if (farmerByName?.status == 200) {
-        //     //GQR-67
-        //     const dataArray = farmerByName?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }))
-        //     //GQR-67
-        //     setFarmerData(dataArray)
-        // }
     };
     const filterDataRemove = () => {
         setSearchFarmerPhone("");
@@ -120,8 +113,6 @@ const ListProblem = ({ navigation }) => {
         setSearchFarmerName("");
         setFilterOption(false);
         setSearchResultsList(false);
-        // setProblemAll([]);
-        // setProblemAllRaw([]);
         navigation.navigate('Dashboard');
     }
     const handleBackPress = () => {
@@ -132,8 +123,6 @@ const ListProblem = ({ navigation }) => {
         setSearchFarmerName("");
         setFilterOption(false);
         setSearchResultsList(false);
-        // setProblemAll([]);
-        // setProblemAllRaw([]);
         navigation.navigate('Dashboard');
         return true;
     }
@@ -144,7 +133,7 @@ const ListProblem = ({ navigation }) => {
             }
             onBackPress(handleBackPress);
         }
-    }, [isFocused, netConnection])
+    }, [isFocused])
     useFocusEffect(
         React.useCallback(() => {
             setFilterOption(false);
@@ -185,19 +174,8 @@ const ListProblem = ({ navigation }) => {
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
                     <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-                    {openFromDate && <DatePickerComp
-                        openDate={openFromDate}
-                        newDate={newFromDate}
-                        setOpenDate={setOpenFromDate}
-                        handleDatePicker={handleDatePicker}
-                    />}
-                    {openToDate && <DatePickerComp
-                        openDate={openToDate}
-                        newDate={newToDate}
-                        setOpenDate={setOpenToDate}
-                        handleDatePicker={handleDatePicker2}
-                        minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                    />}
+                    {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
+                    {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
                     <Filter
                         filterItem={filterItem}
                         filterOption={filterOption}
@@ -307,7 +285,7 @@ const styles = StyleSheet.create({
     plusIconContainer: {
         position: 'absolute',
         right: 20,
-        bottom: 50,
+        top: '80%',
         elevation: 5,
         zIndex: 99,
         width: 60,

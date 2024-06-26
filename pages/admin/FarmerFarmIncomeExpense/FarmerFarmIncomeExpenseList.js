@@ -1,33 +1,21 @@
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView, Dimensions } from 'react-native'
-import React, { useState } from 'react'
-import Filter from '../../Common/FarmerFilter';
-import CustomHeader from '../CustomHeader';
-import DatePickerComp from '../../Common/DatePickerComp';
+import { StyleSheet, Text, View, TouchableOpacity, FlatList, Dimensions } from 'react-native'
+import React, { useState, useContext } from 'react'
 import { useFocusEffect } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { farmerFarmaccountsListAPI, farmerByNameAPI } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { farmerFarmaccountsListAPI } from '../../../config/apiHere';
 import { formatDateToDateName } from '../../Common/DateChanger';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerFarmIncomeExpenseList = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, DatePickerComp, t, getItem, setItem, logoImage, topBanner, handlePageList, effective_dates, handleFilter, Filter } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const [currency, setcurrency] = useState("");
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: "",
-        totalPage: "",
-        pageNo: 1,
-    });
     const [farmAccount, setFarmAccount] = useState([]);
     const [farmAccountRaw, setFarmAccountRaw] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState([]);
-    const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
     const [filterName, setFilterName] = useState("");
     const [fromDateFilter, setFromDateFilter] = useState('');
     const [filterOption, setFilterOption] = useState(false);
@@ -52,43 +40,24 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
     }
     const onPageLoad = async () => {
         const curr = await getItem('currency');
-        setcurrency(curr)
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            // const supervisorId = loginUser_data.owner.user_id;
-            const supervisorId = loginUser_data.user_id;
-            const fromDate = '';
-            const toDate = '';
-            const response = await farmerFarmaccountsListAPI(dbName, languageId, token, supervisorId, 1, fromDate, toDate)
-            if (response) {
-                const totalPage = Math.ceil(response.data.data.count / 20)
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    dbName: dbName,
-                    languageId: languageId,
-                    token: token,
-                    supervisorId: supervisorId,
-                    totalPage: totalPage,
-                    pageNo: 1,
-                });
-                setFarmAccount(response.data.data.rows)
-                setFarmAccountRaw(response.data.data.rows)
-                setItem("farm_account", response.data.data.rows)
-                setIsLoading(false)
-            }
-
+        setcurrency(curr);
+        const fromDate = '';
+        const toDate = '';
+        const response = await farmerFarmaccountsListAPI(dbname, lan_id, token, user_id, 1, fromDate, toDate)
+        if (response?.status == 200) {
+            const totalPage = Math.ceil(response.data.data.count / 20)
+            setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage, pageNo: 1 });
+            setFarmAccount(response.data.data.rows)
+            setFarmAccountRaw(response.data.data.rows)
+            setItem("farm_account", response.data.data.rows)
+            setIsLoading(false)
         }
     };
     const ShowIncome = (props) => {
         const incomeItem = props.income.filter(item1 => item1.inexType?.taxonomy === 'income');
         if (incomeItem) {
             let incomeAmount = 0;
-            incomeItem.forEach(element => {
-                incomeAmount += parseInt(element.amount)
-            });
+            incomeItem.forEach(element => { incomeAmount += parseInt(element.amount) });
             return incomeAmount + ".0"
         }
     }
@@ -96,9 +65,7 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
         const expenseItem = props.expense.filter(item1 => item1.inexType?.taxonomy === 'expense');
         if (expenseItem) {
             let expenseAmount = 0;
-            expenseItem.forEach(element => {
-                expenseAmount += parseInt(element.amount)
-            });
+            expenseItem.forEach(element => { expenseAmount += parseInt(element.amount) });
             return expenseAmount + ".0"
         }
     }
@@ -113,11 +80,10 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
             } else {
                 const nextPage = currentPageNo + 1
                 setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-                const farmerId = '';
                 const fromDate = '';
                 const toDate = '';
-                const response = await farmerFarmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, nextPage, fromDate, toDate)
-                if (response) {
+                const response = await farmerFarmaccountsListAPI(dbname, lan_id, token, user_id, nextPage, fromDate, toDate)
+                if (response?.status == 200) {
                     setFarmAccount(response.data.data.rows)
                     setFarmAccountRaw(response.data.data.rows)
                     setItem("farm_account", response.data.data.rows)
@@ -130,13 +96,12 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
                 setIsLoading(false)
                 return;
             } else {
-                const farmerId = '';
                 const fromDate = '';
                 const toDate = '';
                 const prePage = currentPageNo - 1
                 setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await farmerFarmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, prePage, fromDate, toDate)
-                if (response) {
+                const response = await farmerFarmaccountsListAPI(dbname, lan_id, token, user_id, prePage, fromDate, toDate)
+                if (response?.status == 200) {
                     setFarmAccount(response.data.data.rows)
                     setFarmAccountRaw(response.data.data.rows)
                     setItem("farm_account", response.data.data.rows)
@@ -144,35 +109,24 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
                 }
             }
         }
+        setIsLoading(false);
     }
-    const handleFilter = async (search) => {
-
-    }
-
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         setFromDateFilter(effective_date)
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDateFilter) {
-            const farmerId = '';
             const fromDate = fromDateFilter;
-            const toDate = effective_date;
-            const response = await farmerFarmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, 0, fromDate, effective_date)
-            if (response) {
-                setFarmAccount(response.data.data.rows)
-                setFarmAccountRaw(response.data.data.rows)
-                setItem("farm_account", response.data.data.rows)
-                setIsLoading(false)
+            const response = await farmerFarmaccountsListAPI(dbname, lan_id, token, user_id, 0, fromDate, effective_date)
+            if (response?.status == 200) {
+                setFarmAccount(response.data.data.rows);
+                setFarmAccountRaw(response.data.data.rows);
+                setItem("farm_account", response.data.data.rows);
+                setIsLoading(false);
             }
         } else {
             MessageDialog({ title: 'Require', message: 'Please Select First data.' })
@@ -184,8 +138,8 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
         setFilterOption(false);
         setToDate("");
         setfromDate("");
-        const response = await farmerFarmaccountsListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, "0", fromDate, toDate)
-        if (response) {
+        const response = await farmerFarmaccountsListAPI(dbname, lan_id, token, user_id, "0", fromDate, toDate)
+        if (response?.status == 200) {
             setFarmAccount(response.data.data.rows)
             setFarmAccountRaw(response.data.data.rows)
             setItem("farm_account", response.data.data.rows)
@@ -199,27 +153,15 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
     };
     useFocusEffect(
         React.useCallback(() => {
-            // calculateIncomes()
             onPageLoad()
         }, [])
     );
     const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
-            <DatePickerComp
-                openDate={openFromDate}
-                newDate={newFromDate}
-                setOpenDate={setOpenFromDate}
-                handleDatePicker={handleDatePicker}
-            />
-            <DatePickerComp
-                openDate={openToDate}
-                newDate={newToDate}
-                setOpenDate={setOpenToDate}
-                handleDatePicker={handleDatePicker2}
-                minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-            />
+            <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+            <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
+            <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />
             <Filter
                 filterItem={filterItem}
                 filterOption={filterOption}
@@ -240,31 +182,29 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
                     <>
                         <FlatList
                             data={farmAccount}
-                            renderItem={({ item, index }) => {
-                                return (
-                                    // substring(0, 7)+'..'
-                                    <TouchableOpacity style={styles.wrapper} key={index} onPress={() => navigateToPages('FarmerFarmIncomeExpenseView', index)}>
-                                        <View style={styles.activityListContainer}>
-                                            <View style={styles.activityListItem}>
-                                                <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info && item.land_info.plot_no.substring(0, 17) + '..'}</Text>
-                                                <Text style={styles.title}>{t('showing_date')} : {formatDateToDateName(item.sowing_date).substring(0, 7) + '..'}</Text>
-                                                <Text style={styles.title}>
-                                                    {t('total_income_sum') + "(" + currency + ")"} : {
-                                                        <ShowIncome income={item.income_expense} />
-                                                    }
-                                                </Text>
-                                            </View>
-                                            <View style={styles.activityListItem}>
-                                                <Text style={styles.title}>{t('name')} : {item.crop_name && item.crop_name.name.substring(0, 7) + '..'}</Text>
-                                                <Text style={styles.title}>{t('name')} : {formatDateToDateName(item.harvesting_date).substring(0, 6) + '..'}</Text>
-                                                <Text style={styles.title}>
-                                                    {t('total_exp_sum') + "(" + currency + ")"} : {<ShowExpense expense={item.income_expense} />}
-                                                </Text>
-                                            </View>
+                            renderItem={({ item, index }) => (
+                                <TouchableOpacity style={styles.wrapper} key={index} onPress={() => navigateToPages('FarmerFarmIncomeExpenseView', index)}>
+                                    <View style={styles.activityListContainer}>
+                                        <View style={styles.activityListItem}>
+                                            <Text style={styles.title}>{t('addcrop_plot')} : {item.land_info && item.land_info.plot_no.substring(0, 17) + '..'}</Text>
+                                            <Text style={styles.title}>{t('showing_date')} : {formatDateToDateName(item.sowing_date).substring(0, 7) + '..'}</Text>
+                                            <Text style={styles.title}>
+                                                {t('total_income_sum') + "(" + currency + ")"} : {
+                                                    <ShowIncome income={item.income_expense} />
+                                                }
+                                            </Text>
                                         </View>
-                                    </TouchableOpacity>
-                                )
-                            }}
+                                        <View style={styles.activityListItem}>
+                                            <Text style={styles.title}>{t('name')} : {item.crop_name && item.crop_name.name.substring(0, 7) + '..'}</Text>
+                                            <Text style={styles.title}>{t('name')} : {formatDateToDateName(item.harvesting_date).substring(0, 6) + '..'}</Text>
+                                            <Text style={styles.title}>
+                                                {t('total_exp_sum') + "(" + currency + ")"} : {<ShowExpense expense={item.income_expense} />}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            )
+                            }
                             keyExtractor={(item, index) => index}
                             showsVerticalScrollIndicator={false}
                         />

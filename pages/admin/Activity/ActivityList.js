@@ -11,7 +11,7 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityList = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, farmerData } = useContext(userCreateContext);
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -95,9 +95,9 @@ const ActivityList = ({ navigation }) => {
         if (fromDateFilter) {
             const item = '';
             const response = await activityListAPI(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date)
-            if (response) {
-                setactivityAll(response.data.data.rows);
-                setItem("activity_Data", response.data.data.rows);
+            if (response?.status == 200) {
+                setactivityAll(response?.data?.data?.rows);
+                setItem("activity_Data", response?.data?.data?.rows);
             }
         } else {
             // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
@@ -109,19 +109,19 @@ const ActivityList = ({ navigation }) => {
     }, []);
     const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
         setIsLoading(true);
-        if (netConnection) {
+        if (isOnline) {
             var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo);
             if (response?.status == 200) { await setItem('activityList', response); }
         } else {
             var response = await getItem('activityList');
         }
-        if (response?.data) {
+        if (response?.status == 200) {
             if (response.data.data.count != 0) {
                 const totalPage = Math.ceil(response.data.data.count / 20)
                 setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
-                setactivityAll(response.data.data.rows);
-                setactivityAllRow(response.data.data.rows);
-                setItem("activity_Data", response.data.data.rows);
+                setactivityAll(response?.data?.data?.rows);
+                setactivityAllRow(response?.data?.data?.rows);
+                await setItem("activity_Data", response?.data?.data?.rows);
                 setIsLoading(false);
             } else {
                 setIsLoading(false);
@@ -171,38 +171,20 @@ const ActivityList = ({ navigation }) => {
             }
             onBackPress(handleBackPress);
         }
-    }, [isFocused, netConnection]);
+    }, [isFocused]);
     useEffect(() => {
         if (isFocused) {
-            const keyboardDidShowListener = Keyboard.addListener(
-                'keyboardDidShow', () => { setKeyboardVisible(true); }
-            );
-            const keyboardDidHideListener = Keyboard.addListener(
-                'keyboardDidHide', () => { setKeyboardVisible(false); }
-            );
-            return () => {
-                keyboardDidHideListener.remove();
-                keyboardDidShowListener.remove();
-            };
+            const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true); });
+            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false); });
+            return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove() };
         }
     }, [isFocused]);
     return (
         <Root>
             <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View style={{ flex: 1 }}>
-                {openFromDate && <DatePickerComp
-                    openDate={openFromDate}
-                    newDate={newFromDate}
-                    setOpenDate={setOpenFromDate}
-                    handleDatePicker={handleDatePicker}
-                />}
-                {openToDate && <DatePickerComp
-                    openDate={openToDate}
-                    newDate={newToDate}
-                    setOpenDate={setOpenToDate}
-                    handleDatePicker={handleDatePicker2}
-                    minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                />}
+                {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
+                {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
                 <WidgetsSide location={"ActivityReport"} title={t('report_activity')} onPress={() => navigateToPages('activityReport', 123)} />
                 <Filter
                     filterItem={filterItem}
@@ -236,10 +218,7 @@ const ActivityList = ({ navigation }) => {
                             </View> : ""
                     }
                 </>
-                {
-                    isLoading &&
-                    <View style={styles.loadingScreen}><LoadingScreen /></View>
-                }
+                {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
                 <FlatList
                     data={activityAll}
                     renderItem={({ item, index }) => (

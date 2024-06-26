@@ -124,7 +124,7 @@ const PersonalInformation = () => {
             }
             onPageLoad();
         }
-    }, [isFocused]);
+    }, [isFocused, netConnection]);
     const handleBackPress = () => {
         navigation.navigate(path != "" ? path : 'Dashboard');
         return true // disable normal behaviour

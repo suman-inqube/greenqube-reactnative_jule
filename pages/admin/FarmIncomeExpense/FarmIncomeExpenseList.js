@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView, Dimensions, BackHandler } from 'react-native'
-import React, { useState, useEffect, useCallback, useContext } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import DatePickerComp from '../../Common/DatePickerComp';
-import { farmaccountsListAPI, farmerByNameAPI } from '../../../config/apiHere';
+import { farmaccountsListAPI } from '../../../config/apiHere';
 import { formatDateToDateName } from '../../Common/DateChanger';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmIncomeExpenseList = ({ navigation }) => {
@@ -56,9 +56,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         const incomeItem = props.income.filter(item1 => item1.inexType?.taxonomy === 'income');
         if (incomeItem) {
             let incomeAmount = 0;
-            incomeItem.forEach(element => {
-                incomeAmount += parseInt(element.amount)
-            });
+            incomeItem.forEach(element => { incomeAmount += parseInt(element.amount) });
             return incomeAmount + ".0"
         }
     }
@@ -66,9 +64,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
         const expenseItem = props.expense.filter(item1 => item1.inexType?.taxonomy === 'expense');
         if (expenseItem) {
             let expenseAmount = 0;
-            expenseItem.forEach(element => {
-                expenseAmount += parseInt(element.amount)
-            });
+            expenseItem.forEach(element => { expenseAmount += parseInt(element.amount) });
             return expenseAmount + ".0"
         }
     }

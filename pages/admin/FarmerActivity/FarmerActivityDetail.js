@@ -1,19 +1,13 @@
 import { BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Linking } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { getItem } from '../../../config/getDataFromStorage';
-// import { useRoute } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
-import { useTranslation } from 'react-i18next';
-import { SPSheet, Root } from 'react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerActivityDetail = () => {
-    const { t } = useTranslation();
+    const { LoadingScreen, CustomHeader, t, onBackPress, getItem, logoImage, topBanner, Root, SPSheet } = useContext(userCreateContext);
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -29,23 +23,7 @@ const FarmerActivityDetail = () => {
         thirdItemRecord: "",
     });
     const openImagePicker = (item) => {
-        // console.log(item);
-        // const options = {
-        //     mediaType: 'photo',
-        //     includeBase64: true,
-        //     maxHeight: 200,
-        //     maxWidth: 200,
-        // };
-        // launchCamera(options, response => {
-        //     if (response.didCancel) {
-        //         console.log('User cancelled camera');
-        //     } else if (response.error) {
-        //         console.log('Camera Error: ', response.error);
-        //     } else {
-        //         let imageUri = response.uri || response.assets?.[0]?.uri;
-        //         setSelectedImage({ ...selectedImage, [item]: imageUri });
-        //     }
-        // });
+
     };
 
     const onPageLoad = async () => {
@@ -130,9 +108,7 @@ const FarmerActivityDetail = () => {
     useFocusEffect(
         useCallback(() => {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerActivityList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmerActivityList'); return true; })
         }, [])
     );
     const HandlerGoBack = () => navigation.navigate('FarmerActivityList');
@@ -156,7 +132,7 @@ const FarmerActivityDetail = () => {
                     <LoadingScreen />
                 ) : (
                     <View style={styles.container}>
-                        <CustomHeader path='FarmerActivityList' HandlerGoBack={HandlerGoBack} />
+                        <CustomHeader path='FarmerActivityList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                         <View style={styles.titleContainer}>
                             <Text style={[styles.title, { paddingBottom: 8, paddingTop: 4, fontWeight: '700', fontSize: 18 }]}>
                                 {t('act_detail_')}

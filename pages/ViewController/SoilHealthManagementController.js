@@ -1,22 +1,19 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Keyboard } from 'react-native';
 import {
-    SampleRequestList, SampleReport, PlotSiteUserLandDetails, soilTestLab, cropListApi,
+    SampleRequestList, SampleReport, soilTestLab, cropListApi,
     livelihoodCropAndPlotDetailsAPI, productionStageAPI, soilTestLabPostRequest
 } from '../../config/apiHere';
-import loginUserDataController from './loginUserDataController';
-import { onBackPress } from '../Common/BackPressHandler';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
 const qs = require('qs');
+import { userCreateContext } from '../Context/usersCreateContext';
 const SoilHealthManagementController = (sample) => {
-    const { t } = useTranslation();
     const routename = useRoute().name;
-    const { GetLoginUserData, loginUserData } = loginUserDataController();
-    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUserData;
+    //GQR-67
+    const { loginUser_data, onBackPress, Toast, AlertMesg } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const [activeBtn, setActiveBtn] = useState(1);
     const [sampaleRequested, setSampleRequested] = useState([]);
     const [sampaleReportList, setSampleReport] = useState([]);
@@ -47,52 +44,46 @@ const SoilHealthManagementController = (sample) => {
     const [isLoading, setIsLoading] = useState(false);
     const onPageLoad = async () => {
         setIsLoading(true);
-        const [GetLoginUserDataRes] = await Promise.all([
-            GetLoginUserData()
-        ]);
-        if (GetLoginUserDataRes) {
-            const { dbname, lan_id, token, user_id } = GetLoginUserDataRes;
-            if (sample != "") {
-                if (activeBtn == 1) {
-                    const sampleRequestedRes = await SampleRequestList(dbname, lan_id, user_id, '', '');
-                    if (sampleRequestedRes?.status == 200) {
-                        setSampleRequested(sampleRequestedRes.data.data)
-                    }
-                } else {
-                    const samplereportRes = await SampleReport(dbname, lan_id, user_id, '', '');
-                    if (samplereportRes?.status == 200) {
-                        setSampleReport(samplereportRes.data.data)
-                    }
+        if (sample != "") {
+            if (activeBtn == 1) {
+                const sampleRequestedRes = await SampleRequestList(dbname, lan_id, user_id, '', '');
+                if (sampleRequestedRes?.status == 200) {
+                    setSampleRequested(sampleRequestedRes.data.data)
                 }
             } else {
-                const [plotSiteDetailsRes, soilTestLabRes] = await Promise.all([
-                    cropListApi(dbname, lan_id, user_id),
-                    soilTestLab(dbname, lan_id)
-                ]);
-                if (plotSiteDetailsRes?.status == 200) {
-                    const dataArray = [];
-                    const { rows } = plotSiteDetailsRes.data.data;
-                    rows.map((data, index) => {
-                        const { rel_id, plot_no } = data.land_info;
-                        dataArray.push({
-                            value: rel_id,
-                            label: plot_no
-                        });
-                    })
-                    setPlotList(dataArray)
+                const samplereportRes = await SampleReport(dbname, lan_id, user_id, '', '');
+                if (samplereportRes?.status == 200) {
+                    setSampleReport(samplereportRes.data.data)
                 }
-                if (soilTestLabRes?.status == 200) {
-                    const dataArray = [];
-                    const { rows } = soilTestLabRes.data.data;
-                    rows.map((data, index) => {
-                        const { stl_name, fid } = data;
-                        dataArray.push({
-                            value: fid,
-                            label: stl_name
-                        });
-                    })
-                    setSoilTestLabList(dataArray);
-                }
+            }
+        } else {
+            const [plotSiteDetailsRes, soilTestLabRes] = await Promise.all([
+                cropListApi(dbname, lan_id, user_id),
+                soilTestLab(dbname, lan_id)
+            ]);
+            if (plotSiteDetailsRes?.status == 200) {
+                const dataArray = [];
+                const { rows } = plotSiteDetailsRes.data.data;
+                rows.map((data, index) => {
+                    const { rel_id, plot_no } = data.land_info;
+                    dataArray.push({
+                        value: rel_id,
+                        label: plot_no
+                    });
+                })
+                setPlotList(dataArray)
+            }
+            if (soilTestLabRes?.status == 200) {
+                const dataArray = [];
+                const { rows } = soilTestLabRes.data.data;
+                rows.map((data, index) => {
+                    const { stl_name, fid } = data;
+                    dataArray.push({
+                        value: fid,
+                        label: stl_name
+                    });
+                })
+                setSoilTestLabList(dataArray);
             }
         }
         setIsLoading(false);

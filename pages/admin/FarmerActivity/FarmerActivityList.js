@@ -1,17 +1,5 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Image,
-  StatusBar,
-  BackHandler,
-} from 'react-native';
-import React, { useEffect, useState, useContext } from 'react';
-import DatePickerComp from '../../Common/DatePickerComp';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useContext } from 'react';
 import WidgetsSide from '../../Common/WidgetsSide';
 import { farmerActivityListAPI } from '../../../config/apiHere';
 import { useFocusEffect } from '@react-navigation/native';
@@ -20,7 +8,7 @@ import FarmerFilter from '../../Common/FarmerFilter';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerActivityList = ({ navigation }) => {
   //GQR-67
-  const { handlePageList, Root, dbLanTokUsr, setdbLanTokUsr, loginUser_data, effective_dates, LoadingScreen, CustomHeader, t, onBackPress, getItem, setItem, logoImage, topBanner, DeviceInfo } = useContext(userCreateContext);
+  const { handlePageList, Root, dbLanTokUsr, setdbLanTokUsr, loginUser_data, effective_dates, LoadingScreen, CustomHeader, t, DatePickerComp, onBackPress, getItem, setItem, logoImage, topBanner, DeviceInfo } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id } = loginUser_data;
   const { farmerId, pageNo } = dbLanTokUsr;
   //GQR-67
@@ -45,35 +33,20 @@ const FarmerActivityList = ({ navigation }) => {
     }
   };
   const onchangeFilterItem = value => {
-    // console.warn(value);
-    // return;
     setFilterName(value);
     setFilterItem(value);
     setFilterOption(false);
   };
-
   const handlePage = async (value) => {
     handlePageList(value, setIsLoading, token, pageNo, farmerActivityListAPI, setactivityAll, dbname, lan_id, user_id);
-
   }
-
   const handleFilter = async item => {
-    // return console.warn(item);
     if (filterName === 'date') {
       return;
     } else {
       const from_date = '';
       const to_date = '';
-      const response = await farmerActivityListAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        dbLanTokUsr.token,
-        dbLanTokUsr.supervisorId,
-        dbLanTokUsr.pageNo,
-        item,
-        from_date,
-        to_date,
-      );
+      const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, from_date, to_date);
       if (response) {
         setactivityAll(response.data.data.rows);
         setItem('activity_Data', response.data.data.rows);
@@ -124,20 +97,14 @@ const FarmerActivityList = ({ navigation }) => {
   const onPageLoad = async () => {
     setfromDate('');
     setToDate('');
-    setFilterItem(''), setFilterOption(false);
+    setFilterItem(''); setFilterOption(false);
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1);
   };
 
   useFocusEffect(
     React.useCallback(() => {
       onPageLoad();
-      const onBackPress = () => {
-        navigation.navigate('FarmerDashboard');
-        return true;
-      };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () =>
-        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      onBackPress(() => { navigation.navigate('FarmerDashboard'); return true; })
     }, [netConnection]),
   );
   const HandlerGoBack = () => {

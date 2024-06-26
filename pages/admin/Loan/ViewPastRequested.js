@@ -89,11 +89,13 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         }
     }
     const handleFilterList = async (item) => {
-        if (filterName === 'Farmer/Product Name') {
+        if (filterName === 'Farmer/Product Name' || filterName === 'PhoneNumber') {
             handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
-        } else if (filterName === 'PhoneNumber') {
-            handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
-        } else if (filterName === 'statusFilter') {
+        }
+        // else if (filterName === 'PhoneNumber') {
+        //     handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
+        // }
+        else if (filterName === 'statusFilter') {
             setSearchResultsList(true);
             setStatusName(search);
             const result = statusAll.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
@@ -156,19 +158,8 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         <Root>
             <SafeAreaView style={{ flex: 1 }}>
                 <View>
-                    {openFromDate && <DatePickerComp
-                        openDate={openFromDate}
-                        newDate={newFromDate}
-                        setOpenDate={setOpenFromDate}
-                        handleDatePicker={handleDatePicker}
-                    />}
-                    {openToDate && <DatePickerComp
-                        openDate={openToDate}
-                        newDate={newToDate}
-                        setOpenDate={setOpenToDate}
-                        handleDatePicker={handleDatePicker2}
-                        minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                    />}
+                    {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
+                    {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
                     {
                         searchResultsList && searchResultsList ?
                             <View style={styles.flatContainer}>

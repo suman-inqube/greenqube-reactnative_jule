@@ -1,17 +1,13 @@
-import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions, BackHandler } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
 import HeadDropDown from './HeadDropDown';
-import { farmIncomeExpenceSaveAPI, farmaccountsExpenseListAPI, farmaccountsIncomeListAPI, farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
-import axios from 'axios';
+import { farmIncomeExpenceSaveAPI, farmaccountsExpenseListAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, } from '../../../config/apiHere';
 import HarvestedModel from '../../Common/HarvestedModel';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const AddExpense = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, DropdownForm, LoadingScreen, CustomHeader, t,
-        AlertMesg, onBackPress, setItem, logoImage,
-        topBanner, Root, Toast, FormsTitle, InputTextForm, DatePickerComp
-        , ButtonFormBottom, effective_dates, farmerData, } = useContext(userCreateContext);
+    const { loginUser_data, DropdownForm, CustomHeader, t, AlertMesg, onBackPress, logoImage, topBanner, Root, Toast, FormsTitle, InputTextForm, DatePickerComp, ButtonFormBottom, effective_dates, farmerData, } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
     //GQR-67
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState();
@@ -41,40 +37,30 @@ const AddExpense = ({ navigation }) => {
     const [data, setData] = useState([{ type: "cost_production", cat_id: "", amount: "", date: "" }]);
     const [newFromDate, setnewFromDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false);
-    // const [fromDate, setfromDate] = useState("");
     const [fromDate, setfromDate] = useState();
     const [modalVisible, setModalVisible] = useState(false);
     const addMoreExpense = () => {
         console.log(fromDate)
         setIndex(isIndex + 1)
-
         setData([...data, { type: "cost_production", cat_id: "", amount: "", date: "" }])
     }
-
     const handleChangeAddExpense = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text;
         setData(values);
     }
     const handleChangeAddCatID = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text.value;
         setData(values);
     }
     const handleChangeAddDate = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text;
         setData(values);
     }
-
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         handleChangeAddDate(isIndex, effective_date, "date")
         // console.log(isIndex);
@@ -122,9 +108,7 @@ const AddExpense = ({ navigation }) => {
 
     useEffect(() => {
         onPageLoad();
-        const onBackPress = () => { navigation.navigate('FarmIncomeExpenseList'); return true; };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        onBackPress(() => { navigation.navigate('FarmIncomeExpenseList'); return true; })
     }, []);
 
     const handleResultSelect = async (name, currentfarmerId, phone) => {
@@ -132,7 +116,7 @@ const AddExpense = ({ navigation }) => {
         setSearchFarmerPhone(phone)
         setSearchFarmerName(name);
         setfarmerID(currentfarmerId)
-        const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, currentfarmerId)
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
         if (response?.status == 200) {
             const dataArray = response.data.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             setplotAll(dataArray);
@@ -152,7 +136,7 @@ const AddExpense = ({ navigation }) => {
     };
 
     const handlePlot = async (relId) => {
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, relId.value)
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
         if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
@@ -172,9 +156,9 @@ const AddExpense = ({ navigation }) => {
                     harvesting_date: response.data.data.rows[0].harvesting_date,
                     sowing_date: response.data.data.rows[0].sowing_date,
                     plot_size: response.data.data.rows[0].land_info.land_size + " " + response.data.data.rows[0].land_info.land_unit.name,
-                    createdBy: dbLanTokUsr.supervisorId,
+                    createdBy: user_id,
                 })
-                const response_farmIncome = await farmaccountsExpenseListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
+                const response_farmIncome = await farmaccountsExpenseListAPI(dbname, lan_id, farmerID)
                 if (response_farmIncome?.status == 200) {
                     const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName, }))
                     setInComeAll(dataArray);
@@ -211,25 +195,10 @@ const AddExpense = ({ navigation }) => {
                 'expense_total': expense_total,
                 'cost_head': JSON.stringify(data)
             });
-            let config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'http://142.93.208.31:4003/cropRoute/addUserCropRels',
-                headers: {
-                    'authorization': dbLanTokUsr.token,
-                    'information': `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${farmerID}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: save_data
-            };
-            axios.request(config)
-                .then((response) => {
-                    navigation.navigate('FarmIncomeExpenseList');
-                })
-                .catch((error) => {
-                    CrashlyticsRecordError(error)
-                    console.log(error);
-                });
+            const response = await farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
+            if (response?.status == 200) {
+                navigation.navigate('FarmIncomeExpenseList');
+            }
         }
     }
     const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');

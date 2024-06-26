@@ -154,7 +154,7 @@ const UserCreateContextProvider = (props) => {
                         setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage });
                     }
                     setDataAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
+                    await setItem("problem_Data", response.data.data)
                     setIsLoading(false);
                 }
             }
@@ -190,8 +190,8 @@ const UserCreateContextProvider = (props) => {
                     }
                 }
             }
-            setIsLoading(false);
         }
+        setIsLoading(false);
     }
     return (
         <userCreateContext.Provider value={{
@@ -200,7 +200,7 @@ const UserCreateContextProvider = (props) => {
             AllFarmerList: AllFarmerList,
             farmerData: farmerData,
             loginUser_data: loginUser_data,
-            // isOnline: netConnection
+            isOnline: netConnection,
             t: t,
             AlertMesg: AlertMesg,
             onBackPress: onBackPress,
@@ -241,5 +241,4 @@ const UserCreateContextProvider = (props) => {
     );
 }
 const userListContext = createContext("adduser");
-
 export { userListContext, UserCreateContextProvider, userCreateContext }

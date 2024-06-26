@@ -1,35 +1,19 @@
-import { BackHandler, StyleSheet, Text, View, ScrollView, TextInput, FlatList, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native'
-import React, { useState } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
+import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useState, useContext } from 'react'
 import HeadDropDown from './FarmerHeadDropDown';
-import DatePickerComp from '../../Common/DatePickerComp';
-import ButtonForm from '../../Common/ButtonForm';
 import { useFocusEffect } from '@react-navigation/native';
-import { farmIncomeExpenceSaveAPI, farmaccountsIncomeListAPI, farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
+import { farmaccountsIncomeListAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, farmIncomeExpenceSaveAPI } from '../../../config/apiHere';
 import DropdownForm from '../../Common/DropdownForm';
 import MessageDialog from '../../Common/MessageDialog';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import axios from 'axios';
-import config from '../../../config';
-import { useTranslation } from 'react-i18next';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerAddIncome = ({ navigation }) => {
-    const { t } = useTranslation();
-    const [searchResultsList, setSearchResultsList] = useState(false);
+    //GQR-67
+    const { loginUser_data, FormsTitle, ButtonForm, CustomHeader, DatePickerComp, t, getItem, logoImage, topBanner, effective_dates, onBackPress } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner } = loginUser_data;
+    //GQR-67
     const [searchFarmerName, setSearchFarmerName] = useState();
     const [searchFarmerPhone, setSearchFarmerPhone] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: "",
-        userId: ""
-    });
-    const [searchResults, setSearchResults] = useState([]);
-    const [farmerData, setFarmerData] = useState([]);
     const [plotAll, setplotAll] = useState([]);
     const [showingMenu, setShowingMenu] = useState(false);
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -57,41 +41,29 @@ const FarmerAddIncome = ({ navigation }) => {
     const [fromDate, setfromDate] = useState("");
     const [currency, setCurrency] = useState("");
     const addMoreExpense = () => {
-
         setIndex(isIndex + 1)
-
         setData([...data, { type: "cost_production", cat_id: "", amount: "0", date: "" }])
     }
-
     const handleChangeAddExpense = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text;
         setData(values);
     }
     const handleChangeAddCatID = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text.value;
         setData(values);
     }
     const handleChangeAddDate = (index, text, name) => {
-        // console.log(index, text, name)
         const values = [...data];
         values[index][name] = text;
         setData(values);
     }
-
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         handleChangeAddDate(isIndex, effective_date, "date")
-        // console.log(isIndex);
     }
-
     function handleClear() {
         setSearchFarmerName('')
         setSearchFarmerPhone('')
@@ -100,105 +72,30 @@ const FarmerAddIncome = ({ navigation }) => {
         setShowingMenu(false)
         setInComeAll([])
         setfromDate("")
-
     }
-
     const onPageLoad = async () => {
         handleClear();
-        const [loginUser_data, curr] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('currency')
-        ]);
+        const curr = await getItem('currency');
         setCurrency(curr)
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.owner.user_id;
-            const user_id = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageId: languageId,
-                token: token,
-                supervisorId: supervisorId,
-                userId: user_id
-            })
-            setfarmerID(user_id)
-
-            const response = await problemPlotAgainstFarmerAPI(dbName, languageId, token, user_id)
-
-            if (response) {
-                // console.warn(JSON.stringify(response.data.data,null,2));
-                // return;
-                const dataArray = [];
-                response.data.data.forEach(element => {
-                    dataArray.push({
-                        value: element.rel_id,
-                        label: element.plot_no
-                    });
-                });
-                setplotAll(dataArray)
-
-            }
-
+        setfarmerID(user_id)
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, user_id)
+        if (response?.status == 200) {
+            const dataArray = [];
+            response?.data?.data.forEach(element => { dataArray.push({ value: element.rel_id, label: element.plot_no }) });
+            setplotAll(dataArray)
         }
     };
-
-
-
     useFocusEffect(
         React.useCallback(() => {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerFarmIncomeExpenseList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-
+            onBackPress(() => { navigation.navigate('FarmerFarmIncomeExpenseList'); return true; })
         }, [])
     );
-
-
-    const handleResultSelect = async (name, currentfarmerId, phone) => {
-        setSearchResultsList(false)
-        // console.warn(name, currentfarmerId, phone);
-        // console.warn(JSON.stringify(searchResults, null, 2));
-        setSearchFarmerPhone(phone)
-        // setSelectedName(name);
-        setSearchFarmerName(name);
-        // setSearchResults([]);
-        setfarmerID(currentfarmerId)
-        // console.warn(currentfarmerId);
-        const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, currentfarmerId)
-
-        if (response) {
-            // console.warn(JSON.stringify(response.data.data,null,2));
-            // return;
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
-            setplotAll(dataArray)
-
-        }
-    }
-
-
-
     const handlePlot = async (relId) => {
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, relId.value)
-
-        if (response) {
-            //   console.warn(JSON.stringify(response.data.data.rows,null,2));
-            setNameVarityStartEnd({
-                ...nameVarityStartEnd,
-                name: response.data.data.rows[0].crop_name.name,
-                varity: response.data.data.rows[0].crop_variety.name,
-            })
-
-            const dateString = response.data.data.rows[0].harvesting_date;
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
+        if (response?.status == 200) {
+            setNameVarityStartEnd({ ...nameVarityStartEnd, name: response.data.data.rows[0].crop_name.name, varity: response.data.data.rows[0].crop_variety.name })
+            const dateString = response?.data?.data?.rows[0]?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
@@ -212,21 +109,13 @@ const FarmerAddIncome = ({ navigation }) => {
                     // plot_size: response.data.data.rows[0].land_info.land_size,
                     // plot_size: response.data.data.rows[0].land_info.land_unit.name,
                     plot_size: response.data.data.rows[0].land_info.land_size + " " + response.data.data.rows[0].land_info.land_unit.name,
-                    createdBy: dbLanTokUsr.userId,
+                    createdBy: user_id,
                 })
-                const response_farmIncome = await farmaccountsIncomeListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID)
-                if (response_farmIncome) {
-                    const dataArray = [];
-                    response_farmIncome.data.data.rows.forEach(element => {
-                        dataArray.push({
-                            value: element.fid,
-                            label: element.categoryName,
-                        });
-                    });
+                const response_farmIncome = await farmaccountsIncomeListAPI(dbname, lan_id, farmerID)
+                if (response_farmIncome?.status == 200) {
+                    const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName }));
                     setInComeAll(dataArray)
                 }
-
-
             } else {
                 MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
                 setSearchFarmerName('')
@@ -256,40 +145,18 @@ const FarmerAddIncome = ({ navigation }) => {
             'expense_total': '0',
             'cost_head': JSON.stringify(data)
         });
-        let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'http://142.93.208.31:4003/cropRoute/addUserCropRels',
-            headers: {
-                'authorization': dbLanTokUsr.token,
-                'information': `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${farmerID}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            data: save_data
-        };
-        axios.request(config)
-            .then((response) => {
-                // console.log(JSON.stringify(response.data));
-                handleClear()
-                navigation.navigate('FarmerFarmIncomeExpenseList');
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        const response = await farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
+        if (response?.status == 200) {
+            navigation.navigate('FarmerFarmIncomeExpenseList');
+        }
     }
     const HandlerGoBack = () => navigation.navigate('FarmerFarmIncomeExpenseList');
     return (
         <>
             <View style={{ flex: 1 }}>
-                <DatePickerComp
-                    openDate={openFromDate}
-                    newDate={newFromDate}
-                    setOpenDate={setOpenFromDate}
-                    handleDatePicker={handleDatePicker}
-                />
-                <CustomHeader path='FarmerFarmIncomeExpenseList' HandlerGoBack={HandlerGoBack} />
+                <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
+                <CustomHeader path='FarmerFarmIncomeExpenseList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('add_income')} />
-
                 <View style={styles.formContainer}>
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <DropdownForm label={t('plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} />
