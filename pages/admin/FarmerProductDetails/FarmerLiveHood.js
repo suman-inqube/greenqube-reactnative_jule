@@ -95,7 +95,7 @@ const FarmerLiveHood = ({ navigation }) => {
                         setIsLoading(false);
                         setfarmerData({
                             ...farmerData,
-                            createdBy: owner.user_id,
+                            createdBy: owner?.user_id,
                             plot_no: data?.land_info?.plot_no,
                             cu_rel_id: data?.cu_rel_id,
                             land_rel_id: findData?.value,
@@ -537,7 +537,7 @@ const FarmerLiveHood = ({ navigation }) => {
             if (userData == "addUserData") {
                 const AddLandCropDetails_res = await AddLandCropDetailsAPI(dbname, lan_id, farmeruserID, token, save_data, '', '');
                 if (AddLandCropDetails_res?.status === 200) {
-                    Toast.show({ text: 'Plot/Site Produce Add Succesfully', ...AlertMesg[0] });
+                    Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
                     setTimeout(() => {
                         navigation.navigate('FarmerDashboard')
                     }, 2000);
@@ -545,7 +545,7 @@ const FarmerLiveHood = ({ navigation }) => {
             } else {
                 const updateLandCropdetails_res = await UpdateLandCropdetailsAPI(dbname, lan_id, farmeruserID, token, save_data, farmerData.land_rel_id, farmerData.cu_rel_id)
                 if (updateLandCropdetails_res?.status === 200) {
-                    Toast.show({ text: 'Plot/Site Produce Updateed Succesfully', ...AlertMesg[0] });
+                    Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
                     setTimeout(() => {
                         navigation.navigate('FarmerDashboard')
                     }, 2000);
@@ -641,7 +641,7 @@ const FarmerLiveHood = ({ navigation }) => {
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => setopenCycleEnd(true)} activeOpacity={9}>
-                            <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>Cycle Ends</Text>
+                            <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>{t('harvesting_date')}</Text>
                             <View style={styles.calenderContainer} >
                                 <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
                                 <Image source={require('../../Common/images/calendar.png')} style={{ width: 20, height: 20 }} />
@@ -653,9 +653,9 @@ const FarmerLiveHood = ({ navigation }) => {
                     </View>
                 </ScrollView>
                 <TouchableOpacity style={styles.locationAddMoreContainer} onPress={addMoreLocation}                >
-                    <Text style={{ color: '#fff', marginRight: 15 }}>Add Location</Text>
+                    <Text style={{ color: '#fff', marginRight: 15 }}>{t('AddLocation')}</Text>
                 </TouchableOpacity>
-                <ButtonFormBottom label='Submit' onPress={() => handleUserListUpdate()} />
+                <ButtonFormBottom label={t('submit')} onPress={() => handleUserListUpdate()} />
             </Root>
         </>
     )

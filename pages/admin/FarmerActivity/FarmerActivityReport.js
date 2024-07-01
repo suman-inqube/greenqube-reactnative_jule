@@ -539,7 +539,7 @@ const FarmerActivityReport = ({ navigation }) => {
     if (!saveData.cycle_start_date) {
       Toast.show({
         time: 2,
-        text: 'Please enter crop cycle date',
+        text: t('please_select_sowing_date_first'),
         ...AlertMesg[0],
       });
       return false;
@@ -555,7 +555,7 @@ const FarmerActivityReport = ({ navigation }) => {
     if (isButtonDisabled == false) {
       Toast.show({
         time: 2,
-        text: 'Please set cycle start date',
+        text: t('please_select_sowing_date_first'),
         ...AlertMesg[0],
       });
       return false;
@@ -589,13 +589,13 @@ const FarmerActivityReport = ({ navigation }) => {
     if (!saveData.latitude) {
       Toast.show({
         time: 2,
-        text: 'Please allow to get location',
+        text: t('gpsalertdialogmessage'),
         ...AlertMesg[0],
       });
       return false;
     }
     if (!cycleDtartDate) {
-      Toast.show({ text: 'Please set cycle start date', ...AlertMesg[0] });
+      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
       return false;
     }
     return true;

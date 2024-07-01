@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
         // fontSize: 25,
         color: '#000',
         fontFamily: 'Poppins-SamiBold',
-        fontSize: 14
+        fontSize: 18,
     },
     AddExpenseItemContainer: {
         flexDirection: 'row',

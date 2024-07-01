@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, FlatList, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Dimensions, Keyboard } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
 import { problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, InsuranceAddAPI } from '../../../config/apiHere';
 import CheckBoxComp from '../../Common/CheckBoxComp';
@@ -30,14 +30,12 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             const plotValues = [...pickPlot];
             for (let i = 0; i < plotValues.length; i++) {
                 if (plotValues[i].plot_id === value) {
-                    console.log(i);
                     plotValues.splice(i, 1);
                 }
             }
             setPickPlot(plotValues)
             for (let i = 0; i < values.length; i++) {
                 if (values[i].plot_id === value) {
-                    console.log(i);
                     values.splice(i, 1);
                 }
             }
@@ -53,13 +51,13 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value);
             if (response) {
                 setNameVarityStartEnd([...nameVarityStartEnd, {
-                    plot_no: response.data.data.rows[0].land_info.plot_no,
-                    plot_id: response.data.data.rows[0].land_rel_id,
-                    name: response.data.data.rows[0].crop_name.name,
-                    varity: response.data.data.rows[0].crop_variety.name,
-                    cycleStarts: response.data.data.rows[0].sowing_date,
-                    cycleEnd: response.data.data.rows[0].harvesting_date,
-                    production_process: response.data.data.rows[0].farmer_production_system.name
+                    plot_no: response?.data?.data?.rows[0]?.land_info.plot_no,
+                    plot_id: response?.data?.data?.rows[0]?.land_rel_id,
+                    name: response?.data?.data?.rows[0]?.crop_name.name,
+                    varity: response?.data?.data?.rows[0]?.crop_variety.name,
+                    cycleStarts: response?.data?.data?.rows[0]?.sowing_date,
+                    cycleEnd: response?.data?.data?.rows[0]?.harvesting_date,
+                    production_process: response?.data?.data?.rows[0]?.farmer_production_system.name
                 }])
             }
         }
@@ -73,13 +71,13 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             }
         })
         if (checkValue.length == 0) {
-            Toast.show({ text: 'Please select plot', ...AlertMesg[0] });
+            Toast.show({ text: t('please_select_plot_first'), ...AlertMesg[0] });
         } else {
             const formData = new FormData();
             formData.append("user_id", user_id);
             formData.append("plot_id", checkValue);
             const addInsurance = await InsuranceAddAPI(dbname, lan_id, token, user_id, formData);
-            if (addInsurance.status === 200) {
+            if (addInsurance?.status === 200) {
                 setActiveBtn(2)
             }
         }
@@ -93,18 +91,13 @@ const RequestForInsurance = ({ setActiveBtn }) => {
                         <InputTextForm label={t('farmer_number')} value={contactNumber} />
                         <InputTextForm label={t('adhar_no')} value={aadhar_number} />
                         <InputTextForm label={t('kcc_no')} value={kcc_number} />
-                        <Text style={styles.plotTitle}>Plot/Site</Text>
+                        <Text style={styles.plotTitle}>{t('plot')}</Text>
                         <View style={styles.PlotSiteList}>
                             {
                                 plotSite && plotSite.map((data, index) => {
                                     return (
                                         <View key={index}>
-                                            <CheckBoxComp
-                                                arrayKey={index}
-                                                isChecked={isChecked[index]}
-                                                title={data.plot_no}
-                                                onCheckBox={() => handlePlot(data.rel_id, data.plot_no, index)}
-                                            />
+                                            <CheckBoxComp arrayKey={index} isChecked={isChecked[index]} title={data.plot_no} onCheckBox={() => handlePlot(data.rel_id, data.plot_no, index)} />
                                         </View>
                                     )
                                 })
@@ -136,7 +129,7 @@ const RequestForInsurance = ({ setActiveBtn }) => {
                     </View>
                 </ScrollView>
 
-                <ButtonForm label="Submit" onPress={handleSave} />
+                <ButtonForm label={t('submit')} onPress={handleSave} />
             </Root>
         </>
     )

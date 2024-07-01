@@ -209,24 +209,24 @@ const FarmerFarmIncomeExpenseList = ({ navigation }) => {
                             showsVerticalScrollIndicator={false}
                         />
                         <TouchableOpacity style={styles.addExpense} onPress={() => navigation.navigate("FarmerAddExpense")}>
-                            <Text style={styles.addExpenseTitle}>Add Expense</Text>
+                            <Text style={styles.addExpenseTitle}>{t('add_expense')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.addIncome} onPress={() => navigation.navigate("FarmerAddIncome")}>
-                            <Text style={styles.addIncomTitle}>Add Income</Text>
+                            <Text style={styles.addIncomTitle}>{t('add_income')}</Text>
                         </TouchableOpacity>
                         <View style={styles.prevNextPage}>
                             <TouchableOpacity onPress={() => handlePage('previous')}>
-                                <Text style={styles.title}>Prev Page</Text>
+                                <Text style={styles.title}>{t('prev_page')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handlePage('next')}>
-                                <Text style={styles.title}>Next Page</Text>
+                                <Text style={styles.title}>{t('next_page')}</Text>
                             </TouchableOpacity>
                         </View>
 
                     </>
             }
 
-        </View >
+        </View>
     )
 }
 

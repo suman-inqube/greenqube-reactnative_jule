@@ -11,7 +11,7 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityList = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
+        setItem, logoImage, topBanner, Root, Toast, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
@@ -101,7 +101,7 @@ const ActivityList = ({ navigation }) => {
             }
         } else {
             // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-            Toast.show({ time: 3, text: 'Please Select First data', ...AlertMesg[0] })
+            Toast.show({ time: 3, text: t('please_date_first'), ...AlertMesg[0] })
         }
     }
     const navigateToPages = useCallback(async (pageName, uact_id) => {

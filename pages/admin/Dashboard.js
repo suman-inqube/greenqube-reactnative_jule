@@ -14,8 +14,7 @@ import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { userCreateContext } from '../Context/usersCreateContext';
 const Dashboard = ({ navigation }) => {
   //GQR-65
-  const { getItem, t, DeviceInfo, CustomHeader, onBackPress, logoImage, topBanner, isOnline } = useContext(userCreateContext);
-  const { netConnection } = DeviceInfo();
+  const { getItem, t, CustomHeader, onBackPress, logoImage, topBanner, isOnline } = useContext(userCreateContext);
   const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();

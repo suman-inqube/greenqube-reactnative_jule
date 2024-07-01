@@ -283,8 +283,7 @@ const AddIcome = ({ navigation }) => {
                                                 <View style={styles.AddExpenseItem}>
                                                     <HeadDropDown label={t('add_income_head')} data={InComeAll} name='cat_id' onChange={(text) => handleChangeAddCatID(index, text, 'cat_id')} />
                                                 </View>
-                                                <TouchableOpacity onPress={() => setOpenFromDate(true)}
-                                                    style={styles.AddExpenseItemDate}>
+                                                <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.AddExpenseItemDate}>
                                                     <Text style={styles.title}>{data.date == "" ? `${t('date')}` : data.date}</Text>
                                                 </TouchableOpacity>
                                             </View>
@@ -325,7 +324,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         borderRadius: 10,
         marginVertical: 10,
-        fontSize: 25,
+        fontSize: 18,
         color: 'green'
     },
     AddExpenseItemContainer: {

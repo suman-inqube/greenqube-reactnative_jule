@@ -67,7 +67,7 @@ const ViewPast = (props) => {
             const outputList = await outputListAPI(dbname, lan_id, token, user_id, farmer_id, fromDate, toDate, mobileNo);
             if (outputList.status === 200) {
                 if (outputList.data.data.rows.length === 0) {
-                    Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+                    Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
                 }
                 setOutputListAll(outputList.data.data.rows)
                 setItem("output_data", outputList.data.data.rows)
@@ -108,7 +108,7 @@ const ViewPast = (props) => {
                 //     return item.users.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
                 // });
                 // if(tempData.length===0){
-                //     Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] })
+                //     Toast.show({ text: t('no_data_found'), ...AlertMesg[0] })
                 // }
                 // setOutputListAll(tempData)
                 setSearchResultsList(true);
@@ -129,7 +129,7 @@ const ViewPast = (props) => {
                 //     return item.users.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
                 // });
                 // if(tempData.length===0){
-                //     Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] })
+                //     Toast.show({ text: t('no_data_found'), ...AlertMesg[0] })
                 // }
                 // setOutputListAll(tempData)
                 // setData(tempData);
@@ -149,13 +149,13 @@ const ViewPast = (props) => {
             let tempData = outputListAll.filter(item => { return item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1; });
             setOutputListAll(tempData);
             if (tempData.length === 0) {
-                Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+                Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
             }
         } else {
             let tempData = outputListAll.filter(item => { return item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1; });
             setOutputListAll(tempData);
             if (tempData.length === 0) {
-                Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+                Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
             }
         }
     }

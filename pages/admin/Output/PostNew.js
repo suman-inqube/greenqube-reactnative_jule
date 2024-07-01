@@ -8,7 +8,7 @@ import { farmerAgainstSupervisorAPI, farmerByNameAPI, livelihoodNameVarietyLandr
 import { userCreateContext } from '../../Context/usersCreateContext';
 const PostNew = (props) => {
     //GQR-67
-    const { loginUser_data, t, Root, AlertMesg, DropdownForm, InputTextForm, ButtonForm, DatePickerComp, Toast, getItem, farmerData } = useContext(userCreateContext);
+    const { loginUser_data, t, Root, AlertMesg, DropdownForm, InputTextForm, ButtonForm, DatePickerComp, Toast, getItem, farmerData, effective_dates } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     //GQR-67
     const unitFarm = [
@@ -23,7 +23,7 @@ const PostNew = (props) => {
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-    const [saveData, setSaveData] = useState({ plot_name: "" });
+    const [saveData, setSaveData] = useState({ plot_name: "", created_at: "" });
     const [farmerID, setfarmerID] = useState();
     const [searchResults, setSearchResults] = useState([]);
     const [plotAll, setplotAll] = useState([]);
@@ -72,15 +72,13 @@ const PostNew = (props) => {
         setSearchResults([]);
         setfarmerID(currentfarmerId);
         const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
-        if (response) {
+        if (response?.status == 200) {
             const dataArray = [{
                 value: currentfarmerId,
                 label: "other",
                 user_id: currentfarmerId,
             }];
-            response.data.data.forEach(element => {
-                dataArray.push({ value: element.rel_id, label: element.plot_no, user_id: element.user_id });
-            });
+            response.data.data.forEach(element => { dataArray.push({ value: element.rel_id, label: element.plot_no, user_id: element.user_id, created_at: element.created_at }) });
             setplotAll(dataArray);
         }
     }
@@ -98,11 +96,12 @@ const PostNew = (props) => {
                         land_rel_id: "",
                         transaction_type: 2,
                         fulfill_status: 0,
+                        created_at: '',
                         // plot_name: plot != undefined && relId.label,
                         plot_name: relId.label,
-                        state_name: problemNameFound?.agri_user_addresses[0]?.agri_state.state_name,
-                        district_name: problemNameFound?.agri_user_addresses[0]?.agri_district.district_name,
-                        subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision.subdiv_name,
+                        state_name: problemNameFound?.agri_user_addresses[0]?.agri_state?.state_name,
+                        district_name: problemNameFound?.agri_user_addresses[0]?.agri_district?.district_name,
+                        subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
                         state_id: problemNameFound?.agri_user_addresses[0]?.state,
                         district_id: problemNameFound?.agri_user_addresses[0]?.district,
                         block_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
@@ -120,25 +119,24 @@ const PostNew = (props) => {
                 if (problemNameFound) {
                     if (new Date(problemNameFound.agri_crop_user_rels[0].harvesting_date) > new Date()) {
                         // setModalVisible(true)
-                        // alert("aaaa")
                     }
                     setProduceName([{
-                        value: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
-                        label: livelyhoodNameVerity.data.data.rows[0].crop_name.name
+                        value: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_name?.fid,
+                        label: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_name?.name
                     }])
                     setProduceVariety([{
-                        value: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
-                        label: livelyhoodNameVerity.data.data.rows[0].crop_variety.name
+                        value: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_variety?.fid,
+                        label: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_variety?.name
                     }])
                     setLiveliHoodType([{
-                        value: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
-                        label: livelyhoodNameVerity.data.data.rows[0].crop_type.name
+                        value: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_type?.fid,
+                        label: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_type?.name
                     }])
                     setNameVarityLivelihood({
                         ...nameVarityLivelihood,
-                        name: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
-                        varity: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
-                        livelihood: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
+                        name: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_name?.fid,
+                        varity: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_variety?.fid,
+                        livelihood: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_type?.fid,
                     })
                     setSaveData({
                         ...saveData,
@@ -148,15 +146,16 @@ const PostNew = (props) => {
                         transaction_type: 2,
                         fulfill_status: 0,
                         plot_name: relId.label,
+                        created_at: relId.created_at,
                         state_name: problemNameFound?.agri_user_addresses[0]?.agri_state.state_name,
                         district_name: problemNameFound?.agri_user_addresses[0]?.agri_district.district_name,
                         subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision.subdiv_name,
                         state_id: problemNameFound?.agri_user_addresses[0]?.state,
                         district_id: problemNameFound?.agri_user_addresses[0]?.district,
                         block_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
-                        entity_type_id: livelyhoodNameVerity.data.data.rows[0].crop_type.fid,
-                        entity_name_id: livelyhoodNameVerity.data.data.rows[0].crop_name.fid,
-                        entity_variety_id: livelyhoodNameVerity.data.data.rows[0].crop_variety.fid,
+                        entity_type_id: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_type?.fid,
+                        entity_name_id: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_name?.fid,
+                        entity_variety_id: livelyhoodNameVerity?.data?.data?.rows[0]?.crop_variety?.fid,
                         others: "",
                     })
                 }
@@ -164,10 +163,7 @@ const PostNew = (props) => {
         }
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setApproximateDate(effective_date)
     }
     const handleBackButtonClick = () => {
@@ -211,25 +207,11 @@ const PostNew = (props) => {
     };
     const onPageLoad = async () => {
         const [state, district, block] = await Promise.all([getItem("state"), getItem("district"), getItem("block")])
-        setregionaldatas({
-            ...regionaldatas,
-            state: state,
-            district: district,
-            block: block,
-        })
+        setregionaldatas({ ...regionaldatas, state: state, district: district, block: block })
         const unitByList = await unitByListAPI(dbname, lan_id);
         if (unitByList.status === 200) {
-            const dataArray = [];
-            unitByList?.data?.data?.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.unit_name,
-                    unit_sname: element.unit_sname,
-                    sub_type: element.sub_type,
-                    defined_unit_value: element.defined_unit_value
-                });
-                setUnitData(dataArray)
-            });
+            const dataArray = unitByList?.data?.data?.rows.map(data => ({ value: data.fid, label: data.unit_name, unit_sname: data.unit_sname, sub_type: data.sub_type, defined_unit_value: data.defined_unit_value }));
+            setUnitData(dataArray);
         }
     };
     const validationData = () => {
@@ -301,18 +283,11 @@ const PostNew = (props) => {
     useEffect(() => {
         onPageLoad();
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
-        return () => {
-            BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
-        };
+        return () => { BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick); };
     }, [nextpage]);
     return (
         <Root>
-            <DatePickerComp
-                openDate={openDatePicker}
-                newDate={newDate}
-                setOpenDate={setOpenDatePicker}
-                handleDatePicker={handleDatePicker}
-            />
+            <DatePickerComp openDate={openDatePicker} newDate={newDate} setOpenDate={setOpenDatePicker} handleDatePicker={handleDatePicker} minimumDate={saveData.created_at == "" ? "" : new Date(`${new Date(saveData.created_at).getFullYear()}-${new Date(saveData.created_at).getMonth() + 1}-${new Date(saveData.created_at).getDate() + 1}`)} />
             <View style={styles.container}>
                 <SafeAreaView>
                     {
@@ -334,8 +309,7 @@ const PostNew = (props) => {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {nextpage == 1 ?
                         <>
-                            <InputTextForm label={t('farmer_name')} color="black" value={searchFarmerName}
-                                onChangeText={(farmerName) => handleSearch(farmerName)} />
+                            <InputTextForm label={t('farmer_name')} color="black" value={searchFarmerName} onChangeText={(farmerName) => handleSearch(farmerName)} />
                             <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} />
                             <DropdownForm label={t('addland_select_plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId, 'plot')} val={saveData.plot_name} />
                             {

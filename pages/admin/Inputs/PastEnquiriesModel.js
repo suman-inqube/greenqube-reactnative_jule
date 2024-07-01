@@ -1,5 +1,5 @@
-import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Image, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react'
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState, memo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { getItem } from '../../../config/getDataFromStorage';
 const PastEnquiriesModel = (props) => {
@@ -35,36 +35,36 @@ const PastEnquiriesModel = (props) => {
                         <View style={styles.modelContainer}>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('farmer_name')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.user_name}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.user_name}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('farmer_number')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.user_contact_number}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.user_contact_number}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('plot')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.inout_plot_rel && props.pastEnquirySingle.inout_plot_rel.plot_no}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.inout_plot_rel && props?.pastEnquirySingle?.inout_plot_rel.plot_no}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('category')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.io_entity_type && props.pastEnquirySingle.io_entity_type.name}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.io_entity_type && props?.pastEnquirySingle?.io_entity_type.name}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('sub_category')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.io_entity_name && props.pastEnquirySingle.io_entity_name.name}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.io_entity_name && props?.pastEnquirySingle?.io_entity_name.name}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('product_name')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.ioProduPrice && props.pastEnquirySingle.ioProduPrice.mk_product && props.pastEnquirySingle.ioProduPrice.mk_product.product_name}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.ioProduPrice && props?.pastEnquirySingle?.ioProduPrice.mk_product && props?.pastEnquirySingle?.ioProduPrice.mk_product.product_name}</Text>
 
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('qty_amp_unit')}</Text>
-                                <Text style={styles.modelItemTitle}>: {props.pastEnquirySingle.quantity} - {props.pastEnquirySingle.pp_qty}/{props.pastEnquirySingle.unit_id}</Text>
+                                <Text style={styles.modelItemTitle}>: {props?.pastEnquirySingle?.quantity} - {props?.pastEnquirySingle?.pp_qty}/{props?.pastEnquirySingle?.unit_id}</Text>
                             </View>
                             <View style={styles.ModelTtem}>
                                 <Text style={styles.modelItemTitle}>{t('required_date')}</Text>
-                                <Text style={styles.modelItemTitle}>: {formatDateToMMDDYYYY(props.pastEnquirySingle.date)}</Text>
+                                <Text style={styles.modelItemTitle}>: {formatDateToMMDDYYYY(props?.pastEnquirySingle?.date)}</Text>
                             </View>
                             {
                                 props.pastEnquiryView && props.pastEnquiryView.length > 0 ?
@@ -75,33 +75,33 @@ const PastEnquiriesModel = (props) => {
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('qty')}</Text>
-                                            <Text style={styles.modelItemTitle}>: {props.qty.qty} - {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text>
-                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder && props.pastEnquiryView[0].farmerorder.unit_id}</Text> */}
+                                            <Text style={styles.modelItemTitle}>: {props.qty.qty} - {props?.pastEnquiryView[0]?.farmerorder && props?.pastEnquiryView[0]?.farmerorder.unit_id}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.farmerorder && props?.pastEnquiryView[0]?.farmerorder.unit_id}</Text> */}
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('total_amount') + " (" + currency + ")"}</Text>
-                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].total_samount}</Text> */}
+                                            {/* <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.total_samount}</Text> */}
                                             <Text style={styles.modelItemTitle}>:  {props.qty.total}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('discount_amount') + " (" + currency + ")"}</Text>
-                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sdiscount}</Text> */}
+                                            {/* <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.sdiscount}</Text> */}
                                             <Text style={styles.modelItemTitle}>:  {props.qty.disTotal}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('grand_total')}</Text>
-                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].sgrand_total}</Text> */}
+                                            {/* <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.sgrand_total}</Text> */}
                                             <Text style={styles.modelItemTitle}>:  {props.qty.grandTotal}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('approved_date')}</Text>
-                                            {/* <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[0].sdate)}</Text> */}
+                                            {/* <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props?.pastEnquiryView[0]?.sdate)}</Text> */}
                                             <Text style={styles.modelItemTitle}>:  {formatDateToMMDDYYYY(props.pastEnquiryView[props.pastEnquiryView.length - 1].sdate)}</Text>
                                         </View>
                                         <View style={styles.ModelTtem}>
                                             <Text style={styles.modelItemTitle}>{t('sta_')}</Text>
-                                            {/* <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder.quantity - props.pastEnquiryView[0].farmerorder.fulfill_quantity == 0 ? <Text>{t('closed')}</Text> : <Text>{t('pending')}</Text>}</Text> */}
-                                            <Text style={styles.modelItemTitle}>:  {props.pastEnquiryView[0].farmerorder.quantity - props.pastEnquiryView[0].farmerorder.fulfill_quantity == 0 ? <Text>{t('closed')}</Text> : <Text>{t('pending')}</Text>}</Text>
+                                            {/* <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.farmerorder.quantity - props?.pastEnquiryView[0]?.farmerorder.fulfill_quantity == 0 ? <Text>{t('closed')}</Text> : <Text>{t('pending')}</Text>}</Text> */}
+                                            <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.farmerorder.quantity - props?.pastEnquiryView[0]?.farmerorder.fulfill_quantity == 0 ? <Text>{t('closed')}</Text> : <Text>{t('pending')}</Text>}</Text>
                                         </View>
                                     </>
                                     : ''
@@ -114,7 +114,7 @@ const PastEnquiriesModel = (props) => {
     )
 }
 
-export default PastEnquiriesModel
+export default memo(PastEnquiriesModel)
 
 const styles = StyleSheet.create({
     container: {

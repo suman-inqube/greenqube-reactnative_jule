@@ -15,7 +15,7 @@ const FarmerInsuranceEnquiry = ({ navigation }) => {
     return (
         <View style={{ flex: 1, height: Dimensions.get('window').height / 2 }}>
             <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-            <FormsTitle title={'Insurance Enquiry'} />
+            <FormsTitle title={t('insurance_inquiry')} />
             <View style={styles.container}>
                 <View style={styles.btnContainer}>
                     <TouchableOpacity style={activeBtn === 1 ? styles.btnActive : styles.btn} onPress={() => setActiveBtn(1)}>

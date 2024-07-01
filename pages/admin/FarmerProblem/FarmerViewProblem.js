@@ -1,42 +1,29 @@
-import { BackHandler, StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, TextInput, FlatList, Linking } from 'react-native'
-import React, { useEffect, useState, useCallback } from 'react'
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
+import React, { useEffect, useState, useCallback, useContext } from 'react'
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
-import FormsTitle from '../../Common/FormsTitle';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { problemAnswerListAPI, problemCommentListAPI, problemCommentSaveAPI, farmerProblemDetailApi } from '../../../config/apiHere';
-import CustomHeader from '../CustomHeader';
 import MessageDialog from '../../Common/MessageDialog';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useTranslation } from 'react-i18next';
-import DeviceInfo from '../../DeviceInfo';
-import { Root, Toast, SPSheet } from 'react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerViewProblem = ({ navigation }) => {
+    //GQR-67
+    const { loginUser_data, Root, getItem, setItem, FormsTitle, Toast, isOnline, SPSheet, CustomHeader, t, logoImage, topBanner, onBackPress } = useContext(userCreateContext);
+    const { dbname, lan_id, token, owner, user_id } = loginUser_data;
+    //GQR-67
     const isFocused = useIsFocused();
-    const { netConnection } = DeviceInfo();
     const route = useRoute();
-    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
     const [btnColor, setBtnColor] = useState(1);
     const [farmerProblem, setFarmerProblem] = useState({});
-    const [selectedImage, setSelectedImage] = useState({
-        firstItem: "",
-        secondItem: "",
-        thirdItem: "",
-    });
+    const [selectedImage, setSelectedImage] = useState({ firstItem: "", secondItem: "", thirdItem: "" });
     const [comment1, setComment1] = useState("");
-    const [showComment, setshowComment] = useState(false);
     const [commentAll, setcommentAll] = useState([]);
     const [answerAll, setAnswerAll] = useState([]);
     const [dbLanTokUsr, setdbLanTokUsr] = useState({});
-    const [selectedRecord, setSelectedRecord] = useState({
-        firstItemRecord: "",
-        secondItemRecord: "",
-        thirdItemRecord: "",
-    });
+    const [selectedRecord, setSelectedRecord] = useState({ firstItemRecord: "", secondItemRecord: "", thirdItemRecord: "" });
     const openImagePicker = (item) => {
     };
     const saveCommet = async () => {
@@ -51,13 +38,13 @@ const FarmerViewProblem = ({ navigation }) => {
             // formData.append("farmer_fcm", dbLanTokUsr.question_user_fcm);
             formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
             formData.append("photo", "");
-            const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.farmerID, formData);
+            const database_res = await problemCommentSaveAPI(dbname, lan_id, dbLanTokUsr.farmerID, formData);
             if (database_res) {
                 MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
                 setComment1("")
-                const commnetList = await problemCommentListAPI(dbLanTokUsr.dbName, dbLanTokUsr.farmerID, dbLanTokUsr.question_id)
+                const commnetList = await problemCommentListAPI(dbname, dbLanTokUsr.farmerID, dbLanTokUsr.question_id)
                 if (commnetList.data) {
-                    setcommentAll(commnetList.data.data.rows);
+                    setcommentAll(commnetList?.data?.data?.rows);
                     navigation.navigate('FarmerViewProblem');
                 }
             }
@@ -68,22 +55,9 @@ const FarmerViewProblem = ({ navigation }) => {
     }
 
     const onPageLoad = async () => {
-        setSelectedImage({
-            // ...selectedImage,
-            firstItem: "",
-            secondItem: "",
-            thirdItem: "",
-        })
-        const [problemData, problemIdData, loginUser_data] = await Promise.all([
-            getItem('problem_Data'),
-            getItem('problem_id_data'),
-            getItem('loginUser_data')
-        ])
-        const dbName = loginUser_data.dbname;
-        const languageId = loginUser_data.lan_id;
-        const token = loginUser_data.token;
-        const farmerID = loginUser_data.user_id;
-        if (netConnection) {
+        setSelectedImage({ firstItem: "", secondItem: "", thirdItem: "" });
+        const [problemData, problemIdData] = await Promise.all([getItem('problem_Data'), getItem('problem_id_data')])
+        if (isOnline) {
             if (route.params != undefined) {
                 const { comment_qid, type } = route.params;
                 if (type == "comment") {
@@ -91,10 +65,9 @@ const FarmerViewProblem = ({ navigation }) => {
                 } else {
                     setBtnColor(1)
                 }
-                var response = await farmerProblemDetailApi(dbName, languageId, comment_qid);
+                var response = await farmerProblemDetailApi(dbname, lan_id, comment_qid);
             } else {
-                var response = await farmerProblemDetailApi(dbName, languageId, problemIdData);
-                // await setItem('farmerProblemDetail' + problemIdData, response);
+                var response = await farmerProblemDetailApi(dbname, lan_id, problemIdData);
             }
             if (response?.status == 200) {
                 await setItem('farmerProblemDetail' + problemIdData, response);
@@ -103,24 +76,21 @@ const FarmerViewProblem = ({ navigation }) => {
             var response = await getItem('farmerProblemDetail' + problemIdData);
         }
         if (response?.status === 200) {
-            const { agri_user, agent_details, question_id } = response.data.data[0];
+            const { agri_user, agent_details, question_id } = response?.data?.data[0];
             setFarmerProblem(response.data.data[0]);
             setdbLanTokUsr({
                 ...dbLanTokUsr,
-                dbName: dbName,
-                languageId: languageId,
-                token: token,
-                farmerID: farmerID,
+                farmerID: user_id,
                 question_id: question_id,
                 question_user_fcm: agri_user?.FcmUserToken,
                 question_user_agent_fcm: agent_details?.FcmUserToken
             });
             const [commnetList, answerList] = await Promise.all([
-                problemCommentListAPI(dbName, farmerID, question_id),
-                problemAnswerListAPI(dbName, languageId, token, question_id)
+                problemCommentListAPI(dbname, user_id, question_id),
+                problemAnswerListAPI(dbname, lan_id, token, question_id)
             ])
             if (commnetList.data) {
-                setcommentAll(commnetList.data.data.rows);
+                setcommentAll(commnetList?.data?.data?.rows);
             }
             if (answerList) {
                 setAnswerAll(answerList.data.data);
@@ -132,46 +102,38 @@ const FarmerViewProblem = ({ navigation }) => {
             let audio1 = '';
             let audio2 = '';
             let audio3 = '';
-            if (response.data.data[0].agri_files[0]) {
-                Imag1 = response.data.data[0].agri_files[0].file_path
+            if (response?.data?.data[0]?.agri_files[0]) {
+                Imag1 = response?.data?.data[0]?.agri_files[0].file_path
             } else {
                 Imag1 = "";
             }
-            if (response.data.data[0].agri_files[1]) {
-                Imag2 = response.data.data[0].agri_files[1].file_path
+            if (response?.data?.data[0]?.agri_files[1]) {
+                Imag2 = response?.data?.data[0]?.agri_files[1].file_path
             } else {
                 Imag2 = "";
             }
-            if (response.data.data[0].agri_files[2]) {
-                Imag3 = response.data.data[0].agri_files[2].file_path
+            if (response?.data?.data[0]?.agri_files[2]) {
+                Imag3 = response?.data?.data[0]?.agri_files[2].file_path
             } else {
                 Imag3 = "";
             }
-            if (response.data.data[0].agri_audio_files[0]) {
-                audio1 = response.data.data[0].agri_audio_files[0].file_path
+            if (response?.data?.data[0]?.agri_audio_files[0]) {
+                audio1 = response?.data?.data[0]?.agri_audio_files[0].file_path
             } else {
                 audio1 = "";
             }
-            if (response.data.data[0].agri_audio_files[1]) {
-                audio2 = response.data.data[0].agri_audio_files[1].file_path
+            if (response?.data?.data[0]?.agri_audio_files[1]) {
+                audio2 = response?.data?.data[0]?.agri_audio_files[1].file_path
             } else {
                 audio2 = "";
             }
-            if (response.data.data[0].agri_audio_files[2]) {
-                audio3 = response.data.data[0].agri_audio_files[2].file_path
+            if (response?.data?.data[0]?.agri_audio_files[2]) {
+                audio3 = response?.data?.data[0]?.agri_audio_files[2].file_path
             } else {
                 audio3 = "";
             }
-            setSelectedRecord({
-                firstItemRecord: audio1,
-                secondItemRecord: audio2,
-                thirdItemRecord: audio3,
-            });
-            setSelectedImage({
-                firstItem: Imag1,
-                secondItem: Imag2,
-                thirdItem: Imag3,
-            })
+            setSelectedRecord({ firstItemRecord: audio1, secondItemRecord: audio2, thirdItemRecord: audio3 });
+            setSelectedImage({ firstItem: Imag1, secondItem: Imag2, thirdItem: Imag3 })
             setIsLoading(false)
         }
     }
@@ -179,13 +141,11 @@ const FarmerViewProblem = ({ navigation }) => {
         if (isFocused) {
             onPageLoad();
         }
-    }, [route.params, isFocused, netConnection]);
+    }, [route.params, isFocused]);
     useFocusEffect(
         useCallback(() => {
             // onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerListProblem'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmerListProblem'); return true; })
         }, [route.params, isFocused])
     );
     const HandlerGoBack = () => navigation.navigate('FarmerListProblem');
@@ -208,7 +168,7 @@ const FarmerViewProblem = ({ navigation }) => {
                 <LoadingScreen />
             ) : (
                 <>
-                    <CustomHeader path="FarmerListProblem" HandlerGoBack={HandlerGoBack} />
+                    <CustomHeader path="FarmerListProblem" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     <FormsTitle title={t('plot_and_crop_problem')} />
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <View >
@@ -319,7 +279,7 @@ const FarmerViewProblem = ({ navigation }) => {
                                         onChangeText={(item) => setComment1(item)}
                                     />
                                     <TouchableOpacity onPress={() => saveCommet()}>
-                                        <Text style={[styles.btn, { backgroundColor: '#023a02', color: '#FFF', fontSize: 10 }]}>{t('add_comments')}</Text>
+                                        <Text style={[styles.btn, { backgroundColor: '#023a02', color: '#FFF', fontSize: 10, marginLeft: 5, textAlign: 'center' }]}>{t('add_comments')}</Text>
                                     </TouchableOpacity>
                                 </View>
                                 :
@@ -394,7 +354,7 @@ const FarmerViewProblem = ({ navigation }) => {
                                 </View>
                             }
                         </View>
-                    </ScrollView >
+                    </ScrollView>
                 </>
             )
             }
@@ -461,15 +421,14 @@ const styles = StyleSheet.create({
         borderRadius: 10
     },
     commentsContainer: {
-        marginHorizontal: '2.5%',
+        marginHorizontal: '2%',
         marginTop: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between'
     },
     textarea: {
         borderWidth: 0.5,
-        width: '70%',
+        width: '65%',
         borderRadius: 10,
         backgroundColor: '#FFF'
     },
@@ -485,7 +444,7 @@ const styles = StyleSheet.create({
     AnsTextContainer: {
         marginHorizontal: '5%',
         borderBottomWidth: 0.5,
-        width: '80%',
+        width: '75%',
         marginRight: 50,
         borderColor: 'green'
     },

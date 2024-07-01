@@ -464,7 +464,7 @@ const CrateProblemUser = ({ navigation }) => {
     const validateForm = () => {
         if (!farmerID) {
             Toast.show({
-                time: 2, text: 'Please select farmer first', ...AlertMesg[0]
+                time: 2, text: t('please_enter_farmer_name'), ...AlertMesg[0]
             })
             return false;
         }
@@ -476,7 +476,7 @@ const CrateProblemUser = ({ navigation }) => {
         }
         if (!saveData.growth_stage) {
             Toast.show({
-                time: 2, text: 'Please select production stage', ...AlertMesg[0]
+                time: 2, text: t('please_select_cultiveting_season_first'), ...AlertMesg[0]
             })
             return false;
         }
@@ -506,7 +506,7 @@ const CrateProblemUser = ({ navigation }) => {
         }
         if (!saveData.latitude) {
             Toast.show({
-                time: 2, text: 'Please allow to get location', ...AlertMesg[0]
+                time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]
             })
             return false;
         }

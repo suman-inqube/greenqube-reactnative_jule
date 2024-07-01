@@ -6,7 +6,6 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    BackHandler,
     Keyboard
 } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react';
@@ -19,7 +18,7 @@ const qs = require('qs');
 import { userCreateContext } from '../../Context/usersCreateContext';
 const ChangePassword = ({ sendDataToParent }) => {
     //GQR-67
-    const { loginUser_data, dbLanTokUsr, t, CustomHeader, FormsTitle, logoImage, topBanner, Root, Popup, Toast } = useContext(userCreateContext);
+    const { loginUser_data, dbLanTokUsr, t, CustomHeader, FormsTitle, logoImage, topBanner, Root, Popup, Toast, onBackPress } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     //GQR-67
     const navigation = useNavigation();
@@ -69,9 +68,7 @@ const ChangePassword = ({ sendDataToParent }) => {
     };
     useEffect(() => {
         // onPageLoad();
-        const onBackPress = () => { navigation.navigate('Dashboard'); return true; };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        onBackPress(() => { navigation.navigate('Dashboard'); return true; })
     }, []);
     const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (

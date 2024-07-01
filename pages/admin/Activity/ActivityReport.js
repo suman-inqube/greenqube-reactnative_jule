@@ -322,7 +322,7 @@ const ActivityReport = ({ navigation }) => {
         }
         if (!saveData.growth_stage) {
             Toast.show({
-                time: 2, text: 'Please enter production stage', ...AlertMesg[0]
+                time: 2, text: t('please_select_cultiveting_season_first'), ...AlertMesg[0]
             })
             return false;
         }
@@ -354,12 +354,12 @@ const ActivityReport = ({ navigation }) => {
         }
         if (!saveData.latitude) {
             Toast.show({
-                time: 2, text: 'Please allow to get location', ...AlertMesg[0]
+                time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]
             })
             return false;
         }
         if (!cycleDtartDate && !isButtonDisabled) {
-            Toast.show({ text: 'Please set cycle start date', ...AlertMesg[0] });
+            Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
             return false;
         }
         return true;

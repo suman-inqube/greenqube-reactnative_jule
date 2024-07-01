@@ -150,6 +150,8 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             if (farmerFound?.agri_files[0] != undefined) {
                 setSelectedImage(farmerFound?.agri_files[0].file_path);
             }
+            console.log(farmerFound?.gender);
+            console.log(farmerFound?.farmer_type)
             await Promise.all([
                 languageDataList(dbname),
                 getState(dbname, lan_id),
@@ -254,7 +256,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             }
             const userDataUpdate = await UserProfileUpdate(dbName, languageID, loginUserId, loginUserToken, formData);
             if (userDataUpdate.status === 200) {
-                Toast.show({ text: 'User information update successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('info_updated_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     // RemoveFarmerData();
                     navigation.dispatch(
@@ -347,7 +349,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                                 </View>
                                 <InputTextForm label={t('age')} value={farmerData.age ?? farmerData.age} keyboardType="numeric"
                                     onChangeText={age => { setfarmerData({ ...farmerData, age: age }) }} />
-                                <DropdownForm label="Language" color="black" data={languageData} onChange={item => { handleLanguage(item) }} val={farmerData.lanName} />
+                                <DropdownForm label={t('add_class_language')} color="black" data={languageData} onChange={item => { handleLanguage(item) }} val={farmerData.lanName} />
                                 <DropdownForm label={regionaldatas.state == "" ? t('pre_state_division_zone') : t(`${regionaldatas.state}`)} data={stateAll} onChange={data => { handleStateDistrictBlock("state", data) }} val={farmerData.stateName} />
                                 <DropdownForm label={regionaldatas.district == "" ? t('pre_district_county') : t(`${regionaldatas.district}`)} data={districtAll} onChange={data => { handleStateDistrictBlock("district", data) }} val={farmerData.districtName} />
                                 <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} data={blockAll} onChange={item => {

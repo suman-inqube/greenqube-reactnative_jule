@@ -1,4 +1,4 @@
-import { PermissionsAndroid, Keyboard, Image, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Button, StatusBar } from 'react-native'
+import { Keyboard, Image, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Button, StatusBar } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
@@ -94,8 +94,8 @@ const Login = ({ route }) => {
                         });
                     }
                     await Promise.all([
-                        setItem("userNameData", loginUserdata.userName),
-                        setItem("userType", loginUserdata.userType)
+                        setItem("userNameData", loginUserdata?.userName),
+                        setItem("userType", loginUserdata?.userType)
                     ]);
                     if (loginUserdata.agri_files.length > 0) {
                         const profileImg = loginUserdata.agri_files.find((item) => item.term_type === '1');

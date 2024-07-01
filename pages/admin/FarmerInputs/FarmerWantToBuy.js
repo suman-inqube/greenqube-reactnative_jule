@@ -85,7 +85,7 @@ const FarmerWantToBuy = ({ navigation }) => {
                 ...nameVarityStartEnd,
                 name: response?.data?.data?.rows[0].crop_name.name,
                 varity: response?.data?.data?.rows[0].crop_variety.name,
-                cycleStarts: response?.data?.data?.rows[0].crop_cycl_start_date,
+                cycleStarts: response?.data?.data?.rows[0].sowing_date,//sowing_date
                 cycleEnd: response?.data?.data?.rows[0].harvesting_date,
                 production_process: response?.data?.data?.rows[0].farmer_production_system.name,
             });
@@ -242,11 +242,11 @@ const FarmerWantToBuy = ({ navigation }) => {
             let category = "";
             let sub_category = "";
             if (inputSingleData?.productCategories[0].productCategory.iotype != null) {
-                const { entity_type, entity_name } = inputSingleData?.productCategories[0].productCategory.iotype;
+                const { entity_type, entity_name } = inputSingleData?.productCategories[0]?.productCategory.iotype;
                 category = entity_type.name;
                 sub_category = entity_name.name;
             } else {
-                const { entity_type, entity_name } = inputSingleData?.productCategories[0].productCategory.ioname;
+                const { entity_type, entity_name } = inputSingleData?.productCategories[0]?.productCategory.ioname;
                 category = entity_type.name;
                 sub_category = entity_name.name;
             }

@@ -368,7 +368,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       return false;
     }
     if (!saveData.latitude) {
-      Toast.show({ time: 2, text: 'Please allow to get location', ...AlertMesg[0], });
+      Toast.show({ time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0], });
       return false;
     }
     return true;

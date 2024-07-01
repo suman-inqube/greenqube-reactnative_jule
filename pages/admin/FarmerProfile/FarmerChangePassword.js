@@ -20,10 +20,10 @@ const FarmerChangePassword = ({ navigation }) => {
     const validation = () => {
         Keyboard.dismiss();
         if (Password.opassword == "") {
-            Toast.show({ text: 'Please enter old password first', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_enter_old_password')}`, ...AlertMesg[0] });
             return false;
         } else if (Password.cpassword == "") {
-            Toast.show({ text: 'Please enter new password first', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_enter_new_password')}`, ...AlertMesg[0] });
             return false;
         }
         return true;
@@ -60,9 +60,9 @@ const FarmerChangePassword = ({ navigation }) => {
                 <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={styles.container} >
                     <View style={styles.forgotContainer} >
-                        <Text style={styles.titleForgot}>Change Password</Text>
+                        <Text style={styles.titleForgot}>{t('change_password')}</Text>
                         <View>
-                            <Text style={styles.formMargin}>Please Enter Old Password</Text>
+                            <Text style={styles.formMargin}>{t('please_enter_old_password')}</Text>
                             <View>
                                 <View style={styles.passwordContainer}>
                                     <TextInput secureTextEntry={oPasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(pword) => setPassword({ ...Password, opassword: pword })} value={Password.opassword} />
@@ -81,7 +81,7 @@ const FarmerChangePassword = ({ navigation }) => {
                                 </View>
                             </View>
 
-                            <Text style={styles.formMargin}>Please Enter New Password</Text>
+                            <Text style={styles.formMargin}>{t('please_enter_new_password')}</Text>
                             <View>
                                 <View style={styles.passwordContainer}>
                                     <TextInput secureTextEntry={nPasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(cpassword => setPassword({ ...Password, cpassword: cpassword }))} value={Password.cpassword} />
@@ -102,7 +102,7 @@ const FarmerChangePassword = ({ navigation }) => {
                         </View>
                     </View>
                     <View style={styles.buttonForm}>
-                        <ButtonForm label='Save' onPress={() => handleSave()} />
+                        <ButtonForm label={t('save')} onPress={() => handleSave()} />
                     </View>
                 </View>
             </Root>

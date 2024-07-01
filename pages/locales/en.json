@@ -115,11 +115,11 @@
     "please_select_terrain_type_first": "Please Select Terrain Type First",
     "please_select_land_type_first": "Please Select Plot/Site Type First",
     "please_select_soil_type_first": "Please Select Soil Type First",
-    "please_select_cultiveting_season_first": "Please Select Production Season First",
+    "please_select_cultiveting_season_first": "Please Select Production stage First",
     "please_select_crop_type_first": "Please Select Livelihood Type First",
     "please_select_crop_name_first": "Please Select Produce Name/Type First",
     "please_select_crop_veriety_first": "Please Select Produce Veriety First",
-    "please_select_sowing_date_first": "Please Select Crop Cycle Start Date First",
+    "please_select_sowing_date_first": "Please Select Cycle Start Date First",
     "please_select_language_first": "Please Select Language First",
     "please_select_zila_first": "Please Select District/County First",
     "please_select_upazila_first": "Please Select Block/Sub County/Upzila First",
@@ -1028,5 +1028,6 @@
     "Rejected": "Rejected",
     "SanctionedDate": "Sanctioned Date",
     "LoanOrderID": "Loan Order ID",
-    "LoanSanctioned": "Loan Sanctioned"
+    "LoanSanctioned": "Loan Sanctioned",
+    "AddLocation": "Add Location"
 }

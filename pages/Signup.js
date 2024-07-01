@@ -218,7 +218,7 @@ const Signup = () => {
       // MessageDialog({ title: 'Password', message: `This Password Not Matched` })
       Toast.show({
         time: 3,
-        text: `This Password Not Matched`,
+        text: t('please_enter_valid_password'),
         ...AlertMesg[0],
       });
     }
@@ -227,11 +227,7 @@ const Signup = () => {
     if (storeSignup.country && storeSignup.company) {
       checkPhoneDigit();
     } else {
-      Toast.show({
-        time: 3,
-        text: `Please enter phone no`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: t('please_enter_valid_mobile_no'), ...AlertMesg[0], });
       // MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
       setstoreSignup({ ...storeSignup, phone: '' });
       phoneInputRef.current.focus();

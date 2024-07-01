@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown'
 
-const SearchSubBy = ({ color, label,onChange,data,val }) => {
+const SearchSubBy = ({ color, label, onChange, data, val }) => {
     const [isFocus, setIsFocus] = useState(false);
     const [value, setValue] = useState(null);
     return (
@@ -14,7 +14,7 @@ const SearchSubBy = ({ color, label,onChange,data,val }) => {
                         style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
                         placeholderStyle={[styles.placeholderStyle, { color: 'black' }]}
                         selectedTextStyle={[styles.selectedTextStyle, { color: 'black' }]}
-                        inputSearchStyle={[styles.inputSearchStyle, { color:'black' }]}
+                        inputSearchStyle={[styles.inputSearchStyle, { color: 'black' }]}
                         iconStyle={styles.iconStyle}
                         itemTextStyle={styles.itemTextStyle}
                         data={data}
@@ -23,7 +23,7 @@ const SearchSubBy = ({ color, label,onChange,data,val }) => {
                         maxHeight={300}
                         labelField="label"
                         valueField="value"
-                        placeholder={!isFocus ? label.substring(0, 16)+'...' : '...'}
+                        placeholder={!isFocus ? label.substring(0, 16) + '...' : '...'}
                         searchPlaceholder="Search..."
                         onChange={onChange}
                         renderRightIcon={() => (
@@ -36,15 +36,15 @@ const SearchSubBy = ({ color, label,onChange,data,val }) => {
     );
 };
 
-export default SearchSubBy;
+export default memo(SearchSubBy);
 
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         marginBottom: 15,
         backgroundColor: '#FFF',
-        borderRadius:8,
-        elevation:10
+        borderRadius: 8,
+        elevation: 10
     },
     dropdown: {
         height: 40,

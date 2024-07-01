@@ -1,34 +1,14 @@
-import {
-  BackHandler,
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  Dimensions,
-  TouchableOpacity,
-  PermissionsAndroid,
-  SafeAreaView,
-} from 'react-native';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { StyleSheet, Text, View, FlatList, Dimensions, TouchableOpacity, PermissionsAndroid, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useCallback, useContext, lazy } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
-import {
-  inputEnquiryViewAPI,
-  inputPastEnquiryListAPI,
-} from '../../../config/apiHere';
-import PastEnquiriesModel from './PastEnquiriesModel';
-import Filter from '../../Common/Filter';
-import {
-  useRoute,
-  useFocusEffect,
-  useNavigation,
-  useIsFocused,
-} from '@react-navigation/native';
+import { inputEnquiryViewAPI, inputPastEnquiryListAPI } from '../../../config/apiHere';
+const PastEnquiriesModel = lazy(() => import('./PastEnquiriesModel'));
+import { useRoute, useIsFocused, } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const PastEnquiries = ({ navigation }) => {
   //GQR-67
-  const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-    setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle, farmerData, effective_dates, handleFilter
-  } = useContext(userCreateContext);
+  const { loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+    setItem, logoImage, topBanner, Root, Toast, farmerData, effective_dates, Filter, handleFilter } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
@@ -58,7 +38,7 @@ const PastEnquiries = ({ navigation }) => {
     qty: "",
     total: "",
     grandTotal: "",
-    disTotal: "",
+    disTotal: ""
   });
   const filterOptionShow = () => {
     setSearchResultsList(false);
@@ -80,32 +60,28 @@ const PastEnquiries = ({ navigation }) => {
     setFilterOption(false);
   };
   const navigateToPages = useCallback(async (fid, dbname, lan_id, token, user_id) => {
-    const input_past_enquiry_Data = await getItem('input_past_enquiry_Data');
+    const [input_past_enquiry_Data, response] = await Promise.all([
+      await getItem('input_past_enquiry_Data'),
+      inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
+    ])
     const EnquiryFound = input_past_enquiry_Data.find(user => user.fid === fid);
     setPastEnquirySingle(EnquiryFound);
-    const response = await inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid);
     setIsLoading(false);
-    if (response) {
-      setPastEnquiryView(response.data.data);
+    if (response?.status == 200) {
+      setPastEnquiries(true);
+      setPastEnquiryView(response?.data?.data);
       var qty = 0;
       var grandTotal = 0;
       var disTotal = 0;
       var total = 0;
-      response.data.data.map((data, index) => {
+      response?.data?.data.map((data, index) => {
         qty = qty + parseFloat(data.sqty);
         grandTotal = grandTotal + parseFloat(data.sgrand_total);
         disTotal = disTotal + parseFloat(data.sdiscount);
-        total = total + parseFloat(data.total_samount);
+        total = total + parseFloat(data.total_samount)
       });
-      setresult({
-        ...result,
-        qty: qty,
-        total: total,
-        grandTotal: grandTotal,
-        disTotal: disTotal,
-      });
+      setresult({ ...result, qty: qty, total: total, grandTotal: grandTotal, disTotal: disTotal });
     }
-    setPastEnquiries(true);
   }, []);
   const onPageLoad = async () => {
     setIsLoading(true);
@@ -114,9 +90,9 @@ const PastEnquiries = ({ navigation }) => {
     ]);
     if (response?.status === 200) {
       setIsLoading(false);
-      setInputPastEnquiryAll(response.data.data.rows);
-      setInputPastEnquiryRaw(response.data.data.rows);
-      setItem('input_past_enquiry_Data', response.data.data.rows);
+      setInputPastEnquiryAll(response?.data?.data?.rows);
+      setInputPastEnquiryRaw(response?.data?.data?.rows);
+      setItem('input_past_enquiry_Data', response?.data?.data?.rows);
       if (route.params != undefined) {
         navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id);
       }
@@ -143,19 +119,6 @@ const PastEnquiries = ({ navigation }) => {
       console.warn(err);
     }
   };
-  // useEffect(() => {
-  //     onPageLoad();
-  //     requestCameraPermission();
-  // }, []);
-  // useFocusEffect(
-  //     useCallback(() => {
-  //         onPageLoad();
-  //         requestCameraPermission();
-  //         const onBackPress = () => { navigation.navigate('InputList'); return true; };
-  //         BackHandler.addEventListener('hardwareBackPress', onBackPress);
-  //         return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-  //     }, [])
-  // );
   const handleFilterList = async item => {
     setFilterOption(false);
     handleFilter(item, filterName, farmerData, inputPastEnquiryRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setInputPastEnquiryAll, setSearchResults);
@@ -169,13 +132,13 @@ const PastEnquiries = ({ navigation }) => {
       let tempData = inputPastEnquiryAll.filter(item => { return (item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1) });
       setInputPastEnquiryAll(tempData);
       if (tempData.length === 0) {
-        Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+        Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
       }
     } else {
       let tempData = inputPastEnquiryAll.filter(item => { return (item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1) });
       setInputPastEnquiryAll(tempData);
       if (tempData.length === 0) {
-        Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+        Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
       }
     }
   };
@@ -183,7 +146,7 @@ const PastEnquiries = ({ navigation }) => {
     if (problemFromDate != '' && problemToDate != '') {
       let tempData = inputPastEnquiryRaw.filter(item => { return (item.created_at.slice(0, 10) >= problemFromDate && item.created_at.slice(0, 10) <= problemToDate) });
       if (tempData.length === 0) {
-        Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+        Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
       }
       setInputPastEnquiryAll(tempData);
     }
@@ -206,29 +169,16 @@ const PastEnquiries = ({ navigation }) => {
       setFilterOption(false);
       onPageLoad();
       requestCameraPermission();
-      const onBackPress = () => {
-        navigation.navigate('InputList');
-        return true;
-      };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () =>
-        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      onBackPress(() => { navigation.navigate('InputList'); return true; })
     }
   }, [isFocused]);
-  const HandlerGoBack = () => {
-    navigation.navigate('InputList');
-  };
+  const HandlerGoBack = () => navigation.navigate('InputList')
   return (
     <>
       <Root>
         <View style={{ flex: 1 }}>
           <CustomHeader path="InputList" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-          {openFromDate && <DatePickerComp
-            openDate={openFromDate}
-            newDate={newFromDate}
-            setOpenDate={setOpenFromDate}
-            handleDatePicker={handleDatePicker}
-          />}
+          {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
           {openToDate && <DatePickerComp
             openDate={openToDate}
             newDate={newToDate}
@@ -276,19 +226,7 @@ const PastEnquiries = ({ navigation }) => {
               ''
             )}
           </SafeAreaView>
-          <PastEnquiriesModel
-            setModalVisible={setPastEnquiries}
-            modalVisible={pastEnquiries}
-            pastEnquirySingle={pastEnquirySingle}
-            pastEnquiryView={pastEnquiryView}
-            qty={result}
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}
-          />
+          <PastEnquiriesModel setModalVisible={setPastEnquiries} modalVisible={pastEnquiries} pastEnquirySingle={pastEnquirySingle} pastEnquiryView={pastEnquiryView} qty={result} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} />
           {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
           <FlatList
             data={inputPastEnquiryAll}

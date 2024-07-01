@@ -228,7 +228,7 @@ const WantToBuy = ({ navigation }) => {
         }
         if (!saveData.unit_id) {
             Toast.show({
-                time: 2, text: 'Please enter unit', ...AlertMesg[0]
+                time: 2, text: t('please_select_unit_first'), ...AlertMesg[0]
             })
             return false;
         }

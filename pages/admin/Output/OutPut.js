@@ -18,9 +18,8 @@ const OutPut = () => {
             setActiveBtn(2)
         }
     }
-    function handleBackPress() { navigation.navigate("Dashboard"); return true }
     useEffect(() => {
-        onBackPress(handleBackPress);
+        onBackPress(() => { navigation.navigate("Dashboard"); return true });
     }, [])
     return (
         <Root>

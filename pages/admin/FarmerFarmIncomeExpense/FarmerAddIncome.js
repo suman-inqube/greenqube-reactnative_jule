@@ -165,8 +165,8 @@ const FarmerAddIncome = ({ navigation }) => {
                                 ?
                                 <View style={styles.plotContainer}>
                                     <View style={styles.plotItem}>
-                                        <Text style={styles.plotItemText}>Produce Name</Text>
-                                        <Text style={styles.plotItemText}>Produce Vareity</Text>
+                                        <Text style={styles.plotItemText}>{t('produce_name')}</Text>
+                                        <Text style={styles.plotItemText}>{t('prodece_vareity')}</Text>
                                     </View>
                                     <View style={styles.plotItem} >
                                         <Text style={styles.plotItemText}>{nameVarityStartEnd.name}</Text>
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
         borderRadius: 10,
         marginVertical: 10,
-        fontSize: 25,
+        fontSize: 18,
         color: 'green'
     },
     AddExpenseItemContainer: {

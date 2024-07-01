@@ -445,140 +445,77 @@ const ProduceInfo = () => {
       longitude.toString().length == 10 &&
       latitude.toString().length == 10
     ) {
-      setstoreProduceInfo({
-        ...storeProduceInfo,
-        lat: latitude,
-        long: longitude,
-      });
+      setstoreProduceInfo({ ...storeProduceInfo, lat: latitude, long: longitude });
     } else {
       Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
     }
   };
   const validationData = () => {
     if (!storeProduceInfo.plotSiteName) {
-      Toast.show({
-        time: 3,
-        text: `${t('pl_en_plot_name_first')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('pl_en_plot_name_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.terrainType.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_terrain_type_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.terrainType?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_terrain_type_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.landType.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_land_type_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.landType?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_land_type_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.soilType.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_soil_type_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.soilType?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_soil_type_first')}`, ...AlertMesg[0], });
       return false;
     }
     if (!storeProduceInfo.plotSize) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_enter_unit')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.landUnit) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_unit_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.landUnit) {
+      Toast.show({ time: 3, text: `${t('please_select_unit_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.prodctionSeasion.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_cultiveting_season_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.prodctionSeasion?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_cultiveting_season_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.livelihoodType.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_crop_type_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.livelihoodType?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_crop_type_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.produceName.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_crop_name_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo.produceName?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_crop_name_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.produceVariety.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_crop_veriety_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.produceVariety?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_crop_veriety_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.productionProcess.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_production_system')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.productionProcess?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_production_system')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storeProduceInfo.produceProductionUnit.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_give_yeild_size')}`,
-        ...AlertMesg[0],
-      });
+    if (!storeProduceInfo?.produceProductionUnit?.value) {
+      Toast.show({ time: 3, text: `${t('please_give_yeild_size')}`, ...AlertMesg[0], });
       return false;
     }
     if (!storeProduceInfo.lat) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_submit_location_first')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('please_submit_location_first')}`, ...AlertMesg[0], });
       return false;
     }
     if (!storeProduceInfo.cycleEnds) {
-      Toast.show({
-        time: 3, text: `${t('select_enddate_first')}`, ...AlertMesg[0]
-      })
+      Toast.show({ time: 3, text: `${t('select_enddate_first')}`, ...AlertMesg[0] })
       return false;
     }
     // if (storeProduceInfo.expectedProduction == "") {
     //   Toast.show({
     //     time: 3,
     //     text: `${t('select_enddate_first')}`,
-    //     ...AlertMesg[0],
-    //   });
+    //     ...AlertMesg[0],    //   });
     //   return false;
     // }
     if (storeProduceInfo.cycleStarts == "") {
-      Toast.show({
-        time: 3,
-        text: `${t('select_enddate_first')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('select_enddate_first')}`, ...AlertMesg[0], });
       return false;
     }
     return true;
@@ -680,11 +617,7 @@ const ProduceInfo = () => {
         }
       }
     } else {
-      Toast.show({
-        time: 3,
-        text: 'Please select Cycle Starts date then cycle Ends date',
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: 'Please select Cycle Starts date then cycle Ends date', ...AlertMesg[0], });
     }
   };
   const produceRemoveDetails = index => {

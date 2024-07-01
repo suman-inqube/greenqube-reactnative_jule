@@ -1,16 +1,15 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native'
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList } from 'react-native'
+import React, { useState, useEffect, useContext, useCallback, lazy } from 'react'
 import ModalCompProduct from './ModalCompProduct';
 import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
 import { inputCategoryAPI, inputListAPI, inputSubCategoryAPI } from '../../../config/apiHere';
-import SearchBy from './SearchBy';
-import SearchSubBy from './SearchSubBy';
+const SearchBy = lazy(() => import('./SearchBy'));
+const SearchSubBy = lazy(() => import('./SearchSubBy'));
 import { useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const InputList = ({ navigation }) => {
     //GQR-67
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle } = useContext(userCreateContext);
+    const { loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem, setItem, logoImage, topBanner, FormsTitle } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     //GQR-67
 
@@ -25,14 +24,14 @@ const InputList = ({ navigation }) => {
     const [category, setCategory] = useState('');
     const [subCategory, setSubCategory] = useState('');
     const [currency, setCurrencyt] = useState("");
-    const navigateToPages = async (index) => {
+    const navigateToPages = useCallback(async (index) => {
         await setItem("input_single_data", inputListAll[index]);
         // setIsLoading(true)
         setInputSingle(inputListAll[index]);
         setModalVisible(true);
         setIsLoading(false)
-    };
-    const handleCategory = async (search) => {
+    }, [inputListAll])
+    const handleCategory = useCallback(async (search) => {
         if (search.value === '0') {
             setInputListAll(inputListAllRaw);
             setInputSubCategory([])
@@ -42,20 +41,20 @@ const InputList = ({ navigation }) => {
                 inputSubCategoryAPI(dbname, lan_id, token, user_id, search.value)
             ])
             if (inputFound?.status == 200) {
-                setInputListAll(inputFound.data.data.rows);
+                setInputListAll(inputFound?.data?.data?.rows);
             }
             if (inputSubCategoryList) {
                 const dataArray = inputSubCategoryList?.data?.data?.rows.map(data => ({ value: data.entity_name.fid, label: data.entity_name.name }));
                 setInputSubCategory(dataArray)
             }
         }
-    }
-    const handleSubCategory = async (search) => {
+    }, []);
+    const handleSubCategory = useCallback(async (search) => {
         const inputList = await inputListAPI(dbname, lan_id, token, user_id, search.value);
         if (inputList?.status == 200) {
-            setInputListAll(inputList.data.data.rows)
+            setInputListAll(inputList?.data?.data?.rows)
         }
-    }
+    }, []);
     const onPageLoad = async () => {
         const [currency_res] = await Promise.all([
             getItem('currency'),
@@ -66,9 +65,9 @@ const InputList = ({ navigation }) => {
             inputCategoryAPI(dbname, lan_id, token, user_id),
         ])
         if (inputList?.status == 200) {
-            setInputListAll(inputList.data.data.rows);
-            setInputListAllRaw(inputList.data.data.rows);
-            setItem("input_data", inputList.data.data.rows);
+            setInputListAll(inputList?.data?.data?.rows);
+            setInputListAllRaw(inputList?.data?.data?.rows);
+            setItem("input_data", inputList?.data?.data?.rows);
             setIsLoading(false);
         }
         if (inputCategoryList) {
@@ -90,12 +89,8 @@ const InputList = ({ navigation }) => {
     useEffect(() => {
         setModalVisible(false);
         onPageLoad();
-        onBackPress(handleBackPress);
+        onBackPress(() => { navigation.navigate("Dashboard"); return true; });
     }, [isFocused]);
-    const handleBackPress = () => {
-        navigation.navigate("Dashboard");
-        return true;
-    }
     const HandlerGoBack = () => {
         setCategory('');
         setSubCategory('');

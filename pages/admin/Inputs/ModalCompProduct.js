@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect, memo } from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View, Image, ScrollView } from 'react-native';
 import { getItem } from '../../../config/getDataFromStorage';
-import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 const ModalCompProduct = (props) => {
@@ -43,9 +42,9 @@ const ModalCompProduct = (props) => {
                             <View style={styles.productContainer}>
                                 <View style={[styles.elevation, { width: '30%', height: 100 }]}>
                                     {
-                                        props.inputSigle.agri_files && props.inputSigle.agri_files.length > 0 ?
+                                        props?.inputSigle?.agri_files && props?.inputSigle?.agri_files.length > 0 ?
                                             <Image
-                                                source={{ uri: props.inputSigle.agri_files[0].file_path }}
+                                                source={{ uri: props?.inputSigle?.agri_files[0].file_path }}
                                                 style={{ width: 100, height: 100 }}
                                             />
                                             :
@@ -57,12 +56,12 @@ const ModalCompProduct = (props) => {
                                 <View style={{ width: '60%', marginLeft: 10, height: 180 }}>
                                     <ScrollView showsVerticalScrollIndicator={false}  >
                                         <View flex={1} onStartShouldSetResponder={() => true}>
-                                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'green', fontFamily: 'Poppins-Regular' }}>{props.inputSigle.product_name}</Text>
+                                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'green', fontFamily: 'Poppins-Regular' }}>{props?.inputSigle?.product_name}</Text>
                                             <Text style={styles.productTitle}>
-                                                {props.inputSigle.productCategories ? props.inputSigle.productCategories[0].productCategory.name : ''}
+                                                {props?.inputSigle?.productCategories ? props?.inputSigle?.productCategories[0].productCategory.name : ''}
                                             </Text>
-                                            <Text style={styles.productTitle}>{props.inputSigle.product_code}</Text>
-                                            <Text style={styles.productTitle}>{props.inputSigle.description}</Text>
+                                            <Text style={styles.productTitle}>{props?.inputSigle?.product_code}</Text>
+                                            <Text style={styles.productTitle}>{props?.inputSigle?.description}</Text>
                                             <Text style={{ fontSize: 15, fontWeight: 'bold', color: 'red', fontFamily: "Poppins-Regular" }}>{t('price') + ` (${currency})`}</Text>
                                             {
                                                 props?.inputSigle?.agri_product_prices
@@ -84,9 +83,9 @@ const ModalCompProduct = (props) => {
                             </View>
                             <View style={{ flexDirection: 'row', paddingBottom: 20 }}>
                                 {
-                                    props.inputSigle.agri_files
+                                    props?.inputSigle?.agri_files
                                         ?
-                                        props.inputSigle.agri_files.slice(1).map((item, index) => (
+                                        props?.inputSigle?.agri_files.slice(1).map((item, index) => (
                                             <View style={{
                                                 backgroundColor: '#FFF',
                                                 borderRadius: 5, shadowColor: "#000",
@@ -119,7 +118,7 @@ const ModalCompProduct = (props) => {
         </View>
     )
 }
-export default ModalCompProduct
+export default memo(ModalCompProduct)
 const styles = StyleSheet.create({
     container: {
         // position: 'absolute',

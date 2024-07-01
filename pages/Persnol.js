@@ -285,67 +285,34 @@ const Persnol = () => {
   const validateForm = () => {
     Keyboard.dismiss();
     if (!storePersnolInfo.name) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_enter_first_name')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('please_enter_first_name')}`, ...AlertMesg[0], });
       return false;
     }
     if (!storePersnolInfo.age) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_enter_birth_date')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('please_enter_birth_date')}`, ...AlertMesg[0], });
       return false;
     }
     if (storePersnolInfo.age <= 17) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_eligible_birth_date')}`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storePersnolInfo.language.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_language_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storePersnolInfo.language?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_language_first')}`, ...AlertMesg[0], }); return false;
+    }
+    if (!storePersnolInfo.stateInfo?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_state_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storePersnolInfo.stateInfo.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_state_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storePersnolInfo.district?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_zila_first')}`, ...AlertMesg[0], });
       return false;
     }
-    if (!storePersnolInfo.district.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_zila_first')}`,
-        ...AlertMesg[0],
-      });
-      return false;
-    }
-    if (!storePersnolInfo.block.value) {
-      Toast.show({
-        time: 3,
-        text: `${t('please_select_upazila_first')}`,
-        ...AlertMesg[0],
-      });
+    if (!storePersnolInfo.block?.value) {
+      Toast.show({ time: 3, text: `${t('please_select_upazila_first')}`, ...AlertMesg[0], });
       return false;
     }
     if (storePersnolInfo.zip.length != 6 && storePersnolInfo.zip != '') {
-      Toast.show({
-        time: 3,
-        text: `Please enter valid pin code`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: `Please enter valid pin code`, ...AlertMesg[0], });
       return false;
     }
     return true;
