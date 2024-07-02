@@ -500,7 +500,7 @@ const CrateProblemUser = ({ navigation }) => {
         }
         if (!saveData.affected_date) {
             Toast.show({
-                time: 2, text: 'Please enter perform date', ...AlertMesg[0]
+                time: 2, text: t('Please_enter_perform_date'), ...AlertMesg[0]
             })
             return false;
         }

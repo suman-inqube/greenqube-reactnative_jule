@@ -1022,5 +1022,19 @@
     "payment_mode": "ଦେୟ ମୋଡ୍",
     "cheque": "ଯାଞ୍ଚ କରନ୍ତୁ |",
     "product_sub_category": "ଉତ୍ପାଦ ସବ୍ ବର୍ଗ |",
-    "closed": "closed"
+    "closed": "ବନ୍ଦ",
+    "Approved": "ଅନୁମୋଦିତ",
+    "Rejected": "ପ୍ରତ୍ୟାଖ୍ୟାନ",
+    "SanctionedDate": "ମ ction ୍ଜୁରୀ ତାରିଖ",
+    "LoanOrderID": "Order ଣ ଅର୍ଡର ID",
+    "LoanSanctioned": "An ଣ ମଞ୍ଜୁର",
+    "AddLocation": "ସ୍ଥାନ ଯୋଡନ୍ତୁ",
+    "Please_enter_activity_type": "ଦୟାକରି କାର୍ଯ୍ୟକଳାପ ପ୍ରକାର ପ୍ରବେଶ କରନ୍ତୁ",
+    "Data_submitted_successfully": "ତଥ୍ୟ ସଫଳତାର ସହିତ ଦାଖଲ ହୋଇଛି",
+    "Please_enter_activity": " ଦୟାକରି କାର୍ଯ୍ୟକଳାପ ପ୍ରବେଶ କରନ୍ତୁ",
+    "Password_update_successfully": "ପାସୱାର୍ଡ ଅପଡେଟ୍ ସଫଳତାର ସହିତ",
+    "Old_Password_Is_Incorrect": "ପୁରୁଣା ପାସୱାର୍ଡ ଭୁଲ୍ ଅଟେ",
+    "Please_try_again_some_time_later": "ଦୟାକରି କିଛି ସମୟ ପରେ ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ।",
+    "Please_enter_perform_date": "ଦୟାକରି ପ୍ରଦର୍ଶନ ତାରିଖ ପ୍ରବେଶ କରନ୍ତୁ",
+    "Please_try_again_to_reach_the_accurancy": "ଦୟାକରି ପୁନର୍ବାର ପହଞ୍ଚିବାକୁ ଚେଷ୍ଟା କରନ୍ତୁ"
 }

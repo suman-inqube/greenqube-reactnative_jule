@@ -33,7 +33,7 @@ const RegistationSignUpViwer = () => {
             "contactNumber": storePersnolInfo.phone.toString(),
             "lan_id": dbLanTokUsr.languageId.toString(),
             "gender": storePersnolInfo.gender.toString(),
-            "farmer_type": storePersnolInfo.userType,
+            "farmer_type": storePersnolInfo?.userType,
             "date_of_birth": dob,
             "finance_agriculture_campagin": "No Loan",
             "IMEINumber": "123456",

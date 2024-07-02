@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback, useContext } from 'rea
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { fetchDistrictAPI, fetchStateAPI, fetchBlockAPI } from '../userlist/UsersAPI';
 import { useNavigation, useRoute, useIsFocused, useFocusEffect } from '@react-navigation/native';
-import { checkPhoneDigitAPI } from '../../../config/apiHere';
+import { checkPhoneDigitAPI, phoneNoCheckAPI } from '../../../config/apiHere';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const PersonalInformation = () => {
@@ -105,6 +105,7 @@ const PersonalInformation = () => {
     }
     useEffect(() => {
         if (isFocused) {
+
             if (typeof route.params != "undefined") {
                 if (route.params.data === "remove") {
                     if (remove == "remove") {
@@ -248,9 +249,8 @@ const PersonalInformation = () => {
                                 "contactNumber": farmerData.phone.toString(),
                                 "userType": "2"
                             };
-                            let check_phone_res = await axios.post(config.phoneNoCheckAPI, inputBody, axiosConfig1);
+                            await phoneNoCheckAPI(farmerData.phone);
                         } catch (error) {
-                            CrashlyticsRecordError(error)
                             Toast.show({ text: `This ${farmerData.phone} Not Available`, ...AlertMesg[0] });
                             // phoneInputRef.current.focus();
                             setFarmerData({ ...farmerData, phone: "" })

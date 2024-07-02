@@ -96,7 +96,7 @@ const UserList = ({ navigation }) => {
             });
             setIsLoading(false);
             setuserList(response.data.data)
-            setItem("userListData", response.data.data)
+            await setItem("userListData", response.data.data)
         } else {
             setIsLoading(false);
             const userListData = await getItem('userListData');

@@ -321,7 +321,7 @@ const CreateProblem = ({ navigation }) => {
             return false;
         }
         if (!saveData.affected_date) {
-            Toast.show({ time: 2, text: 'Please enter perform date', ...AlertMesg[0] });
+            Toast.show({ time: 2, text: t('Please_enter_perform_date'), ...AlertMesg[0] });
             return false;
         }
         if (!saveData.latitude) {
@@ -389,7 +389,7 @@ const CreateProblem = ({ navigation }) => {
                 const database_res = await problemSaveAPI(dbname, lan_id, token, farmerID, formData);
                 if (database_res.status === 200) {
                     // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
-                    Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });;
+                    Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });;
                     // handleClear();
                     setTimeout(() => {
                         navigation.navigate('ProblemList');
@@ -405,7 +405,7 @@ const CreateProblem = ({ navigation }) => {
                 } else {
                     await setItem('offlineSupervisorProblemData', 'off' + timeStamp)
                 }
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });;
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });;
                 handleClear();
                 setTimeout(() => {
                     navigation.navigate('ProblemList');

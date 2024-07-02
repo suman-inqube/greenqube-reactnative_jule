@@ -274,7 +274,7 @@ const WantToBuy = ({ navigation }) => {
                 const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
                 if (database_res) {
                     Toast.show({
-                        time: 2, text: `${t('Data submitted successfully')}`, ...AlertMesg[0]
+                        time: 2, text: t('Data_submitted_successfully'), ...AlertMesg[0]
                     });
                     setShowingMenu(false);
                     setSearchFarmerName("");

@@ -1022,5 +1022,19 @@
     "payment_mode": "Mod Pembayaran",
     "cheque": "Semak",
     "product_sub_category": "Sub Kategori Produk",
-    "closed": "closed"
+    "closed": "tertutup",
+    "Approved": "Diluluskan",
+    "Rejected": "Ditolak",
+    "SanctionedDate": "Tarikh Dibenarkan",
+    "LoanOrderID": "ID Pesanan Pinjaman",
+    "LoanSanctioned": "Pinjaman Dikenakan Sekatan",
+    "AddLocation": "Tambah lokasi",
+    "Please_enter_activity_type": "Sila masukkan jenis aktiviti",
+    "Data_submitted_successfully": "Data berjaya diserahkan",
+    "Please_enter_activity": " Sila masukkan aktiviti",
+    "Password_update_successfully": "Berjaya kemas kini kata laluan",
+    "Old_Password_Is_Incorrect": "Kata Laluan Lama Tidak Betul",
+    "Please_try_again_some_time_later": "Sila cuba lagi nanti",
+    "Please_enter_perform_date": "Sila masukkan tarikh pelaksanaan",
+    "Please_try_again_to_reach_the_accurancy": "Sila cuba lagi untuk mencapai ketepatan"
 }

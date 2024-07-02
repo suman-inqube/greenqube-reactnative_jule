@@ -1022,5 +1022,19 @@
     "payment_mode": "ਭੁਗਤਾਨ ਮੋਡ",
     "cheque": "ਚੈਕ",
     "product_sub_category": "ਉਤਪਾਦ ਉਪ ਸ਼੍ਰੇਣੀ",
-    "closed": "closed"
+    "closed": "ਬੰਦ",
+    "Approved": "ਪ੍ਰਵਾਨਿਤ",
+    "Rejected": "ਅਸਵੀਕਾਰ ਕੀਤਾ ਗਿਆ",
+    "SanctionedDate": "ਮਨਜ਼ੂਰ ਮਿਤੀ",
+    "LoanOrderID": "ਲੋਨ ਆਰਡਰ ID",
+    "LoanSanctioned": "ਕਰਜ਼ਾ ਮਨਜ਼ੂਰ",
+    "AddLocation": "ਟਿਕਾਣਾ ਜੋੜੋ",
+    "Please_enter_activity_type": "ਕਿਰਪਾ ਕਰਕੇ ਗਤੀਵਿਧੀ ਦੀ ਕਿਸਮ ਦਾਖਲ ਕਰੋ",
+    "Data_submitted_successfully": "ਡਾਟਾ ਸਫਲਤਾਪੂਰਵਕ ਸਪੁਰਦ ਕੀਤਾ ਗਿਆ",
+    "Please_enter_activity": " ਕਿਰਪਾ ਕਰਕੇ ਗਤੀਵਿਧੀ ਦਾਖਲ ਕਰੋ",
+    "Password_update_successfully": "ਪਾਸਵਰਡ ਅੱਪਡੇਟ ਸਫਲਤਾਪੂਰਵਕ",
+    "Old_Password_Is_Incorrect": "ਪੁਰਾਣਾ ਪਾਸਵਰਡ ਗਲਤ ਹੈ",
+    "Please_try_again_some_time_later": "ਕਿਰਪਾ ਕਰਕੇ ਕੁਝ ਸਮੇਂ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+    "Please_enter_perform_date": "ਕਿਰਪਾ ਕਰਕੇ ਪ੍ਰਦਰਸ਼ਨ ਦੀ ਮਿਤੀ ਦਰਜ ਕਰੋ",
+    "Please_try_again_to_reach_the_accurancy": "ਕਿਰਪਾ ਕਰਕੇ ਸ਼ੁੱਧਤਾ ਤੱਕ ਪਹੁੰਚਣ ਲਈ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ"
 }

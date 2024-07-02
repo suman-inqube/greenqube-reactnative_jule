@@ -1022,5 +1022,19 @@
     "payment_mode": "পরিশোধের মাধ্যম",
     "cheque": "চেক",
     "product_sub_category": "পণ্য উপ বিভাগ",
-    "closed": "closed"
+    "closed": "বন্ধ",
+    "Approved": "অনুমোদিত",
+    "Rejected": "প্রত্যাখ্যাত",
+    "SanctionedDate": "অনুমোদিত তারিখ",
+    "LoanOrderID": "লোন অর্ডার আইডি",
+    "LoanSanctioned": "ঋণ অনুমোদিত",
+    "AddLocation": "অবস্থান যোগ করুন",
+    "Please_enter_activity_type": "অনুগ্রহ করে কার্যকলাপের ধরন লিখুন",
+    "Data_submitted_successfully": "ডেটা সফলভাবে জমা দেওয়া হয়েছে",
+    "Please_enter_activity": " অনুগ্রহ করে কার্যকলাপ লিখুন",
+    "Password_update_successfully": "সফলভাবে পাসওয়ার্ড আপডেট",
+    "Old_Password_Is_Incorrect": "পুরানো পাসওয়ার্ড ভুল",
+    "Please_try_again_some_time_later": "অনুগ্রহ করে কিছুক্ষণ পরে আবার চেষ্টা করুন",
+    "Please_enter_perform_date": "অনুগ্রহ করে সম্পাদনের তারিখ লিখুন",
+    "Please_try_again_to_reach_the_accurancy": "অনুগ্রহ করে সঠিকতা পৌঁছানোর জন্য আবার চেষ্টা করুন"
 }

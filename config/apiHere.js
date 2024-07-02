@@ -1561,6 +1561,10 @@ export const PackageOfPracticesList = async (dbName, lan_id) => {
             'information': `${dbName},${lan_id}`,
         },
     };
+    console.log({
+        'information': `${dbName},${lan_id}`,
+    })
+    console.log(`${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`)
     try {
         let response = await axios.get(`${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`, axiosHeaders);
         return response;
@@ -1687,6 +1691,20 @@ export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
     };
     try {
         let response = await axios.post(`${config.BASE_URL}soilTestLabRoute/requestSoilTest`, inputData, axiosHeaders);
+        return response;
+    } catch (error) {
+        // CrashlyticsRecordError(error.response);
+        return error.response;
+    }
+}
+
+export const phoneNoCheckAPI = async (phone) => {
+    const inputBody = {
+        "contactNumber": phone.toString(),
+        "userType": "2"
+    };
+    try {
+        let response = await axios.post(`${config.phoneNoCheckAPI}`, inputBody, axiosHeaders);
         return response;
     } catch (error) {
         // CrashlyticsRecordError(error.response);

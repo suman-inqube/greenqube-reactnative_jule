@@ -229,7 +229,7 @@ const SoilHealthManagementController = (sample) => {
             });
             const postResponse = await soilTestLabPostRequest(dbname, user_id, save_data);
             if (postResponse?.status == 200) {
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('MySoil');
                 }, 1500);

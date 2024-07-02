@@ -32,9 +32,9 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
     const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
     const [statusAll, setTtatusAll] = useState([
-        { value: 2, "label": 'Approved' },
-        { value: 1, "label": 'Pending' },
-        { value: 3, "label": 'Rejected' }]);
+        { value: 2, "label": t('Approved') },
+        { value: 1, "label": t('pending') },
+        { value: 3, "label": t('Rejected') }]);
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);

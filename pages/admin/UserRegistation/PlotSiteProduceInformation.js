@@ -410,7 +410,7 @@ const PlotSiteProduceInformation = () => {
         if (fusedLocation != null && longitude.toString().length == 10 && latitude.toString().length == 10) {
             setstoreProduceInfo({ ...storeProduceInfo, lat: fusedLocation.latitude, long: fusedLocation.longitude });
         } else {
-            Toast.show({ text: 'Please try again to reach the accurancy', ...AlertMesg[0] });
+            Toast.show({ text: t('Please_try_again_to_reach_the_accurancy'), ...AlertMesg[0] });
         }
         setIsLoading(false);
     }

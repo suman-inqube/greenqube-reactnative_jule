@@ -428,7 +428,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       if (netConnection) {
         const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, farmerID, formData,);
         if (database_res.status === 200) {
-          Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
             handleClear();
             navigation.navigate('FarmerListProblem');

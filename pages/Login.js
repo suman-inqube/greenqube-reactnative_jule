@@ -117,6 +117,7 @@ const Login = ({ route }) => {
                         reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
                     ]);
                     if (fpoDetailsList_res?.status === 200) {
+                        // i18next.changeLanguage(loginUserdata?.lan_id.toString());
                         const { company_website } = fpoDetailsList_res.data.data[0];
                         var url_regex = /^(http|https)/;
                         if (url_regex.test(String(company_website).toLowerCase()) == true) {
@@ -156,9 +157,9 @@ const Login = ({ route }) => {
                             settopBanner(foundtopBannerFind.file_path);
                         }
                         AllFarmerList();
-                        if (loginUserdata.userType === 3) {
+                        if (loginUserdata?.userType === 3) {
                             navigation.navigate('AdminNavigation');
-                        } else if (loginUserdata.userType === 2) {
+                        } else if (loginUserdata?.userType === 2) {
                             navigation.navigate('FarmerNavigation');
                         }
                         setIsLoading(false);

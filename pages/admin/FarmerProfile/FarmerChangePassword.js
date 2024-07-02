@@ -42,14 +42,14 @@ const FarmerChangePassword = ({ navigation }) => {
                     opassword: "",
                     cpassword: "",
                 })
-                Toast.show({ text: 'Password update successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Password_update_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('Login')
                 }, 1000);
             } else if (userDataUpdate.status === 400) {
-                Toast.show({ text: 'Old Password Is Incorrect', ...AlertMesg[0] });
+                Toast.show({ text: t('Old_Password_Is_Incorrect'), ...AlertMesg[0] });
             } else {
-                Toast.show({ text: 'Please try again some time later', ...AlertMesg[0] });
+                Toast.show({ text: t('Please_try_again_some_time_later'), ...AlertMesg[0] });
             }
         }
     };

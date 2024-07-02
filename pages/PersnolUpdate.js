@@ -31,8 +31,8 @@ const PersnolUpdate = () => {
         district: '',
         block: '',
         name: '',
-        gender: 'male',
-        userType: 'large Grower',
+        gender: '1',
+        userType: '1',
         age: '',
         address: '',
         zip: '',
@@ -239,13 +239,13 @@ const PersnolUpdate = () => {
                                 <Text style={{ fontSize: 16, color: '#000' }}>Gender</Text>
                                 <RadioForm
                                     label={t('farmer_reg_male')}
-                                    selected={storePersnolInfo.gender === 'male'}
-                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, gender: 'male' })}
+                                    selected={storePersnolInfo.gender === '1'}
+                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, gender: '1' })}
                                 />
                                 <RadioForm
                                     label={t('farmer_reg_female')}
-                                    selected={storePersnolInfo.gender === 'female'}
-                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, gender: 'female' })}
+                                    selected={storePersnolInfo.gender === '2'}
+                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, gender: '2' })}
                                 />
                             </View>
 
@@ -253,20 +253,20 @@ const PersnolUpdate = () => {
                                 <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>User Type</Text>
                                 <RadioForm
                                     label={t('grower')}
-                                    selected={storePersnolInfo.userType === 'large Grower'}
-                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, userType: 'large Grower' })}
+                                    selected={storePersnolInfo.userType === '1'}
+                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, userType: '1' })}
 
                                 />
                                 <RadioForm
                                     label={t('small_holder')}
-                                    selected={storePersnolInfo.userType === 'small holder'}
-                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, userType: 'small holder' })}
+                                    selected={storePersnolInfo.userType === '2'}
+                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, userType: '2' })}
 
                                 />
                                 <RadioForm
                                     label={t('farm_worker')}
-                                    selected={storePersnolInfo.userType === 'na'}
-                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, userType: 'na' })}
+                                    selected={storePersnolInfo.userType === '3'}
+                                    onSelect={() => setstorePersnolInfo({ ...storePersnolInfo, userType: '3' })}
 
                                 />
                             </View>

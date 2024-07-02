@@ -1022,5 +1022,19 @@
     "payment_mode": "Mode de paiement",
     "cheque": "Vérifier",
     "product_sub_category": "Sous-catégorie de produit",
-    "closed": "closed"
+    "closed": "fermé",
+    "Approved": "Approuvé",
+    "Rejected": "Rejeté",
+    "SanctionedDate": "Date d'approbation",
+    "LoanOrderID": "ID de la commande de prêt",
+    "LoanSanctioned": "Prêt approuvé",
+    "AddLocation": "Ajouter un emplacement",
+    "Please_enter_activity_type": "Veuillez saisir le type d'activité",
+    "Data_submitted_successfully": "Données envoyées avec succès",
+    "Please_enter_activity": "Veuillez saisir l'activité",
+    "Password_update_successfully": "Mise à jour du mot de passe réussie",
+    "Old_Password_Is_Incorrect": "L'ancien mot de passe est incorrect",
+    "Please_try_again_some_time_later": "Veuillez réessayer plus tard",
+    "Please_enter_perform_date": "Veuillez saisir la date d'exécution",
+    "Please_try_again_to_reach_the_accurancy": "Veuillez réessayer pour atteindre la précision"
 }

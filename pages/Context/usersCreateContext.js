@@ -8,6 +8,7 @@ import { AlertMesg } from '../Common/ToastAlert';
 import { Root, Toast, Popup, SPSheet } from 'react-native-popup-confirm-toast';
 import { onBackPress } from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
+import i18next from 'i18next';
 const ImagePlaceHolderCircle = lazy(() => import('../Common/ImagePlaceHolderCircle'));
 const InputTextForm = lazy(() => import('../Common/InputTextForm'));
 const RadioForm = lazy(() => import('../Common/RadioForm'));
@@ -45,6 +46,7 @@ const UserCreateContextProvider = (props) => {
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data(loginUser_data);
+        i18next.changeLanguage(loginUser_data?.lan_id.toString());
         if (netConnection) {
             farmer_response = await farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id);
             if (farmer_response?.status == 200) {

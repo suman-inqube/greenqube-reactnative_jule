@@ -197,7 +197,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             formData.append("plot_id", checkValue);
             const response = await Addloan(dbname, lan_id, token, user_id, formData)
             if (response?.status === 200) {
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     setActiveBtn(2);
                 }, 2000);

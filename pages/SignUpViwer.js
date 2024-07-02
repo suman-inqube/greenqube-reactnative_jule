@@ -35,7 +35,7 @@ const SignUpViwer = () => {
         setisstoreProduceInfo(!isstoreProduceInfo);
     };
     const InputDataHere = async (storeSignup_data, storePersnolInfo_data, storeFinancial_data, storeProduceInfo_data) => {
-        const gender = storePersnolInfo_data.gender === 'male' ? "1" : "2";
+        // const gender = storePersnolInfo_data.gender === 'male' ? "1" : "2";
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
         const yearsToSubtract = storePersnolInfo_data.age;
@@ -43,15 +43,15 @@ const SignUpViwer = () => {
         const month = currentDate.getMonth() + 1;
         const newYear = currentYear - yearsToSubtract;
         const dob = `${newYear}-${month}-${day}`;
-        const userType = storePersnolInfo_data.userType === 'large Grower' ? "1" : storePersnolInfo_data.userType === 'mall holder' ? "2" : "3"
+        // const userType = storePersnolInfo_data.userType === 'large Grower' ? "1" : storePersnolInfo_data.userType === 'mall holder' ? "2" : "3"
         const lan_id = storePersnolInfo_data.language.value.toString();
         const phone = storeSignup_data.phone.toString();
         const farmer_details = {
             "userName": storePersnolInfo_data.name,
             "contactNumber": phone,
             "lan_id": lan_id,
-            "gender": gender,
-            "farmer_type": userType,
+            "gender": storePersnolInfo_data?.gender,
+            "farmer_type": storePersnolInfo_data?.userType,
             "date_of_birth": dob,
             "finance_agriculture_campagin": "No Loan",
             "IMEINumber": "123456",

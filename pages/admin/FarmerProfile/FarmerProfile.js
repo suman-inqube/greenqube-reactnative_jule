@@ -150,8 +150,6 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             if (farmerFound?.agri_files[0] != undefined) {
                 setSelectedImage(farmerFound?.agri_files[0].file_path);
             }
-            console.log(farmerFound?.gender);
-            console.log(farmerFound?.farmer_type)
             await Promise.all([
                 languageDataList(dbname),
                 getState(dbname, lan_id),

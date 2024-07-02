@@ -1022,5 +1022,19 @@
     "payment_mode": "भुगतान का प्रकार",
     "cheque": "चेक",
     "product_sub_category": "उत्पाद उपश्रेणी",
-    "closed": "closed"
+    "closed": "बंद",
+    "Approved": "स्वीकृत",
+    "Rejected": "अस्वीकृत",
+    "SanctionedDate": "स्वीकृत तिथि",
+    "LoanOrderID": "ऋण आदेश आईडी",
+    "LoanSanctioned": "ऋण स्वीकृत",
+    "AddLocation": "स्थान जोड़ें",
+    "Please_enter_activity_type": "कृपया गतिविधि प्रकार दर्ज करें",
+    "Data_submitted_successfully": "डेटा सफलतापूर्वक सबमिट किया गया",
+    "Please_enter_activity": "कृपया गतिविधि दर्ज करें",
+    "Password_update_successfully": "पासवर्ड अपडेट सफलतापूर्वक किया गया",
+    "Old_Password_Is_Incorrect": "पुराना पासवर्ड गलत है",
+    "Please_try_again_some_time_later": "कृपया कुछ समय बाद पुनः प्रयास करें",
+    "Please_enter_perform_date": "कृपया निष्पादन तिथि दर्ज करें",
+    "Please_try_again_to_reach_the_accurancy": "कृपया सटीकता तक पहुँचने के लिए पुनः प्रयास करें"
 }

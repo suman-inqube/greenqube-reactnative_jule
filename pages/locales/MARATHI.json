@@ -1022,5 +1022,19 @@
     "payment_mode": "पेमेंट मोड",
     "cheque": "धनादेश",
     "product_sub_category": "उत्पादन उप श्रेणी",
-    "closed": "closed"
+    "closed": "बंद",
+    "Approved": "मंजूर",
+    "Rejected": "नाकारले",
+    "SanctionedDate": "मंजूर तारीख",
+    "LoanOrderID": "लोन ऑर्डर आयडी",
+    "LoanSanctioned": "कर्ज मंजूर",
+    "AddLocation": "स्थान जोडा",
+    "Please_enter_activity_type": "कृपया क्रियाकलाप प्रकार प्रविष्ट करा",
+    "Data_submitted_successfully": "डेटा यशस्वीरित्या सबमिट केला",
+    "Please_enter_activity": " कृपया क्रियाकलाप प्रविष्ट करा",
+    "Password_update_successfully": "पासवर्ड यशस्वीरित्या अपडेट करा",
+    "Old_Password_Is_Incorrect": "जुना पासवर्ड चुकीचा आहे",
+    "Please_try_again_some_time_later": "कृपया थोड्या वेळाने पुन्हा प्रयत्न करा",
+    "Please_enter_perform_date": "कृपया कामगिरीची तारीख प्रविष्ट करा",
+    "Please_try_again_to_reach_the_accurancy": "कृपया अचूकतेपर्यंत पोहोचण्यासाठी पुन्हा प्रयत्न करा"
 }
