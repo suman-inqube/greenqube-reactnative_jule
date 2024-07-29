@@ -1,21 +1,19 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { useTranslation } from 'react-i18next';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import React, { useState, useContext } from 'react'
 import PestisideCalculator from './PestisideCalculator';
 import FertilizerCalculator from './FertilizerCalculator';
 import CalculatorController from '../../ViewController/CalculatorController';
-import { Root } from 'react-native-popup-confirm-toast';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const Calculator = () => {
-    const { t } = useTranslation();
     const [activeBtn, setActiveBtn] = useState(2);
     const { HandlerGoBack } = CalculatorController();
+    //GQR-67
+    const { t, CustomHeader, FormsTitle, logoImage, topBanner, Root, ButtonForm, DropdownForm, InputTextForm } = useContext(userCreateContext);
+    //GQR-67
     return (
         <Root>
             <View style={{ flex: 1 }}>
-                <CustomHeader HandlerGoBack={HandlerGoBack} />
+                <CustomHeader HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('agri_calculator')} />
                 <View style={styles.container}>
                     <View style={styles.btnContainer} >

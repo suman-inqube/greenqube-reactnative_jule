@@ -102,7 +102,7 @@ const AdminNavigation = () => {
             <Drawer.Screen name="PostNew" component={PostNew} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="ViewPast" component={ViewPast} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
-            <Drawer.Screen name="Loan" component={LoanEnquiry} options={{ gestureEnabled: false, unmountOnBlur: true, }} />
+            <Drawer.Screen name="Loan" component={LoanEnquiry} options={{ gestureEnabled: false, }} />
             <Drawer.Screen name="LoanEnquiryDetail" component={LoanEnquiryDetail} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
             <Drawer.Screen name="InputList" component={InputList} options={{ gestureEnabled: false }} />
@@ -135,8 +135,8 @@ const AdminNavigation = () => {
 
             <Drawer.Screen name="PersonalInformation" component={PersonalInformation} options={{ gestureEnabled: false }} />
             <Drawer.Screen name="FinancialInformation" component={FinancialInformation} options={{ gestureEnabled: false }} />
-            <Drawer.Screen name="PlotSiteProduceInformation" component={PlotSiteProduceInformation} options={{ gestureEnabled: false }} />
-            <Drawer.Screen name="RegistationSignUpViwer" component={RegistationSignUpViwer} options={{ gestureEnabled: false }} />
+            <Drawer.Screen name="PlotSiteProduceInformation" component={PlotSiteProduceInformation} options={{ unmountOnBlur: true, gestureEnabled: false }} />
+            <Drawer.Screen name="RegistationSignUpViwer" component={RegistationSignUpViwer} options={{ unmountOnBlur: true, gestureEnabled: false }} />
 
             <Drawer.Screen name="ChangePassword" component={ChangePassword} options={{ unmountOnBlur: true, gestureEnabled: false }} />
             <Drawer.Screen name="Business" component={Business} options={{ unmountOnBlur: true, gestureEnabled: false }} />

@@ -1,34 +1,24 @@
-import {
-  StyleSheet, Text, View, ScrollView,
-  TouchableOpacity,
-  BackHandler
-} from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import React, { useState, useCallback, useContext } from 'react'
 import LoanRequest from './LoanRequest';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
 import ViewPastProduce from './ViewPastRequested';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const LoanEnquiry = () => {
-  const { t } = useTranslation();
+  //GQR-67
+  const { CustomHeader, t, onBackPress, logoImage, topBanner, FormsTitle } = useContext(userCreateContext);
+  //GQR-67
   const navigation = useNavigation();
   const [activeBtn, setActiveBtn] = useState(2);
   useFocusEffect(
     useCallback(() => {
-      const onBackPress = () => { navigation.navigate('Dashboard'); return true; };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      onBackPress(() => { navigation.navigate('Dashboard'); return true; })
     }, [])
   );
-  // return () => { };
-  const HandlerGoBack = () => {
-    navigation.navigate('Dashboard');
-  }
+  const HandlerGoBack = () => navigation.navigate('Dashboard')
   return (
     < >
-      <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} />
+      <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
       <FormsTitle title={t('loan_inquiry')} />
       <View style={styles.container}>
         <View style={styles.btnContainer} >
@@ -41,10 +31,7 @@ const LoanEnquiry = () => {
         </View>
       </View>
       {
-        activeBtn === 1 ?
-          <LoanRequest setActiveBtn={setActiveBtn} />
-          :
-          <ViewPastProduce setActiveBtn={setActiveBtn} />
+        activeBtn === 1 ? <LoanRequest setActiveBtn={setActiveBtn} /> : <ViewPastProduce setActiveBtn={setActiveBtn} />
       }
     </>
   )

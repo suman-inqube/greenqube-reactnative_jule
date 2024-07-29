@@ -1022,5 +1022,21 @@
     "payment_mode": "โหมดการชำระเงิน",
     "cheque": "ตรวจสอบ",
     "product_sub_category": "หมวดหมู่ย่อยของผลิตภัณฑ์",
-    "closed": "closed"
+    "closed": "ปิด",
+    "Approved": "อนุมัติ",
+    "Rejected": "ปฏิเสธ",
+    "SanctionedDate": "วันที่อนุมัติ",
+    "LoanOrderID": "รหัสคำสั่งกู้ยืม",
+    "LoanSanctioned": "อนุมัติเงินกู้",
+    "AddLocation": "เพิ่มสถานที่",
+    "Please_enter_activity_type": "กรุณาป้อนประเภทกิจกรรม",
+    "Data_submitted_successfully": "ส่งข้อมูลเรียบร้อยแล้ว",
+    "Please_enter_activity": "กรุณาป้อนกิจกรรม",
+    "Password_update_successfully": "อัปเดตรหัสผ่านเรียบร้อยแล้ว",
+    "Old_Password_Is_Incorrect": "รหัสผ่านเดิมไม่ถูกต้อง",
+    "Please_try_again_some_time_later": "กรุณาลองอีกครั้งในภายหลัง",
+    "Please_enter_perform_date": "กรุณาป้อนวันที่ดำเนินการ",
+    "Please_try_again_to_reach_the_accurancy": "กรุณาลองอีกครั้งเพื่อให้ได้ผลลัพธ์ที่ถูกต้อง",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount"
 }

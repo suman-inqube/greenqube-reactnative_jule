@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert
-} from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { getItem, removeItem } from '../../config/getDataFromStorage';
 import { BoxDisplay } from './dashboardComp';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-import CustomHeader from './CustomHeader';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import i18next from '../services/i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { useIsFocused } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import BackGroundLocation from '../BackgroundService/BackGroundLocation';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
@@ -18,22 +11,19 @@ import FusedLocation from 'react-native-fused-location';
 // import NotificationServices from '../PushNotification/NotificationServices';
 // import messaging from '@react-native-firebase/messaging';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
-import { useSelector } from 'react-redux';
-import DeviceInfo from '../DeviceInfo'
-import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
-import LoadingScreen from '../Common/LoadingScreen';
-import { AlertMesg } from '../Common/ToastAlert';
+import { userCreateContext } from '../Context/usersCreateContext';
 const Dashboard = ({ navigation }) => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  //GQR-65
+  const { getItem, t, CustomHeader, onBackPress, logoImage, topBanner, isOnline } = useContext(userCreateContext);
   const isFocused = useIsFocused();
-  const [isLoading, setIsLoading] = useState(true);
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
   const [company_website, setcompany_website] = useState("");
+  const [logoImg, setlogoImage] = useState(logoImage);
+  const [topBannerImg, settopBanner] = useState(topBanner);
   const navigateToPages = (pageName) => {
-    if (netConnection) {
+    if (isOnline) {
       navigation.navigate(pageName, { data: 'remove' });
     } else {
       if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
@@ -44,60 +34,47 @@ const Dashboard = ({ navigation }) => {
   const onPageLoad = async () => {
     const [bottomBannerData,
       userNameData,
-      profileImgData, loginUser_data, company_website] = await Promise.all([
+      profileImgData, loginUser_data, company_website, logoImageData, topBannerData] = await Promise.all([
         getItem('bottomBannerData'),
         getItem('userNameData'),
         getItem('profileImgData'),
-        getItem('loginUser_data'),
+        // getItem('loginUser_data'),
         getItem('company_website'),
+        getItem('logoImageData'),
+        getItem('topBannerData'),
         // getCurrentLatLong(),
         Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
       ]);
-    // i18next.changeLanguage(`${loginUser_data.lan_id}`);
+    if (logoImage != null) {
+      setlogoImage(logoImage)
+    } else {
+      setlogoImage(logoImageData)
+    }
+    if (topBanner != null) {
+      settopBanner(topBanner)
+    } else {
+      settopBanner(topBannerData)
+    }
     setcompany_website(company_website);
     setbottomBanner(bottomBannerData);
     setuserName(userNameData);
     setprofileImg(profileImgData);
   };
-  const HandlerGoBack = () => {
-    exit();
-  }
-
+  const HandlerGoBack = () => exit()
   useEffect(() => {
-    // ErrorUtils.setGlobalHandler(myErrorHandler)
-    // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    // requestUserPermission();
-    // notificationListener();
     if (isFocused) {
-      setTimeout(() => setIsLoading(false), 2000);
-      // const microphonePermission = async () => { await Permission.checkPermission(PERMISSIONS_TYPE.fineLocation) }
-      // console.log(microphonePermission);
       onPageLoad();
-      const onBackPress = () => {
-        exit();
-        return true;
-      };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      onBackPress(exit);
     }
-
-  }, [isFocused]);
+  }, [isFocused, topBanner]);
   const exit = () => {
-    Alert.alert(
-      `${t('app_name')}`,
-      `${t('close_app')}`,
-      [
-        { text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
-      ],
+    Alert.alert(`${t('app_name')}`, `${t('close_app')}`,
+      [{ text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' }, { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() }],
       { cancelable: false });
+    return true;
   }
   const CompanyWebsiteOpen = () => {
-    if (company_website != "") {
-      Linking.openURL(company_website)
-    } else {
-      Alert.alert("Company website not found")
-    }
+    if (company_website != "") { Linking.openURL(company_website) } else { Alert.alert("Company website not found") }
   }
   return (
     <>
@@ -105,12 +82,11 @@ const Dashboard = ({ navigation }) => {
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
+        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
         <View name="name">
           <View style={styles.containerimg}>
             {profileImg ?
-              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} />
-              : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
+              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
             }
           </View>
           <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
@@ -136,20 +112,10 @@ const Dashboard = ({ navigation }) => {
             <View style={{ marginTop: 16, elevation: 5 }}>
               {bottomBanner ?
                 <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm
-                    source={{ uri: bottomBanner }}
-                    resizeMode="cover"
-                    height={200}
-                    width={'100%'}
-                  />
+                  <ImageForm source={{ uri: bottomBanner }} resizeMode="cover" height={200} width={'100%'} />
                 </TouchableOpacity>
                 : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm
-                    source={require('../Common/images/ad_banner_space.jpg')}
-                    resizeMode="cover"
-                    height={200}
-                    width={'100%'}
-                  />
+                  <ImageForm source={require('../Common/images/ad_banner_space.jpg')} resizeMode="cover" height={200} width={'100%'} />
                 </TouchableOpacity>}
             </View>
           </View>

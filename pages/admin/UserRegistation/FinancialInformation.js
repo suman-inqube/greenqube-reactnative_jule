@@ -1,22 +1,15 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, TextInput, BackHandler, Keyboard } from 'react-native'
-import React, { useEffect, useState,useCallback } from 'react'
-import ButtonForm from '../../Common/ButtonForm';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
+import React, { useEffect, useState, useCallback, useContext } from 'react'
 import ImageForm from '../../Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
-import DropdownForm from '../../Common/DropdownForm';
-import config from '../../../config';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-import { useNavigation, useRoute, useIsFocused,useFocusEffect } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useNavigation, useRoute, useIsFocused, useFocusEffect } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FinancialInformation = () => {
-    const { t } = useTranslation();
+    const { InputTextForm, getItem, setItem, t, ButtonForm, onBackPress, config,
+        DropdownForm, CustomHeader, FormsTitle, logoImage, topBanner } = useContext(userCreateContext);
     const navigation = useNavigation();
     const route = useRoute();
     const isFocused = useIsFocused();
-    const [dbName, setdbName] = useState();
     const [remove, setRemove] = useState("");
     const [storeFinancial, setstoreFinancial] = useState({
         adharCard: '',
@@ -95,19 +88,10 @@ const FinancialInformation = () => {
             }
         }
     }, [isFocused]);
-    // useEffect(() => {
-    //     const onBackPress = () => { navigation.navigate(path != '' ? path : 'PersonalInformation'); return true; };
-    //     BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    //     return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    // })
+    const handleBackPress = () => { navigation.navigate(path != "" ? path : 'PersonalInformation'); return true; }
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate(path != "" ? path : 'PersonalInformation'); return true;
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress); // detect back button press
-            return () =>
-                BackHandler.removeEventListener('hardwareBackPress');
+            onBackPress(handleBackPress);
         })
     );
     const emptyData = () => {
@@ -141,16 +125,16 @@ const FinancialInformation = () => {
             navigation.navigate('PlotSiteProduceInformation', { data: remove })
         }
     }
-    const HandlerGoBack=()=>{
-        if(path != ''){
+    const HandlerGoBack = () => {
+        if (path != '') {
             navigation.navigate(path)
-        }else{
+        } else {
             navigation.navigate('PersonalInformation')
         }
     }
     return (
         <>
-            <CustomHeader path={path != "" ? path : 'PersonalInformation'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={path != "" ? path : 'PersonalInformation'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('financial_information')} />
             <ScrollView>
                 <View style={styles.mainConatiner}>
@@ -263,7 +247,7 @@ const FinancialInformation = () => {
                                             </View>
                                         </View>
                                     </View>
-                                    <InputTextForm label={t('pension_amount_currency')+` (${currency})`} onChangeText={pensionAmount => setstoreFinancial({ ...storeFinancial, pensionAmount: pensionAmount })} value={storeFinancial.pensionAmount} keyboardType="numeric" />
+                                    <InputTextForm label={t('pension_amount_currency') + ` (${currency})`} onChangeText={pensionAmount => setstoreFinancial({ ...storeFinancial, pensionAmount: pensionAmount })} value={storeFinancial.pensionAmount} keyboardType="numeric" />
                                     <DropdownForm label={t('per_month_quarter_year')}
                                         data={config.pensionParMonthData}
                                         onChange={pensionPerMonth => setstoreFinancial({ ...storeFinancial, pensionPerMonth: pensionPerMonth })} val={storeFinancial.pensionPerMonth}

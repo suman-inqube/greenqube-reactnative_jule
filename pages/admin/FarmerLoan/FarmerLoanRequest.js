@@ -1,55 +1,23 @@
-import {
-    Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView,
-    Dimensions, Keyboard, BackHandler
-} from 'react-native'
-import React, { useCallback, useState, useEffect } from 'react'
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
-import ButtonForm from '../../Common/ButtonForm';
+import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
+import React, { useCallback, useState, useEffect, useContext } from 'react'
 import CheckBoxComp from '../../Common/CheckBoxComp';
 import DocumentPicker, { types } from 'react-native-document-picker';
-import { getItem } from '../../../config/getDataFromStorage';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
-import {
-    problemPlotAgainstFarmerAPI,
-    loanPurposeAPI,
-    loanRouteFarmerListAPI,
-    problemProduceAgainstPlotAPI,
-    Addloan
-} from './FarmerLoanAPI';
-import { useNavigation } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
+import { problemPlotAgainstFarmerAPI, loanPurposeAPI, problemProduceAgainstPlotAPI, Addloan } from './FarmerLoanAPI';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerLoanRequest = ({ setActiveBtn }) => {
-    const { t } = useTranslation();
-    const navigation = useNavigation();
+    //GQR-67
+    const { loginUser_data, DropdownForm, ButtonForm, t, AlertMesg, LoadingScreen, getItem, InputTextForm, Root, Toast, } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner, userName, contactNumber, aadhar_number, kcc_number } = loginUser_data;
+    //GQR-67
     const [isLoading, setIsLoading] = useState(false);
-    const [loanFarmerList, setloanFarmerList] = useState();
     const [currency, setcurrency] = useState("");
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-        userName: '',
-        userNumber: ''
-    });
-    const [searchFarmerName, setSearchFarmerName] = useState('');
-    const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [searchResultsList, setSearchResultsList] = useState(false);
-    const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
-    const [activityTypeAll, setactivityTypeAll] = useState([]);
     const [loanPurpose, setLoanPurpose] = useState([]);
     const [plotSite, setPlotSite] = useState([])
     const [pickPlot, setPickPlot] = useState([])
     const [isChecked, setIsChecked] = useState({});
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
-    const [identityProof, setIdentityProof] = useState([
-        { uri: "", name: "", type: "", fileName: "" }
-    ]);
+    const [identityProof, setIdentityProof] = useState([{ uri: "", name: "", type: "", fileName: "" }]);
     const [addressProof, setAddressProof] = useState([
         { uri: "", name: "", type: "", fileName: "" },
         { uri: "", name: "", type: "", fileName: "" },
@@ -108,56 +76,10 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             //   console.warn(err);
         }
     }, []);
-    const handleSearch = (text) => {
-        setSearchFarmerName(text);
-        setSearchFarmerPhone('');
-        if (loanFarmerList.length !== 0) {
-            const result = loanFarmerList.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
-            if (result) { setSearchResults(result) }
-        }
-        if (text == "") {
-            setSearchResultsList(false);
-        } else {
-            setSearchResultsList(true);
-        }
-    };
-    const handleResultSelect = async (name, currentfarmerId, phone) => {
-        setSearchFarmerPhone(phone)
-        setSelectedName(name);
-        setSearchFarmerName(name);
-        setSearchResults([]);
-        setfarmerID(currentfarmerId)
-        setSearchResultsList(false);
-        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId);
-        if (plotSiteApi) {
-            const dataArray = [];
-            plotSiteApi.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
-            setPlotSite(dataArray)
-        }
-        const response = await loanPurposeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
-        if (response.status === 200) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.entity_name
-                });
-            });
-            setLoanPurpose(dataArray)
-        }
-    }
     const handlePlot = async (value, label, index) => {
         if (isChecked[index] === value) {
             setIsChecked({ ...isChecked, [index]: "" });
             const values = [...nameVarityStartEnd];
-
             const plotValues = [...pickPlot];
             for (let i = 0; i < plotValues.length; i++) {
                 if (plotValues[i].plot_id === value) {
@@ -167,7 +89,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             setPickPlot(plotValues)
             for (let i = 0; i < values.length; i++) {
                 if (values[i].plot_id === value) {
-
                     values.splice(i, 1);
                 }
             }
@@ -180,16 +101,16 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             });
             setPickPlot(plotArray)
             setIsChecked({ ...isChecked, [index]: value });
-            const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, value);
+            const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value);
             if (response) {
                 setNameVarityStartEnd([...nameVarityStartEnd, {
-                    plot_no: response.data.data.rows[0].land_info.plot_no,
-                    plot_id: response.data.data.rows[0].land_rel_id,
-                    name: response.data.data.rows[0].crop_name.name,
-                    varity: response.data.data.rows[0].crop_variety.name,
-                    cycleStarts: response.data.data.rows[0].sowing_date,
-                    cycleEnd: response.data.data.rows[0].harvesting_date,
-                    production_process: response.data.data.rows[0].farmer_production_system.name,
+                    plot_no: response?.data?.data?.rows[0]?.land_info.plot_no,
+                    plot_id: response?.data?.data?.rows[0]?.land_rel_id,
+                    name: response?.data?.data?.rows[0]?.crop_name.name,
+                    varity: response?.data?.data?.rows[0]?.crop_variety.name,
+                    cycleStarts: response?.data?.data?.rows[0]?.sowing_date,
+                    cycleEnd: response?.data?.data?.rows[0]?.harvesting_date,
+                    production_process: response?.data?.data?.rows[0]?.farmer_production_system.name,
 
                 }])
             }
@@ -197,56 +118,30 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
     }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const [loginUser_data, curr] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('currency')
-        ]);
+        const curr = await getItem('currency');
         setcurrency(curr)
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const userName = loginUser_data.userName;
-            const userContactNumber = loginUser_data.contactNumber;
-            const aadharNumber = loginUser_data.aadhar_number;
-            const kcc_number = loginUser_data.kcc_number;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID,
-                userName: userName,
-                userNumber: userContactNumber,
-                aadharNumber: aadharNumber,
-                kcc_number: kcc_number
-            })
-            setfarmerID(loginUser_data.user_id)
-            setSearchResultsList(false);
-            const plotSiteApi = await problemPlotAgainstFarmerAPI(dbName, languageID, token, userID);
-            if (plotSiteApi) {
-                const dataArray = [];
-                plotSiteApi.data.data.forEach(element => {
-                    dataArray.push({
-                        value: element.rel_id,
-                        label: element.plot_no
-                    });
+        setfarmerID(loginUser_data.user_id)
+        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, user_id);
+        if (plotSiteApi) {
+            const dataArray = [];
+            plotSiteApi.data.data.forEach(element => {
+                dataArray.push({
+                    value: element.rel_id,
+                    label: element.plot_no
                 });
-                setPlotSite(dataArray)
-            }
-            const response = await loanPurposeAPI(dbName, languageID, token, userID)
-            if (response?.status === 200) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.entity_name
-                    });
+            });
+            setPlotSite(dataArray)
+        }
+        const response = await loanPurposeAPI(dbname, lan_id, token, user_id)
+        if (response?.status === 200) {
+            const dataArray = [];
+            response.data.data.rows.forEach(element => {
+                dataArray.push({
+                    value: element.fid,
+                    label: element.entity_name
                 });
-                setLoanPurpose(dataArray)
-            }
-
+            });
+            setLoanPurpose(dataArray)
         }
         setIsLoading(false)
     };
@@ -287,7 +182,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         } else if (saveData.apx_annual_income == "") {
             Toast.show({ text: `${t('pls_enter_income')}`, ...AlertMesg[0] });
         } else if (saveData.existing_loan_amount == "") {
-            Toast.show({ text: 'Please enter existing loan amount', ...AlertMesg[0] });
+            Toast.show({ text: t('existing_loan_amount_enter'), ...AlertMesg[0] });
         } else if (saveData.loan_purpose == "") {
             Toast.show({ text: `${t('please_enter_pur')}`, ...AlertMesg[0] });
         } else if (pickPlot.length < 1) {
@@ -300,9 +195,9 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             formData.append("apx_annual_income", saveData.apx_annual_income);
             formData.append("farming_type", saveData.farming_type);
             formData.append("plot_id", checkValue);
-            const response = await Addloan(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData)
+            const response = await Addloan(dbname, lan_id, token, user_id, formData)
             if (response?.status === 200) {
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     setActiveBtn(2);
                 }, 2000);
@@ -316,10 +211,10 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                 {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.container}>
-                        <InputTextForm label={t('farmer_name')} value={dbLanTokUsr.userName} />
-                        <InputTextForm label={t('farmer_number')} value={dbLanTokUsr.userNumber} keyboardType={'numeric'} />
-                        <InputTextForm label={t('adhar_no')} value={dbLanTokUsr.aadharNumber} />
-                        <InputTextForm label={t('kcc_no')} value={dbLanTokUsr.kcc_number} />
+                        <InputTextForm label={t('farmer_name')} value={userName} />
+                        <InputTextForm label={t('farmer_number')} value={contactNumber} keyboardType={'numeric'} />
+                        <InputTextForm label={t('adhar_no')} value={aadhar_number} />
+                        <InputTextForm label={t('kcc_no')} value={kcc_number} />
                         <InputTextForm label={t('existing_loan_amount') + "(" + currency + ")"} keyboardType={'numeric'} color={'#FF0000'}
                             onChangeText={(text) => handledataAdd('existing_loan_amount', text)} value={saveData.existing_loan_amount} />
                         <InputTextForm label={t('loan_required_in_rupees') + "(" + currency + ")"} keyboardType={'numeric'} color={'#FF0000'}

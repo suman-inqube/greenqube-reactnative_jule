@@ -1,40 +1,28 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, BackHandler, FlatList, SafeAreaView, Dimensions } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
-import DropdownForm1 from '../../Common/DropdownForm1';
-import ButtonForm from '../../Common/ButtonForm';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { farmerAgainstSupervisorAPI, farmerByNameAPI, inputSaveAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, unitByListAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, FlatList, SafeAreaView, Dimensions } from 'react-native'
+import React, { useState, useCallback, useContext } from 'react'
+import { farmerAgainstSupervisorAPI, inputSaveAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, unitByListAPI } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert'
-import { useTranslation } from 'react-i18next';
 import HarvestedModel from '../../Common/HarvestedModel';
-
-const unitFarm = [
-    {
-        value: 1,
-        label: 'Full'
-    }, {
-        value: 2,
-        label: 'Part'
-    },
-];
-
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerWantToBuy = ({ navigation }) => {
-    const { t } = useTranslation();
-    const isFocused = useIsFocused();
+    //GQR-67
+    const { loginUser_data, Root, Toast, InputTextForm,
+        DropdownForm, ButtonForm, AlertMesg, DatePickerComp,
+        CustomHeader, t, onBackPress, getItem, logoImage, topBanner, FormsTitle, effective_dates } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
+    const unitFarm = [
+        {
+            value: 1,
+            label: `${t('full')}`
+        }, {
+            value: 2,
+            label: `${t('part')}`
+        },
+    ];
     const [showingMenu, setShowingMenu] = useState(false);
-    const [searchFarmerName, setSearchFarmerName] = useState();
-    const [searchFarmerPhone, setSearchFarmerPhone] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({});
-    const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [plotAll, setplotAll] = useState([]);
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -50,101 +38,65 @@ const FarmerWantToBuy = ({ navigation }) => {
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [formStep, setFormStep] = useState(1);
     const [farmerID, setfarmerID] = useState();
-    const [takePhotoModel, setTakePhotoModel] = useState(false);
     const [newDate, setNewDate] = useState(new Date());
     const [approximateDate, setApproximateDate] = useState("");
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const handleSearch = (text) => {
-
-        setShowingMenu(false)
-        setSearchFarmerName(text);
-        setSearchFarmerPhone('');
-        if (farmerData.length > 0) {
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
-            if (result) {
-                setSearchResultsList(true)
-                setSearchResults(result);
-            }
-        }
-    };
-
     const handleResultSelect = async (name, currentfarmerId, phone) => {
         setSearchResultsList(false)
         const min = 1000000000000;
         const max = 9999999999999;
         const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-
-        setSaveData({
-            ...saveData,
-            user_name: name,
-            user_contact_number: phone,
-            ref_code: randomNumber,
-        })
-        setSearchFarmerPhone(phone)
-        setSearchFarmerName(name);
+        setSaveData({ ...saveData, user_name: name, user_contact_number: phone, ref_code: randomNumber })
         setSearchResults([]);
         setfarmerID(currentfarmerId)
-        const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
-        if (response) {
-            //    return console.warn(JSON.stringify(response.data.data,null,2));
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no,
-                    user_id: element.user_id
-                });
-            });
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no, user_id: data.user_id }))
             setplotAll(dataArray)
-
         }
     }
     const handlePlot = async (relId) => {
-        const farmer_all = await farmerAgainstSupervisorAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID)
-        const problemNameFound = farmer_all.data.data.rows.find(user => user.user_id === relId.user_id);
+        const farmer_all = await farmerAgainstSupervisorAPI(dbname, lan_id, farmerID)
+        const problemNameFound = farmer_all?.data?.data?.rows.find(user => user.user_id === relId.user_id);
         const min = 1000000000000;
         const max = 9999999999999;
         const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
         setSaveData({
             ...saveData,
-            user_name: problemNameFound.userName,
-            user_contact_number: problemNameFound.contactNumber,
+            user_name: problemNameFound?.userName,
+            user_contact_number: problemNameFound?.contactNumber,
             ref_code: randomNumber,
             type: "",
             farmer_id: relId.user_id,
             land_rel_id: relId.value,
             transaction_type: 1,
             fulfill_status: 0,
-            state_name: problemNameFound.agri_user_addresses[0].agri_state.state_name,
-            district_name: problemNameFound.agri_user_addresses[0].agri_district.district_name,
-            subdiv_name: problemNameFound.agri_user_addresses[0].agri_subdivision.subdiv_name,
-            state_id: problemNameFound.agri_user_addresses[0].state,
-            district_id: problemNameFound.agri_user_addresses[0].district,
-            subdiv_id: problemNameFound.agri_user_addresses[0].subdivision,
+            state_name: problemNameFound?.agri_user_addresses[0]?.agri_state?.state_name,
+            district_name: problemNameFound?.agri_user_addresses[0]?.agri_district?.district_name,
+            subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
+            state_id: problemNameFound?.agri_user_addresses[0]?.state,
+            district_id: problemNameFound?.agri_user_addresses[0]?.district,
+            subdiv_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
         })
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, relId.value)
-        if (response) {
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
+        if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
-                name: response.data.data.rows[0].crop_name.name,
-                varity: response.data.data.rows[0].crop_variety.name,
-                cycleStarts: response.data.data.rows[0].crop_cycl_start_date,
-                cycleEnd: response.data.data.rows[0].harvesting_date,
-                production_process: response.data.data.rows[0].farmer_production_system.name,
-
-            })
-            const dateString = response.data.data.rows[0].harvesting_date;
+                name: response?.data?.data?.rows[0].crop_name.name,
+                varity: response?.data?.data?.rows[0].crop_variety.name,
+                cycleStarts: response?.data?.data?.rows[0].sowing_date,//sowing_date
+                cycleEnd: response?.data?.data?.rows[0].harvesting_date,
+                production_process: response?.data?.data?.rows[0].farmer_production_system.name,
+            });
+            const dateString = response?.data?.data?.rows[0].harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
                 setShowingMenu(true)
             } else {
-                MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-                // setSearchFarmerName('')
-                // setSearchFarmerPhone('')
+
+                MessageDialog({ title: 'Importent', message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
                 setplotAll([])
                 setModalVisible(true);
                 navigation.navigate('FarmerDashboard');
@@ -152,21 +104,11 @@ const FarmerWantToBuy = ({ navigation }) => {
         }
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setSaveData({ ...saveData, date: effective_date })
         setApproximateDate(effective_date)
 
     }
-    const handleBackButtonClick = () => {
-        if (formStep == 2) {
-            setFormStep(1)
-            return true;
-        }
-    }
-
     function formatDateToMMDDYYYY(inputDate) {
         const date = new Date(inputDate);
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -176,66 +118,63 @@ const FarmerWantToBuy = ({ navigation }) => {
     }
 
     const handleUnitFarm = (item) => {
-        // console.log(item);
-        // onChange={(item) =>setSaveData({...saveData,io_prod_id: item.value,unit_id:item.label})}
+
     }
-    const handleUnit = (item) => {
-        //    return console.log(JSON.stringify(inputSingle,null,2));
+    const handleUnit = async (item) => {
         let entity_type_id = "";
         let entity_name_id = "";
         let io_prod_id = inputSingle.fid;
         let unit_id = item.label;
         let entity_variety_id = item.value;
-        const defined_unit_value = inputSingle.agri_product_prices.filter(function (v, i) {
-            return ((v.prod_price_id == item.value));
-        })
-        inputSingle.productCategories.forEach(element => {
-            if (element.productCategory.iotype) {
-                entity_type_id = element.productCategory.iotype.entity_type_id;
-                entity_name_id = element.productCategory.iotype.entity_name_id;
-            } else {
-                entity_type_id = element.productCategory.ioname.entity_type_id;
-                entity_name_id = element.productCategory.ioname.entity_name_id;
-            }
-            setSaveData({
-                ...saveData,
-                entity_type_id: entity_type_id,
-                entity_name_id: entity_name_id,
-                entity_variety_id: entity_variety_id,
-                io_prod_id: io_prod_id,
-                unit_id: unit_id,
-                defined_unit_value: defined_unit_value[0].agri_unit.defined_unit_value
+        let pp_qty = item.pp_qty;
+        const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
+        if (unitRes?.status == 200) {
+            const rows = unitRes?.data?.data?.rows[0];
+            const defined_unit_value = inputSingle.agri_product_prices.filter(function (v, i) {
+                return ((v.prod_price_id == item.value));
             })
-
-        });
-
+            inputSingle.productCategories.forEach(element => {
+                if (element.productCategory.iotype) {
+                    entity_type_id = element.productCategory.iotype.entity_type_id;
+                    entity_name_id = element.productCategory.iotype.entity_name_id;
+                } else {
+                    entity_type_id = element.productCategory.ioname.entity_type_id;
+                    entity_name_id = element.productCategory.ioname.entity_name_id;
+                }
+                setSaveData({
+                    ...saveData,
+                    entity_type_id: entity_type_id,
+                    entity_name_id: entity_name_id,
+                    entity_variety_id: entity_variety_id,
+                    io_prod_id: io_prod_id,
+                    // unit_id: unit_id,
+                    // defined_unit_value: defined_unit_value[0].agri_unit.defined_unit_value,
+                    unit_id: item?.label,
+                    unit_fid: item?.value,
+                    unit_sname: item?.unit_sname,
+                    unit_sub_type: item?.sub_type,
+                    defined_unit_value: item?.defined_unit_value,
+                    filter_unit_fid: rows?.fid,
+                    pp_qty: pp_qty
+                })
+            });
+        }
     }
-
     const validationData = () => {
         if (!saveData.land_rel_id) {
-            Toast.show({
-                time: 2, text: `${t('pl_en_plot_name_first')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('pl_en_plot_name_first')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.quantity) {
-            Toast.show({
-                time: 2, text: `${t('please_enter_quantity')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_enter_quantity')}`, ...AlertMesg[0] });
             return false;
         }
         if (!saveData.unit_id) {
-
-            Toast.show({
-                time: 2, text: `${t('please_select_unit_first')}`, ...AlertMesg[0]
-            })
+            Toast.show({ time: 2, text: `${t('please_select_unit_first')}`, ...AlertMesg[0] });
             return false;
         }
-
         return true;
-
     }
-
 
     const saveHandle = async () => {
         const res = validationData()
@@ -255,6 +194,7 @@ const FarmerWantToBuy = ({ navigation }) => {
                 formData.append('quantity', saveData.quantity);
                 formData.append('ref_code', saveData.ref_code);
                 formData.append('block_id', saveData.subdiv_id);
+                formData.append('state_id', saveData.state_id);//
                 formData.append('transaction_type', saveData.transaction_type);
                 formData.append('type', saveData.type);
                 formData.append('user_contact_number', saveData.user_contact_number);
@@ -262,108 +202,76 @@ const FarmerWantToBuy = ({ navigation }) => {
                 formData.append('io_prod_id', saveData.io_prod_id);
                 formData.append('unit_id', saveData.unit_id);
                 formData.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
-                const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
-                if (database_res) {
-                    MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
+                //change this key saveData.unit_sname 
+                // formData.append('unit_id', saveData.unit_sname);
+                //new key add
+                // formData.append('sub_ftype', saveData.unit_sub_type);
+                // formData.append('unit_fid', saveData.unit_fid);
+                // formData.append('default_unit_fid', saveData.filter_unit_fid);
+                //
+                // formData.append('pp_qty', saveData.pp_qty);
+                const database_res = await inputSaveAPI(dbname, lan_id, token, saveData.farmer_id, formData);
+                if (database_res?.status == 200) {
+                    // MessageDialog({ title: ' ', message: t('Data_submitted_successfully') })
+                    Toast.show({ time: 3, text: t('Data_submitted_successfully'), ...AlertMesg[0] })
                     setShowingMenu(false);
-                    setSearchFarmerName("");
-                    setSearchFarmerPhone("");
                     for (const key in saveData) {
                         if (saveData.hasOwnProperty(key)) {
                             delete saveData[key];
                         }
                     }
-                    setFormStep(1)
-                    navigation.navigate('FarmerInputList');
+                    setFormStep(1);
+                    setTimeout(() => {
+                        navigation.navigate('FarmerInputList');
+                    }, 1300);
                 }
 
             }
         }
     }
     const onPageLoad = async () => {
-        const [loginUser_data, inputSingleData] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('input_single_data')
-        ])
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const currentfarmerId = loginUser_data.user_id;
-            const supervisorId = currentfarmerId;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const min = 1000000000000;
-            const max = 9999999999999;
-            const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-
-            setSaveData({
-                ...saveData,
-                user_name: loginUser_data.userName,
-                user_contact_number: loginUser_data.contactNumber,
-                ref_code: randomNumber,
-            })
-
-            setfarmerID(currentfarmerId)
-            const response = await problemPlotAgainstFarmerAPI(dbName, languageID, token, currentfarmerId)
-            if (response) {
-
-                const dataArray = [];
-                response.data.data.forEach(element => {
-                    dataArray.push({
-                        value: element.rel_id,
-                        label: element.plot_no,
-                        user_id: element.user_id
-                    });
-                });
-                setplotAll(dataArray)
-
+        const inputSingleData = await getItem('input_single_data');
+        const min = 1000000000000;
+        const max = 9999999999999;
+        const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        setSaveData({ ...saveData, user_name: loginUser_data.userName, user_contact_number: loginUser_data.contactNumber, ref_code: randomNumber, })
+        setfarmerID(user_id)
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, user_id)
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no, user_id: data.user_id }));
+            setplotAll(dataArray)
+        }
+        if (inputSingleData) {
+            setInputSingle(inputSingleData)
+            let category = "";
+            let sub_category = "";
+            if (inputSingleData?.productCategories[0].productCategory.iotype != null) {
+                const { entity_type, entity_name } = inputSingleData?.productCategories[0]?.productCategory.iotype;
+                category = entity_type.name;
+                sub_category = entity_name.name;
+            } else {
+                const { entity_type, entity_name } = inputSingleData?.productCategories[0]?.productCategory.ioname;
+                category = entity_type.name;
+                sub_category = entity_name.name;
             }
-
-            if (inputSingleData) {
-                setInputSingle(inputSingleData)
-                let category = "";
-                let sub_category = "";
-                if (inputSingleData.productCategories[0].productCategory.iotype != null) {
-                    const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.iotype;
-                    category = entity_type.name;
-                    sub_category = entity_name.name;
-                } else {
-                    const { entity_type, entity_name } = inputSingleData.productCategories[0].productCategory.ioname;
-                    category = entity_type.name;
-                    sub_category = entity_name.name;
-                }
-                // const category = inputSingleData.productCategories && inputSingleData.productCategories[0].productCategory && inputSingleData.productCategories[0].productCategory.name
-
-                // const sub_category = inputSingleData.productCategories && inputSingleData.productCategories[1].productCategory && inputSingleData.productCategories[1].productCategory.name
-
-                setSaveData({
-                    ...saveData,
-                    sub_category: sub_category,
-                    category: category
-                })
-
-                const dataArray = [];
-                inputSingleData.agri_product_prices.forEach(element => {
-                    dataArray.push({
-                        value: element.prod_price_id,
-                        label: element.agri_unit.unit_name,
-                    });
+            setSaveData({ ...saveData, sub_category: sub_category, category: category })
+            const dataArray = [];
+            inputSingleData?.agri_product_prices.forEach(element => {
+                dataArray.push({
+                    value: element?.prod_price_id,
+                    label: element?.agri_unit.unit_name,
+                    // label: `${element.quantity} ${element.agri_unit.unit_name}`,
+                    pp_qty: element.quantity,
+                    fid: element?.agri_unit?.fid,
+                    unit_sname: element?.agri_unit?.unit_sname,
+                    sub_type: element?.agri_unit?.sub_type,
+                    defined_unit_value: element?.agri_unit?.defined_unit_value
                 });
-                setUnitData(dataArray)
-
-            }
+            });
+            setUnitData(dataArray);
         }
     };
     function handleClear() {
-        setSearchFarmerName('')
-        setSearchFarmerPhone('')
         setApproximateDate("")
         setSaveData({
             ...saveData,
@@ -386,38 +294,26 @@ const FarmerWantToBuy = ({ navigation }) => {
             ref_code: "",
             land_rel_id: "",
             date: "",
-        })
-
+            pp_qty: ""
+        });
         setFormStep(1)
         setShowingMenu(false)
-        setdbLanTokUsr({})
-
-        setFarmerData([]);
         setSearchResults([]);
         setplotAll([]);
-        setNameVarityStartEnd({
-            name: "",
-            varity: "",
-            cycleStarts: "",
-            cycleEnd: "",
-            production_process: ""
-        });
+        setNameVarityStartEnd({ name: "", varity: "", cycleStarts: "", cycleEnd: "", production_process: "" });
         setUnitData([]);
         setInputSingle({});
         setSaveData({});
     }
+    const handleBackPress = () => { navigation.navigate('FarmerInputList'); return true; }
     useFocusEffect(
         useCallback(() => {
             handleClear()
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerInputList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerInputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerInputList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('FarmerDashboard');
@@ -427,14 +323,9 @@ const FarmerWantToBuy = ({ navigation }) => {
     }
     return (
         <View style={{ flex: 1 }}>
-            <DatePickerComp
-                openDate={openDatePicker}
-                newDate={newDate}
-                setOpenDate={setOpenDatePicker}
-                handleDatePicker={handleDatePicker}
-            />
-            <CustomHeader path={'FarmerInputList'} HandlerGoBack={HandlerGoBack} />
-            <FormsTitle title='Want to Buy/Lease' />
+            <DatePickerComp openDate={openDatePicker} newDate={newDate} setOpenDate={setOpenDatePicker} handleDatePicker={handleDatePicker} />
+            <CustomHeader path={'FarmerInputList'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+            <FormsTitle title={t('want_to_buy_seed_de')} />
             <SafeAreaView>
                 {
                     searchResultsList && searchResultsList ?
@@ -477,17 +368,10 @@ const FarmerWantToBuy = ({ navigation }) => {
                                     </View>
                                     :
                                     ''}
-
-
-
-
                                 <InputTextForm label={t('category')} value={saveData.category} />
-
                                 <InputTextForm label={t('sub_category')} value={saveData.sub_category} />
                                 <InputTextForm label={t('product_name')} value={inputSingle.product_name} />
-
                                 <DropdownForm label={t('requirement_status')} data={unitFarm} onChange={((item) => handleUnitFarm(item))} val={1} />
-
                                 <View style={styles.quanContainer}>
                                     <View style={styles.quanContainerItem}>
                                         <InputTextForm label={t('select_quantity_input')} onChangeText={(item) => setSaveData({ ...saveData, quantity: item })} />
@@ -500,14 +384,12 @@ const FarmerWantToBuy = ({ navigation }) => {
                                 <InputTextForm label={t('farmer_reg_state')} value={saveData.state_name} />
                                 <InputTextForm label={t('select_district_county')} value={saveData.district_name} />
                                 <InputTextForm label={t('select_block_sub_county_upzila')} value={saveData.subdiv_name} />
-
                                 <View >
                                     <Text style={{ color: "#000" }}>{t('approximate_date')}</Text>
                                     <TouchableOpacity style={styles.appromimateContainer} onPress={() => setOpenDatePicker(!openDatePicker)}>
                                         <Text style={{ color: "#000" }}>{approximateDate}</Text><Image source={require('../../Common/images/calendar.png')} style={{ width: 30, height: 30 }} />
                                     </TouchableOpacity>
                                 </View>
-
                             </>
                     }
                 </View>
@@ -518,8 +400,7 @@ const FarmerWantToBuy = ({ navigation }) => {
     )
 }
 
-export default FarmerWantToBuy
-
+export default FarmerWantToBuy;
 const styles = StyleSheet.create({
     formContainer: {
         width: '90%',
@@ -539,12 +420,10 @@ const styles = StyleSheet.create({
         width: '50%',
     },
     plotSiteViewItemTitle: {
-        color: "#000",
-        marginVertical: 5
+        color: "#000", marginVertical: 5
     },
     quanContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
+        flexDirection: 'row', justifyContent: 'space-between'
     },
     quanContainerItem: {
         width: '45%',

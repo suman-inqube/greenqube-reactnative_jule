@@ -142,7 +142,7 @@ const FarmerWantToBuy = ({ navigation }) => {
             if (harvesting_date > currentDate) {
                 setShowingMenu(true)
             } else {
-                MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+                MessageDialog({ title: 'Importent', message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
                 // setSearchFarmerName('')
                 // setSearchFarmerPhone('')
                 setplotAll([])
@@ -280,7 +280,7 @@ const FarmerWantToBuy = ({ navigation }) => {
                 //
                 const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
                 if (database_res) {
-                    MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
+                    MessageDialog({ title: 'Successful', message: t('Data_submitted_successfully') })
                     setShowingMenu(false);
                     setSearchFarmerName("");
                     setSearchFarmerPhone("");

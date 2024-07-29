@@ -1,19 +1,15 @@
-import {
-    StyleSheet, Text, View, FlatList, TouchableOpacity,
-    Image, Dimensions, ScrollView, BackHandler, SafeAreaView
-} from 'react-native'
-import React, { useState, useEffect } from 'react'
-import DatePickerComp from '../../Common/DatePickerComp';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, Dimensions, SafeAreaView } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import Filter from '../../Common/FarmerFilter';
 import { useNavigation } from '@react-navigation/native';
-import { getItem } from '../../../config/getDataFromStorage';
 import LoadingScreen from '../../Common/LoadingScreen';
-import { loanRouteFarmerListAPI, loanRouteListAPI } from './FarmerLoanAPI';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import { loanRouteListAPI } from './FarmerLoanAPI';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerViewPastRequested = ({ setActiveBtn }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, DatePickerComp, t, getItem, effective_dates } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner } = loginUser_data;
+    //GQR-67
     const [currency, setcurrency] = useState("");
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
@@ -26,13 +22,6 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
     const [openToDate, setOpenToDate] = useState(false);
     const [fromDate, setfromDate] = useState("");
     const [toDate, setToDate] = useState("");
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
-    const [farmerData, setfarmerData] = useState([]);
     const [loanList, setLoanList] = useState([]);
     const [loanListRaw, setLoanListRaw] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -43,10 +32,9 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
     const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
     const [statusAll, setTtatusAll] = useState([
-        { value: 2, "label": 'Approved' },
-        { value: 1, "label": 'Pending' },
-        { value: 3, "label": 'Rejected' }]);
-    // const[timefilter,setTimeFilter]=useState(false);
+        { value: 2, "label": t('Approved') },
+        { value: 1, "label": t('pending') },
+        { value: 3, "label": t('Rejected') }]);
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -64,67 +52,35 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
         setFilterOption(false);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        // console.log(item)
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         setToDate("")
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
-        const response = await loanRouteListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, fromDate, effective_date, "")
+        const response = await loanRouteListAPI(dbname, lan_id, token, user_id, fromDate, effective_date, "")
         if (response) {
             setIsLoading(false);
-            setLoanList(response.data.data.rows);
-            setLoanListRaw(response.data.data.rows)
+            setLoanList(response?.data?.data?.rows);
+            setLoanListRaw(response?.data?.data?.rows)
         }
     }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const [loginUser_data, curr] = await Promise.all([
-            await getItem('loginUser_data'),
-            await getItem('currency')
-        ])
+        const curr = await await getItem('currency');
         setcurrency(curr);
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const [response, farmerByName] = await Promise.all([
-                loanRouteListAPI(dbName, languageID, token, userID, "", "", ""),
-                loanRouteFarmerListAPI(dbName, languageID, token, userID)
-            ]);
-            // const response = await loanRouteListAPI(dbName, languageID, token, userID, "", "", "")
-            if (response?.status == 200) {
-                setLoanList(response.data.data.rows);
-                setLoanListRaw(response.data.data.rows)
-            }
+        const response = await loanRouteListAPI(dbname, lan_id, token, user_id, "", "", "");
+        if (response?.status == 200) {
+            setLoanList(response?.data?.data?.rows);
+            setLoanListRaw(response?.data?.data?.rows)
         }
         setIsLoading(false);
     };
-
-
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
             let tempData = loanList.filter(item => {
-                // return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                //     item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
-                return (item.created_at.slice(0, 10) >= fromDate &&
-                    item.created_at.slice(0, 10) <= toDate);
+                return (item.created_at.slice(0, 10) >= fromDate && item.created_at.slice(0, 10) <= toDate);
             });
             setLoanList(tempData)
         }
@@ -140,24 +96,21 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
         setFilterOption(false);
         setToDate("");
         setfromDate("");
-        const response = await loanRouteListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, "", "", "")
+        const response = await loanRouteListAPI(dbname, lan_id, token, user_id, "", "", "")
         if (response?.status == 200) {
             setIsLoading(false);
-            setLoanList(response.data.data.rows);
-            setLoanListRaw(response.data.data.rows)
+            setLoanList(response?.data?.data?.rows);
+            setLoanListRaw(response?.data?.data?.rows);
         }
     }
     const navigate = (FarmerLoanEnquiryDetail, item) => {
-        // store.dispatch(updateLoan(item));
         navigation.navigate('FarmerLoanEnquiryDetail', item)
     }
     const handleFilter = async (search) => {
         if (filterName === 'statusFilter') {
             setSearchResultsList(true);
             setStatusName(search);
-            const result = statusAll.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = statusAll.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setLoanList(loanListRaw);
@@ -187,20 +140,8 @@ const FarmerViewPastRequested = ({ setActiveBtn }) => {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
-                <DatePickerComp
-                    openDate={openFromDate}
-                    newDate={newFromDate}
-                    setOpenDate={setOpenFromDate}
-                    handleDatePicker={handleDatePicker}
-                />
-                <DatePickerComp
-                    openDate={openToDate}
-                    newDate={newToDate}
-                    setOpenDate={setOpenToDate}
-                    handleDatePicker={handleDatePicker2}
-                    minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                />
-
+                <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
+                <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />
                 {
                     searchResultsList && searchResultsList ?
                         <View style={styles.flatContainer}>

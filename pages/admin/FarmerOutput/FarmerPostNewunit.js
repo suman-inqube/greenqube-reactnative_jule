@@ -189,7 +189,7 @@ const FarmerPostNew = (props) => {
                             })
                         ])
                     } else {
-                        MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+                        MessageDialog({ title: 'Importent', message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
 
                         navigation.navigate('FarmerDashboard');
                     }
@@ -410,7 +410,7 @@ const FarmerPostNew = (props) => {
 
                 // console.log(database_res);
                 if (database_res) {
-                    Toast.show({ text: `Successfull Add Data`, ...AlertMesg[0] });
+                    Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                     setTimeout(() => {
                         props.sendDataToParent(2)
                     }, 2000);

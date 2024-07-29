@@ -1,48 +1,31 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-// import React, { useState } from 'react'
-import React, { useEffect, useState } from 'react'
-import FormsTitle from '../../Common/FormsTitle';
-import Filter from '../../Common/Filter';
-import DatePickerComp from '../../Common/DatePickerComp';
-
+import React, { useEffect, useState, useContext } from 'react'
 import ViewPast from './FarmerViewPast';
 import PostNew from './FarmerPostNew';
-import CustomHeader from '../CustomHeader';
-import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerOutPut = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { CustomHeader, FormsTitle, t, onBackPress, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-67
     const [activeBtn, setActiveBtn] = useState(2);
     const navigation = useNavigation();
-    const onDataReceived = (data) => {
-        setActiveBtn(data)
-    }
-
-    const onPageLoad = async () => {
-        setActiveBtn(2)
-    };
+    const onDataReceived = (data) => setActiveBtn(data);
+    const onPageLoad = async () => setActiveBtn(2);
     useEffect(() => {
         onPageLoad();
     }, []);
-
     const HandlerGoBack = () => {
-        if (activeBtn == 2) {
-            navigation.navigate("FarmerDashboard");
-        } else {
-            setActiveBtn(2)
-        }
+        if (activeBtn == 2) navigation.navigate("FarmerDashboard");
+        else setActiveBtn(2);
     }
-    function handleBackPress() {
-        navigation.navigate("FarmerDashboard");
-        return true;
-    }
+    function handleBackPress() { navigation.navigate("FarmerDashboard"); return true; }
     useEffect(() => {
         onBackPress(handleBackPress);
     }, [])
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <View style={styles.container}>
                 <FormsTitle title={t('want_to_sell')} />
                 <View style={styles.btnContainer}>
@@ -76,17 +59,21 @@ const styles = StyleSheet.create({
         elevation: 10,
         backgroundColor: '#FFF',
         paddingHorizontal: 10,
-        paddingVertical: 15,
+        paddingVertical: 5,
         borderRadius: 10,
-        width: '47%'
+        width: '47%',
+        height: 55,
+        justifyContent: 'center'
     },
     btnActive: {
         backgroundColor: '#a1dc17',
         elevation: 10,
         paddingHorizontal: 10,
-        paddingVertical: 15,
+        paddingVertical: 5,
         borderRadius: 10,
-        width: '47%'
+        width: '47%',
+        height: 55,
+        justifyContent: 'center'
     },
     btnActiveTitle: {
         textAlign: 'center',

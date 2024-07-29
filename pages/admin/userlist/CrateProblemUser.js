@@ -1,40 +1,31 @@
-import { BackHandler, StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList, SafeAreaView, Dimensions, Button, Animated } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList, SafeAreaView, Dimensions } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import FormsTitle from '../../Common/FormsTitle';
-import RadioForm from '../../Common/RadioForm';
-import DropdownForm from '../../Common/DropdownForm';
-import DropdownForm1 from '../../Common/DropdownForm1';
-import InputTextForm from '../../Common/InputTextForm';
-import DatePickerComp from '../../Common/DatePickerComp';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react'
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import Marker, { Position, TextBackgroundType } from "react-native-image-marker";
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from "react-native-image-marker";
 import ButtonForm from '../../Common/ButtonForm';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { farmerByNameAPI, problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import axios from 'axios';
-import CustomHeader from '../CustomHeader';
-import LoadingScreen from '../../Common/LoadingScreen';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
+import { useRoute, useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const CrateProblemUser = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-66
+    const { DropdownForm, InputTextForm, FormsTitle, DatePickerComp, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-66
     const isFocused = useIsFocused();
     const route = useRoute();
     const { agri_land_user_rels, contactNumber,
         farmer_type, farmeruserID, userName } = route.params;
-    const scrollOffsetY = useRef(new Animated.Value(0)).current;
     const [isLoading, setIsLoading] = useState(true);
     const [farmerData, setFarmerData] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState();
@@ -42,15 +33,6 @@ const CrateProblemUser = ({ navigation }) => {
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [CropType, setCropType] = useState();
     const [CropName, setCropName] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
-    const [isToggleRecordingFirst, setToggleRecordingFirst] = useState(true);
-    const [isToggleRecordingSecound, setToggleRecordingSecound] = useState(true);
-    const [isToggleRecordingThird, setToggleRecordingThird] = useState(true);
     const [searchResults, setSearchResults] = useState([]);
     const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
@@ -132,7 +114,7 @@ const CrateProblemUser = ({ navigation }) => {
         setShowingMenu(false);
         setSearchResults([]);
         setfarmerID(currentfarmerId)
-        const response = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
+        const response = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
         if (response) {
             const dataArray = [];
             response.data.data.forEach(element => {
@@ -145,7 +127,7 @@ const CrateProblemUser = ({ navigation }) => {
         }
     }
     const handlePlot = async (relId) => {
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, relId.value)
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
         if (response) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
@@ -170,11 +152,11 @@ const CrateProblemUser = ({ navigation }) => {
                     harvesting_date: response.data.data.rows[0].harvesting_date,
                     sowing_date: response.data.data.rows[0].sowing_date,
                     production_system: response.data.data.rows[0].farmer_production_system.fa_id,
-                    agent_id: dbLanTokUsr.userID,
+                    agent_id: user_id,
                 })
                 setCropType(response.data.data.rows[0].crop_type.fid)
                 setCropName(response.data.data.rows[0].crop_name.fid)
-                const productionStage_res = await problemProductionStageAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, response.data.data.rows[0].crop_type_id, response.data.data.rows[0].crop_name_id)
+                const productionStage_res = await problemProductionStageAPI(dbname, lan_id, response.data.data.rows[0].crop_type_id, response.data.data.rows[0].crop_name_id)
                 if (productionStage_res) {
                     const dataArray = [];
                     productionStage_res.data.data.growth_stage.forEach(element => {
@@ -186,7 +168,7 @@ const CrateProblemUser = ({ navigation }) => {
                     setproductionStageAll(dataArray)
                 }
             } else {
-                MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+                MessageDialog({ title: 'Importent', message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
                 setSearchFarmerName('')
                 setSearchFarmerPhone('')
                 setplotAll([])
@@ -312,42 +294,6 @@ const CrateProblemUser = ({ navigation }) => {
             }
         }
     };
-    const soundRecordingFirstItem = async () => {
-        const path = RNFS.DocumentDirectoryPath + '/recording.aac';
-        try {
-            // Check if the directory exists, if not, create it
-            await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-
-            // Start recording
-            await audioRecorderPlayer.startRecorder(path);
-
-        } catch (error) {
-            console.error('Error starting recording:', error);
-        }
-    }
-    const handleShowImg = async (item) => {
-        setToggleRecordingFirst(item)
-    }
-    const startRecording1 = async () => {
-        const path = RNFS.DocumentDirectoryPath + '/recording.aac';
-        try {
-            // Check if the directory exists, if not, create it
-            await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-
-            // Start recording
-            await audioRecorderPlayer.startRecorder(path);
-            console.log("play");
-        } catch (error) {
-            console.error('Error starting recording:', error);
-        }
-
-    };
-    const stopRecording1 = async () => {
-        const result = await audioRecorderPlayer.stopRecorder();
-        console.log(result);
-        // setToggleRecordingFirst(true);
-    };
-
     const requestLivePermission = async () => {
         try {
             const granted = await PermissionsAndroid.request(
@@ -408,105 +354,72 @@ const CrateProblemUser = ({ navigation }) => {
     const onPageLoad = async () => {
         handleClear();
         requestLivePermission();
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const [problemName_res, response, severity_res] = await Promise.all([
-                problemTypeNameAPI(dbName, languageID, token),
-                farmerByNameAPI(dbName, languageID, token, userID),
-                problemSeverityAPI(dbName, languageID)
-            ]);
+        const [problemName_res, response, severity_res] = await Promise.all([
+            problemTypeNameAPI(dbname, lan_id, token),
+            farmerByNameAPI(dbname, lan_id, token, user_id),
+            problemSeverityAPI(dbname, lan_id)
+        ]);
+        if (problemName_res?.status == 200) {
             setProblemAll(problemName_res.data.data);
-            if (problemName_res) {
-                const dataArray = [];
-                problemName_res.data.data.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.name,
-                    });
-                });
-                setProblemTypeAll(dataArray)
-                setIsLoading(false)
-            }
-            if (severity_res) {
-                const dataArray = [];
-                severity_res.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.name,
-                    });
-                });
-                setSeverityAll(dataArray)
-            }
-            if (response) {
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
+            const dataArray = problemName_res?.data?.data.map(element => ({ value: element.fid, label: element.name }))
+            setProblemTypeAll(dataArray)
+            setIsLoading(false)
+        }
+        if (severity_res?.status == 200) {
+            const dataArray = severity_res?.data?.data?.rows.map(element => ({ value: element.fid, label: element.name }));
+            setSeverityAll(dataArray)
+        }
+        if (response?.status == 200) {
+            const dataArray = response?.data?.data?.rows.map(element => ({ value: element.user_id, label: element.userName, phone: element.contactNumber }))
+            setFarmerData(dataArray)
         }
     };
     const validateForm = () => {
         if (!farmerID) {
             Toast.show({
-                time: 2, text: 'Please select farmer first', ...AlertMesg[0]
+                time: 2, text: t('please_enter_farmer_name'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.plot_id) {
             Toast.show({
-                time: 2, text: 'Please select plot name', ...AlertMesg[0]
+                time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.growth_stage) {
             Toast.show({
-                time: 2, text: 'Please select production stage', ...AlertMesg[0]
+                time: 2, text: t('please_select_cultiveting_season_first'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.problem_type_id) {
             Toast.show({
-                time: 2, text: 'Please select problem type', ...AlertMesg[0]
+                time: 2, text: t('please_select_problem_type'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.problem_name_id) {
             Toast.show({
-                time: 2, text: 'Please select problem name', ...AlertMesg[0]
+                time: 2, text: t('please_select_problem'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.severity_id) {
             Toast.show({
-                time: 2, text: 'Please select severity', ...AlertMesg[0]
+                time: 2, text: t('please_select_severity'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.affected_date) {
             Toast.show({
-                time: 2, text: 'Please enter perform date', ...AlertMesg[0]
+                time: 2, text: t('Please_enter_perform_date'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.latitude) {
             Toast.show({
-                time: 2, text: 'Please allow to get location', ...AlertMesg[0]
+                time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]
             })
             return false;
         }
@@ -566,11 +479,11 @@ const CrateProblemUser = ({ navigation }) => {
             formData.append("question_title", saveData.question_title);
             formData.append("question_desc", saveData.question_desc);
             formData.append("severity_id", saveData.severity_id);
-            const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, formData);
+            const database_res = await problemSaveAPI(dbname, lan_id, token, farmerID, formData);
             if (database_res.status === 200) {
                 handleClear()
                 // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
-                Toast.show({ text: 'Successfull Add Data', ...AlertMesg[0] })
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] })
                 setTimeout(() => {
                     navigation.navigate('userList');
                 }, 1500);
@@ -692,9 +605,7 @@ const CrateProblemUser = ({ navigation }) => {
             setSearchFarmerName(userName);
             setSearchFarmerPhone(contactNumber);
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('userList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('userList'); return true; })
         }
     }, [isFocused]);
     const HandlerGoBack = () => {
@@ -702,7 +613,7 @@ const CrateProblemUser = ({ navigation }) => {
     }
     return (
         <View style={styles.container}>
-            <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <DatePickerComp
                 openDate={addAffectedDate}
                 newDate={newFromDate}

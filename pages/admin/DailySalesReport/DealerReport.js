@@ -1,22 +1,17 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, Keyboard, BackHandler } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
-import DatePickerComp from '../../Common/DatePickerComp';
-import RadioForm from '../../Common/RadioForm';
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import TakePhoto from '../Activity/TakePhoto';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import ButtonForm from '../../Common/ButtonForm';
-import DropdownForm from '../../Common/DropdownForm';
 import { ChooseDealerAPI, AllProductCategoryListAPI, AllProductSubCategoryListAPI, AllProductNameList, DealerDailysalesreportAdd } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const DealerReport = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, effective_dates, ButtonForm, DropdownForm, FormsTitle,
+        InputTextForm, DatePickerComp, RadioForm } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [newDate, setnewDate] = useState(new Date());
@@ -31,12 +26,6 @@ const DealerReport = () => {
         firstItem: "",
         secondItem: "",
         thirdItem: "",
-    });
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [dealer, setDealer] = useState([]);
@@ -67,17 +56,11 @@ const DealerReport = () => {
     const [myphoto, setmyPhoto] = useState([]);
     const [currency, setcurrency] = useState("");
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setDate(effective_date)
     }
     const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setIssueDate(effective_date)
     }
     const openImagePicker = (item) => {
@@ -134,42 +117,21 @@ const DealerReport = () => {
     }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const [loginUser_data, curr] = await Promise.all([
-            getItem('loginUser_data'),
+        const [curr] = await Promise.all([
             getItem('currency')
         ])
         setcurrency(curr)
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const response = await ChooseDealerAPI(dbName, languageID, token, userID);
-            if (response.status === 200) {
-                setIsLoading(false);
-                setDealer(response.data.data.rows);
-            }
+        const response = await ChooseDealerAPI(dbname, lan_id, token, user_id);
+        if (response?.status === 200) {
+            setIsLoading(false);
+            setDealer(response.data.data.rows);
         }
     };
     useEffect(() => {
         onPageLoad();
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow', () => { setKeyboardVisible(true); }
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide', () => { setKeyboardVisible(false); }
-        );
-        return () => {
-            keyboardDidHideListener.remove();
-            keyboardDidShowListener.remove();
-        };
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true) });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false) });
+        return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove() };
     }, [])
     // useEffect(() => {
     // });
@@ -188,8 +150,8 @@ const DealerReport = () => {
     }
     const handleOrderReceived = async (item) => {
         setDealerData({ ...dealerData, 'orderReceived': item })
-        const response = await AllProductCategoryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID);
-        if (response.status === 200) {
+        const response = await AllProductCategoryListAPI(dbname, lan_id, token, user_id);
+        if (response?.status === 200) {
             const categoryArray = [];
             response.data.data.rows.forEach(element => {
                 categoryArray.push({ value: element.fid, label: element.name });
@@ -201,8 +163,8 @@ const DealerReport = () => {
     }
     const handleProductCategory = async (item) => {
         setDealerData({ ...dealerData, 'productCategory': item.label, 'productCategory_fid': item.value })
-        const response = await AllProductSubCategoryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, item.value);
-        if (response.status === 200) {
+        const response = await AllProductSubCategoryListAPI(dbname, lan_id, token, user_id, item.value);
+        if (response?.status === 200) {
             const subCategoryArray = [];
             response.data.data.rows.map((data, index) => {
                 if (item.label === data.name) {
@@ -217,8 +179,8 @@ const DealerReport = () => {
     }
     const handleProductSubCategory = async (item) => {
         setDealerData({ ...dealerData, 'productSubCategory': item.label, 'productSubCategory_fid': item.value })
-        const AllProduct = await AllProductNameList(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, item.value);
-        if (AllProduct.status === 200) {
+        const AllProduct = await AllProductNameList(dbname, lan_id, token, user_id, item.value);
+        if (AllProduct?.status === 200) {
             const productArray = [];
             const unitArray = [];
             AllProduct.data.data.rows.map((data, index) => {
@@ -244,11 +206,17 @@ const DealerReport = () => {
         } else if (date == "") {
             validateForm(date, `${t('please_date_first')}`);
         } else if (dealerData.chequeNumber == "" && dealerData.paymentReceived == "Cheque") {
-            validateForm(dealerData.chequeNumber, 'Enter Cheque No');
+            validateForm(dealerData.chequeNumber, t('cheque_number'));
         } else if (issueDate == "" && dealerData.paymentReceived == "Cheque") {
             validateForm(issueDate, 'Enter Cheque Date');
         } else if (dealerData.paymentReceivedRs == "" && (dealerData.paymentReceived == "Cash" || dealerData.paymentReceived == "Online" || dealerData.paymentReceived == "Cheque")) {
-            validateForm(dealerData.paymentReceivedRs, `Enter ${dealerData.paymentReceived} Amount`);
+            let payment = '';
+            if (dealerData.paymentReceived == "Cash") {
+                payment = t('cash_received');
+            } else if (dealerData.paymentReceived == "Online") {
+                payment = t('online_received');
+            }
+            validateForm(dealerData.paymentReceivedRs, `${t(payment)} ${t('amount')}`);
         } else {
             let productArr = [];
             const formData = new FormData();
@@ -282,8 +250,8 @@ const DealerReport = () => {
                 })
             })
             formData.append("products", JSON.stringify(productArr));
-            const response = await DealerDailysalesreportAdd(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData);
-            if (response.status === 200) {
+            const response = await DealerDailysalesreportAdd(dbname, lan_id, token, user_id, formData);
+            if (response?.status === 200) {
                 setDate("");
                 setIssueDate("");
                 setmyPhoto([]);
@@ -304,24 +272,16 @@ const DealerReport = () => {
             }
         }
     }
+    const handleBackPress = () => {
+        navigation.navigate('DailySalesReport');
+        return true;
+    };
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('DailySalesReport');
-                return true;
-            };
-            BackHandler.addEventListener(
-                'hardwareBackPress', onBackPress
-            );
-            return () =>
-                BackHandler.removeEventListener(
-                    'hardwareBackPress', onBackPress
-                );
+            onBackPress(handleBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('DailySalesReport');
-    }
+    const HandlerGoBack = () => navigation.navigate('DailySalesReport');
     return (
         <View style={{ flex: 1 }}>
             <Root>
@@ -335,7 +295,7 @@ const DealerReport = () => {
                     newDate={issuenewDate}
                     setOpenDate={setIssueOpenNewDate}
                     handleDatePicker={handleDatePicker2} />
-                <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('dealer_report')} />
                 {searchResultsList && searchResultsList ?
                     <View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
@@ -501,9 +461,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         zIndex: 999,
         left: 0,
-        // top:30,
+        top: '15.5%',
         marginTop: 60,
-        bottom: '60%',
+        // bottom: '60%',
         marginHorizontal: '5%',
         width: '90%',
         elevation: 10,
@@ -515,8 +475,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         zIndex: 999,
         left: 0,
-        // top: 30,
-        bottom: '40%',
+        top: '35%',
+        // bottom: '40%',
         marginHorizontal: '5%',
         width: '90%',
         elevation: 10,

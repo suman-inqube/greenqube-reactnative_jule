@@ -55,6 +55,7 @@
     "react-native-image-header-scroll-view": "^1.0.0",
     "react-native-image-marker": "^1.1.9",
     "react-native-image-picker": "^7.0.0",
+    "react-native-maps": "^1.13.2",
     "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-permissions": "^3.9.3",
     "react-native-popup-confirm-toast": "^2.3.2",

@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, Modal, TouchableOpacity, Alert } from 'react-native'
-import React from 'react'
-
+import { StyleSheet, Text, View, Modal, TouchableOpacity } from 'react-native'
+import React, { useContext } from 'react'
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerViewPast = (props) => {
     const { ins_plots, agri_user } = props.modalVisibleData;
+    const { t } = useContext(userCreateContext);
     if (agri_user != undefined) {
-       let mydate = new Date(agri_user.CreateDateTime.split("T")[0]);
+        let mydate = new Date(agri_user.CreateDateTime.split("T")[0]);
         return (
             <View>
                 <Modal
@@ -20,7 +21,7 @@ const FarmerViewPast = (props) => {
                             <View style={styles.modelTitleContainer}>
                                 <View style={styles.itemContainer}>
                                     <View style={styles.item}>
-                                        <Text style={styles.itemText}>Plot/Site</Text>
+                                        <Text style={styles.itemText}>{t('far_list_plot')}</Text>
                                         <Text style={styles.itemText}>:{
                                             ins_plots && ins_plots.map((data, index) => {
                                                 return (
@@ -30,7 +31,7 @@ const FarmerViewPast = (props) => {
                                         } </Text>
                                     </View>
                                     <View style={styles.item}>
-                                        <Text style={styles.itemText}>{'Produce Name/ \nType'}</Text>
+                                        <Text style={styles.itemText}>{t('addcrop_cropname')}</Text>
                                         <Text style={styles.itemText}>:
                                             {
                                                 ins_plots && ins_plots.map((data, index) => (
@@ -43,15 +44,15 @@ const FarmerViewPast = (props) => {
                                             }</Text>
                                     </View>
                                     <View style={styles.item}>
-                                        <Text style={styles.itemText}>{'Farmer/ \Produce Name'}</Text>
+                                        <Text style={styles.itemText}>{t('crop_name')}</Text>
                                         <Text style={styles.itemText}>: {agri_user.userName}</Text>
                                     </View>
                                     <View style={styles.item}>
-                                        <Text style={styles.itemText}>{'Phone Number'}</Text>
+                                        <Text style={styles.itemText}>{t('farmer_number')}</Text>
                                         <Text style={styles.itemText}>:  {agri_user.contactNumber}</Text>
                                     </View>
                                     <View style={styles.item}>
-                                        <Text style={styles.itemText}>{'Required Date'}</Text>
+                                        <Text style={styles.itemText}>{t('required_date')}</Text>
                                         <Text style={styles.itemText}>: {mydate.toString().substring(4, 15)}</Text>
                                     </View>
                                 </View>

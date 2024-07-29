@@ -2146,6 +2146,11 @@
   dependencies:
     "@babel/types" "^7.20.7"
 
+"@types/geojson@^7946.0.13":
+  "integrity" "sha512-WCfD5Ht3ZesJUsONdhvm84dmzWOiOzOAqOncN0++w0lBw1o8OuDNJF2McvvCef/yBqb/HYRahp1BYtODFQ8bRg=="
+  "resolved" "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.14.tgz"
+  "version" "7946.0.14"
+
 "@types/graceful-fs@^4.1.3":
   "integrity" "sha512-NhRH7YzWq8WiNKVavKPBmtLYZHxNY19Hh+az28O/phfp68CF45pMFud+ZzJ8ewnxnC5smIdF3dqFeiSUQ5I+pw=="
   "resolved" "https://registry.npmjs.org/@types/graceful-fs/-/graceful-fs-4.1.8.tgz"
@@ -6421,6 +6426,13 @@
   "integrity" "sha512-2Y+TMzv2l32IikqYpj4WOqkYvv42SXkSvL9zAo0XdhA3Rbe3lc0Oz12KlR6M2bGh8RxXz5lUrs+9mxy/GpcLIg=="
   "resolved" "https://registry.npmjs.org/react-native-image-picker/-/react-native-image-picker-7.0.2.tgz"
   "version" "7.0.2"
+
+"react-native-maps@^1.13.2":
+  "integrity" "sha512-7t2zEqS6VYGdNaZHt08nNJxH2YzYAv0gLNf/RbapD3vCYaLYF+sYV0COkQ5YYEEwqJb5I9OViwXuU9GkJXlVmw=="
+  "resolved" "https://registry.npmjs.org/react-native-maps/-/react-native-maps-1.13.2.tgz"
+  "version" "1.13.2"
+  dependencies:
+    "@types/geojson" "^7946.0.13"
 
 "react-native-modal-datetime-picker@^17.1.0":
   "integrity" "sha512-jfTwfaCLtBffYbQ+pOGFLM+J5HmUh3vb9rT0JrrQPjxzecdc8pNYreB1c96+mVuq8bDCvaCdIeuEsslTqLJL0Q=="

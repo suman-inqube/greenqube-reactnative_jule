@@ -1022,5 +1022,21 @@
     "payment_mode": "చెల్లింపు మోడ్",
     "cheque": "తనిఖీ",
     "product_sub_category": "ఉత్పత్తి ఉప వర్గం",
-    "closed": "closed"
+    "closed": "మూసివేయబడింది",
+    "Approved": "ఆమోదించబడింది",
+    "Rejected": "తిరస్కరించబడింది",
+    "SanctionedDate": "మంజూరైన తేదీ",
+    "LoanOrderID": "లోన్ ఆర్డర్ ID",
+    "LoanSanctioned": "రుణం మంజూరు చేయబడింది",
+    "AddLocation": "స్థానాన్ని జోడించు",
+    "Please_enter_activity_type": "దయచేసి కార్యాచరణ రకాన్ని నమోదు చేయండి",
+    "Data_submitted_successfully": "డేటా విజయవంతంగా సమర్పించబడింది",
+    "Please_enter_activity": " దయచేసి కార్యాచరణను నమోదు చేయండి",
+    "Password_update_successfully": "పాస్‌వర్డ్ నవీకరణ విజయవంతంగా",
+    "Old_Password_Is_Incorrect": "పాత పాస్‌వర్డ్ తప్పు",
+    "Please_try_again_some_time_later": "దయచేసి కొంత సమయం తర్వాత మళ్లీ ప్రయత్నించండి",
+    "Please_enter_perform_date": "దయచేసి ప్రదర్శన తేదీని నమోదు చేయండి",
+    "Please_try_again_to_reach_the_accurancy": "దయచేసి ఖచ్చితత్వాన్ని చేరుకోవడానికి మళ్లీ ప్రయత్నించండి",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount"
 }

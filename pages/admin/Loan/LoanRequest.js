@@ -1,47 +1,35 @@
 import {
     Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView,
-    Dimensions, Keyboard, BackHandler
+    Dimensions, Keyboard,
 } from 'react-native'
-import React, { useCallback, useState, useEffect } from 'react'
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
+import React, { useCallback, useState, useEffect, useContext } from 'react'
 import CheckBoxComp from '../../Common/CheckBoxComp';
 import DocumentPicker, { types } from 'react-native-document-picker';
-import { getItem } from '../../../config/getDataFromStorage';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import {
     problemPlotAgainstFarmerAPI,
     loanPurposeAPI,
-    loanRouteFarmerListAPI,
     problemProduceAgainstPlotAPI,
     Addloan
 } from './LoanAPI';
-import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import LoadingScreen from '../../Common/LoadingScreen';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const LoanRequest = ({ setActiveBtn }) => {
-    const { t } = useTranslation();
-    const navigation = useNavigation();
+    //GQR-67
+    const { loginUser_data, LoadingScreen, t, Toast,
+        AlertMesg, getItem, InputTextForm, DropdownForm, ButtonFormBottom,
+        Root,
+        // handleResultSelect,
+        farmerData } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const [isLoading, setIsLoading] = useState(false);
-    const [loanFarmerList, setloanFarmerList] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [selectedName, setSelectedName] = useState('');
     const [farmerID, setfarmerID] = useState();
-    const [activityTypeAll, setactivityTypeAll] = useState([]);
     const [loanPurpose, setLoanPurpose] = useState([]);
     const [plotSite, setPlotSite] = useState([])
-    const [pickPlot, setPickPlot] = useState([])
     const [isChecked, setIsChecked] = useState([]);
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
     const [identityProof, setIdentityProof] = useState([
@@ -109,8 +97,8 @@ const LoanRequest = ({ setActiveBtn }) => {
     const handleSearch = (text) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
-        if (loanFarmerList.length !== 0) {
-            const result = loanFarmerList.filter(item =>
+        if (farmerData.length !== 0) {
+            const result = farmerData.filter(item =>
                 item.label.toLowerCase().includes(text.toLowerCase())
             );
             if (result) { setSearchResults(result) }
@@ -132,7 +120,7 @@ const LoanRequest = ({ setActiveBtn }) => {
         setfarmerID(currentfarmerId)
         setSearchResultsList(false);
         setSaveData({ ...saveData, identityNo: item.aadhar_number, farmerProducer: item.kcc_number })
-        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId);
+        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId);
         if (plotSiteApi) {
             const dataArray = [];
             const VarityStartArr = [];
@@ -158,7 +146,7 @@ const LoanRequest = ({ setActiveBtn }) => {
             setNameVarityStartEnd(VarityStartArr);
             setPlotSite(dataArray);
         }
-        const response = await loanPurposeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
+        const response = await loanPurposeAPI(dbname, lan_id, token, currentfarmerId)
         if (response.status === 200) {
             const dataArray = [];
             response.data.data.rows.forEach(element => {
@@ -171,7 +159,7 @@ const LoanRequest = ({ setActiveBtn }) => {
         }
     }
     const handlePlotCheck = async (value, label, index) => {
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, value);
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value);
         const isCheckedValue = [...isChecked];
         if (isChecked[index].isCheck == "") {
             isCheckedValue[index] = { isCheck: value }
@@ -199,36 +187,8 @@ const LoanRequest = ({ setActiveBtn }) => {
 
     const onPageLoad = async () => {
         setIsLoading(true);
-        const [loginUser_data, currency_res] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('currency')
-        ]);
-        setCurrencyt(currency_res)
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id
-            })
-            const response = await loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
-            if (response.status === 200) {
-                setIsLoading(false);
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                        aadhar_number: element.aadhar_number,
-                        kcc_number: element.kcc_number
-                    });
-                });
-                setloanFarmerList(dataArray)
-            }
-        }
+        const currency_res = await getItem('currency');
+        setCurrencyt(currency_res);
         setIsLoading(false);
     };
     useEffect(() => {
@@ -238,7 +198,6 @@ const LoanRequest = ({ setActiveBtn }) => {
         setSaveData({ ...saveData, [name]: text })
     }
     const handleSave = async () => {
-        setIsLoading(true);
         Keyboard.dismiss();
         const checkValue = [];
         Object.values(isChecked).map((data, index) => {
@@ -265,7 +224,7 @@ const LoanRequest = ({ setActiveBtn }) => {
         if (searchFarmerName == "") {
             Toast.show({ text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0] });
         } else if (saveData.existing_loan_amount == "") {
-            Toast.show({ text: 'Please enter existing loan amount', ...AlertMesg[0] });
+            Toast.show({ text: t('existing_loan_amount_enter'), ...AlertMesg[0] });
         } else if (saveData.loan_amount == "") {
             Toast.show({ text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0] });
         } else if (saveData.apx_annual_income == "") {
@@ -275,6 +234,7 @@ const LoanRequest = ({ setActiveBtn }) => {
         } else if (checkValue.length < 1) {
             Toast.show({ text: `${t('please_select_plot_first')}`, ...AlertMesg[0] });
         } else {
+            setIsLoading(true);
             formData.append("user_id", farmerID);
             formData.append("loan_amount", saveData.loan_amount);
             formData.append("loan_purpose", saveData.loan_purpose);
@@ -282,9 +242,9 @@ const LoanRequest = ({ setActiveBtn }) => {
             formData.append("apx_annual_income", saveData.apx_annual_income);
             formData.append("farming_type", saveData.farming_type);
             formData.append("plot_id", checkValue);
-            const response = await Addloan(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData)
+            const response = await Addloan(dbname, lan_id, token, user_id, formData)
             if (response?.status === 200) {
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     setActiveBtn(2);
                 }, 2000);
@@ -497,7 +457,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         position: 'absolute',
         zIndex: 999,
-        bottom: '100%',
+        // bottom: '100%',
+        top: 90,
         left: 0,
         marginHorizontal: '5%',
         width: '90%',

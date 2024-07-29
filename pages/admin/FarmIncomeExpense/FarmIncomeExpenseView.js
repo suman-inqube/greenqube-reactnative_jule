@@ -1,15 +1,13 @@
-import { StyleSheet, Text, View, ScrollView, FlatList, BackHandler } from 'react-native'
-import React, { useState } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import React, { useState, useContext } from 'react'
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { getItem } from '../../../config/getDataFromStorage';
-import LoadingScreen from '../../Common/LoadingScreen';
 import { formatDateToDateName } from '../../Common/DateChanger';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmIncomeExpenseView = ({ route }) => {
-    const { t } = useTranslation();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({});
+    //GQR-67
+    const { loginUser_data, CustomHeader, t, onBackPress, logoImage, LoadingScreen, getItem, topBanner, FormsTitle } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [farmAccountSingle, setFarmAccountSingle] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -65,17 +63,14 @@ const FarmIncomeExpenseView = ({ route }) => {
     useFocusEffect(
         React.useCallback(() => {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmIncomeExpenseList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmIncomeExpenseList'); return true; })
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmIncomeExpenseList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');
+
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path={'FarmIncomeExpenseList'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'FarmIncomeExpenseList'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('income_expense_list')} />
             <ScrollView showsVerticalScrollIndicator={false}>
                 {
@@ -85,16 +80,23 @@ const FarmIncomeExpenseView = ({ route }) => {
                         farmAccountSingle ?
                             <View style={styles.container}>
                                 <View style={styles.farmContainer}>
-                                    <View style={styles.farmContainerItem}>
-                                        <Text style={styles.farmTitle}>{t('enter_farmer_s_name')} : {farmAccountSingle.agri_user && farmAccountSingle.agri_user.userName.substring(0, 6) + '..'}</Text>
-                                        <Text style={styles.farmTitle}>{t('addcrop_plot')} : {farmAccountSingle.land_info && farmAccountSingle.land_info.plot_no.substring(0, 4) + '..'}</Text>
-                                        <Text style={styles.farmTitle}>{t('showing_date')}: {formatDateToDateName(farmAccountSingle.sowing_date).substring(0, 7) + '..'}</Text>
-                                        <Text style={styles.farmTitle}>{t('pre_land_size')} : {farmAccountSingle.plot_size && farmAccountSingle.plot_size.substring(0, 4) + '..'}</Text>
+                                    <View style={styles.farmContainerItemLeft}>
+                                        <Text style={styles.farmTitle}>{t('enter_farmer_s_name')} : </Text>
+                                        <Text style={styles.farmTitle}>{t('farmer_number')} :</Text>
+                                        <Text style={styles.farmTitle}>{t('addcrop_plot')} : </Text>
+                                        <Text style={styles.farmTitle}>{t('crop_name')} : </Text>
+                                        <Text style={styles.farmTitle}>{t('pre_land_size')} : </Text>
+                                        <Text style={styles.farmTitle}>{t('showing_date')}: </Text>
+                                        <Text style={styles.farmTitle}>{t('harvesting_date_auto_calculated')} : </Text>
                                     </View>
-                                    <View style={styles.farmContainerItem}>
-                                        <Text style={styles.farmTitle}>{t('farmer_number')} :{farmAccountSingle.agri_user && farmAccountSingle.agri_user.contactNumber.substring(0, 5) + '..'}</Text>
-                                        <Text style={styles.farmTitle}>{t('crop_name')} : {farmAccountSingle.crop_name && farmAccountSingle.crop_name.name.substring(0, 4) + '..'}</Text>
-                                        <Text style={styles.farmTitle}>{t('harvesting_date_auto_calculated')} : {formatDateToDateName(farmAccountSingle.harvesting_date).substring(0, 6) + '..'}</Text>
+                                    <View style={styles.farmContainerItemRight}>
+                                        <Text style={styles.farmTitle}>{farmAccountSingle.agri_user && farmAccountSingle.agri_user.userName}</Text>
+                                        <Text style={styles.farmTitle}>{farmAccountSingle.agri_user && farmAccountSingle.agri_user.contactNumber}</Text>
+                                        <Text style={styles.farmTitle}>{farmAccountSingle.land_info && farmAccountSingle.land_info.plot_no}</Text>
+                                        <Text style={styles.farmTitle}>{farmAccountSingle.crop_name && farmAccountSingle.crop_name.name}</Text>
+                                        <Text style={styles.farmTitle}>{farmAccountSingle.plot_size && farmAccountSingle.plot_size}</Text>
+                                        <Text style={styles.farmTitle}>{formatDateToDateName(farmAccountSingle.sowing_date)}</Text>
+                                        <Text style={styles.farmTitle}>{formatDateToDateName(farmAccountSingle.harvesting_date)}</Text>
                                     </View>
                                 </View>
                                 <View style={styles.ExpenseContainer}>
@@ -105,11 +107,11 @@ const FarmIncomeExpenseView = ({ route }) => {
                                 {
                                     farmAccountSingle.income_expense && farmAccountSingle.income_expense.map((data, index) => {
                                         return (
-                                            <View key={data.cat_id}>
+                                            <View key={index}>
                                                 {
                                                     data.inexType && data.inexType.taxonomy === 'expense'
                                                         ?
-                                                        <View style={styles.flatListItem} >
+                                                        <View style={styles.flatListItem} key={index}>
                                                             <Text style={styles.text}>{data.inexType && data.inexType.inexName && data.inexType.inexName.categoryName}</Text>
                                                             <Text style={styles.text}>{formatDateToDateName(data.date)}</Text>
                                                             <Text style={styles.text}>{data.amount}</Text>
@@ -117,28 +119,30 @@ const FarmIncomeExpenseView = ({ route }) => {
                                                         : ''
                                                 }
                                             </View>
+
                                         )
                                     })
                                 }
                                 <View style={styles.ExpenseCon}>
                                     <View></View>
                                     <View style={styles.ExpenseConItem}>
-                                        <Text style={styles.ExpenseTitle}>{t('total_exp_sum') + "(" + currency + ")"} {<ShowExpense expense={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
+                                        <Text style={styles.ExpenseTitle}>{t('total_exp_sum') + "(" + currency + ")"} : {<ShowExpense expense={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
                                     </View>
                                 </View>
                                 <View style={styles.IncomeContainer}>
                                     <Text style={styles.IncomeTitle}>{t('income_head')}</Text>
                                     <Text style={styles.IncomeTitle}>{t('date')}</Text>
-                                    <Text style={styles.IncomeTitle}>{t('amount') + "(" + currency + ")"}</Text>
+                                    <Text style={styles.ExpenseTitle}>{t('amount') + "(" + currency + ")"}</Text>
                                 </View>
                                 {
                                     farmAccountSingle.income_expense && farmAccountSingle.income_expense.map((data, index) => {
                                         return (
-                                            <View key={data.cat_id}>
+
+                                            <View key={index}>
                                                 {
                                                     data.inexType && data.inexType.taxonomy === 'income'
                                                         ?
-                                                        <View style={styles.flatListItem}>
+                                                        <View style={styles.flatListItem} key={index}>
                                                             <Text style={styles.text}>{data.inexType && data.inexType.inexName && data.inexType.inexName.categoryName}</Text>
                                                             <Text style={styles.text}>{formatDateToDateName(data.date)}</Text>
                                                             <Text style={styles.text}>{data.amount}</Text>
@@ -146,13 +150,14 @@ const FarmIncomeExpenseView = ({ route }) => {
                                                         : ''
                                                 }
                                             </View>
+
                                         )
                                     })
                                 }
                                 <View style={styles.ExpenseCon}>
                                     <View></View>
                                     <View style={styles.ExpenseConItem}>
-                                        <Text style={styles.ExpenseTitle}>{t('total_income_sum') + "(" + currency + ")"} {<ShowIncome income={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
+                                        <Text style={styles.ExpenseTitle}>{t('total_income_sum') + "(" + currency + ")"} : {<ShowIncome income={farmAccountSingle && farmAccountSingle.income_expense} />}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -178,8 +183,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
-    farmContainerItem: {
-        width: '50%'
+    farmContainerItemLeft: {
+        width: '40%'
+    },
+    farmContainerItemRight: {
+        width: '60%'
     },
     farmTitle: {
         color: '#000',

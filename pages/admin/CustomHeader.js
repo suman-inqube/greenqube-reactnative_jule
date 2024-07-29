@@ -1,61 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Image, Text, View, StyleSheet, StatusBar, BackHandler, Alert } from 'react-native';
-import { getItem } from '../../config/getDataFromStorage';
-import ImageForm from '../Common/ImageForm';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-const CustomHeader = ({ path, HandlerGoBack, banner }) => {
-    // const routesLength = useNavigationState(state => state.routes.length);
-    // const state = useNavigationState(state => state);
-    const { t } = useTranslation();
+import React, { useEffect, lazy } from 'react';
+import { TouchableOpacity, Image, View, StyleSheet, StatusBar } from 'react-native';
+const ImageForm = lazy(() => import('../Common/ImageForm'));
+import { useNavigation, } from '@react-navigation/native';
+const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner, show }) => {
     const navigation = useNavigation();
-    const isFocused = useIsFocused();
-    const [logoImage, setlogoImage] = useState("");
-    const [topBanner, settopBanner] = useState("");
     const openDrawer = () => {
         navigation.openDrawer();
     }
-    const onPageLoad = async () => {
-        const [logoImageData, topBannerData] = await Promise.all([
-            getItem('logoImageData'),
-            getItem('topBannerData')
-        ]);
-        setlogoImage(logoImageData)
-        settopBanner(topBannerData);
-    };
-    // const goBack = () => {
-    //     if (path !== "exit") {
-    //         navigation.navigate(path);
-    //     } else {
-    //         // BackHandler.exitApp();
-    //         Alert.alert(
-    //             `${t('app_name')}`,
-    //             `${t('close_app')}`,
-    //             [
-    //                 { text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-    //                 { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
-    //             ],
-    //             { cancelable: false });
-    //         return true;
-    //     }
-    // }
     useEffect(() => {
-        // console.log(state.history);
-        // console.log(JSON.stringify(state));
-        // console.log(navigation.getState().history)
-        //         const routes = navigation.getState()?.routes;
-
-        // const prevRoute = routes[routes.length - 2];
-        // console.log(prevRoute)
-        onPageLoad();
         navigation.closeDrawer();
     }, []);
     return (
         <View style={styles.mainContainer}>
-            {/* <StatusBar
-                barStyle="dark-content"
-                backgroundColor={"white"}
-            /> */}
             <StatusBar barStyle="light-content" backgroundColor={"#003c04"} />
             <View style={Platform.OS === 'android' ? styles.androidContainer : styles.iosContainer}>
                 <View style={styles.rightContainer}>
@@ -83,13 +39,11 @@ const CustomHeader = ({ path, HandlerGoBack, banner }) => {
                 </TouchableOpacity>
             </View>
             <View>
-                {banner !== true && topBanner &&
-                    <ImageForm
-                        source={{ uri: topBanner }}
-                        resizeMode="cover"
-                        height={200}
-                        width={'100%'}
-                    />
+                {show == true && banner != true && <>
+                    {topBanner != undefined || topBanner != null ?
+                        <ImageForm source={{ uri: topBanner }} resizeMode="cover" height={200} width={'100%'} />
+                        : <Image source={require('../Common/images/dashboard.jpeg')} style={{ width: '100%', height: 200 }} />
+                    }</>
                 }
             </View>
         </View>

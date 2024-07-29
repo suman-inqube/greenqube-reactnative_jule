@@ -1,29 +1,17 @@
-import { StatusBar, StyleSheet, Text, View, ScrollView, Keyboard, BackHandler, TouchableOpacity, Image } from 'react-native'
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import ImagePlaceHolderCircle from '../../Common/ImagePlaceHolderCircle';
+import { StyleSheet, Text, View, ScrollView, Keyboard, KeyboardAvoidingView, Platform } from 'react-native'
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react'
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import InputTextForm from '../../Common/InputTextForm';
-import RadioForm from '../../Common/RadioForm';
-import DropdownForm from '../../Common/DropdownForm';
 import { fetchDistrictAPI, fetchStateAPI, fetchBlockAPI } from '../userlist/UsersAPI';
-import PasswordComp from '../../Common/PasswordComp';
-import ButtonForm from '../../Common/ButtonForm';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { getItem, removeItem, setItem } from '../../../config/getDataFromStorage';
-import { useNavigation, useRoute, useIsFocused, useFocusEffect, StackActions, CommonActions } from '@react-navigation/native';
-import { checkPhoneDigitAPI } from '../../../config/apiHere';
-import axios from 'axios';
-import config from '../../../config';
-import { useTranslation } from 'react-i18next';
-import DatePickerComp from '../../Common/DatePickerComp';
+import { useNavigation, useRoute, useIsFocused, useFocusEffect } from '@react-navigation/native';
+import { checkPhoneDigitAPI, phoneNoCheckAPI } from '../../../config/apiHere';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import DeviceInfo from '../../DeviceInfo';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PersonalInformation = () => {
+    //GQR-65
+    const { dbLanTokUsr, InputTextForm, RadioForm, getItem, setItem, AlertMesg, t, PasswordComp, ButtonForm, onBackPress, axios, config, DeviceInfo,
+        DropdownForm, Root, Toast, CustomHeader, FormsTitle, ImagePlaceHolderCircle, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-65
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
     const isFocused = useIsFocused();
@@ -34,14 +22,6 @@ const PersonalInformation = () => {
     const [blockAll, setblockAll] = useState([]);
     const [cpasswordVisibility, setcPasswordVisibility] = useState('');
     const [passwordVisibility, setPasswordVisibility] = useState('');
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-        country: '',
-        company: ''
-    });
     const phoneInputRef = useRef(null);
     const [farmerData, setFarmerData] = useState({
         userImg: {},
@@ -90,14 +70,9 @@ const PersonalInformation = () => {
     const getState = async (dbName, languageID) => {
         var dataArray = [];
         if (netConnection) {
-            const response = await fetchStateAPI(dbName, languageID)
+            const response = await fetchStateAPI(dbName, languageID);
             if (response.status == 200) {
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.state_name,
-                    });
-                });
+                dataArray = response?.data?.data?.rows?.map(data => ({ value: data.fid, label: data.state_name }))
                 await setItem('fetchStateAPI', dataArray)
             }
         } else {
@@ -108,73 +83,35 @@ const PersonalInformation = () => {
         }
         setstateAll(dataArray);
     }
-    const getDistrict = async (dbName, languageID, stateID) => {
-        const response = await fetchDistrictAPI(dbName, languageID, stateID)
-        if (response.status === 200) {
-            const dataArray = [];
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.district_name,
-                });
-            });
-            setdistrictAll(dataArray);
-        }
-    }
-    const getBlock = async (dbName, languageID, districtID) => {
-        const response = await fetchBlockAPI(dbName, languageID, districtID)
-        const dataArray = [];
-        response.data.data.rows.forEach(element => {
-            dataArray.push({
-                value: element.fid,
-                label: element.subdiv_name,
-            });
-        });
-        setblockAll(dataArray);
-    }
     const onPageLoad = async () => {
-        const [loginUser_data, state, district, block
+        const [state, district, block
         ] = await Promise.all([
-            getItem('loginUser_data'),
             getItem("state"),
             getItem("district"),
             getItem("block")
         ]);
-        if (loginUser_data) {
-            setregionaldatas({
-                ...regionaldatas,
-                state: state,
-                district: district,
-                block: block
-            })
-            const { dbname, lan_id, token, user_id, agri_user_addresses, db_company_id } = loginUser_data;
-            getState(dbname, lan_id);
-            const checkPhoneNumberDigit = await checkPhoneDigitAPI(agri_user_addresses[0].country, db_company_id, lan_id);
-            if (checkPhoneNumberDigit.status == 200) {
-                const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
-                setcontact_no_digits(contact_no_digits);
-            }
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id,
-                country: loginUser_data.agri_user_addresses[0].country,
-                company: loginUser_data.db_company_id
-            })
+        setregionaldatas({ ...regionaldatas, state: state, district: district, block: block })
+        //GQR-65
+        const { dbName, languageId, token, supervisorId, company, country, languageConpany, country_id } = dbLanTokUsr;
+        //GQR-65
+        const [checkPhoneNumberDigit] = await Promise.all([
+            checkPhoneDigitAPI(country_id, languageConpany, languageId),
+            getState(dbName, languageId)
+        ])
+        if (checkPhoneNumberDigit?.status == 200) {
+            const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
+            setcontact_no_digits(contact_no_digits);
         }
     }
     useEffect(() => {
         if (isFocused) {
+
             if (typeof route.params != "undefined") {
                 if (route.params.data === "remove") {
                     if (remove == "remove") {
-                        setRemove("");
-                        setSelectedImage(null);
+                        setRemove(""); setSelectedImage(null);
                     } else {
-                        setRemove("remove");
-                        setSelectedImage(null);
+                        setRemove("remove"); setSelectedImage(null);
                     }
                     emptyData();
                 }
@@ -184,21 +121,18 @@ const PersonalInformation = () => {
                     setPath("");
                 }
             } else {
-                setPath("");
-                setRemove("");
+                setPath(""); setRemove("");
             }
             onPageLoad();
         }
     }, [isFocused, netConnection]);
+    const handleBackPress = () => {
+        navigation.navigate(path != "" ? path : 'Dashboard');
+        return true // disable normal behaviour
+    }
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate(path != "" ? path : 'Dashboard');
-                return true // disable normal behaviour
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress); // detect back button press
-            return () =>
-                BackHandler.removeEventListener('hardwareBackPress');
+            onBackPress(handleBackPress);
         })
     );
     const emptyData = () => {
@@ -227,14 +161,9 @@ const PersonalInformation = () => {
         var distric_list_arr = [];
         let fetchDistrict_local_data = await getItem('fetchDistrictAPI');
         if (netConnection) {
-            const response = await fetchDistrictAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value)
-            if (response.status === 200) {
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.fid,
-                        label: element.district_name,
-                    });
-                });
+            const response = await fetchDistrictAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, item.value)
+            if (response?.status === 200) {
+                dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.district_name }));
                 if (fetchDistrict_local_data != null && fetchDistrict_local_data.length > 0) {
                     if (fetchDistrict_local_data[0][item.value] != undefined) {
                         JSON.parse(fetchDistrict_local_data[0][item.value]).push({ [item.value]: JSON.stringify(dataArray) });
@@ -269,13 +198,8 @@ const PersonalInformation = () => {
         var dlock_list_arr = [];
         let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
         if (netConnection) {
-            const response = await fetchBlockAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, item.value)
-            response.data.data.rows.forEach(element => {
-                dataArray.push({
-                    value: element.fid,
-                    label: element.subdiv_name,
-                });
-            });
+            const response = await fetchBlockAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, item.value)
+            dataArray = response?.data?.data?.rows.map(data => ({ value: data.fid, label: data.subdiv_name }));
             if (fetchBlockAPI_local_data != null && fetchBlockAPI_local_data.length > 0) {
                 if (fetchBlockAPI_local_data[0][item.value] != undefined) {
                     JSON.parse(fetchBlockAPI_local_data[0][item.value]).push({ [item.value]: JSON.stringify(dataArray) });
@@ -309,33 +233,25 @@ const PersonalInformation = () => {
     }
     const checkPhone = async () => {
         if (netConnection) {
-            const check_phone_digit_res = await checkPhoneDigitAPI(dbLanTokUsr.country, dbLanTokUsr.company, dbLanTokUsr.languageID)
+            const check_phone_digit_res = await checkPhoneDigitAPI(dbLanTokUsr.country_id, dbLanTokUsr.languageConpany, dbLanTokUsr.languageId)
             if (check_phone_digit_res) {
                 if (check_phone_digit_res.data.data.contact_no_digits) {
                     let require_digit = check_phone_digit_res.data.data.contact_no_digits;
                     if (farmerData.phone.length === require_digit) {
                         try {
-                            const axiosConfig1 = {
-                                headers: {
-                                    'information': `${dbLanTokUsr.dbName}`,
-                                    'Accept': 'application/json'
-                                },
-                            };
-                            const inputBody = {
-                                "contactNumber": farmerData.phone.toString(),
-                                "userType": "2"
-                            };
-                            let check_phone_res = await axios.post(config.phoneNoCheckAPI, inputBody, axiosConfig1);
+                            const axiosConfig1 = { headers: { 'information': `${dbLanTokUsr.dbName}`, 'Accept': 'application/json' }, };
+                            const phoneRes = await phoneNoCheckAPI(farmerData.phone, axiosConfig1);
+                            if (phoneRes?.status != 200) {
+                                Toast.show({ text: `This ${farmerData.phone} Not Available`, ...AlertMesg[0] });
+                                setFarmerData({ ...farmerData, phone: "" })
+                            }
                         } catch (error) {
-                            CrashlyticsRecordError(error)
                             Toast.show({ text: `This ${farmerData.phone} Not Available`, ...AlertMesg[0] });
                             // phoneInputRef.current.focus();
                             setFarmerData({ ...farmerData, phone: "" })
                         }
                     } else {
-                        Toast.show({
-                            time: 3, text: `Please Enter ${require_digit} digit phone no`, ...AlertMesg[0]
-                        })
+                        Toast.show({ time: 3, text: `Please Enter ${require_digit} digit phone no`, ...AlertMesg[0] })
                         Keyboard.dismiss();
                         setFarmerData({ ...farmerData, phone: "" })
                     }
@@ -388,63 +304,71 @@ const PersonalInformation = () => {
         <>
             <Root>
                 <View style={{ flex: 1 }}>
-                    <CustomHeader path={path != '' ? path : 'Dashboard'} HandlerGoBack={HandlerGoBack} />
+                    <CustomHeader path={path != '' ? path : 'Dashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     <FormsTitle title={t('personal_information')} />
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        <View style={styles.container}>
-                            <ImagePlaceHolderCircle openImagePicker={openImagePicker} selectedImage={selectedImage} />
-                            <InputTextForm label={t('name')} color="red" onChangeText={(value) => handleAddData('name', value)} value={farmerData.name} />
-                            <InputTextForm label={t('new_reg_phone_number')} color="red" keyboardType="numeric"
-                                onChangeText={(value) => handleAddData('phone', value)} value={farmerData.phone}
-                                onBlur={(phone) => checkPhone(phone)} refname={phoneInputRef} maxLength={contact_no_digits} />
-                            <View>
-                                <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
-                                <RadioForm
-                                    label={t('farmer_reg_male')}
-                                    onSelect={() => handleAddData('gender', "1")}
-                                    selected={farmerData.gender === '1'}
-                                />
-                                <RadioForm
-                                    label={t('farmer_reg_female')}
-                                    onSelect={() => handleAddData('gender', "2")}
-                                    selected={farmerData.gender === '2'}
-                                />
-                                <RadioForm
-                                    label={t('farmer_reg_other')}
-                                    onSelect={() => handleAddData('gender', "3")}
-                                    selected={farmerData.gender === '3'}
-                                />
+                    <KeyboardAvoidingView
+                        style={{ flex: 1 }}
+                        // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
+                        behavior={Platform.OS === "ios" ? "padding" : null}
+                        // behavior='position'
+                        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+                    >
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <View style={styles.container}>
+                                <ImagePlaceHolderCircle openImagePicker={openImagePicker} selectedImage={selectedImage} />
+                                <InputTextForm label={t('name')} color="red" onChangeText={(value) => handleAddData('name', value)} value={farmerData.name} />
+                                <InputTextForm label={t('new_reg_phone_number')} color="red" keyboardType="numeric"
+                                    onChangeText={(value) => handleAddData('phone', value)} value={farmerData.phone}
+                                    onBlur={(phone) => checkPhone(phone)} refname={phoneInputRef} maxLength={contact_no_digits} />
+                                <View>
+                                    <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
+                                    <RadioForm
+                                        label={t('farmer_reg_male')}
+                                        onSelect={() => handleAddData('gender', "1")}
+                                        selected={farmerData.gender === '1'}
+                                    />
+                                    <RadioForm
+                                        label={t('farmer_reg_female')}
+                                        onSelect={() => handleAddData('gender', "2")}
+                                        selected={farmerData.gender === '2'}
+                                    />
+                                    <RadioForm
+                                        label={t('farmer_reg_other')}
+                                        onSelect={() => handleAddData('gender', "3")}
+                                        selected={farmerData.gender === '3'}
+                                    />
+                                </View>
+                                <View style={{ marginBottom: 15, }}>
+                                    <Text style={styles.text}>{t('far_reg_far_type')}</Text>
+                                    <RadioForm
+                                        label={t('grower')}
+                                        onSelect={() => handleAddData('userType', "1")}
+                                        selected={farmerData.userType === '1'}
+                                    />
+                                    <RadioForm
+                                        label={t('small_holder')}
+                                        onSelect={() => handleAddData('userType', "2")}
+                                        selected={farmerData.userType === '2'}
+                                    />
+                                    <RadioForm
+                                        label={t('farm_worker')}
+                                        onSelect={() => handleAddData('userType', "3")}
+                                        selected={farmerData.userType === '3'}
+                                    />
+                                </View>
+                                <InputTextForm label={t('age')} color="red" keyboardType={'number-pad'} maxLength={2} onChangeText={(value) => handleAddData('age', value)} value={farmerData.age} />
+                                <DropdownForm label={regionaldatas.state == "" ? t('state_col') : t(`${regionaldatas.state}`)} color="red" data={stateAll} onChange={item => { handleStateInfo(item, 'state', 'stateValue') }} val={farmerData.state} />
+                                <DropdownForm label={regionaldatas.district == "" ? t('select_zila') : t(`${regionaldatas.district}`)} color="red" data={districtAll} onChange={item => { handleDistrictInfo(item, 'district', 'districtValue') }} val={farmerData.district} />
+                                <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} color="red" data={blockAll} onChange={item => { handleAddDataBlock(item, 'block', 'bloctValue') }} val={farmerData.block} />
+                                <InputTextForm label={t('enter_address')} onChangeText={(value) => handleAddData('address', value)} value={farmerData.address} />
+                                <InputTextForm label={t('valid_pin_code')} keyboardType={'number-pad'} maxLength={6} onChangeText={(value) => handleAddData('pin', value)} value={farmerData.pin} />
+                                <PasswordComp setPasswordVisibility={setPasswordVisibility} passwordVisibility={passwordVisibility} label={t('new_reg_password')} onChangeText={(value) => handleAddData('password', value)} value={farmerData.password} />
+                                <PasswordComp setPasswordVisibility={setcPasswordVisibility} passwordVisibility={cpasswordVisibility} label={t('new_reg_confirm_password')} onChangeText={(value) => handleAddData('cpassword', value)} value={farmerData.cpassword} />
                             </View>
-                            <View style={{ marginBottom: 15, }}>
-                                <Text style={styles.text}>{t('far_reg_far_type')}</Text>
-                                <RadioForm
-                                    label={t('grower')}
-                                    onSelect={() => handleAddData('userType', "1")}
-                                    selected={farmerData.userType === '1'}
-                                />
-                                <RadioForm
-                                    label={t('small_holder')}
-                                    onSelect={() => handleAddData('userType', "2")}
-                                    selected={farmerData.userType === '2'}
-                                />
-                                <RadioForm
-                                    label={t('farm_worker')}
-                                    onSelect={() => handleAddData('userType', "3")}
-                                    selected={farmerData.userType === '3'}
-                                />
-                            </View>
-                            <InputTextForm label={t('age')} color="red" keyboardType={'number-pad'} maxLength={2} onChangeText={(value) => handleAddData('age', value)} value={farmerData.age} />
-                            <DropdownForm label={regionaldatas.state == "" ? t('state_col') : t(`${regionaldatas.state}`)} color="red" data={stateAll} onChange={item => { handleStateInfo(item, 'state', 'stateValue') }} val={farmerData.state} />
-                            <DropdownForm label={regionaldatas.district == "" ? t('select_zila') : t(`${regionaldatas.district}`)} color="red" data={districtAll} onChange={item => { handleDistrictInfo(item, 'district', 'districtValue') }} val={farmerData.district} />
-                            <DropdownForm label={regionaldatas.block == "" ? t('select_block_sub_county_upzila') : t(`${regionaldatas.block}`)} color="red" data={blockAll} onChange={item => { handleAddDataBlock(item, 'block', 'bloctValue') }} val={farmerData.block} />
-                            <InputTextForm label={t('enter_address')} onChangeText={(value) => handleAddData('address', value)} value={farmerData.address} />
-                            <InputTextForm label={t('valid_pin_code')} keyboardType={'number-pad'} maxLength={6} onChangeText={(value) => handleAddData('pin', value)} value={farmerData.pin} />
-                            <PasswordComp setPasswordVisibility={setPasswordVisibility} passwordVisibility={passwordVisibility} label={t('new_reg_password')} onChangeText={(value) => handleAddData('password', value)} value={farmerData.password} />
-                            <PasswordComp setPasswordVisibility={setcPasswordVisibility} passwordVisibility={cpasswordVisibility} label={t('new_reg_confirm_password')} onChangeText={(value) => handleAddData('cpassword', value)} value={farmerData.cpassword} />
-                        </View>
-                    </ScrollView>
-                    <ButtonForm label={t('next')} onPress={handleNavigate} />
+                        </ScrollView>
+                    </KeyboardAvoidingView>
                 </View>
+                <ButtonForm label={t('next')} onPress={handleNavigate} />
             </Root>
         </>
     )

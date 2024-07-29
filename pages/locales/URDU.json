@@ -1022,5 +1022,21 @@
     "payment_mode": "ادائیگی کا طریقہ",
     "cheque": "چیک کریں۔",
     "product_sub_category": "پروڈکٹ ذیلی زمرہ",
-    "closed": "closed"
+    "closed": "بند،",
+    "Approved": "منظورشدہ",
+    "Rejected": "مسترد",
+    "SanctionedDate": "منظوری کی تاریخ",
+    "LoanOrderID": "لون آرڈر آئی ڈی،",
+    "LoanSanctioned": "قرض کی منظوری",
+    "AddLocation": "مقام شامل کریں,",
+    "Please_enter_activity_type": "براہ کرم سرگرمی کی قسم درج کریں,",
+    "Data_submitted_successfully": "ڈیٹا کامیابی سے جمع کرایا گیا,",
+    "Please_enter_activity": "براہ کرم سرگرمی درج کریں",
+    "Password_update_successfully": "پاس ورڈ کامیابی سے اپ ڈیٹ",
+    "Old_Password_Is_Incorrect": "پرانا پاس ورڈ غلط ہے",
+    "Please_try_again_some_time_later": "براہ کرم کچھ دیر بعد دوبارہ کوشش کریں,",
+    "Please_enter_perform_date": "براہ کرم کارکردگی کی تاریخ درج کریں,",
+    "Please_try_again_to_reach_the_accurancy": "براہ کرم درستگی تک پہنچنے کے لیے دوبارہ کوشش کریں,",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount"
 }

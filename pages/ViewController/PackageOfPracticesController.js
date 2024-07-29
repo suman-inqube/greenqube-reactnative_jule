@@ -1,18 +1,19 @@
-import { BackHandler } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native';
-import loginUserDataController from './loginUserDataController';
 import {
     PackageOfPracticesList,
     productionSeasonAndLivelyhoodTypeListAPI,
     productionStageAPI,
     POPDetails, POPStaticMenuList, POPStaticMenuListDetails
 } from '../../config/apiHere';
-import { onBackPress } from '../Common/BackPressHandler';
+import { userCreateContext } from '../Context/usersCreateContext';
 const PackageOfPracticesController = () => {
     const routename = useRoute().name;
-    const { GetLoginUserData, loginUserData } = loginUserDataController();
-    const { dbname, lan_id, token, user_id } = loginUserData;
+    //GQR-67
+    const { loginUser_data, onBackPress, t } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner } = loginUser_data;
+    //GQR-67
+
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const [livelihoodType, setLivelihoodType] = useState([]);
@@ -35,46 +36,40 @@ const PackageOfPracticesController = () => {
     }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const [GetLoginUserDataRes] = await Promise.all([
-            GetLoginUserData()
-        ]);
-        if (GetLoginUserDataRes) {
-            const { dbname, lan_id, token, user_id } = GetLoginUserDataRes;
-            const [livehoodTypeRes, packageListRes] = await Promise.all([
-                productionSeasonAndLivelyhoodTypeListAPI(dbname, lan_id),
-                PackageOfPracticesList(dbname, lan_id),
-            ])
-            let PackageListArr = [];
-            let LivelihoodArr = [{
-                value: "",
-                label: "All"
-            }];
-            if (packageListRes?.status == 200) {
-                const { rows } = packageListRes.data.data;
-                if (rows != null) {
-                    rows.map((data, index) => {
-                        const { fid, name, agri_files } = data;
-                        PackageListArr.push({
-                            value: fid,
-                            label: name,
-                            agri_files: agri_files
-                        })
-                    });
-                }
-            }
-            setPackageList(PackageListArr);
-            if (livehoodTypeRes?.status == 200) {
-                const { crop_type } = livehoodTypeRes.data.data;
-                crop_type.map((data, index) => {
-                    const { fid, name } = data;
-                    LivelihoodArr.push({
+        const [livehoodTypeRes, packageListRes] = await Promise.all([
+            productionSeasonAndLivelyhoodTypeListAPI(dbname, lan_id),
+            PackageOfPracticesList(dbname, lan_id),
+        ])
+        let PackageListArr = [];
+        let LivelihoodArr = [{
+            value: "All",
+            label: t('All')
+        }];
+        if (packageListRes?.status == 200) {
+            const { rows } = packageListRes.data.data;
+            if (rows != null) {
+                rows.map((data, index) => {
+                    const { fid, name, agri_files } = data;
+                    PackageListArr.push({
                         value: fid,
-                        label: name
+                        label: name,
+                        agri_files: agri_files
                     })
                 });
             }
-            setLivelihoodType(LivelihoodArr);
         }
+        setPackageList(PackageListArr);
+        if (livehoodTypeRes?.status == 200) {
+            const { crop_type } = livehoodTypeRes.data.data;
+            crop_type.map((data, index) => {
+                const { fid, name } = data;
+                LivelihoodArr.push({
+                    value: fid,
+                    label: name
+                })
+            });
+        }
+        setLivelihoodType(LivelihoodArr);
         setIsLoading(false);
     }
     useEffect(() => {
@@ -115,13 +110,13 @@ const PackageOfPracticesController = () => {
         setIsLoading(true);
         setModalVisible(false);
         let fliterRes;
-        if (label == "All") {
+        if (value == "All") {
             fliterRes = await PackageOfPracticesList(dbname, lan_id)
         } else {
             fliterRes = await productionStageAPI(dbname, lan_id, value, '');
         }
         if (fliterRes?.status == 200) {
-            if (label == "All") {
+            if (value == "All") {
                 const { rows } = fliterRes.data.data;
                 if (rows != null) {
                     rows.map((data, index) => {
@@ -179,6 +174,7 @@ const PackageOfPracticesController = () => {
         if (StaticMenuListDetails?.status == 200) {
             const { package_of_practice_list } = StaticMenuListDetails.data.data[0];
             if (package_of_practice_list.length > 0) {
+                navigation.navigate('PackageItemDetails', { package_of_practice_list: package_of_practice_list[0].content, menu_name: menu_name })
                 for (i = 0; i <= package_of_practice_list.length; i++) {
                     if (null === package_of_practice_list[i]?.static_submenu_id) {
                         navigation.navigate('PackageItemDetails', {
@@ -190,8 +186,6 @@ const PackageOfPracticesController = () => {
                 }
             }
         }
-        // console.log(StaticMenuListDetails.data.data)
-        // navigation.navigate('PackageItemDetails', { content: item, title: title, paramsData: paramsData })
     }
     return {
         HandlerGoBack,

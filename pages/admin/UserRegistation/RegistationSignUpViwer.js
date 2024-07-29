@@ -1,48 +1,25 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, TextInput, BackHandler } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import ButtonForm from '../../Common/ButtonForm';
-import { signupSaveAPI } from '../../../config/apiHere';
+import React, { useEffect, useState, useContext } from 'react'
 import { UserRegisterAPI } from './UserRegistationAPI';
 import { useFocusEffect, useNavigation, useIsFocused, CommonActions } from '@react-navigation/native';
-import { getItem, setItem, removeItem } from '../../../config/getDataFromStorage';
-import CustomHeader from '../CustomHeader';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
-import DeviceInfo from '../../DeviceInfo';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const RegistationSignUpViwer = () => {
+    //GQR-65
+    const { dbLanTokUsr, getItem, setItem, CustomHeader, ButtonForm, t, DeviceInfo, onBackPress, Root, Toast, logoImage, topBanner, AlertMesg } = useContext(userCreateContext);
+    //GQR-65
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const navigation = useNavigation();
     const isFocused = useIsFocused();
-    const [isstoreSignup, setisstoreSignup] = useState(false);
     const [isstorePersnolInfo, setisstorePersnolInfo] = useState(true);
     const [isstoreFinancial, setisstoreFinancial] = useState(true);
     const [isstoreProduceInfo, setisstoreProduceInfo] = useState(true);
-    const [storeData, setstoreData] = useState([]);
-
     const [storeSignup, setstoreSignup] = useState({});
     const [storePersnolInfo, setstorePersnolInfo] = useState({});
     const [storeFinancial, setstoreFinancial] = useState({});
     const [storeProduceInfo, setstoreProduceInfo] = useState([]);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
-    const [saveData, setsaveData] = useState([]);
-    const togglestorePersnolInfo = () => {
-        setisstorePersnolInfo(!isstorePersnolInfo);
-    };
-
-    const togglestoreFinancial = () => {
-        setisstoreFinancial(!isstoreFinancial);
-    };
-
-    const togglestoreProduceInfo = () => {
-        setisstoreProduceInfo(!isstoreProduceInfo);
-    };
+    const togglestorePersnolInfo = () => setisstorePersnolInfo(!isstorePersnolInfo);
+    const togglestoreFinancial = () => setisstoreFinancial(!isstoreFinancial);
+    const togglestoreProduceInfo = () => setisstoreProduceInfo(!isstoreProduceInfo);
     const handleSave = async () => {
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
@@ -54,15 +31,15 @@ const RegistationSignUpViwer = () => {
         const farmer_details = {
             "userName": storePersnolInfo.name,
             "contactNumber": storePersnolInfo.phone.toString(),
-            "lan_id": dbLanTokUsr.languageID.toString(),
+            "lan_id": dbLanTokUsr.languageId.toString(),
             "gender": storePersnolInfo.gender.toString(),
-            "farmer_type": storePersnolInfo.userType,
+            "farmer_type": storePersnolInfo?.userType,
             "date_of_birth": dob,
             "finance_agriculture_campagin": "No Loan",
             "IMEINumber": "123456",
             "FcmUserToken": "654321",
             "password": storePersnolInfo.password,
-            "createdBy": dbLanTokUsr.userID,
+            "createdBy": dbLanTokUsr.supervisorId,
         }
         const agri_user_addresses = {
             "country": dbLanTokUsr.country.toString(),
@@ -175,28 +152,17 @@ const RegistationSignUpViwer = () => {
         farmer_details['agri_ponds'] = agri_ponds;
         farmer_details['agri_ponds'] = agri_ponds;
         data_farmer_details['farmer_details'] = farmer_details;
-        // const savedData = {
-        //     'data': JSON.stringify([data_farmer_details]),
-        //     'photo': storePersnolInfo.userImg
-        // }
         const formData = new FormData();
         formData.append('data', JSON.stringify([data_farmer_details]));
         if (storePersnolInfo.userImg.name != undefined) {
             formData.append('photo', storePersnolInfo.userImg);
         }
         if (netConnection) {
-            const database_res = await UserRegisterAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID,
-                dbLanTokUsr.token, dbLanTokUsr.userID, formData);
-            if (database_res?.status === 200) {
-                Toast.show({ text: `The farmer/producer has been registered successfully`, ...AlertMesg[0] });
-                setTimeout(() => {
-                    navigation.dispatch({
-                        ...CommonActions.reset({
-                            index: 0,
-                            routes: [{ name: "AdminNavigation" }]
-                        })
-                    });
-                }, 500);
+            const database_res = await UserRegisterAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId,
+                dbLanTokUsr.token, dbLanTokUsr.supervisorId, formData);
+            if (database_res.status === 200) {
+                Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
+                setTimeout(() => { navigation.dispatch({ ...CommonActions.reset({ index: 0, routes: [{ name: "AdminNavigation" }] }) }) }, 2000);
             }
         } else {
             let offlineDataArr = await getItem('offlineUserRegistrationData');
@@ -206,62 +172,39 @@ const RegistationSignUpViwer = () => {
             } else {
                 await setItem('offlineUserRegistrationData', [formData])
             }
-            Toast.show({ text: `The farmer/producer has been registered successfully`, ...AlertMesg[0] });
-            setTimeout(() => {
-                navigation.dispatch({
-                    ...CommonActions.reset({
-                        index: 0,
-                        routes: [{ name: "AdminNavigation" }]
-                    })
-                });
-            }, 500);
+            Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
+            setTimeout(() => { navigation.dispatch({ ...CommonActions.reset({ index: 0, routes: [{ name: "AdminNavigation" }] }) }) }, 2000);
         }
     }
     const onPageLoad = async () => {
-        const [loginUser_data,
-            storeSignup_data,
-            storePersnolInfo_data,
-            storeFinancial_data,
-            storeProduceInfo_data,
+        const [
+            storeSignup_data, storePersnolInfo_data, storeFinancial_data, storeProduceInfo_data,
         ] = await Promise.all([
-            getItem('loginUser_data'),
             getItem('storeSignup_data'),
             getItem('storePersnolInfo_data'),
             getItem('storeFinancial_data'),
             getItem('storeProduceInfo_data')
         ]);
-        if (loginUser_data) {
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: loginUser_data.dbname,
-                languageID: loginUser_data.lan_id,
-                token: loginUser_data.token,
-                userID: loginUser_data.user_id,
-                country: loginUser_data.agri_user_addresses[0].country,
-                company: loginUser_data.db_company_id
-            });
-            setstoreSignup(storeSignup_data);
-            setstorePersnolInfo(storePersnolInfo_data);
-            setstoreFinancial(storeFinancial_data);
-            setstoreProduceInfo(storeProduceInfo_data);
-        }
+        await Promise.all([setstoreSignup(storeSignup_data),
+        setstorePersnolInfo(storePersnolInfo_data),
+        setstoreFinancial(storeFinancial_data),
+        setstoreProduceInfo(storeProduceInfo_data)])
     };
+    const handleBackPress = () => {
+        navigation.navigate('RegistationSignUpViwer');
+        return true;
+    }
     useEffect(() => {
         if (isFocused) {
             onPageLoad();
         }
-        const onBackPress = () => {
-            navigation.navigate('RegistationSignUpViwer');
-            return true;
-        };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        onBackPress(handleBackPress);
     }, [isFocused]);
     const HandlerGoBack = () => { }
     return (
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <Root>
-                <CustomHeader path='RegistationSignUpViwer' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='RegistationSignUpViwer' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ marginBottom: 100 }}>
                         <View style={{ margin: 10, elevation: 3, borderRadius: 30, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#D5FFD0', marginTop: 15 }}>
@@ -516,9 +459,7 @@ const RegistationSignUpViwer = () => {
                                                 </View>
                                             </View>
                                             : ""
-
                                     }
-
                                 </>
                             )}
                         </View>
@@ -536,33 +477,32 @@ const RegistationSignUpViwer = () => {
                                 </View>
                             </TouchableOpacity>
                             {isstoreProduceInfo && (
-                                <>
-                                    {
-                                        storeProduceInfo ?
-                                            <View style={[styles.bodyContainerMarginBottom, { marginTop: 10 }]}>
-                                                {storeProduceInfo.map((item, index) => {
-                                                    return (
-                                                        <View style={{ borderBottomWidth: 2, borderColor: '#050505' }} key={index}>
-                                                            <View style={{ alignItems: 'flex-end' }} >
-                                                                <TouchableOpacity onPress={() => navigation.navigate('PlotSiteProduceInformation', {
-                                                                    pagename: "RegistationSignUpViwer",
-                                                                    editItem: item,
-                                                                    arrayIndex: index,
-                                                                })}>
-                                                                    <Image source={require('../../Common/images/edit.png')} style={{ width: 25, height: 25 }} />
-                                                                </TouchableOpacity>
-                                                            </View>
-                                                            <View >
+                                <>{
+                                    storeProduceInfo ?
+                                        <View style={[styles.bodyContainerMarginBottom, { marginTop: 10 }]}>
+                                            {storeProduceInfo.map((item, index) => {
+                                                return (
+                                                    <View style={{ borderBottomWidth: 2, borderColor: '#050505' }} key={index}>
+                                                        <View style={{ alignItems: 'flex-end' }} >
+                                                            <TouchableOpacity onPress={() => navigation.navigate('PlotSiteProduceInformation', {
+                                                                pagename: "RegistationSignUpViwer",
+                                                                editItem: item,
+                                                                arrayIndex: index,
+                                                            })}>
+                                                                <Image source={require('../../Common/images/edit.png')} style={{ width: 25, height: 25 }} />
+                                                            </TouchableOpacity>
+                                                        </View>
+                                                        <View >
 
-                                                                <View style={styles.mainContainer}>
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('pre_plot_name')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.plotSiteName}</Text>
-                                                                    </View>
+                                                            <View style={styles.mainContainer}>
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('pre_plot_name')} </Text>
                                                                 </View>
-                                                                {/* <View style={styles.mainContainer}>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.plotSiteName}</Text>
+                                                                </View>
+                                                            </View>
+                                                            {/* <View style={styles.mainContainer}>
                                                                     <View style={styles.leftSection}>
                                                                         <Text style={styles.title}> Land Type </Text>
                                                                     </View>
@@ -570,68 +510,68 @@ const RegistationSignUpViwer = () => {
                                                                         <Text style={styles.title}>{item.landType}</Text>
                                                                     </View>
                                                                 </View> */}
-                                                                <View style={styles.mainContainer}>
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('pre_land_size')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.plotSize}</Text>
-                                                                    </View>
+                                                            <View style={styles.mainContainer}>
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('pre_land_size')} </Text>
                                                                 </View>
-                                                                {/* <View style={styles.mainContainer}>
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> Land Unit </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.landUnitName}</Text>
-                                                                    </View>
-                                                                </View> */}
-                                                                <View style={styles.mainContainer}>
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('crop_name')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.produceName}</Text>
-                                                                    </View>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.plotSize}</Text>
                                                                 </View>
-                                                                <View style={styles.mainContainer}>
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('crop_veriety')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.produceVariety}</Text>
-                                                                    </View>
+                                                            </View>
+                                                            <View style={styles.mainContainer}>
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('addland_unit')}</Text>
                                                                 </View>
-                                                                <View style={styles.mainContainer} >
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('showing_date')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.cycleStarts}</Text>
-                                                                    </View>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.landUnitName}</Text>
                                                                 </View>
-                                                                <View style={styles.mainContainer}>
-                                                                    <View style={styles.leftSection}>
-                                                                        <Text style={styles.title}> {t('harvesting_date_auto_calculated')} </Text>
-                                                                    </View>
-                                                                    <View style={styles.rightSection}>
-                                                                        <Text style={styles.title}>{item.cycleEnds}</Text>
-                                                                    </View>
+                                                            </View>
+                                                            <View style={styles.mainContainer}>
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('crop_name')} </Text>
+                                                                </View>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.produceName}</Text>
+                                                                </View>
+                                                            </View>
+                                                            <View style={styles.mainContainer}>
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('crop_veriety')} </Text>
+                                                                </View>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.produceVariety}</Text>
+                                                                </View>
+                                                            </View>
+                                                            <View style={styles.mainContainer} >
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('showing_date')} </Text>
+                                                                </View>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.cycleStarts}</Text>
+                                                                </View>
+                                                            </View>
+                                                            <View style={styles.mainContainer}>
+                                                                <View style={styles.leftSection}>
+                                                                    <Text style={styles.title}> {t('harvesting_date_auto_calculated')} </Text>
+                                                                </View>
+                                                                <View style={styles.rightSection}>
+                                                                    <Text style={styles.title}>{item.cycleEnds}</Text>
                                                                 </View>
                                                             </View>
                                                         </View>
-                                                    )
-                                                })}
+                                                    </View>
+                                                )
+                                            })}
 
-                                            </View>
-                                            : ""
-                                    }
+                                        </View>
+                                        : ""
+                                }
                                 </>
                             )}
                         </View>
                     </View>
                 </ScrollView>
-                <ButtonForm label={t('save')} onPress={() => handleSave()} />
+                <ButtonForm label={t('save')} onPress={handleSave} />
             </Root>
         </View>
     )

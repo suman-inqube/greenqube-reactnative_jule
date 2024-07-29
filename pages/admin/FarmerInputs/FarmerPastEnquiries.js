@@ -1,20 +1,17 @@
-import { BackHandler, StyleSheet, Text, View, FlatList, Image, TouchableOpacity, PermissionsAndroid } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, PermissionsAndroid } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-import { inputEnquiryViewAPI, FarmerinputPastEnquiryListAPI, problemListAPI } from '../../../config/apiHere';
-import Geolocation from '@react-native-community/geolocation';
-import CustomHeader from '../CustomHeader';
+import { inputEnquiryViewAPI, FarmerinputPastEnquiryListAPI } from '../../../config/apiHere';
 import FarmerPastEnquiriesModel from './FarmerPastEnquiriesModel';
 import Filter from '../../Common/FarmerFilter';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerPastEnquiries = ({ navigation }) => {
+    //GQR-67
+    const { loginUser_data, LoadingScreen, DatePickerComp, CustomHeader, t, onBackPress, getItem, setItem, logoImage, topBanner, effective_dates } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const route = useRoute();
-    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(true);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({});
     const [inputPastEnquiryAll, setInputPastEnquiryAll] = useState([]);
     const [filterItem, setFilterItem] = useState("");
     const [filterOption, setFilterOption] = useState(false);
@@ -22,18 +19,12 @@ const FarmerPastEnquiries = ({ navigation }) => {
     const [newToDate, setnewToDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false);
     const [openToDate, setOpenToDate] = useState(false);
-    const [showMenu, setshowMenu] = useState(null);
     const [fromDate, setFromDate] = useState("")
     const [toDate, setToDate] = useState("")
     const [pastEnquiries, setPastEnquiries] = useState(false);
     const [pastEnquirySingle, setPastEnquirySingle] = useState(false);
     const [pastEnquiryView, setPastEnquiryView] = useState([]);
-    const [result, setresult] = useState({
-        qty: "",
-        total: "",
-        grandTotal: "",
-        disTotal: "",
-    });
+    const [result, setresult] = useState({ qty: "", total: "", grandTotal: "", disTotal: "" });
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -51,80 +42,56 @@ const FarmerPastEnquiries = ({ navigation }) => {
         const EnquiryFound = input_past_enquiry_Data.find(user => user.fid === fid);
         setPastEnquirySingle(EnquiryFound);
         const response = await inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
-        if (response) {
+        if (response?.status == 200) {
             setPastEnquiryView(response.data.data)
             var qty = 0;
             var grandTotal = 0;
             var disTotal = 0;
             var total = 0;
-            response.data.data.map((data, index) => {
+            response?.data?.data.map((data, index) => {
                 qty = qty + parseFloat(data.sqty);
                 grandTotal = grandTotal + parseFloat(data.sgrand_total);
                 disTotal = disTotal + parseFloat(data.sdiscount);
                 total = total + parseFloat(data.total_samount);
             });
-            setresult({
-                ...result,
-                qty: qty,
-                total: total,
-                grandTotal: grandTotal,
-                disTotal: disTotal,
-            });
+            setresult({ ...result, qty: qty, total: total, grandTotal: grandTotal, disTotal: disTotal });
         }
         setPastEnquiries(true);
     };
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            const response = await FarmerinputPastEnquiryListAPI(dbname, lan_id, token, user_id, "", "")
-            if (response) {
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    dbName: dbname,
-                    languageId: lan_id,
-                    token: token,
-                    supervisorId: user_id
-                });
-                setInputPastEnquiryAll(response.data.data.rows)
-                setItem("input_past_enquiry_Data", response.data.data.rows);
-                if (route.params != undefined) {
-                    navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id)
-                }
-                setIsLoading(false)
+        const response = await FarmerinputPastEnquiryListAPI(dbname, lan_id, token, user_id, "", "")
+        if (response?.status == 200) {
+            setInputPastEnquiryAll(response?.data?.data?.rows)
+            setItem("input_past_enquiry_Data", response?.data?.data?.rows);
+            if (route?.params != undefined) {
+                navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id)
             }
+            setIsLoading(false)
         }
     };
     const handleDatePicker = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setFromDate(effective_date)
         if (toDate) {
-            const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fromDate, toDate);
-            if (inputList) {
-                setInputPastEnquiryAll(inputList.data.data.rows)
-                setItem("input_past_enquiry_Data", inputList.data.data.rows)
-                setIsLoading(false)
+            const inputList = await FarmerinputPastEnquiryListAPI(dbname, lan_id, token, user_id, fromDate, toDate);
+            if (inputList?.status == 200) {
+                setInputPastEnquiryAll(inputList?.data?.data?.rows);
+                setItem("input_past_enquiry_Data", inputList?.data?.data?.rows);
+                setIsLoading(false);
             }
         }
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDate) {
-            const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fromDate, effective_date);
-            if (inputList) {
-                setInputPastEnquiryAll(inputList.data.data.rows)
-                setItem("input_past_enquiry_Data", inputList.data.data.rows)
+            const inputList = await FarmerinputPastEnquiryListAPI(dbname, lan_id, token, user_id, fromDate, effective_date);
+            if (inputList?.status == 200) {
+                setInputPastEnquiryAll(inputList?.data?.data?.rows)
+                setItem("input_past_enquiry_Data", inputList?.data?.data?.rows)
                 setIsLoading(false)
             }
         }
-
     }
     const requestCameraPermission = async () => {
         try {
@@ -140,49 +107,35 @@ const FarmerPastEnquiries = ({ navigation }) => {
         }
     };
     useEffect(() => {
-        onPageLoad();
         requestCameraPermission();
     }, []);
-
+    const handleBackPress = () => { navigation.navigate('FarmerInputList'); return true; }
     useFocusEffect(
         useCallback(() => {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerInputList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerInputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerInputList');
     const filterDataRemove = async () => {
         setFilterItem("");
         setFilterOption(false);
         setToDate("");
         setFromDate("");
-        const inputList = await FarmerinputPastEnquiryListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, "", "");
-        if (inputList) {
-            setInputPastEnquiryAll(inputList.data.data.rows)
-            setItem("input_past_enquiry_Data", inputList.data.data.rows)
+        const inputList = await FarmerinputPastEnquiryListAPI(dbname, lan_id, token, user_id, "", "");
+        if (inputList?.status == 200) {
+            setInputPastEnquiryAll(inputList?.data?.data?.rows)
+            setItem("input_past_enquiry_Data", inputList?.data?.data?.rows)
             setIsLoading(false)
         }
     }
     return (
         <>
             <View style={{ flex: 1 }}>
-                <CustomHeader path="FarmerInputList" HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path="FarmerInputList" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <DatePickerComp
-                    openDate={openFromDate}
-                    newDate={newFromDate}
-                    setOpenDate={setOpenFromDate}
-                    handleDatePicker={handleDatePicker}
-                />
-                <DatePickerComp
-                    openDate={openToDate}
-                    newDate={newToDate}
-                    setOpenDate={setOpenToDate}
-                    handleDatePicker={handleDatePicker2}
-                    minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
+                    openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
+                <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
                 />
                 <Filter
                     title={t('past_enq')}
@@ -207,17 +160,16 @@ const FarmerPastEnquiries = ({ navigation }) => {
                         <FlatList
                             data={inputPastEnquiryAll}
                             showsVerticalScrollIndicator={false}
-                            renderItem={({ item }) => {
-                                return (
-                                    <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages(item.fid, dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId)}>
-                                        <Text style={styles.title}>{t('product_name')} : {item.ioProduPrice && item.ioProduPrice.mk_product.product_name}</Text>
-                                        <View style={styles.flatListItem}>
-                                            <Text style={styles.title}>{t('name')} : {item.users && item.users.userName}</Text>
-                                            <Text style={styles.title}>{t('far_list_number')} : {item.users && item.users.contactNumber}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                )
-                            }}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages(item.fid, dbname, lan_id, token, user_id)}>
+                                    <Text style={styles.title}>{t('product_name')} : {item.ioProduPrice && item.ioProduPrice.mk_product.product_name}</Text>
+                                    <View style={styles.flatListItem}>
+                                        <Text style={styles.title}>{t('name')} : {item.users && item.users.userName}</Text>
+                                        <Text style={styles.title}>{t('far_list_number')} : {item.users && item.users.contactNumber}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )
+                            }
                             keyExtractor={(item, index) => index}
                         />
                 }

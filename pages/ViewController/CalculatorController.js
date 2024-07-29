@@ -1,25 +1,17 @@
-import { Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import FarmerListController from './FarmerListController';
-import loginUserDataController from './loginUserDataController';
+import React, { useEffect, useState, useContext } from 'react'
 import {
     productionSeasonAndLivelyhoodTypeListAPI,
     productionStageAPI, calculatorRouteViewesultAPI,
     ProblemTypeAPI, ProblemNameAPI, problemSeverityAPI, ProductionProcessAPI, calculatorPestisideResultAPI
 } from '../../config/apiHere';
-import { getItem } from '../../config/getDataFromStorage';
-import config from '../../config';
-import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../Context/usersCreateContext';
 const CalculatorController = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, t, Toast, AlertMesg } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, owner, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
-    const { GetFarmerList, farmerList } = FarmerListController();
-    const { GetLoginUserData, loginUserData } = loginUserDataController();
-    const { dbname, lan_id, token, user_id } = loginUserData;
     const [isLoading, setIsLoading] = useState(false);
     const [livelihoodType, setLivelihoodType] = useState([]);
     const [produceName, setProduceName] = useState([]);
@@ -30,69 +22,27 @@ const CalculatorController = () => {
     const [severity, setSeverity] = useState([]);
     const [productionProcess, setProductionProcessArr] = useState([]);
 
-    const [livelihoodData, setLivelihoodData] = useState({
-        name: '',
-        value: ''
-    });
-    const [produceNameData, setProduceNameData] = useState({
-        name: '',
-        value: ''
-    });
-    const [growthStageData, setGrowthStageData] = useState({
-        name: '',
-        value: ''
-    });
-    const [produceVarietyData, setproduceVarietyData] = useState({
-        name: '',
-        value: ''
-    });
-    const [problemTypeData, setProblemTypeData] = useState({
-        name: '',
-        value: ''
-    });
-    const [problemNameData, setProblemNameData] = useState({
-        name: '',
-        value: ''
-    });
-    const [severityData, setSeverityData] = useState({
-        name: '',
-        value: ''
-    });
-    const [productionProcessData, setProductionProcessData] = useState({
-        name: '',
-        value: ''
-    });
+    const [livelihoodData, setLivelihoodData] = useState({ name: '', value: '' });
+    const [produceNameData, setProduceNameData] = useState({ name: '', value: '' });
+    const [growthStageData, setGrowthStageData] = useState({ name: '', value: '' });
+    const [produceVarietyData, setproduceVarietyData] = useState({ name: '', value: '' });
+    const [problemTypeData, setProblemTypeData] = useState({ name: '', value: '' });
+    const [problemNameData, setProblemNameData] = useState({ name: '', value: '' });
+    const [severityData, setSeverityData] = useState({ name: '', value: '' });
+    const [productionProcessData, setProductionProcessData] = useState({ name: '', value: '' });
     const [fertilizerResult, setFertilizerResult] = useState([]);
     const [pestisideResult, setPestisideResult] = useState([]);
-    const numberArr = [
-        "one", "two", "three", "four", "five", "six", "seven", "eight"
-    ];
+    const numberArr = ["one", "two", "three", "four", "five", "six", "seven", "eight"];
     const onPageLoad = async () => {
         let liveHoodTypeArr = [];
         setIsLoading(true);
-        const [GetLoginUserDataRes, GetFarmerListRes] = await Promise.all([
-            GetLoginUserData(),
-            GetFarmerList(),
-        ]);
-        if (GetLoginUserDataRes) {
-            const { dbname, lan_id, token, user_id } = GetLoginUserDataRes;
-            const [liveHoodTypeRes] = await Promise.all([
-                productionSeasonAndLivelyhoodTypeListAPI(dbname, lan_id),
-                // ProblemTypeAPI(dbname),
-            ]);
-            if (liveHoodTypeRes.status == 200) {
-                const { crop_type } = liveHoodTypeRes.data.data;
-                crop_type.map((data, index) => {
-                    liveHoodTypeArr.push({
-                        value: data.fid,
-                        label: data.name
-                    })
-                })
-                setLivelihoodType(liveHoodTypeArr);
-            }
-            // if (problemTypeRes.status == 200) {
-
-            // }
+        const [liveHoodTypeRes] = await Promise.all([productionSeasonAndLivelyhoodTypeListAPI(dbname, lan_id)]);
+        if (liveHoodTypeRes?.status == 200) {
+            const { crop_type } = liveHoodTypeRes?.data?.data;
+            crop_type.map((data, index) => {
+                liveHoodTypeArr.push({ value: data.fid, label: data.name })
+            })
+            setLivelihoodType(liveHoodTypeArr);
         }
 
     }
@@ -122,15 +72,12 @@ const CalculatorController = () => {
         setFertilizerResult([]);
         setPestisideResult([]);
         const productionStage_res = await productionStageAPI(dbname, lan_id, value, '');
-        if (productionStage_res.status == 200) {
-            const { crop_name } = productionStage_res.data.data;
+        if (productionStage_res?.status == 200) {
+            const { crop_name } = productionStage_res?.data?.data;
             if (crop_name != null) {
                 crop_name.map((data, index) => {
                     const { fid, name } = data.crop_name;
-                    produceNameArr.push({
-                        value: fid,
-                        label: name
-                    });
+                    produceNameArr.push({ value: fid, label: name });
                 })
             }
             setProduceName(produceNameArr);
@@ -154,24 +101,18 @@ const CalculatorController = () => {
         setFertilizerResult([]);
         setPestisideResult([]);
         const growthStageArr_res = await productionStageAPI(dbname, lan_id, livelihoodData.value, value);
-        if (growthStageArr_res.status == 200) {
-            const { growth_stage, crop_variety } = growthStageArr_res.data.data;
+        if (growthStageArr_res?.status == 200) {
+            const { growth_stage, crop_variety } = growthStageArr_res?.data?.data;
             if (growth_stage != null) {
                 growth_stage.map((data, index) => {
                     const { fid, name } = data.growth_stage;
-                    growthStageArr.push({
-                        value: fid,
-                        label: name
-                    });
+                    growthStageArr.push({ value: fid, label: name });
                 });
             }
             if (crop_variety != null) {
                 crop_variety.map((data, index) => {
                     const { fid, name } = data.crop_variety;
-                    productVariety.push({
-                        value: fid,
-                        label: name
-                    });
+                    productVariety.push({ value: fid, label: name });
                 });
             }
             setProduceVariety(productVariety);
@@ -189,15 +130,12 @@ const CalculatorController = () => {
         setFertilizerResult([]);
         setPestisideResult([]);
         const problemTypeRes = await ProblemTypeAPI(dbname, lan_id);
-        if (problemTypeRes.status == 200) {
-            const { problem_type } = problemTypeRes.data.data;
+        if (problemTypeRes?.status == 200) {
+            const { problem_type } = problemTypeRes?.data?.data;
             if (problem_type != null) {
                 problem_type.map((data, index) => {
                     const { fid, name } = data;
-                    problemTypeArr.push({
-                        value: fid,
-                        label: name
-                    });
+                    problemTypeArr.push({ value: fid, label: name });
                 });
             }
             setProblemType(problemTypeArr);
@@ -227,14 +165,11 @@ const CalculatorController = () => {
         setFertilizerResult([]);
         setPestisideResult([]);
         const ProblemNameRes = await ProblemNameAPI(dbname, lan_id, value);
-        if (ProblemNameRes.status == 200) {
-            const { problem_name } = ProblemNameRes.data.data;
+        if (ProblemNameRes?.status == 200) {
+            const { problem_name } = ProblemNameRes?.data?.data;
             problem_name.map((data, index) => {
                 const { fid, name } = data.problem_name;
-                problemNameArr.push({
-                    value: fid,
-                    label: name
-                });
+                problemNameArr.push({ value: fid, label: name });
             });
         }
         setProblemName(problemNameArr);
@@ -249,15 +184,12 @@ const CalculatorController = () => {
         setFertilizerResult([]);
         setPestisideResult([]);
         const SeverityRes = await problemSeverityAPI(dbname, lan_id);
-        if (SeverityRes.status == 200) {
-            const { rows } = SeverityRes.data.data;
+        if (SeverityRes?.status == 200) {
+            const { rows } = SeverityRes?.data?.data;
             if (rows != null) {
                 rows.map((data, index) => {
                     const { fid, name } = data;
-                    severityArr.push({
-                        value: fid,
-                        label: name
-                    });
+                    severityArr.push({ value: fid, label: name });
                 })
             }
         }
@@ -271,15 +203,12 @@ const CalculatorController = () => {
         setFertilizerResult([]);
         setPestisideResult([]);
         const productionProcessRes = await ProductionProcessAPI(dbname, lan_id);
-        if (productionProcessRes.status == 200) {
-            const { rows } = productionProcessRes.data.data;
+        if (productionProcessRes?.status == 200) {
+            const { rows } = productionProcessRes?.data?.data;
             if (rows != null) {
                 rows.map((data, index) => {
                     const { fid, name } = data;
-                    productionProcessArr.push({
-                        value: fid,
-                        label: name
-                    });
+                    productionProcessArr.push({ value: fid, label: name });
                 })
             }
         }
@@ -328,9 +257,9 @@ const CalculatorController = () => {
         } else {
             if (item == "FertilizerCalculator") {
                 const calculatorResult = await calculatorRouteViewesultAPI(dbname, lan_id, livelihoodData.value, produceNameData.value, growthStageData.value);
-                if (calculatorResult.status == 200) {
-                    if (calculatorResult.data.data.count > 0) {
-                        setFertilizerResult(calculatorResult.data.data.rows);
+                if (calculatorResult?.status == 200) {
+                    if (calculatorResult?.data?.data.count > 0) {
+                        setFertilizerResult(calculatorResult?.data?.data.rows);
                     } else {
                         Toast.show({
                             time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]
@@ -341,9 +270,9 @@ const CalculatorController = () => {
                 }
             } else {
                 const calculatorPestisideRes = await calculatorPestisideResultAPI(dbname, lan_id, livelihoodData.value, produceNameData.value, produceVarietyData.value, growthStageData.value, problemTypeData.value, problemNameData.value, productionProcessData.value, severityData.value);
-                if (calculatorPestisideRes.status == 200) {
-                    if (calculatorPestisideRes.data.data.count > 0) {
-                        setPestisideResult(calculatorPestisideRes.data.data.rows)
+                if (calculatorPestisideRes?.status == 200) {
+                    if (calculatorPestisideRes?.data?.data.count > 0) {
+                        setPestisideResult(calculatorPestisideRes?.data?.data.rows)
                     } else {
                         Toast.show({
                             time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]

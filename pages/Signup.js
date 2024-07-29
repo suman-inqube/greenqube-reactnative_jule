@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  PermissionsAndroid,
-  StatusBar,
+  KeyboardAvoidingView,
+  StatusBar, Platform
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Logo from './Common/Logo';
@@ -39,6 +39,7 @@ import ForegroundLocationService from './BackgroundService/ForegroundLocationSer
 import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
 const Signup = () => {
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : -40
   const { netConnection } = DeviceInfo();
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -218,7 +219,7 @@ const Signup = () => {
       // MessageDialog({ title: 'Password', message: `This Password Not Matched` })
       Toast.show({
         time: 3,
-        text: `This Password Not Matched`,
+        text: t('please_enter_valid_password'),
         ...AlertMesg[0],
       });
     }
@@ -227,11 +228,7 @@ const Signup = () => {
     if (storeSignup.country && storeSignup.company) {
       checkPhoneDigit();
     } else {
-      Toast.show({
-        time: 3,
-        text: `Please enter phone no`,
-        ...AlertMesg[0],
-      });
+      Toast.show({ time: 3, text: t('please_enter_valid_mobile_no'), ...AlertMesg[0], });
       // MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
       setstoreSignup({ ...storeSignup, phone: '' });
       phoneInputRef.current.focus();
@@ -246,9 +243,8 @@ const Signup = () => {
           storeSignup.company.dbname,
           language_id,
         );
-        if (check_phone_digit_res.data.data.contact_no_digits) {
+        if (check_phone_digit_res?.status == 200) {
           let require_digit = check_phone_digit_res.data.data.contact_no_digits;
-
           if (storeSignup.phone.length === require_digit) {
             checkPhoneNo();
           } else {
@@ -286,13 +282,14 @@ const Signup = () => {
         axiosConfig1,
       );
     } catch (error) {
-      CrashlyticsRecordError(error.response);
-      MessageDialog({
-        title: 'Phone',
-        message: `This ${storeSignup.phone} Not Available`,
+      // CrashlyticsRecordError(error.response);
+      Toast.show({
+        time: 3,
+        text: `This ${storeSignup.phone} Not Available`,
+        ...AlertMesg[0],
       });
       setstoreSignup({ ...storeSignup, phone: '' });
-      phoneInputRef.current.focus();
+      // phoneInputRef.current.focus();
     }
   };
   const validateForm = () => {
@@ -378,68 +375,74 @@ const Signup = () => {
             <Text style={styles.headersTitle}>{t('login_information')}</Text>
           </View>
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{ alignItems: 'center' }}>
-                <Image
-                  source={require('../pages/Common/images/logo.png')}
-                  style={styles.logo}
-                />
-              </View>
-              <View style={styles.formContainer}>
-                <DropdownForm
-                  data={countryData}
-                  label={t('country')}
-                  color="red"
-                  onChange={country => {
-                    countryHandle(country);
-                  }}
-                  val={storeSignup.country.label}
-                />
-                <DropdownForm
-                  data={companyData}
-                  label={t('new_reg_select_company')}
-                  color="red"
-                  onChange={company => {
-                    companyHandle(company);
-                  }}
-                  val={storeSignup.company.label}
-                />
-                <DropdownForm
-                  data={supervisorData}
-                  label={t('select_supervisor')}
-                  color="red"
-                  onChange={supervisor => {
-                    setstoreSignup({ ...storeSignup, supervisor: supervisor });
-                  }}
-                  val={storeSignup.supervisor.label}
-                />
-                <InputTextForm
-                  label={t('farmer_reg_mb')}
-                  color="red"
-                  value={storeSignup.phone}
-                  onChangeText={phone =>
-                    setstoreSignup({ ...storeSignup, phone: phone })
-                  }
-                  keyboardType="numeric"
-                  onBlur={phone => checkPhone(phone)}
-                  refname={phoneInputRef}
-                />
-                <PasswordComp
-                  setPasswordVisibility={setPasswordVisibility}
-                  passwordVisibility={passwordVisibility}
-                  label={t('new_reg_password')}
-                  onChangeText={value => handleAddData('password', value)}
-                  value={storeSignup.password}
-                />
-                <PasswordComp
-                  setPasswordVisibility={setcPasswordVisibility}
-                  passwordVisibility={cpasswordVisibility}
-                  label={t('new_reg_confirm_password')}
-                  onChangeText={value => handleAddData('cpassword', value)}
-                  value={storeSignup.cpassword}
-                />
-              </View>
-            </ScrollView>
+            <KeyboardAvoidingView
+              // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
+              behavior={Platform.OS === "ios" ? "padding" : null}
+              keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 50}
+            >
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{ alignItems: 'center' }}>
+                  <Image
+                    source={require('../pages/Common/images/logo.png')}
+                    style={styles.logo}
+                  />
+                </View>
+                <View style={styles.formContainer}>
+                  <DropdownForm
+                    data={countryData}
+                    label={t('country')}
+                    color="red"
+                    onChange={country => {
+                      countryHandle(country);
+                    }}
+                    val={storeSignup.country.label}
+                  />
+                  <DropdownForm
+                    data={companyData}
+                    label={t('new_reg_select_company')}
+                    color="red"
+                    onChange={company => {
+                      companyHandle(company);
+                    }}
+                    val={storeSignup.company.label}
+                  />
+                  <DropdownForm
+                    data={supervisorData}
+                    label={t('select_supervisor')}
+                    color="red"
+                    onChange={supervisor => {
+                      setstoreSignup({ ...storeSignup, supervisor: supervisor });
+                    }}
+                    val={storeSignup.supervisor.label}
+                  />
+                  <InputTextForm
+                    label={t('farmer_reg_mb')}
+                    color="red"
+                    value={storeSignup.phone}
+                    onChangeText={phone =>
+                      setstoreSignup({ ...storeSignup, phone: phone })
+                    }
+                    keyboardType="numeric"
+                    onBlur={phone => checkPhone(phone)}
+                    refname={phoneInputRef}
+                  />
+                  <PasswordComp
+                    setPasswordVisibility={setPasswordVisibility}
+                    passwordVisibility={passwordVisibility}
+                    label={t('new_reg_password')}
+                    onChangeText={value => handleAddData('password', value)}
+                    value={storeSignup.password}
+                  />
+                  <PasswordComp
+                    setPasswordVisibility={setcPasswordVisibility}
+                    passwordVisibility={cpasswordVisibility}
+                    label={t('new_reg_confirm_password')}
+                    onChangeText={value => handleAddData('cpassword', value)}
+                    value={storeSignup.cpassword}
+                  />
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
           </View>
         </View>
         <ButtonForm label={t('next')} onPress={() => saveHandle()} />
@@ -454,7 +457,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    marginBottom: 50,
+    // marginBottom: 50,
   },
   headersContainer: {
     marginHorizontal: '5%',

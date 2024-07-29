@@ -1,80 +1,29 @@
-import {
-    BackHandler,
-    StyleSheet,
-    View,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    TextInput,
-    Image,
-    Keyboard
-} from 'react-native'
-
-import React, { useEffect, useState, useCallback } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Image, Keyboard } from 'react-native'
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { getItem } from '../../../config/getDataFromStorage'
-import ButtonForm from '../../Common/ButtonForm';
-import MessageDialog from '../../Common/MessageDialog';
-import CustomHeader from '../CustomHeader';
 import { UserPasswordUpdate } from '../userlist/UsersAPI'
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert'
 const qs = require('qs');
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerChangePassword = ({ navigation }) => {
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
+    //GQR-67
+    const { loginUser_data, ButtonForm, Root, Toast, AlertMesg, t, onBackPress, CustomHeader, logoImage, topBanner } = useContext(userCreateContext);
+    const { dbname, lan_id, token, owner, user_id, } = loginUser_data;
+    //GQR-67
     const [nPasswordVisibility, setnPasswordVisibility] = useState('');
     const [oPasswordVisibility, setoPasswordVisibility] = useState('');
-    const [Password, setPassword] = useState({
-        opassword: '',
-        cpassword: '',
-    });
-
-
-    const onPageLoad = async () => {
-
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-
-
-        }
-    };
-
+    const [Password, setPassword] = useState({ opassword: '', cpassword: '' });
     useFocusEffect(
         useCallback(() => {
-            onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerDashboard'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmerDashboard'); return true; })
         }, [])
     );
-
-    useEffect(() => {
-        onPageLoad();
-    }, []);
-
     const validation = () => {
         Keyboard.dismiss();
         if (Password.opassword == "") {
-            Toast.show({ text: 'Please enter old password first', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_enter_old_password')}`, ...AlertMesg[0] });
             return false;
         } else if (Password.cpassword == "") {
-            Toast.show({ text: 'Please enter new password first', ...AlertMesg[0] });
+            Toast.show({ text: `${t('please_enter_new_password')}`, ...AlertMesg[0] });
             return false;
         }
         return true;
@@ -86,37 +35,34 @@ const FarmerChangePassword = ({ navigation }) => {
                 newPassword: Password.cpassword,
                 userType: "2"
             });
-
-            const userDataUpdate = await UserPasswordUpdate(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, dbLanTokUsr.token, formData);
+            const userDataUpdate = await UserPasswordUpdate(dbname, lan_id, user_id, token, formData);
             if (userDataUpdate.status === 200) {
                 setPassword({
                     ...Password,
                     opassword: "",
                     cpassword: "",
                 })
-                Toast.show({ text: 'Password update successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Password_update_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('Login')
                 }, 1000);
             } else if (userDataUpdate.status === 400) {
-                Toast.show({ text: 'Old Password Is Incorrect', ...AlertMesg[0] });
+                Toast.show({ text: t('Old_Password_Is_Incorrect'), ...AlertMesg[0] });
             } else {
-                Toast.show({ text: 'Please try again some time later', ...AlertMesg[0] });
+                Toast.show({ text: t('Please_try_again_some_time_later'), ...AlertMesg[0] });
             }
         }
     };
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerDashboard')
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     return (
         <>
             <Root>
-                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={styles.container} >
                     <View style={styles.forgotContainer} >
-                        <Text style={styles.titleForgot}>Change Password</Text>
+                        <Text style={styles.titleForgot}>{t('change_password')}</Text>
                         <View>
-                            <Text style={styles.formMargin}>Please Enter Old Password</Text>
+                            <Text style={styles.formMargin}>{t('please_enter_old_password')}</Text>
                             <View>
                                 <View style={styles.passwordContainer}>
                                     <TextInput secureTextEntry={oPasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(pword) => setPassword({ ...Password, opassword: pword })} value={Password.opassword} />
@@ -135,7 +81,7 @@ const FarmerChangePassword = ({ navigation }) => {
                                 </View>
                             </View>
 
-                            <Text style={styles.formMargin}>Please Enter New Password</Text>
+                            <Text style={styles.formMargin}>{t('please_enter_new_password')}</Text>
                             <View>
                                 <View style={styles.passwordContainer}>
                                     <TextInput secureTextEntry={nPasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(cpassword => setPassword({ ...Password, cpassword: cpassword }))} value={Password.cpassword} />
@@ -156,7 +102,7 @@ const FarmerChangePassword = ({ navigation }) => {
                         </View>
                     </View>
                     <View style={styles.buttonForm}>
-                        <ButtonForm label='Save' onPress={() => handleSave()} />
+                        <ButtonForm label={t('save')} onPress={() => handleSave()} />
                     </View>
                 </View>
             </Root>

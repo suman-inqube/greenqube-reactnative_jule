@@ -1,5 +1,5 @@
-import { PermissionsAndroid, Keyboard, Image, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Button, StatusBar } from 'react-native'
-import React, { useEffect, useState } from 'react';
+import { Keyboard, Image, StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Alert, Button, StatusBar } from 'react-native'
+import React, { useEffect, useState, useContext } from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
@@ -13,13 +13,19 @@ import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen'
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './Common/ToastAlert';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useIsFocused, StackActions } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
+import { userCreateContext } from './Context/usersCreateContext';
 const Login = ({ route }) => {
+    const { setlogoImage, settopBanner, AllFarmerList, t } = useContext(userCreateContext);
     const { netConnection } = DeviceInfo();
+    const roleData = [
+        { label: t('login_farmer'), value: '2' },
+        { label: t('retailer'), value: '3' }
+    ];
     // const { fusedLocationData } = ForegroundLocationService();
     const { requestUserPermission, notificationListener } = NotificationServices();
     const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +38,6 @@ const Login = ({ route }) => {
         company_id: ""
     });
     const [contact_no_digits, setcontact_no_digits] = useState(11);
-    const { t } = useTranslation();
     const [storeLoginUser, setstoreLoginUser] = useState({
         FcmUserToken: "",
         IMEINumber: "123456",
@@ -69,106 +74,113 @@ const Login = ({ route }) => {
         return true;
     };
     const saveHandle = async () => {
-        const [fcmToken_res] = await Promise.all([
-            getItem('fcmToken'),
-        ])
-        // if (validateForm()) {
-        const inputdata = {
-            "FcmUserToken": fcmToken_res,
-            "IMEINumber": "123456",
-            "company": storeLoginUser.company,
-            "contactNumber": storeLoginUser.phone,
-            "password": storeLoginUser.password,
-            "type": storeLoginUser.role
-        };
-        try {
-            console.log(config.loginAPI)
-            console.log(inputdata)
-            setIsLoading(true);
-            let userIno = await axios.post(config.loginAPI, inputdata);
-            if (userIno?.status === 200) {
-                const loginUserdata = userIno.data.data[0];
-                const details_company_res = await DetailsCompany(loginUserdata?.dbname, loginUserdata?.lan_id, loginUserdata?.db_company_id);
-                if (details_company_res?.status == 200) {
-                    await setItem("side_menu_option", {
-                        soil_testing: details_company_res?.data?.data[0]?.soil_testing,
-                        agri_calculator: details_company_res?.data?.data[0]?.agri_calculator
-                    });
-                }
-                await Promise.all([
-                    setItem("userNameData", loginUserdata.userName),
-                    setItem("userType", loginUserdata.userType)
-                ]);
-                if (loginUserdata.agri_files.length > 0) {
-                    const profileImg = loginUserdata.agri_files.find((item) => item.term_type === '1');
-                    if (typeof profileImg != "undefined") {
-                        await setItem("profileImgData", profileImg.file_path)
+        const [fcmToken_res] = await Promise.all([getItem('fcmToken')]);
+        if (validateForm()) {
+            const inputdata = {
+                "FcmUserToken": fcmToken_res,
+                "IMEINumber": "123456",
+                "company": storeLoginUser.company,
+                "contactNumber": storeLoginUser.phone,
+                "password": storeLoginUser.password,
+                "type": storeLoginUser.role
+            };
+            try {
+                setIsLoading(true);
+                let userIno = await axios.post(config.loginAPI, inputdata);
+                if (userIno?.status === 200) {
+                    const loginUserdata = userIno.data.data[0];
+                    const { dbname, lan_id, agri_user_addresses, microCompany, db_company_id } = loginUserdata;
+                    const details_company_res = await DetailsCompany(loginUserdata?.dbname, 1, loginUserdata?.db_company_id);
+                    if (details_company_res?.status == 200) {
+                        await setItem("side_menu_option", {
+                            soil_testing: details_company_res?.data?.data[0]?.soil_testing,
+                            agri_calculator: details_company_res?.data?.data[0]?.agri_calculator
+                        });
                     }
-                } else {
-                    await setItem("profileImgData", "");
-                }
-                await setItem('loginUser_data', loginUserdata);
-                setstoreLoginUser({
-                    ...storeLoginUser,
-                    phone: "",
-                    password: "",
-                    role: ""
-                })
-                const [fpoDetailsList_res, reginalRes] = await Promise.all([
-                    fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
-                    reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
-                ]);
-                if (fpoDetailsList_res.status === 200) {
-                    const { company_website } = fpoDetailsList_res.data.data[0];
-                    var url_regex = /^(http|https)/;
-                    if (url_regex.test(String(company_website).toLowerCase()) == true) {
-                        await setItem("company_website", company_website);
-                    } else {
-                        await setItem("company_website", `https://${company_website}`);
-                    }
-                }
-                if (reginalRes.status === 200) {
-                    const datam = reginalRes.data.data.rows;
-                    datam.map(async (item) => {
-                        if (item.static_cid === 1) {
-                            await setItem("state", item.categoryName);
-                        } else if (item.static_cid === 2) {
-                            await setItem("district", item.categoryName);
-                        } else if (item.static_cid === 3) {
-                            await setItem("block", item.categoryName);
-                        } else if (item.static_cid === 4) {
-                            await setItem("currency", item.categoryName);
+                    // db_name:dbname, company_id:value, agri_company.country_id:country_id
+                    await Promise.all([
+                        setItem("userNameData", loginUserdata?.userName),
+                        setItem("userType", loginUserdata?.userType),
+                        setItem('companyLanguage_data', {
+                            language: lan_id,
+                            company: dbname,
+                            company_id: db_company_id,
+                            country_id: microCompany?.country_id
+                        })
+                    ]);
+                    if (loginUserdata.agri_files.length > 0) {
+                        const profileImg = loginUserdata.agri_files.find((item) => item.term_type === '1');
+                        if (typeof profileImg != "undefined") {
+                            await setItem("profileImgData", profileImg.file_path)
                         }
-                    });
+                    } else {
+                        await setItem("profileImgData", "");
+                    }
+                    await setItem('loginUser_data', loginUserdata);
+                    setstoreLoginUser({
+                        ...storeLoginUser,
+                        phone: "",
+                        password: "",
+                        role: ""
+                    })
+                    const [fpoDetailsList_res, reginalRes] = await Promise.all([
+                        fpodetailsDataListAPI(loginUserdata.dbname, loginUserdata.lan_id, loginUserdata.token, loginUserdata.user_id, loginUserdata.sa_company[0].company_code),
+                        reginalDataServiceAPI(loginUserdata.dbname, loginUserdata.lan_id, "regionaldatas")
+                    ]);
+                    if (fpoDetailsList_res?.status === 200) {
+                        // i18next.changeLanguage(loginUserdata?.lan_id.toString());
+                        const { company_website } = fpoDetailsList_res.data.data[0];
+                        var url_regex = /^(http|https)/;
+                        if (url_regex.test(String(company_website).toLowerCase()) == true) {
+                            await setItem("company_website", company_website);
+                        } else {
+                            await setItem("company_website", `https://${company_website}`);
+                        }
+                    }
+                    if (reginalRes?.status === 200) {
+                        const datam = reginalRes?.data?.data?.rows;
+                        datam.map(async (item) => {
+                            if (item.static_cid === 1) {
+                                await setItem("state", item.categoryName);
+                            } else if (item.static_cid === 2) {
+                                await setItem("district", item.categoryName);
+                            } else if (item.static_cid === 3) {
+                                await setItem("block", item.categoryName);
+                            } else if (item.static_cid === 4) {
+                                await setItem("currency", item.categoryName);
+                            }
+                        });
+                    }
+                    if (fpoDetailsList_res?.status === 200) {
+                        const agri_files = fpoDetailsList_res?.data?.data[0]?.agri_files;
+                        const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
+                        if (typeof foundbotomBannerFind != "undefined") {
+                            await setItem("bottomBannerData", foundbotomBannerFind.file_path);
+                        }
+                        const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
+                        if (typeof foundlogoFindFind != "undefined") {
+                            await setItem("logoImageData", foundlogoFindFind.file_path);
+                            setlogoImage(foundlogoFindFind.file_path);
+                        }
+                        const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
+                        if (typeof foundtopBannerFind != "undefined") {
+                            await setItem("topBannerData", foundtopBannerFind.file_path);
+                            settopBanner(foundtopBannerFind.file_path);
+                        }
+                        AllFarmerList();
+                        if (loginUserdata?.userType === 3) {
+                            navigation.navigate('AdminNavigation');
+                        } else if (loginUserdata?.userType === 2) {
+                            navigation.navigate('FarmerNavigation');
+                        }
+                        setIsLoading(false);
+                    }
                 }
-                if (fpoDetailsList_res.status === 200) {
-                    const agri_files = fpoDetailsList_res.data.data[0].agri_files;
-                    const foundbotomBannerFind = agri_files.find((item) => item.term_type === 'fpo_promobanner');
-                    if (typeof foundbotomBannerFind != "undefined") {
-                        await setItem("bottomBannerData", foundbotomBannerFind.file_path);
-                    }
-                    const foundlogoFindFind = agri_files.find((item) => item.term_type === 'fpo_logo');
-                    if (typeof foundlogoFindFind != "undefined") {
-                        await setItem("logoImageData", foundlogoFindFind.file_path);
-                    }
-                    const foundtopBannerFind = agri_files.find((item) => item.term_type === 'fpo_banner');
-                    if (typeof foundtopBannerFind != "undefined") {
-                        await setItem("topBannerData", foundtopBannerFind.file_path);
-                    }
-                    const userType = await getItem("userType");
-                    setIsLoading(false);
-                    if (userType === 3) {
-                        navigation.navigate('AdminNavigation');
-                    } else if (userType === 2) {
-                        navigation.navigate('FarmerNavigation');
-                    }
-                }
+            } catch (error) {
+                Toast.show({ text: `${error.response?.data?.error?.errorMessage}`, ...AlertMesg[0] })
+                setIsLoading(false);
             }
-        } catch (error) {
-            Toast.show({ text: `${error.response.data.error.errorMessage}`, ...AlertMesg[0] })
-            setIsLoading(false);
         }
-        // }
     }
     const onPageLoad = async () => {
         const [companyLanguage_data, company_res] = await Promise.all([
@@ -204,7 +216,7 @@ const Login = ({ route }) => {
                     value: company_id,
                     label: agri_company.company_name,
                     dbname: db_name,
-                    country_id: agri_company.country_id,
+                    country_id: agri_company.country_id
                 });
             })
             setCompanyData(companyArray);
@@ -228,30 +240,28 @@ const Login = ({ route }) => {
         }
     }, [isFocused, netConnection]);
     const onChangeConpany = async (item) => {
-        const { country_id, dbname, value } = item;
+        // db_name:dbname, company_id:value, agri_company.country_id:country_id
+        const { country_id, dbname, value, label } = item;
         const { language } = companyLanguage;
         setstoreLoginUser({ ...storeLoginUser, company: value });
         checkPhoneNumber(country_id, dbname, language);
     }
     const checkPhoneNumber = async (country_id, company, language) => {
+
         const checkPhoneNumber = await checkPhoneDigitAPI(country_id, company, language);
         if (checkPhoneNumber.status == 200) {
             const { contact_no_digits } = checkPhoneNumber.data?.data;
             setcontact_no_digits(contact_no_digits);
         }
     }
-    const roleData = [
-        { label: t('login_farmer'), value: '2' },
-        { label: t('retailer'), value: '3' }
-    ];
     return (
         <Root>
-            {/* <ForegroundLocationService /> */}
+            <ForegroundLocationService />
             <StatusBar barStyle="light-content" backgroundColor="#023316" />
             <ScrollView>
                 <View>
                     <View style={{ paddingHorizontal: 20 }}>
-                        <View>
+                        <View style={{ flex: 1, alignItems: 'center', marginTop: 50 }}>
                             <Image source={require('../pages/Common/images/logo.png')} style={styles.logo} />
                         </View>
                         <View>
@@ -283,7 +293,7 @@ const Login = ({ route }) => {
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10 }}>
-                <ButtonForm label={t('sign_in_submit')} onPress={() => saveHandle()} />
+                <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
             </View>
         </Root>
     )
@@ -327,14 +337,15 @@ const styles = StyleSheet.create({
     },
     button: {
         borderRadius: 5,
-    }, logo: {
+    },
+    logo: {
         width: 250,
         height: 100,
         resizeMode: 'contain',
         alignItems: 'center',
-        marginTop: 30,
-        marginBottom: 20,
-        marginLeft: 40,
+        // marginTop: 30,
+        // marginBottom: 20,
+        // marginLeft: 40,
     },
     loadingScreen: {
         position: 'absolute',

@@ -348,7 +348,7 @@ const ActivityReport = ({ navigation }) => {
         if (saveData.act_pattern === 'schedule') {
             if (!saveData.act_ref_type) {
                 Toast.show({
-                    time: 2, text: 'Please enter activity type', ...AlertMesg[0]
+                    time: 2, text: t('Please_enter_activity_type'), ...AlertMesg[0]
                 })
                 return false;
             }
@@ -367,7 +367,7 @@ const ActivityReport = ({ navigation }) => {
         }
         if (!saveData.latitude) {
             Toast.show({
-                time: 2, text: 'Please allow to get location', ...AlertMesg[0]
+                time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]
             })
             return false;
         }

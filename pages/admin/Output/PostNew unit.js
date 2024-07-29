@@ -352,7 +352,7 @@ const PostNew = (props) => {
                 formDataObject.append('convert_qty', saveData.defined_unit_value != "" && saveData.defined_unit_value != null ? saveData.defined_unit_value * saveData.quantity : saveData.quantity * 1);
                 const database_res = await outputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, formDataObject);
                 if (database_res?.status === 200) {
-                    Toast.show({ text: `Successfull Add Data`, ...AlertMesg[0] });
+                    Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                     setTimeout(() => {
                         props.sendDataToParent(2)
                     }, 1500);

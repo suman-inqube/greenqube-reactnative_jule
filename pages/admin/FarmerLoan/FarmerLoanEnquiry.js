@@ -1,25 +1,18 @@
-import {
-  StyleSheet, Text, View, ScrollView,
-  TouchableOpacity,
-  BackHandler
-} from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import React, { useState, useContext, useCallback } from 'react'
 import LoanRequest from './FarmerLoanRequest';
-import ButtonFormBottom from '../../Common/ButtonFormBottom';
 import ViewPastProduce from './FarmerViewPastRequested';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerLoanEnquiry = () => {
-  const { t } = useTranslation();
+  //GQR-67
+  const { FormsTitle, CustomHeader, t, logoImage, topBanner, onBackPress } = useContext(userCreateContext);
+  //GQR-67
   const navigation = useNavigation();
   const [activeBtn, setActiveBtn] = useState(2);
   useFocusEffect(
     useCallback(() => {
-      const onBackPress = () => { navigation.navigate('FarmerDashboard'); return true; };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      onBackPress(() => { navigation.navigate('FarmerDashboard'); return true; });
     }, [])
   );
   const HandlerGoBack = () => {
@@ -31,7 +24,7 @@ const FarmerLoanEnquiry = () => {
   }
   return (
     < >
-      <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} />
+      <CustomHeader path={'FarmerDashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
       <FormsTitle title={t('loan_inquiry')} />
       <View style={styles.container}>
         <View style={styles.btnRequstContainer} >
@@ -82,13 +75,17 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   btnRequstText: {
-    fontWeight: 'bold',
-    fontSize: 18,
+    // fontWeight: 'bold',
+    textAlign: 'center',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
     color: '#060505'
   },
   btnRequstActiveText: {
-    fontWeight: 'bold',
-    fontSize: 17,
+    // fontWeight: 'bold',
+    textAlign: 'center',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
     color: '#FFF',
   }
 

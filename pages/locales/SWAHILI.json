@@ -1022,5 +1022,21 @@
     "payment_mode": "Njia ya Malipo",
     "cheque": "Angalia",
     "product_sub_category": "Kitengo Ndogo cha Bidhaa",
-    "closed": "closed"
+    "closed": "imefungwa",
+    "Approved": "Imeidhinishwa",
+    "Rejected": "Imekataliwa",
+    "SanctionedDate": "Tarehe iliyoidhinishwa",
+    "LoanOrderID": "Kitambulisho cha agizo la mkopo",
+    "LoanSanctioned": "Mkopo Umeidhinishwa",
+    "AddLocation": "Ongeza Mahali",
+    "Please_enter_activity_type": "Tafadhali ingiza aina ya shughuli",
+    "Data_submitted_successfully": "Data imewasilishwa kwa mafanikio",
+    "Please_enter_activity": " Tafadhali ingiza shughuli",
+    "Password_update_successfully": "Sasisho la nenosiri limefaulu",
+    "Old_Password_Is_Incorrect": "Nenosiri la zamani si sahihi",
+    "Please_try_again_some_time_later": "Tafadhali jaribu tena baadae",
+    "Please_enter_perform_date": "Tafadhali weka tarehe ya kukamilika",
+    "Please_try_again_to_reach_the_accurancy": "Tafadhali jaribu tena kufikia usahihi",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount"
 }

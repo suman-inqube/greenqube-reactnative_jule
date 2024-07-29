@@ -1,9 +1,7 @@
-import { StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import React, { useContext } from 'react'
 import { useRoute } from '@react-navigation/native';
-import RenderHtml from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
-import CustomHeader from '../CustomHeader';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
 import { WebView } from 'react-native-webview';
 // .iframe>* {
@@ -17,10 +15,11 @@ const head = `
     `;
 // top: 0; left: 0; width: 70%; height: 100%; position: absolute; border: 0;
 // }
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PackageItemDetails = () => {
+    const { CustomHeader, logoImage, topBanner, } = useContext(userCreateContext);
     const { width, height } = useWindowDimensions();
     const { package_of_practice_list, menu_name } = useRoute().params;
-    // console.log(package_of_practice_list)
     const tagsStyles = {
         body: { whiteSpace: 'normal', color: '#000', backgroundColor: '#FFF' },
         a: { color: 'green' },
@@ -46,34 +45,32 @@ const PackageItemDetails = () => {
     };
     return (
         <View style={styles.container}>
-            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails")} />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails")} logoImage={logoImage} topBanner={topBanner} />
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>{menu_name}</Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
-                {/* <View > */}
-                <WebView
-                    style={{
-                        // height: height / 1.7,
-                        height: height / 0.05,
-                        width: width,
-                        flex: 1
-                        // marginBottom: 50
-                    }}
-                    originWhitelist={['*']}
-                    source={{
-                        html: `
+                <View >
+                    <WebView
+                        style={{
+                            height: height / 0.05,
+                            // height: height / 1.5,
+                            width: width,
+                            marginBottom: 50
+                        }}
+                        source={{
+                            html: `
                             <!DOCTYPE html>
                             <html>
                                 <head>${head}</head> 
-                                <body>
+                                <body style="height: :'100%';overflow: "scroll";">
                                 ${package_of_practice_list} 
                                 </body>
                             </html>`,
-                    }}
-                    automaticallyAdjustContentInsets={false}
-                />
-                {/* </View> */}
+                        }}
+                        automaticallyAdjustContentInsets={false}
+                    />
+                </View>
             </ScrollView>
         </View>
     )
@@ -89,11 +86,11 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         backgroundColor: '#195D06',
-        padding: 15
+        padding: 10
     },
     title: {
         color: '#FFF',
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 18,
+        fontSize: 16,
     },
 })

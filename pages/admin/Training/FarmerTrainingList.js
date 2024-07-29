@@ -1,22 +1,17 @@
-import { BackHandler, Button, FlatList, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-// import { userDataListAPI, trainingListAPI } from '../../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react'
 import moment from "moment";
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { faremerTrainingListAPI, cropListApi } from '../../../config/apiHere';
-import CustomHeader from '../CustomHeader';
-import { useTranslation } from 'react-i18next';
-import FormsTitle from '../../Common/FormsTitle';
-import { onBackPress } from '../../Common/BackPressHandler';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const FarmerTrainingList = () => {
-    const { t } = useTranslation();
-    const scheme = useColorScheme();
+    //GQR-67
+    const { loginUser_data, t, FormsTitle, getItem, logoImage, topBanner, onBackPress, setItem, CustomHeader } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [noticeList, setTrainingList] = useState([]);
-
     const detailItem = async (itemId) => {
-
         await setItem("userNoticeId", itemId);
         const userNoticeListData = await getItem('userNoticeId')
         console.log(userNoticeListData);
@@ -31,74 +26,44 @@ const FarmerTrainingList = () => {
     }, [])
     function UserBoxDisplay({ item, item2, item3, item4 }) {
         return (
-
             <View style={styles.box1}>
                 <View style={styles.box1_1}>
-                    <View>
+                    <View style={{ width: '70%' }}>
                         <Text style={styles.textOne}>{item}</Text>
                         <Text>{item2}</Text>
                     </View>
-                    <View>
+                    <View style={{ width: '30%' }}>
                         <Text style={styles.readMore}>{item4}</Text>
                     </View>
                 </View>
             </View>
         );
     }
-
     const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id, cropId) => {
-        const trainingListData = await getItem('userTrainingList');
-        // if (trainingListData) {
-        //     setTrainingList(trainingListData)
-        // } else {
         let response = await faremerTrainingListAPI(dbName, languageID, userID, state_id, district_id, subdiv_id, cropId, "farmer", "training");
-        if (response) {
+        if (response?.status == 200) {
             setTrainingList(response.data.data)
             setItem("userTrainingList", response.data.data)
         }
-
-        // }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            const state_id = loginUser_data.agri_user_addresses[0].agri_state.fid;
-            const district_id = loginUser_data.agri_user_addresses[0].agri_district.fid;
-            const subdiv_id = loginUser_data.agri_user_addresses[0].agri_subdivision.fid;
-            const response = await cropListApi(dbName, languageID, userID);
-            if (response.status == 200) {
-                let cropId = "";
-                const datam = response.data.data.rows
-                datam.map(async (item) => {
-                    cropId = cropId + item.crop_name_id + ",";
-                });
-                const newCropId = cropId.substring(0, cropId.length - 1);
-                trainingList(dbName, languageID, userID, state_id, district_id, subdiv_id, newCropId)
-                // console.log(JSON.stringify(newCropId, null, 2));
-            }
+        const response = await cropListApi(dbname, lan_id, user_id);
+        if (response?.status == 200) {
+            let cropId = "";
+            const datam = response?.data?.data?.rows
+            datam.map(async (item) => { cropId = cropId + item.crop_name_id + ","; });
+            const newCropId = cropId.substring(0, cropId.length - 1);
+            trainingList(dbname, lan_id, user_id, agri_user_addresses[0].agri_state.fid, agri_user_addresses[0].agri_district.fid, agri_user_addresses[0].agri_subdivision.fid, newCropId)
         }
     };
     useEffect(() => {
         onPageLoad();
     }, []);
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => { navigation.navigate('FarmerDashboard'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }, [])
-    );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerDashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
     return (
         <>
             <View style={{ flex: 2 }} >
-                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='FarmerDashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('training_support')} />
                 <View style={{ flex: 1 }}>
                     {
@@ -107,6 +72,7 @@ const FarmerTrainingList = () => {
                                 style={{ marginHorizontal: '2.5%' }}
                                 data={noticeList.rows}
                                 keyExtractor={(item) => item.fid}
+                                showsVerticalScrollIndicator={false}
                                 renderItem={({ item, index }) => (
                                     <View>
                                         <TouchableOpacity onPress={() => detailItem(item.fid)}>

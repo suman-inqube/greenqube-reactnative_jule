@@ -19,7 +19,7 @@ const ForegroundHandler = () => {
     }
     useEffect(() => {
         const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-            // console.log("handle in foreground", remoteMessage)
+            console.log("handle in foreground", remoteMessage)
             const userType = await getItem('userType');
             const { notification, messageId } = remoteMessage
             if (Platform.OS == 'ios') {
@@ -66,7 +66,9 @@ const ForegroundHandler = () => {
                                 if (userType == 3) {
                                     navigation.navigate("OutPutList", { io_oid: responseCommentJson.io_oid });
                                 } else {
-                                    navigation.navigate("FarmerOutPutList", { io_oid: responseCommentJson.io_oid });
+                                    setTimeout(() => {
+                                        navigation.navigate("FarmerOutPutList", { io_oid: responseCommentJson.io_oid });
+                                    }, 1500);
                                 }
                             } else if (type == 'supply_fulfillment') {
                                 if (userType == 3) {

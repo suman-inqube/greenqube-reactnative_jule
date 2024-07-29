@@ -55,11 +55,11 @@ const styles = StyleSheet.create({
     },
     inputTextStyle: {
         flex: 1,
-        height: 40,
+        height: 44,
         marginHorizontal: 10,
         borderColor: 'gray',
         color: "#000",
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Poppins-Regular',
 
     },
 })

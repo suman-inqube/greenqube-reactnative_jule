@@ -1,21 +1,26 @@
-import { BackHandler, Button, FlatList, StyleSheet, Text, TouchableOpacity, View, ImageBackground, Linking, ScrollView, Image } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import ImageForm from '../../Common/ImageForm';
-import InputTextFormWithoutLabel from '../../Common/InputTextFormWithoutLabel';
-
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { BackHandler, FlatList, StyleSheet, TouchableOpacity, useWindowDimensions, View, Linking, ScrollView, Image } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { WebView } from 'react-native-webview';
 import RenderHtml from 'react-native-render-html';
-import { useWindowDimensions } from 'react-native';
 import { noticeDetailsAPI } from '../../../config/apiHere';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-// import HTMLView from 'react-native-htmlview';
+import { userCreateContext } from '../../Context/usersCreateContext';
+const head = `
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+    iframe {
+    width:100%;
+    }
+    </style>
+    `;
 const UsefulInformation = () => {
+    //GQR-67
+    const { loginUser_data, CustomHeader, onBackPress, getItem, logoImage, topBanner, FormsTitle } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const [noticeDetails, setNoticeDetails] = useState([]);
     const [noticeFiles, setNoticeFiles] = useState([]);
-    const { width } = useWindowDimensions();
+    const { width, height } = useWindowDimensions();
     const navigation = useNavigation();
     const detailItem = (path, file_ext) => {
         if (file_ext != "video/mp4") {
@@ -50,35 +55,28 @@ const UsefulInformation = () => {
             </View>
         );
     }
-
-    const source = {
-        html: noticeDetails && `${noticeDetails.post_desc}`
-    };
     const onPageLoad = async () => {
         const noticeId = await getItem('userNoticeId');
-        const loginUser_data = await getItem('loginUser_data');
         if (noticeId) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            let response = await noticeDetailsAPI(dbName, languageID, token, noticeId);
-            if (response) {
+            let response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
+            console.log(response.data.data[0].agri_files)
+            if (response?.status == 200) {
                 if (response.data.data.length != 0) {
                     setNoticeDetails(response.data.data[0])
                     setNoticeFiles(response.data.data[0].agri_files)
                 }
-                //  console.log(JSON.stringify(response.data.data, null, 2));
             }
         }
     };
+    const handleBackPress = () => {
+        navigation.navigate('UsefulInformationList'); return true;
+    }
     useEffect(() => {
         onPageLoad();
     }, []);
     useFocusEffect(
         useCallback(() => {
-            const onBackPress = () => { navigation.navigate('UsefulInformationList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }, [])
     );
     const HandlerGoBack = () => {
@@ -86,40 +84,60 @@ const UsefulInformation = () => {
     }
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path={'UsefulInformationList'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'UsefulInformationList'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={noticeDetails && noticeDetails.post_name} />
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView nestedScrollEnabled={true} style={{ width: "100%" }} showsVerticalScrollIndicator={false}>
                 <View style={{ marginHorizontal: 7 }}>
-                    <View style={{ marginHorizontal: 7, alignItems: "center" }}>
-                        <RenderHtml
-                            contentWidth={width}
-                            source={source}
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
+                        <ScrollView horizontal={true} style={{ width: "100%" }}>
+                            {
+                                noticeFiles ?
+                                    <FlatList
+                                        data={noticeFiles}
+                                        keyExtractor={(item) => item.file_id}
+                                        renderItem={({ item, index }) => {
+                                            return (
+                                                <View style={{ width: width, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
+                                                    <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
+                                                        <DocumentDisplay
+                                                            item={item.file_path}
+                                                            file_ext={item.file_ext}
+                                                            item2={item.file_name}
+                                                            item3={item.term_type}
+                                                        />
+                                                    </TouchableOpacity>
+                                                </View>
+                                            )
+                                        }} />
+                                    :
+                                    ""
+                            }
+                        </ScrollView>
+                    </View>
+                </View>
+                <View style={{ marginHorizontal: 7, alignItems: "center" }}>
+                    <View >
+                        <WebView
+                            style={{
+                                height: height / 0.05,
+                                // height: height / 1.5,
+                                width: width,
+                                marginBottom: 50
+                            }}
+                            source={{
+                                html: `
+                            <!DOCTYPE html>
+                            <html>
+                                <head>${head}</head> 
+                                <body style="height: :'100%';overflow: "scroll";">
+                                ${noticeDetails.post_desc} 
+                                </body>
+                            </html>`,
+                            }}
+                            automaticallyAdjustContentInsets={false}
                         />
                     </View>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', margin: 'auto' }}>
-                        {
-                            noticeFiles ?
-                                <FlatList
-                                    data={noticeFiles}
-                                    keyExtractor={(item) => item.file_id}
-                                    renderItem={({ item, index }) => {
-                                        return (
-                                            <View style={{ width: width, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
-                                                <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
-                                                    <DocumentDisplay
-                                                        item={item.file_path}
-                                                        file_ext={item.file_ext}
-                                                        item2={item.file_name}
-                                                        item3={item.term_type}
-                                                    />
-                                                </TouchableOpacity>
-                                            </View>
-                                        )
-                                    }} />
-                                :
-                                ""
-                        }
-                    </View>
+
                 </View>
             </ScrollView>
         </View>
