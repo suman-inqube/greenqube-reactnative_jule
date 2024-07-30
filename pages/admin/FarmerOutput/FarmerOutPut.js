@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         borderRadius: 10,
         width: '47%',
-        height: 55,
+        height: 70,
         justifyContent: 'center'
     },
     btnActive: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         borderRadius: 10,
         width: '47%',
-        height: 55,
+        height: 70,
         justifyContent: 'center'
     },
     btnActiveTitle: {

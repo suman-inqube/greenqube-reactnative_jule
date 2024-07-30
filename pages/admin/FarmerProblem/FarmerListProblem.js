@@ -159,17 +159,21 @@ const styles = StyleSheet.create({
         elevation: 10,
         backgroundColor: '#FFF',
         paddingHorizontal: 10,
-        paddingVertical: 15,
+        paddingVertical: 5,
         borderRadius: 10,
         width: '47%',
+        height: 70,
+        justifyContent: 'center'
     },
     btnActive: {
         backgroundColor: '#a1dc17',
         elevation: 10,
         paddingHorizontal: 10,
-        paddingVertical: 15,
+        paddingVertical: 5,
         borderRadius: 10,
         width: '47%',
+        height: 70,
+        justifyContent: 'center'
     },
     btnActiveTitle: {
         textAlign: 'center',

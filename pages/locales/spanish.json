@@ -973,7 +973,7 @@
     "lt_month": "litro/mes",
     "lt_week": "litro/semana",
     "lt": "Litro",
-    "skip_next": "! [Cdata [Skip &amp; Next]]",
+    "skip_next": "Skip & Next",
     "take_a_photo_optional": "Toma una foto (opcional)",
     "record_your_comment_optional": "Grabe su comentario (opcional)",
     "change_password": "Cambiar la contraseña",

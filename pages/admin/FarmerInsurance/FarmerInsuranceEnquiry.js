@@ -46,20 +46,24 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     btn: {
+        elevation: 10,
         backgroundColor: '#FFF',
-        width: '45%',
-        alignItems: 'center',
+        paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 10,
-        elevation: 5
+        width: '47%',
+        height: 70,
+        justifyContent: 'center'
     },
     btnActive: {
         backgroundColor: '#a1dc17',
-        width: '45%',
-        alignItems: 'center',
+        elevation: 10,
+        paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 10,
-        elevation: 5
+        width: '47%',
+        height: 70,
+        justifyContent: 'center'
     },
     btnActiveTitle: {
         textAlign: 'center',

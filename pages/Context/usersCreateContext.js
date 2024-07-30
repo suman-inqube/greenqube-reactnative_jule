@@ -47,6 +47,7 @@ const UserCreateContextProvider = (props) => {
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data(loginUser_data);
+        // i18next.changeLanguage(loginUser_data?.lan_id.toString());
         i18next.changeLanguage(loginUser_data?.lan_id.toString());
         if (netConnection) {
             farmer_response = await farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id);

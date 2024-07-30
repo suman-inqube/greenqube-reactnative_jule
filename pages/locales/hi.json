@@ -845,7 +845,7 @@
     "plot_and_crop_problem": "जमीन और फसल समस्या",
     "input_variety": "सामग्री के प्रकार",
     "quantity": "परिमाण",
-    "qty_amp_unit": "![CDATA[Qty &amp; Unit]]",
+    "qty_amp_unit": "मात्रा और इकाई",
     "dailog_input_type": "उत्पाद सामग्री का प्रकार",
     "dailog_input_name": "उत्पाद सामग्री का नाम",
     "pan_no": "पैन कार्ड नंबर",
@@ -973,7 +973,7 @@
     "lt_month": "लीटर/महीना",
     "lt_week": "लीटर/सप्ताह",
     "lt": "लीटर",
-    "skip_next": "! [CDATA [छोड़ें और अगला]]",
+    "skip_next": "छोड़ें और अगला",
     "take_a_photo_optional": "एक फोटो लें (वैकल्पिक)",
     "record_your_comment_optional": "अपनी टिप्पणी रिकॉर्ड करें (वैकल्पिक)",
     "change_password": "पासवर्ड बदलें",
@@ -1037,6 +1037,6 @@
     "Please_try_again_some_time_later": "कृपया कुछ समय बाद पुनः प्रयास करें",
     "Please_enter_perform_date": "कृपया निष्पादन तिथि दर्ज करें",
     "Please_try_again_to_reach_the_accurancy": "कृपया सटीकता तक पहुँचने के लिए पुनः प्रयास करें",
-    "All": "All",
-    "existing_loan_amount_enter": "Please enter existing loan amount"
+    "All": "सभी",
+    "existing_loan_amount_enter": "कृपया मौजूदा ऋण राशि दर्ज करें"
 }

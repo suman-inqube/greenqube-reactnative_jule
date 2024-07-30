@@ -13,13 +13,14 @@ export const BoxDisplay = ({ text, text1, imageurl, onpress }) => {
                         width={35}
                     />
                 </View>
-                <View>
+                <View style={{ flexDirection: 'row', width: '70%' }}>
                     <Text style={text != "Market" ? styles.box1_1 : {
                         marginLeft: 20,
                         fontWeight: '400',
                         fontFamily: 'Poppins-Regular',
                         color: '#bbbbbb',
-                        fontSize: 14
+                        fontSize: 14,
+                        flex: 1, flexWrap: 'wrap'
                     }}>{text}</Text>
                 </View>
             </View>
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
         // shadowOpacity: 0.8,
         shadowRadius: 20,
         margin: 10,
-        elevation: 3
+        elevation: 3,
     },
     box1_1: {
         marginLeft: 12,

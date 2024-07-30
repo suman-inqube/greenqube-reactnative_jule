@@ -197,7 +197,9 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontSize: 15,
         color: '#FFF',
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'Poppins-Regular',
+        flex: 1,
+        flexWrap: 'wrap'
 
     }
 

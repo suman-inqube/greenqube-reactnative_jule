@@ -157,40 +157,40 @@ const FarmerActivityList = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.wrapper}
                   onPress={() =>
-                    navigateToPages('FarmerActivityDetail', item.uact_id)
+                    navigateToPages('FarmerActivityDetail', item?.uact_id)
                   }>
                   <View style={styles.activityListContainer}>
                     <View style={styles.activityListItem}>
                       <Text style={styles.title}>
-                        {t('pro_reg_name')} : {item.agri_user.userName}
+                        {t('pro_reg_name')} : {item?.agri_user?.userName}
                       </Text>
                       <Text style={styles.title}>
-                        {t('reg_plot_name')} : {item.land_info.plot_no.substring(0, 8) + '...'}
+                        {t('reg_plot_name')} : {item?.land_info?.plot_no.substring(0, 8) + '...'}
                       </Text>
                       <Text style={styles.title}>
-                        {t('perf_date')} : {item.act_perform_date}
+                        {t('perf_date')} : {item?.act_perform_date}
                       </Text>
                     </View>
                     <View style={styles.activityListItem}>
                       <Text style={styles.title}>
                         {t('farmer_reg_mb')} :{' '}
-                        {item.agri_user.contactNumber.substring(0, 7) + '..'}
+                        {item?.agri_user?.contactNumber.substring(0, 7) + '..'}
                       </Text>
                       <Text style={styles.title}>
                         {t('far_list_crop')} :{' '}
-                        {item.cropName.name.substring(0, 7) + '..'}
+                        {item?.cropName?.name?.substring(0, 7) + '..'}
                       </Text>
                       <Text style={styles.title}>
-                        {t('deviation')} : {item.deviation} Day
+                        {t('deviation')} : {item?.deviation} Day
                       </Text>
                     </View>
                   </View>
                   <Text style={styles.title}>
-                    {t('pick_crop_cycle_start_date')} : {item.cycle_start_date}
+                    {t('pick_crop_cycle_start_date')} : {item?.cycle_start_date}
                   </Text>
                   <Text style={styles.title}>
                     {t('act_name')} :
-                    {item.typeActivity ? item.typeActivity.categoryName : ''}
+                    {item?.typeActivity ? item?.typeActivity?.categoryName : ''}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -236,6 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    overflow: 'hidden'
   },
   activityListItem: {
     paddingBottom: 1,

@@ -276,6 +276,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        overflow: 'hidden'
     },
     activityListItem: {
         paddingBottom: 1,

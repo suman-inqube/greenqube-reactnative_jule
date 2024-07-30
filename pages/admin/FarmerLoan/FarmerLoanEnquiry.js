@@ -60,19 +60,23 @@ const styles = StyleSheet.create({
   },
   btnRequstActive: {
     backgroundColor: '#a1dc17',
-    width: '45%',
-    alignItems: 'center',
+    elevation: 10,
+    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
-    elevation: 5
+    width: '47%',
+    height: 70,
+    justifyContent: 'center'
   },
   btnRequst: {
+    elevation: 10,
     backgroundColor: '#FFF',
-    width: '45%',
-    alignItems: 'center',
+    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
-    elevation: 5
+    width: '47%',
+    height: 70,
+    justifyContent: 'center'
   },
   btnRequstText: {
     // fontWeight: 'bold',
