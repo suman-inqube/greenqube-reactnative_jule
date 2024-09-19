@@ -1,94 +1,166 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { getItem } from '../../config/getDataFromStorage';
 import { BoxDisplay } from './dashboardComp';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-
-
+import { useIsFocused } from '@react-navigation/native';
+import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
+import BackGroundLocation from '../BackgroundService/BackGroundLocation';
+import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
+import FusedLocation from 'react-native-fused-location';
+// import NotificationServices from '../PushNotification/NotificationServices';
+// import messaging from '@react-native-firebase/messaging';
+import ForegroundHandler from '../PushNotification/ForegroundHandler';
+import { userCreateContext } from '../Context/usersCreateContext';
+import MessageDialog from '../Common/MessageDialog';
 const Dashboard = ({ navigation }) => {
-
+  //GQR-65
+  const { getItem, t, CustomHeader, onBackPress, logoImage, topBanner, isOnline } = useContext(userCreateContext);
+  const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
-  const [userListShow, setuserListShow] = useState(false);
-  const [isMenuShow, setisMenuShow] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
-
-
-  const handleUserList = async (item) => {
-    setisMenuShow(item)
-  }
-  const handleBackPage = async (item) => {
-
-  }
-
+  const [company_website, setcompany_website] = useState("");
+  const [logoImg, setlogoImage] = useState(logoImage);
+  const [topBannerImg, settopBanner] = useState(topBanner);
   const navigateToPages = (pageName) => {
-    navigation.navigate(pageName);
-    console.warn(pageName);
+    if (isOnline) {
+      navigation.navigate(pageName, { data: 'remove' });
+    } else {
+      if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
+        navigation.navigate(pageName, { data: 'remove' });
+      }
+    }
   };
   const onPageLoad = async () => {
-    const bottomBannerData = await getItem('bottomBannerData');
+    const [bottomBannerData,
+      userNameData,
+      profileImgData, loginUser_data, company_website, logoImageData, topBannerData] = await Promise.all([
+        getItem('bottomBannerData'),
+        getItem('userNameData'),
+        getItem('profileImgData'),
+        // getItem('loginUser_data'),
+        getItem('company_website'),
+        getItem('logoImageData'),
+        getItem('topBannerData'),
+        // getCurrentLatLong(),
+        Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
+      ]);
+    if (logoImage != null) {
+      setlogoImage(logoImage)
+    } else {
+      setlogoImage(logoImageData)
+    }
+    if (topBanner != null) {
+      settopBanner(topBanner)
+    } else {
+      settopBanner(topBannerData)
+    }
+    setcompany_website(company_website);
     setbottomBanner(bottomBannerData);
-    const userNameData = await getItem('userNameData');
     setuserName(userNameData);
-    const profileImgData = await getItem('profileImgData');
     setprofileImg(profileImgData);
-    // console.log(JSON.stringify(topBannerData, null, 2));
   };
+  const HandlerGoBack = () => exit()
   useEffect(() => {
-    onPageLoad();
-  }, []);
-
+    if (isFocused) {
+      onPageLoad();
+      onBackPress(exit);
+    }
+  }, [isFocused, topBanner]);
+  const exit = () => {
+    Alert.alert(`${t('app_name')}`, `${t('close_app')}`,
+      [{ text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' }, { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() }],
+      { cancelable: false });
+    return true;
+  }
+  const CompanyWebsiteOpen = () => {
+    if (company_website != "") { Linking.openURL(company_website) } else { Alert.alert("Company website not found") }
+  }
   return (
     <>
-      <View name="name">
-        <View style={styles.containerimg}>
-          {profileImg ?
-            <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} />
-            : ""
-          }
+      <BackGroundLocation />
+      <ForegroundLocationService />
+      <ForegroundHandler />
+      <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
+        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
+        <View name="name">
+          <View style={styles.containerimg}>
+            {profileImg ?
+              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
+            }
+          </View>
+          <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
         </View>
-        <Text style={{ fontSize: 18, textAlign: 'center', marginTop: -15, }}>Welcome {userName}</Text>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View >
+            <View style={styles.container}>
+              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigateToPages('PersonalInformation')} />
+              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigateToPages('userList')} />
+            </View>
+            <View style={styles.container}>
+              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigateToPages('ProblemList')} />
+              <BoxDisplay text={t('acti_report_far_dash')} imageurl={require('../Common/images/activity_report_only.png')} onpress={() => navigateToPages('activityList')} />
+            </View>
+            <View style={styles.container}>
+              <BoxDisplay text={t('agri_inputs_ninquiry_far_dash')} imageurl={require('../Common/images/input_inqu_only.png')} onpress={() => navigateToPages('InputList')} />
+              <BoxDisplay text={t('agri_output_far_dash')} imageurl={require('../Common/images/dash_sale_your_product.png')} onpress={() => navigateToPages('OutPutList')} />
+            </View>
+            <View style={styles.container}>
+              <BoxDisplay text={t('market_information')} imageurl={require('../Common/images/market_information_only.png')} />
+              <BoxDisplay text={t('useful_ninformation_dash')} imageurl={require('../Common/images/dash_useful_information.png')} onpress={() => navigateToPages('UsefulInformationList')} />
+            </View>
+            <View style={{ marginTop: 16, elevation: 5 }}>
+              {bottomBanner ?
+                <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                  <ImageForm source={{ uri: bottomBanner }} resizeMode="cover" height={200} width={'100%'} />
+                </TouchableOpacity>
+                : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                  <ImageForm source={require('../Common/images/ad_banner_space.jpg')} resizeMode="cover" height={200} width={'100%'} />
+                </TouchableOpacity>}
+            </View>
+          </View>
+        </ScrollView>
       </View>
-
-      <View style={styles.container}>
-        <BoxDisplay text="User" text1="Registration" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('Signup')}/>
-        <BoxDisplay text="User" text1="List" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('userList')}/>
-
-      </View>
-      <View style={styles.container}>
-        <BoxDisplay text="" text1="Problem" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('Signup')}/>
-        <BoxDisplay text="" text1="Activity" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('activityList')}/>
-      </View>
-
-
+      {/* <Root></Root> */}
     </>
-
   )
 }
 
 export default Dashboard
 
 const styles = StyleSheet.create({
-  container:
-  {
-   flexDirection:'row',
-   justifyContent:'space-between'
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 5,
   },
-
-  bottomContainer:
-  {
+  bottomContainer: {
     flex: 1,
     marginTop: 100,
   },
-
   containerimg: {
     flex: 1,
-    zIndex: 1000,
+    zIndex: 100,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingHorizontal: 10,
     paddingVertical: 10,
+  },
+  userTitle: {
+    fontSize: 16,
+    textAlign: 'right',
+    // marginTop: 15,
+    color: "#000",
+    zIndex: 1000,
+    fontFamily: 'Poppins-SemiBold',
+    marginRight: 20,
+    marginTop: 8,
+  },
+  loadingScreen: {
+    position: 'absolute',
+    top: '50%',
+    zIndex: 999,
+    left: '45%'
   },
 })

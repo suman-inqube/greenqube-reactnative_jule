@@ -2,28 +2,31 @@ import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native'
 import React from 'react'
 
 
-const TakePhoto = ({openImagePicker,selectedImage}) => {
+const TakePhoto = ({ openImagePicker, selectedImage, title }) => {
     return (
         <>
-            <Text style={styles.title}>Take a photo (Optional)</Text>
+            <Text style={styles.title}>{title ? title : 'Default'}</Text>
             <View style={styles.container}>
                 <TouchableOpacity style={styles.item} onPress={() => openImagePicker("firstItem")}>
                     {selectedImage.firstItem == "" ? <Image
                         source={require('../../Common/images/camera.jpeg')}
-                        style={{width:100,height:100}}
+                        style={{ width: 70, height: 80, opacity: 0.7 }}
                     /> :
+
                         <Image
                             source={{ uri: `${selectedImage.firstItem}` }}
                             // style={styles.image}
                             style={{ width: "100%", height: 100 }}
                             resizeMode="contain"
                         />}
+
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.item} onPress={() => openImagePicker("secondItem")}>
                     {selectedImage.secondItem == "" ? <Image
                         source={require('../../Common/images/camera.jpeg')}
-                        style={{width:100,height:100}}
+                        style={{ width: 70, height: 80,opacity: 0.7 }}
                     /> :
+
                         <Image
                             source={{ uri: `${selectedImage.secondItem}` }}
                             // style={styles.image}
@@ -34,8 +37,9 @@ const TakePhoto = ({openImagePicker,selectedImage}) => {
                 <TouchableOpacity style={styles.item} onPress={() => openImagePicker("thirdItem")}>
                     {selectedImage.thirdItem == "" ? <Image
                         source={require('../../Common/images/camera.jpeg')}
-                        style={{width:100,height:100}}
-                    />  :
+                        style={{ width: 70, height: 80,opacity: 0.7 }}
+                    /> :
+
                         <Image
                             source={{ uri: `${selectedImage.thirdItem}` }}
                             // style={styles.image}
@@ -66,8 +70,8 @@ const styles = StyleSheet.create({
         TouchableOpacityAlign: 'center'
     },
     title: {
-        paddingBottom: 10,
-        color: '#000'
+        color: '#000',
+        fontFamily: 'Poppins-Regular'
     }
 
 })

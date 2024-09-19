@@ -1,39 +1,41 @@
 import {
-    StyleSheet,
-    Text,
-    View,
-    FlatList,
-    TouchableOpacity,
-    ScrollView,
-    TextInput,
-    Image,
-    StatusBar
+    StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions
 } from 'react-native'
-import React, { useEffect, useState } from 'react';
-import ImageForm from '../../Common/ImageForm';
-import RadioForm from '../../Common/RadioForm';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import WidgetsSide from '../../Common/WidgetsSide';
 import Filter from '../../Common/Filter';
-import { activityListAPI } from '../../../config/apiHere';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-
-
+import { activityListAPI, farmerByNameAPI } from '../../../config/apiHere';
+import { useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ActivityList = ({ navigation }) => {
-    const [activityAll, setactivityAll] = useState(false);
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { pageNo } = dbLanTokUsr;
+    //GQR-67
+    const { netConnection } = DeviceInfo();
+    const isFocused = useIsFocused();
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchResultsList, setSearchResultsList] = useState(false);
+    const [activityAll, setactivityAll] = useState([]);
+    const [activityAllRow, setactivityAllRow] = useState([]);
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");
+    const [filterName, setFilterName] = useState("");
     const [newFromDate, setnewFromDate] = useState(new Date());
     const [newToDate, setnewToDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false)
-    const [openToDate, setOpenToDate] = useState(false)
-    const [dbName, setDbName] = useState('')
-    const [languageID, setLanguageID] = useState('')
-    const [userID, setUserID] = useState('')
-    const [token, setToken] = useState('');
-    const [totalPage, settotalPage] = useState(1);
-    const [currentPage, setcurrentPage] = useState(1);
-
+    const [openToDate, setOpenToDate] = useState(false);
+    const [fromDate, setfromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [searchFarmerName, setSearchFarmerName] = useState('');
+    const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+    // const [farmerData, setFarmerData] = useState([]);
+    const [searchResults, setSearchResults] = useState([]);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+    const [fromDateFilter, setFromDateFilter] = useState('');
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -42,152 +44,217 @@ const ActivityList = ({ navigation }) => {
         }
     }
     const onchangeFilterItem = (value) => {
+        setFilterName(value);
         setFilterItem(value);
         setFilterOption(false);
+        setactivityAll(activityAllRow);
+        setfromDate("");
+        setToDate("");
+        setSearchFarmerName("");
+        setSearchFarmerPhone("");
+    }
+    const handlePage = async (value) => {
+        handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id);
     }
 
-    const fatchActivityListAPI = async (dbName1, languageID1, token1, userID1, pageNO1) => {
-        const response = await activityListAPI(dbName1, languageID1, token1, userID1, pageNO1)
-        if (response) {
-            const totalPage1 = Math.ceil(response.data.data.count / 20)
-            settotalPage(totalPage1)
-            // console.log(JSON.stringify(response.data.data.rows[0].typeActivity.categoryName,null,2))
-            setactivityAll(response.data.data)
+    const handleFilterList = async (item) => {
+        /*
+        *(1) It is use to search by farmer's name and phone number
+        *(2) It is use for filter type ('Farmer/Product Name','PhoneNumber')
+        *(3) it is use for all farmer list
+        *(4) it is use for all item list
+        *(5) item List can't modify data
+        *(6,7) it is use use selected value set 
+        *(8) farmer list show and hide poup
+        *(9) filter data clear all the value set  list data
+        *(10) it is use set the filters search value set
+        */
+        handleFilter(item, filterName, farmerData, activityAllRow, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setactivityAll, setSearchResults);
+    }
 
-            // setItem("activity_Data", response.data.data)
+    const handleResultSelectList = async (item) => {
+        const { label, value, phone } = item
+        // handleResultSelect(label, value, phone, activityAll, activityListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setactivityAll)
+        setSearchFarmerName(label);
+        setSearchFarmerPhone(phone);
+        let tempData = activityAllRow.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
+        setactivityAll(tempData)
+        setSearchResultsList(false);
+        if (tempData.length == 0) {
+            Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
         }
-
     }
-
-
-
-    const handlePage = (value) => {
-        const page_no = currentPage
-        if (value === 'next') {
-
-            if (totalPage === currentPage) {
-
-                console.warn("if",currentPage);
+    const handleDatePicker = (item) => {
+        const effective_date = effective_dates(item);
+        setfromDate(effective_date);
+        setFromDateFilter(effective_date);
+    }
+    const handleDatePicker2 = async (item) => {
+        const effective_date = effective_dates(item);
+        setToDate(effective_date)
+        if (fromDateFilter) {
+            const item = '';
+            const response = await activityListAPI(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date)
+            if (response?.status == 200) {
+                setactivityAll(response?.data?.data?.rows);
+                setItem("activity_Data", response?.data?.data?.rows);
             }
-            else {
-                const nextPage = currentPage + 1
-                console.warn("else", nextPage);
+        } else {
+            // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+            Toast.show({ time: 3, text: t('please_date_first'), ...AlertMesg[0] })
+        }
+    }
+    const navigateToPages = useCallback(async (pageName, uact_id) => {
+        navigation.navigate(pageName, uact_id);
+    }, []);
+    const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
+        setIsLoading(true);
+        if (isOnline) {
+            var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo);
+            if (response?.status == 200) { await setItem('activityList', response); }
+        } else {
+            var response = await getItem('activityList');
+        }
+        if (response?.status == 200) {
+            if (response.data.data.count != 0) {
+                const totalPage = Math.ceil(response.data.data.count / 20)
+                setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
+                setactivityAll(response?.data?.data?.rows);
+                setactivityAllRow(response?.data?.data?.rows);
+                await setItem("activity_Data", response?.data?.data?.rows);
+                setIsLoading(false);
+            } else {
+                setIsLoading(false);
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
             }
         }
-
-    }
-    const handlePage1 = (value) => {
-        const page_no = pageNOInfo.pageNO
-        if (value === 'next') {
-            console.warn("total page:",pageNOInfo);
-            if (page_no === pageNOInfo.totalPage) {
-                fatchActivityListAPI(loginInfo.dbName, loginInfo.languageID, loginInfo.token, loginInfo.userID, loginInfo.totalPage)
-            }
-            else {
-                const nextPage = pageNOInfo.pageNO + 1
-                setpageNOInfo({ ...pageNOInfo, pageNO: nextPage })
-                console.warn("next:",pageNOInfo);
-                fatchActivityListAPI(loginInfo.dbName, loginInfo.languageID, loginInfo.token, loginInfo.userID, nextPage)
-            }
-        }
-
-    }
-
-    const handleOpenDetailspage=(item)=>
-    {
-        console.warn(item);
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName1 = loginUser_data.dbname;
-            const languageID1 = loginUser_data.lan_id;
-            const token1 = loginUser_data.token;
-            const userID1 = loginUser_data.user_id;
-            setDbName(dbName1);
-            setLanguageID(languageID1);
-            setToken(token1);
-            setUserID(userID1);
-            fatchActivityListAPI(dbName1, languageID1, token1, userID1, currentPage)
-        }
+        setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
+        fatchActivityListAPI(dbname, lan_id, token, user_id, 1);
     };
+    const filterDataRemove = () => {
+        setFilterItem("");
+        setFilterOption(false);
+        setactivityAll(activityAllRow);
+        setSearchResultsList(false);
+    }
+    const HandlerGoBack = () => {
+        setFilterItem("");
+        setFilterOption(false);
+        setSearchFarmerName("");
+        setSearchFarmerPhone("");
+        setSearchResultsList(false);
+        setfromDate("");
+        setToDate("");
+        // setactivityAll([]);
+        // setactivityAllRow([]);
+        navigation.navigate('Dashboard');
+    }
+    const handleBackPress = () => {
+        setFilterItem("");
+        setFilterOption(false);
+        setSearchFarmerName("");
+        setSearchFarmerPhone("");
+        setSearchResultsList(false);
+        setfromDate("");
+        setToDate("");
+        // setactivityAll([]);
+        // setactivityAllRow([]);
+        navigation.navigate('Dashboard');
+        return true;
+    }
     useEffect(() => {
-        onPageLoad();
-    }, []);
-    return (
-
-
-        <View style={{ flex: 1 }}>
-            <StatusBar
-                barStyle="dark-content"
-                backgroundColor={"white"}
-                translucent
-            />
-
-            <DatePickerComp
-                openDate={openFromDate}
-                newDate={newFromDate}
-                setOpenDate={setOpenFromDate}
-            />
-            <DatePickerComp
-                openDate={openToDate}
-                newDate={newToDate}
-                setOpenDate={setOpenToDate}
-            />
-            <WidgetsSide location={"ActivityReport"} title={"Report Activity"} />
-            <Filter
-                filterItem={filterItem}
-                filterOption={filterOption}
-                setOpenToDate={setOpenToDate}
-                filterOptionShow={filterOptionShow}
-                onchangeFilterItem={onchangeFilterItem}
-            />
-
-            {
-
-                activityAll ?
-                    <FlatList
-                        data={activityAll.rows}
-                        renderItem={({ item }) => {
-                            return (
-                                <TouchableOpacity style={styles.wrapper} onPress={() => handleOpenDetailspage(item.uact_id)}>
-                                    <View style={styles.activityListContainer}>
-                                        <View style={styles.activityListItem}>
-                                            <Text style={styles.title}>Name : {item.agri_user.userName}</Text>
-                                            <Text style={styles.title}>Plot Name : {item.land_info.plot_no}</Text>
-                                            <Text style={styles.title}>Perform Date : {item.act_perform_date}</Text>
-                                        </View>
-                                        <View style={styles.activityListItem}>
-                                            <Text style={styles.title}>Phone : {item.agri_user.contactNumber}</Text>
-                                            <Text style={styles.title}>Produce : {item.cropName.name}</Text>
-                                            <Text style={styles.title}>Deviation : {item.deviation} Day</Text>
-                                        </View>
-                                    </View>
-                                    <Text style={styles.title}>Cycle Start Date : {item.cycle_start_date}</Text>
-                                    <Text style={styles.title}>Activity Name :{item.cropActivity.activity.categoryName}</Text>
-                                </TouchableOpacity>
-                            )
-                        }}
-                        keyExtractor={item => item.uact_id}
-                        showsVerticalScrollIndicator={false}
-                    />
-                    : ''
+        if (isFocused) {
+            if (fromDate == "" && toDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
+                onPageLoad();
             }
-
-            <View style={styles.prevNextPage}>
-                <TouchableOpacity onPress={() => handlePage('previous')}>
-                    <Text style={styles.title}>Prev Page</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handlePage('next')}>
-                    <Text style={styles.title}>Next Page</Text>
-                </TouchableOpacity>
+            onBackPress(handleBackPress);
+        }
+    }, [isFocused]);
+    useEffect(() => {
+        if (isFocused) {
+            const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true); });
+            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false); });
+            return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove() };
+        }
+    }, [isFocused]);
+    return (
+        <Root>
+            <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+            <View style={{ flex: 1 }}>
+                {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
+                {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
+                <WidgetsSide location={"ActivityReport"} title={t('report_activity')} onPress={() => navigateToPages('activityReport', 123)} />
+                <Filter
+                    filterItem={filterItem}
+                    filterOption={filterOption}
+                    setOpenToDate={setOpenToDate}
+                    fromDate={fromDate}
+                    newToDate={toDate}
+                    setOpenFromDate={setOpenFromDate}
+                    filterOptionShow={filterOptionShow}
+                    onchangeFilterItem={onchangeFilterItem}
+                    onChangeText={(item) => handleFilterList(item)}
+                    title={t('my_activities')}
+                    filterDataRemove={filterDataRemove}
+                    FarmerProductNameValue={searchFarmerName}
+                    FarmerProductPhoneValue={searchFarmerPhone}
+                />
+                <>
+                    {
+                        searchResultsList && searchResultsList ?
+                            <View View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
+                                <FlatList
+                                    style={searchResults.length > 8 ? styles.flatlistHeight : ""}
+                                    data={searchResults}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity onPress={() => handleResultSelectList(item)} style={styles.flatlistitem}>
+                                            <Text style={[styles.flatlisttitle, { color: 'black' }]}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    keyExtractor={(item, index) => index}
+                                />
+                            </View> : ""
+                    }
+                </>
+                {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
+                <FlatList
+                    data={activityAll}
+                    renderItem={({ item, index }) => (
+                        <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
+                            <View style={styles.activityListContainer}>
+                                <View style={styles.activityListItem}>
+                                    <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item?.agri_user?.userName.substring(0, 4) + '...'}</Text>
+                                    <Text style={styles.title}>{t('addcrop_plot')} : {item?.land_info?.plot_no.substring(0, 8) + '...'}</Text>
+                                    <Text style={styles.title}>{t('perf_date')} : {item?.act_perform_date?.substring(0, 4) + '...'}</Text>
+                                </View>
+                                <View style={styles.activityListItem}>
+                                    <Text style={styles.title}>{t('farmer_number')} : {item?.agri_user?.contactNumber.substring(0, 7) + '...'}</Text>
+                                    <Text style={styles.title}>{t('crop_name')} : {item?.cropName?.name.substring(0, 7) + '..'}</Text>
+                                    <Text style={styles.title}>{t('deviation')} : {item?.deviation}{t('days')}</Text>
+                                </View>
+                            </View>
+                            <Text style={styles.title}>{t('cycle_start_date')} : {item?.cycle_start_date}</Text>
+                        </TouchableOpacity>
+                    )
+                    }
+                    keyExtractor={(item, index) => index}
+                    showsVerticalScrollIndicator={false}
+                />
+                <View style={styles.prevNextPage}>
+                    <TouchableOpacity onPress={() => handlePage('previous')}>
+                        <Text style={styles.title}>{t('prev_page')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handlePage('next')}>
+                        <Text style={styles.title}>{t('next_page')}</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </Root>
     )
 }
-
-export default ActivityList
-
+export default ActivityList;
 const styles = StyleSheet.create({
     wrapper: {
         borderColor: '#efe9e9',
@@ -198,10 +265,10 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         elevation: 3,
         backgroundColor: '#FFFFFF',
-        marginHorizontal: 15,
+        marginHorizontal: '2.5%',
+        paddingHorizontal: 8,
         marginVertical: 7,
-        paddingHorizontal: 20,
-        paddingVertical: 15,
+        paddingVertical: 10,
         // height: 100,
 
     },
@@ -211,7 +278,14 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     activityListItem: {
-        paddingBottom: 5
+        paddingBottom: 1,
+
+    },
+    title: {
+        color: '#000',
+        lineHeight: 25,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
     },
     prevNextPage: {
         flexDirection: 'row',
@@ -220,10 +294,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         bottom: 0
     },
-    title: {
-        color: '#000',
-        fontSize: 15
-    },
+
     OptionWrapper: {
         borderColor: '#efe9e9',
         shadowColor: '#000',
@@ -237,6 +308,58 @@ const styles = StyleSheet.create({
         marginVertical: 7,
         paddingHorizontal: 20,
         paddingVertical: 10,
-    }
+    },
+    loadingScreen: {
+        position: 'absolute',
+        top: 200,
+        zIndex: 999,
+        left: '45%'
+    },
+    flatContainerLengthUp: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        zIndex: 999,
+        left: 0,
+        // top: 100,
+        top: '20%',
+        marginHorizontal: '5%',
+        width: '90%',
+        elevation: 10,
+        borderRadius: 10,
+        padding: 10
+    },
+    flatlistHeight: {
+        height: Dimensions.get('window').height / 4
+    },
+    flatContainer: {
+        // backgroundColor: '#ffffff',
+        // position: 'absolute',
+        // zIndex: 999,
+        // bottom: '100%',
+        // left: 0,
+        // marginHorizontal: '5%',
+        // width: '90%',
+        // elevation: 10,
+        // borderRadius: 10,
+        // padding: 10,
+        // bottom:100
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        zIndex: 999,
+        left: 0,
+        // top:30,
+        // marginTop: 60,
+        top: '13%',
+        marginHorizontal: '5%',
+        width: '90%',
+        elevation: 10,
+        borderRadius: 10,
+        padding: 10
+    },
+    flatlisttitle: {
+        color: '#000',
+        marginVertical: 6,
+        fontFamily: 'Poppins-Regular'
+    },
 
 })

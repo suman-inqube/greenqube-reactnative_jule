@@ -9,7 +9,7 @@ const RadioForm = ({ label, selected, onSelect }) => {
                 style={[
                     styles.radioCircle,
                     {
-                        backgroundColor: selected ? '#007AFF' : '#E5E5E5',
+                        backgroundColor: selected ? '#074609' : '#E5E5E5',
                     },
                 ]}
             >
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
             width: 20,
             borderRadius: 12,
             borderWidth: 2,
-            borderColor: '#007AFF',
+            borderColor: '#0a3e08',
             alignItems: 'center',
             justifyContent: 'center',
             marginRight: 10,
@@ -47,9 +47,10 @@ const styles = StyleSheet.create({
             width: 12,
             height: 12,
             borderRadius: 6,
-            backgroundColor: '#007AFF',
+            backgroundColor: '#0a3e08',
         },
         radioText: {
             color: '#000',
+            fontFamily:'Poppins-Regular',
         },
 })

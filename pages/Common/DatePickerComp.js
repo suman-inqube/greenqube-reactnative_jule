@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { memo } from 'react'
 import DatePicker from 'react-native-date-picker'
 const DatePickerComp = ({
     openDate,
     newDate,
-    setOpenDate
+    setOpenDate,
+    handleDatePicker,
+    minimumDate
 }) => {
     return (
         <DatePicker
@@ -12,6 +14,7 @@ const DatePickerComp = ({
             mode="date"
             open={openDate}
             date={newDate}
+            minimumDate={minimumDate}
             onConfirm={(item) => {
                 handleDatePicker(item)
                 setOpenDate(false)
@@ -19,10 +22,13 @@ const DatePickerComp = ({
             onCancel={() => {
                 setOpenDate(false)
             }}
+            // fadeToColor='red'
+            // androidVariant='iosClone'
+            textColor='#000'
+            theme='light'
+            androidVariant='nativeAndroid'
         />
     )
 }
-
-export default DatePickerComp
-
+export default memo(DatePickerComp)
 const styles = StyleSheet.create({})

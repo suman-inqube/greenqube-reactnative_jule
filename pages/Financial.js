@@ -3,14 +3,16 @@ import React, { useEffect, useState } from 'react'
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import ButtonForm from './Common/ButtonForm';
-import Logo from './Common/Logo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import config from '../config';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker'
 import { getItem, setItem } from '../config/getDataFromStorage';
+import { useTranslation } from 'react-i18next';
+import Geolocation from '@react-native-community/geolocation';
+import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 const Financial = () => {
+    const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
     const { pagename, arrayIndex } = route.params;
@@ -20,16 +22,18 @@ const Financial = () => {
         accountHolderName: '', bankName: '', ifscCode: '', bankAccountNo: '', branchName: '', pensionAccountNo: '',
         pensionProvidingAuthority: '', pensionAmount: '', pensionEffectiveFrom: '', pensionPerMonth: '', nameOfCompany: '', policyNumber: '', sumInsured: ''
     });
-    const [newdate, setnewDate] = useState(new Date())
-    const [open, setOpen] = useState(false)
+    const [newdate, setnewDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
+    const [location, setlocation] = useState({
+        lat: "",
+        long: ""
+    });
     const handleDatePicker = (item) => {
         const dt = new Date(item);
         const x = dt.toISOString().split('T');
         const x1 = x[0].split('-');
-        // console.log(x1[2] + '/' + x1[1] + '/' + x1[0]);
         const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
         setstoreFinancial({ ...storeFinancial, pensionEffectiveFrom: effective_date })
-        // console.log(item);
     }
     const [isIdentity, setIdentity] = useState(false);
     const toggleIdentity = () => {
@@ -50,9 +54,8 @@ const Financial = () => {
 
     const handleSave = async () => {
         await setItem("storeFinancial_data", storeFinancial);
-        navigation.navigate(pagename, { pagename: 'SignUpViwer', arrayIndex: 0 });
+        navigation.navigate(pagename, { pagename: 'SignUpViwer', arrayIndex: 0, locationData: location });
     }
-
     const onPageLoad = async () => {
         const storeSignup_data = await getItem('storeSignup_data');
         setdbName(storeSignup_data.company.dbname)
@@ -64,21 +67,34 @@ const Financial = () => {
             }
         }
     };
-
+    const getLocation = () => {
+        Geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setlocation({ ...location, lat: latitude.toFixed(7), long: longitude.toFixed(7) })
+            },
+            (error) => {
+                console.error(error);
+            },
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+        );
+    }
     useEffect(() => {
         onPageLoad();
     }, []);
     return (
         <>
+            <ForegroundLocationService />
+            <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
             <ScrollView style={{ backgroundColor: '#ffff' }}>
-                <Logo iheight={100} iwidth={100} />
+                <Text style={{ textAlign: 'right', fontSize: 19, color: '#000', fontWeight: 'bold', paddingVertical: 10, marginRight: 15 }}>{t('financial_information')}</Text>
                 <View style={{ backgroundColor: '#ffff' }}>
                     <View style={{ paddingHorizontal: 20 }}>
                         <View style={styles.container}>
                             <TouchableOpacity onPress={toggleIdentity}>
                                 <View style={styles.headerStyle}>
                                     <Text style={styles.toggleText}>
-                                        {isIdentity ? 'Identity Numbers' : 'Identity Numbers'}
+                                        {isIdentity ? `${t('different_identity_number')}` : `${t('different_identity_number')}`}
                                     </Text>
                                     <Text style={styles.toggleText}>
                                         {isIdentity ? <Image source={require('./Common/images/sub.png')} style={{ width: 20, height: 20 }} />
@@ -92,14 +108,14 @@ const Financial = () => {
                             {isIdentity && (
                                 <>
                                     <View style={{ marginTop: 10, }}>
-                                        <InputTextForm label="National Identity No. (Aadhaar)" onChangeText={adharCard => setstoreFinancial({ ...storeFinancial, adharCard: adharCard })} keyboardType="numeric" value={storeFinancial.adharCard} />
+                                        <InputTextForm label={t('adhar_no')} onChangeText={adharCard => setstoreFinancial({ ...storeFinancial, adharCard: adharCard })} keyboardType="numeric" value={storeFinancial.adharCard} />
                                     </View>
 
-                                    <InputTextForm label="Income Tax No. (PAN)" value={storeFinancial.panNo} onChangeText={panNo => setstoreFinancial({ ...storeFinancial, panNo: panNo })} />
+                                    <InputTextForm label={t('pan_no')} value={storeFinancial.panNo} onChangeText={panNo => setstoreFinancial({ ...storeFinancial, panNo: panNo })} />
 
-                                    <InputTextForm label="Voter Card No." value={storeFinancial.voterCard} onChangeText={voterCard => setstoreFinancial({ ...storeFinancial, voterCard: voterCard })} />
+                                    <InputTextForm label={t('voter_card_no')} value={storeFinancial.voterCard} onChangeText={voterCard => setstoreFinancial({ ...storeFinancial, voterCard: voterCard })} />
 
-                                    <InputTextForm label="Farmer/Producer Loan No. (Existing)" onChangeText={farmarLoanNo => setstoreFinancial({ ...storeFinancial, farmarLoanNo: farmarLoanNo })} value={storeFinancial.farmarLoanNo} />
+                                    <InputTextForm label={t('kcc_no')} onChangeText={farmarLoanNo => setstoreFinancial({ ...storeFinancial, farmarLoanNo: farmarLoanNo })} value={storeFinancial.farmarLoanNo} />
                                 </>
                             )}
                         </View>
@@ -109,7 +125,7 @@ const Financial = () => {
                             <TouchableOpacity onPress={toggleBank}>
                                 <View style={styles.headerStyle}>
                                     <Text style={styles.toggleText}>
-                                        {isBank ? 'Bank Account Details' : 'Bank Account Details'}
+                                        {isBank ? `${t('bank_account_details')}` : `${t('bank_account_details')}`}
                                     </Text>
                                     <Text style={styles.toggleText}>
                                         {isBank ? <Image source={require('./Common/images/sub.png')} style={{ width: 20, height: 20 }} />
@@ -123,15 +139,15 @@ const Financial = () => {
                             {isBank && (
                                 <>
                                     <View style={{ marginTop: 10, }}>
-                                        <InputTextForm label="Account Holder Name" onChangeText={accountHolderName => setstoreFinancial({ ...storeFinancial, accountHolderName: accountHolderName })} value={storeFinancial.accountHolderName} />
+                                        <InputTextForm label={t('account_holder_name')} onChangeText={accountHolderName => setstoreFinancial({ ...storeFinancial, accountHolderName: accountHolderName })} value={storeFinancial.accountHolderName} />
                                     </View>
-                                    <InputTextForm label="Bank Name" onChangeText={bankName => setstoreFinancial({ ...storeFinancial, bankName: bankName })} value={storeFinancial.bankName} />
+                                    <InputTextForm label={t('bank_name')} onChangeText={bankName => setstoreFinancial({ ...storeFinancial, bankName: bankName })} value={storeFinancial.bankName} />
 
-                                    <InputTextForm label="Branch Name" onChangeText={branchName => setstoreFinancial({ ...storeFinancial, branchName: branchName })} value={storeFinancial.branchName} />
+                                    <InputTextForm label={t('branch_name')} onChangeText={branchName => setstoreFinancial({ ...storeFinancial, branchName: branchName })} value={storeFinancial.branchName} />
 
-                                    <InputTextForm label="Bank Account No" onChangeText={bankAccountNo => setstoreFinancial({ ...storeFinancial, bankAccountNo: bankAccountNo })} value={storeFinancial.bankAccountNo} keyboardType="numeric" />
+                                    <InputTextForm label={t('bank_account')} onChangeText={bankAccountNo => setstoreFinancial({ ...storeFinancial, bankAccountNo: bankAccountNo })} value={storeFinancial.bankAccountNo} keyboardType="numeric" />
 
-                                    <InputTextForm label="Bank Code (IFSC/SWIFT)" onChangeText={ifscCode => setstoreFinancial({ ...storeFinancial, ifscCode: ifscCode })} value={storeFinancial.ifscCode} />
+                                    <InputTextForm label={t('ifsc_no')} onChangeText={ifscCode => setstoreFinancial({ ...storeFinancial, ifscCode: ifscCode })} value={storeFinancial.ifscCode} />
                                 </>
                             )}
                         </View>
@@ -141,7 +157,7 @@ const Financial = () => {
                             <TouchableOpacity onPress={togglePension}>
                                 <View style={styles.headerStyle}>
                                     <Text style={styles.toggleText}>
-                                        {isPension ? 'Pension Details' : 'Pension Details'}
+                                        {isPension ? `${t('pension_details')}` : `${t('pension_details')}`}
                                     </Text>
                                     <Text style={styles.toggleText}>
                                         {isPension ? <Image source={require('./Common/images/sub.png')} style={{ width: 20, height: 20 }} />
@@ -155,14 +171,14 @@ const Financial = () => {
                             {isPension && (
                                 <>
                                     <View style={{ marginTop: 10, }}>
-                                        <InputTextForm label="Pension Providing Authority" onChangeText={pensionProvidingAuthority => setstoreFinancial({ ...storeFinancial, pensionProvidingAuthority: pensionProvidingAuthority })} value={storeFinancial.pensionProvidingAuthority} />
+                                        <InputTextForm label={t('pension_providing_authority')} onChangeText={pensionProvidingAuthority => setstoreFinancial({ ...storeFinancial, pensionProvidingAuthority: pensionProvidingAuthority })} value={storeFinancial.pensionProvidingAuthority} />
                                     </View>
-                                    <InputTextForm label="Pension Account Number" onChangeText={pensionAccountNo => setstoreFinancial({ ...storeFinancial, pensionAccountNo: pensionAccountNo })} value={storeFinancial.pensionAccountNo} keyboardType="numeric" />
+                                    <InputTextForm label={t('pension_account_number')} onChangeText={pensionAccountNo => setstoreFinancial({ ...storeFinancial, pensionAccountNo: pensionAccountNo })} value={storeFinancial.pensionAccountNo} keyboardType="numeric" />
                                     <View>
-                                        <Text style={{ marginBottom: 5, marginLeft: 5, }}>Effective From</Text>
+                                        <Text style={{ marginBottom: 5, marginLeft: 5, color: '#000' }}>{t('effective_from')}</Text>
                                         <View style={styles.passwordMainContainer}>
                                             <View style={styles.passwordContainer}>
-                                                <TextInput style={styles.inputTextStyle} value={storeFinancial.pensionEffectiveFrom} />
+                                                <Text style={styles.inputTextStyle} onPress={() => setOpen(true)}>{storeFinancial.pensionEffectiveFrom}</Text>
                                                 <TouchableOpacity onPress={() => setOpen(true)}>
                                                     <ImageForm
                                                         source={require('./Common/images/date.png')}
@@ -187,18 +203,18 @@ const Financial = () => {
                                             </View>
                                         </View>
                                     </View>
-                                    <InputTextForm label="Pension Amount(Dollar_D)" onChangeText={pensionAmount => setstoreFinancial({ ...storeFinancial, pensionAmount: pensionAmount })} value={storeFinancial.pensionAmount} keyboardType="numeric" />
-                                    <DropdownForm label="Per Month/ Quarter/Year" data={config.pensionParMonthData} onChange={pensionPerMonth => setstoreFinancial({ ...storeFinancial, pensionPerMonth: pensionPerMonth })} val={storeFinancial.pensionPerMonth} />
+                                    <InputTextForm label={t('pension_amount_currency')} onChangeText={pensionAmount => setstoreFinancial({ ...storeFinancial, pensionAmount: pensionAmount })} value={storeFinancial.pensionAmount} keyboardType="numeric" />
+                                    <DropdownForm label={t('per_month_quarter_year')} data={config.pensionParMonthData} onChange={pensionPerMonth => setstoreFinancial({ ...storeFinancial, pensionPerMonth: pensionPerMonth })} val={storeFinancial.pensionPerMonth.label} />
                                 </>
                             )}
                         </View>
                     </View>
-                    <View style={{ paddingHorizontal: 20 }}>
+                    <View style={{ paddingHorizontal: 20, marginBottom: 100 }}>
                         <View style={styles.container}>
                             <TouchableOpacity onPress={toggleLifeInsurance}>
                                 <View style={styles.headerStyle}>
                                     <Text style={styles.toggleText}>
-                                        {isLifeInsurance ? 'Life Insurance Details' : 'Life Insurance Details'}
+                                        {isLifeInsurance ? `${t('life_insurance_details')}` : `${t('life_insurance_details')}`}
                                     </Text>
                                     <Text style={styles.toggleText}>
                                         {isLifeInsurance ?
@@ -213,10 +229,10 @@ const Financial = () => {
                             {isLifeInsurance && (
                                 <>
                                     <View style={{ marginTop: 10, }}>
-                                        <InputTextForm label="Name of Company" onChangeText={nameOfCompany => setstoreFinancial({ ...storeFinancial, nameOfCompany: nameOfCompany })} value={storeFinancial.nameOfCompany} />
+                                        <InputTextForm label={t('lic_name_of_company')} onChangeText={nameOfCompany => setstoreFinancial({ ...storeFinancial, nameOfCompany: nameOfCompany })} value={storeFinancial.nameOfCompany} />
                                     </View>
-                                    <InputTextForm label="Policy Number" onChangeText={policyNumber => setstoreFinancial({ ...storeFinancial, policyNumber: policyNumber })} value={storeFinancial.policyNumber} keyboardType="numeric" />
-                                    <InputTextForm label="Sum Insured ( Dollar_D )" onChangeText={sumInsured => setstoreFinancial({ ...storeFinancial, sumInsured: sumInsured })} value={storeFinancial.sumInsured} keyboardType="numeric" />
+                                    <InputTextForm label={t('policy_number')} onChangeText={policyNumber => setstoreFinancial({ ...storeFinancial, policyNumber: policyNumber })} value={storeFinancial.policyNumber} keyboardType="numeric" />
+                                    <InputTextForm label={t('sum_insured_currency')} onChangeText={sumInsured => setstoreFinancial({ ...storeFinancial, sumInsured: sumInsured })} value={storeFinancial.sumInsured} keyboardType="numeric" />
                                 </>
                             )}
                         </View>
@@ -224,7 +240,7 @@ const Financial = () => {
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10, backgroundColor: '#D5FFD0' }}>
-                <ButtonForm label='Next' onPress={() => handleSave('ProduceInfo')} />
+                <ButtonForm label={t('skip_next')} onPress={() => handleSave('ProduceInfo')} />
             </View>
         </>
     )
@@ -247,6 +263,7 @@ const styles = StyleSheet.create({
     },
     toggleText: {
         fontSize: 18,
+        color: '#000'
     },
     content: {
         marginTop: 10,
@@ -269,8 +286,9 @@ const styles = StyleSheet.create({
     },
     inputTextStyle: {
         flex: 1,
-        height: 40,
+        marginVertical: 10,
         marginHorizontal: 10,
         borderColor: 'gray',
+        color: "#000",
     },
 })

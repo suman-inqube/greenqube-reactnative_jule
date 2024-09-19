@@ -1,13 +1,13 @@
 import { StyleSheet, Text,TouchableOpacity } from 'react-native'
 import React from 'react'
-import { useNavigation } from '@react-navigation/native';
+
 const WidgetsSide = ({
-    location,
-    title
+    title,
+    onPress
 }) => {
-  const { navigate } = useNavigation();
+
   return (
-    <TouchableOpacity style={styles.WidgetsContainer} onPress={() => navigate(location)}>
+    <TouchableOpacity style={styles.WidgetsContainer} onPress={onPress}>
       <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   )
@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
     text:{
         color:'#fff',
         fontWeight:'500',
-        fontSize:16,
         marginLeft:5,
+        fontFamily: 'Poppins-Regular',
+        paddingVertical:3,
     }
 })
