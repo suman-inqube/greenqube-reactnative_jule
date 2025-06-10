@@ -7,15 +7,16 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  PermissionsAndroid,
+  KeyboardAvoidingView,
   StatusBar,
+  Platform,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import ButtonForm from './Common/ButtonForm';
 import InputTextForm from './Common/InputTextForm';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import MessageDialog from './Common/MessageDialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -27,20 +28,22 @@ import {
 } from '../config/apiHere';
 import axios from 'axios';
 import config from '../config';
-import { isNotEmpty } from './Common/ValidationFunctions';
-import { Permission, PERMISSIONS_TYPE } from './Common/AppPermission';
-import { request, PERMISSIONS } from 'react-native-permissions';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from './Common/ToastAlert';
-import { getItem, setItem } from '../config/getDataFromStorage';
-import { useTranslation } from 'react-i18next';
+import {isNotEmpty} from './Common/ValidationFunctions';
+import {Permission, PERMISSIONS_TYPE} from './Common/AppPermission';
+import {request, PERMISSIONS} from 'react-native-permissions';
+import {Root, Popup, Toast} from 'react-native-popup-confirm-toast';
+import {AlertMesg} from './Common/ToastAlert';
+import {getItem, setItem} from '../config/getDataFromStorage';
+import {useTranslation} from 'react-i18next';
 import PasswordComp from './Common/PasswordComp';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
-import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
+import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
+import DocumentPicker, {types} from 'react-native-document-picker';
 const Signup = () => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : -40;
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
   const navigation = useNavigation();
   const language_id = 1;
   const [storeSignup, setstoreSignup] = useState({
@@ -51,6 +54,7 @@ const Signup = () => {
     password: '',
     cpassword: '',
   });
+
   const [cpasswordVisibility, setcPasswordVisibility] = useState('');
   const [passwordVisibility, setPasswordVisibility] = useState('');
   const [countryData, setCountryData] = useState([]);
@@ -125,7 +129,7 @@ const Signup = () => {
               });
             }
           } else {
-            company_list_arr.push({ [country_id]: JSON.stringify(companyArray) });
+            company_list_arr.push({[country_id]: JSON.stringify(companyArray)});
             companyData_list_local_data = company_list_arr;
           }
           await setItem('companyDataListAPI', companyData_list_local_data);
@@ -151,7 +155,7 @@ const Signup = () => {
     }
   };
   const companyHandle = async company => {
-    setstoreSignup({ ...storeSignup, company: company, supervisor: '' });
+    setstoreSignup({...storeSignup, company: company, supervisor: ''});
     supervisorDataList(company.value);
   };
   let supervisorDataList = async company_id => {
@@ -218,7 +222,7 @@ const Signup = () => {
       // MessageDialog({ title: 'Password', message: `This Password Not Matched` })
       Toast.show({
         time: 3,
-        text: `This Password Not Matched`,
+        text: t('please_enter_valid_password'),
         ...AlertMesg[0],
       });
     }
@@ -229,11 +233,11 @@ const Signup = () => {
     } else {
       Toast.show({
         time: 3,
-        text: `Please enter phone no`,
+        text: t('please_enter_valid_mobile_no'),
         ...AlertMesg[0],
       });
       // MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
-      setstoreSignup({ ...storeSignup, phone: '' });
+      setstoreSignup({...storeSignup, phone: ''});
       phoneInputRef.current.focus();
     }
   };
@@ -260,7 +264,7 @@ const Signup = () => {
             });
             Keyboard.dismiss();
             // phoneInputRef.current.focus();
-            setstoreSignup({ ...storeSignup, phone: '' });
+            setstoreSignup({...storeSignup, phone: ''});
           }
         }
       }
@@ -286,12 +290,17 @@ const Signup = () => {
         axiosConfig1,
       );
     } catch (error) {
-      CrashlyticsRecordError(error.response);
-      MessageDialog({
-        title: 'Phone',
-        message: `This ${storeSignup.phone} Not Available`,
+      // CrashlyticsRecordError(error.response);
+      // MessageDialog({
+      //   title: 'Phone',
+      //   message: `This ${storeSignup.phone} Not Available`,
+      // });
+      Toast.show({
+        time: 3,
+        text: `This ${storeSignup.phone} Not Available`,
+        ...AlertMesg[0],
       });
-      setstoreSignup({ ...storeSignup, phone: '' });
+      setstoreSignup({...storeSignup, phone: ''});
       phoneInputRef.current.focus();
     }
   };
@@ -305,7 +314,7 @@ const Signup = () => {
       return false;
     }
     if (!storeSignup.company.value) {
-      Toast.show({ time: 3, text: `${t('pls_sel_com_first')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('pls_sel_com_first')}`, ...AlertMesg[0]});
       return false;
     }
     if (!storeSignup.supervisor.value) {
@@ -325,17 +334,17 @@ const Signup = () => {
       return false;
     }
     if (!storeSignup.password) {
-      Toast.show({ time: 3, text: `${t('enter_pass')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('enter_pass')}`, ...AlertMesg[0]});
       return false;
     }
     if (!storeSignup.cpassword) {
-      Toast.show({ time: 3, text: `${t('enter_conf_pass')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('enter_conf_pass')}`, ...AlertMesg[0]});
       return false;
     }
     const password = storeSignup.password;
     const cpassword = storeSignup.cpassword;
     if (password != cpassword) {
-      Toast.show({ time: 3, text: `${t('same_con_password')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('same_con_password')}`, ...AlertMesg[0]});
       return false;
     }
     return true;
@@ -344,7 +353,7 @@ const Signup = () => {
     Keyboard.dismiss();
     if (validateForm()) {
       await setItem('storeSignup_data', storeSignup);
-      navigation.navigate('Persnol', { pagename: 'Financial' });
+      navigation.navigate('Persnol', {pagename: 'Financial'});
     }
   };
   const getDataFromLocalStorage = async () => {
@@ -361,25 +370,30 @@ const Signup = () => {
     }
   };
   const handleAddData = (name, value) => {
-    setstoreSignup({ ...storeSignup, [name]: value });
+    setstoreSignup({...storeSignup, [name]: value});
   };
   useEffect(() => {
     getDataFromLocalStorage();
     countryDataList();
   }, [netConnection]);
+
   return (
     <>
       <Root>
         {/* <StatusBar barStyle="light-content" backgroundColor={"#003c04"} /> */}
         <View style={styles.container}>
-          <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
+          <View style={{height: 60, backgroundColor: '#003c04'}}></View>
           <View style={styles.headersContainer}>
             <Text style={styles.headersTitle}>{t('new_registration')}</Text>
             <Text style={styles.headersTitle}>{t('login_information')}</Text>
           </View>
-          <View style={{ flex: 1, justifyContent: 'center' }}>
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            {/* <KeyboardAvoidingView
+              // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
+              behavior={Platform.OS === 'ios' ? 'padding' : null}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 50}> */}
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{ alignItems: 'center' }}>
+              <View style={{alignItems: 'center'}}>
                 <Image
                   source={require('../pages/Common/images/logo.png')}
                   style={styles.logo}
@@ -409,7 +423,7 @@ const Signup = () => {
                   label={t('select_supervisor')}
                   color="red"
                   onChange={supervisor => {
-                    setstoreSignup({ ...storeSignup, supervisor: supervisor });
+                    setstoreSignup({...storeSignup, supervisor: supervisor});
                   }}
                   val={storeSignup.supervisor.label}
                 />
@@ -418,7 +432,7 @@ const Signup = () => {
                   color="red"
                   value={storeSignup.phone}
                   onChangeText={phone =>
-                    setstoreSignup({ ...storeSignup, phone: phone })
+                    setstoreSignup({...storeSignup, phone: phone})
                   }
                   keyboardType="numeric"
                   onBlur={phone => checkPhone(phone)}
@@ -438,8 +452,12 @@ const Signup = () => {
                   onChangeText={value => handleAddData('cpassword', value)}
                   value={storeSignup.cpassword}
                 />
+                <View style={{marginBottom: 100}}></View>
               </View>
             </ScrollView>
+            <View style={{marginBottom: 100}}></View>
+            {/* </KeyboardAvoidingView>
+             */}
           </View>
         </View>
         <ButtonForm label={t('next')} onPress={() => saveHandle()} />
@@ -454,7 +472,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    marginBottom: 50,
+    // marginBottom: 50,
   },
   headersContainer: {
     marginHorizontal: '5%',
@@ -519,5 +537,8 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: 'contain',
     alignItems: 'center',
+  },
+  idcontainer: {
+    marginVertical: 10,
   },
 });

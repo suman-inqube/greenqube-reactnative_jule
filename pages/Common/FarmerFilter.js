@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native';
 import React from 'react';
 import RadioForm from './RadioForm';
+import { useTranslation } from 'react-i18next';
 const FarmerFilter = ({
   filterItem,
   filterOption,
@@ -20,6 +21,7 @@ const FarmerFilter = ({
   statusFilter,
   statusNameValue
 }) => {
+  const { t } = useTranslation();
   return (
     <>
       <View style={styles.filterContainer}>
@@ -77,7 +79,7 @@ const FarmerFilter = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.dateContainer}>
                 <Text style={[styles.title, { marginRight: 7 }]}>
-                  {fromDate == "" ? "From date" : `${fromDate}`}
+                  {fromDate == "" ? t('from_date') : `${fromDate}`}
                 </Text>
                 <Image source={require('./images/calendar.png')}
                   style={{ width: 27, height: 27 }}
@@ -85,7 +87,7 @@ const FarmerFilter = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setOpenToDate(true)} style={styles.dateContainer}>
                 <Text style={[styles.title, { marginRight: 7 }]}>
-                  {newToDate == "" ? "To date" : `${newToDate}`}</Text>
+                  {newToDate == "" ? t('to_date') : `${newToDate}`}</Text>
                 <Image source={require('./images/calendar.png')}
                   style={{ width: 27, height: 27 }}
                 />
@@ -122,14 +124,14 @@ const FarmerFilter = ({
             />
             : ""
           }
-          {statusFilter == true ?
-            <RadioForm label={"Status"}
+          {/* {statusFilter == true ?
+            <RadioForm label={t('sta_')}
               selected={filterItem === 'statusFilter'}
               onSelect={() => onchangeFilterItem('statusFilter')}
             />
             : ""
-          }
-          <RadioForm label={"Date"}
+          } */}
+          <RadioForm label={t('date')}
             selected={filterItem === 'Date'}
             onSelect={() => onchangeFilterItem('Date')}
           />

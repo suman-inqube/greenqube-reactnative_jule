@@ -1,30 +1,58 @@
-import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
-import React, { memo } from 'react'
-
-const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname, maxLength, editable }) => {
+import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native';
+import React, { memo } from 'react';
+function isValid(str){
+ return !/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(str);
+}
+const InputTextForm = ({
+  value,
+  color,
+  label,
+  onChangeText,
+  keyboardType,
+  onBlur,
+  refname,
+  maxLength,
+  editable,
+  placeholder,
+}) => {
   const scheme = useColorScheme();
-  const labelString = label.charAt(0).toUpperCase() + label.slice(1);
+  const labelString = label?.charAt(0).toUpperCase() + label?.slice(1);
+
+  const handleChange = (text) => {
+    isValid(text)? onChangeText(text):'';
+  };
+
   return (
     <>
-      <Text style={[styles.title, { color: color ?? 'black' }]}>{labelString}</Text>
+      <Text style={[styles.title, { color: color ?? 'black' }]}>
+        {labelString}
+      </Text>
       <View style={styles.container}>
         <TextInput
-          style={[styles.simpleInputTextStyle, { color: 'black', backgroundColor: editable == false ? '#FFF' : "#FFF", borderColor: editable == false ? "#ffffff" : "#FFFF" }]}
-          //  style={[styles.simpleInputTextStyle, { color: 'black' }]} 
-          onChangeText={onChangeText}
+          style={[
+            styles.simpleInputTextStyle,
+            {
+              color: 'black',
+              backgroundColor: editable == false ? '#FFF' : '#FFF',
+              borderColor: editable == false ? '#ffffff' : '#FFFF',
+            },
+          ]}
+          onChangeText={handleChange}
           onBlur={onBlur}
           value={value}
           keyboardType={keyboardType ?? 'default'}
           ref={refname}
           maxLength={maxLength}
           editable={editable}
+          placeholder={placeholder}
+          placeholderTextColor="#808080"
         />
       </View>
     </>
-  )
-}
+  );
+};
 
-export default memo(InputTextForm)
+export default memo(InputTextForm);
 
 const styles = StyleSheet.create({
   container: {
@@ -36,7 +64,6 @@ const styles = StyleSheet.create({
     height: 45,
     borderColor: '#fcf7f7',
     borderWidth: 1.3,
-    borderRadius: 8,
     backgroundColor: '#FFFF',
     width: '100%',
     elevation: 1,
@@ -49,6 +76,5 @@ const styles = StyleSheet.create({
     color: "#000",
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
-  }
-
-})
+  },
+});

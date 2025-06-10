@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View,BackHandler } from 'react-native';
+import { StyleSheet, Text, View, BackHandler } from 'react-native';
 import React, { useEffect } from 'react';
 import { WebView } from 'react-native-webview';
-import { useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 const Business = () => {
     const navigation = useNavigation();
     useEffect(() => {
@@ -16,7 +16,7 @@ const Business = () => {
     }, []);
     return (
         <>
-            <WebView source={{ uri: 'http://142.93.208.31/micro_admin_mobile/#/login' }} />
+            <WebView source={{ uri: 'https://mygreenqube.com/micro_admin/' }} />
         </>
     )
 }

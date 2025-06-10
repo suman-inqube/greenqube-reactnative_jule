@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert
-} from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { getItem, removeItem } from '../../config/getDataFromStorage';
 import { BoxDisplay } from './dashboardComp';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-import CustomHeader from './CustomHeader';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import i18next from '../services/i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
+import { useIsFocused } from '@react-navigation/native';
 import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import BackGroundLocation from '../BackgroundService/BackGroundLocation';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
@@ -18,23 +11,56 @@ import FusedLocation from 'react-native-fused-location';
 // import NotificationServices from '../PushNotification/NotificationServices';
 // import messaging from '@react-native-firebase/messaging';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
-import { useSelector } from 'react-redux';
-import DeviceInfo from '../DeviceInfo'
-import { useNetInfo, NetInfoState } from "@react-native-community/netinfo";
-import LoadingScreen from '../Common/LoadingScreen';
-import { AlertMesg } from '../Common/ToastAlert';
+import { userCreateContext } from '../Context/usersCreateContext';
+import MessageDialog from '../Common/MessageDialog';
+import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
 const Dashboard = ({ navigation }) => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  //GQR-65
+  const {
+    getItem,
+    t,
+    CustomHeader,
+    onBackPress,
+    logoImage,
+    topBanner,
+    isOnline,
+    Root,
+    Toast,
+    AlertMesg,
+  } = useContext(userCreateContext);
+  // const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const isFocused = useIsFocused();
-  const [isLoading, setIsLoading] = useState(true);
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
   const [company_website, setcompany_website] = useState("");
+  const [logoImg, setlogoImage] = useState(logoImage);
+  const [topBannerImg, settopBanner] = useState(topBanner);
+  const [defaultLand, setDefaultLand] = useState(false);
+  const [convertionLUState, setConvertionLUState] = useState(false);
   const navigateToPages = (pageName) => {
-    if (netConnection) {
-      navigation.navigate(pageName, { data: 'remove' });
+    if (isOnline) {
+       if (pageName == "PersonalInformation") {
+        //  if (defaultLand == true) {
+          if (convertionLUState == false) {
+            navigation.navigate(pageName, {data: 'remove'});
+          } else {
+            Toast.show({
+              text: 'Please add the unit equivalent factor to default unit',
+              ...AlertMesg[0],
+            });
+          }
+          
+        // } else {
+        //   Toast.show({
+        //     text: 'Please set default land area unit',
+        //     ...AlertMesg[0],
+        //   });
+        // }
+       }else{
+          navigation.navigate(pageName, {data: 'remove'});
+       }
+      
     } else {
       if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
         navigation.navigate(pageName, { data: 'remove' });
@@ -42,62 +68,107 @@ const Dashboard = ({ navigation }) => {
     }
   };
   const onPageLoad = async () => {
-    const [bottomBannerData,
+    const [
+      bottomBannerData,
       userNameData,
-      profileImgData, loginUser_data, company_website] = await Promise.all([
-        getItem('bottomBannerData'),
-        getItem('userNameData'),
-        getItem('profileImgData'),
-        getItem('loginUser_data'),
-        getItem('company_website'),
-        // getCurrentLatLong(),
-        Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation, PERMISSIONS_TYPE.notifications])
-      ]);
-    // i18next.changeLanguage(`${loginUser_data.lan_id}`);
+      profileImgData,
+      loginUser_data,
+      company_website,
+      logoImageData,
+      topBannerData,
+    ] = await Promise.all([
+      getItem('bottomBannerData'),
+      getItem('userNameData'),
+      getItem('profileImgData'),
+      getItem('loginUser_data'),
+      getItem('company_website'),
+      getItem('logoImageData'),
+      getItem('topBannerData'),
+
+      Permission.requestMultiple([
+        PERMISSIONS_TYPE.microphone,
+        PERMISSIONS_TYPE.fineLocation,
+        PERMISSIONS_TYPE.notifications,
+      ]),
+    ]);
+    if (logoImage != null) {
+      setlogoImage(logoImage);
+    } else {
+      setlogoImage(logoImageData);
+    }
+    if (topBanner != null) {
+      settopBanner(topBanner);
+    } else {
+      settopBanner(topBannerData);
+    }
     setcompany_website(company_website);
     setbottomBanner(bottomBannerData);
     setuserName(userNameData);
     setprofileImg(profileImgData);
-  };
-  const HandlerGoBack = () => {
-    exit();
-  }
 
-  useEffect(() => {
-    // ErrorUtils.setGlobalHandler(myErrorHandler)
-    // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-    // requestUserPermission();
-    // notificationListener();
-    if (isFocused) {
-      setTimeout(() => setIsLoading(false), 2000);
-      // const microphonePermission = async () => { await Permission.checkPermission(PERMISSIONS_TYPE.fineLocation) }
-      // console.log(microphonePermission);
-      onPageLoad();
-      const onBackPress = () => {
-        exit();
-        return true;
-      };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    // if (loginUser_data) {
+    //   console.log(loginUser_data.dbname);
+    // }
+    //  console.log(loginUser_data);
+    const [UnitConversonToDefault_res, LandUnitArea_res] = await Promise.all([
+      UnitConversonToDefault(
+        loginUser_data.dbname,
+        loginUser_data.lan_id,
+        loginUser_data.token,
+      ),
+      LandUnitArea(
+        loginUser_data.dbname,
+        loginUser_data.lan_id,
+        loginUser_data.token,
+      ),
+    ]);
+    
+
+
+    let i = 0;
+    if (UnitConversonToDefault_res.status == 200) {
+      if (UnitConversonToDefault_res.data.data?.count > 0) {
+        UnitConversonToDefault_res.data.data.rows.forEach(element => {
+          if (
+            element.defined_unit_value == null ||
+            element.defined_unit_value == ''
+          ) {
+            i = i + 1;
+          }
+        });
+      }
+    }
+    console.log(i);
+    if (i > 0) {
+      setConvertionLUState(true);
     }
 
-  }, [isFocused]);
+    if (LandUnitArea_res.status == 200) {
+      if (LandUnitArea_res.data.data?.count > 0) {
+        LandUnitArea_res.data.data.rows.forEach(element => {
+          if (element.defined_unit_value.length > 0) {
+            setDefaultLand(true);
+          }
+        });
+      }
+    }
+  };
+  const HandlerGoBack = () => exit()
+  useEffect(() => {
+    if (isFocused) {
+      
+      onPageLoad();
+      onBackPress(exit);
+    }
+  }, [isFocused, topBanner]);
   const exit = () => {
-    Alert.alert(
-      `${t('app_name')}`,
-      `${t('close_app')}`,
-      [
-        { text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
-      ],
+    Alert.alert(`${t('app_name')}`, `${t('close_app')}`,
+      [{ text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' }, { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() }],
       { cancelable: false });
+    return true;
   }
   const CompanyWebsiteOpen = () => {
-    if (company_website != "") {
-      Linking.openURL(company_website)
-    } else {
-      Alert.alert("Company website not found")
-    }
+    if (company_website != "") { Linking.openURL(company_website) } else { Alert.alert("Company website not found") }
   }
   return (
     <>
@@ -105,12 +176,11 @@ const Dashboard = ({ navigation }) => {
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} />
+        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
         <View name="name">
           <View style={styles.containerimg}>
             {profileImg ?
-              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} />
-              : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
+              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
             }
           </View>
           <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
@@ -136,26 +206,16 @@ const Dashboard = ({ navigation }) => {
             <View style={{ marginTop: 16, elevation: 5 }}>
               {bottomBanner ?
                 <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm
-                    source={{ uri: bottomBanner }}
-                    resizeMode="cover"
-                    height={200}
-                    width={'100%'}
-                  />
+                  <ImageForm source={{ uri: bottomBanner }} resizeMode="cover" height={200} width={'100%'} />
                 </TouchableOpacity>
                 : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm
-                    source={require('../Common/images/ad_banner_space.jpg')}
-                    resizeMode="cover"
-                    height={200}
-                    width={'100%'}
-                  />
+                  <ImageForm source={require('../Common/images/ad_banner_space.jpg')} resizeMode="cover" height={200} width={'100%'} />
                 </TouchableOpacity>}
             </View>
           </View>
         </ScrollView>
       </View>
-      {/* <Root></Root> */}
+      <Root></Root> 
     </>
   )
 }

@@ -9,34 +9,36 @@ import {
   StatusBar,
   Keyboard,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import DropdownForm from './Common/DropdownForm';
 import Logo from './Common/Logo';
 import ImagePlaceHolderCircle from './Common/ImagePlaceHolderCircle';
 import InputTextForm from './Common/InputTextForm';
 import RadioForm from './Common/RadioForm';
 import ButtonForm from './Common/ButtonForm';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {
   blockDataListAPI,
   districtDataListAPI,
   languageDataListAPI,
   stateInfoDataListAPI,
 } from '../config/apiHere';
-import { getItem, removeItem, setItem } from '../config/getDataFromStorage';
-import { isNotEmpty } from './Common/ValidationFunctions';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from './Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
+import {getItem, removeItem, setItem} from '../config/getDataFromStorage';
+import {isNotEmpty} from './Common/ValidationFunctions';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {Root, Popup, Toast} from 'react-native-popup-confirm-toast';
+import {AlertMesg} from './Common/ToastAlert';
+import {useTranslation} from 'react-i18next';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import DeviceInfo from './DeviceInfo';
+import DocumentPicker, {types} from 'react-native-document-picker';
+import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
 const Persnol = () => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
   const navigation = useNavigation();
   const route = useRoute();
-  const { pagename } = route.params;
+  const {pagename} = route.params;
   const [dbName, setdbName] = useState();
   const [languageData, setlanguageData] = useState([]);
   const [stateInfoData, setstateInfoData] = useState([]);
@@ -49,8 +51,8 @@ const Persnol = () => {
     district: '',
     block: '',
     name: '',
-    gender: 'male',
-    userType: 'large Grower',
+    gender: '1',
+    userType: '1',
     age: '',
     address: '',
     zip: '',
@@ -58,6 +60,10 @@ const Persnol = () => {
     imgType: '',
     imgName: '',
   });
+  const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
+    {uri: '', name: '', type: '', fileName: '', imageType: 'address'},
+    {uri: '', name: '', type: '', fileName: '', ImageType: 'identity'},
+  ]);
   let languageDataList = async dbname => {
     try {
       let languageArray = [];
@@ -225,7 +231,7 @@ const Persnol = () => {
     }
   };
   const handleDistrict = district => {
-    setstorePersnolInfo({ ...storePersnolInfo, district: district, block: '' });
+    setstorePersnolInfo({...storePersnolInfo, district: district, block: ''});
     blockDataList(dbName, storePersnolInfo.language, district);
   };
   let blockDataList = async (dbName, language, district) => {
@@ -265,7 +271,10 @@ const Persnol = () => {
         }
       } else {
         if (blockData_offline_list) {
-          blockData_offline_list_arr = blockData_offline_list.filter(function (v, i,) {
+          blockData_offline_list_arr = blockData_offline_list.filter(function (
+            v,
+            i,
+          ) {
             return blockData_offline_list[i][district.value] != undefined;
           });
           if (blockData_offline_list_arr.length != 0) {
@@ -308,7 +317,7 @@ const Persnol = () => {
       });
       return false;
     }
-    if (!storePersnolInfo.language.value) {
+    if (!storePersnolInfo.language?.value) {
       Toast.show({
         time: 3,
         text: `${t('please_select_language_first')}`,
@@ -316,7 +325,7 @@ const Persnol = () => {
       });
       return false;
     }
-    if (!storePersnolInfo.stateInfo.value) {
+    if (!storePersnolInfo.stateInfo?.value) {
       Toast.show({
         time: 3,
         text: `${t('please_select_state_first')}`,
@@ -324,7 +333,7 @@ const Persnol = () => {
       });
       return false;
     }
-    if (!storePersnolInfo.district.value) {
+    if (!storePersnolInfo.district?.value) {
       Toast.show({
         time: 3,
         text: `${t('please_select_zila_first')}`,
@@ -332,7 +341,7 @@ const Persnol = () => {
       });
       return false;
     }
-    if (!storePersnolInfo.block.value) {
+    if (!storePersnolInfo.block?.value) {
       Toast.show({
         time: 3,
         text: `${t('please_select_upazila_first')}`,
@@ -341,19 +350,19 @@ const Persnol = () => {
       return false;
     }
     if (storePersnolInfo.zip.length != 6 && storePersnolInfo.zip != '') {
-      Toast.show({
-        time: 3,
-        text: `Please enter valid pin code`,
-        ...AlertMesg[0],
-      });
+      Toast.show({time: 3, text: `${t('valid_pin_code')}`, ...AlertMesg[0]});
       return false;
     }
     return true;
   };
   const handleSave = async () => {
+    const newstorePersnolInfo = {
+      ...storePersnolInfo,
+      identityProofIdentityPropf,
+    };
     if (validateForm()) {
-      await setItem('storePersnolInfo_data', storePersnolInfo);
-      navigation.navigate(pagename, { pagename: 'ProduceInfo' });
+      await setItem('storePersnolInfo_data', newstorePersnolInfo);
+      navigation.navigate(pagename, {pagename: 'ProduceInfo'});
     }
   };
   const onPageLoad = async () => {
@@ -401,19 +410,43 @@ const Persnol = () => {
   useEffect(() => {
     onPageLoad();
   }, [netConnection]);
-
+  const handleDocumentSelection = async (data, index) => {
+    try {
+      const response = await DocumentPicker.pick({
+        presentationStyle: 'fullScreen',
+        type: [types.pdf, types.images],
+      });
+      const values = [...identityProofIdentityPropf];
+      values[index]['uri'] = response[0].uri;
+      values[index]['name'] = response[0].name;
+      values[index]['type'] = response[0].type;
+      values[index]['fileName'] = response[0].name;
+      values[index]['imageType'] = data;
+      setIdentityProofIdentityPropf(values);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const handleDocumentSelectionRemove = index => {
+    const values = [...identityProofIdentityPropf];
+    values[index]['uri'] = '';
+    values[index]['name'] = '';
+    values[index]['type'] = '';
+    values[index]['fileName'] = '';
+    setIdentityProofIdentityPropf(values);
+  };
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
       <View style={styles.container}>
-        <View style={{ height: 60, backgroundColor: '#003c04' }}></View>
+        <View style={{height: 60, backgroundColor: '#003c04'}}></View>
         <View style={styles.headersContainer}>
           <Text style={styles.headersTitle}>{t('new_registration')}</Text>
           <Text style={styles.headersTitle}>{t('personal_information')}</Text>
         </View>
-        <View style={{ marginHorizontal: '2.5%' }}>
+        <View style={{marginHorizontal: '2.5%'}}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ alignItems: 'center' }}>
+            <View style={{alignItems: 'center'}}>
               <Image
                 source={require('../pages/Common/images/logo.png')}
                 style={styles.logo}
@@ -436,58 +469,58 @@ const Persnol = () => {
                 color="red"
                 value={storePersnolInfo.name ?? name}
                 onChangeText={name => {
-                  setstorePersnolInfo({ ...storePersnolInfo, name: name });
+                  setstorePersnolInfo({...storePersnolInfo, name: name});
                 }}
               />
               <View>
-                <Text style={{ fontSize: 16, color: '#000' }}>
+                <Text style={{fontSize: 16, color: '#000'}}>
                   {t('farmer_reg_gnd')}
                 </Text>
                 <RadioForm
                   label={t('farmer_reg_male')}
-                  selected={storePersnolInfo.gender === 'male'}
+                  selected={storePersnolInfo.gender === '1'}
                   onSelect={() =>
-                    setstorePersnolInfo({ ...storePersnolInfo, gender: 'male' })
+                    setstorePersnolInfo({...storePersnolInfo, gender: '1'})
                   }
                 />
                 <RadioForm
                   label={t('farmer_reg_female')}
-                  selected={storePersnolInfo.gender === 'female'}
+                  selected={storePersnolInfo.gender === '2'}
                   onSelect={() =>
-                    setstorePersnolInfo({ ...storePersnolInfo, gender: 'female' })
+                    setstorePersnolInfo({...storePersnolInfo, gender: '2'})
                   }
                 />
               </View>
 
-              <View style={{ marginBottom: 15 }}>
-                <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>
+              <View style={{marginBottom: 15}}>
+                <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
                   {t('far_reg_far_type')}
                 </Text>
                 <RadioForm
                   label={t('grower')}
-                  selected={storePersnolInfo.userType === 'large Grower'}
+                  selected={storePersnolInfo?.userType === '1'}
                   onSelect={() =>
                     setstorePersnolInfo({
                       ...storePersnolInfo,
-                      userType: 'large Grower',
+                      userType: '1',
                     })
                   }
                 />
                 <RadioForm
                   label={t('small_holder')}
-                  selected={storePersnolInfo.userType === 'small holder'}
+                  selected={storePersnolInfo?.userType === '2'}
                   onSelect={() =>
                     setstorePersnolInfo({
                       ...storePersnolInfo,
-                      userType: 'small holder',
+                      userType: '2',
                     })
                   }
                 />
                 <RadioForm
                   label={t('farm_worker')}
-                  selected={storePersnolInfo.userType === 'na'}
+                  selected={storePersnolInfo?.userType === '3'}
                   onSelect={() =>
-                    setstorePersnolInfo({ ...storePersnolInfo, userType: 'na' })
+                    setstorePersnolInfo({...storePersnolInfo, userType: '3'})
                   }
                 />
               </View>
@@ -497,7 +530,7 @@ const Persnol = () => {
                 color="red"
                 value={storePersnolInfo.age ?? age}
                 onChangeText={age => {
-                  setstorePersnolInfo({ ...storePersnolInfo, age: age });
+                  setstorePersnolInfo({...storePersnolInfo, age: age});
                 }}
                 maxLength={2}
                 keyboardType="numeric"
@@ -535,7 +568,7 @@ const Persnol = () => {
                 color="red"
                 data={blockData}
                 onChange={item => {
-                  setstorePersnolInfo({ ...storePersnolInfo, block: item });
+                  setstorePersnolInfo({...storePersnolInfo, block: item});
                 }}
                 val={storePersnolInfo.block.label}
               />
@@ -544,7 +577,7 @@ const Persnol = () => {
                 label={t('enter_address')}
                 value={storePersnolInfo.address ?? address}
                 onChangeText={address => {
-                  setstorePersnolInfo({ ...storePersnolInfo, address: address });
+                  setstorePersnolInfo({...storePersnolInfo, address: address});
                 }}
               />
 
@@ -552,10 +585,56 @@ const Persnol = () => {
                 label={t('valid_pin_code')}
                 value={storePersnolInfo.zip ?? zip}
                 onChangeText={zip => {
-                  setstorePersnolInfo({ ...storePersnolInfo, zip: zip });
+                  setstorePersnolInfo({...storePersnolInfo, zip: zip});
                 }}
                 maxLength={6}
                 keyboardType="numeric"
+              />
+              {/* <View style={styles.idcontainer}>
+                    <Text style={styles.text}>
+                      {t('address_proofAndIdentityPropf')}
+                    </Text>
+                    <View style={styles.idItemContainer}>
+                      {identityProofIdentityPropf &&
+                        identityProofIdentityPropf.map((data, index) => {
+                          return (
+                            <TouchableOpacity
+                              style={styles.idItem}
+                              onPress={() =>
+                                handleDocumentSelection(data.ImageType, index)
+                              }
+                              key={index}>
+                              <Image
+                                source={require('./Common/images/document.png')}
+                                style={styles.idImage}
+                              />
+                              <Text>
+                                {data.name == '' ? '' : data.name}
+                                {data.name}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                    </View>
+                  </View> */}
+              {/* <ProofAndIdentityPropfComp
+                  identityProofIdentityPropf={identityProofIdentityPropf}
+                  t={t}
+                  title={t('address_proofAndIdentityPropf')}
+                  handleDocumentSelection={handleDocumentSelection}
+                  handleDocumentSelectionRemove={handleDocumentSelectionRemove}
+                /> */}
+              <ProofAndIdentityPropfComp
+                identityProofIdentityPropf={identityProofIdentityPropf}
+                t={t}
+                title={t('address_proofAndIdentityPropf')}
+                setStateValue={setIdentityProofIdentityPropf}
+                stateValue={identityProofIdentityPropf}
+                disable={true}
+                InputTextFormEdit={true}
+                // photoDeletedValue={photoDeletedValue}
+                // setPhotoDeletedValue={setPhotoDeletedValue}
+                // loginUser_data={loginUser_data}
               />
             </View>
           </ScrollView>
@@ -590,5 +669,25 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: 'contain',
     alignItems: 'center',
+  },
+  idItemContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  idItem: {
+    padding: 10,
+    width: '30%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  idImage: {
+    width: 60,
+    height: 60,
+  },
+  text: {
+    fontSize: 16,
+    marginTop: 15,
+    color: '#000',
+    fontFamily: 'Poppins-Regular',
   },
 });

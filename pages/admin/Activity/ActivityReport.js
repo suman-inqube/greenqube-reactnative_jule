@@ -1,43 +1,37 @@
 import {
-    BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
-    FlatList, Dimensions, SafeAreaView, Keyboard
+    StyleSheet, Text, View, ScrollView, TouchableOpacity, Image,
+    FlatList, Dimensions, SafeAreaView, Keyboard, Alert
 } from 'react-native'
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
-import React, { useEffect, useState, useCallback } from 'react';
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm';
-import RadioForm from '../../Common/RadioForm';
-import { request, PERMISSIONS } from 'react-native-permissions';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import TakePhoto from './TakePhoto';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import Marker, { Position, TextBackgroundType } from "react-native-image-marker";
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from "react-native-image-marker";
 import RecordComp from './RecordComp';
-import ButtonForm from '../../Common/ButtonForm';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { getItem, removeItem, setItem } from '../../../config/getDataFromStorage';
-import { activityInfoAPI, activitySaveAPI, activityTypeAPI, farmerByNameAPI, plotAgainstFarmerAPI, produceAgainstPlotAPI, productionStageAPI, setCycleDateAPI } from '../../../config/apiHere';
-import axios from 'axios';
-import MessageDialog from '../../Common/MessageDialog';
-import CustomHeader from '../CustomHeader';
+import {activityScheduleAPI, activityInfoAPI, activitySaveAPI, activityTypeAPI, farmerByNameAPI, plotAgainstFarmerAPI, produceAgainstPlotAPI, productionStageAPI, setCycleDateAPI } from '../../../config/apiHere';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
-import LoadingScreen from '../../Common/LoadingScreen';
 const audioRecorderPlayer = new AudioRecorderPlayer();
-import { useTranslation } from 'react-i18next';
-import FormsTitle from '../../Common/FormsTitle';
 const qs = require('qs');
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import DeviceInfo from '../../DeviceInfo';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { AnalyticsLogEvent } from '../../Analytics';
+import { isPointInPolygon } from 'geolib';
+import getCurrentLocation from '../../Common/getCurrentLocation';
+import { isWithin20Meters } from '../../Common/calculateAreaFun';
 const ActivityReport = ({ navigation }) => {
+    //GQR-67
+    const { loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, effective_dates, FormsTitle
+        , RadioForm, InputTextForm, DropdownForm, ButtonForm, DatePickerComp, isOnline } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    // const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(true);
     const [showingMenu, setShowingMenu] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -51,20 +45,14 @@ const ActivityReport = ({ navigation }) => {
     const [productionStageAll, setproductionStageAll] = useState([]);
     const [activityTypeAll, setactivityTypeAll] = useState([]);
     const [activityInfoAll, setActivityInfoAll] = useState([]);
+     const [overdueAct, setOverdueAct] = useState([]);
+      const [lastAct, setLastAct] = useState();
+      const [upcomingAct, setUpcomingAct] = useState();
     const [singlePlot, setsinglePlot] = useState({});
     const [CropType, setCropType] = useState();
     const [CropName, setCropName] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [newFromDate, setnewFromDate] = useState(new Date());
-    const [newToDate, setnewToDate] = useState(new Date());
-    const [openFromDate, setOpenFromDate] = useState(false)
-    const [openToDate, setOpenToDate] = useState(false)
     const [cycleStartDate, srtCycleStartDate] = useState(false);
     const [activityPreDate, setActivityPreDate] = useState(false);
     const [cycleDtartDate, setCycleStartDate] = useState("");
@@ -137,6 +125,7 @@ const ActivityReport = ({ navigation }) => {
         recordTime: '00:00:00',
         result: ""
     });
+    const [outofRange, setOutofRange] = useState(false);
     const openImagePicker = (item) => {
         const options = {
             mediaType: 'photo',
@@ -156,10 +145,7 @@ const ActivityReport = ({ navigation }) => {
                 const timestamp = Date.now();
                 let imageUri = response.uri || response.assets?.[0]?.uri;
                 const options = {
-                    backgroundImage: {
-                        src: imageUri,
-                        scale: 1,
-                    },
+                    backgroundImage: { src: imageUri, scale: 1 },
                     watermarkTexts: [{
                         text: `${saveData.latitude},${saveData.longitude},${new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(timestamp)}`,
                         positionOptions: {
@@ -169,10 +155,7 @@ const ActivityReport = ({ navigation }) => {
                             color: '#df2020',
                             fontSize: 2,
                             fontName: 'Arial',
-                            textBackgroundStyle: {
-                                padding: '10% 10%',
-                                color: '#00000000',
-                            },
+                            textBackgroundStyle: { padding: '10% 10%', color: '#00000000' },
                         },
                     }],
                     scale: 1,
@@ -194,9 +177,7 @@ const ActivityReport = ({ navigation }) => {
         setSearchFarmerName(text);
         setSearchFarmerPhone('');
         if (farmerData.length > 0) {
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(text.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(text.toLowerCase()));
             if (result) {
                 setSearchResultsList(true)
                 setSearchResults(result);
@@ -204,17 +185,11 @@ const ActivityReport = ({ navigation }) => {
         }
     };
     const handleDatePicker = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setCycleStartDate(effective_date);
     }
     const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setActivityPreFormDate(effective_date)
         setSaveData({ ...saveData, act_perform_date: effective_date })
     }
@@ -227,49 +202,53 @@ const ActivityReport = ({ navigation }) => {
         setfarmerID(currentfarmerId)
         setSaveData({ ...saveData, plot_id: "", plot_Name: "" });
         setNameVarityStartEnd({ ...nameVarityStartEnd, name: "", varity: "", cycleStarts: "", cycleEnd: "" })
-        if (netConnection) {
-            var response = await plotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, currentfarmerId)
+        if (isOnline) {
+            var response = await plotAgainstFarmerAPI(dbname, lan_id, token, currentfarmerId)
             await setItem('plotAgainstFarmer' + currentfarmerId, response)
         } else {
             var response = await getItem('plotAgainstFarmer' + currentfarmerId)
         }
         if (response) {
-            const dataArray = [];
-            response.data.data.forEach(element => {
-                dataArray.push({
-                    value: element.rel_id,
-                    label: element.plot_no
-                });
-            });
+            const dataArray = response?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
             setplotAll(dataArray)
-            if (netConnection) {
-                var activityType_res = await activityTypeAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, currentfarmerId)
+            if (isOnline) {
+                var activityType_res = await activityTypeAPI(dbname, lan_id, currentfarmerId)
                 await setItem('activityType' + currentfarmerId, activityType_res)
             } else {
                 var activityType_res = await getItem('activityType' + currentfarmerId)
             }
             if (activityType_res) {
-                const dataArray = [];
-                activityType_res.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.categoryId,
-                        label: element.categoryName
-                    });
-                });
+                const dataArray = activityType_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName }));
                 setactivityTypeAll(dataArray)
             }
         }
     }
+
     const handlePlot = async (relId) => {
         setIsLoading(true);
-        if (netConnection) {
-            var response = await produceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, relId.value)
+        if (isOnline) {
+
+            var response = await produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
             await setItem('produceAgainstPlot' + farmerID + relId.value, response)
         } else {
             var response = await getItem('produceAgainstPlot' + farmerID + relId.value)
         }
+        const { latitude, longitude } = await getCurrentLocation() || {};
+        const latandlongArr = response?.data?.data?.rows[0]?.land_info?.agri_land_user_latlongs?.map((_data, _index) => ({
+            longitude: _data.longitude, latitude: _data.latitude
+        }))
+        if (latandlongArr.length != 0) {
+            const is20Meters = isWithin20Meters({ latitude, longitude }, latandlongArr, 20);
+            if (is20Meters.length != 0) {
+                console.log("User is inside the polygon.");
+                setOutofRange(false);
+            } else {
+                setOutofRange(true)
+                console.log("User is outside the polygon.");
+            }
+        }
         if (response) {
-            const dateString = response.data.data.rows[0].harvesting_date;
+            const dateString = response.data.data.rows[0]?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
@@ -301,21 +280,94 @@ const ActivityReport = ({ navigation }) => {
                 setsinglePlot(response.data.data.rows);
                 setCropType(data.crop_type.fid);
                 setCropName(data.crop_name.fid);
-                if (netConnection) {
-                    var productionStage_res = await productionStageAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, data.crop_type_id, data.crop_name_id)
-                    await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
+                if (isOnline) {
+                    // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
+                    // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
+
+                     var [productionStage_res, activitySchedule] =
+                                  await Promise.all([
+                                    productionStageAPI(
+                                      dbname,
+                                      lan_id,
+                                      data.crop_type_id,
+                                      data.crop_name_id,
+                                    ),
+                                    activityScheduleAPI(
+                                      dbname,
+                                      lan_id,
+                                      token,
+                                      'user_activity',
+                                      relId.value,
+                                      data.crop_name_id,
+                                    ),
+                                    setItem(
+                                      'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+                                      productionStage_res,
+                                    ),
+                                    setLastAct(''),
+                                    setOverdueAct([]),
+                                    setUpcomingAct(''),
+                                  ]);
                 } else {
                     var productionStage_res = await getItem('productionStageAPI' + data.crop_type_id + data.crop_type_id)
                 }
                 if (productionStage_res) {
-                    const dataArray = [];
-                    productionStage_res.data.data.growth_stage.forEach(element => {
-                        dataArray.push({
-                            value: element.growth_stage.fid,
-                            label: element.growth_stage.name
-                        });
-                    });
+                    const dataArray = productionStage_res?.data?.data?.growth_stage.map(data => ({ value: data.growth_stage.fid, label: data.growth_stage.name }));
                     setproductionStageAll(dataArray)
+                }
+
+                if (activitySchedule.status == 200) {
+                  if (
+                    activitySchedule.data.data.lastActivity !=
+                    'No Last Activity'
+                  ) {
+                    var lastData =
+                      activitySchedule.data.data.lastActivity.activityName
+                        .categoryName +
+                      ' (' +
+                      formatDate(
+                        activitySchedule.data.data.lastActivity
+                          ?.activity_start_date,
+                      ) +
+                      ' - ' +
+                      formatDate(
+                        activitySchedule.data.data.lastActivity
+                          ?.activity_end_date,
+                      ) +
+                      ')';
+                    setLastAct(lastData);
+                  }
+                  // console.log(activitySchedule.data.data.lastActivity);
+                  if (activitySchedule.data.data.otherActivities.length > 0) {
+                    activitySchedule?.data?.data?.otherActivities.forEach(
+                      function (element) {
+                        var overdueData;
+                        if (element?.days_until_start < 0) {
+                          overdueData =
+                            element.activityName.categoryName +
+                            ' (' +
+                            formatDate(element?.activity_start_date) +
+                            ' - ' +
+                            formatDate(element?.activity_end_date) +
+                            ')';
+                          console.log(overdueData);
+                        }
+                        setOverdueAct(prevItems => [...prevItems, overdueData]);
+                      },
+                    );
+                    const upcomingActivity =
+                      activitySchedule?.data?.data?.otherActivities?.find(
+                        item => item.days_until_start >= 0,
+                      );
+
+                    setUpcomingAct(upcomingActivity);
+                    console.log(upcomingActivity);
+                  }
+                  // setScheduleInfo({
+                  //   ...scheduleInfo,
+                  //   lastAct: '',
+                  //   upcomingAct: '',
+                  // });
                 }
                 setIsLoading(false);
             } else {
@@ -334,7 +386,7 @@ const ActivityReport = ({ navigation }) => {
         let save_data = qs.stringify({
             crop_cycl_start_date: cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate,
         });
-        const productionStage_res = await setCycleDateAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, dbLanTokUsr.token, saveData.cu_rel_id, save_data);
+        const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
         // console.log(productionStage_res.data)
     }
     const validateForm = () => {
@@ -358,7 +410,7 @@ const ActivityReport = ({ navigation }) => {
         }
         if (!saveData.growth_stage) {
             Toast.show({
-                time: 2, text: 'Please enter production stage', ...AlertMesg[0]
+                time: 2, text: t('please_select_cultiveting_season_first'), ...AlertMesg[0]
             })
             return false;
         }
@@ -371,7 +423,7 @@ const ActivityReport = ({ navigation }) => {
         if (saveData.act_pattern === 'schedule') {
             if (!saveData.act_ref_type) {
                 Toast.show({
-                    time: 2, text: 'Please enter activity type', ...AlertMesg[0]
+                    time: 2, text: t('Please_enter_activity_type'), ...AlertMesg[0]
                 })
                 return false;
             }
@@ -384,24 +436,29 @@ const ActivityReport = ({ navigation }) => {
         }
         if (!saveData.act_perform_date) {
             Toast.show({
-                time: 2, text: 'Please enter perform date', ...AlertMesg[0]
+                time: 2, text: t('Please_enter_perform_date'), ...AlertMesg[0]
             })
             return false;
         }
         if (!saveData.latitude) {
             Toast.show({
-                time: 2, text: 'Please allow to get location', ...AlertMesg[0]
+                time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]
             })
             return false;
         }
         if (!cycleDtartDate && !isButtonDisabled) {
-            Toast.show({ text: 'Please set cycle start date', ...AlertMesg[0] });
+            Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
             return false;
         }
         return true;
     }
     const handleSave = async () => {
         Keyboard.dismiss();
+        if (outofRange) {
+            // Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+            Alert.alert('You are out of range');
+            return;
+        }
         if (validateForm()) {
             const formData = new FormData();
             formData.append("act_title", "");
@@ -451,28 +508,28 @@ const ActivityReport = ({ navigation }) => {
             formData.append("material_used", saveData.material_used);
             formData.append("water_used", saveData.water_used);
             formData.append("power_used", saveData.power_used);
-            // console.log(JSON.stringify(formData, null, 2));
-            if (netConnection) {
-                // setCycleDate();
-                const database_res = await activitySaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.user_id, formData)
-                if (database_res) {
-                    Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+            if (isOnline) {
+                const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData)
+                if (database_res?.status == 200) {
+                    AnalyticsLogEvent("activity_report", "activity_report");
+                    Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                     setTimeout(() => {
                         navigation.navigate('activityList');
                     }, 1500);
+                } else if (database_res?.status == 409) {
+                    Toast.show({ text: database_res?.data?.error?.errorMessage, ...AlertMesg[0] });
                 }
             } else {
                 formData.append("farmerID", saveData.user_id);
                 let timeStamp = Date.now()
                 await setItem('off' + timeStamp, formData)
                 let offlineDataArr = await getItem('offlineSupervisorActivityData');
-                console.log(offlineDataArr)
                 if (offlineDataArr) {
                     await setItem('offlineSupervisorActivityData', offlineDataArr + ',' + 'off' + timeStamp)
                 } else {
                     await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
                 }
-                Toast.show({ text: 'Data submitted successfully', ...AlertMesg[0] });
+                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                 setTimeout(() => {
                     navigation.navigate('activityList');
                 }, 1000);
@@ -490,15 +547,15 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityType = async (item) => {
-        if (netConnection) {
-            var response = await activityInfoAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, farmerID, CropType, CropName, item.value)
+        let dataArray = [];
+        if (isOnline) {
+            var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
             await setItem('activityInfo' + farmerID + CropType + CropName + item.value, response)
         } else {
             var response = await getItem('activityInfo' + farmerID + CropType + CropName + item.value)
         }
         setSaveData({ ...saveData, act_ref_type: item.value });
         if (response.data.data.count > 0) {
-            const dataArray = [];
             response.data.data.rows.forEach(element => {
                 const monthNames = [
                     "January", "February", "March", "April", "May", "June",
@@ -522,10 +579,13 @@ const ActivityReport = ({ navigation }) => {
                     start_date: sdate,
                     end_date: edate,
                     value: element.act_rid,
-                    label: startDateEndDate,
+                    label: element?.activity?.categoryName + " (" + startDateEndDate + ")",
                 });
             });
-            setActivityInfoAll(dataArray)
+            if(isButtonDisabled){
+                setActivityInfoAll(dataArray)
+            }
+            
         }
     }
     const handleActivityInfo = async (item) => {
@@ -568,83 +628,25 @@ const ActivityReport = ({ navigation }) => {
             console.warn(err);
         }
     };
-    // function handleClear() {
-    //     setSearchFarmerName('')
-    //     setSearchFarmerPhone('')
-    //     setSaveData({
-    //         type: "",
-    //         audio: "",
-    //         latitude: "",
-    //         longitude: "",
-    //         user_id: "",
-    //         plot_id: "",
-    //         plot_Name: "",
-    //         crop_name: "",
-    //         crop_variety: "",
-    //         cycle_start_date: "",
-    //         growth_stage: "",
-    //         act_perform_date: "",
-    //         act_ref_type: "",
-    //         act_to_date: "",
-    //         act_start_date: "",
-    //         act_ref: "",
-    //         act_desc: "",
-    //         material_used: "",
-    //         water_used: "",
-    //         power_used: "",
-    //         act_pattern: 'regular',
-    //     })
-    //     setShowingMenu(false)
-    //     setCycleStartDate("")
-    //     setActivityPreFormDate('')
-    //     setSelectedImage({
-    //         firstItem: "",
-    //         secondItem: "",
-    //         thirdItem: "",
-    //     });
-    // }
     const onPageLoad = async () => {
-        /* handleClear();*/
         requestLivePermission();
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            if (netConnection) {
-                var response = await farmerByNameAPI(dbName, languageID, token, userID)
-                await setItem('farmerByNameAPI', response);
-            } else {
-                var response = await getItem('farmerByNameAPI');
-            }
-            if (response) {
-                setIsLoading(false);
-                const dataArray = [];
-                response.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setfarmerData(dataArray)
-            }
+        if (isOnline) {
+            var response = await farmerByNameAPI(dbname, lan_id, token, user_id)
+            await setItem('farmerByNameAPI', response);
+        } else {
+            var response = await getItem('farmerByNameAPI');
+        }
+        if (response) {
+            setIsLoading(false);
+            const dataArray = response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
+            setfarmerData(dataArray)
         }
     };
+    const handleBackPress = () => { navigation.navigate('activityList'); return true; }
     useEffect(() => {
         onPageLoad();
-        const onBackPress = () => { /*handleClear();*/ navigation.navigate('activityList'); return true; };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [netConnection]);
+        onBackPress(handleBackPress);
+    }, []);
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('activityList');
@@ -652,9 +654,7 @@ const ActivityReport = ({ navigation }) => {
             navigation.navigate('Dashboard');
         }
     }
-    const HandlerGoBack = () => {
-        navigation.navigate('activityList');
-    }
+    const HandlerGoBack = () => navigation.navigate('activityList');
     const handleRecord = (item) => {
         // setModalVisibleRecord(true);
     }
@@ -805,155 +805,368 @@ const ActivityReport = ({ navigation }) => {
         });
     }
     return (
-        <Root>
-            <>
-                <View style={styles.container}>
-                    <CustomHeader path='activityList' HandlerGoBack={HandlerGoBack} />
-                    <DatePickerComp
-                        openDate={cycleStartDate}
-                        newDate={newFromDate}
-                        setOpenDate={srtCycleStartDate}
-                        handleDatePicker={handleDatePicker}
-                    />
-                    <DatePickerComp
-                        openDate={activityPreDate}
-                        newDate={newFromDate}
-                        setOpenDate={setActivityPreDate}
-                        handleDatePicker={handleDatePicker2}
-                    />
-                    <FormsTitle title={t('add_recent_incident')} />
-                    {modalVisibleRecordFirstItem ? <SoundRecord modalVisibleRecord={modalVisibleRecordFirstItem}
-                        setModalVisibleRecord={setModalVisibleRecordFirstItem}
-                        onStartRecordFirstItem={onStartRecordFirstItem}
-                        onStopRecordFirstItem={onStopRecordFirstItem}
-                        soundRecord={soundRecordFirstItem}
-                    /> : null}
-                    {modalVisibleRecordSecoundItem ? <SoundRecord modalVisibleRecord={modalVisibleRecordSecoundItem}
-                        setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-                        onStartRecordFirstItem={onStartRecordSecoundItem}
-                        onStopRecordFirstItem={onStopRecordSecoundItem}
-                        soundRecord={soundRecordSecoundItem}
-                    /> : null}
-                    {modalVisibleRecordThirdItem ? <SoundRecord modalVisibleRecord={modalVisibleRecordThirdItem}
-                        setModalVisibleRecord={setModalVisibleRecordThirdItem}
-                        onStartRecordFirstItem={onStartRecordThirdItem}
-                        onStopRecordFirstItem={onStopRecordThirdItem}
-                        soundRecord={soundRecordThirdItem}
-                    /> : null}
-                    <SafeAreaView>
-                        {
-                            searchResultsList && searchResultsList ?
-                                <View style={styles.flatContainer}>
-                                    <FlatList
-                                        style={searchResults.length > 5 ? styles.flatlistHeight : ""}
-                                        data={searchResults}
-                                        renderItem={({ item }) => (
-                                            <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
-                                                <Text style={styles.flatlisttitle}>{item.label}</Text>
-                                            </TouchableOpacity>
-                                        )}
-                                        keyExtractor={(item, index) => index}
-                                    />
-                                </View> : ""
+      <Root>
+        <>
+          <View style={styles.container}>
+            <CustomHeader
+              path="activityList"
+              HandlerGoBack={HandlerGoBack}
+              logoImage={logoImage}
+              topBanner={topBanner}
+            />
+            <DatePickerComp
+              openDate={cycleStartDate}
+              newDate={newFromDate}
+              setOpenDate={srtCycleStartDate}
+              handleDatePicker={handleDatePicker}
+            />
+            <DatePickerComp
+              openDate={activityPreDate}
+              newDate={newFromDate}
+              setOpenDate={setActivityPreDate}
+              handleDatePicker={handleDatePicker2}
+            />
+            <FormsTitle title={t('add_recent_incident')} />
+            {modalVisibleRecordFirstItem ? (
+              <SoundRecord
+                modalVisibleRecord={modalVisibleRecordFirstItem}
+                setModalVisibleRecord={setModalVisibleRecordFirstItem}
+                onStartRecordFirstItem={onStartRecordFirstItem}
+                onStopRecordFirstItem={onStopRecordFirstItem}
+                soundRecord={soundRecordFirstItem}
+              />
+            ) : null}
+            {modalVisibleRecordSecoundItem ? (
+              <SoundRecord
+                modalVisibleRecord={modalVisibleRecordSecoundItem}
+                setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+                onStartRecordFirstItem={onStartRecordSecoundItem}
+                onStopRecordFirstItem={onStopRecordSecoundItem}
+                soundRecord={soundRecordSecoundItem}
+              />
+            ) : null}
+            {modalVisibleRecordThirdItem ? (
+              <SoundRecord
+                modalVisibleRecord={modalVisibleRecordThirdItem}
+                setModalVisibleRecord={setModalVisibleRecordThirdItem}
+                onStartRecordFirstItem={onStartRecordThirdItem}
+                onStopRecordFirstItem={onStopRecordThirdItem}
+                soundRecord={soundRecordThirdItem}
+              />
+            ) : null}
+            <SafeAreaView>
+              {searchResultsList && searchResultsList ? (
+                <View style={styles.flatContainer}>
+                  <FlatList
+                    style={
+                      searchResults.length > 5 ? styles.flatlistHeight : ''
+                    }
+                    data={searchResults}
+                    renderItem={({item}) => (
+                      <TouchableOpacity
+                        onPress={() =>
+                          handleResultSelect(item.label, item.value, item.phone)
                         }
-                    </SafeAreaView>
-                    {modalVisible && <HarvestedModel setModalVisible={setModalVisible} modalVisible={modalVisible} handleHarvested={handleHarvested} />}
-                    <ScrollView>
-                        {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
-                        <View style={styles.fromContainer}>
-                            <InputTextForm label={t('farmer_name')} color="red" value={searchFarmerName}
-                                onChangeText={(farmerName) => handleSearch(farmerName)} />
-                            <InputTextForm label={t('farmer_number')} color="red" value={searchFarmerPhone} />
-                            <DropdownForm label={t('select_plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} val={saveData.plot_Name} />
-                            {showingMenu ?
-                                nameVarityStartEnd.name != "" ?
-                                    <View style={styles.plotSiteContainer}>
-                                        <View style={styles.plotSiteContainerItem}>
-                                            <Text style={styles.plotSiteItemText}>{t('crop_name')}</Text>
-                                            <Text style={styles.plotSiteItemText}>{t('crop_veriety')}</Text>
-                                            <Text style={styles.plotSiteItemText}>{t('showing_date')}</Text>
-                                            <Text style={styles.plotSiteItemText}>{t('harvesting_date_auto_calculated')}</Text>
-                                        </View>
-                                        <View style={styles.plotSiteContainerItem}>
-                                            <Text style={styles.plotSiteItemText}>{nameVarityStartEnd.name}</Text>
-                                            <Text style={styles.plotSiteItemText}>{nameVarityStartEnd.varity.substring(0, 12)}</Text>
-                                            <Text style={styles.plotSiteItemText}>{formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}</Text>
-                                            <Text style={styles.plotSiteItemText}>{formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}</Text>
-                                        </View>
-                                    </View> : null
-                                : null
-                            }
-                            <DropdownForm label={t('growth_stage')} color="red" data={productionStageAll}
-                                onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value })} val={saveData.growth_stage} />
-                            <View>
-                                <Text style={styles.title}>{t('pick_crop_cycle_start_date')}</Text>
-                                <View style={styles.cycleContainer}>
-                                    <TouchableOpacity style={styles.cycleContainerDate} disabled={isButtonDisabled} onPress={() => srtCycleStartDate(true)} >
-                                        <View style={{ width: '80%' }}>
-                                            <Text style={styles.title}>{cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate}</Text>
-                                        </View>
-                                        <Image
-                                            source={require('../../Common/images/calendar.png')}
-                                            style={{ width: 20, height: 20 }}
-                                        />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={[styles.cycleContainerStartDate, {
-                                        backgroundColor: isButtonDisabled ? '#EBEBE4' : "green"
-                                    }]} disabled={isButtonDisabled} onPress={() => setCycleDate()} >
-                                        <Text style={[styles.title, { color: isButtonDisabled ? '#000' : "#FFF" }]}>{t('set_the_crop_cycle_start_date')}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <View style={styles.activityPattern} >
-                                <Text style={styles.title}>{t('activity_pattern')}</Text>
-                                <RadioForm label={t('schedule')} selected={activityInfoReadio.activityPreFormDate === 'schedule'}
-                                    onSelect={() => handleActivityPattern('schedule')} />
-                                <RadioForm label={t('regular')} selected={activityInfoReadio.activityPreFormDate === 'regular'}
-                                    onSelect={() => handleActivityPattern('regular')} />
-                            </View>
-                            {isActiveMenu ?
-                                <>
-                                    <DropdownForm label={t('activity_type')} color="red" data={activityTypeAll} onChange={item => handleActivityType(item)} val={saveData.act_ref_type} />
-                                    <DropdownForm label={t('select_activity')} color="red" data={activityInfoAll} onChange={item => handleActivityInfo(item)} val={saveData.act_to_date_label} />
-                                </>
-                                : ''
-                            }
-                            <View>
-                                <Text style={{ color: 'red' }}>{t('pick_activity_perform_date')}</Text>
-                                <TouchableOpacity style={styles.activityPerFromDate} onPress={() => setActivityPreDate(true)}>
-                                    <Text style={styles.title}>{activityPreFormDate}</Text>
-                                    <Image
-                                        source={require('../../Common/images/calendar.png')}
-                                        style={{ width: 20, height: 20 }}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <InputTextForm label={t('your_comm_')} value={saveData.act_desc} onChangeText={(act_desc) => setSaveData({ ...saveData, act_desc: act_desc })} />
-                            <InputTextForm label={t('material_used')} value={saveData.material_used} onChangeText={(material_used) => setSaveData({ ...saveData, material_used: material_used })} />
-                            <InputTextForm label={t('water_used')} value={saveData.water_used} onChangeText={(water_used) => setSaveData({ ...saveData, water_used: water_used })} />
-                            <InputTextForm label={t('power_used')} value={saveData.power_used} onChangeText={(power_used) => setSaveData({ ...saveData, power_used: power_used })} />
-                            <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} />
-                            <RecordComp
-                                selectedRecord={selectedRecord} onPress={handleRecord}
-                                setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-                                setModalVisibleRecordSecoundItem={setModalVisibleRecordSecoundItem}
-                                setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
-                                soundRecordFirstItem={soundRecordFirstItem}
-                                soundRecordSecoundItem={soundRecordSecoundItem}
-                                soundRecordThirdItem={soundRecordThirdItem}
-                                title={t('record_your_comment_optional')}
-                                cancelRecord={cancelRecord}
-                                soundPlay={soundPlay}
-                            />
-                        </View>
-                    </ScrollView>
-                    <View style={{ marginTop: 10 }}>
-                        <ButtonForm label={t('submit')} onPress={() => handleSave()} />
-                    </View>
+                        style={styles.flatlistitem}>
+                        <Text style={styles.flatlisttitle}>{item.label}</Text>
+                      </TouchableOpacity>
+                    )}
+                    keyExtractor={(item, index) => index}
+                  />
                 </View>
-            </>
-        </Root>
-    )
+              ) : (
+                ''
+              )}
+            </SafeAreaView>
+            {modalVisible && (
+              <HarvestedModel
+                setModalVisible={setModalVisible}
+                modalVisible={modalVisible}
+                handleHarvested={handleHarvested}
+              />
+            )}
+            <ScrollView>
+              {isLoading && (
+                <View style={styles.loadingScreen}>
+                  <LoadingScreen />
+                </View>
+              )}
+              <View style={styles.fromContainer}>
+                <InputTextForm
+                  label={t('farmer_name')}
+                  color="red"
+                  value={searchFarmerName}
+                  onChangeText={farmerName => handleSearch(farmerName)}
+                />
+                <InputTextForm
+                  label={t('farmer_number')}
+                  color="red"
+                  value={searchFarmerPhone}
+                />
+                <DropdownForm
+                  label={t('select_plot')}
+                  data={plotAll}
+                  color="red"
+                  onChange={relId => handlePlot(relId)}
+                  val={saveData.plot_Name}
+                />
+                {showingMenu ? (
+                  nameVarityStartEnd.name != '' ? (
+                    <View style={styles.plotSiteContainer}>
+                      <View style={styles.plotSiteContainerItem}>
+                        <Text style={styles.plotSiteItemText}>
+                          {t('crop_name')}
+                        </Text>
+                        <Text style={styles.plotSiteItemText}>
+                          {t('crop_veriety')}
+                        </Text>
+                        <Text style={styles.plotSiteItemText}>
+                          {t('showing_date')}
+                        </Text>
+                        <Text style={styles.plotSiteItemText}>
+                          {t('harvesting_date_auto_calculated')}
+                        </Text>
+                      </View>
+                      <View style={styles.plotSiteContainerItem}>
+                        <Text style={styles.plotSiteItemText}>
+                          {nameVarityStartEnd.name}
+                        </Text>
+                        <Text style={styles.plotSiteItemText}>
+                          {nameVarityStartEnd.varity.substring(0, 12)}
+                        </Text>
+                        <Text style={styles.plotSiteItemText}>
+                          {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
+                        </Text>
+                        <Text style={styles.plotSiteItemText}>
+                          {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                        </Text>
+                      </View>
+                    </View>
+                  ) : null
+                ) : null}
+                <DropdownForm
+                  label={t('growth_stage')}
+                  color="red"
+                  data={productionStageAll}
+                  onChange={production_stage =>
+                    setSaveData({
+                      ...saveData,
+                      growth_stage: production_stage.value,
+                    })
+                  }
+                  val={saveData.growth_stage}
+                />
+                <View>
+                  <Text style={styles.title}>
+                    {t('pick_crop_cycle_start_date')}
+                  </Text>
+                  <View style={styles.cycleContainer}>
+                    <TouchableOpacity
+                      style={styles.cycleContainerDate}
+                      disabled={isButtonDisabled}
+                      onPress={() => srtCycleStartDate(true)}>
+                      <View style={{width: '80%'}}>
+                        <Text style={styles.title}>
+                          {cycleDtartDate == ''
+                            ? saveData.cycle_start_date
+                            : cycleDtartDate}
+                        </Text>
+                      </View>
+                      <Image
+                        source={require('../../Common/images/calendar.png')}
+                        style={{width: 20, height: 20}}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.cycleContainerStartDate,
+                        {
+                          backgroundColor: isButtonDisabled
+                            ? '#EBEBE4'
+                            : 'green',
+                        },
+                      ]}
+                      disabled={isButtonDisabled}
+                      onPress={() => setCycleDate()}>
+                      <Text
+                        style={[
+                          styles.title,
+                          {color: isButtonDisabled ? '#000' : '#FFF'},
+                        ]}>
+                        {t('set_the_crop_cycle_start_date')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View style={styles.activityPattern}>
+                  <Text style={styles.title}>{t('activity_pattern')}</Text>
+                  <RadioForm
+                    label={t('schedule')}
+                    selected={
+                      activityInfoReadio.activityPreFormDate === 'schedule'
+                    }
+                    onSelect={() => handleActivityPattern('schedule')}
+                  />
+                  <RadioForm
+                    label={t('regular')}
+                    selected={
+                      activityInfoReadio.activityPreFormDate === 'regular'
+                    }
+                    onSelect={() => handleActivityPattern('regular')}
+                  />
+                </View>
+                {isActiveMenu ? (
+                  <>
+                    <DropdownForm
+                      label={t('activity_type')}
+                      color="red"
+                      data={activityTypeAll}
+                      onChange={item => handleActivityType(item)}
+                      val={saveData.act_ref_type}
+                    />
+                    <DropdownForm
+                      label={t('select_activity')}
+                      color="red"
+                      data={activityInfoAll}
+                      onChange={item => handleActivityInfo(item)}
+                      val={saveData.act_to_date_label}
+                    />
+
+                    {lastAct ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.plotSiteItemText}>
+                            Last activity
+                          </Text>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.plotSiteItemText}>{lastAct}</Text>
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {upcomingAct ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.plotSiteItemText}>
+                            Upcoming activity
+                          </Text>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.plotSiteItemText}>
+                            {upcomingAct.activityName.categoryName +
+                              ' (' +
+                              formatDate(upcomingAct.activity_start_date) +
+                              ' - ' +
+                              formatDate(upcomingAct.activity_end_date) +
+                              ')'}
+                          </Text>
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {overdueAct ? (
+                                        <View style={styles.plotSiteContainer}>
+                                          <View style={styles.plotSiteContainerItem}>
+                                            <Text style={styles.plotSiteItemText}>
+                                              Overdue Activities
+                                            </Text>
+                                          </View>
+                    
+                                          {overdueAct.map((act, index) => (
+                                            <View key={index} style={styles.plotSiteContainerItem}>
+                                              <Text style={styles.plotSiteItemText}>
+                                                {act.activityName.categoryName +
+                                                  ' (' +
+                                                  formatDate(act.activity_start_date) +
+                                                  ' - ' +
+                                                  formatDate(act.activity_end_date) +
+                                                  ')'}
+                                              </Text>
+                                            </View>
+                                          ))}
+                                        </View>
+                                      ) : null}
+                  </>
+                ) : (
+                  ''
+                )}
+
+                <View>
+                  <Text style={{color: 'red'}}>
+                    {t('pick_activity_perform_date')}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.activityPerFromDate}
+                    onPress={() => setActivityPreDate(true)}>
+                    <Text style={styles.title}>{activityPreFormDate}</Text>
+                    <Image
+                      source={require('../../Common/images/calendar.png')}
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <InputTextForm
+                  label={t('your_comm_')}
+                  value={saveData.act_desc}
+                  onChangeText={act_desc =>
+                    setSaveData({...saveData, act_desc: act_desc})
+                  }
+                />
+                <InputTextForm
+                  label={t('material_used')}
+                  value={saveData.material_used}
+                  onChangeText={material_used =>
+                    setSaveData({...saveData, material_used: material_used})
+                  }
+                />
+                <InputTextForm
+                  label={t('water_used')}
+                  value={saveData.water_used}
+                  onChangeText={water_used =>
+                    setSaveData({...saveData, water_used: water_used})
+                  }
+                />
+                <InputTextForm
+                  label={t('power_used')}
+                  value={saveData.power_used}
+                  onChangeText={power_used =>
+                    setSaveData({...saveData, power_used: power_used})
+                  }
+                />
+                <TakePhoto
+                  openImagePicker={openImagePicker}
+                  selectedImage={selectedImage}
+                  title={t('take_a_photo_optional')}
+                />
+                <RecordComp
+                  selectedRecord={selectedRecord}
+                  onPress={handleRecord}
+                  setModalVisibleRecordFirstItem={
+                    setModalVisibleRecordFirstItem
+                  }
+                  setModalVisibleRecordSecoundItem={
+                    setModalVisibleRecordSecoundItem
+                  }
+                  setModalVisibleRecordThirdItem={
+                    setModalVisibleRecordThirdItem
+                  }
+                  soundRecordFirstItem={soundRecordFirstItem}
+                  soundRecordSecoundItem={soundRecordSecoundItem}
+                  soundRecordThirdItem={soundRecordThirdItem}
+                  title={t('record_your_comment_optional')}
+                  cancelRecord={cancelRecord}
+                  soundPlay={soundPlay}
+                />
+              </View>
+            </ScrollView>
+            <View style={{marginTop: 10}}>
+              <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+            </View>
+          </View>
+        </>
+      </Root>
+    );
 }
 export default ActivityReport
 const styles = StyleSheet.create({
@@ -1030,7 +1243,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         position: 'absolute',
         zIndex: 999,
-        bottom: '100%',
+        // bottom: '100%',
+        top: 90,
         left: 0,
         marginHorizontal: '5%',
         width: '90%',
@@ -1039,7 +1253,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
     flatlisttitle: {
-        padding: 10,
+        padding: 5,
         color: '#000'
     },
     flatlistHeight: {

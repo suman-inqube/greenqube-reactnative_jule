@@ -1,19 +1,15 @@
-import { BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Linking } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import { BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Linking, FlatList } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { getItem } from '../../../config/getDataFromStorage';
-// import { useRoute } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
-import { useTranslation } from 'react-i18next';
-import { SPSheet, Root } from 'react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { PipeListDetails } from '../../../config/apiHere';
 const FarmerActivityDetail = () => {
-    const { t } = useTranslation();
+    const { LoadingScreen, CustomHeader, t, onBackPress, getItem, logoImage, topBanner, Root, SPSheet, loginUser_data } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data || {};
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -29,98 +25,71 @@ const FarmerActivityDetail = () => {
         thirdItemRecord: "",
     });
     const openImagePicker = (item) => {
-        // console.log(item);
-        // const options = {
-        //     mediaType: 'photo',
-        //     includeBase64: true,
-        //     maxHeight: 200,
-        //     maxWidth: 200,
-        // };
-        // launchCamera(options, response => {
-        //     if (response.didCancel) {
-        //         console.log('User cancelled camera');
-        //     } else if (response.error) {
-        //         console.log('Camera Error: ', response.error);
-        //     } else {
-        //         let imageUri = response.uri || response.assets?.[0]?.uri;
-        //         setSelectedImage({ ...selectedImage, [item]: imageUri });
-        //     }
-        // });
+
     };
+    const [carbonActivity, setCarbonActivity] = useState([])
 
     const onPageLoad = async () => {
-        const activityData = await getItem('activity_Data');
-        const uact_id_data = await getItem('uact_id_data');
+        const [activityData, uact_id_data] = await Promise.all([
+            getItem('activity_Data'),
+            getItem('uact_id_data')
+        ])
         if (activityData) {
             const farmerFound = activityData.find(user => user.uact_id === uact_id_data);
-            setIsLoading(false)
-            if (farmerFound?.agri_files) {
-                let Imag1 = ''
-                let Imag2 = ''
-                let Imag3 = ''
-                let audio1 = '';
-                let audio2 = '';
-                let audio3 = '';
-                let pic = 0;
-                let aud = 0;
-                console.log(JSON.stringify(farmerFound.agri_files.length, null, 2));
-                for (let i = 0; i < farmerFound.agri_files.length; i++) {
-                    if (farmerFound.agri_files[i].term_type === "ua_activity") {
-                        if (aud === 0) {
-                            audio1 = farmerFound.agri_files[i].file_path
-                        } else if (aud === 1) {
-                            audio2 = farmerFound.agri_files[i].file_path
-                        } else if (aud === 2) {
-                            audio3 = farmerFound.agri_files[i].file_path
+            setIsLoading(false);
+            if (farmerFound?.type == "carbon_activity") {
+                const PipeListDetailsRes = await PipeListDetails(dbname, lan_id, token, user_id, farmerFound.plot_id, farmerFound?.act_master_id);
+                if (PipeListDetailsRes?.status == 200) {
+                    setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
+                }
+            } else {
+                if (farmerFound?.agri_files) {
+                    let Imag1 = ''
+                    let Imag2 = ''
+                    let Imag3 = ''
+                    let audio1 = '';
+                    let audio2 = '';
+                    let audio3 = '';
+                    let pic = 0;
+                    let aud = 0;
+                    for (let i = 0; i < farmerFound.agri_files.length; i++) {
+                        if (farmerFound.agri_files[i].term_type === "ua_activity") {
+                            if (aud === 0) {
+                                audio1 = farmerFound.agri_files[i].file_path
+                            } else if (aud === 1) {
+                                audio2 = farmerFound.agri_files[i].file_path
+                            } else if (aud === 2) {
+                                audio3 = farmerFound.agri_files[i].file_path
+                            }
+                            aud++;
+                        } else {
+                            if (pic === 0) {
+                                Imag1 = farmerFound.agri_files[i].file_path
+                            } else if (pic === 1) {
+                                Imag2 = farmerFound.agri_files[i].file_path
+                            } else if (pic === 2) {
+                                Imag3 = farmerFound.agri_files[i].file_path
+                            }
+                            pic++;
                         }
-                        aud++;
-                    } else {
-                        if (pic === 0) {
-                            Imag1 = farmerFound.agri_files[i].file_path
-                        } else if (pic === 1) {
-                            Imag2 = farmerFound.agri_files[i].file_path
-                        } else if (pic === 2) {
-                            Imag3 = farmerFound.agri_files[i].file_path
-                        }
-                        pic++;
+
                     }
+                    setSelectedImage({
+                        ...selectedImage,
+                        firstItem: Imag1,
+                        secondItem: Imag2,
+                        thirdItem: Imag3,
+                    })
+                    setSelectedRecord({
+                        firstItemRecord: audio1,
+                        secondItemRecord: audio2,
+                        thirdItemRecord: audio3,
+                    });
 
                 }
-                // if (farmerFound.agri_files[0]) {
-                //     Imag1 = farmerFound.agri_files[0].file_path 
-                // }else
-                // {
-                //     Imag1 = "" 
-                // }
-
-                // if (farmerFound.agri_files[1]) {
-                //     Imag2 = farmerFound.agri_files[1].file_path 
-                // }else
-                // {
-                //     Imag2 = ""
-                // }
-
-                // if (farmerFound.agri_files[2]) {
-                //     Imag3 = farmerFound.agri_files[2].file_path 
-                // }else
-                // {
-                //     Imag3=""
-                // }
-
-                setSelectedImage({
-                    ...selectedImage,
-                    firstItem: Imag1,
-                    secondItem: Imag2,
-                    thirdItem: Imag3,
-                })
-                setSelectedRecord({
-                    firstItemRecord: audio1,
-                    secondItemRecord: audio2,
-                    thirdItemRecord: audio3,
-                });
-
+                setCarbonActivity([]);
             }
-            setfarmerActivity(farmerFound)
+            setfarmerActivity(farmerFound);
         }
     }
     useEffect(() => {
@@ -130,14 +99,10 @@ const FarmerActivityDetail = () => {
     useFocusEffect(
         useCallback(() => {
             onPageLoad();
-            const onBackPress = () => { navigation.navigate('FarmerActivityList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(() => { navigation.navigate('FarmerActivityList'); return true; })
         }, [])
     );
-    const HandlerGoBack = () => {
-        navigation.navigate('FarmerActivityList');
-    }
+    const HandlerGoBack = () => navigation.navigate('FarmerActivityList');
     const soundPlay = async (path) => {
         SPSheet.show({
             component: () => <AudioPlayerView path={path} />,
@@ -158,22 +123,24 @@ const FarmerActivityDetail = () => {
                     <LoadingScreen />
                 ) : (
                     <View style={styles.container}>
-                        <CustomHeader path='FarmerActivityList' HandlerGoBack={HandlerGoBack} />
+                        <CustomHeader path='FarmerActivityList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                         <View style={styles.titleContainer}>
                             <Text style={[styles.title, { paddingBottom: 8, paddingTop: 4, fontWeight: '700', fontSize: 18 }]}>
                                 {t('act_detail_')}
                             </Text>
                         </View>
-                        <ScrollView showsVerticalScrollIndicator={false}>
+                        <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
+
                             {
                                 farmerActivity
                                     ?
                                     <View style={styles.fromContainer}>
+
                                         {
-                                            farmerActivity.cropActivity != null ?
+                                            farmerActivity?.cropActivity != null ?
                                                 <>
-                                                    <InputTextForm label={t('activity_type')} value={farmerActivity.cropActivity && farmerActivity.cropActivity.activity.categoryName} />
-                                                    <InputTextForm label={t('act_name')} value={farmerActivity.cropActivity && farmerActivity.cropActivity.activity.categoryName} />
+                                                    <InputTextForm label={t('activity_type')} value={farmerActivity?.cropActivity && farmerActivity?.cropActivity.activity.categoryName} />
+                                                    <InputTextForm label={t('act_name')} value={farmerActivity?.cropActivity && farmerActivity?.cropActivity.activity.categoryName} />
 
                                                     <View style={{
                                                         flexDirection: 'row',
@@ -200,9 +167,9 @@ const FarmerActivityDetail = () => {
                                                             justifyContent: 'space-between',
                                                         }}>
                                                             <Text style={[styles.title, { width: 150, }]} >
-                                                                {farmerActivity.cropActivity && farmerActivity.cropActivity.activity.description.substring(0, 100)}
+                                                                {farmerActivity?.cropActivity && farmerActivity?.cropActivity?.activity?.description?.substring(0, 100)}
                                                             </Text>
-                                                            <Text style={[styles.title]}>{farmerActivity.act_start_date}</Text>
+                                                            <Text style={[styles.title]}>{farmerActivity?.act_start_date}</Text>
                                                         </View>
                                                         <Image source={require('../../Common/images/logo.png')} style={{ width: 100, height: 80, resizeMode: 'contain' }} />
                                                     </View>
@@ -212,66 +179,170 @@ const FarmerActivityDetail = () => {
 
                                         }
 
-                                        <InputTextForm label={t('reg_plot_name')} value={farmerActivity.land_info && farmerActivity.land_info.plot_no} />
+                                        <InputTextForm label={t('reg_plot_name')} value={farmerActivity?.land_info && farmerActivity?.land_info.plot_no} />
 
-                                        <InputTextForm label={t('produce_name')} value={farmerActivity.cropName && farmerActivity.cropName.name} />
+                                        <InputTextForm label={t('produce_name')} value={farmerActivity?.cropName && farmerActivity?.cropName.name} />
 
-                                        <InputTextForm label={t('growth_stage')} value={farmerActivity.growthStage && farmerActivity.growthStage.name} />
+                                        <InputTextForm label={t('growth_stage')} value={farmerActivity?.growthStage && farmerActivity?.growthStage.name} />
 
-                                        <InputTextForm label={t('act_per_date')} value={farmerActivity.act_perform_date} />
-                                        <InputTextForm label={t('your_comm_')} value={farmerActivity.act_desc} />
-                                        <InputTextForm label={t('material_used')} value={farmerActivity.material_used} />
-                                        <InputTextForm label={t('water_used')} value={farmerActivity.water_used} />
-                                        <InputTextForm label={t('power_used')} value={farmerActivity.power_used} />
+                                        <InputTextForm label={t('act_per_date')} value={farmerActivity?.act_perform_date} />
+                                         {carbonActivity.length != 0 && <FlatList
+                                                                                scrollEnabled={false}
+                                                                                    data={carbonActivity}
+                                                                                    keyExtractor={(item, index) => index.toString()}
+                                                                                    renderItem={(_item) => {
+                                                                                        return (
+                                                                                          <View
+                                                                                            style={{
+                                                                                              backgroundColor:
+                                                                                                '#FFF',
+                                                                                              elevation: 3,
+                                                                                              padding: 10,
+                                                                                              margin: 2,
+                                                                                              marginVertical: 10,
+                                                                                              borderRadius: 10,
+                                                                                            }}>
+                                                                                            <View
+                                                                                              style={{
+                                                                                                flexDirection:
+                                                                                                  'row',
+                                                                                                marginBottom: 7,
+                                                                                              }}>
+                                                                                              <Text
+                                                                                                style={[
+                                                                                                  styles.title,
+                                                                                                  {
+                                                                                                    paddingVertical: 0,
+                                                                                                  },
+                                                                                                ]}>
+                                                                                                Instrument
+                                                                                                Name
+                                                                                                :
+                                                                                              </Text>
+                                                                                              <Text
+                                                                                                style={[
+                                                                                                  styles.title,
+                                                                                                  {
+                                                                                                    marginLeft: 10,
+                                                                                                    paddingVertical: 0,
+                                                                                                  },
+                                                                                                ]}>
+                                                                                                {
+                                                                                                  _item
+                                                                                                    .item
+                                                                                                    .pipe_name
+                                                                                                }
+                                                                                              </Text>
+                                                                                            </View>
+                                                                                            <View>
+                                                                                              {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
+                                                                                              {_item
+                                                                                                .item
+                                                                                                .pipeFiles
+                                                                                                .length !=
+                                                                                                0 && (
+                                                                                                <View
+                                                                                                  style={{
+                                                                                                    flexDirection:
+                                                                                                      'row',
+                                                                                                    gap: 20,
+                                                                                                  }}>
+                                                                                                  {_item
+                                                                                                    .item
+                                                                                                    .pipeFiles?.[0]
+                                                                                                    ?.file_path !=
+                                                                                                    undefined && (
+                                                                                                    <Image
+                                                                                                      source={{
+                                                                                                        uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
+                                                                                                      }}
+                                                                                                      style={{
+                                                                                                        width: 70,
+                                                                                                        height: 80,
+                                                                                                        borderRadius: 5,
+                                                                                                      }}
+                                                                                                      resizeMode="contain"
+                                                                                                    />
+                                                                                                  )}
+                                                                                                  {_item
+                                                                                                    .item
+                                                                                                    .pipeFiles?.[1]
+                                                                                                    ?.file_path !=
+                                                                                                    undefined && (
+                                                                                                    <Image
+                                                                                                      source={{
+                                                                                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                                                                                      }}
+                                                                                                      style={{
+                                                                                                        width: 70,
+                                                                                                        height: 80,
+                                                                                                        borderRadius: 5,
+                                                                                                      }}
+                                                                                                      resizeMode="contain"
+                                                                                                    />
+                                                                                                  )}
+                                                                                                </View>
+                                                                                              )}
+                                                                                            </View>
+                                                                                          </View>
+                                                                                        );
+                                                                                    }}
+                                                                                />}
+                                        <InputTextForm label={t('your_comm_')} value={farmerActivity?.act_desc} />
+                                        <InputTextForm label={t('material_used')} value={farmerActivity?.material_used} />
+                                        <InputTextForm label={t('water_used')} value={farmerActivity?.water_used} />
+                                        <InputTextForm label={t('power_used')} value={farmerActivity?.power_used} />
 
-                                        <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('view_phote')} />
+                                        {carbonActivity.length == 0 && <>
+                                            <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('view_phote')} />
+                                            <View style={{ marginHorizontal: 20 }}>
+                                                <Text style={styles.title}>{t('listen_to_the_problem')}</Text>
+                                                <View style={styles.photoContainer}>
+                                                    {
+                                                        selectedRecord.firstItemRecord != "" ?
+                                                            <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
+                                                                <Image
+                                                                    source={require('../../Common/images/play.png')}
+                                                                    style={{ width: 70, height: 70, }}
 
-                                        <View style={{ marginHorizontal: 20 }}>
-                                            <Text style={styles.title}>{t('listen_to_the_problem')}</Text>
-                                            <View style={styles.photoContainer}>
-                                                {
-                                                    selectedRecord.firstItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
+                                                                />
+                                                            </TouchableOpacity> :
                                                             <Image
-                                                                source={require('../../Common/images/play.png')}
-                                                                style={{ width: 70, height: 70 }}
-
+                                                                source={require('../../Common/images/microphone.png')}
+                                                                style={{ width: 70, height: 70, opacity: 0.7 }}
                                                             />
-                                                        </TouchableOpacity> :
-                                                        <Image
-                                                            source={require('../../Common/images/microphone.png')}
-                                                            style={{ width: 70, height: 70, opacity: 0.7 }}
-                                                        />
-                                                }
-                                                {
-                                                    selectedRecord.secondItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
+                                                    }
+                                                    {
+                                                        selectedRecord.secondItemRecord != "" ?
+                                                            <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
+                                                                <Image
+                                                                    source={require('../../Common/images/play.png')}
+                                                                    style={{ width: 70, height: 70 }}
+                                                                />
+                                                            </TouchableOpacity> :
                                                             <Image
-                                                                source={require('../../Common/images/play.png')}
-                                                                style={{ width: 70, height: 70 }}
+                                                                source={require('../../Common/images/microphone.png')}
+                                                                style={{ width: 70, height: 70, opacity: 0.7 }}
                                                             />
-                                                        </TouchableOpacity> :
-                                                        <Image
-                                                            source={require('../../Common/images/microphone.png')}
-                                                            style={{ width: 70, height: 70, opacity: 0.7 }}
-                                                        />
-                                                }
-                                                {
-                                                    selectedRecord.thirdItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
-                                                            <Image
-                                                                source={require('../../Common/images/play.png')}
-                                                                style={{ width: 70, height: 70 }}
+                                                    }
+                                                    {
+                                                        selectedRecord.thirdItemRecord != "" ?
+                                                            <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
+                                                                <Image
+                                                                    source={require('../../Common/images/play.png')}
+                                                                    style={{ width: 70, height: 70 }}
 
+                                                                />
+                                                            </TouchableOpacity> :
+                                                            <Image
+                                                                source={require('../../Common/images/microphone.png')}
+                                                                style={{ width: 70, height: 70, opacity: 0.7 }}
                                                             />
-                                                        </TouchableOpacity> :
-                                                        <Image
-                                                            source={require('../../Common/images/microphone.png')}
-                                                            style={{ width: 70, height: 70, opacity: 0.7 }}
-                                                        />
-                                                }
+                                                    }
+                                                </View>
                                             </View>
-                                        </View>
+                                        </>}
+
                                     </View>
                                     :
                                     ''
@@ -297,10 +368,13 @@ const styles = StyleSheet.create({
         width: "95%",
         alignItems: 'flex-end',
         paddingVertical: 10,
+
     },
     title: {
         color: '#000',
-        paddingVertical: 10
+        paddingVertical: 10,
+        fontFamily: 'Poppins-Regular',
+        fontSize: 14
     },
     fromContainer: {
         width: '90%',

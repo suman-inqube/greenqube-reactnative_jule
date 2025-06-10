@@ -1,0 +1,37 @@
+/*
+*(1) It is use to search by farmer's name and phone number
+*(2) It is use for filter type ('Farmer/Product Name','PhoneNumber')
+*(3) it is use for all farmer list
+*(4) it is use for all item list
+*(5) item List can't modify data
+*(6,7) it is use use selected value set 
+*(8) farmer list show and hide poup
+*(9) filter data clear all the value set  list data
+*(10) it is use set the filters search value set
+*/
+handleFilter(item, filterName, farmerData, activityAllRow, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setactivityAll, setSearchResults);
+
+
+/*
+*(1) [value] It is use to (previous/next).
+*(2) [setIsLoading] isloding value set (true/false).
+*(3) [pageNo] page number.
+*(4) [problemListAPI] api end point
+*(5) [setProblemAll] responsive data rows set.
+*(6) (token/dbname/lan_id/user_id) login user data
+*/
+handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id);
+
+
+const { label, value, phone } = item
+        /*
+        ** [1,2,3] label,value,phone farmer data.
+        ** [4] all list data.
+        ** [5] api end point.
+        ** [6] loader [true/false] data set
+        ** [7] farmer list show and hide poup.
+        ** [8,9] farmer's name and phone number  selected value set.
+        ** [10] select result data set value.
+        ** [8] set all list value.
+        */
+        handleResultSelect(label, value, phone, problemAll, problemListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)

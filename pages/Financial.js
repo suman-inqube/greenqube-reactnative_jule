@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react'
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import ButtonForm from './Common/ButtonForm';
-import Logo from './Common/Logo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import config from '../config';
 import ImageForm from './Common/ImageForm';

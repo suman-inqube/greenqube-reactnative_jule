@@ -1,17 +1,14 @@
 import { StyleSheet, Text, View, ScrollView, SafeAreaView, FlatList, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import InputTextForm from '../../Common/InputTextForm';
-import DropdownForm from '../../Common/DropdownForm1';
-import ButtonForm from '../../Common/ButtonForm';
-import { loanRouteFarmerListAPI } from '../Loan/LoanAPI';
-import { getItem } from '../../../config/getDataFromStorage';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import React, { useEffect, useState, useContext } from 'react'
+import { loanRouteFarmerListAPI } from '../Loan/LoanAPI_copy';
 import { problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, InsuranceAddAPI } from '../../../config/apiHere';
-import { useTranslation } from 'react-i18next';
 import CheckBoxComp from '../../Common/CheckBoxComp';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const RequestForInsurance = ({ setActiveBtn }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { t, loginUser_data, InputTextForm, ButtonForm, AlertMesg, Root, Toast } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const [isLoading, setIsLoading] = useState(false);
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [farmerList, setFarmerList] = useState("");
@@ -25,32 +22,12 @@ const RequestForInsurance = ({ setActiveBtn }) => {
     const [isChecked, setIsChecked] = useState({});
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
     // const [pickPlot, setPickPlot] = useState([])
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const onPageLoad = async () => {
-        setIsLoading(true)
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const response = await loanRouteFarmerListAPI(dbName, languageID, token, userID)
-            if (response) {
-                setIsLoading(false);
-                setFarmerList(response.data.data.rows)
-            }
+        setIsLoading(true);
+        const response = await loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
+        if (response?.status == 200) {
+            setIsLoading(false);
+            setFarmerList(response.data.data.rows)
         }
     };
     useEffect(() => {
@@ -84,7 +61,7 @@ const RequestForInsurance = ({ setActiveBtn }) => {
         setfarmerID(item.user_id)
         setSearchResultsList(false);
         setFarmerData(item);
-        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, item.user_id);
+        const plotSiteApi = await problemPlotAgainstFarmerAPI(dbname, lan_id, token, item.user_id);
         if (plotSiteApi) {
             const dataArray = [];
             const VarityStartArr = [];
@@ -112,7 +89,7 @@ const RequestForInsurance = ({ setActiveBtn }) => {
         }
     }
     const handlePlotCheck = async (value, label, index) => {
-        const response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, farmerID, value);
+        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value);
         const isCheckedValue = [...isChecked];
         if (isChecked[index].isCheck == "") {
             isCheckedValue[index] = { isCheck: value }
@@ -151,7 +128,7 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             const formData = new FormData();
             formData.append("user_id", farmerData.user_id);
             formData.append("plot_id", checkValue);
-            const addInsurance = await InsuranceAddAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, formData);
+            const addInsurance = await InsuranceAddAPI(dbname, lan_id, token, user_id, formData);
             if (addInsurance.status === 200) {
                 setActiveBtn(2)
             }
@@ -262,7 +239,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         position: 'absolute',
         zIndex: 999,
-        bottom: '100%',
+        // bottom: '100%',
+        top: 100,
         left: 0,
         marginHorizontal: '5%',
         width: '90%',

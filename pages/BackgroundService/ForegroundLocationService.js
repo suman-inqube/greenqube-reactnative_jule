@@ -8,15 +8,16 @@ import { setItem } from '../../config/getDataFromStorage'
 const ForegroundLocationService = () => {
     const [fusedLocationData, setFusedLocationData] = useState("asada")
     useEffect(() => {
+        const serviceStop = () => {
+          FusedLocation.off(this.subscription);
+          // FusedLocation.off(this.errSubscription);
+          FusedLocation.stopLocationUpdates();
+        };
         const startLocationUpdates = async () => {
             try {
                 FusedLocation.setLocationPriority(FusedLocation.Constants.HIGH_ACCURACY);
-                // FusedLocation.setLocationPriority(FusedLocation.Constants.BALANCED);
-                // FusedLocation.setLocationPriority(FusedLocation.Constants.LOW_POWER);
-                // FusedLocation.setLocationPriority(FusedLocation.Constants.NO_POWER);
                 FusedLocation.setLocationInterval(1000);
                 FusedLocation.setFastestLocationInterval(1000);
-                // FusedLocation.setSmallestDisplacement(1000);
                 FusedLocation.startLocationUpdates();
                 // const subscription = FusedLocation.on('fusedLocation', location => {
                 //     // console.log(location)
@@ -31,13 +32,13 @@ const ForegroundLocationService = () => {
                 });
 
 
-                return () => {
-                    FusedLocation.stopLocationUpdates();
-                    subscription.remove();
-                };
+                // return () => {
+                //     FusedLocation.stopLocationUpdates();
+                //     subscription.remove();
+                // };
             } catch (error) {
                 setFusedLocationData(error)
-                // console.log(error)
+                console.log(error)
             }
         };
         startLocationUpdates();

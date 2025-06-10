@@ -69,7 +69,7 @@ export const landUnitAPI = async (dbName, language) => {
 export const ProducceSeasionAPI = async (dbName, language) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName}`,
+            'information': `${dbName},${language}`,
             'Accept': 'application/json'
         },
     };
@@ -86,7 +86,7 @@ export const ProducceSeasionAPI = async (dbName, language) => {
 export const livelihoodTypeAPI = async (dbName, language) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName}`,
+            'information': `${dbName},${language}`,
             'Accept': 'application/json'
         },
     };
@@ -102,7 +102,7 @@ export const livelihoodTypeAPI = async (dbName, language) => {
 export const produceNameDataListAPI = async (dbName, languag, livelihoodType) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName}`,
+            'information': `${dbName},${languag}`,
             'Accept': 'application/json'
         },
     };
@@ -118,7 +118,7 @@ export const produceNameDataListAPI = async (dbName, languag, livelihoodType) =>
 export const produceVarietyAPI = async (dbName, languag, livelihoodType, produceName) => {
     const axiosHeaders = {
         headers: {
-            'information': `${dbName}`,
+            'information': `${dbName},${languag}`,
             'Accept': 'application/json'
         },
     };
@@ -165,19 +165,20 @@ export const ProduceProductionUnitDataAPI = async (dbName, language) => {
 
 }
 
-export const UserRegisterAPI = async (dbName, language, token, userId, inputData) => {
+export const UserRegisterAPI = async (dbName, language, token, userId, inputData,plot_count) => {
     const axiosHeaders = {
         headers: {
             'authorization': `${token}`,
             'information': `${dbName},${language},${userId}`,
             'Content-Type': 'multipart/form-data',
+            'plot_count': plot_count,
         },
     };
     try {
-        let response = await axios.post(`${config.BASE_URL}agentRoute/farmerLongReg`, inputData, axiosHeaders);
+        let response = await axios.post(`${config.BASE_URL}agentRoute/farmerSignupByAgent`, inputData, axiosHeaders);
+        // farmerRoute/selfFarmerSignup agentRoute/farmerLongReg
         return response;
     } catch (error) {
-        console.log(error)
         CrashlyticsRecordError(error.response)
         return error.response;
     }

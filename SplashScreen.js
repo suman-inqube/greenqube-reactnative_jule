@@ -9,9 +9,11 @@ import SplashScreenModal from './SplashScreenModal';
 import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 import { HeaderBackButton } from 'react-navigation';
 import i18next from 'i18next';
+import { Root, Toast } from 'react-native-popup-confirm-toast';
+import { AlertMesg } from './pages/Common/ToastAlert';
 import NotificationServices from './pages/PushNotification/NotificationServices';
 const SplashScreen = ({ navigation }) => {
-    const { requestUserPermission, notificationListener } = NotificationServices();
+    // const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
     const [companyData, setCompanyData] = useState([]);
     const [companyDataRaw, setCompanyDataRaw] = useState([]);
@@ -26,28 +28,26 @@ const SplashScreen = ({ navigation }) => {
     const [modalVisibleLan, setModalVisibleLan] = useState(false);
     const [languageData, setlanguageData] = useState([]);
     const validationData = () => {
-        if (
-            (companyLanguage.company) &&
-            (companyLanguage.language)
-        ) {
+        if ((companyLanguage.company) && (companyLanguage.language)) {
             return true;
-        }
-        else {
-            MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
+        } else {
+            Toast.show({ time: 3, text: 'Please fill in all required fields with valid data.', ...AlertMesg[0] })
             return;
         }
     }
     let databaseList = async () => {
         try {
             let company_res = await databaseListAPI();
-            if (company_res.data.data) {
-                const delay = 1000;
-                const timeout = setTimeout(() => {
-                    setModalVisible(true)
-                    setCompanyData(company_res.data.data);
-                    setCompanyDataRaw(company_res.data.data);
+            if (company_res?.status == 200) {
+                if (company_res?.data?.data) {
+                    const delay = 1000;
+                    const timeout = setTimeout(() => {
+                        setModalVisible(true)
+                        setCompanyData(company_res.data.data);
+                        setCompanyDataRaw(company_res.data.data);
 
-                }, delay);
+                    }, delay);
+                }
             }
         } catch (error) {
             console.error('company APi error code with :', error.response);
@@ -86,23 +86,22 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        const [companyLanguage_data, loginUser_data, userType] = await Promise.all([
+        const [companyLanguage_data, loginUser_data] = await Promise.all([
             getItem('companyLanguage_data'),
             getItem('loginUser_data'),
-            getItem("userType"),
-            requestUserPermission(),
-            notificationListener(),
+            // requestUserPermission(),
+            // notificationListener(),
         ])
         if (loginUser_data) {
             i18next.changeLanguage(`${loginUser_data.lan_id}`);
-            // setTimeout(async () => {
-            // const userType = await getItem("userType");
-            if (userType === 3) {
-                navigation.navigate('AdminNavigation');
-            } else if (userType === 2) {
-                navigation.navigate('FarmerNavigation');
-            }
-            // }, 2000);
+            setTimeout(async () => {
+                const userType = await getItem("userType");
+                if (userType === 3) {
+                    navigation.navigate('AdminNavigation');
+                } else if (userType === 2) {
+                    navigation.navigate('FarmerNavigation');
+                }
+            }, 2000);
         } else {
             if (companyLanguage_data) {
                 navigation.replace('Login');
@@ -112,8 +111,8 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const searchDBName = (text) => {
-        const result = companyDataRaw.filter(item =>
-            item.db_name.toLowerCase().includes(text.toLowerCase())
+        const result = companyDataRaw?.filter(item =>
+            item?.agri_company?.company_display_name?.toLowerCase().includes(text.toLowerCase())
         );
         if (result) {
             setCompanyData(result)
@@ -127,7 +126,7 @@ const SplashScreen = ({ navigation }) => {
     }, []);
 
     return (
-        <>
+        <Root>
             <ImageBackground
                 source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
                 style={styles.backgroundImage}
@@ -145,7 +144,7 @@ const SplashScreen = ({ navigation }) => {
                     </View>
                 </View>
             </ImageBackground>
-        </>
+        </Root>
     )
 }
 

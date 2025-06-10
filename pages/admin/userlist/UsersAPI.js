@@ -1,6 +1,7 @@
 import axios from 'axios';
 import config from '../../../config';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+const timeoutConfig = {timeout: 5000};
 const headersWithCompanyDBlanID = (dbName, languageId) => {
     return {
         'information': `${dbName},${languageId}`,
@@ -15,7 +16,12 @@ export const userDataListAPI = async (dbName, languageId, token, user_id, page, 
         },
     };
     try {
-        let response = await axios.get(config.BASE_URL + `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`, axiosHeaders);
+
+        let response = await axios.get(
+          config.BASE_URL +
+            `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`,
+          {...axiosHeaders, ...timeoutConfig},
+        );
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
@@ -70,8 +76,9 @@ export const UserInformationUpdate = async (dbName, language, userId, token, far
         let response = await axios.put(`${config.BASE_URL}loginSignupRoute/update/${farmerId}`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
-        return error.response;
+        console.log(error)
+        // CrashlyticsRecordError(error.response);
+        return error;
     }
 
 }

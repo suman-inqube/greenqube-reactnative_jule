@@ -6,6 +6,7 @@ const DropdownForm = ({ color, label, data, onChange, val, disable }) => {
     const scheme = useColorScheme();
     const labelString = label.charAt(0).toUpperCase() + label.slice(1);
     const [isFocus, setIsFocus] = useState(false);
+    const [value, setValue] = useState(null);
     return (
         <>
             <View>
@@ -14,6 +15,7 @@ const DropdownForm = ({ color, label, data, onChange, val, disable }) => {
                     <Dropdown
                         mode='modal'
                         style={styles.dropdown}
+                        searchField={false}
                         placeholderStyle={[styles.placeholderStyle, { color: 'black' }]}
                         selectedTextStyle={[styles.selectedTextStyle, { color: 'black' }]}
                         inputSearchStyle={[styles.inputSearchStyle, { color: 'black' }]}
@@ -21,7 +23,7 @@ const DropdownForm = ({ color, label, data, onChange, val, disable }) => {
                         iconStyle={styles.iconStyle}
                         data={data}
                         search
-                        maxHeight={300}
+                        maxHeight={250}
                         labelField="label"
                         valueField="value"
                         placeholder={typeof (val) == "undefined" ? false : val}

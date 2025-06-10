@@ -1,0 +1,44 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 65536 bytes. Error detail: Failed to commit metaspace.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   This process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#
+#  , pid=17824
+#
+# 
+V  [jvm.dll+0x838cca]
+V  [jvm.dll+0x83a78e]
+V  [jvm.dll+0x83adf3]
+V  [jvm.dll+0x24826f]
+V  [jvm.dll+0x83497d]
+V  [jvm.dll+0x62531e]
+V  [jvm.dll+0x62538a]
+V  [jvm.dll+0x627be4]
+V  [jvm.dll+0x625cc6]
+V  [jvm.dll+0x6371ea]
+V  [jvm.dll+0x62fe5a]
+V  [jvm.dll+0x1cdfa0]
+V  [jvm.dll+0x1ce190]
+V  [jvm.dll+0x148bb1]
+V  [jvm.dll+0x1489f5]
+V  [jvm.dll+0x140228]
+V  [jvm.dll+0x1427e5]
+V  [jvm.dll+0x140ac4]
+V  [jvm.dll+0x13aa0f]
+V  [jvm.dll+0x14a656]
+V  [jvm.dll+0x1361a0]
+V  [jvm.dll+0x136500]
+V  [jvm.dll+0x1367c6]
+V  [jvm.dll+0x135c5a]
+V  [jvm.dll+0x137911]
+V  [jvm.dll+0x22994d]
+V  [jvm.dll+0x227adc]
+V  [jvm.dll+0x7edb77]
+V  [jvm.dll+0x7e7f6c]

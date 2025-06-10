@@ -1,67 +1,32 @@
-import { Alert, BackHandler, FlatList, Image, StyleSheet, Text, TouchableOpacity, View, TextInput, Keyboard } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, TextInput, Keyboard } from 'react-native'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import ImageForm from '../../Common/ImageForm';
-import InputTextFormWithoutLabel from '../../Common/InputTextFormWithoutLabel';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
 import { userDataListAPI } from './UsersAPI';
-import ForgotPassword from './ForgetPassword';
-import Information from './Information';
-import LiveHood from './LiveHood';
-import CustomHeader from '../CustomHeader';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
+import { useIsFocused } from '@react-navigation/native';
+//GQR-66
+import { userCreateContext } from '../../Context/usersCreateContext';
+//GQR-66
 const UserList = ({ navigation }) => {
-    const { t } = useTranslation();
+    //GQR-66
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
+    //GQR-66
     const isFocused = useIsFocused();
     const [isLoading, setIsLoading] = useState(false);
     const [userList, setuserList] = useState([]);
     const [expandedItem, setExpandedItem] = useState(null);
-    const [showMenu, setshowMenu] = useState();
-    const [userID, setuserID] = useState();
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-        pageNo: 1,
-        currentPage: '',
-    });
     const [phoneNumber, setPhoneNumber] = useState('');
     function MenuBoxDisplay({ farmeruserID, agri_land_user_rels, menuName }) {
-
         const handleMenu = (menuName) => {
-            const PlotdataArray = [];
-            // if (menuName == 'livehood') {
-            agri_land_user_rels.agri_land_user_rels.map((data, index) => {
-                PlotdataArray.push({
-                    value: data.rel_id,
-                    label: data.plot_no
-                });
-            })
-            // }
-
+            const PlotdataArray = agri_land_user_rels?.agri_land_user_rels.map(data => ({ value: data.rel_id, label: data.plot_no }))
             let file_path = "";
             if (agri_land_user_rels.agri_files[0] != undefined) {
                 file_path = agri_land_user_rels.agri_files[0].file_path;
             }
-            // if (menuName == "information1") {
-            //     navigation.navigate("ProblemCreate",)
-            // } else {
             navigation.navigate(menuName, {
-                farmeruserID: farmeruserID,
-                agri_land_user_rels: PlotdataArray,
-                userName: agri_land_user_rels.userName,
-                contactNumber: agri_land_user_rels.contactNumber,
-                profileImage: file_path,
-                gender: agri_land_user_rels.gender,
-                farmer_type: agri_land_user_rels.farmer_type
+                farmeruserID: farmeruserID, agri_land_user_rels: PlotdataArray, userName: agri_land_user_rels.userName, contactNumber: agri_land_user_rels.contactNumber, profileImage: file_path, gender: agri_land_user_rels.gender, farmer_type: agri_land_user_rels.farmer_type
             });
-            // }
         }
-
         return (
             <View style={styles.boxMenu}>
                 <View style={styles.box1_1}>
@@ -110,19 +75,13 @@ const UserList = ({ navigation }) => {
             </View>
         );
     }
-    const receiveDataFromChild = () => {
-        setshowMenu(null);
-    }
-    const handleBack = () => {
-        navigation.navigate("Dashboard");
-    }
-    const toggleItem = (itemId) => {
+    const toggleItem = useCallback((itemId) => {
         if (expandedItem === itemId) {
             setExpandedItem(null);
         } else {
             setExpandedItem(itemId);
         }
-    }
+    }, [])
     const userDataListAPI1 = async (dbName, languageId, token, user_id) => {
         setIsLoading(true);
         let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
@@ -131,17 +90,13 @@ const UserList = ({ navigation }) => {
             const totalPage = Math.ceil(response.data.data.count / 20);
             setdbLanTokUsr({
                 ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageId,
-                token: token,
-                userID: user_id,
                 pageNo: 1,
                 currentPage: '',
                 totalPage: totalPage
             });
             setIsLoading(false);
             setuserList(response.data.data)
-            setItem("userListData", response.data.data)
+            await setItem("userListData", response.data.data)
         } else {
             setIsLoading(false);
             const userListData = await getItem('userListData');
@@ -149,24 +104,18 @@ const UserList = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            userDataListAPI1(dbname, lan_id, token, user_id)
-        }
+        const { dbname, lan_id, token, user_id } = loginUser_data;
+        userDataListAPI1(dbname, lan_id, token, user_id);
     };
+    const handleBackPress = () => {
+        navigation.navigate('Dashboard'); return true;
+    }
     useEffect(() => {
         if (isFocused) {
             if (phoneNumber == "") {
                 onPageLoad();
             }
-            const onBackPress = () => {
-                setuserList([]);
-                setPhoneNumber('');
-                navigation.navigate('Dashboard'); return true;
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }
     }, [isFocused]);
     const handlePage = async (value) => {
@@ -175,14 +124,15 @@ const UserList = ({ navigation }) => {
             if (dbLanTokUsr.totalPage >= currentPage) {
                 setIsLoading(true);
                 setdbLanTokUsr({ ...dbLanTokUsr, pageNo: currentPage })
-                const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, currentPage, '');
+                const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage, '');
                 if (response.status === 200) {
                     setIsLoading(false);
                     setuserList(response.data.data);
+                // basudev
+                    await setItem("userListData", response.data.data)
                 }
             } else {
                 setIsLoading(false);
-                // setuserList([]);
                 Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
             }
         } else if (value === 'previous') {
@@ -190,32 +140,36 @@ const UserList = ({ navigation }) => {
             if (dbLanTokUsr.pageNo !== 1) {
                 setIsLoading(true);
                 setdbLanTokUsr({ ...dbLanTokUsr, pageNo: currentPage })
-                const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, currentPage, '');
+                const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage, '');
                 if (response.status === 200) {
                     setIsLoading(false);
                     setuserList(response.data.data);
+                // basudev
+                    await setItem("userListData", response.data.data)
                 }
             }
         }
     }
     const searchByPhoneNumber = async () => {
         Keyboard.dismiss();
-        const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, '0', phoneNumber);
+        const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, '0', phoneNumber);
         if (response.status === 200) {
             if (response.data.data.count != 0) {
                 setuserList(response.data.data);
+                // basudev
+                await setItem("userListData", response.data.data)
             } else {
                 Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
             }
         }
     }
-    const changePhoneNumber = (num) => {
+    const changePhoneNumber = useCallback((num) => {
         setPhoneNumber(num);
         if (num == "") {
             Keyboard.dismiss();
-            userDataListAPI1(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID);
+            userDataListAPI1(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId);
         }
-    }
+    }, [])
     const HandlerGoBack = () => {
         setuserList([]);
         setPhoneNumber('');
@@ -224,7 +178,7 @@ const UserList = ({ navigation }) => {
     return (
         <Root>
             <View style={{ flex: 1, backgroundColor: '#fff' }}>
-                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={{ marginTop: 10, flex: 1 }}>
                     <View style={styles.header}>
                         <View style={{ alignItems: 'center' }}>
@@ -248,52 +202,45 @@ const UserList = ({ navigation }) => {
                         <View style={styles.LoadingScreen}>
                             {isLoading ? <LoadingScreen /> : null}
                         </View>
-                        {
-                            userList ?
-                                <>
-                                    <View style={styles.LoadingScreen}>
-                                        {isLoading ? <LoadingScreen /> : null}
-                                    </View>
-                                    <FlatList
-                                        initialNumToRender={7}
-                                        showsVerticalScrollIndicator={false}
-                                        data={userList.rows}
-                                        style={userList && userList.count != 0 ? typeof userList.rows == "object" ? { marginBottom: 188, paddingTop: 10 } : "" : ""}
-                                        keyExtractor={(item) => item.user_id}
-                                        renderItem={({ item, index }) => {
-                                            return (
-                                                <View style={{ marginBottom: 10, marginHorizontal: '3%', backgroundColor: '#FFF', borderRadius: 20 }}>
-                                                    <TouchableOpacity onPress={() => toggleItem(item.user_id)} activeOpacity={0.7}>
-                                                        <UserBoxDisplay
-                                                            item={item.userName}
-                                                            item2={item.contactNumber}
-                                                            item3={item.CreateDateTime.substring(-1, 10)}
-                                                            item4={t('plots') + " : " + item.agri_land_user_rels.length}
-                                                        />
-                                                        {
-                                                            expandedItem === item.user_id && (
-                                                                <MenuBoxDisplay farmeruserID={item.user_id} agri_land_user_rels={item} />
-                                                            )
-                                                        }
-                                                    </TouchableOpacity>
-                                                </View>
-                                            )
-                                        }} />
-                                </>
-                                : ""
-                        }
+                        {userList ?
+                            <>
+                                <View style={styles.LoadingScreen}>
+                                    {isLoading ? <LoadingScreen /> : null}
+                                </View>
+                                <FlatList
+                                    initialNumToRender={7}
+                                    showsVerticalScrollIndicator={false}
+                                    data={userList.rows}
+                                    style={userList && userList.count != 0 ? typeof userList.rows == "object" ? { marginBottom: 188, paddingTop: 10 } : "" : ""}
+                                    keyExtractor={(item) => item.user_id}
+                                    renderItem={({ item, index }) => (
+                                        <View style={{ marginBottom: 10, marginHorizontal: '3%', backgroundColor: '#FFF', borderRadius: 20 }}>
+                                            <TouchableOpacity onPress={() => toggleItem(item.user_id)} activeOpacity={0.7}>
+                                                <UserBoxDisplay
+                                                    item={item.userName}
+                                                    item2={item.contactNumber}
+                                                    item3={item.CreateDateTime.substring(-1, 10)}
+                                                    item4={t('plots') + " : " + item.agri_land_user_rels.length}
+                                                />
+                                                {
+                                                    expandedItem === item.user_id && (
+                                                        <MenuBoxDisplay farmeruserID={item.user_id} agri_land_user_rels={item} />
+                                                    )
+                                                }
+                                            </TouchableOpacity>
+                                        </View>
+                                    )
+                                    } />
+                            </>
+                            : ""}
                     </View>
                     <View style={styles.prevNextPage}>
                         {userList && userList.count != 0 ?
-                            <TouchableOpacity
-                                onPress={() => handlePage('previous')}
-                            >
+                            <TouchableOpacity onPress={() => handlePage('previous')}  >
                                 <Text style={styles.title}>{t('prev_page')}</Text>
                             </TouchableOpacity> : null}
 
-                        {userList && userList.count != 0 ? <TouchableOpacity
-                            onPress={() => handlePage('next')}
-                        >
+                        {userList && userList.count != 0 ? <TouchableOpacity onPress={() => handlePage('next')} >
                             <Text style={styles.title}>{t('next_page')}</Text>
                         </TouchableOpacity> : null}
                     </View>
@@ -302,9 +249,6 @@ const UserList = ({ navigation }) => {
         </Root>
     )
 }
-
-export default UserList
-
 const styles = StyleSheet.create({
     header:
     {
@@ -410,4 +354,5 @@ const styles = StyleSheet.create({
     textInputContainer: {
         width: '90%',
     }
-})
+});
+export default UserList;

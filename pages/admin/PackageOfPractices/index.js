@@ -1,13 +1,12 @@
 import { Image, StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
-import React from 'react';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { useTranslation } from 'react-i18next';
+import React, { useContext } from 'react';
 import LivelihoodFilterModal from './LivelihoodFilterModal';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
-import LoadingScreen from '../../Common/LoadingScreen';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PackageOfPractices = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, t, logoImage, topBanner, LoadingScreen, CustomHeader } = useContext(userCreateContext);
+    //GQR-67
     const { isLoading,
         livelihoodType,
         modalVisible,
@@ -29,12 +28,8 @@ const PackageOfPractices = () => {
                 width: '100%',
                 paddingVertical: 10
             }}
-                setModalVisible={setModalVisible}
-                modalVisible={modalVisible}
-                data={livelihoodType}
-                productFilter={productFilter}
-            />
-            <CustomHeader HandlerGoBack={() => HandlerGoBack('FarmerDashboard', '')} />
+                setModalVisible={setModalVisible} modalVisible={modalVisible} data={livelihoodType} productFilter={productFilter} />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack('FarmerDashboard', '')} logoImage={logoImage} topBanner={topBanner} />
             {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null}
             <TouchableOpacity style={styles.filterItem} onPress={() => setModalVisible(true)}>
                 <Text style={styles.title}>{livehoodTypeFilterData.name == "" ? t('select_crop_type') : livehoodTypeFilterData.name}</Text>

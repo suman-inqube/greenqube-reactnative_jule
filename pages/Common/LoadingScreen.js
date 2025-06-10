@@ -15,7 +15,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor:'#0303032d'
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    zIndex:999
   },
   title:{
     color:'#000'

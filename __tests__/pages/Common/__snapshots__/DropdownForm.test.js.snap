@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DropdownForm should render correctly and select a dropdown value 1`] = `undefined`;

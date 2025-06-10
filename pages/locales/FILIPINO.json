@@ -1022,5 +1022,22 @@
     "payment_mode": "Paraan ng pagbabayad",
     "cheque": "Suriin",
     "product_sub_category": "Sub Kategorya ng Produkto",
-    "closed": "closed"
+    "closed": "closed",
+    "Approved": "Approved",
+    "Rejected": "Rejected",
+    "SanctionedDate": "Sanctioned Date",
+    "LoanOrderID": "Loan Order ID",
+    "LoanSanctioned": "Loan Sanctioned",
+    "AddLocation": "Add Location",
+    "Please_enter_activity_type": "Please enter activity type",
+    "Data_submitted_successfully": "Data submitted successfully",
+    "Please_enter_activity": "Please enter activity",
+    "Password_update_successfully": "Password update successfully",
+    "Old_Password_Is_Incorrect": "Old Password Is Incorrect",
+    "Please_try_again_some_time_later": "Please try again some time later",
+    "Please_enter_perform_date": "Please enter perform date",
+    "Please_try_again_to_reach_the_accurancy": "Please try again to reach the accurancy",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount",
+    "MapView": "View ng Mapa"
 }

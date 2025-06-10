@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown'
 
@@ -38,7 +38,7 @@ const SearchBy = ({ color, label, onChange, data, val }) => {
     );
 };
 
-export default SearchBy;
+export default memo(SearchBy);
 
 const styles = StyleSheet.create({
     container: {

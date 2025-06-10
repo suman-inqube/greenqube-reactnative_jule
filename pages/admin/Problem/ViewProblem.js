@@ -1,25 +1,20 @@
-import { BackHandler, StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, TextInput, FlatList, Linking } from 'react-native'
-import React, { useEffect, useState, useCallback } from 'react'
-import FormsTitle from '../../Common/FormsTitle';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native'
+import React, { useEffect, useState, useCallback, useContext } from 'react'
 import { useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { problemAnswerListAPI, problemCommentListAPI, problemCommentSaveAPI, farmerProblemDetailApi } from '../../../config/apiHere';
-import CustomHeader from '../CustomHeader';
-import MessageDialog from '../../Common/MessageDialog';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast, SPSheet } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
-import DeviceInfo from '../../DeviceInfo';
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { AudioPlayer } from 'react-native-simple-audio-player';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewProblem = ({ navigation }) => {
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, FormsTitle, isOnline } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const { netConnection } = DeviceInfo();
     const isFocused = useIsFocused();
-    const { t } = useTranslation();
     const route = useRoute();
     const [isLoading, setIsLoading] = useState(false);
     const [btnColor, setBtnColor] = useState(1);
@@ -30,10 +25,9 @@ const ViewProblem = ({ navigation }) => {
         thirdItem: "",
     });
     const [comment1, setComment1] = useState("");
-    const [showComment, setshowComment] = useState(false);
     const [commentAll, setcommentAll] = useState([]);
     const [answerAll, setAnswerAll] = useState([]);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({});
+    // const [dbLanTokUsr, setdbLanTokUsr] = useState({});
     const [selectedRecord, setSelectedRecord] = useState({
         firstItemRecord: "",
         secondItemRecord: "",
@@ -53,12 +47,12 @@ const ViewProblem = ({ navigation }) => {
             formData.append("farmer_fcm", dbLanTokUsr.question_user_fcm);
             // formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
             formData.append("photo", "");
-            const database_res = await problemCommentSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, formData);
+            const database_res = await problemCommentSaveAPI(dbname, lan_id, user_id, formData);
             if (database_res) {
                 Toast.show({ text: `${t('comment_is_added')}`, ...AlertMesg[0] });
                 // MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
                 setComment1("")
-                const commnetList = await problemCommentListAPI(dbLanTokUsr.dbName, dbLanTokUsr.supervisorId, dbLanTokUsr.question_id)
+                const commnetList = await problemCommentListAPI(dbname, user_id, dbLanTokUsr.question_id)
                 if (commnetList.data) {
                     setcommentAll(commnetList.data.data.rows);
                     navigation.navigate('ProblemView');
@@ -69,19 +63,10 @@ const ViewProblem = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-        setSelectedImage({
-            firstItem: "",
-            secondItem: "",
-            thirdItem: "",
-        })
-        const [problemData, problemIdData, loginUser_data] = await Promise.all([
-            getItem('problem_Data'),
-            getItem('problem_id_data'),
-            getItem('loginUser_data')
-        ]);
+        setIsLoading(true);
+        const [problemData, problemIdData] = await Promise.all([getItem('problem_Data'), getItem('problem_id_data')]);
         if (problemData) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            if (netConnection) {
+            if (isOnline) {
                 if (route.params != undefined) {
                     const { comment_qid, type } = route.params;
                     if (type == "comment") {
@@ -100,27 +85,24 @@ const ViewProblem = ({ navigation }) => {
                 var response = await getItem('farmerProblemDetail' + problemIdData);
             }
             if (response?.status === 200) {
-                const { agri_audio_files, agri_user, agent_details, question_id, agri_files } = response.data.data[0];
+                const { agri_audio_files, agri_user, agent_details, question_id, agri_files } = response?.data?.data[0];
                 setFarmerProblem(response.data.data[0]);
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
-                    dbName: dbname,
-                    languageId: lan_id,
-                    token: token,
                     supervisorId: user_id,
                     question_id: question_id,
-                    question_user_fcm: agri_user.FcmUserToken,
-                    question_user_agent_fcm: agent_details.FcmUserToken
+                    question_user_fcm: agri_user?.FcmUserToken,
+                    question_user_agent_fcm: agent_details?.FcmUserToken
                 });
                 const [commnetList, answerList] = await Promise.all([
                     problemCommentListAPI(dbname, user_id, question_id),
                     problemAnswerListAPI(dbname, lan_id, token, question_id)
                 ])
-                if (commnetList.data) {
-                    setcommentAll(commnetList.data.data.rows);
+                if (commnetList?.status == 200) {
+                    setcommentAll(commnetList?.data?.data?.rows);
                 }
-                if (answerList.data) {
-                    setAnswerAll(answerList.data.data);
+                if (answerList?.status == 200) {
+                    setAnswerAll(answerList?.data?.data);
                 }
                 if (agri_files) {
                     let Imag1 = ''
@@ -129,12 +111,8 @@ const ViewProblem = ({ navigation }) => {
                     let audio1 = '';
                     let audio2 = '';
                     let audio3 = '';
-                    const agri_files_image = agri_files.filter(function (v, i) {
-                        return ((v["file_ext"] == "image/jpeg"));
-                    });
-                    const agri_files_mp3 = agri_audio_files.filter(function (v, i) {
-                        return (v);
-                    });
+                    const agri_files_image = agri_files.filter(function (v, i) { return ((v["file_ext"] == "image/jpeg")) });
+                    const agri_files_mp3 = agri_audio_files.filter(function (v, i) { return (v) });
                     for (let i = 0; i < 3; i++) {
                         if (agri_files_image[0] != undefined) {
                             Imag1 = agri_files_image[0].file_path
@@ -167,19 +145,9 @@ const ViewProblem = ({ navigation }) => {
                             audio3 = "";
                         }
                     }
-                    setSelectedRecord({
-                        firstItemRecord: audio1,
-                        secondItemRecord: audio2,
-                        thirdItemRecord: audio3,
-                    });
-                    setSelectedImage({
-                        // ...selectedImage,
-                        firstItem: Imag1,
-                        secondItem: Imag2,
-                        thirdItem: Imag3,
-                    })
+                    setSelectedRecord({ firstItemRecord: audio1, secondItemRecord: audio2, thirdItemRecord: audio3 });
+                    setSelectedImage({ firstItem: Imag1, secondItem: Imag2, thirdItem: Imag3 })
                     setIsLoading(false)
-                    // console.log(selectedRecord);
                 }
             }
         }
@@ -191,233 +159,216 @@ const ViewProblem = ({ navigation }) => {
         if (isFocused) {
             onPageLoad();
         }
-    }, [route.params, netConnection, isFocused]);
+    }, [route.params, isFocused]);
+    const handleBackPress = () => { navigation.navigate('ProblemList'); return true; }
     useFocusEffect(
         useCallback(() => {
-            // console.error("aaa")
-            // onPageLoad();
-            const onBackPress = () => { navigation.navigate('ProblemList'); return true; };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }, [route.params, isFocused])
     );
     const soundPlay = async (path) => {
         SPSheet.show({
             component: () => <AudioPlayerView path={path} />,
             dragFromTopOnly: true,
-            onCloseComplete: () => {
-                // alert('onCloseComplete');
-            },
-            onOpenComplete: () => {
-                // console.log(SPSheet)
-            },
+            onCloseComplete: () => { },
+            onOpenComplete: () => { },
             height: 260
         });
     }
     return (
         <Root>
-            {isLoading ? (
+            {isLoading ? <View style={styles.LoadingScreen}>
                 <LoadingScreen />
-            ) : (
-                <>
-                    <CustomHeader path="ProblemList" HandlerGoBack={HandlerGoBack} />
-                    <FormsTitle title={t('plot_and_crop_problem')} />
-                    <ScrollView>
-                        <View >
-                            {
-                                farmerProblem && farmerProblem.agri_user ?
-                                    <View style={styles.container}>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('farmer_name')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.agri_user.userName}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('farmer_number')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.agri_user.contactNumber}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('enter_problem_title')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.question_title}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('question_details')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.question_desc}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('plot')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.agri_user.userName}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('addcrop_croptype')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.agri_land_user_rel && farmerProblem.agri_land_user_rel.plot_no}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('crop_name')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.crop_name && farmerProblem.crop_name.name}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('crop_veriety')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.crop_variety && farmerProblem.crop_variety.name}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('growth_stage')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.growth_stage && farmerProblem.growth_stage.name}</Text>
-                                        </View>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemTitle}>{t('affect_date')}</Text>
-                                            <Text style={styles.itemTitle}>:  {farmerProblem.affected_date ?? ''}</Text>
-                                        </View>
-                                        <View style={styles.itemPhoto}>
-                                            <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('view_phote')} />
-                                        </View>
-                                        <View style={{ marginHorizontal: 20 }}>
-                                            <Text style={styles.title}>{t('listen_to_the_problem')}</Text>
-                                            <View style={styles.photoContainer}>
-                                                {
-                                                    selectedRecord.firstItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
-                                                            <Image
-                                                                source={require('../../Common/images/play.png')}
-                                                                style={{ width: 70, height: 70 }}
+            </View> : null}
+            <CustomHeader path="ProblemList" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+            <FormsTitle title={t('plot_and_crop_problem')} />
+            <ScrollView>
+                <View  >
+                    {/* {
+                        farmerProblem && farmerProblem?.agri_user ? */}
+                    <View style={styles.container}>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('farmer_name')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.agri_user?.userName}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('farmer_number')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.agri_user?.contactNumber}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('enter_problem_title')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.question_title}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('question_details')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.question_desc}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('plot')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.agri_user?.userName}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('addcrop_croptype')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.agri_land_user_rel && farmerProblem?.agri_land_user_rel?.plot_no}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('crop_name')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.crop_name && farmerProblem?.crop_name?.name}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('crop_veriety')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.crop_variety && farmerProblem?.crop_variety?.name}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('growth_stage')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.growth_stage && farmerProblem?.growth_stage?.name}</Text>
+                        </View>
+                        <View style={styles.item}>
+                            <Text style={styles.itemTitle}>{t('affect_date')}</Text>
+                            <Text style={styles.itemTitle}>:  {farmerProblem?.affected_date ?? ''}</Text>
+                        </View>
+                        <View style={styles.itemPhoto}>
+                            <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('view_phote')} />
+                        </View>
+                        <View style={{ marginHorizontal: 20 }}>
+                            <Text style={styles.title}>{t('listen_to_the_problem')}</Text>
+                            <View style={styles.photoContainer}>
+                                {
+                                    selectedRecord.firstItemRecord != "" ?
+                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.firstItemRecord)}>
+                                            <Image
+                                                source={require('../../Common/images/play.png')}
+                                                style={{ width: 70, height: 70 }}
 
-                                                            />
-                                                        </TouchableOpacity> :
-                                                        <Image
-                                                            source={require('../../Common/images/microphone.png')}
-                                                            style={{ width: 70, height: 70, opacity: 0.7 }}
+                                            />
+                                        </TouchableOpacity> :
+                                        <Image
+                                            source={require('../../Common/images/microphone.png')}
+                                            style={{ width: 70, height: 70, opacity: 0.7 }}
 
-                                                        />
-                                                }
-                                                {
-                                                    selectedRecord.secondItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
-                                                            <Image
-                                                                source={require('../../Common/images/play.png')}
-                                                                style={{ width: 70, height: 70 }}
-                                                            />
-                                                        </TouchableOpacity> :
-                                                        <Image
-                                                            source={require('../../Common/images/microphone.png')}
-                                                            style={{ width: 70, height: 70, opacity: 0.7 }}
-                                                        />
-                                                }
-                                                {
-                                                    selectedRecord.thirdItemRecord != "" ?
-                                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
-                                                            <Image
-                                                                source={require('../../Common/images/play.png')}
-                                                                style={{ width: 70, height: 70 }}
+                                        />
+                                }
+                                {
+                                    selectedRecord.secondItemRecord != "" ?
+                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.secondItemRecord)}>
+                                            <Image
+                                                source={require('../../Common/images/play.png')}
+                                                style={{ width: 70, height: 70 }}
+                                            />
+                                        </TouchableOpacity> :
+                                        <Image source={require('../../Common/images/microphone.png')} style={{ width: 70, height: 70, opacity: 0.7 }} />
+                                }
+                                {
+                                    selectedRecord.thirdItemRecord != "" ?
+                                        <TouchableOpacity onPress={() => soundPlay(selectedRecord.thirdItemRecord)}>
+                                            <Image
+                                                source={require('../../Common/images/play.png')}
+                                                style={{ width: 70, height: 70 }}
 
-                                                            />
-                                                        </TouchableOpacity> :
-                                                        <Image
-                                                            source={require('../../Common/images/microphone.png')}
-                                                            style={{ width: 70, height: 70, opacity: 0.7 }}
-                                                        />
-                                                }
-                                            </View>
-                                        </View>
-
-                                    </View>
-                                    :
-                                    ''
-                            }
-                            {btnColor === 2 ?
-                                <View style={styles.commentsContainer}>
-                                    <TextInput
-                                        multiline={true}
-                                        numberOfLines={4}
-                                        style={[styles.textarea, { color: '#000' }]}
-                                        value={comment1}
-                                        onChangeText={(item) => setComment1(item)}
-                                    />
-                                    <TouchableOpacity onPress={() => saveCommet()}>
-                                        <Text style={[styles.btn, { backgroundColor: '#023a02', color: '#FFF', fontSize: 10 }]}>{t('add_comments')}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                :
-                                ""}
-                            <View style={styles.btnContainer}>
-                                <TouchableOpacity style={btnColor === 1 ? styles.btnActive : styles.btn} onPress={() => setBtnColor(1)}>
-                                    <Text style={btnColor === 1 ? styles.btnTitleActive : styles.btnTitle}>{t('answers')}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={btnColor === 2 ? styles.btnActive : styles.btn} onPress={() => setBtnColor(2)}>
-                                    <Text style={btnColor === 2 ? styles.btnTitleActive : styles.btnTitle}>{t('comments')}</Text>
-                                </TouchableOpacity>
+                                            />
+                                        </TouchableOpacity> :
+                                        <Image
+                                            source={require('../../Common/images/microphone.png')}
+                                            style={{ width: 70, height: 70, opacity: 0.7 }}
+                                        />
+                                }
                             </View>
-                            {btnColor === 1 ?
-                                <View style={styles.AnsContainer}>
-                                    {
-                                        answerAll.length > 0
-                                            ?
-                                            <View style={styles.AnsItem}>
+                        </View>
+
+                    </View>
+
+                    {/* } */}
+                    {btnColor === 2 ?
+                        <View style={styles.commentsContainer}>
+                            <TextInput
+                                multiline={true}
+                                numberOfLines={4}
+                                style={[styles.textarea, { color: '#000' }]}
+                                value={comment1}
+                                onChangeText={(item) => setComment1(item)}
+                            />
+                            <TouchableOpacity onPress={() => saveCommet()}>
+                                <Text style={[styles.btn, { backgroundColor: '#023a02', color: '#FFF', fontSize: 10 }]}>{t('add_comments')}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        :
+                        ""}
+                    <View style={styles.btnContainer}>
+                        <TouchableOpacity style={btnColor === 1 ? styles.btnActive : styles.btn} onPress={() => setBtnColor(1)}>
+                            <Text style={btnColor === 1 ? styles.btnTitleActive : styles.btnTitle}>{t('answers')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={btnColor === 2 ? styles.btnActive : styles.btn} onPress={() => setBtnColor(2)}>
+                            <Text style={btnColor === 2 ? styles.btnTitleActive : styles.btnTitle}>{t('comments')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {btnColor === 1 ?
+                        <View style={styles.AnsContainer}>
+                            {
+                                answerAll.length > 0
+                                    ?
+                                    <View style={styles.AnsItem}>
+                                        {
+                                            answerAll.map((value, index) => (
+                                                <View style={styles.AnsTextContainer} key={index}>
+                                                    <Text style={styles.AnsTitle}>{t('role_col')} : Super Admin</Text>
+                                                    <Text style={styles.AnsTitle}>{t('date')} : {formatDateToMMDDYYYY(value.created_at)}</Text>
+                                                    <Text style={styles.AnsTitle}>{t('comments')} :{value.optional_solution} </Text>
+                                                </View>
+                                            ))
+                                        }
+                                    </View>
+                                    : ""
+                            }
+                        </View> :
+                        <View style={styles.AnsContainer}>
+                            {commentAll
+                                ?
+                                commentAll.map((value, index) => {
+                                    return (
+                                        <View style={styles.AnsItem} key={index}>
+                                            <View style={{ width: '20%' }}>
                                                 {
-                                                    answerAll.map((value, index) => (
-                                                        <View style={styles.AnsTextContainer} key={index}>
-                                                            <Text style={styles.AnsTitle}>{t('role_col')} : Super Admin</Text>
-                                                            <Text style={styles.AnsTitle}>{t('date')} : {formatDateToMMDDYYYY(value.created_at)}</Text>
-                                                            <Text style={styles.AnsTitle}>{t('comments')} :{value.optional_solution} </Text>
+                                                    value.agri_user?.agri_files.length > 0 ?
+                                                        value.agri_user?.agri_files.map((value1, index1) => (
+                                                            value1.term_type === "1" &&
+                                                            <View key={index1}>
+                                                                {
+                                                                    value1.file_path != "" ? <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: value1.file_path }} /> : <Image
+                                                                        source={{ uri: value1.file_path }}
+                                                                        resizeMode="cover" style={{ width: 50, height: 50 }}
+                                                                    />
+                                                                }
+                                                            </View>
+                                                        ))
+                                                        : <View style={{ marginVertical: 10 }}>
+                                                            <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../../Common/images/avatar.png')} />
                                                         </View>
-                                                    ))
                                                 }
                                             </View>
-                                            : ""
-                                    }
-                                </View> :
-                                <View style={styles.AnsContainer}>
-                                    {commentAll
-                                        ?
-                                        commentAll.map((value, index) => {
-                                            return (
-                                                <View style={styles.AnsItem} key={index}>
-                                                    <View style={{ width: '20%' }}>
-                                                        {
-                                                            value.agri_user.agri_files.length > 0 ?
-                                                                value.agri_user.agri_files.map((value1, index1) => (
-                                                                    value1.term_type === "1" &&
-                                                                    <View key={index1}>
-                                                                        {
-                                                                            value1.file_path != "" ? <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: value1.file_path }} /> : <Image
-                                                                                source={{ uri: value1.file_path }}
-                                                                                resizeMode="cover" style={{ width: 50, height: 50 }}
-                                                                            />
-                                                                        }
-                                                                    </View>
-                                                                ))
-                                                                : <View style={{ marginVertical: 10 }}>
-                                                                    <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../../Common/images/avatar.png')} />
-                                                                </View>
-                                                        }
-                                                    </View>
-                                                    <View style={styles.AnsTextContainer}>
-                                                        {
-                                                            value.agri_user.agri_files.forEach(element => {
-                                                                <Text style={styles.AnsTitle}>{element}</Text>
-                                                            })
-                                                        }
-                                                        <Text style={styles.AnsTitle}>{value.agri_user.userName}
-                                                            {value.agri_user.userType === 3 ? <Text>({t('retailer')})</Text> : <Text>({t('login_farmer')})</Text>}
-                                                        </Text>
-                                                        <Text style={styles.AnsTitle}>{value.comment_content}</Text>
-                                                        <Text style={styles.AnsTitle}>{formatDateToMMDDYYYY(value.CreateDateTime)}</Text>
-                                                    </View>
-                                                </View>
-                                            )
-                                        })
-                                        : ""
-                                    }
-                                </View>
+                                            <View style={styles.AnsTextContainer}>
+                                                {
+                                                    value.agri_user?.agri_files.forEach(element => {
+                                                        <Text style={styles.AnsTitle}>{element}</Text>
+                                                    })
+                                                }
+                                                <Text style={styles.AnsTitle}>{value.agri_user?.userName}
+                                                    {value.agri_user?.userType === 3 ? <Text>({t('retailer')})</Text> : <Text>({t('login_farmer')})</Text>}
+                                                </Text>
+                                                <Text style={styles.AnsTitle}>{value.comment_content}</Text>
+                                                <Text style={styles.AnsTitle}>{formatDateToMMDDYYYY(value.CreateDateTime)}</Text>
+                                            </View>
+                                        </View>
+                                    )
+                                })
+                                : ""
                             }
                         </View>
-                    </ScrollView>
-                </>
-            )
-            }
+                    }
+                </View>
+            </ScrollView>
         </Root>
-
     )
 }
-
 export default ViewProblem
 
 const styles = StyleSheet.create({
@@ -512,5 +463,11 @@ const styles = StyleSheet.create({
         color: '#000',
         marginBottom: 7,
         fontFamily: 'Poppins-Regular'
+    },
+    LoadingScreen: {
+        position: 'absolute',
+        top: '52%',
+        left: '45%',
+        zIndex: 9999
     }
 })

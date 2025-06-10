@@ -1,27 +1,21 @@
 import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, SafeAreaView, Dimensions, Keyboard, BackHandler } from 'react-native'
-import React, { useState, useEffect } from 'react';
-import Filter from '../../Common/Filter';
-import DatePickerComp from '../../Common/DatePickerComp';
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-import { farmerByNameAPI, problemListAPI } from '../../../config/apiHere';
+import React, { useState, useEffect, useContext } from 'react';
+import { problemListAPI } from '../../../config/apiHere';
 import { useFocusEffect } from '@react-navigation/native';
-import LoadingScreen from '../../Common/LoadingScreen';
-import CustomHeader from '../CustomHeader';
 import { useIsFocused } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import DeviceInfo from '../../DeviceInfo';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ListProblem = ({ navigation }) => {
+    //GQR-67
+    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem,
+        setItem, logoImage, topBanner, Root, DeviceInfo, effective_dates, DatePickerComp, Filter, handleFilter,
+        handleResultSelect, handlePageList, farmerData, isOnline } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { pageNo } = dbLanTokUsr;
+    //GQR-67
     const { netConnection } = DeviceInfo();
-    const { t } = useTranslation();
     const isFocused = useIsFocused();
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [farmerData, setFarmerData] = useState([]);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        pageNo: 1
-    });
     const [problemAll, setProblemAll] = useState([]);
     const [problemAllRaw, setProblemAllRaw] = useState([]);
     const [filterItem, setFilterItem] = useState("");
@@ -30,7 +24,6 @@ const ListProblem = ({ navigation }) => {
     const [newToDate, setnewToDate] = useState(new Date());
     const [openFromDate, setOpenFromDate] = useState(false);
     const [openToDate, setOpenToDate] = useState(false);
-    const [showMenu, setshowMenu] = useState(null);
     const [fromDate, setfromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [fromDateFilter, setFromDateFilter] = useState('');
@@ -40,31 +33,27 @@ const ListProblem = ({ navigation }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [filterName, setFilterName] = useState("");
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
-        setfromDate(effective_date)
-        setFromDateFilter(effective_date)
+        const effective_date = effective_dates(item);
+        setfromDate(effective_date);
+        setFromDateFilter(effective_date);
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDateFilter) {
             const searchItem = '';
             const from_date = fromDateFilter;
             const to_date = effective_date;
             const mobileNo = '';
-            const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, searchItem, from_date, to_date, mobileNo)
-            if (response) {
-                setProblemAll(response.data.data.rows)
-                setItem("problem_Data", response.data.data)
+            const response = await problemListAPI(dbname, lan_id, token, user_id, pageNo, searchItem, from_date, to_date, mobileNo)
+            if (response?.status == 200) {
+                setProblemAll(response?.data?.data?.rows)
+                setItem("problem_Data", response?.data?.data)
             }
         } else {
-            MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+            // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+            Toast.show({ text: 'Please Select First data.', ...AlertMesg[0] });
+
         }
     }
     const filterOptionShow = () => {
@@ -85,169 +74,29 @@ const ListProblem = ({ navigation }) => {
         setToDate("");
     }
     const handlePage = async (value) => {
-        setIsLoading(true)
-        const currentPageNo = dbLanTokUsr.pageNo
-        const totalPage = dbLanTokUsr.totalPage
-        if (value === 'next') {
-            if (totalPage === currentPageNo) {
-                setProblemAll([])
-                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-                setIsLoading(false)
-                return;
-            } else {
-                const nextPage = currentPageNo + 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage })
-                const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, nextPage)
-                if (response) {
-                    setProblemAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
-                    setIsLoading(false)
-                }
-            }
-        }
-        if (value === 'previous') {
-            if (currentPageNo === 1) {
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, prePage)
-                if (response) {
-                    setProblemAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
-                    setIsLoading(false)
-                }
-            } else {
-                const prePage = currentPageNo - 1
-                setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage })
-                const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, prePage)
-                if (response) {
-                    setProblemAll(response.data.data.rows)
-                    setItem("problem_Data", response.data.data)
-                    setIsLoading(false)
-                }
-            }
-        }
+        handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id);
     }
     const navigateToPages = (pageName, fid) => {
         setItem("problem_id_data", fid)
         navigation.navigate(pageName);
     };
-    const handleFilter = async (search) => {
-        if (filterName === 'Farmer/Product Name') {
-            setSearchFarmerPhone('');
-            setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setProblemAll(problemAllRaw)
-            } else {
-                let tempData = problemAllRaw.filter(item => {
-                    return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;
-                });
-                // setProblemAll(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        } else if (filterName === 'PhoneNumber') {
-            setSearchFarmerName('');
-            setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setProblemAll(problemAllRaw);
-            } else {
-                // let tempData = problemAllRaw.filter(item => {
-                //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                // });
-                // setProblemAll(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        }
-    }
-    const handleResultSelect = async (name, user_id1, phone) => {
-        setIsLoading(true)
-        setSearchResultsList(false);
-        setSearchFarmerPhone(phone)
-        setSearchFarmerName(name);
-        setSearchResults([]);
-        if (name !== '') {
-            let user_id = user_id1
-            let from_date = ''
-            let to_date = ''
-            let mobileNo = ''
-            const response = await problemListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.supervisorId, 0, user_id, from_date, to_date, mobileNo)
-            if (response) {
-                setIsLoading(false)
-                setProblemAll(response.data.data.rows)
-                // setProblemAllRaw(response.data.data.rows)
-            }
-        } else {
-            let tempData = problemAll.filter(item => {
-                return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;;
-            });
-            setProblemAll(tempData)
-        }
-    }
     const onPageLoad = async () => {
         setIsLoading(true);
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageId = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const supervisorId = loginUser_data.user_id;
-            if (netConnection) {
-                var [response, farmerByName] = await Promise.all([
-                    problemListAPI(dbName, languageId, supervisorId, 1),
-                    farmerByNameAPI(dbName, languageId, token, supervisorId)
-                ]);
-                if (response?.status == 200) {
-                    await Promise.all([
-                        setItem('problemTypeName', response),
-                        setItem('farmerByName' + supervisorId, farmerByName)
-                    ]);
-                }
-            } else {
-                var [response, farmerByName] = await Promise.all([
-                    getItem('problemTypeName'),
-                    getItem('farmerByName' + supervisorId)
-                ]);
-            }
-            if (response?.status == 200) {
-                setIsLoading(false);
-                const totalPage = Math.ceil(response.data.data.count / 20)
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    dbName: dbName,
-                    languageId: languageId,
-                    token: token,
-                    supervisorId: supervisorId,
-                    totalPage: totalPage,
-                });
-                setProblemAll(response.data.data.rows)
-                setProblemAllRaw(response.data.data.rows)
-                setItem("problem_Data", response.data.data)
-                setIsLoading(false)
-            }
-            if (farmerByName?.status == 200) {
-                const dataArray = [];
-                farmerByName.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
+        var response = [];
+        if (isOnline) {
+            response = await problemListAPI(dbname, lan_id, token, user_id, 1);
+            if (response?.status == 200) { await setItem('problemTypeName', response) }
+        } else {
+            response = await getItem('problemTypeName');
+        }
+        if (response?.status == 200) {
+            setIsLoading(false);
+            const totalPage = Math.ceil(response?.data?.data.count / 20)
+            setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage, pageNo: 1 });
+            setProblemAll(response?.data?.data?.rows)
+            setProblemAllRaw(response?.data?.data?.rows)
+            setItem("problem_Data", response?.data?.data)
+            setIsLoading(false)
         }
     };
     const filterDataRemove = () => {
@@ -268,59 +117,67 @@ const ListProblem = ({ navigation }) => {
         setSearchResultsList(false);
         navigation.navigate('Dashboard');
     }
+    const handleBackPress = () => {
+        setToDate("");
+        setfromDate("");
+        setFilterItem("");
+        setSearchFarmerPhone("");
+        setSearchFarmerName("");
+        setFilterOption(false);
+        setSearchResultsList(false);
+        navigation.navigate('Dashboard');
+        return true;
+    }
     useEffect(() => {
         if (isFocused) {
             if (searchFarmerName == "" && searchFarmerPhone == "" && fromDate == "" && toDate == "") {
                 onPageLoad();
             }
-            const onBackPress = () => {
-                setToDate("");
-                setfromDate("");
-                setFilterItem("");
-                setSearchFarmerPhone("");
-                setSearchFarmerName("");
-                setFilterOption(false);
-                setSearchResultsList(false);
-                navigation.navigate('Dashboard');
-                return true;
-            };
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+            onBackPress(handleBackPress);
         }
-    }, [isFocused, netConnection])
+    }, [isFocused])
     useFocusEffect(
         React.useCallback(() => {
             setFilterOption(false);
-            const keyboardDidShowListener = Keyboard.addListener(
-                'keyboardDidShow', () => { setKeyboardVisible(true); }
-            );
-            const keyboardDidHideListener = Keyboard.addListener(
-                'keyboardDidHide', () => { setKeyboardVisible(false); }
-            );
-            return () => {
-                keyboardDidHideListener.remove();
-                keyboardDidShowListener.remove();
-            };
+            const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true); });
+            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false); });
+            return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove(); };
         }, [])
     );
+    const handleFilterList = (item) => {
+        /*
+        ** [1] It is use to search by farmer's name and phone number value.
+        ** [2] It is use for filter type ['Farmer/Product Name','PhoneNumber'].
+        ** [3] it is use for all farmer list.
+        ** [4] item List can't modify data.
+        ** [5,6] farmer's name and phone number  selected value set.
+        ** [7] farmer list show and hide poup.
+        ** [8] set all list value.
+        ** [9] search result value set.
+        */
+        handleFilter(item, filterName, farmerData, problemAllRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setProblemAll, setSearchResults);
+    }
+    const handleResultSelectList = (item) => {
+        const { label, value, phone } = item
+        /*
+        ** [1,2,3] label,value,phone farmer data.
+        ** [4] all list data.
+        ** [5] api end point.
+        ** [6] loader [true/false] data set
+        ** [7] farmer list show and hide poup.
+        ** [8,9] farmer's name and phone number  selected value set.
+        ** [10] select result data set value.
+        ** [8] set all list value.
+        */
+        handleResultSelect(label, '', phone, problemAll, problemListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)
+    }
     return (
         <Root>
             <SafeAreaView style={{ flex: 1 }}>
                 <View style={{ flex: 1 }}>
-                    <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} />
-                    {openFromDate && <DatePickerComp
-                        openDate={openFromDate}
-                        newDate={newFromDate}
-                        setOpenDate={setOpenFromDate}
-                        handleDatePicker={handleDatePicker}
-                    />}
-                    {openToDate && <DatePickerComp
-                        openDate={openToDate}
-                        newDate={newToDate}
-                        setOpenDate={setOpenToDate}
-                        handleDatePicker={handleDatePicker2}
-                        minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                    />}
+                    <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+                    {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
+                    {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
                     <Filter
                         filterItem={filterItem}
                         filterOption={filterOption}
@@ -330,7 +187,7 @@ const ListProblem = ({ navigation }) => {
                         setOpenFromDate={setOpenFromDate}
                         filterOptionShow={filterOptionShow}
                         onchangeFilterItem={onchangeFilterItem}
-                        onChangeText={(item) => handleFilter(item)}
+                        onChangeText={(item) => handleFilterList(item)}
                         FarmerProductNameValue={searchFarmerName}
                         FarmerProductPhoneValue={searchFarmerPhone}
                         title={t('problem_reporting')}
@@ -344,7 +201,8 @@ const ListProblem = ({ navigation }) => {
                                         style={searchResults.length > 8 ? styles.flatlistHeight : ""}
                                         data={searchResults}
                                         renderItem={({ item }) => (
-                                            <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
+
+                                            <TouchableOpacity onPress={() => handleResultSelectList(item)} style={styles.flatlistitem}>
                                                 <Text style={[styles.flatlisttitle, { color: 'black' }]}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
                                             </TouchableOpacity>
                                         )}
@@ -429,7 +287,7 @@ const styles = StyleSheet.create({
     plusIconContainer: {
         position: 'absolute',
         right: 20,
-        bottom: 50,
+        top: '80%',
         elevation: 5,
         zIndex: 99,
         width: 60,
@@ -458,7 +316,7 @@ const styles = StyleSheet.create({
         left: 0,
         // top:30,
         marginTop: 60,
-        bottom: '65%',
+        top: '12%',
         marginHorizontal: '5%',
         width: '90%',
         elevation: 10,
@@ -471,7 +329,7 @@ const styles = StyleSheet.create({
         zIndex: 999,
         left: 0,
         // top: 30,
-        bottom: '45%',
+        top: '30%',
         marginHorizontal: '5%',
         width: '90%',
         elevation: 10,

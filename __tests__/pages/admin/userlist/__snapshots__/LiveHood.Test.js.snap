@@ -1,0 +1,1516 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+[
+  <View
+    style={
+      {
+        "alignItems": "flex-end",
+        "width": "95%",
+      }
+    }
+  >
+    <Text
+      style={
+        [
+          {
+            "color": "#000",
+            "fontFamily": "Poppins-SemiBold",
+            "fontSize": 18,
+            "paddingBottom": 8,
+            "paddingTop": 4,
+          },
+        ]
+      }
+    >
+      plot_and_crop_details
+    </Text>
+  </View>,
+  <RCTScrollView
+    showsVerticalScrollIndicator={false}
+    style={
+      {
+        "marginHorizontal": 30,
+        "marginVertical": 10,
+      }
+    }
+  >
+    <View>
+      <View
+        style={
+          {
+            "marginBottom": 40,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Addland_select_plot
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            [
+              {
+                "color": "#000",
+                "fontFamily": "Poppins-Regular",
+                "fontSize": 14,
+                "marginBottom": 5,
+                "marginHorizontal": 5,
+              },
+              {
+                "color": "black",
+              },
+            ]
+          }
+        >
+          Daag_no
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "marginBottom": 15,
+            }
+          }
+          testID="inputContainer"
+        >
+          <TextInput
+            keyboardType="default"
+            onChangeText={[Function]}
+            style={
+              [
+                {
+                  "backgroundColor": "#FFFF",
+                  "borderColor": "#fcf7f7",
+                  "borderRadius": 8,
+                  "borderWidth": 1.3,
+                  "color": "#000",
+                  "elevation": 1,
+                  "height": 45,
+                  "paddingHorizontal": 10,
+                  "width": "100%",
+                },
+                {
+                  "backgroundColor": "#FFF",
+                  "borderColor": "#FFFF",
+                  "color": "black",
+                },
+              ]
+            }
+            testID="textInput"
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            [
+              {
+                "color": "#000",
+                "fontFamily": "Poppins-Regular",
+                "fontSize": 14,
+                "marginBottom": 5,
+                "marginHorizontal": 5,
+              },
+              {
+                "color": "black",
+              },
+            ]
+          }
+        >
+          Khatian_no
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "marginBottom": 15,
+            }
+          }
+          testID="inputContainer"
+        >
+          <TextInput
+            keyboardType="default"
+            onChangeText={[Function]}
+            style={
+              [
+                {
+                  "backgroundColor": "#FFFF",
+                  "borderColor": "#fcf7f7",
+                  "borderRadius": 8,
+                  "borderWidth": 1.3,
+                  "color": "#000",
+                  "elevation": 1,
+                  "height": 45,
+                  "paddingHorizontal": 10,
+                  "width": "100%",
+                },
+                {
+                  "backgroundColor": "#FFF",
+                  "borderColor": "#FFFF",
+                  "color": "black",
+                },
+              ]
+            }
+            testID="textInput"
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            [
+              {
+                "color": "#000",
+                "fontFamily": "Poppins-Regular",
+                "fontSize": 14,
+                "marginBottom": 5,
+                "marginHorizontal": 5,
+              },
+              {
+                "color": "black",
+              },
+            ]
+          }
+        >
+          No_of_plants
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "marginBottom": 15,
+            }
+          }
+          testID="inputContainer"
+        >
+          <TextInput
+            keyboardType="default"
+            onChangeText={[Function]}
+            style={
+              [
+                {
+                  "backgroundColor": "#FFFF",
+                  "borderColor": "#fcf7f7",
+                  "borderRadius": 8,
+                  "borderWidth": 1.3,
+                  "color": "#000",
+                  "elevation": 1,
+                  "height": 45,
+                  "paddingHorizontal": 10,
+                  "width": "100%",
+                },
+                {
+                  "backgroundColor": "#FFF",
+                  "borderColor": "#FFFF",
+                  "color": "black",
+                },
+              ]
+            }
+            testID="textInput"
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Select_terrain_type
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Select_land_type
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Addland_soil_type_dv
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "width": "45%",
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                    "marginBottom": 5,
+                    "marginHorizontal": 5,
+                  },
+                  {
+                    "color": "red",
+                  },
+                ]
+              }
+            >
+              Pre_land_size
+            </Text>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "marginBottom": 15,
+                }
+              }
+              testID="inputContainer"
+            >
+              <TextInput
+                keyboardType="default"
+                onChangeText={[Function]}
+                style={
+                  [
+                    {
+                      "backgroundColor": "#FFFF",
+                      "borderColor": "#fcf7f7",
+                      "borderRadius": 8,
+                      "borderWidth": 1.3,
+                      "color": "#000",
+                      "elevation": 1,
+                      "height": 45,
+                      "paddingHorizontal": 10,
+                      "width": "100%",
+                    },
+                    {
+                      "backgroundColor": "#FFF",
+                      "borderColor": "#FFFF",
+                      "color": "black",
+                    },
+                  ]
+                }
+                testID="textInput"
+                value=""
+              />
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "width": "45%",
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "red",
+                  "fontFamily": "Poppins-Regular",
+                  "marginBottom": 5,
+                  "marginHorizontal": 5,
+                }
+              }
+            >
+              Select_unit
+            </Text>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "backgroundColor": "#e7dbdb",
+                  "borderRadius": 10,
+                  "marginBottom": 15,
+                }
+              }
+            >
+              <select
+                onChange={[Function]}
+                value=""
+              />
+            </View>
+          </View>
+        </View>
+        <View
+          style={{}}
+        >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "opacity": 1,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "justifyContent": "space-between",
+                  "marginHorizontal": 5,
+                  "marginVertical": 10,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              />
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "justifyContent": "space-between",
+                  "marginHorizontal": 5,
+                  "marginVertical": 10,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              >
+                tap_to_get_latitude_and_longitude
+              </Text>
+              <Image
+                resizeMode="contain"
+                source={1}
+                style={
+                  {
+                    "height": 40,
+                    "width": 40,
+                  }
+                }
+              />
+            </View>
+          </View>
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "opacity": 1,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "justifyContent": "space-between",
+                  "marginHorizontal": 5,
+                  "marginVertical": 10,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              />
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "justifyContent": "space-between",
+                  "marginHorizontal": 5,
+                  "marginVertical": 10,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              >
+                tap_to_get_latitude_and_longitude
+              </Text>
+              <Image
+                resizeMode="contain"
+                source={1}
+                style={
+                  {
+                    "height": 40,
+                    "width": 40,
+                  }
+                }
+              />
+            </View>
+          </View>
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "opacity": 1,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "justifyContent": "space-between",
+                  "marginHorizontal": 5,
+                  "marginVertical": 10,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              />
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              />
+            </View>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "justifyContent": "space-between",
+                  "marginHorizontal": 5,
+                  "marginVertical": 10,
+                }
+              }
+            >
+              <Text
+                style={
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                  }
+                }
+              >
+                tap_to_get_latitude_and_longitude
+              </Text>
+              <Image
+                resizeMode="contain"
+                source={1}
+                style={
+                  {
+                    "height": 40,
+                    "width": 40,
+                  }
+                }
+              />
+            </View>
+          </View>
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Addcrop_select_cultivating_season
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Addcrop_croptype
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Crop_name
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Crop_veriety
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <Text
+          style={
+            {
+              "color": "red",
+              "fontFamily": "Poppins-Regular",
+              "marginBottom": 5,
+              "marginHorizontal": 5,
+            }
+          }
+        >
+          Production_system
+        </Text>
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "backgroundColor": "#e7dbdb",
+              "borderRadius": 10,
+              "marginBottom": 15,
+            }
+          }
+        >
+          <select
+            onChange={[Function]}
+            value=""
+          />
+        </View>
+        <View
+          style={
+            {
+              "flexDirection": "row",
+              "justifyContent": "space-between",
+            }
+          }
+        >
+          <View
+            style={
+              {
+                "width": "45%",
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#000",
+                    "fontFamily": "Poppins-Regular",
+                    "fontSize": 14,
+                    "marginBottom": 5,
+                    "marginHorizontal": 5,
+                  },
+                  {
+                    "color": "red",
+                  },
+                ]
+              }
+            >
+              Expected_yield
+            </Text>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "marginBottom": 15,
+                }
+              }
+              testID="inputContainer"
+            >
+              <TextInput
+                keyboardType="number-pad"
+                onChangeText={[Function]}
+                style={
+                  [
+                    {
+                      "backgroundColor": "#FFFF",
+                      "borderColor": "#fcf7f7",
+                      "borderRadius": 8,
+                      "borderWidth": 1.3,
+                      "color": "#000",
+                      "elevation": 1,
+                      "height": 45,
+                      "paddingHorizontal": 10,
+                      "width": "100%",
+                    },
+                    {
+                      "backgroundColor": "#FFF",
+                      "borderColor": "#FFFF",
+                      "color": "black",
+                    },
+                  ]
+                }
+                testID="textInput"
+                value=""
+              />
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "width": "45%",
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "red",
+                  "fontFamily": "Poppins-Regular",
+                  "marginBottom": 5,
+                  "marginHorizontal": 5,
+                }
+              }
+            >
+              Select_unit_input
+            </Text>
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "backgroundColor": "#e7dbdb",
+                  "borderRadius": 10,
+                  "marginBottom": 15,
+                }
+              }
+            >
+              <select
+                onChange={[Function]}
+                value=""
+              />
+            </View>
+          </View>
+        </View>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "opacity": 1,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#f40000",
+                "marginBottom": 5,
+              }
+            }
+          >
+            showing_date
+          </Text>
+          <View
+            style={
+              {
+                "backgroundColor": "#FFF",
+                "borderRadius": 10,
+                "elevation": 1,
+                "flexDirection": "row",
+                "height": 45,
+                "justifyContent": "space-between",
+                "padding": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            />
+            <Image
+              source={1}
+              style={
+                {
+                  "height": 20,
+                  "width": 20,
+                }
+              }
+            />
+          </View>
+        </View>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "opacity": 1,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#f40000",
+                "marginBottom": 5,
+                "marginTop": 10,
+              }
+            }
+          >
+            harvesting_date_auto_calculated
+          </Text>
+          <View
+            style={
+              {
+                "backgroundColor": "#FFF",
+                "borderRadius": 10,
+                "elevation": 1,
+                "flexDirection": "row",
+                "height": 45,
+                "justifyContent": "space-between",
+                "padding": 10,
+              }
+            }
+          >
+            <Text
+              style={
+                {
+                  "color": "#000",
+                }
+              }
+            />
+            <Image
+              source={1}
+              style={
+                {
+                  "height": 20,
+                  "width": 20,
+                }
+              }
+            />
+          </View>
+        </View>
+        <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "backgroundColor": "#045004",
+              "borderRadius": 20,
+              "marginHorizontal": 35,
+              "marginVertical": 20,
+              "opacity": 1,
+              "paddingVertical": 15,
+            }
+          }
+        >
+          <Text
+            style={
+              {
+                "color": "#FFF",
+                "fontFamily": "Poppins-Regular",
+                "fontSize": 14,
+                "textAlign": "center",
+              }
+            }
+          >
+            click_to_add_more_plot
+          </Text>
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>,
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "backgroundColor": "#025502",
+        "borderBottomLeftRadius": 20,
+        "borderTopLeftRadius": 20,
+        "bottom": 100,
+        "opacity": 1,
+        "paddingLeft": 20,
+        "paddingVertical": 10,
+        "position": "absolute",
+        "right": 0,
+      }
+    }
+  >
+    <Text
+      style={
+        [
+          {
+            "color": "#000",
+            "fontFamily": "Poppins-Regular",
+            "fontSize": 14,
+          },
+          {
+            "color": "#FFF",
+            "marginRight": 20,
+          },
+        ]
+      }
+    >
+      AddLocation
+    </Text>
+  </View>,
+  <View
+    style={
+      {
+        "bottom": 0,
+        "left": 0,
+        "position": "absolute",
+        "width": "100%",
+      }
+    }
+  >
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessibilityValue={
+        {
+          "max": undefined,
+          "min": undefined,
+          "now": undefined,
+          "text": undefined,
+        }
+      }
+      accessible={true}
+      collapsable={false}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "backgroundColor": "#003c04",
+          "borderRadius": 0,
+          "opacity": 1,
+          "padding": 9,
+        }
+      }
+    >
+      <Text
+        style={
+          {
+            "color": "white",
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "textAlign": "center",
+          }
+        }
+      >
+        submit
+      </Text>
+    </View>
+  </View>,
+  <View
+    collapsable={false}
+    style={
+      {
+        "alignItems": "center",
+        "backgroundColor": "rgba(0, 0, 0, 0.5)",
+        "height": 1334,
+        "left": 0,
+        "opacity": 0,
+        "position": "absolute",
+        "top": 0,
+        "transform": [
+          {
+            "translateY": 1334,
+          },
+        ],
+        "width": 750,
+        "zIndex": 10,
+      }
+    }
+  >
+    <View
+      collapsable={false}
+      onLayout={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#fff",
+          "borderRadius": 8,
+          "minHeight": 0,
+          "overflow": "hidden",
+          "position": "absolute",
+          "transform": [
+            {
+              "translateY": 1334,
+            },
+          ],
+          "width": "90%",
+        }
+      }
+    >
+      <View
+        style={
+          [
+            {
+              "backgroundColor": "#fff",
+              "height": 75,
+              "width": 100,
+            },
+            false,
+          ]
+        }
+      />
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          {
+            "height": 48,
+            "position": "absolute",
+            "top": 20,
+            "width": 48,
+          }
+        }
+      />
+      <View
+        style={
+          {
+            "padding": 20,
+            "width": "100%",
+          }
+        }
+      >
+        <Text
+          style={
+            [
+              {
+                "color": "#111111",
+                "fontSize": 16,
+                "fontStyle": "normal",
+                "fontWeight": "400",
+                "lineHeight": 24,
+                "textAlign": "center",
+              },
+              false,
+            ]
+          }
+        />
+        <View
+          style={false}
+        >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#702c91",
+                "borderRadius": 8,
+                "flex": 1,
+                "height": 48,
+                "justifyContent": "center",
+                "marginTop": 20,
+                "opacity": 1,
+              }
+            }
+          >
+            <Text
+              style={
+                [
+                  {
+                    "color": "#ffffff",
+                    "fontSize": 16,
+                    "fontStyle": "normal",
+                    "fontWeight": "600",
+                    "lineHeight": 20,
+                    "textAlign": "center",
+                  },
+                  false,
+                ]
+              }
+            >
+              Ok
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  </View>,
+  <View
+    collapsable={false}
+    style={
+      {
+        "alignItems": "center",
+        "alignSelf": "center",
+        "backgroundColor": undefined,
+        "borderRadius": 0,
+        "borderWidth": 0,
+        "display": "none",
+        "elevation": 5,
+        "flexDirection": "row",
+        "minHeight": 120,
+        "position": "absolute",
+        "shadowColor": "#1da1f2",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.25,
+        "shadowRadius": 3.84,
+        "transform": [
+          {
+            "translateY": -1334,
+          },
+        ],
+        "width": 750,
+      }
+    }
+  >
+    <View
+      collapsable={false}
+      onLayout={[Function]}
+      style={
+        {
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "center",
+          "paddingBottom": 0,
+        }
+      }
+    >
+      <View
+        style={
+          [
+            {
+              "flex": 1,
+              "marginTop": 0,
+              "paddingLeft": 20,
+              "paddingRight": 20,
+            },
+          ]
+        }
+      />
+      <View
+        collapsable={false}
+        style={
+          {
+            "backgroundColor": "#122459",
+            "height": 5,
+            "position": "absolute",
+            "top": -10,
+            "transform": [
+              {
+                "translateX": 0,
+              },
+            ],
+            "width": "100%",
+          }
+        }
+      />
+    </View>
+  </View>,
+]
+`;
