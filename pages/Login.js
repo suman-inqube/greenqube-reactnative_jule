@@ -230,16 +230,16 @@ const Login = ({route}) => {
               country_id: microCompany?.country_id,
             }),
           ]);
-          // if (loginUserdata.agri_files.length > 0) {
-          //   const profileImg = loginUserdata.agri_files.find(
-          //     item => item.term_type === '1',
-          //   );
-          //   if (typeof profileImg != 'undefined') {
-          //     await setItem('profileImgData', profileImg.file_path);
-          //   }
-          // } else {
-          //   await setItem('profileImgData', '');
-          // }
+          if (loginUserdata?.agri_files.length > 0) {
+            const profileImg = loginUserdata?.agri_files.find(
+              item => item.term_type === '1',
+            );
+            if (typeof profileImg != 'undefined') {
+              await setItem('profileImgData', profileImg.file_path);
+            }
+          } else {
+            await setItem('profileImgData', '');
+          }
           await setItem('loginUser_data', loginUserdata);
           await setItem('companyFirstEntry',0 );
           setstoreLoginUser({

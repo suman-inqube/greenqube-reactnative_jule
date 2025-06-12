@@ -62,25 +62,25 @@ const FarmerPostNew = (props) => {
             if (livelyhoodNameVerity?.status == 200) {
                 const problemNameFound = farmer_all?.data?.data?.rows.find(user => user.user_id === relId.user_id);
                 if (problemNameFound) {
-                    if (new Date(livelyhoodNameVerity?.data?.data?.rows[0].harvesting_date) > new Date()) {
+                    if (new Date(livelyhoodNameVerity?.data?.data?.harvesting_date) > new Date()) {
                         await Promise.all([
                             setProduceName([{
-                                value: livelyhoodNameVerity?.data?.data?.rows[0].crop_name.fid,
-                                label: livelyhoodNameVerity?.data?.data?.rows[0].crop_name.name
+                                value: livelyhoodNameVerity?.data?.data?.crop_name.fid,
+                                label: livelyhoodNameVerity?.data?.data?.crop_name.name
                             }]),
                             setProduceVariety([{
-                                value: livelyhoodNameVerity?.data?.data?.rows[0].crop_variety.fid,
-                                label: livelyhoodNameVerity?.data?.data?.rows[0].crop_variety.name
+                                value: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
+                                label: livelyhoodNameVerity?.data?.data?.crop_variety.name
                             }]),
                             setLiveliHoodType([{
-                                value: livelyhoodNameVerity?.data?.data?.rows[0].crop_type.fid,
-                                label: livelyhoodNameVerity?.data?.data?.rows[0].crop_type.name
+                                value: livelyhoodNameVerity?.data?.data?.crop_type.fid,
+                                label: livelyhoodNameVerity?.data?.data?.crop_type.name
                             }]),
                             setNameVarityLivelihood({
                                 ...nameVarityLivelihood,
-                                name: livelyhoodNameVerity?.data?.data?.rows[0].crop_name.fid,
-                                varity: livelyhoodNameVerity?.data?.data?.rows[0].crop_variety.fid,
-                                livelihood: livelyhoodNameVerity?.data?.data?.rows[0].crop_type.fid,
+                                name: livelyhoodNameVerity?.data?.data?.crop_name.fid,
+                                varity: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
+                                livelihood: livelyhoodNameVerity?.data?.data?.crop_type.fid,
                             }),
                             setSaveData({
                                 ...saveData,
@@ -95,9 +95,9 @@ const FarmerPostNew = (props) => {
                                 state_id: problemNameFound?.agri_user_addresses[0].state,
                                 district_id: problemNameFound?.agri_user_addresses[0].district,
                                 block_id: problemNameFound?.agri_user_addresses[0].subdivision,
-                                entity_type_id: livelyhoodNameVerity?.data?.data?.rows[0].crop_type.fid,
-                                entity_name_id: livelyhoodNameVerity?.data?.data?.rows[0].crop_name.fid,
-                                entity_variety_id: livelyhoodNameVerity?.data?.data?.rows[0].crop_variety.fid,
+                                entity_type_id: livelyhoodNameVerity?.data?.data?.crop_type.fid,
+                                entity_name_id: livelyhoodNameVerity?.data?.data?.crop_name.fid,
+                                entity_variety_id: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
                                 others: "",
                             })
                         ])

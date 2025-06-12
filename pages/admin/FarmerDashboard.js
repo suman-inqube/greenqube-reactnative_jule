@@ -32,26 +32,105 @@ const FarmerDashboard = ({ navigation }) => {
                 navigation.navigate(pageName, { latLong });
             } else {
                 switch (pageName) {
-                    case "FarmerListProblem":
-                        addModuleForView(dbname, lan_id, user_id, token, "Problem User", "module_view", "problem_user", 1)
-                        break;
-                    case "FarmerActivityList":
-                        addModuleForView(dbname, lan_id, user_id, token, "Activity User", "module_view", "activity_user", 1)
-                        break;
-                    case "FarmerInputList":
-                        addModuleForView(dbname, lan_id, user_id, token, "Input User", "module_view", "input_user", 1)
-                        break;
-                    case "FarmerOutPutList":
-                        addModuleForView(dbname, lan_id, user_id, token, "Output User", "module_view", "output_user", 1)
-                        break;
-                    case "FarmerUsefulInformationList":
-                        addModuleForView(dbname, lan_id, user_id, token, "UsefulInformation User", "module_view", "usefulInformation_user", 1)
-                        break;
-                    case "FarmerTrainingList":
-                        addModuleForView(dbname, lan_id, user_id,token, "Training User", "module_view","training_user", 1)
-                        break;
-                    default:
-                    // code block FarmerTrainingList
+                  case 'FarmerListProblem':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Problem User',
+                      'module_view',
+                      'problem_user',
+                      1,
+                    );
+                    break;
+                  case 'FarmerActivityList':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Activity User',
+                      'module_view',
+                      'activity_user',
+                      1,
+                    );
+                    break;
+                  case 'FarmerInputList':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Input User',
+                      'module_view',
+                      'input_user',
+                      1,
+                    );
+                    break;
+                  case 'FarmerOutPutList':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Output',
+                      'module_view',
+                      'outPut_user',
+                      1,
+                    );
+                    break;
+                  case 'FarmerUsefulInformationList':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'UsefulInformation User',
+                      'module_view',
+                      'usefulInformation_user',
+                      1,
+                    );
+                    break;
+                  case 'FarmerTrainingList':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Training User',
+                      'module_view',
+                      'training_user',
+                      1,
+                    );
+                    break;
+                  case 'PackageOfPractices':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'POP',
+                      'module_view',
+                      'pop_user',
+                      1,
+                    );
+                    break;
+
+                  case 'Weather':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Weather',
+                      'module_view',
+                      'weather_user',
+                      1,
+                    );
+                    break;
+                  default:
+                  // code block FarmerTrainingList
                 }
                 navigation.navigate(pageName);
             }

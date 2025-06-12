@@ -189,12 +189,13 @@ export const loanRouteFarmerListAPI = async (dbName, languageId, token, user_id)
 }
 export const problemProduceAgainstPlotAPI = async (dbName, languageID, farmerID, relID) => {
     const axiosHeaders = {
-        headers: {
-            'information': `${dbName},${languageID}`,
-        },
+      headers: {
+        information: `${dbName},${languageID},${farmerID}`,
+      },
     };
     try {
-        let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
+        // let response = await axios.get(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`, axiosHeaders);
+        let response = await axios.get(`${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`, axiosHeaders);
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response)
