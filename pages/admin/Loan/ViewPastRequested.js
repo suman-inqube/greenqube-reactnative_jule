@@ -1,23 +1,18 @@
 import {
     StyleSheet, Text, View, FlatList, TouchableOpacity,
-    Image, Dimensions, ScrollView, BackHandler, SafeAreaView
+    Image, Dimensions, SafeAreaView, Keyboard
 } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import DatePickerComp from '../../Common/DatePickerComp';
-import Filter from '../../Common/Filter';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
-// import { loanRouteListAPI } from '../../../config/apiHere';
-import { getItem } from '../../../config/getDataFromStorage';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { loanRouteFarmerListAPI, loanRouteListAPI } from './LoanAPI';
-import { useTranslation } from 'react-i18next';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useSelector } from 'react-redux';
-import store from '../../redux/store';
+import React, { useState, useEffect, useContext } from 'react'
+import { useNavigation } from '@react-navigation/native';
+import { loanRouteListAPI } from './LoanAPI_copy';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewPastRequested = ({ setActiveBtn }) => {
-    const isFocused = useIsFocused();
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, LoadingScreen, t, Toast,
+        AlertMesg, getItem, Root, effective_dates, DatePickerComp, Filter, handleFilter,
+        farmerData } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
     const [filterOption, setFilterOption] = useState(false);
@@ -29,13 +24,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const [openToDate, setOpenToDate] = useState(false);
     const [fromDate, setfromDate] = useState("");
     const [toDate, setToDate] = useState("");
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
-    const [farmerData, setfarmerData] = useState([]);
     const [loanList, setLoanList] = useState([]);
     const [loanListRaw, setLoanListRaw] = useState([]);
     const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -47,9 +35,10 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     const [farmerID, setfarmerID] = useState();
     const [currency, setCurrencyt] = useState("");
     const [statusAll, setTtatusAll] = useState([
-        { value: 2, "label": 'Approved' },
-        { value: 1, "label": 'Pending' },
-        { value: 3, "label": 'Rejected' }]);
+        { value: 2, "label": t('Approved') },
+        { value: 1, "label": t('pending') },
+        { value: 3, "label": t('Rejected') }]);
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -73,106 +62,44 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setLoanList(loanListRaw);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
     }
     const handleDatePicker2 = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
     }
     const onPageLoad = async () => {
-        // requestLivePermission();
         setIsLoading(true);
-        const [loginUser_data, currency_res] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('currency')
-        ]);
-        setCurrencyt(currency_res)
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageID: lan_id,
-                token: token,
-                userID: user_id
-            })
-            const [response, farmerByName] = await Promise.all([
-                loanRouteListAPI(dbname, lan_id, token, user_id, "", "", ""),
-                loanRouteFarmerListAPI(dbname, lan_id, token, user_id)
-            ]);
-            if (response.status == 200) {
-                if (response.data.data.rows.length != 0) {
-                    setIsLoading(false);
-                    setLoanList(response.data.data.rows);
-                    setLoanListRaw(response.data.data.rows)
-                } else {
-                    setIsLoading(false);
-                    Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
-                }
-            }
-            if (farmerByName.status == 200) {
-                const dataArray = [];
-                farmerByName.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setfarmerData(dataArray)
+        const [currency_res, response] = await Promise.all([
+            getItem('currency'),
+            loanRouteListAPI(dbname, lan_id, token, user_id, "", "", "")
+        ])
+        if (response?.status == 200) {
+            if (response.data.data.rows.length != 0) {
+                Promise.all([
+                    setIsLoading(false),
+                    setLoanList(response.data.data.rows),
+                    setLoanListRaw(response.data.data.rows),
+                    setCurrencyt(currency_res)
+                ])
+            } else {
+                setIsLoading(false);
+                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
             }
         }
-    };
-    const handleFilter = async (search) => {
-        if (filterName === 'Farmer/Product Name') {
-            setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setLoanList(loanListRaw);
-            } else {
-                // let tempData = loanListRaw.filter(item => {
-                //     return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                // });
-                // setLoanList(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        } else if (filterName === 'PhoneNumber') {
-            setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
-            if (search == "") {
-                setSearchResultsList(false);
-                setLoanList(loanListRaw);
-            } else {
-                // let tempData = loanListRaw.filter(item => {
-                //     return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                // });
-                // setLoanList(tempData)
-                setSearchResultsList(true);
-            }
-            if (result) {
-                setSearchResults(result);
-            }
-        } else if (filterName === 'statusFilter') {
+    }
+    const handleFilterList = async (item) => {
+        if (filterName === 'Farmer/Product Name' || filterName === 'PhoneNumber') {
+            handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
+        }
+        // else if (filterName === 'PhoneNumber') {
+        //     handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
+        // }
+        else if (filterName === 'statusFilter') {
             setSearchResultsList(true);
             setStatusName(search);
-            const result = statusAll.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = statusAll.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setLoanList(loanListRaw);
@@ -182,7 +109,6 @@ const ViewPastRequested = ({ setActiveBtn }) => {
             if (result) {
                 setSearchResults(result);
             }
-
         }
     }
     const handleResultSelect = async (name, currentfarmerId, phone) => {
@@ -194,30 +120,19 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         setSearchResults([]);
         setfarmerID(currentfarmerId)
         if (name == "Pending" || name == "Rejected" || name == "Approved") {
-            let tempData = loanListRaw.filter(item => {
-                return item.status == currentfarmerId;
-            });
+            let tempData = loanListRaw.filter(item => { return item.status == currentfarmerId });
             setLoanList(tempData)
         } else if (name !== '') {
-            let tempData = loanListRaw.filter(item => {
-                return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1;;
-            });
+            let tempData = loanListRaw.filter(item => { return item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1 });
             setLoanList(tempData)
         } else {
-            let tempData = loanListRaw.filter(item => {
-                return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;;
-            });
+            let tempData = loanListRaw.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
             setLoanList(tempData)
         }
     }
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
-            let tempData = loanListRaw.filter(item => {
-                // return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                //     item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
-                return (item.created_at.slice(0, 10) >= fromDate &&
-                    item.created_at.slice(0, 10) <= toDate);
-            });
+            let tempData = loanListRaw.filter(item => { return (item.created_at.slice(0, 10) >= fromDate && item.created_at.slice(0, 10) <= toDate) });
             setLoanList(tempData)
         }
     }
@@ -236,6 +151,9 @@ const ViewPastRequested = ({ setActiveBtn }) => {
     }, [fromDate, toDate])
     useEffect(() => {
         onPageLoad();
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true); });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false); });
+        return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove() };
     }, [])
     const navigate = (LoanEnquiryDetail, item) => {
         navigation.navigate('LoanEnquiryDetail', item)
@@ -244,22 +162,11 @@ const ViewPastRequested = ({ setActiveBtn }) => {
         <Root>
             <SafeAreaView style={{ flex: 1 }}>
                 <View>
-                    {openFromDate && <DatePickerComp
-                        openDate={openFromDate}
-                        newDate={newFromDate}
-                        setOpenDate={setOpenFromDate}
-                        handleDatePicker={handleDatePicker}
-                    />}
-                    {openToDate && <DatePickerComp
-                        openDate={openToDate}
-                        newDate={newToDate}
-                        setOpenDate={setOpenToDate}
-                        handleDatePicker={handleDatePicker2}
-                        minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-                    />}
+                    {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
+                    {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
                     {
                         searchResultsList && searchResultsList ?
-                            <View style={styles.flatContainer}>
+                            <View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
                                 <FlatList
                                     showsVerticalScrollIndicator={false}
                                     style={searchResults.length > 8 ? styles.flatlistHeight : ""}
@@ -287,7 +194,7 @@ const ViewPastRequested = ({ setActiveBtn }) => {
                             setOpenFromDate={setOpenFromDate}
                             filterOptionShow={filterOptionShow}
                             onchangeFilterItem={onchangeFilterItem}
-                            onChangeText={(item) => handleFilter(item)}
+                            onChangeText={(item) => handleFilterList(item)}
                             FarmerProductNameValue={searchFarmerName}
                             FarmerProductPhoneValue={searchFarmerPhone}
                             statusNameValue={statusName}
@@ -355,7 +262,8 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         position: 'absolute',
-        top: 200,
+        top: '70%',
+        // buttom: 200,
         right: 20,
         zIndex: 999
     },
@@ -363,7 +271,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         position: 'absolute',
         zIndex: 999,
-        bottom: '100%',
+        // bottom: '100%',
+        top: '10%',
+        left: 0,
+        marginHorizontal: '5%',
+        width: '90%',
+        elevation: 10,
+        borderRadius: 10,
+        padding: 10
+    },
+    flatContainerLengthUp: {
+        backgroundColor: '#ffffff',
+        position: 'absolute',
+        zIndex: 999,
+        // bottom: '100%',
+        top: '15%',
         left: 0,
         marginHorizontal: '5%',
         width: '90%',

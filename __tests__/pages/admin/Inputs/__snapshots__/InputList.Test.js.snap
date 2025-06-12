@@ -1,0 +1,214 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<View
+  style={
+    {
+      "flex": 1,
+    }
+  }
+>
+  <View
+    style={
+      {
+        "flex": 1,
+        "marginHorizontal": "2.5%",
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "flex-end",
+          "width": "95%",
+        }
+      }
+    >
+      <Text
+        style={
+          [
+            {
+              "color": "#000",
+              "fontFamily": "Poppins-SemiBold",
+              "fontSize": 18,
+              "paddingBottom": 8,
+              "paddingTop": 4,
+            },
+          ]
+        }
+      >
+        products
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "flexDirection": "row",
+          "justifyContent": "space-between",
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "width": "45%",
+          }
+        }
+      >
+        <View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#FFF",
+                "borderRadius": 8,
+                "elevation": 10,
+                "marginBottom": 15,
+              }
+            }
+          >
+            <select
+              onChange={[Function]}
+              value=""
+            />
+          </View>
+        </View>
+      </View>
+      <View
+        style={
+          {
+            "width": "45%",
+          }
+        }
+      >
+        <View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#FFF",
+                "borderRadius": 8,
+                "elevation": 10,
+                "marginBottom": 15,
+              }
+            }
+          >
+            <select
+              onChange={[Function]}
+              value=""
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+    <View
+      style={
+        {
+          "position": "relative",
+          "top": 100,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "center",
+            "backgroundColor": "transparent",
+            "justifyContent": "center",
+          }
+        }
+      >
+        <ActivityIndicator
+          color="#085610"
+          size="large"
+        />
+      </View>
+    </View>
+    <RCTScrollView
+      data={[]}
+      getItem={[Function]}
+      getItemCount={[Function]}
+      keyExtractor={[Function]}
+      onContentSizeChange={[Function]}
+      onLayout={[Function]}
+      onMomentumScrollBegin={[Function]}
+      onMomentumScrollEnd={[Function]}
+      onScroll={[Function]}
+      onScrollBeginDrag={[Function]}
+      onScrollEndDrag={[Function]}
+      removeClippedSubviews={false}
+      renderItem={[Function]}
+      scrollEventThrottle={50}
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
+      stickyHeaderIndices={[]}
+      viewabilityConfigCallbackPairs={[]}
+    >
+      <View />
+    </RCTScrollView>
+    <View
+      style={
+        {
+          "backgroundColor": "#009200",
+          "borderBottomLeftRadius": 25,
+          "borderTopLeftRadius": 25,
+          "paddingLeft": 10,
+          "paddingRight": 25,
+          "paddingVertical": 2,
+          "position": "absolute",
+          "right": "-6%",
+          "top": "70%",
+          "zIndex": 99,
+        }
+      }
+    >
+      <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
+        accessibilityValue={
+          {
+            "max": undefined,
+            "min": undefined,
+            "now": undefined,
+            "text": undefined,
+          }
+        }
+        accessible={true}
+        collapsable={false}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
+        style={
+          {
+            "opacity": 1,
+          }
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#ffff",
+              "fontFamily": "Poppins-Regular",
+              "paddingLeft": 20,
+            }
+          }
+        >
+          view_input_requested
+        </Text>
+      </View>
+    </View>
+  </View>
+</View>
+`;

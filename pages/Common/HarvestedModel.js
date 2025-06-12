@@ -1,11 +1,13 @@
 
 import React from 'react'
 import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 const HarvestedModel = ({
     setModalVisible,
     modalVisible,
     handleHarvested
 }) => {
+    const { t } = useTranslation();
     return (
         <View style={styles.centeredView}>
             <Modal
@@ -18,12 +20,12 @@ const HarvestedModel = ({
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalHedingText}>Your previous crop has been harvested Please add a crop</Text>
+                        <Text style={styles.modalHedingText}>{t('your_previous_crop_hervested')} {t('add_a_new_crop')}</Text>
                         <TouchableOpacity style={styles.item} onPress={() => { handleHarvested("Yes"); setModalVisible(!modalVisible) }}>
-                            <Text style={styles.title}>Yes</Text>
+                            <Text style={styles.title}>{t('yes')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.item} onPress={() => { handleHarvested("No"); setModalVisible(!modalVisible) }}>
-                            <Text style={styles.title}>No</Text>
+                            <Text style={styles.title}>{t('no')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

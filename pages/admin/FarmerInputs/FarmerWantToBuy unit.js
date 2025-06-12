@@ -142,12 +142,15 @@ const FarmerWantToBuy = ({ navigation }) => {
             if (harvesting_date > currentDate) {
                 setShowingMenu(true)
             } else {
-                MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+                // MessageDialog({ title: 'Importent', message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
+                Toast.show({ time: 3, text: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}`, ...AlertMesg[0] })
                 // setSearchFarmerName('')
                 // setSearchFarmerPhone('')
                 setplotAll([])
                 setModalVisible(true);
-                navigation.navigate('FarmerDashboard');
+                setTimeout(() => {
+                    navigation.navigate('FarmerDashboard');
+                }, 1300);
             }
         }
     }
@@ -280,7 +283,8 @@ const FarmerWantToBuy = ({ navigation }) => {
                 //
                 const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
                 if (database_res) {
-                    MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
+                    // MessageDialog({ title: 'Successful', message: t('Data_submitted_successfully') })
+                    Toast.show({ time: 3, text: `${t('Data_submitted_successfully')}`, ...AlertMesg[0] })
                     setShowingMenu(false);
                     setSearchFarmerName("");
                     setSearchFarmerPhone("");
@@ -289,8 +293,10 @@ const FarmerWantToBuy = ({ navigation }) => {
                             delete saveData[key];
                         }
                     }
-                    setFormStep(1)
-                    navigation.navigate('FarmerInputList');
+                    setFormStep(1);
+                    setTimeout(() => {
+                        navigation.navigate('FarmerInputList');
+                    }, 1300);
                 }
 
             }

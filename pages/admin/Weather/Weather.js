@@ -1,23 +1,26 @@
 import { StyleSheet, Text, View, Image, Dimensions, FlatList, TouchableOpacity, ImageBackground, ScrollView, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
-const { width, height } = Dimensions.get('window');
-var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-let weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()]
-import { openweathermapAPI } from './openweathermapAPI';
-import Geolocation from '@react-native-community/geolocation';
-const todayDate = new Date().toISOString().slice(0, 10);
+const { height } = Dimensions.get('window');
 import UniqueDateController from './UniqueDate';
 import moment from "moment";
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert'
+import { Root } from 'react-native-popup-confirm-toast';
 import LoadingScreen from '../../Common/LoadingScreen';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
+const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+};
 const Weather = () => {
     const navigation = useNavigation();
     const route = useRoute();
     // const { latLong } = route.params;
-    const { weathermapReport, accuweatherReport, weathermapReportCity, IsLoading } = UniqueDateController();
+    const { weathermapReport, weathermapReportCity, IsLoading } = UniqueDateController();
     const [open, setopen] = useState("");
     const collapsing = (date) => {
         if (open != date) {
@@ -36,28 +39,30 @@ const Weather = () => {
                 <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} banner={true} />
                 <ImageBackground source={require('../../Common/images/weather_bg.png')} style={styles.image}>
                     {IsLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : <>
-                        <Text style={styles.headerText}>{weathermapReportCity.name && 'weather'} {weathermapReportCity.name}  {weathermapReportCity.country}</Text>
+                        {/* <Text style={styles.headerText}>{`${weathermapReportCity?.name}, ${weathermapReportCity?.sys?.country}`}</Text> */}
                         <View style={styles.table}>
                             <View style={styles.thead}>
-                                <Text style={[styles.text, { fontSize: 20, textAlign: 'left' }]}>{weathermapReportCity.name && 'Now'}</Text>
+                                {/* <Text style={[styles.text, { fontSize: 20, textAlign: 'left' }]}>{weathermapReportCity.name && 'Now'}</Text> */}
+                                <Text style={styles.headerText}>Weather {`${weathermapReportCity?.name}, ${weathermapReportCity?.sys?.country}`}</Text>
                                 <View style={styles.th}>
-                                    <Text style={[styles.text, { fontSize: 60 }]}>{weathermapReport[0] && weathermapReport[0].main.temp_max}</Text>
-                                    <Text style={[styles.text, { fontSize: 28 }]}>{weathermapReport[0] && `°C  ${weathermapReport[0].weather[0].main}`}</Text>
+                                    <Text style={[styles.text, { fontSize: 20 }]}>Now</Text>
+                                    <Text style={[styles.text, { fontSize: 60 }]}>  {weathermapReportCity?.main?.temp.toFixed(0)} °C</Text>
+                                    {/* <Text style={[styles.text, { fontSize: 28 }]}>{weathermapReport[0] && `°C  ${weathermapReport[0].weather[0].main}`}</Text> */}
                                 </View>
-                                <Text style={styles.text}>{weathermapReport[0] && moment(weathermapReport[0].dt_txt).utc().format('MMMM Do YYYY')}</Text>
+                                {/* <Text style={[styles.text, { fontSize: 20 }]}>{`${weathermapReportCity?.name}, ${weathermapReportCity?.sys?.country}`}</Text> */}
                             </View>
                             <View style={{ height: 100 }}>
                                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                                     {
-                                        accuweatherReport.map((data, index) => {
-                                            const dataSplit = data.DateTime.split('T');
+                                        weathermapReport?.hourly?.map((data, index) => {
+                                            const new_date = new Date(data.dt * 1000).toLocaleString('en-US', options).split(" ");
                                             return (
-                                                <View key={index} style={{ padding: 10 }}>
-                                                    <Text style={styles.text}>{dataSplit[1].substring(0, 4)}{dataSplit[1].substring(0, 2) < 12 ? 'AM' : 'PM'}</Text>
+                                                <View key={index} style={{ alignItems: 'center', marginHorizontal: 10 }}>
+                                                    <Text style={styles.text}>{new_date[1].split(':')[0].length == 2 ? new_date[1].substring(0, 5) : new_date[1].substring(0, 4)}{new_date[2]}</Text>
                                                     <Image source={{
-                                                        uri: `https://weather.ls.hereapi.com/static/weather/icon/${data.WeatherIcon}.png`
-                                                    }} style={{ width: 60, height: 60 }} />
-                                                    <Text style={styles.text}>{data.Temperature.Value} °{data.Temperature.Unit}</Text>
+                                                        uri: `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
+                                                    }} style={{ width: 60, height: 50 }} />
+                                                    <Text style={styles.text}>{data.temp.toFixed(0)} °C </Text>
                                                 </View>
                                             )
                                         })
@@ -66,32 +71,31 @@ const Weather = () => {
                             </View>
                             <ScrollView showsVerticalScrollIndicator={false}>
                                 {
-                                    weathermapReport.map((data, index) => {
-                                        // console.log(data.main.temp_max.toFixed(0))
-                                        // console.log("***")
-                                        // console.log(data.main.temp_min.toFixed(0))
+                                    weathermapReport?.daily?.map((data, index) => {
                                         return (
                                             <View key={index} style={{ width: '100%' }}>
-                                                <TouchableOpacity key={index} style={styles.tbody} onPress={() => { collapsing(days[new Date(data.dt_txt).getDay()]) }}>
+                                                <TouchableOpacity key={index} style={styles.tbody} onPress={() => { collapsing(data.dt) }}>
                                                     <Text style={[styles.text, { width: '33%', fontSize: 14 }]}>
-                                                        {index == 0 && 'Today'}{index == 1 && 'Tomorrow'} {index != 0 && index != 1 && days[new Date(data.dt_txt).getDay()]}
+                                                        {/* {index == 0 && 'Today'}{index == 1 && 'Tomorrow'} {index != 0 && index != 1 && days[new Date(data.dt_txt).getDay()]} */}
+                                                        {new Date(data.dt * 1000).toUTCString().substring(-1, 11)}
                                                     </Text>
                                                     <View>
+                                                        {/* https://openweathermap.org/img/wn/10d@2x.png */}
                                                         <Image source={{
-                                                            uri: `http://openweathermap.org/img/w/${data.weather[0].icon}.png`
+                                                            uri: `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
                                                         }} style={{ width: 60, height: 60 }} />
                                                     </View>
                                                     <Text style={[styles.text, { width: '33%', fontSize: 14 }]}>{data.weather[0].main}</Text>
-                                                    <Text style={[styles.text, { width: '33%', fontSize: 14 }]}>{data.main.temp_max}/{(data.main.temp_min - 1).toFixed(2)}'°C'</Text>
+                                                    <Text style={[styles.text, { width: '33%', fontSize: 14 }]}>{data.temp.max.toFixed(0)}/{data.temp.min.toFixed(0)}'°C'</Text>
                                                 </TouchableOpacity>
                                                 {
-                                                    open == days[new Date(data.dt_txt).getDay()] ?
+                                                    open == data.dt ?
                                                         <View style={{ marginHorizontal: '10%', borderTopWidth: 1, borderBlockColor: '#FFF', justifyContent: 'space-between' }}>
                                                             <View style={{ flexDirection: 'row', justifyContent: 'space-around', borderBottomWidth: 1, borderColor: '#FFF' }}>
                                                                 <View style={{ width: '46%', marginHorizontal: '2%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                     <View >
                                                                         <Text style={styles.text_texp}>Max Temp</Text>
-                                                                        <Text style={styles.text_texp}>{data.main.temp_max} '°C'</Text>
+                                                                        <Text style={styles.text_texp}>{data.temp.max.toFixed(0)} '°C'</Text>
                                                                     </View>
                                                                     <View style={{ flexDirection: 'column' }}>
                                                                         <Image source={require('../../Common/images/min_temp.png')} style={{ width: 40, height: 40 }} />
@@ -101,7 +105,7 @@ const Weather = () => {
                                                                 <View style={{ width: '46%', marginHorizontal: '2%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                     <View>
                                                                         <Text style={styles.text_texp}>Min Temp</Text>
-                                                                        <Text style={styles.text_texp}>{(data.main.temp_min - 1).toFixed(2)} '°C'</Text>
+                                                                        <Text style={styles.text_texp}>{(data.temp.min).toFixed(0)} '°C'</Text>
                                                                     </View>
                                                                     <View style={{ flexDirection: 'column' }}>
                                                                         <Image source={require('../../Common/images/max_temp.png')} style={{ width: 40, height: 40 }} />
@@ -112,7 +116,7 @@ const Weather = () => {
                                                                 <View style={{ width: '46%', marginHorizontal: '2%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                     <View>
                                                                         <Text style={styles.text_texp}>Wind</Text>
-                                                                        <Text style={styles.text_texp}>{`${data.wind.speed}`}</Text>
+                                                                        <Text style={styles.text_texp}>{`${data.wind_speed}`}</Text>
                                                                     </View>
                                                                     <View style={{ flexDirection: 'column' }}>
                                                                         <Image source={require('../../Common/images/nnw_wind.png')} style={{ width: 40, height: 40 }} />
@@ -122,7 +126,7 @@ const Weather = () => {
                                                                 <View style={{ width: '46%', marginHorizontal: '2%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                     <View>
                                                                         <Text style={styles.text_texp}>Rain</Text>
-                                                                        <Text style={styles.text_texp}>{`${data.clouds.all} %`}</Text>
+                                                                        <Text style={styles.text_texp}>{`${data.clouds} %`}</Text>
                                                                     </View>
                                                                     <View style={{ flexDirection: 'column' }}>
                                                                         <Image source={require('../../Common/images/rain.png')} style={{ width: 40, height: 40 }} />
@@ -133,7 +137,7 @@ const Weather = () => {
                                                                 <View style={{ width: '46%', marginHorizontal: '2%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                     <View>
                                                                         <Text style={styles.text_texp}>humidity</Text>
-                                                                        <Text style={styles.text_texp}>{data.main.humidity} %</Text>
+                                                                        <Text style={styles.text_texp}>{data.humidity} %</Text>
                                                                     </View>
                                                                     <View style={{ flexDirection: 'column' }}>
                                                                         <Image source={require('../../Common/images/humidity.png')} style={{ width: 40, height: 40 }} />
@@ -143,7 +147,7 @@ const Weather = () => {
                                                                 <View style={{ width: '46%', marginHorizontal: '2%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                                     <View>
                                                                         <Text style={styles.text_texp}>Pressure</Text>
-                                                                        <Text style={styles.text_texp}>{data.main.pressure} pa</Text>
+                                                                        <Text style={styles.text_texp}>{data.pressure} pa</Text>
                                                                     </View>
                                                                     <View style={{ flexDirection: 'column' }}>
                                                                         <Image source={require('../../Common/images/nnw_wind.png')} style={{ width: 40, height: 40 }} />
@@ -187,8 +191,7 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         color: '#FFF',
         fontSize: 25,
-        margin: 10,
-        marginTop: 40
+        margin: 5,
     },
     table: {
         flex: 1,
@@ -198,12 +201,16 @@ const styles = StyleSheet.create({
     },
     thead: {
         width: '80%',
-        marginHorizontal: 'auto'
+        marginHorizontal: 'auto',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     th: {
+        marginHorizontal: '16%',
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end'
+        // justifyContent: 'space-around',
+        alignItems: 'center',
+        textAlign: 'center',
     },
     text: {
         fontSize: 15,

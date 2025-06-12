@@ -1022,5 +1022,21 @@
     "payment_mode": "ચુકવણી મોડ",
     "cheque": "તપાસો",
     "product_sub_category": "ઉત્પાદન પેટા શ્રેણી",
-    "closed": "closed"
+    "closed": "બંધ",
+    "Approved": "મંજૂર",
+    "Rejected": "નકારેલ",
+    "SanctionedDate": "મંજૂર તારીખ",
+    "LoanOrderID": "લોન ઓર્ડર ID",
+    "LoanSanctioned": "લોન મંજૂર",
+    "AddLocation": "સ્થાન ઉમેરો",
+    "Please_enter_activity_type": "કૃપા કરીને પ્રવૃત્તિનો પ્રકાર દાખલ કરો",
+    "Data_submitted_successfully": "ડેટા સફળતાપૂર્વક સબમિટ કરો",
+    "Please_enter_activity": " કૃપા કરીને પ્રવૃત્તિ દાખલ કરો",
+    "Password_update_successfully": "પાસવર્ડ સફળતાપૂર્વક અપડેટ કરો",
+    "Old_Password_Is_Incorrect": "જૂનો પાસવર્ડ ખોટો છે",
+    "Please_try_again_some_time_later": "કૃપા કરીને થોડીવાર પછી ફરી પ્રયાસ કરો",
+    "Please_enter_perform_date": "કૃપા કરીને પરફોર્મ કરવાની તારીખ દાખલ કરો",
+    "Please_try_again_to_reach_the_accurancy": "કૃપા કરીને ચોકસાઈ સુધી પહોંચવા માટે ફરી પ્રયાસ કરો",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount"
 }

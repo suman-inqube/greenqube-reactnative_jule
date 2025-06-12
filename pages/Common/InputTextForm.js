@@ -1,16 +1,36 @@
 import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
 import React, { memo } from 'react'
 
-const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname, maxLength, editable }) => {
+const InputTextForm = ({
+  value,
+  color,
+  label,
+  onChangeText,
+  keyboardType,
+  onBlur,
+  refname,
+  maxLength,
+  editable,
+  placeholder,
+}) => {
   const scheme = useColorScheme();
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
   return (
     <>
-      <Text style={[styles.title, { color: color ?? 'black' }]}>{labelString}</Text>
+      <Text style={[styles.title, {color: color ?? 'black'}]}>
+        {labelString}
+      </Text>
       <View style={styles.container}>
         <TextInput
-          style={[styles.simpleInputTextStyle, { color: 'black', backgroundColor: editable == false ? '#FFF' : "#FFF", borderColor: editable == false ? "#ffffff" : "#FFFF" }]}
-          //  style={[styles.simpleInputTextStyle, { color: 'black' }]} 
+          style={[
+            styles.simpleInputTextStyle,
+            {
+              color: 'black',
+              backgroundColor: editable == false ? '#FFF' : '#FFF',
+              borderColor: editable == false ? '#ffffff' : '#FFFF',
+            },
+          ]}
+          //  style={[styles.simpleInputTextStyle, { color: 'black' }]}
           onChangeText={onChangeText}
           onBlur={onBlur}
           value={value}
@@ -18,11 +38,13 @@ const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur
           ref={refname}
           maxLength={maxLength}
           editable={editable}
+          placeholder={placeholder}
+          placeholderTextColor="#808080"
         />
       </View>
     </>
-  )
-}
+  );
+};
 
 export default memo(InputTextForm)
 

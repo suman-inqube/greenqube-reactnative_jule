@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`YourComponent Tests should render correctly inside NavigationContainer 1`] = `<notificationServices />`;

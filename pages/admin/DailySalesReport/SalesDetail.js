@@ -1,37 +1,21 @@
-import { StyleSheet, Text, View, ScrollView, Image, BackHandler } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import InputTextForm from '../../Common/InputTextForm';
+import { StyleSheet, Text, View, ScrollView, Image } from 'react-native'
+import React, { useCallback, useContext } from 'react'
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const SalesDetail = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { CustomHeader, t, onBackPress, logoImage, topBanner, FormsTitle, InputTextForm } = useContext(userCreateContext);
+    //GQR-67
     const route = useRoute();
     const navigation = useNavigation();
     const { salesUser, createdAt, ord_rcv, pay_rcv, comment, srFiles, srProducts } = route.params;
     const images = [1, 2, 3];
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                navigation.navigate('DailySalesReport');
-                return true;
-            };
-            BackHandler.addEventListener(
-                'hardwareBackPress', onBackPress
-            );
-            return () =>
-                BackHandler.removeEventListener(
-                    'hardwareBackPress', onBackPress
-                );
-        }, [])
-    );
-    const HandlerGoBack = () => {
-        navigation.navigate('DailySalesReport');
-    }
+    const handleBackPress = () => { navigation.navigate('DailySalesReport'); return true; }
+    useFocusEffect(useCallback(() => { onBackPress(handleBackPress) }, []));
+    const HandlerGoBack = () => navigation.navigate('DailySalesReport');
     return (
         <View style={{ flex: 1 }}>
-            <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t('sales_detail')} />
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.formContainer}>
@@ -87,9 +71,7 @@ const SalesDetail = () => {
         </View>
     )
 }
-
 export default SalesDetail
-
 const styles = StyleSheet.create({
     formContainer: {
         width: '90%',

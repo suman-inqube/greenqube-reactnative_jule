@@ -1,28 +1,22 @@
 import { StyleSheet, Text, View, ScrollView, Image } from 'react-native'
-import React from 'react';
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { useTranslation } from 'react-i18next';
-import ButtonForm from '../../Common/ButtonForm';
-import DropdownForm from '../../Common/DropdownForm';
+import React, { useContext } from 'react';
 import SoilHealthManagementController from '../../ViewController/SoilHealthManagementController';
-import InputTextForm from '../../Common/InputTextForm';
-import { Root } from 'react-native-popup-confirm-toast';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PostRequest = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { t, CustomHeader, FormsTitle, logoImage, topBanner, Root, ButtonForm, DropdownForm, InputTextForm } = useContext(userCreateContext);
+    //GQR-67
     const { plotList, onChangePlot, cropDetails,
         soilTestLabList, productionStage, onChangeGrothStage,
         onChangeSoilLab, HandlerGoBack, saveData } = SoilHealthManagementController('');
     return (
         <Root>
             <View style={styles.container}>
-                <CustomHeader HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')} />
+                <CustomHeader HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')} logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={t('request_soil_testing')} />
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.scrollContainer}>
-                        <DropdownForm label={t('agent_crop_problem_plot')}
-                            data={plotList} onChange={onChangePlot}
-                        />
+                        <DropdownForm label={t('agent_crop_problem_plot')} data={plotList} onChange={onChangePlot} />
                         {cropDetails?.produceName != "" &&
                             <>
                                 <InputTextForm label={t('produce_name')} value={cropDetails?.produceName} />

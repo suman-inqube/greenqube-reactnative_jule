@@ -1,5 +1,5 @@
 import VersionCheck from 'react-native-version-check';
-import { Alert } from 'react-native';
+import { Alert, Linking } from 'react-native';
 export const checkAppVersion = async () => {
     try {
         const latestVersion = await VersionCheck.getLatestVersion({ provider: 'playStore', packageName: 'com.inqube.greenqube', ignoreErrors: true });

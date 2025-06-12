@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
-import CustomHeader from '../CustomHeader';
-import FormsTitle from '../../Common/FormsTitle';
-import { useTranslation } from 'react-i18next';
+import React, { useContext } from 'react'
 import SoilHealthManagementController from '../../ViewController/SoilHealthManagementController';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const SoilHealthManagement = () => {
-    const { t } = useTranslation()
+    //GQR-67
+    const { t, CustomHeader, FormsTitle, logoImage, topBanner } = useContext(userCreateContext);
+    //GQR-67
     const { navigateToPages, HandlerGoBack } = SoilHealthManagementController('');
     return (
         <View style={styles.container}>
-            <CustomHeader HandlerGoBack={() => HandlerGoBack('FarmerDashboard')} />
+            <CustomHeader HandlerGoBack={() => HandlerGoBack('FarmerDashboard')} logoImage={logoImage} topBanner={topBanner} />
             <FormsTitle title={t("soil_health_management")} />
             <View style={styles.containerItem}>
                 <TouchableOpacity style={styles.itemList} onPress={() => navigateToPages("PostRequest")}>

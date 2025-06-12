@@ -1,20 +1,14 @@
-import {
-    StyleSheet, Text,
-    View, FlatList, TouchableOpacity, Image, SafeAreaView, ScrollView, Dimensions
-} from 'react-native'
-import React, { useState, useEffect } from 'react'
-import DatePickerComp from '../../Common/DatePickerComp';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useState, useEffect, useContext } from 'react';
 import Filter from '../../Common/FarmerFilter';
 import ViewPast from './FarmerViewPast';
-import {
-    FarmerInsuranceListAPI,
-} from '../../../config/apiHere';
-import { loanRouteFarmerListAPI } from '../Loan/LoanAPI';
-import { getItem } from '../../../config/getDataFromStorage';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { useTranslation } from 'react-i18next';
+import { FarmerInsuranceListAPI } from '../../../config/apiHere';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewPastRequested = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, FormsTitle, effective_dates, LoadingScreen, onBackPress, CustomHeader, DatePickerComp, t, getItem } = useContext(userCreateContext);
+    const { dbname, lan_id, token, owner, user_id } = loginUser_data;
+    //GQR-67
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");
     const [filterName, setFilterName] = useState("");
@@ -33,12 +27,6 @@ const ViewPastRequested = () => {
     const [searchResultsList, setSearchResultsList] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [modalVisibleData, setModalVisibleData] = useState({});
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: ''
-    });
     const [farmerData, setfarmerData] = useState([]);
     const filterOptionShow = () => {
         if (!filterOption) {
@@ -55,53 +43,39 @@ const ViewPastRequested = () => {
         setFilterOption(false);
     }
     const handleDatePicker = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         if (toDate) {
-            const response = await FarmerInsuranceListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, effective_date, toDate);
+            const response = await FarmerInsuranceListAPI(dbname, lan_id, token, user_id, effective_date, toDate);
             if (response) {
                 setIsLoading(false);
-                setInsuranceList(response.data.data.rows);
-                setInsuranceListRow(response.data.data.rows)
+                setInsuranceList(response?.data?.data?.rows);
+                setInsuranceListRow(response?.data?.data?.rows)
             }
         }
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDate) {
-            const response = await FarmerInsuranceListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, fromDate, effective_date);
-            if (response) {
+            const response = await FarmerInsuranceListAPI(dbname, lan_id, token, user_id, fromDate, effective_date);
+            if (response?.status == 200) {
                 setIsLoading(false);
-                setInsuranceList(response.data.data.rows);
-                setInsuranceListRow(response.data.data.rows)
+                setInsuranceList(response?.data?.data?.rows);
+                setInsuranceListRow(response?.data?.data?.rows)
             }
-
         }
-
-
-
     }
     const handleFilter = (search) => {
         if (filterName === 'Farmer/Product Name') {
             setSearchFarmerPhone('');
             setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setInsuranceList(insuranceListRow);
             } else {
-                let tempData = insuranceList.filter(item => {
-                    return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                });
+                let tempData = insuranceList.filter(item => { return item.agri_user.userName.toLowerCase().indexOf(search.toLowerCase()) > -1; });
                 setInsuranceList(tempData)
                 setSearchResultsList(true);
             }
@@ -111,16 +85,12 @@ const ViewPastRequested = () => {
         } else if (filterName === 'PhoneNumber') {
             setSearchFarmerName('');
             setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.phone.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setInsuranceList(insuranceListRow)
             } else {
-                let tempData = insuranceList.filter(item => {
-                    return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
-                });
+                let tempData = insuranceList.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1; });
                 setInsuranceList(tempData);
                 setSearchResultsList(false);
             }
@@ -132,25 +102,11 @@ const ViewPastRequested = () => {
 
     const onPageLoad = async () => {
         setIsLoading(true);
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const dbName = loginUser_data.dbname;
-            const languageID = loginUser_data.lan_id;
-            const token = loginUser_data.token;
-            const userID = loginUser_data.user_id;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbName,
-                languageID: languageID,
-                token: token,
-                userID: userID
-            })
-            const response = await FarmerInsuranceListAPI(dbName, languageID, token, userID, "", "");
-            if (response) {
-                setIsLoading(false);
-                setInsuranceList(response.data.data.rows);
-                setInsuranceListRow(response.data.data.rows)
-            }
+        const response = await FarmerInsuranceListAPI(dbname, lan_id, token, user_id, "", "");
+        if (response?.status == 200) {
+            setIsLoading(false);
+            setInsuranceList(response?.data?.data?.rows);
+            setInsuranceListRow(response?.data?.data?.rows)
         }
     };
     const filterDataRemove = async () => {
@@ -158,18 +114,17 @@ const ViewPastRequested = () => {
         setFilterOption(false);
         setToDate("");
         setfromDate("");
-        const response = await FarmerInsuranceListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, dbLanTokUsr.userID, "", "");
-        if (response) {
+        const response = await FarmerInsuranceListAPI(dbname, lan_id, token, user_id, "", "");
+        if (response?.status == 200) {
             setIsLoading(false);
-            setInsuranceList(response.data.data.rows);
-            setInsuranceListRow(response.data.data.rows)
+            setInsuranceList(response?.data?.data?.rows);
+            setInsuranceListRow(response?.data?.data?.rows)
         }
     }
     const filterfromAndToDate = () => {
         if (fromDate != "" && toDate != "") {
             let tempData = insuranceList.filter(item => {
-                return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate &&
-                    item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
+                return (item.agri_user.CreateDateTime.slice(0, 10) >= fromDate && item.agri_user.CreateDateTime.slice(0, 10) <= toDate);
             });
             setInsuranceList(tempData)
         }
@@ -189,23 +144,8 @@ const ViewPastRequested = () => {
     }
     return (
         <View style={{ flex: 1 }}>
-            <DatePickerComp
-                openDate={openFromDate}
-                newDate={newFromDate}
-                setOpenDate={setOpenFromDate}
-                handleDatePicker={handleDatePicker}
-            />
-            <DatePickerComp
-                openDate={openToDate}
-                newDate={newToDate}
-                setOpenDate={setOpenToDate}
-                handleDatePicker={handleDatePicker2}
-                minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)}
-            />
-
-            {/* <TouchableOpacity style={styles.plusIcon}>
-                <Image source={require('../../Common/images/plus.png')} style={{ width: 50, height: 50 }} />
-            </TouchableOpacity> */}
+            <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
+            <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />
             {
                 insuranceList.length != 0 ?
                     <ViewPast setModalVisible={setModalVisible} modalVisible={modalVisible}
@@ -213,7 +153,6 @@ const ViewPastRequested = () => {
                         modalVisibleData={modalVisibleData}
                     /> : null
             }
-
             <View>
                 <Filter
                     filterItem={filterItem}
@@ -274,7 +213,6 @@ const styles = StyleSheet.create({
     },
     flatListItem: {
         width: '50%',
-
     },
     plusIcon: {
         width: 50,

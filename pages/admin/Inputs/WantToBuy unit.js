@@ -228,7 +228,7 @@ const WantToBuy = ({ navigation }) => {
         }
         if (!saveData.unit_id) {
             Toast.show({
-                time: 2, text: 'Please enter unit', ...AlertMesg[0]
+                time: 2, text: t('please_select_unit_first'), ...AlertMesg[0]
             })
             return false;
         }
@@ -274,7 +274,7 @@ const WantToBuy = ({ navigation }) => {
                 const database_res = await inputSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.token, saveData.farmer_id, formData);
                 if (database_res) {
                     Toast.show({
-                        time: 2, text: `${t('Data submitted successfully')}`, ...AlertMesg[0]
+                        time: 2, text: t('Data_submitted_successfully'), ...AlertMesg[0]
                     });
                     setShowingMenu(false);
                     setSearchFarmerName("");
@@ -427,9 +427,7 @@ const WantToBuy = ({ navigation }) => {
     );
 
 
-    const HandlerGoBack = () => {
-        navigation.navigate('InputList');
-    }
+    const HandlerGoBack = () => navigation.navigate('InputList');
     const handleHarvested = async (data) => {
         if (data == 'Yes') {
             navigation.navigate('Dashboard');

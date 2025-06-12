@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { memo } from 'react'
 
 const FormsTitle = ({
     title
@@ -13,7 +13,7 @@ const FormsTitle = ({
     )
 }
 
-export default FormsTitle
+export default memo(FormsTitle)
 
 const styles = StyleSheet.create({
     titleContainer: {

@@ -1,6 +1,8 @@
 import config from "../../../config";
 import axios from 'axios';
 import { CrashlyticsRecordError } from "../../Crashlytics/CrashlyticsRecordError";
+const timeoutConfig = {timeout: 5000};
+
 export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) => {
     const axiosHeaders = {
         headers: {
@@ -16,6 +18,81 @@ export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, far
         return console.log("error in plotAgainstFarmerAPI " + error.response);
     }
 }
+
+export const farmerDocAPI = async (
+  dbName,
+  languageID,
+  token,
+  farmerID,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageID}`,
+    },
+  };
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}loginSignupRoute/onlydetails/${farmerID}`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
+    return console.log('error in farmerDocAPI ' + error.response);
+  }
+};
+
+
+export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageId},${farmerID}`,
+    },
+  };
+
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}landRoute/getPlotImgs/${plotId}`,
+      {...axiosHeaders, ...timeoutConfig},
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
+    return console.log('error in updateUserInfoAPI api' + error.response);
+  }
+};
+
+export const addPlotImageAPI = async (
+  dbName,
+  languageID,
+  token,
+  farmerID,
+  formData,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageID},${farmerID}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  try {
+    let response = await axios.post(
+      `${config.BASE_URL}landRoute/addPlotImgs`,
+      formData,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+    console.log(error.response?.data)
+    // CrashlyticsRecordError(error.response);
+    // return console.log('error in addPlotImageAPI ' + error.response);
+  }
+};
+
 export const loanPurposeAPI = async (dbName, languageId, token) => {
     const axiosHeaders = {
         headers: {
@@ -47,7 +124,6 @@ export const Addloan = async (dbName, languageId, token, user_id, inputValue) =>
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response)
-        // return console.log("error in updateUserInfoAPI api" + error.response);
         return error.response;
     }
 }
@@ -69,6 +145,33 @@ export const loanRouteListAPI = async (dbName,
         return error.response;
     }
 }
+export const deletePlotImageAPI = async (
+  dbName,
+  languageId,
+  token,
+  fromdata
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageId}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    data: fromdata,
+  };
+  try {
+    let response = await axios.delete(
+      config.BASE_URL + `optionRoute/deleteFile`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    console.log('dele cat')
+    console.log(error.response?.data)
+    // CrashlyticsRecordError(error.response);
+    return error.response;
+  }
+};
 export const loanRouteFarmerListAPI = async (dbName, languageId, token, user_id) => {
     const axiosHeaders = {
         headers: {

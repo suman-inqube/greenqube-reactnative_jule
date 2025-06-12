@@ -79,8 +79,8 @@ android {
         applicationId "com.inqube.greenqube"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 65
-        versionName "6.3"
+        versionCode 92
+        versionName "9.0"
     }
     signingConfigs {
         debug {
@@ -108,7 +108,7 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     
-  implementation 'com.facebook.fresco:animated-gif:2.6.0'
+//   implementation 'com.facebook.fresco:animated-gif:2.6.0'
     implementation 'com.facebook.fresco:animated-webp:2.0.0'
     implementation 'com.facebook.fresco:webpsupport:2.0.0'
 

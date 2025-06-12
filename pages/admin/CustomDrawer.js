@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { Alert,ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { removeItem } from '../../config/getDataFromStorage';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +46,8 @@ const CustomDrawer = (props) => {
     };
     return (
         <View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+                 <View style={{marginBottom: 80}}>
             <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} onPress={() => props.setModalVisible(!props.modalVisible)}>
                 <View style={styles.modalView}>
                     <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Profile')}>
@@ -113,6 +115,8 @@ const CustomDrawer = (props) => {
                     </TouchableOpacity>
                 </View>
             </TouchableOpacity>
+            </View>
+            </ScrollView>
         </View>
     )
 }

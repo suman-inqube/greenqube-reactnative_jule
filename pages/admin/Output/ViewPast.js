@@ -1,22 +1,18 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, ScrollView, SafeAreaView, Dimensions } from 'react-native'
-import DatePickerComp from '../../Common/DatePickerComp';
-import Filter from '../../Common/Filter';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, SafeAreaView, Dimensions } from 'react-native'
 import ViewModalPast from './ViewModalPast';
-import React, { useState, useEffect } from 'react'
-import { getItem, setItem } from '../../../config/getDataFromStorage';
-import { farmerByNameAPI, outputListAPI, SupervisoroutputEnquiryViewAPI } from '../../../config/apiHere';
+import React, { useState, useEffect, useContext } from 'react'
+import { outputListAPI, SupervisoroutputEnquiryViewAPI } from '../../../config/apiHere';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import LoadingScreen from '../../Common/LoadingScreen';
 import MessageDialog from '../../Common/MessageDialog';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from '../../Common/ToastAlert';
-import { useRoute, useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
+import { useRoute, useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ViewPast = (props) => {
+    //GQR-67
+    const { loginUser_data, t, AlertMesg, LoadingScreen, Filter, setItem, effective_dates, DatePickerComp, Toast, getItem, farmerData } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const route = useRoute();
-    const { t } = useTranslation();
     const isFocused = useIsFocused();
-    const [farmerData, setFarmerData] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [filterOption, setFilterOption] = useState(false);
     const [filterItem, setFilterItem] = useState("");
@@ -33,20 +29,11 @@ const ViewPast = (props) => {
     const [searchFarmerName, setSearchFarmerName] = useState('');
     const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: "",
-        languageId: "",
-        token: "",
-        supervisorId: ""
-    });
     const [outputListAll, setOutputListAll] = useState([]);
     const [outputListAllRaw, setOutputListRaw] = useState([]);
     const [outputSingle, setOutputSingle] = useState();
     const [pastEnquiryView, setPastEnquiryView] = useState([]);
-    const [result, setresult] = useState({
-        qty: '',
-        total: '',
-    });
+    const [result, setresult] = useState({ qty: '', total: '' });
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -65,35 +52,31 @@ const ViewPast = (props) => {
         setFilterOption(false);
     }
     const handleDatePicker = (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setfromDate(effective_date)
         setFromDateFilter(effective_date)
     }
     const handleDatePicker2 = async (item) => {
-        const dt = new Date(item);
-        const x = dt.toISOString().split('T');
-        const x1 = x[0].split('-');
-        const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
+        const effective_date = effective_dates(item);
         setToDate(effective_date)
         if (fromDateFilter) {
             let farmer_id = "";
             let fromDate = fromDateFilter;
             let toDate = effective_date;
             let mobileNo = "";
-            const outputList = await outputListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, farmer_id, fromDate, toDate, mobileNo);
+            const outputList = await outputListAPI(dbname, lan_id, token, user_id, farmer_id, fromDate, toDate, mobileNo);
             if (outputList.status === 200) {
                 if (outputList.data.data.rows.length === 0) {
-                    Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+                    Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
                 }
                 setOutputListAll(outputList.data.data.rows)
                 setItem("output_data", outputList.data.data.rows)
             }
         }
         else {
-            MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+            // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
+            Toast.show({ text: 'Please Select First data.', ...AlertMesg[0] });
+
         }
     }
     const navigateToPages = async (fid, dbname, lan_id, token, user_id) => {
@@ -102,19 +85,15 @@ const ViewPast = (props) => {
         setIsLoading(false)
         setOutputSingle(outputFound);
         const response = await SupervisoroutputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
-        if (response) {
-            setPastEnquiryView(response.data.data);
+        if (response?.status == 200) {
+            setPastEnquiryView(response?.data?.data);
             var qty = 0;
             var total = 0;
-            response.data.data.map((data, index) => {
+            response?.data?.data.map((data, index) => {
                 qty = qty + parseFloat(data.pro_qty);
                 total = total + parseFloat(data.grand_total);
             });
-            setresult({
-                ...result,
-                qty: qty,
-                total: total,
-            });
+            setresult({ ...result, qty: qty, total: total });
         }
         setModalVisible(true)
     };
@@ -122,9 +101,7 @@ const ViewPast = (props) => {
         if (filterName === 'Farmer/Product Name') {
             setSearchFarmerPhone('');
             setSearchFarmerName(search);
-            const result = farmerData.filter(item =>
-                item.label.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.label.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setOutputListAll(outputListAllRaw)
@@ -133,7 +110,7 @@ const ViewPast = (props) => {
                 //     return item.users.userName.toLowerCase().indexOf(search.toLowerCase()) > -1;;
                 // });
                 // if(tempData.length===0){
-                //     Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] })
+                //     Toast.show({ text: t('no_data_found'), ...AlertMesg[0] })
                 // }
                 // setOutputListAll(tempData)
                 setSearchResultsList(true);
@@ -145,9 +122,7 @@ const ViewPast = (props) => {
             // console.log(search);
             setSearchFarmerName('');
             setSearchFarmerPhone(search);
-            const result = farmerData.filter(item =>
-                item.phone.toLowerCase().includes(search.toLowerCase())
-            );
+            const result = farmerData.filter(item => item.phone.toLowerCase().includes(search.toLowerCase()));
             if (search == "") {
                 setSearchResultsList(false);
                 setOutputListAll(outputListAllRaw)
@@ -156,7 +131,7 @@ const ViewPast = (props) => {
                 //     return item.users.contactNumber.toLowerCase().indexOf(search.toLowerCase()) > -1;;
                 // });
                 // if(tempData.length===0){
-                //     Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] })
+                //     Toast.show({ text: t('no_data_found'), ...AlertMesg[0] })
                 // }
                 // setOutputListAll(tempData)
                 // setData(tempData);
@@ -173,62 +148,30 @@ const ViewPast = (props) => {
         setSearchFarmerName(name);
         setSearchResults([]);
         if (name !== '') {
-            let tempData = outputListAll.filter(item => {
-                return item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1;
-            });
+            let tempData = outputListAll.filter(item => { return item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1; });
             setOutputListAll(tempData);
             if (tempData.length === 0) {
-                Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+                Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
             }
         } else {
-            let tempData = outputListAll.filter(item => {
-                return item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1;
-            });
+            let tempData = outputListAll.filter(item => { return item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1; });
             setOutputListAll(tempData);
             if (tempData.length === 0) {
-                Toast.show({ text: 'No Data Found. ', ...AlertMesg[0] });
+                Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
             }
         }
     }
     const onPageLoad = async () => {
-        const loginUser_data = await getItem('loginUser_data');
-        if (loginUser_data) {
-            const { dbname, lan_id, token, user_id } = loginUser_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: dbname,
-                languageId: lan_id,
-                token: token,
-                supervisorId: user_id
-            });
-            const [outputList, farmerByName] = await Promise.all([
-                outputListAPI(dbname, lan_id, token, user_id),
-                farmerByNameAPI(dbname, lan_id, token, user_id)
-            ]);
-            if (outputList) {
-                //getid
-                // console.log(outputList.data.data.rows[0].id)
-                setOutputListAll(outputList.data.data.rows);
-                setOutputListRaw(outputList.data.data.rows);
-                setItem("output_data", outputList.data.data.rows);
-                if (route.params.io_oid != undefined) {
-                    navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id)
-                }
-
+        const outputList = await outputListAPI(dbname, lan_id, token, user_id);
+        if (outputList?.status == 200) {
+            setOutputListAll(outputList.data.data.rows);
+            setOutputListRaw(outputList.data.data.rows);
+            await setItem("output_data", outputList.data.data.rows);
+            if (route.params.io_oid != undefined) {
+                navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id)
             }
-            if (farmerByName) {
-                const dataArray = [];
-                farmerByName.data.data.rows.forEach(element => {
-                    dataArray.push({
-                        value: element.user_id,
-                        label: element.userName,
-                        phone: element.contactNumber,
-                    });
-                });
-                setFarmerData(dataArray)
-            }
-            setIsLoading(false);
         }
+        setIsLoading(false);
     };
     const filterDataRemove = () => {
         setSearchFarmerPhone("");
@@ -255,8 +198,8 @@ const ViewPast = (props) => {
         const [
             // outputList,
             supervisoroutputEnquiryViewAPI_res] = await Promise.all([
-                // outputListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId),
-                SupervisoroutputEnquiryViewAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, fid)
+                // outputListAPI(dbname, lan_id, token, user_id),
+                SupervisoroutputEnquiryViewAPI(dbname, lan_id, token, user_id, fid)
             ]);
         // if (outputList) {
         // setOutputListAll(outputList.data.data.rows);
@@ -280,7 +223,7 @@ const ViewPast = (props) => {
     }
     return (
         <>
-            <View>
+            <View style={{ flexGrow: 1 }}>
                 {isLoading ?
                     <View style={styles.loadingScreen}><LoadingScreen /></View>
                     :
@@ -337,13 +280,13 @@ const ViewPast = (props) => {
                                     </View> : ""
                             }
                         </SafeAreaView>
-                        <View style={{ paddingBottom: 40, height: '82%' }}>
+                        <View style={{ paddingBottom: 40, }}>
                             <FlatList
                                 showsVerticalScrollIndicator={false}
                                 style={{ marginBottom: filterItem != "" ? 50 : 0 }}
                                 data={outputListAll}
                                 renderItem={({ item, index }) => (
-                                    <TouchableOpacity style={[styles.flatListContainer, { marginBottom: outputListAll.length == index + 1 ? 80 : 10 }]} onPress={() => navigateToPages(item.fid, dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId)} key={index}>
+                                    <TouchableOpacity style={[styles.flatListContainer, { marginBottom: outputListAll.length == index + 1 ? 80 : 10 }]} onPress={() => navigateToPages(item.fid, dbname, lan_id, token, user_id)} key={index}>
                                         <View style={styles.flatListItem}>
                                             <Text style={styles.title}>{t('crop_name')}: {item.io_crop_name && item.io_crop_name.name.substring(0, 5)}{item.io_crop_name && item.io_crop_name.name.length > 6 ? '...' : null}</Text>
                                             <Text style={styles.title}>{t('name')} : {item.users.userName.substring(0, 10)}{item.users.userName.length > 10 ? '...' : null}</Text>
@@ -397,7 +340,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         position: 'absolute',
         zIndex: 999,
-        bottom: 60,
+        top: '10%',
         left: 0,
         marginHorizontal: '5%',
         width: '90%',

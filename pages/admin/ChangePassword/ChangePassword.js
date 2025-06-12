@@ -6,40 +6,33 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    BackHandler,
     Keyboard
 } from 'react-native'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ButtonForm from '../../Common/ButtonForm';
-import MessageDialog from '../../Common/MessageDialog';
-import CustomHeader from '../CustomHeader';
-import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { useRoute, useFocusEffect, useNavigation, StackActions } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 import { ChangePasswordApi } from '../../../config/apiHere';
 import { getItem, removeItem } from '../../../config/getDataFromStorage';
 const qs = require('qs');
+import { userCreateContext } from '../../Context/usersCreateContext';
 const ChangePassword = ({ sendDataToParent }) => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { loginUser_data, dbLanTokUsr, t, CustomHeader, FormsTitle, logoImage, topBanner, Root, Popup, Toast, onBackPress } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+    //GQR-67
     const navigation = useNavigation();
     const route = useRoute();
     const [cpasswordVisibility, setcPasswordVisibility] = useState('');
     const [passwordVisibility, setPasswordVisibility] = useState('');
     const [forgetPassword, setforgetPassword] = useState({ password: '', cpassword: '' });
-    const [dbLanTokUsr, setdbLanTokUsr] = useState({
-        dbName: '',
-        languageID: '',
-        token: '',
-        userID: '',
-    });
     const handleCheckPassowrdConfirm = () => {
         const password = forgetPassword.password;
         const cpassword = forgetPassword.cpassword;
-        if (password != cpassword) {
-            Toast.show({ text: `${t('same_con_password')}`, ...AlertMesg[0] })
-            setforgetPassword({ ...forgetPassword, cpassword: "" })
-        }
+        // if (password != cpassword) {
+        //     Toast.show({ text: `${t('same_con_password')}`, ...AlertMesg[0] })
+        //     setforgetPassword({ ...forgetPassword, cpassword: "" })
+        // }
     };
     const handleSave = async () => {
         Keyboard.dismiss();
@@ -53,13 +46,11 @@ const ChangePassword = ({ sendDataToParent }) => {
                 newPassword: forgetPassword.cpassword,
                 userType: 3
             });
-            const changePassword = await ChangePasswordApi(dbLanTokUsr.dbName, dbLanTokUsr.languageID, dbLanTokUsr.userID, save_data);
-            if (changePassword.status == 200) {
+            const changePassword = await ChangePasswordApi(dbname, lan_id, user_id, save_data);
+            console.log(changePassword.data)
+            if (changePassword?.status == 200) {
                 setforgetPassword({ ...forgetPassword, password: '', cpassword: '' });
                 Toast.show({ text: `${t('password_change_successfully')}`, ...AlertMesg[0] });
-                // setTimeout(() => {
-                //     navigation.navigate('Dashboard');
-                // }, 2000);
                 await Promise.all([
                     removeItem("logoImageData"),
                     removeItem('loginUser_data'),
@@ -75,38 +66,15 @@ const ChangePassword = ({ sendDataToParent }) => {
             }
         }
     };
-    const onPageLoad = async () => {
-        let farmeruserID = "";
-        if (route.params != undefined) {
-            farmeruserID = route.params.farmeruserID
-        }
-        const [loginUser_data] = await Promise.all([
-            getItem('loginUser_data'),
-        ]);
-        if (loginUser_data) {
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: loginUser_data.dbname,
-                languageID: loginUser_data.agri_language.id,
-                userID: loginUser_data.user_id,
-                farmeruserID: farmeruserID,
-                token: loginUser_data.token
-            });
-        }
-    }
     useEffect(() => {
-        onPageLoad();
-        const onBackPress = () => { navigation.navigate('Dashboard'); return true; };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress);
-        return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        // onPageLoad();
+        onBackPress(() => { navigation.navigate('Dashboard'); return true; })
     }, []);
-    const HandlerGoBack = () => {
-        navigation.navigate('Dashboard');
-    }
+    const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (
         <>
             <Root>
-                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} />
+                <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <ScrollView>
                     <View style={styles.container} >
                         <View style={styles.forgotContainer} >

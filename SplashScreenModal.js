@@ -6,9 +6,9 @@ const SplashScreenModal = (props) => {
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [data, setData] = useState([]);
     const [length, setLength] = useState("");
-    const handleDBName = (db_name, company_id, country_id) => {
-        props.sendDataToParent(db_name, company_id, country_id);
-    }
+    const handleDBName = (db_name, company_id, company_name, country_id) => {
+      props.sendDataToParent(db_name, company_id, company_name, country_id);
+    };
     const searchDBName = (text) => {
         props.searchTextData(text)
         setData(text)
@@ -32,43 +32,75 @@ const SplashScreenModal = (props) => {
         };
     }, []);
     return (
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={props.modalVisible}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={props.modalVisible}
         // onRequestClose={() => {
         //     props.setModalVisible(!props.modalVisible);
         // }}
-        >
-            <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} >
-                <View style={styles.modalView}>
-                    <View style={{ marginHorizontal: 20, marginBottom: -20 }}>
-                        <Text style={{ fontSize: 20, color: 'black', marginTop: 25, textAlign: 'center', fontFamily: "Poppins-SemiBold" }}>Company</Text>
-                        <InputTextForm label="" onChangeText={(item) => searchDBName(item)} />
-                    </View>
-                    <View style={styles.modelTitleContainer}>
-                        <FlatList
-                            showsVerticalScrollIndicator={false}
-                            data={props.companyData}
-                            style={isKeyboardVisible ? props.companyData.length > 4 ? styles.flatContainerLengthUp : "" : data.length == 0 ? styles.flatContainer : ""}
-                            renderItem={({ item }) => {
-                                const { db_name, company_id, agri_company } = item;
-                                return (
-                                    <TouchableOpacity style={styles.wrapper} onPress={() => { props.setModalVisible(false); handleDBName(db_name, company_id, agri_company.country_id) }}>
-                                        <View style={styles.item}>
-                                            <Text style={styles.itemText}>{agri_company && agri_company.company_name}</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                )
-                            }}
-                            keyExtractor={(item, index) => index}
-                        />
-
-                    </View>
-                </View>
-            </TouchableOpacity>
-        </Modal>
-    )
+      >
+        <TouchableOpacity
+          style={[styles.container, props.style]}
+          activeOpacity={1}>
+          <View style={styles.modalView}>
+            <View style={{marginHorizontal: 20, marginBottom: -20}}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: 'black',
+                  marginTop: 25,
+                  textAlign: 'center',
+                  fontFamily: 'Poppins-SemiBold',
+                }}>
+                Company
+              </Text>
+              <InputTextForm
+                label=""
+                onChangeText={item => searchDBName(item)}
+                placeholder="Search by company name..."
+              />
+            </View>
+            <View style={styles.modelTitleContainer}>
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                data={props.companyData}
+                style={
+                  isKeyboardVisible
+                    ? props.companyData.length > 4
+                      ? styles.flatContainerLengthUp
+                      : ''
+                    : ''
+                }
+                renderItem={({item}) => {
+                  const {db_name, company_id, agri_company} = item;
+                  return (
+                    <TouchableOpacity
+                      style={styles.wrapper}
+                      onPress={() => {
+                        props.setModalVisible(false);
+                        handleDBName(
+                          db_name,
+                          company_id,
+                          agri_company.company_name,
+                          agri_company.country_id,
+                        );
+                      }}>
+                      <View style={styles.item}>
+                        <Text style={styles.itemText}>
+                          {agri_company && agri_company.company_name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+                keyExtractor={(item, index) => index}
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
 }
 
 export default SplashScreenModal

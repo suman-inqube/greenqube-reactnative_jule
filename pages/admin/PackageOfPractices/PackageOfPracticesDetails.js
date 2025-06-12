@@ -1,16 +1,16 @@
-import React, { useRef, useEffect } from 'react';
-import { Animated, ScrollView, StyleSheet, Text, View, Image } from 'react-native';
-import CustomHeader from '../CustomHeader';
+import React, { useRef, useContext } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import PackageOfPracticesController from '../../ViewController/PackageOfPracticesController';
 import { useRoute } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useTranslation } from 'react-i18next';
 import DescriptionModel from './DescriptionModel';
 const Header_Max_Height = 240;
 const Header_Min_Height = 110;
 const Scroll_Distance = Header_Max_Height - Header_Min_Height;
+import { userCreateContext } from '../../Context/usersCreateContext';
 const PackageOfPracticesDetails = () => {
-    const { t } = useTranslation();
+    //GQR-67
+    const { t, CustomHeader } = useContext(userCreateContext);
+    //GQR-67
     const { HandlerGoBack, POPDetailsList,
         setPOPDetailsList,
         onPressPackageItemDetails, modalVisible,

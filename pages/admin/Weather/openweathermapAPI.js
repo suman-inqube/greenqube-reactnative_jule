@@ -1,9 +1,18 @@
 import axios from 'axios';
 export const openweathermapAPI = async (latitude, longitude) => {
     try {
-        const openweathermap_res = await axios.get(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=ab4f63e8f8f932fb9a541694ffde64bd&units=metric`);
-        // const openweathermap_res = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely&units=metric&appid=ab4f63e8f8f932fb9a541694ffde64bd`);
+        // const openweathermap_res = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=ab4f63e8f8f932fb9a541694ffde64bd&units=metric`);
+        const openweathermap_res = await axios.get(`https://openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&units=metric&appid=439d4b804bc8187953eb36d2a8c26a02`);
+        // https://openweathermap.org/data/2.5/onecall?lat=22.3&lon=87.9167&units=metric&appid=439d4b804bc8187953eb36d2a8c26a02
         return openweathermap_res;
+    } catch (error) {
+        return error.response;
+    }
+}
+export const openweathermapLocation = async (latitude, longitude) => {
+    try {
+        const openweathermapLocation = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=ab4f63e8f8f932fb9a541694ffde64bd&units=metric`);
+        return openweathermapLocation;
     } catch (error) {
         return error.response;
     }
@@ -24,6 +33,7 @@ export const accuweatherAPI = async (key) => {
         return error.response;
     }
 }
+
 
 
 

@@ -1022,5 +1022,21 @@
     "payment_mode": "ಪಾವತಿ ಮೋಡ್",
     "cheque": "ಪರಿಶೀಲಿಸಿ",
     "product_sub_category": "ಉತ್ಪನ್ನ ಉಪವರ್ಗ",
-    "closed": "closed"
+    "closed": "ಮುಚ್ಚಿದ",
+    "Approved": "ಅನುಮೋದಿಸಲಾಗಿದೆ",
+    "Rejected": "ತಿರಸ್ಕರಿಸಿದ",
+    "SanctionedDate": "ಅನುಮೋದಿತ ದಿನಾಂಕ",
+    "LoanOrderID": "ಸಾಲದ ಆದೇಶ ID",
+    "LoanSanctioned": "ಸಾಲ ಮಂಜೂರಾಗಿದೆ",
+    "AddLocation": "ಸ್ಥಳವನ್ನು ಸೇರಿಸಿ",
+    "Please_enter_activity_type": "ದಯವಿಟ್ಟು ಚಟುವಟಿಕೆಯ ಪ್ರಕಾರವನ್ನು ನಮೂದಿಸಿ",
+    "Data_submitted_successfully": "ಡೇಟಾವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ",
+    "Please_enter_activity": "ದಯವಿಟ್ಟು ಚಟುವಟಿಕೆಯನ್ನು ನಮೂದಿಸಿ",
+    "Password_update_successfully": "ಪಾಸ್‌ವರ್ಡ್ ಅಪ್‌ಡೇಟ್ ಯಶಸ್ವಿಯಾಗಿದೆ",
+    "Old_Password_Is_Incorrect": "ಹಳೆಯ ಪಾಸ್ವರ್ಡ್ ತಪ್ಪಾಗಿದೆ",
+    "Please_try_again_some_time_later": "ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+    "Please_enter_perform_date": "ದಯವಿಟ್ಟು ಪ್ರದರ್ಶನದ ದಿನಾಂಕವನ್ನು ನಮೂದಿಸಿ",
+    "Please_try_again_to_reach_the_accurancy": "ದಯವಿಟ್ಟು ನಿಖರತೆಯನ್ನು ತಲುಪಲು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ",
+    "All": "All",
+    "existing_loan_amount_enter": "Please enter existing loan amount"
 }
