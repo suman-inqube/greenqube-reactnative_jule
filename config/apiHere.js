@@ -415,17 +415,23 @@ export const produceAgainstPlotAPI = async (
   // return console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`);
   const axiosHeaders = {
     headers: {
-      information: `${dbName},${languageID}`,
+      information: `${dbName},${languageID},${farmerID}`,
     },
   };
   try {
+    // let response = await axios.get(
+    //   `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`,
+    //   axiosHeaders,
+    // );
+
     let response = await axios.get(
-      `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`,
+      `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`,
       axiosHeaders,
     );
+// console.log(response);
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    // CrashlyticsRecordError(error.response);
     return console.log('error in produceAgainstPlotAPI ' + error.response);
   }
 };
@@ -2851,4 +2857,35 @@ export const uploadCarbonAgrDocs = async (dbName, language, token, userId, formD
     return error.response;
   }
 }
+export const activityScheduleAPI = async (
+  dbName,
+  languageID,
+  token,
+  type,
+  plotId,
+  cropId,
+  cu_rel_id,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageID}`,
+    },
+  };
+  try {
+
+    let response = await axios.get(
+      `${config.BASE_URL}settingsRoute/activitySchedule?type=${type}&plot_id=${plotId}&crop_name=${cropId}&cu_rel_fid=${cu_rel_id}`,
+      axiosHeaders,
+    );
+
+    // console.log(
+    //   `${config.BASE_URL}settingsRoute/activitySchedule?type=${type}&plot_id=${plotId}&crop_name=${cropId}&cu_rel_fid=${cu_rel_id}`,
+    //   axiosHeaders,
+    // );
+  return response;
+  } catch (error) {
+    return console.log('error in activityScheduleAPI ' + error.response);
+  }
+};
 

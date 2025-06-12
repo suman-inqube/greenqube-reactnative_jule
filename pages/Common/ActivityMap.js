@@ -67,8 +67,11 @@ const ActivityMap = ({
 
   // Check if location is in polygon
   useEffect(() => {
+    // console.log('err', location);
+    // console.log('err22', plotPolygon);
     if (location && plotPolygon?.length) {
       const inside = isPointInPolygon(location, plotPolygon);
+      console.log('inside22', inside);
       setOutOfRange(inside); // true = outside
     }
   }, [location, plotPolygon]);
@@ -134,18 +137,13 @@ const ActivityMap = ({
           </MapView>
         </View>
 
-        {outofRange && (
+         {outofRange && ( 
           <TouchableOpacity
             style={styles.captureButton}
             onPress={() => TakePhoto()}>
             <Text style={styles.captureIcon}>📷</Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.captureButton}
-          onPress={() => TakePhoto()}>
-          <Text style={styles.captureIcon}>📷</Text>
-        </TouchableOpacity>
+         )} 
       </View>
     </Modal>
   );

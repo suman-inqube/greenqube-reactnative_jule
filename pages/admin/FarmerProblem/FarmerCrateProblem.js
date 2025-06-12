@@ -6,7 +6,7 @@ import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
 import { launchCamera } from 'react-native-image-picker';
 import Marker, { Position } from 'react-native-image-marker';
-import { problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI, addModuleForView } from '../../../config/apiHere';
+import { problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI,addModuleForView } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
@@ -421,7 +421,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       if (netConnection) {
         const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, farmerID, formData,);
         if (database_res.status === 200) {
-          addModuleForView(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, dbLanTokUsr.token, "Problem User", "module_hit", "problem_user", 1);
+          addModuleForView(dbLanTokUsr.dbName, dbLanTokUsr.languageId,farmerID, dbLanTokUsr.token, "Problem User", "module_hit", "problem_user", 1);
           Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
             handleClear();

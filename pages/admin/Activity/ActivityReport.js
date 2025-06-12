@@ -72,25 +72,26 @@ const ActivityReport = ({ navigation }) => {
         thirdItemRecord: "",
     });
     const [saveData, setSaveData] = useState({
-        act_title: "",
-        type: "user_activity",
-        act_desc: "",
-        material_used: "",
-        water_used: "",
-        power_used: "",
-        photo: [],
-        audio: [],
-        act_pattern: 'regular',
-        user_id: '',
-        plot_id: '',
-        plot_Name: '',
-        crop_name: '',
-        crop_variety: '',
-        cycle_start_date: '',
-        growth_stage: '',
-        act_perform_date: '',
-        cu_rel_id: '',
-        cycle_start_date: '',
+      act_title: '',
+      type: 'user_activity',
+      act_desc: '',
+      material_used: '',
+      water_used: '',
+      power_used: '',
+      photo: [],
+      audio: [],
+      act_pattern: 'regular',
+      user_id: '',
+      plot_id: '',
+      plot_Name: '',
+      crop_name: '',
+      crop_variety: '',
+      cycle_start_date: '',
+      growth_stage: '',
+      act_perform_date: '',
+      cu_rel_id: '',
+      cycle_start_date: '',
+      act_master_id: '',
     });
     const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
         name: "",
@@ -225,6 +226,8 @@ const ActivityReport = ({ navigation }) => {
     }
 
     const handlePlot = async (relId) => {
+      const fusedLocation = await getItem('fusedLocation');
+      const {latitude, longitude} = fusedLocation;
         setIsLoading(true);
         if (isOnline) {
 
@@ -233,10 +236,12 @@ const ActivityReport = ({ navigation }) => {
         } else {
             var response = await getItem('produceAgainstPlot' + farmerID + relId.value)
         }
-        const { latitude, longitude } = await getCurrentLocation() || {};
-        const latandlongArr = response?.data?.data?.rows[0]?.land_info?.agri_land_user_latlongs?.map((_data, _index) => ({
+        // const { latitude, longitude } = await getCurrentLocation() || {};
+       
+        const latandlongArr = response?.data?.data?.land_info?.agri_land_user_latlongs?.map((_data, _index) => ({
             longitude: _data.longitude, latitude: _data.latitude
         }))
+        console.log('78', latitude, longitude, latandlongArr);
         if (latandlongArr.length != 0) {
             const is20Meters = isWithin20Meters({ latitude, longitude }, latandlongArr, 20);
             if (is20Meters.length != 0) {
@@ -248,11 +253,11 @@ const ActivityReport = ({ navigation }) => {
             }
         }
         if (response) {
-            const dateString = response.data.data.rows[0]?.harvesting_date;
+            const dateString = response?.data?.data?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
-                const data = response.data.data.rows[0];
+                const data = response.data.data;
                 setShowingMenu(true);
                 data.crop_cycl_start_date == null ||
                     data.crop_cycl_start_date == "2004-02-29" ? setIsButtonDisabled(false) : setIsButtonDisabled(true);
@@ -267,17 +272,24 @@ const ActivityReport = ({ navigation }) => {
                     cycleEnd: data.harvesting_date,
                 })
                 setSaveData({
-                    ...saveData,
-                    user_id: farmerID,
-                    plot_id: relId.value,
-                    plot_Name: relId.label,
-                    crop_name: data.crop_name.fid,
-                    crop_variety: data.crop_variety.fid,
-                    cycle_start_date: cycle_start_date,
-                    cu_rel_id: data.cu_rel_id,
-                    cycle_start_date: cycle_start_date
-                })
-                setsinglePlot(response.data.data.rows);
+                  ...saveData,
+                  user_id: farmerID,
+                  plot_id: relId.value,
+                  plot_Name: relId.label,
+                  crop_name: data.crop_name.fid,
+                  crop_variety: data.crop_variety.fid,
+                  cycle_start_date: cycle_start_date,
+                  cu_rel_id: data.cu_rel_id,
+                  cycle_start_date: cycle_start_date,
+                  growth_stage: '',
+                  act_ref_type: '',
+                  act_to_date: '',
+                  act_to_date_label: '',
+                  act_start_date: '',
+                  act_ref: '',
+                  act_master_id: '',
+                });
+                setsinglePlot(response.data.data);
                 setCropType(data.crop_type.fid);
                 setCropName(data.crop_name.fid);
                 if (isOnline) {
@@ -285,29 +297,32 @@ const ActivityReport = ({ navigation }) => {
                     // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
 
                      var [productionStage_res, activitySchedule] =
-                                  await Promise.all([
-                                    productionStageAPI(
-                                      dbname,
-                                      lan_id,
-                                      data.crop_type_id,
-                                      data.crop_name_id,
-                                    ),
-                                    activityScheduleAPI(
-                                      dbname,
-                                      lan_id,
-                                      token,
-                                      'user_activity',
-                                      relId.value,
-                                      data.crop_name_id,
-                                    ),
-                                    setItem(
-                                      'productionStageAPI' + data.crop_type_id + data.crop_type_id,
-                                      productionStage_res,
-                                    ),
-                                    setLastAct(''),
-                                    setOverdueAct([]),
-                                    setUpcomingAct(''),
-                                  ]);
+                       await Promise.all([
+                         productionStageAPI(
+                           dbname,
+                           lan_id,
+                           data.crop_type_id,
+                           data.crop_name_id,
+                         ),
+                         activityScheduleAPI(
+                           dbname,
+                           lan_id,
+                           token,
+                           'user_activity',
+                           relId.value,
+                           data.crop_name_id,
+                           data.cu_rel_id,
+                         ),
+                        //  setItem(
+                        //    'productionStageAPI' +
+                        //      data.crop_type_id +
+                        //      data.crop_type_id,
+                        //    productionStage_res,
+                        //  ),
+                         setLastAct(''),
+                         setOverdueAct([]),
+                         setUpcomingAct(''),
+                       ]);
                 } else {
                     var productionStage_res = await getItem('productionStageAPI' + data.crop_type_id + data.crop_type_id)
                 }
@@ -318,27 +333,28 @@ const ActivityReport = ({ navigation }) => {
 
                 if (activitySchedule.status == 200) {
                   if (
-                    activitySchedule.data.data.lastActivity !=
+                    activitySchedule?.data?.data?.lastActivity !==
                     'No Last Activity'
                   ) {
                     var lastData =
                       activitySchedule.data.data.lastActivity.activityName
-                        .categoryName +
-                      ' (' +
-                      formatDate(
-                        activitySchedule.data.data.lastActivity
-                          ?.activity_start_date,
-                      ) +
-                      ' - ' +
-                      formatDate(
-                        activitySchedule.data.data.lastActivity
-                          ?.activity_end_date,
-                      ) +
-                      ')';
-                    setLastAct(lastData);
+                        .categoryName ;
+                    //     +
+                    //   ' (' +
+                    //   formatDate(
+                    //     activitySchedule.data.data.lastActivity
+                    //       ?.activity_start_date,
+                    //   ) +
+                    //   ' - ' +
+                    //   formatDate(
+                    //     activitySchedule.data.data.lastActivity
+                    //       ?.activity_end_date,
+                    //   ) +
+                    //   ')';
+                     setLastAct(lastData);
                   }
-                  // console.log(activitySchedule.data.data.lastActivity);
-                  if (activitySchedule.data.data.otherActivities.length > 0) {
+                   console.log('sch== ',activitySchedule.data.data);
+                  if (activitySchedule?.data?.data?.otherActivities.length > 0) {
                     activitySchedule?.data?.data?.otherActivities.forEach(
                       function (element) {
                         var overdueData;
@@ -351,17 +367,72 @@ const ActivityReport = ({ navigation }) => {
                             formatDate(element?.activity_end_date) +
                             ')';
                           console.log(overdueData);
+                          setOverdueAct(prevItems => [
+                            ...prevItems,
+                            overdueData,
+                          ]);
                         }
-                        setOverdueAct(prevItems => [...prevItems, overdueData]);
+                        
                       },
                     );
+
                     const upcomingActivity =
                       activitySchedule?.data?.data?.otherActivities?.find(
                         item => item.days_until_start >= 0,
                       );
+                    // console.log(upcomingActivity.days_from);
+                    if(upcomingActivity?.length > 0){
+                    const monthNames = [
+                      'January',
+                      'February',
+                      'March',
+                      'April',
+                      'May',
+                      'June',
+                      'July',
+                      'August',
+                      'September',
+                      'October',
+                      'November',
+                      'December',
+                    ];
+                    // const cycleDate =
+                    //   cycleDtartDate == ''
+                    //     ? saveData.cycle_start_date
+                    //     : cycleDtartDate;
+                    const cycleDate =
+                      data.crop_cycl_start_date == null ||
+                      data.crop_cycl_start_date == '2004-02-29'
+                        ? data.sowing_date
+                        : data.crop_cycl_start_date;
+                    const sdate = new Date(cycleDate);
+                    sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+                    const smonth = monthNames[sdate.getMonth()];
+                    const sday = sdate.getDate();
+                    const syear = sdate.getFullYear();
+                    const startDate = `${smonth} ${sday}, ${syear}`;
+                    const edate = new Date(cycleDate);
+                    edate.setDate(edate.getDate() + upcomingActivity.days_to);
+                    const emonth = monthNames[edate.getMonth()];
+                    const eday = edate.getDate();
+                    const eyear = edate.getFullYear();
+                    const endDate = `${emonth} ${eday}, ${eyear}`;
+                    const startDateEndDate = `${startDate}-${endDate}`;
 
-                    setUpcomingAct(upcomingActivity);
-                    console.log(upcomingActivity);
+                    setUpcomingAct(
+                      upcomingActivity?.activityName?.categoryName +
+                        ' (' +
+                        startDateEndDate +
+                        ')',
+                    );
+                  }
+                    // const upcomingActivity =
+                    //   activitySchedule?.data?.data?.otherActivities?.find(
+                    //     item => item.days_until_start >= 0,
+                    //   );
+
+                    // setUpcomingAct(upcomingActivity);
+                    // console.log(upcomingActivity);
                   }
                   // setScheduleInfo({
                   //   ...scheduleInfo,
@@ -381,6 +452,30 @@ const ActivityReport = ({ navigation }) => {
             }
         }
     }
+
+    const formatDate = dateString => {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const year = date.getFullYear();
+
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+      const month = monthNames[date.getMonth()];
+
+      return `${day} ${month}, ${year}`;
+    };
     const setCycleDate = async () => {
         setIsButtonDisabled(true);
         let save_data = qs.stringify({
@@ -388,6 +483,109 @@ const ActivityReport = ({ navigation }) => {
         });
         const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
         // console.log(productionStage_res.data)
+        var activitySchedule = activityScheduleAPI(
+              dbname,
+              lan_id,
+              token,
+              'carbon_activity',
+              saveData.plot_id,
+              saveData.crop_name,
+              saveData.cu_rel_id,
+            );
+
+
+
+        if (activitySchedule.status == 200) {
+          if (
+            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
+          ) {
+            var lastData =
+              activitySchedule?.data?.data?.lastActivity?.activityName
+                ?.categoryName;
+
+                console.log('lastData', lastData);
+            setLastAct(lastData);
+          }
+
+          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+            activitySchedule?.data?.data?.otherActivities.forEach(function (
+              element,
+            ) {
+              var overdueData;
+              if (element?.days_until_start < 0) {
+                overdueData =
+                  element?.activityName.categoryName +
+                  ' (' +
+                  formatDate(element?.activity_start_date) +
+                  ' - ' +
+                  formatDate(element?.activity_end_date) +
+                  ')';
+                //  console.log("00",overdueData);
+                setOverdueAct(prevItems => [...prevItems, overdueData]);
+              }
+              // setOverdueAct(prevItems => [...prevItems, overdueData]);
+            });
+            const upcomingActivity =
+              activitySchedule?.data?.data?.otherActivities?.find(
+                item => item.days_until_start >= 0,
+              );
+            // console.log(upcomingActivity.days_from);
+            if (upcomingActivity != undefined) {
+            const monthNames = [
+              'January',
+              'February',
+              'March',
+              'April',
+              'May',
+              'June',
+              'July',
+              'August',
+              'September',
+              'October',
+              'November',
+              'December',
+            ];
+            const cycleDate =
+              cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
+            // const cycleDate =
+            //   data.crop_cycl_start_date == null ||
+            //   data.crop_cycl_start_date == '2004-02-29'
+            //     ? data.sowing_date
+            //     : data.crop_cycl_start_date;
+
+            const sdate = new Date(cycleDate);
+            sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+            const smonth = monthNames[sdate.getMonth()];
+            const sday = sdate.getDate();
+            const syear = sdate.getFullYear();
+            const startDate = `${smonth} ${sday}, ${syear}`;
+            const edate = new Date(cycleDate);
+            edate.setDate(edate.getDate() + upcomingActivity.days_to);
+            const emonth = monthNames[edate.getMonth()];
+            const eday = edate.getDate();
+            const eyear = edate.getFullYear();
+            const endDate = `${emonth} ${eday}, ${eyear}`;
+            const startDateEndDate = `${startDate}-${endDate}`;
+
+            setUpcomingAct(
+              upcomingActivity?.activityName?.categoryName +
+                ' (' +
+                startDateEndDate +
+                ')',
+            );
+          }
+            // console.log(
+            //   upcomingActivity?.activityName?.categoryName +
+            //     ' (' +
+            //     startDateEndDate +
+            //     ')',
+            // );
+          }
+        }
+
+
+/////
+
     }
     const validateForm = () => {
         if (!saveData.user_id) {
@@ -454,11 +652,11 @@ const ActivityReport = ({ navigation }) => {
     }
     const handleSave = async () => {
         Keyboard.dismiss();
-        if (outofRange) {
-            // Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
-            Alert.alert('You are out of range');
-            return;
-        }
+        // if (!outofRange) {
+        //     // Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+        //     Alert.alert('You are out of range');
+        //     return;
+        // }
         if (validateForm()) {
             const formData = new FormData();
             formData.append("act_title", "");
@@ -497,6 +695,8 @@ const ActivityReport = ({ navigation }) => {
             formData.append("growth_stage", saveData.growth_stage);
             formData.append("act_perform_date", saveData.act_perform_date);
             formData.append("act_pattern", saveData.act_pattern);
+            formData.append('act_master_id', saveData.act_master_id);
+            formData.append('cu_rel_fid', saveData.cu_rel_id);
 
             if (saveData.act_pattern === 'schedule') {
                 formData.append("act_ref_type", saveData.act_ref_type);
@@ -547,6 +747,7 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityType = async (item) => {
+      console.log('item1==',item);
         let dataArray = [];
         if (isOnline) {
             var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
@@ -556,6 +757,7 @@ const ActivityReport = ({ navigation }) => {
         }
         setSaveData({ ...saveData, act_ref_type: item.value });
         if (response.data.data.count > 0) {
+          console.log(response.data.data.rows);
             response.data.data.rows.forEach(element => {
                 const monthNames = [
                     "January", "February", "March", "April", "May", "June",
@@ -576,10 +778,15 @@ const ActivityReport = ({ navigation }) => {
                 const endDate = `${emonth} ${eday}, ${eyear}`;
                 const startDateEndDate = `${startDate}-${endDate}`
                 dataArray.push({
-                    start_date: sdate,
-                    end_date: edate,
-                    value: element.act_rid,
-                    label: element?.activity?.categoryName + " (" + startDateEndDate + ")",
+                  start_date: sdate,
+                  end_date: edate,
+                  value: element.act_rid,
+                  label:
+                    element?.activity?.categoryName +
+                    ' (' +
+                    startDateEndDate +
+                    ')',
+                  act_master_id: element?.act_master_id,
                 });
             });
             if(isButtonDisabled){
@@ -589,6 +796,7 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityInfo = async (item) => {
+      console.log(item);
         const act_to_date1 = item.end_date;
         const date1 = new Date(act_to_date1);
         const year1 = date1.getFullYear();
@@ -602,12 +810,13 @@ const ActivityReport = ({ navigation }) => {
         const day2 = date2.getDate().toString().padStart(2, '0');
         const act_start_date = `${year2}-${month2}-${day2}`;
         setSaveData({
-            ...saveData,
-            act_to_date: act_to_date,
-            act_to_date_label: item.label,
-            act_start_date: act_start_date,
-            act_ref: item.value,
-        })
+          ...saveData,
+          act_to_date: act_to_date,
+          act_to_date_label: item.label,
+          act_start_date: act_start_date,
+          act_ref: item.value,
+          act_master_id: item?.act_master_id,
+        });
     }
     const requestLivePermission = async () => {
         try {
@@ -1054,39 +1263,42 @@ const ActivityReport = ({ navigation }) => {
                         </View>
                         <View style={styles.plotSiteContainerItem}>
                           <Text style={styles.plotSiteItemText}>
-                            {upcomingAct.activityName.categoryName +
+                            {/* {upcomingAct.activityName.categoryName +
                               ' (' +
                               formatDate(upcomingAct.activity_start_date) +
                               ' - ' +
                               formatDate(upcomingAct.activity_end_date) +
-                              ')'}
+                              ')'} */}
+                            {upcomingAct}
                           </Text>
                         </View>
                       </View>
                     ) : null}
 
-                    {overdueAct ? (
-                                        <View style={styles.plotSiteContainer}>
-                                          <View style={styles.plotSiteContainerItem}>
-                                            <Text style={styles.plotSiteItemText}>
-                                              Overdue Activities
-                                            </Text>
-                                          </View>
-                    
-                                          {overdueAct.map((act, index) => (
-                                            <View key={index} style={styles.plotSiteContainerItem}>
-                                              <Text style={styles.plotSiteItemText}>
-                                                {act.activityName.categoryName +
-                                                  ' (' +
-                                                  formatDate(act.activity_start_date) +
-                                                  ' - ' +
-                                                  formatDate(act.activity_end_date) +
-                                                  ')'}
-                                              </Text>
-                                            </View>
-                                          ))}
-                                        </View>
-                                      ) : null}
+                    {overdueAct?.length > 0 ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.plotSiteItemText}>
+                            Overdue Activities
+                          </Text>
+                        </View>
+
+                        {/* {overdueAct.map((act, index) => ( */}
+                        <View style={styles.plotSiteContainerItem}>
+                          {overdueAct.map((act, index) => (
+                            <Text key={index} style={styles.plotSiteItemText}>
+                              {/* {act.activityName.categoryName +
+                                ' (' +
+                                formatDate(act.activity_start_date) +
+                                ' - ' +
+                                formatDate(act.activity_end_date) +
+                                ')'} */}
+                              {act}
+                            </Text>
+                          ))}
+                        </View>
+                      </View>
+                    ) : null}
                   </>
                 ) : (
                   ''

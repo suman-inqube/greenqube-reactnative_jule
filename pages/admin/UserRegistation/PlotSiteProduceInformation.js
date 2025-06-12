@@ -44,6 +44,7 @@ import {
 } from '../../Common/calculateAreaFun';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
+import * as turf from '@turf/turf';
 const PlotSiteProduceInformation = () => {
   //GQR-65
   const {
@@ -101,7 +102,8 @@ const PlotSiteProduceInformation = () => {
     google_area: 0,
     IOTId: "",
     IOTLatLong: "",
-    IOTLatlat: ""
+    IOTLatlat: "",
+    ConvertedreportedLandsize: 0,
   });
   const [landProof, setLandProof] = useState([
     { uri: '', name: '', type: '', fileName: '' },
@@ -134,7 +136,7 @@ const PlotSiteProduceInformation = () => {
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [defaultLand, setDefaultLand] = useState(true);
   const [nearPolSet, setnearPolSet] = useState([]);
-
+  const [referencelatLong, setreferencelatLong] = useState({ latitude: 0, longitude: 0 });
   const groupByRelId = data => {
     const grouped = data.reduce((result, item) => {
       const newItem = {
@@ -193,7 +195,7 @@ const PlotSiteProduceInformation = () => {
         LandUnitArea(dbName, languageId, token),
         LandUnitsquare_metre(dbName, languageId, token),
       ]);
-
+      setreferencelatLong({ latitude, longitude });
       if (nearestLatLong_res.status == 200) {
         groupedData = groupByRelId(nearestLatLong_res.data.data);
         setnearPolSet(groupByRelId(nearestLatLong_res.data.data));
@@ -425,6 +427,7 @@ const PlotSiteProduceInformation = () => {
       IOTId: "",
       IOTLatLong: "",
       IOTLatlat: "",
+      ConvertedreportedLandsize: 0,
     });
   };
   const HandlelivehoodType = async livelihoodType => {
@@ -517,6 +520,23 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const saveInObject = async () => {
+    if (area != null && area != undefined && area != '' && area != 0) {
+      const deviation = Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) / ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2) * 100;
+      if (deviation >= -5 && deviation <= 5) {
+
+      } else {
+        Alert.alert(
+          'Deviation',
+          'The deviation between reported area and google area is not within 5%',
+          [
+            { text: 'OK', onPress: () => console.log(area) },
+          ],
+          { cancelable: false }
+        )
+        setIsLoading(false);
+        return;
+      }
+    }
     if (validationData()) {
       if (route.params.arrayIndex == undefined) {
         const newData = [
@@ -698,6 +718,8 @@ const PlotSiteProduceInformation = () => {
       landUnit: item.value,
       landUnitSize: landUnitSize,
       landUnitName: item.label,
+      ConvertedreportedLandsize: Number(item?.sizevalue) * Number(storeProduceInfo?.plotSize),
+      cycleEnds: ""
     });
   };
   const emptyFieldsValue = () => {
@@ -736,6 +758,27 @@ const PlotSiteProduceInformation = () => {
   };
   const handleSave = async () => {
     Keyboard.dismiss();
+    if (area != null && area != undefined && area != '' && area != 0) {
+      const deviation = Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) / ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2) * 100;
+      if (deviation >= -5 && deviation <= 5) {
+
+      } else {
+         setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
+        Alert.alert(
+          'Deviation',
+          'The deviation between reported area and google area is not within 5%',
+          [
+            { text: 'OK', onPress: () => console.log(area) },
+          ],
+          { cancelable: false }
+
+
+          
+        )
+        setIsLoading(false);
+        return;
+      }
+    }
     if (defaultLand == true) {
       if (
         typeof route.params != 'undefined' &&
@@ -861,7 +904,41 @@ const PlotSiteProduceInformation = () => {
   };
   // GRQ-1132
   const finalizePolygon = () => {
+    let overlapFound = false;
     if (newPolygon.length > 2) {
+      const closedPolygon = [...newPolygon];
+      const first = newPolygon[0];
+      const last = newPolygon[newPolygon.length - 1];
+      if (
+        first.latitude !== last.latitude ||
+        first.longitude !== last.longitude
+      ) {
+        closedPolygon.push(first);
+      }
+      const newGeo = turf.polygon([
+        closedPolygon.map((p) => [p.longitude, p.latitude]),
+      ]);
+      const newFilterPoligon = polygons.filter(_item => _item.length > 2);
+      newFilterPoligon.forEach((poly) => {
+        const existingGeo = turf.polygon([
+          [...poly, poly[0]].map((p) => [p.longitude, p.latitude]),
+        ]);
+        if (turf.booleanOverlap(existingGeo, newGeo)) {
+          overlapFound = true;
+        }
+      });
+      if (!overlapFound) {
+      } else {
+        Alert.alert(
+          'Overlap Detected',
+          'Coordinates are overlapping',
+          [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ],
+          { cancelable: false }
+        )
+        return;
+      }
       // setPolygons([newPolygon]);
       // setPolygons(nearPolSet);
       if (route?.params?.editItem) {
@@ -972,33 +1049,33 @@ const PlotSiteProduceInformation = () => {
         )}
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
-            <View style={{paddingHorizontal: 20}}>
+            <View style={{ paddingHorizontal: 20 }}>
               <InputTextForm
                 label={t('add_plot')}
                 color="red"
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, plotSiteName: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })
                 }
                 value={storeProduceInfo.plotSiteName}
               />
               <InputTextForm
                 label={t('daag_no')}
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, daagNo: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
                 }
                 value={storeProduceInfo.daagNo}
               />
               <InputTextForm
                 label={t('khatian_no')}
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
                 }
                 value={storeProduceInfo.khatianNo}
               />
               <InputTextForm
                 label={t('no_of_plants')}
                 onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
+                  setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
                 }
                 value={storeProduceInfo.noOfPlants}
               />
@@ -1042,19 +1119,19 @@ const PlotSiteProduceInformation = () => {
                 val={storeProduceInfo.soilType}
               />
               <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{width: '45%'}}>
+                style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ width: '45%' }}>
                   <InputTextForm
                     label={t('plot_size')}
                     color="red"
                     onChangeText={item =>
-                      setstoreProduceInfo({...storeProduceInfo, plotSize: item})
+                      setstoreProduceInfo({ ...storeProduceInfo, plotSize: item, ConvertedreportedLandsize: Number(storeProduceInfo?.sizevalue) * Number(item), cycleEnds: "" })
                     }
                     value={storeProduceInfo.plotSize}
                     keyboardType="numeric"
                   />
                 </View>
-                <View style={{width: '45%'}}>
+                <View style={{ width: '45%' }}>
                   <DropdownForm
                     label={t('select_unit')}
                     color="red"
@@ -1064,11 +1141,27 @@ const PlotSiteProduceInformation = () => {
                   />
                 </View>
               </View>
-              <View style={{marginTop: 10}}>
+              {!isNaN(Number(storeProduceInfo?.ConvertedreportedLandsize)) &&
+                storeProduceInfo?.ConvertedreportedLandsize !== 0 &&
+                area != null && (
+                  <InputTextForm
+                    label={
+                      t('Converted reported Land size ') +
+                      `${landAreaUnit?.[0]?.defined_unit_value
+                        ? `(${landAreaUnit?.[0]?.unit_name})`
+                        : '(Square meter)'
+                      }`
+                    }
+                    value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
+                    editable={false}
+                  />
+                )}
+
+              <View style={{ marginTop: 10 }}>
                 <InputTextForm
                   label={t('Enter IOT Device Id')}
                   onChangeText={item =>
-                    setstoreProduceInfo({...storeProduceInfo, IOTId: item})
+                    setstoreProduceInfo({ ...storeProduceInfo, IOTId: item })
                   }
                   value={storeProduceInfo.IOTId}
                 />
@@ -1084,7 +1177,7 @@ const PlotSiteProduceInformation = () => {
                   <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
                   <Image
                     source={require('../../Common/images/map.png')}
-                    style={{width: 50, height: 50}}
+                    style={{ width: 50, height: 50 }}
                   />
                 </View>
               </TouchableOpacity>
@@ -1101,10 +1194,9 @@ const PlotSiteProduceInformation = () => {
                 <InputTextForm
                   label={
                     t('Calculated Map Area ') +
-                    `${
-                      landAreaUnit?.[0]?.defined_unit_value
-                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                        : '(Square meter)'
+                    `${landAreaUnit?.[0]?.defined_unit_value
+                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                      : '(Square meter)'
                     }`
                   }
                   value={area.toString()}
@@ -1142,7 +1234,7 @@ const PlotSiteProduceInformation = () => {
                         </Text>
                         <Image
                           source={require('../../Common/images/map.png')}
-                          style={{width: 50, height: 50}}
+                          style={{ width: 50, height: 50 }}
                         />
                       </View>
                     </TouchableOpacity>
@@ -1233,14 +1325,14 @@ const PlotSiteProduceInformation = () => {
                 val={storeProduceInfo.produceProductionUnit}
               />
               <View>
-                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
+                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
                   {t('showing_date')}
                 </Text>
                 <View style={styles.passwordMainContainer}>
                   <TouchableOpacity
                     style={styles.passwordContainer}
                     onPress={() => setOpencycleStarts(true)}>
-                    <View style={{width: '90%'}}>
+                    <View style={{ width: '90%' }}>
                       <Text style={styles.text}>
                         {storeProduceInfo.cycleStarts}
                       </Text>
@@ -1268,14 +1360,14 @@ const PlotSiteProduceInformation = () => {
                 </View>
               </View>
               <View>
-                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
+                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
                   {t('harvesting_date_auto_calculated')}
                 </Text>
                 <View style={styles.passwordMainContainer}>
                   <TouchableOpacity
                     style={styles.passwordContainer}
                     onPress={() => setOpencycleEnds(true)}>
-                    <View style={{width: '90%'}}>
+                    <View style={{ width: '90%' }}>
                       <Text style={styles.text}>
                         {storeProduceInfo.cycleEnds}
                       </Text>
@@ -1295,35 +1387,31 @@ const PlotSiteProduceInformation = () => {
                         storeProduceInfo.cycleStarts == ''
                           ? newdate
                           : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleStarts,
-                              ).getFullYear()}-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getMonth() + 1
-                              }-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getDate() + 1
-                              }`,
-                            )
+                            `${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getFullYear()}-${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getMonth() + 1
+                            }-${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getDate() + 1
+                            }`,
+                          )
                       }
                       minimumDate={
                         storeProduceInfo.cycleStarts == ''
                           ? ''
                           : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleStarts,
-                              ).getFullYear()}-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getMonth() + 1
-                              }-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getDate() + 1
-                              }`,
-                            )
+                            `${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getFullYear()}-${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getMonth() + 1
+                            }-${new Date(
+                              storeProduceInfo.cycleStarts,
+                            ).getDate() + 1
+                            }`,
+                          )
                       }
                       onConfirm={item => {
                         handlecycleEnd(item);
@@ -1339,7 +1427,7 @@ const PlotSiteProduceInformation = () => {
               {route.params.arrayIndex == undefined ? (
                 <TouchableOpacity
                   onPress={saveInObject}
-                  style={{alignItems: 'center'}}
+                  style={{ alignItems: 'center' }}
                   activeOpacity={0.7}>
                   <Text style={styles.addBtn}>
                     {t('click_to_add_more_plot')}
@@ -1348,32 +1436,32 @@ const PlotSiteProduceInformation = () => {
               ) : (
                 ''
               )}
-              <View style={{marginBottom: 10}}>
+              <View style={{ marginBottom: 10 }}>
                 {route.params.arrayIndex == undefined
                   ? storeProduceInfoInArray.map((data, index) => {
-                      return (
-                        <View style={styles.moreContainer} key={index}>
-                          <View style={styles.moreTextContainer}>
-                            <Text style={styles.moreText}>
-                              {data.storeProduceInfo.plotSiteName}
-                            </Text>
-                            <Text style={styles.moreText}>
-                              {data.storeProduceInfo.produceName}
-                            </Text>
-                            <Text style={styles.moreText}>
-                              {data.storeProduceInfo.produceVariety}
-                            </Text>
-                          </View>
-                          <TouchableOpacity
-                            onPress={() => produceRemoveDetails(index)}>
-                            <Image
-                              source={require('../../Common/images/x-mark.png')}
-                              style={styles.xMarkImage}
-                            />
-                          </TouchableOpacity>
+                    return (
+                      <View style={styles.moreContainer} key={index}>
+                        <View style={styles.moreTextContainer}>
+                          <Text style={styles.moreText}>
+                            {data.storeProduceInfo.plotSiteName}
+                          </Text>
+                          <Text style={styles.moreText}>
+                            {data.storeProduceInfo.produceName}
+                          </Text>
+                          <Text style={styles.moreText}>
+                            {data.storeProduceInfo.produceVariety}
+                          </Text>
                         </View>
-                      );
-                    })
+                        <TouchableOpacity
+                          onPress={() => produceRemoveDetails(index)}>
+                          <Image
+                            source={require('../../Common/images/x-mark.png')}
+                            style={styles.xMarkImage}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })
                   : null}
               </View>
             </View>
@@ -1387,9 +1475,9 @@ const PlotSiteProduceInformation = () => {
           </Text>
         </TouchableOpacity> */}
         <TouchableOpacity
-          style={[styles.locationAddMoreContainer, {bottom: 250}]}
+          style={[styles.locationAddMoreContainer, { bottom: 250 }]}
           onPress={() => setShowModal(!showModal)}>
-          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+          <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
             {t('MapView')}
           </Text>
         </TouchableOpacity>
@@ -1431,6 +1519,9 @@ const PlotSiteProduceInformation = () => {
             area={area}
             //basudev
             location={location}
+            baselatLong={referencelatLong}
+            statuslevel={""}
+            type="livehoood"
           />
         </Modal>
       )}

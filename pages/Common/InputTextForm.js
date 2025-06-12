@@ -1,8 +1,6 @@
-import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native';
-import React, { memo } from 'react';
-function isValid(str){
- return !/[~`!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/g.test(str);
-}
+import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
+import React, { memo } from 'react'
+
 const InputTextForm = ({
   value,
   color,
@@ -16,15 +14,10 @@ const InputTextForm = ({
   placeholder,
 }) => {
   const scheme = useColorScheme();
-  const labelString = label?.charAt(0).toUpperCase() + label?.slice(1);
-
-  const handleChange = (text) => {
-    isValid(text)? onChangeText(text):'';
-  };
-
+  const labelString = label.charAt(0).toUpperCase() + label.slice(1);
   return (
     <>
-      <Text style={[styles.title, { color: color ?? 'black' }]}>
+      <Text style={[styles.title, {color: color ?? 'black'}]}>
         {labelString}
       </Text>
       <View style={styles.container}>
@@ -37,7 +30,8 @@ const InputTextForm = ({
               borderColor: editable == false ? '#ffffff' : '#FFFF',
             },
           ]}
-          onChangeText={handleChange}
+          //  style={[styles.simpleInputTextStyle, { color: 'black' }]}
+          onChangeText={onChangeText}
           onBlur={onBlur}
           value={value}
           keyboardType={keyboardType ?? 'default'}
@@ -52,7 +46,7 @@ const InputTextForm = ({
   );
 };
 
-export default memo(InputTextForm);
+export default memo(InputTextForm)
 
 const styles = StyleSheet.create({
   container: {
@@ -64,6 +58,7 @@ const styles = StyleSheet.create({
     height: 45,
     borderColor: '#fcf7f7',
     borderWidth: 1.3,
+    borderRadius: 8,
     backgroundColor: '#FFFF',
     width: '100%',
     elevation: 1,
@@ -76,5 +71,6 @@ const styles = StyleSheet.create({
     color: "#000",
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
-  },
-});
+  }
+
+})

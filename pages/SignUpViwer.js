@@ -294,7 +294,7 @@ const SignUpViwer = () => {
           });
         });
       }
-      console.log(formData)
+      console.log("formData",JSON.stringify(formData))
       if (netConnection) {
         const database_res = await signupSaveAPI(formData, dbname, language,landProofData.length);
         if (database_res?.status == 200) {

@@ -47,7 +47,7 @@ export default function Map({
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
   const [distanceThreshold, setDistanceThreshold] = useState(20);
-  const [marker, setMarker] = useState({ lat: 37.78825, lng: -122.4324 });
+  const [marker, setMarker] = useState({lat: 37.78825, lng: -122.4324});
   const [value, setValue] = useState(null);
   const [selectedArea, setSelectedArea] = useState(0);
   const [coordinatesCurrent, setCoordinatesCurrent] = useState([]);
@@ -58,24 +58,95 @@ export default function Map({
     {
       label: editing ? 'Stop Editing' : 'Start Editing',
       onPress: () => setEditing(!editing),
-      style: { backgroundColor: '#000' },
+      style: {backgroundColor: '#000'},
     },
     editing && {
       label: 'Finalize Polygon',
       onPress: () => finalizePolygon(),
-      style: { backgroundColor: '#000' },
+      style: {backgroundColor: '#000'},
     },
     editing && {
       label: 'Clear',
       onPress: () => clearMapGetDistance(),
-      style: { backgroundColor: '#000' },
+      style: {backgroundColor: '#000'},
     },
     editing && {
       label: 'Undo Mark',
       onPress: () => undoMark(),
-      style: { backgroundColor: '#000' },
+      style: {backgroundColor: '#000'},
     },
   ];
+
+  // useEffect(() => {
+  //   const onPageLoad = async () => {
+  //     try {
+  //       const fusedLocation = await getItem('fusedLocation');
+  //       const { latitude, longitude } = fusedLocation;
+  //       if (location.length != 0) {
+  //         animateToLocation(Number(location[0].latitude), Number(location[0].longitude));
+  //       } else {
+  //         animateToLocation(latitude, longitude);
+  //         if (polygons.length === 0) {
+  //           setCurrentLocation({
+  //             latitude: latitude,
+  //             longitude: longitude,
+  //             // latitudeDelta: 0.0022,
+  //             // longitudeDelta: 0.0021,
+  //             latitudeDelta: 0.05,
+  //             longitudeDelta: 0.05,
+  //           });
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.log('Error fetching location:', error);
+  //     }
+  //   };
+  //   onPageLoad();
+  // }, []);
+
+  // useEffect(() => {
+  //   const onPageLoad = async () => {
+  //     try {
+  //       // const fusedLocation = await getItem('fusedLocation');
+  //       // const {latitude, longitude} = fusedLocation;
+
+  //       if (location[0].latitude != '' && location[0].longitude != '') {
+  //         animateToLocation(
+  //           Number(location[0].latitude),
+  //           Number(location[0].longitude),
+  //         );
+  //       } else {
+  //         animateToLocation(baselatLong.latitude, baselatLong.longitude);
+  //         if (polygons.length === 0) {
+  //           setCurrentLocation({
+  //             latitude: baselatLong.latitude,
+  //             longitude: baselatLong.longitude,
+  //             // latitudeDelta: 0.0022,
+  //             // longitudeDelta: 0.0021,
+  //             latitudeDelta: 0.05,
+  //             longitudeDelta: 0.05,
+  //           });
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.log('Error fetching location:', error);
+  //     }
+  //   };
+  //   onPageLoad();
+  // }, []);
+  // const animateToLocation = (latitude, longitude) => {
+  //   if (mapRef.current) {
+  //     mapRef.current.animateToRegion(
+  //       {
+  //         latitude: latitude,
+  //         longitude: longitude,
+  //         latitudeDelta: 0.001,
+  //         longitudeDelta: 0.001,
+  //       },
+  //       0,
+  //     ); // 1000ms animation duration
+  //   }
+  // };
 
   useEffect(() => {
     const onPageLoad = async () => {
@@ -83,14 +154,10 @@ export default function Map({
         // const fusedLocation = await getItem('fusedLocation');
         // const {latitude, longitude} = fusedLocation;\
 
-        if (
-          location?.length &&
-          location[0].latitude &&
-          location[0].longitude
-        ) {
+        if (location?.length && location[0].latitude && location[0].longitude) {
           animateToLocation(
             parseFloat(location[0].latitude),
-            parseFloat(location[0].longitude)
+            parseFloat(location[0].longitude),
           );
         } else {
           animateToLocation(baselatLong.latitude, baselatLong.longitude);
@@ -110,31 +177,31 @@ export default function Map({
       }
     };
     onPageLoad();
-  }, [baselatLong,location]);
-const animateToLocation = (latitude, longitude) => {
-  if (
-    mapRef.current &&
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude)
-  ) {
-    setTimeout(() => {
-      mapRef.current.animateToRegion(
-        {
-          latitude,
-          longitude,
-          latitudeDelta: 0.001,
-          longitudeDelta: 0.001,
-        },
-        1000 // optional animation duration
-      );
-    }, 100); // Delay to ensure map is ready
-  } else {
-    console.warn('Invalid or missing coordinates for animateToLocation');
-  }
-};
+  }, [baselatLong, location]);
 
+  const animateToLocation = (latitude, longitude) => {
+    if (
+      mapRef.current &&
+      typeof latitude === 'number' &&
+      typeof longitude === 'number' &&
+      !isNaN(latitude) &&
+      !isNaN(longitude)
+    ) {
+      setTimeout(() => {
+        mapRef.current.animateToRegion(
+          {
+            latitude,
+            longitude,
+            latitudeDelta: 0.001,
+            longitudeDelta: 0.001,
+          },
+          1000, // optional animation duration
+        );
+      }, 100); // Delay to ensure map is ready
+    } else {
+      console.warn('Invalid or missing coordinates for animateToLocation');
+    }
+  };
 
   useEffect(() => {
     if (polygons.length !== 0) {
@@ -155,7 +222,7 @@ const animateToLocation = (latitude, longitude) => {
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setSelectedArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+            geolib.getAreaOfPolygon(newPolygon),
         );
       } else {
         setSelectedArea(geolib.getAreaOfPolygon(newPolygon));
@@ -185,7 +252,7 @@ const animateToLocation = (latitude, longitude) => {
   }, [editing, drawingReference]);
   const editingLocation = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     if (fusedLocation != null) {
       setDrawingReference({
         latitude: latitude,
@@ -234,8 +301,8 @@ const animateToLocation = (latitude, longitude) => {
             Alert.alert(
               '❌ Out of Range',
               'Plot location and current location not are same!.',
-              [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-              { cancelable: false },
+              [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+              {cancelable: false},
             );
           }
         }
@@ -249,8 +316,8 @@ const animateToLocation = (latitude, longitude) => {
       if (type == 'livehoood') {
         handleMapPress(event);
       } else {
-        const { latitude, longitude } = event.nativeEvent.coordinate;
-        const pressedPoint = { latitude, longitude };
+        const {latitude, longitude} = event.nativeEvent.coordinate;
+        const pressedPoint = {latitude, longitude};
         let reference;
         if (editing) {
           reference = drawingReference || currentLocation;
@@ -261,7 +328,7 @@ const animateToLocation = (latitude, longitude) => {
           return;
         }
         if (newPolygon.length == 0) {
-          const distance = getDistance({ latitude, longitude }, reference);
+          const distance = getDistance({latitude, longitude}, reference);
           if (distance <= distanceThreshold) {
             handleMapPress(event);
           } else {
@@ -293,7 +360,7 @@ const animateToLocation = (latitude, longitude) => {
         onPress={() => setShowModal(false)}>
         <Image
           source={require('../../Common/images/cross100.png')}
-          style={{ width: 35, height: 35, margin: 1 }}
+          style={{width: 35, height: 35, margin: 1}}
         />
       </TouchableOpacity>
       <MapView
@@ -312,7 +379,7 @@ const animateToLocation = (latitude, longitude) => {
         showsUserLocation={true}
         followsUserLocation={true}
         showsCompass={true}
-        compassOffset={{ x: 20, y: 20 }}
+        compassOffset={{x: 20, y: 20}}
         minZoomLevel={15}
         scrollEnabled={true}
         showsScale={true}
@@ -362,7 +429,7 @@ const animateToLocation = (latitude, longitude) => {
         {newPolygon.map((coordinate, index) => (
           <Marker key={index} coordinate={coordinate} />
         ))}
-        <Marker coordinate={{ latitude: marker.lat, longitude: marker.lng }} />
+        <Marker coordinate={{latitude: marker.lat, longitude: marker.lng}} />
       </MapView>
 
       {selectedArea !== 0 && (
@@ -374,7 +441,7 @@ const animateToLocation = (latitude, longitude) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
-          <Text style={{ fontSize: 15, color: '#FFF', backgroundColor: '#000' }}>
+          <Text style={{fontSize: 15, color: '#FFF', backgroundColor: '#000'}}>
             Selected Area: {selectedArea}{' '}
             {landAreaUnit?.[0]?.defined_unit_value
               ? landAreaUnit?.[0]?.unit_name

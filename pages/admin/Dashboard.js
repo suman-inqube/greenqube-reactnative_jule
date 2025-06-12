@@ -126,6 +126,7 @@ const Dashboard = ({ navigation }) => {
 
 
     let i = 0;
+    
     if (UnitConversonToDefault_res.status == 200) {
       if (UnitConversonToDefault_res.data.data?.count > 0) {
         UnitConversonToDefault_res.data.data.rows.forEach(element => {
@@ -142,7 +143,8 @@ const Dashboard = ({ navigation }) => {
     if (i > 0) {
       setConvertionLUState(true);
     }
-
+    console.log('sta');
+    console.log('sta', LandUnitArea_res.status);
     if (LandUnitArea_res.status == 200) {
       if (LandUnitArea_res.data.data?.count > 0) {
         LandUnitArea_res.data.data.rows.forEach(element => {
