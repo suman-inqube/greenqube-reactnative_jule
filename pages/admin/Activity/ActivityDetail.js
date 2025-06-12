@@ -101,24 +101,86 @@ const ActivityDetail = () => {
                     setSelectedRecord({ firstItemRecord: audio1, secondItemRecord: audio2, thirdItemRecord: audio3 });
                 }
                 setCarbonActivity([]);
+                console.log("f", JSON.stringify(farmerFound));
+                setIsLoading(false);
+                if (farmerFound?.type == "carbon_activity") {
+                    const PipeListDetailsRes = await PipeListDetails(
+                        dbname,
+                        lan_id,
+                        token,
+                        user_id,
+                        farmerFound.plot_id,
+                        farmerFound?.act_master_id,
+                        farmerFound?.cu_rel_fid,
+                    );
+                    if (PipeListDetailsRes?.status == 200) {
+                        setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
+                    }
+                } else {
+                    if (farmerFound?.agri_files) {
+                        let Imag1 = '';
+                        let Imag2 = '';
+                        let Imag3 = '';
+                        let audio1 = '';
+                        let audio2 = '';
+                        let audio3 = '';
+                        const agri_files_image = farmerFound?.agri_files.filter(function (v, i) { return ((v["file_ext"] == "image/jpeg")); })
+                        const agri_files_mp3 = farmerFound?.agri_files.filter(function (v, i) { return ((v["file_ext"] == "audio/mp3")); })
+                        for (let i = 0; i < 3; i++) {
+                            if (agri_files_image[0] != undefined) {
+                                Imag1 = agri_files_image[0].file_path
+                            } else {
+                                Imag1 = "";
+                            }
+                            if (agri_files_image[1] != undefined) {
+                                Imag2 = agri_files_image[1].file_path
+                            } else {
+                                Imag2 = "";
+                            }
+                            if (agri_files_image[2] != undefined) {
+                                Imag3 = agri_files_image[2].file_path
+                            } else {
+                                Imag3 = "";
+                            }
+                            if (agri_files_mp3[0] != undefined) {
+                                audio1 = agri_files_mp3[0].file_path;
+                            } else {
+                                audio1 = "";
+                            }
+                            if (agri_files_mp3[1] != undefined) {
+                                audio2 = agri_files_mp3[1].file_path;
+                            } else {
+                                audio2 = "";
+                            }
+                            if (agri_files_mp3[2] != undefined) {
+                                audio3 = agri_files_mp3[2].file_path;
+                            } else {
+                                audio3 = "";
+                            }
+                        }
+                        setSelectedImage({ ...selectedImage, firstItem: Imag1, secondItem: Imag2, thirdItem: Imag3 })
+                        setSelectedRecord({ firstItemRecord: audio1, secondItemRecord: audio2, thirdItemRecord: audio3 });
+                    }
+                    setCarbonActivity([]);
+                }
+                setfarmerActivity({
+                    ...farmerActivity,
+                    userName: farmerFound?.agri_user?.userName,
+                    contactNumber: farmerFound?.agri_user?.contactNumber,
+                    activitycategoryName: farmerFound?.typeActivity,
+                    cropActivitycategoryName: farmerFound?.cropActivity,
+                    plot_no: farmerFound?.land_info?.plot_no,
+                    cropName: farmerFound?.cropName?.name,
+                    growthStage: farmerFound?.growthStage?.name,
+                    act_perform_date: farmerFound?.updatedAt,
+                    act_desc: farmerFound?.act_desc,
+                    material_used: farmerFound?.material_used,
+                    water_used: farmerFound?.water_used,
+                    power_used: farmerFound?.power_used,
+                    act_start_date: farmerFound?.act_start_date,
+                    act_to_date: farmerFound?.act_to_date
+                })
             }
-            setfarmerActivity({
-                ...farmerActivity,
-                userName: farmerFound?.agri_user?.userName,
-                contactNumber: farmerFound?.agri_user?.contactNumber,
-                activitycategoryName: farmerFound?.typeActivity,
-                cropActivitycategoryName: farmerFound?.cropActivity,
-                plot_no: farmerFound?.land_info?.plot_no,
-                cropName: farmerFound?.cropName?.name,
-                growthStage: farmerFound?.growthStage?.name,
-                act_perform_date: farmerFound?.updatedAt,
-                act_desc: farmerFound?.act_desc,
-                material_used: farmerFound?.material_used,
-                water_used: farmerFound?.water_used,
-                power_used: farmerFound?.power_used,
-                act_start_date: farmerFound?.act_start_date,
-                act_to_date: farmerFound?.act_to_date
-            })
         }
     }
     useEffect(() => {
@@ -194,84 +256,84 @@ const ActivityDetail = () => {
                                             keyExtractor={(item, index) => index.toString()}
                                             renderItem={(_item) => {
                                                 return (
-                                                  <View
-                                                    style={{
-                                                      backgroundColor: '#FFF',
-                                                      elevation: 3,
-                                                      padding: 10,
-                                                      margin: 2,
-                                                      marginVertical: 10,
-                                                      borderRadius: 10,
-                                                    }}>
                                                     <View
-                                                      style={{
-                                                        flexDirection: 'row',
-                                                        marginBottom: 7,
-                                                      }}>
-                                                      <Text
-                                                        style={[
-                                                          styles.title,
-                                                          {paddingVertical: 0},
-                                                        ]}>
-                                                        Instrument Name :
-                                                      </Text>
-                                                      <Text
-                                                        style={[
-                                                          styles.title,
-                                                          {
-                                                            marginLeft: 10,
-                                                            paddingVertical: 0,
-                                                          },
-                                                        ]}>
-                                                        {_item.item.pipe_name}
-                                                      </Text>
-                                                    </View>
-                                                    <View>
-                                                      {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
-                                                      {_item.item.pipeFiles
-                                                        .length != 0 && (
+                                                        style={{
+                                                            backgroundColor: '#FFF',
+                                                            elevation: 3,
+                                                            padding: 10,
+                                                            margin: 2,
+                                                            marginVertical: 10,
+                                                            borderRadius: 10,
+                                                        }}>
                                                         <View
-                                                          style={{
-                                                            flexDirection:
-                                                              'row',
-                                                            gap: 20,
-                                                          }}>
-                                                          {_item.item
-                                                            .pipeFiles?.[0]
-                                                            ?.file_path !=
-                                                            undefined && (
-                                                            <Image
-                                                              source={{
-                                                                uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
-                                                              }}
-                                                              style={{
-                                                                width: 70,
-                                                                height: 80,
-                                                                borderRadius: 5,
-                                                              }}
-                                                              resizeMode="contain"
-                                                            />
-                                                          )}
-                                                          {_item.item
-                                                            .pipeFiles?.[1]
-                                                            ?.file_path !=
-                                                            undefined && (
-                                                            <Image
-                                                              source={{
-                                                                uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
-                                                              }}
-                                                              style={{
-                                                                width: 70,
-                                                                height: 80,
-                                                                borderRadius: 5,
-                                                              }}
-                                                              resizeMode="contain"
-                                                            />
-                                                          )}
+                                                            style={{
+                                                                flexDirection: 'row',
+                                                                marginBottom: 7,
+                                                            }}>
+                                                            <Text
+                                                                style={[
+                                                                    styles.title,
+                                                                    { paddingVertical: 0 },
+                                                                ]}>
+                                                                Instrument Name :
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.title,
+                                                                    {
+                                                                        marginLeft: 10,
+                                                                        paddingVertical: 0,
+                                                                    },
+                                                                ]}>
+                                                                {_item.item.pipe_name}
+                                                            </Text>
                                                         </View>
-                                                      )}
+                                                        <View>
+                                                            {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
+                                                            {_item.item.pipeFiles
+                                                                .length != 0 && (
+                                                                    <View
+                                                                        style={{
+                                                                            flexDirection:
+                                                                                'row',
+                                                                            gap: 20,
+                                                                        }}>
+                                                                        {_item.item
+                                                                            .pipeFiles?.[0]
+                                                                            ?.file_path !=
+                                                                            undefined && (
+                                                                                <Image
+                                                                                    source={{
+                                                                                        uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
+                                                                                    }}
+                                                                                    style={{
+                                                                                        width: 70,
+                                                                                        height: 80,
+                                                                                        borderRadius: 5,
+                                                                                    }}
+                                                                                    resizeMode="contain"
+                                                                                />
+                                                                            )}
+                                                                        {_item.item
+                                                                            .pipeFiles?.[1]
+                                                                            ?.file_path !=
+                                                                            undefined && (
+                                                                                <Image
+                                                                                    source={{
+                                                                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                                                                    }}
+                                                                                    style={{
+                                                                                        width: 70,
+                                                                                        height: 80,
+                                                                                        borderRadius: 5,
+                                                                                    }}
+                                                                                    resizeMode="contain"
+                                                                                />
+                                                                            )}
+                                                                    </View>
+                                                                )}
+                                                        </View>
                                                     </View>
-                                                  </View>
                                                 );
                                             }}
                                         />}
@@ -327,7 +389,7 @@ const styles = StyleSheet.create({
     activityWrapper: {
         alignItems: 'center',
         flexWrap: 'wrap',
-        width: '38%',
+        width: '35%',
         flexDirection: 'column',
         justifyContent: 'space-around',
     },

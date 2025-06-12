@@ -38,7 +38,15 @@ const FarmerActivityDetail = () => {
             const farmerFound = activityData.find(user => user.uact_id === uact_id_data);
             setIsLoading(false);
             if (farmerFound?.type == "carbon_activity") {
-                const PipeListDetailsRes = await PipeListDetails(dbname, lan_id, token, user_id, farmerFound.plot_id, farmerFound?.act_master_id);
+                const PipeListDetailsRes = await PipeListDetails(
+                  dbname,
+                  lan_id,
+                  token,
+                  user_id,
+                  farmerFound.plot_id,
+                  farmerFound?.act_master_id,
+                  farmerFound?.cu_rel_fid,
+                );
                 if (PipeListDetailsRes?.status == 200) {
                     setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
                 }

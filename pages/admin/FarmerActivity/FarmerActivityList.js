@@ -10,13 +10,13 @@ import { SPSheet } from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 
 const OPTIONS = [
-  {id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD'},
-  {id: 'Conventional', title: 'Non-Carbon', navigation: 'FarmerActivityReport'},
+  { id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD' },
+  { id: 'Conventional', title: 'Non-Carbon', navigation: 'FarmerActivityReport' },
 ];
 const FarmerActivityList = ({ navigation }) => {
   //GQR-67
   const { handlePageList, dbLanTokUsr, setdbLanTokUsr, loginUser_data, effective_dates, LoadingScreen, CustomHeader, t, DatePickerComp, onBackPress, getItem, setItem, logoImage, topBanner, DeviceInfo, Root, Toast, AlertMesg } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   const { farmerId, pageNo } = dbLanTokUsr;
   //GQR-67
   const { netConnection } = DeviceInfo();
@@ -136,14 +136,18 @@ const FarmerActivityList = ({ navigation }) => {
   };
 
   const handleSPSheetShow = () => {
-    SPSheet.show({
+    if (carbonFlag == true) {
+      SPSheet.show({
         component: () => (
-            <CarbonActivityBottomSheet  index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS} />
+          <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS} />
         ),
         height: 210,
         zIndex: 1000,
-    });
-}
+      });
+    } else {
+      navigation.navigate('activityReport')
+    }
+  }
   return (
     <Root>
       <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />

@@ -11,14 +11,14 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 import { SPSheet } from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 const OPTIONS = [
-  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
-  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
+    { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
+    { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
 ];
 const ActivityList = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
         setItem, logoImage, topBanner, Root, Toast, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
-    const { dbname, lan_id, token, user_id } = loginUser_data;
+    const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
     const { pageNo } = dbLanTokUsr;
     //GQR-67
     const { netConnection } = DeviceInfo();
@@ -176,17 +176,21 @@ const ActivityList = ({ navigation }) => {
                 onPageLoad();
             }
             onBackPress(handleBackPress);
-                   
+
         }
     }, [isFocused]);
     const handleSPSheetShow = () => {
-        SPSheet.show({
-            component: () => (
-                <CarbonActivityBottomSheet  index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS} />
-            ),
-            height: 210,
-            zIndex: 1000,
-        });
+        if (carbonFlag == true) {
+            SPSheet.show({
+                component: () => (
+                    <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS} />
+                ),
+                height: 200,
+                zIndex: 1000,
+            });
+        } else {
+            navigation.navigate('activityReport')
+        }
     }
     useEffect(() => {
         if (isFocused) {

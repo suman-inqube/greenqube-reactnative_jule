@@ -43,7 +43,7 @@ const SplashScreen = ({ navigation }) => {
                     const delay = 1000;
                     const timeout = setTimeout(() => {
                         setModalVisible(true)
-                        setCompanyData(company_res.data.data);
+                        // setCompanyData(company_res.data.data);
                         setCompanyDataRaw(company_res.data.data);
 
                     }, delay);
@@ -53,11 +53,12 @@ const SplashScreen = ({ navigation }) => {
             console.error('company APi error code with :', error.response);
         }
     }
-    const companyHandle = async (dbName, company_id, country_id) => {
+    const companyHandle = async (dbName, company_id, company_name, country_id) => {
         setCompanyLanguage({
             ...companyLanguage,
             company: dbName,
             company_id: company_id,
+            company_name: company_name,
             country_id: country_id
         });
         languageDataList(dbName);
@@ -66,11 +67,13 @@ const SplashScreen = ({ navigation }) => {
     }
     const languageHandle = async (item) => {
         await setItem('companyLanguage_data', {
-            language: item,
-            company: companyLanguage.company,
-            company_id: companyLanguage.company_id,
-            country_id: companyLanguage.country_id
+          language: item,
+          company: companyLanguage.company,
+          company_id: companyLanguage.company_id,
+          company_name: companyLanguage.company_name,
+          country_id: companyLanguage.country_id,
         });
+        await setItem('companyFirstEntry',1 );
         navigation.replace('Login');
     }
     let languageDataList = async (dbName) => {
@@ -111,13 +114,17 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const searchDBName = (text) => {
-        const result = companyDataRaw?.filter(item =>
-            item?.agri_company?.company_display_name?.toLowerCase().includes(text.toLowerCase())
-        );
-        if (result) {
-            setCompanyData(result)
-        } else {
-            console.log('Item not found');
+        if(text.length > 0){
+            const result = companyDataRaw?.filter(item =>
+                item?.agri_company?.company_display_name?.toLowerCase().includes(text.toLowerCase())
+            );
+            if (result) {
+                setCompanyData(result)
+            } else {
+                console.log('Item not found');
+            }
+        }else{
+             setCompanyData([]);
         }
     }
     useEffect(() => {

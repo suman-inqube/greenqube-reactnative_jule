@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState, lazy } from 'react'
 import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
 // const { netConnection } = DeviceInfo();
 const userCreateContext = createContext();
-import { farmerByNameAPI, problemPlotAgainstFarmerAPI } from '../../config/apiHere';
+import { farmerByNameAPI, problemPlotAgainstFarmerAPI, showCarbonFlag } from '../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../Common/ToastAlert';
 import { Root, Toast, Popup, SPSheet } from 'react-native-popup-confirm-toast';
@@ -38,64 +38,72 @@ const UserCreateContextProvider = (props) => {
     const [topBanner, settopBanner] = useState("");
     const [plotAll, setplotAll] = useState([]);
     const AllFarmerList = async () => {
-        var farmer_response = [];
-        var responsePlot = [];
-        const [loginUser_data, logoImageData, topBannerData, companyLanguage_data] = await Promise.all([
-            getItem('loginUser_data'),
-            getItem('logoImageData'),
-            getItem('topBannerData'),
-            getItem('companyLanguage_data')
-        ]);
-        setlogoImage(logoImageData);
-        settopBanner(topBannerData);
-        setloginUser_data(loginUser_data);
-        i18next.changeLanguage(loginUser_data?.lan_id.toString());
-        if (netConnection && loginUser_data?.token) {
-            [farmer_response, responsePlot] = await Promise.all([
-                farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id),
-                problemPlotAgainstFarmerAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id)
+        try {
+            var farmer_response = [];
+            var responsePlot = [];
+            let resCarbonFlag = [];
+            const [loginUser_data, logoImageData, topBannerData, companyLanguage_data] = await Promise.all([
+                getItem('loginUser_data'),
+                getItem('logoImageData'),
+                getItem('topBannerData'),
+                getItem('companyLanguage_data')
             ]);
+            i18next.changeLanguage(loginUser_data?.lan_id.toString());
+            if (netConnection && loginUser_data?.token) {
+                [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
+                    farmerByNameAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id),
+                    problemPlotAgainstFarmerAPI(loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.token, loginUser_data?.user_id),
+                    showCarbonFlag(loginUser_data?.token, loginUser_data?.dbname, loginUser_data?.lan_id, loginUser_data?.user_id)
+                ]);
+                if (farmer_response?.status == 200) {
+                    await Promise.all([
+                        setItem('farmerByNameAPI', farmer_response),
+                        setItem('problemPlotAgainstFarmer' + loginUser_data?.user_id, responsePlot),
+                        setItem('carbonFlag', resCarbonFlag)
+                    ])
+                }
+            } else {
+                [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
+                    getItem('farmerByNameAPI'),
+                    getItem('problemPlotAgainstFarmer' + loginUser_data?.user_id),
+                    getItem('carbonFlag')
+                ]);
+            }
             if (farmer_response?.status == 200) {
-                await Promise.all([
-                    setItem('farmerByNameAPI', farmer_response),
-                    setItem('problemPlotAgainstFarmer' + loginUser_data?.user_id, responsePlot)
-                ])
+                let supervisorId = '';
+                if (loginUser_data?.userType == 2) {
+                    supervisorId = loginUser_data?.owner?.user_id
+                } else if (loginUser_data?.userType == 3) {
+                    supervisorId = loginUser_data?.user_id
+                }
+                const { company, country_id, language } = companyLanguage_data;
+                const { option_value } = resCarbonFlag?.data?.data || {};
+                setlogoImage(logoImageData);
+                settopBanner(topBannerData);
+                setloginUser_data({ ...loginUser_data, ... { carbonFlag: option_value } });
+                setdbLanTokUsr({
+                    ...dbLanTokUsr,
+                    dbName: loginUser_data?.dbname,
+                    languageId: loginUser_data?.lan_id,
+                    token: loginUser_data?.token,
+                    supervisorId: supervisorId,
+                    farmerId: loginUser_data?.user_id,
+                    agri_user_addresses: loginUser_data?.agri_user_addresses,
+                    country: loginUser_data?.agri_user_addresses[0].country,
+                    company: loginUser_data?.db_company_id,
+                    owner: loginUser_data?.owner?.FcmUserToken,
+                    FcmUserToken: loginUser_data?.FcmUserToken,
+                    languageConpany: company,
+                    country_id: country_id,
+                    carbonFlag: option_value
+                });
+                const dataArray = farmer_response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber, aadharNumber: data?.aadhar_number, kccNumber: data?.kcc_number }))
+                setFarmerData(dataArray);
+                const PlotArray = responsePlot?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
+                setplotAll(PlotArray);
             }
-        } else {
-            farmer_response = await getItem('farmerByNameAPI');
-            [farmer_response, responsePlot] = await Promise.all([
-                getItem('farmerByNameAPI'),
-                getItem('problemPlotAgainstFarmer' + loginUser_data?.user_id)
-            ]);
-        }
-        if (farmer_response?.status == 200) {
-            let supervisorId = '';
-            if (loginUser_data?.userType == 2) {
-                supervisorId = loginUser_data?.owner?.user_id
-            } else if (loginUser_data?.userType == 3) {
-                supervisorId = loginUser_data?.user_id
-            }
-            const { company, country_id, language } = companyLanguage_data;
-            setdbLanTokUsr({
-                ...dbLanTokUsr,
-                dbName: loginUser_data?.dbname,
-                languageId: loginUser_data?.lan_id,
-                token: loginUser_data?.token,
-                supervisorId: supervisorId,
-                farmerId: loginUser_data?.user_id,
-                agri_user_addresses: loginUser_data?.agri_user_addresses,
-                country: loginUser_data?.agri_user_addresses[0].country,
-                company: loginUser_data?.db_company_id,
-                owner: loginUser_data?.owner?.FcmUserToken,
-                FcmUserToken: loginUser_data?.FcmUserToken,
-                languageConpany: company,
-                country_id: country_id,
-
-            });
-            const dataArray = farmer_response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber,aadharNumber:data?.aadhar_number,kccNumber:data?.kcc_number}))
-            setFarmerData(dataArray);
-            const PlotArray = responsePlot?.data?.data.map(data => ({ value: data.rel_id, label: data.plot_no }));
-            setplotAll(PlotArray);
+        } catch (error) {
+            console.error(error)
         }
     }
     useEffect(() => {

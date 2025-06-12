@@ -34,11 +34,26 @@ local.properties
 *.keystore
 !debug.keystore
 
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/.cxx/
+android/local.properties
+*.iml
+*.keystore
+*.jks
+
 # node.js
 #
+# React Native
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
 
 # fastlane
 #
@@ -64,3 +79,12 @@ yarn-error.log
 
 # testing
 /coverage
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.tgz
+*.gz
+

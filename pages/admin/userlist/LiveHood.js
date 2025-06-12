@@ -75,7 +75,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
     DropdownForm,
     effective_dates,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
@@ -322,10 +322,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       const filteredPlotImages = plot_img.filter(item => item.term_type === 'plot_image');
       const filteredCarbonAgreement = plot_img.filter(item => item.term_type === 'carbon_agreement');
       const filteredSignature = plot_img.filter(item => item.term_type === 'signature');
-
-      // console.log('filteredCarbonAgreement', filteredCarbonAgreement);
-      console.log('filteredSignature', filteredSignature);
-
       if (filteredSignature.length > 0) {
         setSignature({
           uri: filteredSignature[filteredSignature.length - 1]?.file_path,
@@ -1008,21 +1004,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       const { latitude, longitude } = fusedLocation;
       const distances = previousPlotLatlong.map(p => getDistance(p, { latitude, longitude }));
       const minDistance = Math.min(...distances);
-      // if (previousPlotLatlong.length > 1) {
-      //   if (minDistance < APP_MAP_RANGE_POLYGON) {
-      //   } else {
-      //     Alert.alert(
-      //       '❌ Out of Range',
-      //       'Plot location and current location not are same!.',
-      //       [
-      //         { text: 'OK', onPress: () => console.log('OK Pressed') },
-      //       ],
-      //       { cancelable: false }
-      //     )
-      //     setIsLoading(false);
-      //     return;
-      //   }
-      // }
     }
     // area
     if (area != null && area != undefined && area != '' && area != 0) {
@@ -1211,48 +1192,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         } else {
           cusGooglearea = 0;
         }
-
-        // let save_data = qs.stringify({
-        //   land_rel_id: farmerData.land_rel_id,
-        //   user_id: farmeruserID,
-        //   plot_no: farmerData.plot_Site_Name,
-        //   createdBy: user_id,
-        //   daag_no: farmerData.daag_no,
-        //   khatian_no: farmerData.khatian_no,
-        //   plant_number: farmerData.plant_number,
-        //   terrain_type_id: farmerData.terrainTypeValue,
-        //   lan_type_id: farmerData.landTypeValue,
-        //   soil_type_id: farmerData.soilTypeValue,
-        //   land_unit_id: farmerData.unitValue,
-        //   land_size: farmerData.land_size,
-        //   land_convert_size: land_convert_size_value,
-        //   latitude: latlongArr[0]?.latitude,
-        //   longitude: latlongArr[0]?.longitude,
-        //   status: 1,
-        //   crop_season_id: farmerData.productionSeasonValue,
-        //   crop_type_id: farmerData.livelihoodTypeValue,
-        //   crop_name_id: farmerData.produceNameValue,
-        //   crop_variety_id: farmerData.produceVarietyValue,
-        //   sowing_date: farmerData.cycleStartDate,
-        //   harvesting_date: farmerData.cycleEndDate,
-        //   is_primary: 0,
-        //   certified_seed: 'No',
-        //   have_land_title: 'No',
-        //   production_system: farmerData.productionProcessValue,
-        //   have_fertilizer: 'Yes',
-        //   buy_pesticide: 'Yes',
-        //   yield_amount: farmerData.expectedProduction,
-        //   yield_unit: farmerData.unitProductValue,
-        //   crop_cycl_start_date: cusCropCyclStartDate,
-        //   // crop_cycl_start_date: farmerData.cycleStartDate,
-        //   latlong_data: latlongArrString,
-        //   google_area: cusGooglearea,
-        //   plot_image: filterAddressImage,
-        //   device_no: farmerData.IOTId,
-        //   device_lat: farmerData.IOTLatlat,
-        //   device_long: farmerData.IOTLatLong,
-        // });
-
         let dataToSend = {
           land_rel_id: farmerData.land_rel_id,
           user_id: farmeruserID,
@@ -1298,7 +1237,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }
         let save_data = qs.stringify(dataToSend);
         let updateLandCropdetails_res = {};
-        // if (statuslevel.label == 'PENDING' || statuslevel.label == 'REJECTED' || harvested != '') {
         updateLandCropdetails_res = await UpdateLandCropdetailsAPI(
           dbname,
           lan_id,
@@ -1330,37 +1268,31 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }
         if (
           statuslevel.label == 'APPROVED' ||
-          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED'
+          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED'&&carbonFlag == true
         ) {
-          const formdataCarbon = new FormData();
-          formdataCarbon.append('rel_id', farmerData.land_rel_id);
-          if (
-            carboncertificate[0]?.id != undefined &&
-            carboncertificate[0]?.id == '' &&
-            carboncertificate[0].uri != ''
-          ) {
-            formdataCarbon.append('carbon_agreement', carboncertificate[0]);
-          }
-
-          console.log('signature', signature);
-
-          if (
-            signature?.id != undefined &&
-            signature?.id == '' &&
-            signature.uri != ''
-          ) {
-            formdataCarbon.append('signature', signature);
-          }
-
-          console.log('formdataCarbon', formdataCarbon);
-          const carbonRes = await uploadCarbonAgrDocs(
-            dbname,
-            lan_id,
-            token,
-            farmeruserID,
-            formdataCarbon,
-          );
-          console.log(carbonRes.data);
+            const formdataCarbon = new FormData();
+            formdataCarbon.append('rel_id', farmerData.land_rel_id);
+            if (
+              carboncertificate[0]?.id != undefined &&
+              carboncertificate[0]?.id == '' &&
+              carboncertificate[0].uri != ''
+            ) {
+              formdataCarbon.append('carbon_agreement', carboncertificate[0]);
+            }
+            if (
+              signature?.id != undefined &&
+              signature?.id == '' &&
+              signature.uri != ''
+            ) {
+              formdataCarbon.append('signature', signature);
+            }
+            const carbonRes = await uploadCarbonAgrDocs(
+              dbname,
+              lan_id,
+              token,
+              farmeruserID,
+              formdataCarbon,
+            );
         }
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
@@ -1444,35 +1376,35 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         });
         // setPolygons([newPolygon]);
         //basudev
-        // if (!overlapFound) {
-        setPolygons([...nearPolSet, newPolygon]);
-        setNewPolygon([]);
-        setLocation(newPolygon);
-        setEditing(false);
-        setShowModal(false);
-        // setArea(calculateAreaFun(newPolygon));
-        setfarmerData({
-          ...farmerData,
-          google_area: geolib.getAreaOfPolygon(newPolygon),
-        });
-        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-          setArea(
-            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
-          );
+        if (!overlapFound) {
+          setPolygons([...nearPolSet, newPolygon]);
+          setNewPolygon([]);
+          setLocation(newPolygon);
+          setEditing(false);
+          setShowModal(false);
+          // setArea(calculateAreaFun(newPolygon));
+          setfarmerData({
+            ...farmerData,
+            google_area: geolib.getAreaOfPolygon(newPolygon),
+          });
+          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+            setArea(
+              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(newPolygon),
+            );
+          } else {
+            setArea(geolib.getAreaOfPolygon(newPolygon));
+          }
         } else {
-          setArea(geolib.getAreaOfPolygon(newPolygon));
+          Alert.alert(
+            'Overlap Detected',
+            'Coordinates are overlapping',
+            [
+              { text: 'OK', onPress: () => console.log('OK Pressed') },
+            ],
+            { cancelable: false }
+          )
         }
-        // } else {
-        //   Alert.alert(
-        //     'Overlap Detected',
-        //     'Coordinates are overlapping',
-        //     [
-        //       { text: 'OK', onPress: () => console.log('OK Pressed') },
-        //     ],
-        //     { cancelable: false }
-        //   )
-        // }
       } else {
         // setArea(0);
         Alert.alert(
@@ -2008,11 +1940,11 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                 />
               </View>
             </View>
-            {statuslevel.label == 'APPROVED' ||
+            {(statuslevel.label == 'APPROVED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
               statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
-              statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' ? (
+              statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') && carbonFlag == true ? (
               <>
                 <CarbonCertificate
                   identityProofIdentityPropf={carboncertificate}

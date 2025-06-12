@@ -54,16 +54,15 @@ export default function Main() {
         await firebase.analytics().setAnalyticsCollectionEnabled(true);
     }
     useEffect(() => {
-        // checkAppVersion()
+        checkAppVersion()
             setAnalyticsEnabled()
     }, []);
     const exceptionHandler = (error, isFatal) => {
         crashlytics().recordError(error, 'js_exception');
-         const errorMessage = error?.message || 'Unknown error';
         if (isFatal) {
             Alert.alert(
                 'something went wrong please try again',
-                `${errorMessage}`,
+                ``,
                 [{ text: 'OK', onPress: () => { onSignIn() }, },]
             );
         } else {

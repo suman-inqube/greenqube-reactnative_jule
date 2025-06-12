@@ -685,16 +685,35 @@ const ActivityReportAWD = ({ navigation }) => {
     let save_data = qs.stringify({
       crop_cycl_start_date: cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate,
     });
-    const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
-    var activitySchedule = activityScheduleAPI(
-      dbname,
-      lan_id,
-      token,
-      'carbon_activity',
-      saveData.plot_id,
-      saveData.crop_name,
-      saveData.cu_rel_id,
-    );
+    // const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
+    // var activitySchedule = activityScheduleAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   'carbon_activity',
+    //   saveData.plot_id,
+    //   saveData.crop_name,
+    //   saveData.cu_rel_id,
+    // );
+     var [setCycleDate, activitySchedule] = await Promise.all([
+          setCycleDateAPI(
+            dbname,
+            lan_id,
+            farmerID,
+            token,
+            saveData.cu_rel_id,
+            save_data,
+          ),
+          activityScheduleAPI(
+            dbname,
+            lan_id,
+            token,
+            'carbon_activity',
+            saveData.plot_id,
+            saveData.crop_name,
+            saveData.cu_rel_id,
+          ),
+        ]);
 
     if (activitySchedule.status == 200) {
      
@@ -931,7 +950,7 @@ const ActivityReportAWD = ({ navigation }) => {
       formData.append("crop_name", saveData.crop_name);
       formData.append("crop_season", saveData.crop_season);
       formData.append("act_master_id", saveData.act_master_id);
-      formData.append('cu_rel_fid', saveData.cu_rel_id);
+      // formData.append('cu_rel_fid', saveData.cu_rel_id);
         formData.append('crop_variety', saveData.crop_variety);
       formData.append("cycle_start_date", saveData.cycle_start_date);
       formData.append("growth_stage", saveData.growth_stage);

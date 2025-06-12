@@ -62,17 +62,25 @@ const FarmerDashboard = ({ navigation }) => {
         }
     };
     const onPageLoad = async () => {
-        const [userNameData,
-            profileImgData,
-            // loginUser_data,
-            company_website] = await Promise.all([
-                getItem('userNameData'),
-                getItem('profileImgData'),
-                // getItem('loginUser_data'),
-                getItem('company_website'),
-                Permission.requestMultiple([PERMISSIONS_TYPE.microphone, PERMISSIONS_TYPE.fineLocation])
-                // GeolocationApi(),
-            ]);
+        const [
+          userNameData,
+          profileImgData,
+          bottomBannerData,
+          // loginUser_data,
+          company_website,
+        ] = await Promise.all([
+          getItem('userNameData'),
+          getItem('profileImgData'),
+          getItem('bottomBannerData'),
+          // getItem('loginUser_data'),
+          getItem('company_website'),
+          Permission.requestMultiple([
+            PERMISSIONS_TYPE.microphone,
+            PERMISSIONS_TYPE.fineLocation,
+          ]),
+          // GeolocationApi(),
+        ]);
+            setbottomBanner(bottomBannerData);
         setcompany_website(company_website);
         setuserName(userNameData);
         setprofileImg(profileImgData);

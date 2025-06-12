@@ -263,24 +263,44 @@ const FarmerActivityReport = ({ navigation }) => {
       crop_cycl_start_date:
         cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate,
     });
-    const productionStage_res = await setCycleDateAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      token,
-      saveData.cu_rel_id,
-      save_data,
-    );
+    // const productionStage_res = await setCycleDateAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   token,
+    //   saveData.cu_rel_id,
+    //   save_data,
+    // );
 
-    var activitySchedule = activityScheduleAPI(
-      dbname,
-      lan_id,
-      token,
-      'user_activity',
-      saveData.plot_id,
-      saveData.crop_name,
-      saveData.cu_rel_id,
-    );
+    // var activitySchedule = activityScheduleAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   'user_activity',
+    //   saveData.plot_id,
+    //   saveData.crop_name,
+    //   saveData.cu_rel_id,
+    // );
+
+     var [setCycleDate, activitySchedule] = await Promise.all([
+       setCycleDateAPI(
+         dbname,
+         lan_id,
+         farmerID,
+         token,
+         saveData.cu_rel_id,
+         save_data,
+       ),
+       activityScheduleAPI(
+         dbname,
+         lan_id,
+         token,
+         'user_activity',
+         saveData.plot_id,
+         saveData.crop_name,
+         saveData.cu_rel_id,
+       ),
+     ]);
     
     
     
@@ -608,8 +628,12 @@ const FarmerActivityReport = ({ navigation }) => {
                                     formatDate(element?.activity_end_date) +
                                     ')';
                                   console.log(overdueData);
+                                  setOverdueAct(prevItems => [
+                                    ...prevItems,
+                                    overdueData,
+                                  ]);
                                 }
-                                setOverdueAct(prevItems => [...prevItems, overdueData]);
+                                
                               },
                             );
         
@@ -1160,6 +1184,7 @@ const FarmerActivityReport = ({ navigation }) => {
       var activityType_res = await getItem('activityType' + user_id);
     }
     if (activityType_res) {
+       setIsLoading(false);
       const dataArray = [];
       activityType_res.data.data.rows.forEach(element => {
         dataArray.push({ value: element.fid, label: element.categoryName });

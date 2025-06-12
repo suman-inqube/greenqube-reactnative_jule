@@ -35,6 +35,7 @@ import Map from '../Map';
 import * as geolib from 'geolib';
 import { getDistance } from 'geolib';
 import { APP_MAP_RANGE_POLYGON } from '@env';
+import * as turf from '@turf/turf';
 import {
   calculateAreaFun,
   convertedArrayLatLong,
@@ -73,7 +74,7 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
     AlertMesg,
     ButtonFormBottom,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, owner } = loginUser_data;
+  const { dbname, lan_id, token, user_id, owner, carbonFlag } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [plotAll, setplotAll] = useState([]);
@@ -971,10 +972,10 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
           device_lat: farmerData.IOTLatlat,
           device_long: farmerData.IOTLatLong,
         };
-                        if (cusCropCyclStartDate) {
-                          dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
-                        }
-                        let save_data = qs.stringify(dataToSend);
+        if (cusCropCyclStartDate) {
+          dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
+        }
+        let save_data = qs.stringify(dataToSend);
         const updateLandCropdetails_res = await UpdateLandCropdetailsAPI(
           dbname,
           lan_id,
@@ -1006,8 +1007,8 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
           return;
         }
         if (
-          statuslevel.label == 'APPROVED' ||
-          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED'
+          (statuslevel.label == 'APPROVED' ||
+            statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') && carbonFlag == true
         ) {
           const formdataCarbon = new FormData();
           formdataCarbon.append('rel_id', farmerData.land_rel_id);
@@ -1018,8 +1019,6 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
           ) {
             formdataCarbon.append('carbon_agreement', carboncertificate[0]);
           }
-
-          console.log('signature', signature);
 
           if (
             signature?.id != undefined &&
@@ -1035,7 +1034,6 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
             user_id,
             formdataCarbon,
           );
-          console.log(carbonRes.data);
         }
         if (updateLandCropdetails_res?.status === 200) {
           Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
@@ -1136,202 +1134,202 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
     }
     if (cropAndPlotDetails?.status === 200) {
       // if (cropAndPlotDetails.data.data.count != 0) {
-        const data = cropAndPlotDetails?.data?.data;
-        plotSiteUserLandDetails.map((dataLandDetails, index) => {
-          if (dataLandDetails?.rel_id == findData.value) {
-            if (
-              dataLandDetails?.status_level == 'APPROVED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
-            ) {
-              Alert.alert(
-                'Note',
-                'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-                [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-                { cancelable: false },
-              );
-            }
-            setstatuslevel({ label: dataLandDetails?.status_level, value: dataLandDetails?.status_level });
-            // if (
-            //   new Date(data.sowing_date) < new Date(data.harvesting_date) !=
-            //   true
-            // ) {
-              if (new Date() < new Date(data.harvesting_date) != true) {
-                setModalVisible(true);
-                setOutofRange(false);
-              } else {
-                setEdit(true);
-              }
-            // setArea(data.land_info?.google_area);
-            if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-              setArea(
-                Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                Number(data.land_info?.google_area),
-              );
-            } else {
-              setArea(data.land_info?.google_area);
-            }
-            setfarmerData({
-              ...farmerData,
-              createdBy: owner?.user_id,
-              plot_no: data?.land_info?.plot_no,
-              cu_rel_id: data?.cu_rel_id,
-              land_rel_id: findData?.value,
-              daag_no: dataLandDetails?.daag_no,
-              khatian_no: dataLandDetails?.khatian_no,
-              plant_number: dataLandDetails?.plant_number,
-              land_size: dataLandDetails?.land_size,
-              plot_Site: findData.value,
-              plot_Site_Name: findData.label,
-              expectedProduction: data.yield_amount,
-              cycleStartDate: data.sowing_date,
-              cycleEndDate: data.harvesting_date.substring(-1, 10),
-              terrainType: dataLandDetails?.terrain_type?.name,
-              terrainTypeValue: dataLandDetails?.terrain_type?.fid,
-              landType: dataLandDetails?.lan_type?.name,
-              landTypeValue: dataLandDetails?.lan_type?.fid,
-              soilType: dataLandDetails?.soil_type?.name,
-              soilTypeValue: dataLandDetails?.soil_type?.fid,
-              unit: dataLandDetails?.land_unit?.name,
-              unitValue: dataLandDetails?.land_unit?.fid,
-              productionSeason: data?.crop_season?.name,
-              productionSeasonValue: data?.crop_season?.fid,
-              livelihoodType: data?.crop_type?.name,
-              livelihoodTypeValue: data?.crop_type?.fid,
-              produceName: data?.crop_name?.name,
-              produceNameValue: data?.crop_name?.fid,
-              produceVariety: data?.crop_variety?.name,
-              produceVarietyValue: data?.crop_variety?.fid,
-              productionProcess: data?.farmer_production_system?.name,
-              productionProcessValue: data?.farmer_production_system?.fid,
-              unitProduct: data?.agri_unit?.unit_name,
-              unitProductValue: data?.agri_unit?.fid,
-              unit_value: dataLandDetails?.land_unit?.unit_value,
-              google_area: data.land_info?.google_area,
-              IOTId: data.land_info?.device_no,
-              IOTLatlat: data.land_info?.device_lat,
-              IOTLatLong: data.land_info?.device_long,
-              crop_cycl_start_date: data.crop_cycl_start_date,
-              ConvertedreportedLandsize:
-                Number(dataLandDetails?.land_unit?.defined_unit_value) *
-                Number(dataLandDetails?.land_size),
-            });
-            return;
-          }
-        });
-
-        const agri_land_user_latlongs = data.land_info.agri_land_user_latlongs;
-
-        const values = [...location];
-        if (values.length < agri_land_user_latlongs.length) {
-          values[0] = {
-            latitude: plotSiteUserLandDetails[0]?.latitude,
-            longitude: plotSiteUserLandDetails[0]?.longitude,
-          };
-          agri_land_user_latlongs.map((data, index) => {
-            locationLength = index;
-            if (data?.latitude != '') {
-              values[index] = {
-                latitude: data?.latitude,
-                longitude: data?.longitude,
-              };
-            }
-          });
-          setLocation(values);
-          setPreviousPlotLatlong(values);
-          if (locationLength >= 2 == true) {
-
-            // GRQ-1131
-            // setPolygons([convertedArrayLatLong(values)]);
-
-            const parsedTargetArray = values.map(item => ({
-              latitude: parseFloat(item.latitude),
-              longitude: parseFloat(item.longitude),
-            }));
-            const index = nearPolSet.findIndex(
-              subArray =>
-                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+      const data = cropAndPlotDetails?.data?.data;
+      plotSiteUserLandDetails.map((dataLandDetails, index) => {
+        if (dataLandDetails?.rel_id == findData.value) {
+          if (
+            dataLandDetails?.status_level == 'APPROVED' ||
+            dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
+            dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
+            dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
+          ) {
+            Alert.alert(
+              'Note',
+              'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
+              [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+              { cancelable: false },
             );
-            if (index !== -1) {
-              const [foundArray] = nearPolSet.splice(index, 1);
-              nearPolSet.push(foundArray);
-            }
-            setPolygons(nearPolSet);
-          } else {
-            // GRQ-1131
-            // setPolygons([]);
-            setPolygons(nearPolSet);
           }
-          setLocationType('api_lication');
-        } else {
-
-          const values = [];
-          values[0] = {
-            latitude: plotSiteUserLandDetails[0]?.latitude,
-            longitude: plotSiteUserLandDetails[0]?.longitude,
-          };
-          location.map((locationData, index) => {
-            if (agri_land_user_latlongs[index] != undefined) {
-              locationLength = index;
-              values[index] = {
-                latitude: agri_land_user_latlongs[index]?.latitude,
-                longitude: agri_land_user_latlongs[index]?.longitude,
-              };
-            } else {
-              if (agri_land_user_latlongs[0] == undefined) {
-                values[index + 1] = { latitude: '', longitude: '' };
-              } else {
-                values[index] = { latitude: '', longitude: '' };
-              }
-            }
-          });
-          setLocation(values);
-          setPreviousPlotLatlong(values);
-          if (locationLength >= 2 == true) {
-            // GRQ-1131
-            // setPolygons([convertedArrayLatLong(values)]);
-
-            const parsedTargetArray = values.map(item => ({
-              latitude: parseFloat(item.latitude),
-              longitude: parseFloat(item.longitude),
-            }));
-
-            // Find the index of the target array in mainArray
-            const index = nearPolSet.findIndex(
-              subArray =>
-                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
-            );
-
-            // If found, move it to the last index
-            if (index !== -1) {
-              const [foundArray] = nearPolSet.splice(index, 1); // Remove it from current position
-              nearPolSet.push(foundArray); // Add it at the last index
-            }
-            setPolygons(nearPolSet);
-          } else {
-            // GRQ-1131
-            // setPolygons([]);
-            setPolygons(nearPolSet);
-          }
-          setLocationType('api_lication');
-        }
-        //basudev out of range
-        if (agri_land_user_latlongs.length > 1) {
-          const { latitude, longitude } = fusedLocation;
-          const is20Meters = isWithin20Meters(
-            { latitude, longitude },
-            agri_land_user_latlongs,
-            40,
-          );
-          if (is20Meters?.length !== 0) {
+          setstatuslevel({ label: dataLandDetails?.status_level, value: dataLandDetails?.status_level });
+          // if (
+          //   new Date(data.sowing_date) < new Date(data.harvesting_date) !=
+          //   true
+          // ) {
+          if (new Date() < new Date(data.harvesting_date) != true) {
+            setModalVisible(true);
             setOutofRange(false);
           } else {
-            setOutofRange(true);
+            setEdit(true);
           }
-        } else {
-          setOutofRange(false);
+          // setArea(data.land_info?.google_area);
+          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+            setArea(
+              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              Number(data.land_info?.google_area),
+            );
+          } else {
+            setArea(data.land_info?.google_area);
+          }
+          setfarmerData({
+            ...farmerData,
+            createdBy: owner?.user_id,
+            plot_no: data?.land_info?.plot_no,
+            cu_rel_id: data?.cu_rel_id,
+            land_rel_id: findData?.value,
+            daag_no: dataLandDetails?.daag_no,
+            khatian_no: dataLandDetails?.khatian_no,
+            plant_number: dataLandDetails?.plant_number,
+            land_size: dataLandDetails?.land_size,
+            plot_Site: findData.value,
+            plot_Site_Name: findData.label,
+            expectedProduction: data.yield_amount,
+            cycleStartDate: data.sowing_date,
+            cycleEndDate: data.harvesting_date.substring(-1, 10),
+            terrainType: dataLandDetails?.terrain_type?.name,
+            terrainTypeValue: dataLandDetails?.terrain_type?.fid,
+            landType: dataLandDetails?.lan_type?.name,
+            landTypeValue: dataLandDetails?.lan_type?.fid,
+            soilType: dataLandDetails?.soil_type?.name,
+            soilTypeValue: dataLandDetails?.soil_type?.fid,
+            unit: dataLandDetails?.land_unit?.name,
+            unitValue: dataLandDetails?.land_unit?.fid,
+            productionSeason: data?.crop_season?.name,
+            productionSeasonValue: data?.crop_season?.fid,
+            livelihoodType: data?.crop_type?.name,
+            livelihoodTypeValue: data?.crop_type?.fid,
+            produceName: data?.crop_name?.name,
+            produceNameValue: data?.crop_name?.fid,
+            produceVariety: data?.crop_variety?.name,
+            produceVarietyValue: data?.crop_variety?.fid,
+            productionProcess: data?.farmer_production_system?.name,
+            productionProcessValue: data?.farmer_production_system?.fid,
+            unitProduct: data?.agri_unit?.unit_name,
+            unitProductValue: data?.agri_unit?.fid,
+            unit_value: dataLandDetails?.land_unit?.unit_value,
+            google_area: data.land_info?.google_area,
+            IOTId: data.land_info?.device_no,
+            IOTLatlat: data.land_info?.device_lat,
+            IOTLatLong: data.land_info?.device_long,
+            crop_cycl_start_date: data.crop_cycl_start_date,
+            ConvertedreportedLandsize:
+              Number(dataLandDetails?.land_unit?.defined_unit_value) *
+              Number(dataLandDetails?.land_size),
+          });
+          return;
         }
+      });
+
+      const agri_land_user_latlongs = data.land_info.agri_land_user_latlongs;
+
+      const values = [...location];
+      if (values.length < agri_land_user_latlongs.length) {
+        values[0] = {
+          latitude: plotSiteUserLandDetails[0]?.latitude,
+          longitude: plotSiteUserLandDetails[0]?.longitude,
+        };
+        agri_land_user_latlongs.map((data, index) => {
+          locationLength = index;
+          if (data?.latitude != '') {
+            values[index] = {
+              latitude: data?.latitude,
+              longitude: data?.longitude,
+            };
+          }
+        });
+        setLocation(values);
+        setPreviousPlotLatlong(values);
+        if (locationLength >= 2 == true) {
+
+          // GRQ-1131
+          // setPolygons([convertedArrayLatLong(values)]);
+
+          const parsedTargetArray = values.map(item => ({
+            latitude: parseFloat(item.latitude),
+            longitude: parseFloat(item.longitude),
+          }));
+          const index = nearPolSet.findIndex(
+            subArray =>
+              JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+          );
+          if (index !== -1) {
+            const [foundArray] = nearPolSet.splice(index, 1);
+            nearPolSet.push(foundArray);
+          }
+          setPolygons(nearPolSet);
+        } else {
+          // GRQ-1131
+          // setPolygons([]);
+          setPolygons(nearPolSet);
+        }
+        setLocationType('api_lication');
+      } else {
+
+        const values = [];
+        values[0] = {
+          latitude: plotSiteUserLandDetails[0]?.latitude,
+          longitude: plotSiteUserLandDetails[0]?.longitude,
+        };
+        location.map((locationData, index) => {
+          if (agri_land_user_latlongs[index] != undefined) {
+            locationLength = index;
+            values[index] = {
+              latitude: agri_land_user_latlongs[index]?.latitude,
+              longitude: agri_land_user_latlongs[index]?.longitude,
+            };
+          } else {
+            if (agri_land_user_latlongs[0] == undefined) {
+              values[index + 1] = { latitude: '', longitude: '' };
+            } else {
+              values[index] = { latitude: '', longitude: '' };
+            }
+          }
+        });
+        setLocation(values);
+        setPreviousPlotLatlong(values);
+        if (locationLength >= 2 == true) {
+          // GRQ-1131
+          // setPolygons([convertedArrayLatLong(values)]);
+
+          const parsedTargetArray = values.map(item => ({
+            latitude: parseFloat(item.latitude),
+            longitude: parseFloat(item.longitude),
+          }));
+
+          // Find the index of the target array in mainArray
+          const index = nearPolSet.findIndex(
+            subArray =>
+              JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+          );
+
+          // If found, move it to the last index
+          if (index !== -1) {
+            const [foundArray] = nearPolSet.splice(index, 1); // Remove it from current position
+            nearPolSet.push(foundArray); // Add it at the last index
+          }
+          setPolygons(nearPolSet);
+        } else {
+          // GRQ-1131
+          // setPolygons([]);
+          setPolygons(nearPolSet);
+        }
+        setLocationType('api_lication');
+      }
+      //basudev out of range
+      if (agri_land_user_latlongs.length > 1) {
+        const { latitude, longitude } = fusedLocation;
+        const is20Meters = isWithin20Meters(
+          { latitude, longitude },
+          agri_land_user_latlongs,
+          40,
+        );
+        if (is20Meters?.length !== 0) {
+          setOutofRange(false);
+        } else {
+          setOutofRange(true);
+        }
+      } else {
+        setOutofRange(false);
+      }
       // }
       setIsLoading(false);
       location.map((data, index) => {
@@ -1391,24 +1389,59 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
   // GRQ-1132
   const finalizePolygon = () => {
     if (newPolygon.length > 2) {
-      // setPolygons([newPolygon]);
-      setPolygons([...nearPolSet, newPolygon]);
-      setNewPolygon([]);
-      setLocation(newPolygon);
-      setEditing(false);
-      setShowModal(false);
-      // setArea(calculatePolygonArea(newPolygon).toFixed(3));
-      setfarmerData({
-        ...farmerData,
-        google_area: geolib.getAreaOfPolygon(newPolygon),
+
+      const closedPolygon = [...newPolygon];
+      const first = newPolygon[0];
+      const last = newPolygon[newPolygon.length - 1];
+      if (
+        first.latitude !== last.latitude ||
+        first.longitude !== last.longitude
+      ) {
+        closedPolygon.push(first);
+      }
+      const newGeo = turf.polygon([
+        closedPolygon.map((p) => [p.longitude, p.latitude]),
+      ]);
+      const newFilterPoligon = polygons.filter(_item => _item.length > 2);
+      newFilterPoligon.forEach((poly) => {
+        const existingGeo = turf.polygon([
+          [...poly, poly[0]].map((p) => [p.longitude, p.latitude]),
+        ]);
+        if (turf.booleanOverlap(existingGeo, newGeo)) {
+          overlapFound = true;
+        }
       });
-      if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-        setArea(
-          Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
-        );
+      // setPolygons([newPolygon]);
+
+      if (!overlapFound) {
+        setPolygons([...nearPolSet, newPolygon]);
+        setNewPolygon([]);
+        setLocation(newPolygon);
+        setEditing(false);
+        setShowModal(false);
+        // setArea(calculatePolygonArea(newPolygon).toFixed(3));
+        setfarmerData({
+          ...farmerData,
+          google_area: geolib.getAreaOfPolygon(newPolygon),
+        });
+        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+          setArea(
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+            geolib.getAreaOfPolygon(newPolygon),
+          );
+        } else {
+          setArea(geolib.getAreaOfPolygon(newPolygon));
+        }
+
       } else {
-        setArea(geolib.getAreaOfPolygon(newPolygon));
+        Alert.alert(
+          'Overlap Detected',
+          'Coordinates are overlapping',
+          [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ],
+          { cancelable: false }
+        )
       }
     } else {
       // setArea(0);
@@ -1983,11 +2016,11 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
               />
             </View>
           </View>
-          {statuslevel.label == 'APPROVED' ||
+          {(statuslevel.label == 'APPROVED' ||
             statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
             statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
             statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
-            statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' ? (
+            statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') && carbonFlag == true ? (
             <>
               <CarbonCertificate
                 identityProofIdentityPropf={carboncertificate}
@@ -2112,11 +2145,11 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
             landUnitsquareMetre={landUnitsquareMetre}
             area={area}
             // basudev
-         // basudev
-              location={location}
-              statuslevel={statuslevel.label}
-              type="livehoood"
-              baselatLong={referencelatLong}
+            // basudev
+            location={location}
+            statuslevel={statuslevel.label}
+            type="livehoood"
+            baselatLong={referencelatLong}
           />
         </Modal>
       )}

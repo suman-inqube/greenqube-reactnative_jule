@@ -381,51 +381,53 @@ const ActivityReport = ({ navigation }) => {
                         item => item.days_until_start >= 0,
                       );
                     // console.log(upcomingActivity.days_from);
-                    if(upcomingActivity?.length > 0){
-                    const monthNames = [
-                      'January',
-                      'February',
-                      'March',
-                      'April',
-                      'May',
-                      'June',
-                      'July',
-                      'August',
-                      'September',
-                      'October',
-                      'November',
-                      'December',
-                    ];
-                    // const cycleDate =
-                    //   cycleDtartDate == ''
-                    //     ? saveData.cycle_start_date
-                    //     : cycleDtartDate;
-                    const cycleDate =
-                      data.crop_cycl_start_date == null ||
-                      data.crop_cycl_start_date == '2004-02-29'
-                        ? data.sowing_date
-                        : data.crop_cycl_start_date;
-                    const sdate = new Date(cycleDate);
-                    sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-                    const smonth = monthNames[sdate.getMonth()];
-                    const sday = sdate.getDate();
-                    const syear = sdate.getFullYear();
-                    const startDate = `${smonth} ${sday}, ${syear}`;
-                    const edate = new Date(cycleDate);
-                    edate.setDate(edate.getDate() + upcomingActivity.days_to);
-                    const emonth = monthNames[edate.getMonth()];
-                    const eday = edate.getDate();
-                    const eyear = edate.getFullYear();
-                    const endDate = `${emonth} ${eday}, ${eyear}`;
-                    const startDateEndDate = `${startDate}-${endDate}`;
+                    if (upcomingActivity != undefined) {
+                      const monthNames = [
+                        'January',
+                        'February',
+                        'March',
+                        'April',
+                        'May',
+                        'June',
+                        'July',
+                        'August',
+                        'September',
+                        'October',
+                        'November',
+                        'December',
+                      ];
+                      // const cycleDate =
+                      //   cycleDtartDate == ''
+                      //     ? saveData.cycle_start_date
+                      //     : cycleDtartDate;
+                      const cycleDate =
+                        data.crop_cycl_start_date == null ||
+                        data.crop_cycl_start_date == '2004-02-29'
+                          ? data.sowing_date
+                          : data.crop_cycl_start_date;
+                      const sdate = new Date(cycleDate);
+                      sdate.setDate(
+                        sdate.getDate() + upcomingActivity.days_from,
+                      );
+                      const smonth = monthNames[sdate.getMonth()];
+                      const sday = sdate.getDate();
+                      const syear = sdate.getFullYear();
+                      const startDate = `${smonth} ${sday}, ${syear}`;
+                      const edate = new Date(cycleDate);
+                      edate.setDate(edate.getDate() + upcomingActivity.days_to);
+                      const emonth = monthNames[edate.getMonth()];
+                      const eday = edate.getDate();
+                      const eyear = edate.getFullYear();
+                      const endDate = `${emonth} ${eday}, ${eyear}`;
+                      const startDateEndDate = `${startDate}-${endDate}`;
 
-                    setUpcomingAct(
-                      upcomingActivity?.activityName?.categoryName +
-                        ' (' +
-                        startDateEndDate +
-                        ')',
-                    );
-                  }
+                      setUpcomingAct(
+                        upcomingActivity?.activityName?.categoryName +
+                          ' (' +
+                          startDateEndDate +
+                          ')',
+                      );
+                    }
                     // const upcomingActivity =
                     //   activitySchedule?.data?.data?.otherActivities?.find(
                     //     item => item.days_until_start >= 0,
@@ -481,17 +483,37 @@ const ActivityReport = ({ navigation }) => {
         let save_data = qs.stringify({
             crop_cycl_start_date: cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate,
         });
-        const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
-        // console.log(productionStage_res.data)
-        var activitySchedule = activityScheduleAPI(
-              dbname,
-              lan_id,
-              token,
-              'carbon_activity',
-              saveData.plot_id,
-              saveData.crop_name,
-              saveData.cu_rel_id,
-            );
+        // const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
+        // // console.log(productionStage_res.data)
+        // var activitySchedule = activityScheduleAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   'user_activity',
+        //   saveData.plot_id,
+        //   saveData.crop_name,
+        //   saveData.cu_rel_id,
+        // );
+
+         var [setCycleDate, activitySchedule] = await Promise.all([
+           setCycleDateAPI(
+             dbname,
+             lan_id,
+             farmerID,
+             token,
+             saveData.cu_rel_id,
+             save_data,
+           ),
+           activityScheduleAPI(
+             dbname,
+             lan_id,
+             token,
+             'user_activity',
+             saveData.plot_id,
+             saveData.crop_name,
+             saveData.cu_rel_id,
+           ),
+         ]);
 
 
 
@@ -511,6 +533,7 @@ const ActivityReport = ({ navigation }) => {
             activitySchedule?.data?.data?.otherActivities.forEach(function (
               element,
             ) {
+              console.log("rrr")
               var overdueData;
               if (element?.days_until_start < 0) {
                 overdueData =
