@@ -996,7 +996,7 @@ const LoanRequest = ({setActiveBtn}) => {
         sowing_date,
         harvesting_date,
         farmer_production_system,
-      } = response.data.data.rows[0];
+      } = response.data.data;
       const VarityStartArr = [];
 
       VarityStartArr.push({

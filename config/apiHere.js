@@ -1102,15 +1102,21 @@ export const livelihoodNameVarietyLandrelAPI = async (
 ) => {
   const axiosHeaders = {
     headers: {
-      information: `${dbName},${languageId}`,
+      information: `${dbName},${languageId},${userId}`,
     },
   };
   // console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`, axiosHeaders);
   try {
+    // let response = await axios.get(
+    //   `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`,
+    //   axiosHeaders,
+    // );${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relId}
+
     let response = await axios.get(
-      `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`,
+      `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relId}`,
       axiosHeaders,
     );
+    console.log(response);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -2474,7 +2480,6 @@ export const addModuleForView = async (
       inputBody,
       axiosHeaders,
     );
-    console.log(response.status);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);

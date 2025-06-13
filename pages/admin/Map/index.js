@@ -77,82 +77,13 @@ export default function Map({
     },
   ];
 
-  // useEffect(() => {
-  //   const onPageLoad = async () => {
-  //     try {
-  //       const fusedLocation = await getItem('fusedLocation');
-  //       const { latitude, longitude } = fusedLocation;
-  //       if (location.length != 0) {
-  //         animateToLocation(Number(location[0].latitude), Number(location[0].longitude));
-  //       } else {
-  //         animateToLocation(latitude, longitude);
-  //         if (polygons.length === 0) {
-  //           setCurrentLocation({
-  //             latitude: latitude,
-  //             longitude: longitude,
-  //             // latitudeDelta: 0.0022,
-  //             // longitudeDelta: 0.0021,
-  //             latitudeDelta: 0.05,
-  //             longitudeDelta: 0.05,
-  //           });
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.log('Error fetching location:', error);
-  //     }
-  //   };
-  //   onPageLoad();
-  // }, []);
+  
 
-  // useEffect(() => {
-  //   const onPageLoad = async () => {
-  //     try {
-  //       // const fusedLocation = await getItem('fusedLocation');
-  //       // const {latitude, longitude} = fusedLocation;
 
-  //       if (location[0].latitude != '' && location[0].longitude != '') {
-  //         animateToLocation(
-  //           Number(location[0].latitude),
-  //           Number(location[0].longitude),
-  //         );
-  //       } else {
-  //         animateToLocation(baselatLong.latitude, baselatLong.longitude);
-  //         if (polygons.length === 0) {
-  //           setCurrentLocation({
-  //             latitude: baselatLong.latitude,
-  //             longitude: baselatLong.longitude,
-  //             // latitudeDelta: 0.0022,
-  //             // longitudeDelta: 0.0021,
-  //             latitudeDelta: 0.05,
-  //             longitudeDelta: 0.05,
-  //           });
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.log('Error fetching location:', error);
-  //     }
-  //   };
-  //   onPageLoad();
-  // }, []);
-  // const animateToLocation = (latitude, longitude) => {
-  //   if (mapRef.current) {
-  //     mapRef.current.animateToRegion(
-  //       {
-  //         latitude: latitude,
-  //         longitude: longitude,
-  //         latitudeDelta: 0.001,
-  //         longitudeDelta: 0.001,
-  //       },
-  //       0,
-  //     ); // 1000ms animation duration
-  //   }
-  // };
 
   useEffect(() => {
     const onPageLoad = async () => {
       try {
-        // const fusedLocation = await getItem('fusedLocation');
-        // const {latitude, longitude} = fusedLocation;\
 
         if (location?.length && location[0].latitude && location[0].longitude) {
           animateToLocation(
@@ -232,22 +163,22 @@ export default function Map({
     }
   }, [newPolygon]);
 
+  const onchangeLocation = (data, details) => {
+    console.log('geo ==');
+    const {lat, lng} = details?.geometry?.location;
+    console.log("geoloc ==",lat, lng);
+    // setCurrentLocation({
+    //   latitude: lat,
+    //   longitude: lng,
+    //   latitudeDelta: 0.0022, // Default zoom level
+    //   longitudeDelta: 0.0021, // Default zoom level
+    // });
+    // setMarker({lat: lat, lng: lng});
+  };
+
   useEffect(() => {
     if (editing && !drawingReference) {
       editingLocation();
-      // Geolocation.getCurrentPosition(
-      //   (position) => {
-      //     setDrawingReference({
-      //       latitude: position.coords.latitude,
-      //       longitude: position.coords.longitude,
-      //     });
-      //   },
-      //   (error) => {
-      //     console.log('Geolocation Error:', error);
-      //     Alert.alert('Location Error', 'Unable to fetch your location. Please ensure location services are enabled.');
-      //   },
-      //   { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-      // );
     }
   }, [editing, drawingReference]);
   const editingLocation = async () => {
@@ -354,6 +285,7 @@ export default function Map({
     }
   };
   return (
+    <>
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.searchIcon}
@@ -460,7 +392,104 @@ export default function Map({
         }}>
         <MultiActionButton actions={actions} statuslevel={statuslevel} />
       </View>
+
+      {/* <GooglePlacesAutocomplete
+                styles={styles.searchbar}
+                placeholder="Search"
+                query={{
+                  key: GOOGLE_PLACES_API_KEY,
+                  language: 'en', // language of the results
+                }}
+                GooglePlacesDetailsQuery={{
+                  fields: 'geometry',
+                }}
+                fetchDetails={true}
+                onPress={co}
+                onFail={error => console.error(error)}
+                selectProps={{
+                  value,
+                  onChange: setValue,
+                }}
+                requestUrl={{
+                  url: 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api',
+                  useOnPlatform: 'web',
+                }} // this in only required for use on the web. See https://git.io/JflFv more for details.
+                // renderRightButton={() => (
+                //     <TouchableOpacity onPress={resetLocation}>
+                //         <Text>dsfdsf</Text>
+                //     </TouchableOpacity>
+                // )}
+                // textInputProps={{
+                //     clearButtonMode: false,
+                // }}
+                // styles={{
+                //   textInput: {
+                //     height: 44,
+                //     width:100,
+                //     color: 'black',
+                //     fontSize: 16,
+                //   },
+                //   description: {
+                //     color: 'black', // Set suggestion list text color to red
+                //   },
+                //   predefinedPlacesDescription: {
+                //     color: 'black',
+                //   },
+                // }}
+                // styles={{
+                //   container: {
+                //     position: 'absolute',
+                //     top: 12,
+                //     width: '100%',
+                //     // marginHorizontal: '2.5%',
+                //     zIndex: 9999,
+                //   },
+                //   textInputContainer: {
+                //     backgroundColor: 'transparent',
+                //     borderWidth: 0,
+                //     width: '70%',
+                //     marginHorizontal: '15%',
+                //     opacity:0.7
+                //   },
+                //   textInput: {
+                //     backgroundColor: '#e6dfdf',
+                //     height: 38,
+                //     borderRadius: 5,
+                //     color: '#000',
+                //     fontSize: 16,
+                //     width: '100%',
+                //   },
+                //   listView: {
+                //     backgroundColor: '#e6dfdf',
+                //     opacity: 0.7,
+                //   },
+                //   description: {
+                //     color: 'black', // Set suggestion list text color to red
+                //   },
+                //   predefinedPlacesDescription: {
+                //     color: 'black',
+                //   },
+                // }}
+                // styles={{
+                //   textInputContainer: {
+                //     width: '100%', // Ensures the container width is 100%
+                //   },
+                //   textInput: {
+                //     height: 44,
+                //     fontSize: 16,
+                //     width: '80%', // Ensures the placeholder text occupies 100% width
+                //     color:'#000'
+                //   },
+                // }}
+                filterReverseGeocodingByTypes={[
+                  'locality',
+                  'administrative_area_level_3',
+                ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+                predefinedPlacesAlwaysVisible={true}
+                debounce={200}
+              /> */}
     </View>
+    </>
   );
 }
 
