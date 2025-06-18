@@ -285,6 +285,7 @@ export const activityListAPI = async (
   searchItem = '',
   from_date = '',
   to_date = '',
+  carbonType=''
 ) => {
   const axiosHeaders = {
     headers: {
@@ -294,7 +295,7 @@ export const activityListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
+      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
       axiosHeaders,
     );
     return response;
@@ -313,6 +314,7 @@ export const farmerActivityListAPI = async (
   searchItem = '',
   from_date = '',
   to_date = '',
+  carbonType='',
 ) => {
   const axiosHeaders = {
     headers: {
@@ -320,10 +322,11 @@ export const farmerActivityListAPI = async (
       information: `${dbName},${languageID},${userID}`,
     },
   };
-  // console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`)
+  console.log(axiosHeaders)
+  console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`)
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
+      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
       axiosHeaders,
     );
     return response;

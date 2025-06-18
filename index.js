@@ -23,6 +23,7 @@ import { setJSExceptionHandler, setNativeExceptionHandler } from "react-native-e
 import { checkAppVersion } from './pages/checkAppVersion';
 import { firebase } from '@react-native-firebase/analytics';
 import firebaseApp from "@react-native-firebase/app";
+import { mode } from '@env';
 export default function Main() {
 
     // Your Firebase config object
@@ -54,8 +55,10 @@ export default function Main() {
         await firebase.analytics().setAnalyticsCollectionEnabled(true);
     }
     useEffect(() => {
-        checkAppVersion()
-            setAnalyticsEnabled()
+        if (mode !== 'dev') {
+            checkAppVersion();
+        }
+        setAnalyticsEnabled()
     }, []);
     const exceptionHandler = (error, isFatal) => {
         crashlytics().recordError(error, 'js_exception');

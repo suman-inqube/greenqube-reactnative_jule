@@ -42,6 +42,7 @@ const ActivityList = ({ navigation }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [fromDateFilter, setFromDateFilter] = useState('');
+        const [carbonType, setCarbonType] = useState('')
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -58,9 +59,10 @@ const ActivityList = ({ navigation }) => {
         setToDate("");
         setSearchFarmerName("");
         setSearchFarmerPhone("");
+        setCarbonType("");
     }
     const handlePage = async (value) => {
-        handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id);
+        handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id,'',fromDate,toDate,carbonType);
     }
 
     const handleFilterList = async (item) => {
@@ -113,10 +115,10 @@ const ActivityList = ({ navigation }) => {
     const navigateToPages = useCallback(async (pageName, uact_id) => {
         navigation.navigate(pageName, uact_id);
     }, []);
-    const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo) => {
+    const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo, searchItem = '', from_date = '', to_date = '', carbonType = '') => {
         setIsLoading(true);
         if (isOnline) {
-            var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo);
+            var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo, searchItem, from_date, to_date, carbonType);
             if (response?.status == 200) { await setItem('activityList', response); }
         } else {
             var response = await getItem('activityList');
@@ -141,6 +143,7 @@ const ActivityList = ({ navigation }) => {
     };
     const filterDataRemove = () => {
         setFilterItem("");
+        setCarbonType("")
         setFilterOption(false);
         setactivityAll(activityAllRow);
         setSearchResultsList(false);
@@ -199,6 +202,11 @@ const ActivityList = ({ navigation }) => {
             return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove() };
         }
     }, [isFocused]);
+    const onChangeCarbonType = (_item) => {
+        const { label, value } = _item
+        setCarbonType(value)
+        fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
+    }
     return (
         <Root>
             <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
@@ -220,6 +228,11 @@ const ActivityList = ({ navigation }) => {
                     filterDataRemove={filterDataRemove}
                     FarmerProductNameValue={searchFarmerName}
                     FarmerProductPhoneValue={searchFarmerPhone}
+                    carbonFlag={carbonFlag}
+                    onChangeCarbonType={onChangeCarbonType}
+                    carbonTypeVal={carbonType}
+                    dataActivity={[{ label: "user activity ", value: "user_activity" },
+                    { label: "carbon activity ", value: "carbon_activity" }]}
                 />
                 <>
                     {

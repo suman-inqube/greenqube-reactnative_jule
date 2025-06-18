@@ -15,6 +15,9 @@ export const userDataListAPI = async (dbName, languageId, token, user_id, page, 
             'information': `${dbName},${languageId},${user_id}`,
         },
     };
+    console.log(config.BASE_URL +
+            `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`)
+            console.log(axiosHeaders)
     try {
 
         let response = await axios.get(

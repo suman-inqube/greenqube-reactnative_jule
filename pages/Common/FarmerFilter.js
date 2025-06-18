@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'reac
 import React from 'react';
 import RadioForm from './RadioForm';
 import { useTranslation } from 'react-i18next';
+import { Dropdown } from 'react-native-element-dropdown';
 const FarmerFilter = ({
   filterItem,
   filterOption,
@@ -19,7 +20,11 @@ const FarmerFilter = ({
   onlyDate,
   filterDataRemove,
   statusFilter,
-  statusNameValue
+  statusNameValue,
+  carbonFlag,
+  dataActivity,
+  carbonTypeVal,
+  onChangeCarbonType
 }) => {
   const { t } = useTranslation();
   return (
@@ -94,6 +99,51 @@ const FarmerFilter = ({
               </TouchableOpacity>
             </View>
             : ""}
+          {filterItem === 'Carbon' ? <View style={[styles.searchSection, { alignItems: 'flex-start', overflow: 'hidden' }]}>
+            <TouchableOpacity onPress={filterDataRemove}>
+              <Image source={require('./images/cross100.png')}
+                style={[styles.searchIcon, { marginTop: 6 }]}
+              />
+            </TouchableOpacity>
+            <View style={{ width: '80%' }}>
+              <Dropdown
+                style={{
+                  borderColor: 'transparent',
+                  borderWidth: 1.3,
+                  borderRadius: 8,
+                  paddingHorizontal: 8,
+                  backgroundColor: '#FFFFFF',
+                  width: '100%',
+                  elevation: 0,
+                  height: 45
+                }}
+                placeholderStyle={{
+                  color: '#000',
+                  fontFamily: 'Poppins-Regular',
+                  fontSize: 14
+                }}
+                selectedTextStyle={{
+                  color: '#000',
+                  fontFamily: 'Poppins-Regular',
+                  fontSize: 14
+                }}
+                inputSearchStyle={{
+                  color: '#000',
+                  fontFamily: 'Poppins-Regular'
+                }}
+                itemTextStyle={{
+                  color: '#000',
+                  fontFamily: 'Poppins-Regular'
+                }}
+                data={dataActivity}
+                labelField="label"
+                valueField="value"
+                placeholder={'Select Carbon Type'}
+                value={carbonTypeVal}
+                onChange={onChangeCarbonType}
+              />
+            </View>
+          </View> : ""}
           <TouchableOpacity onPress={filterOptionShow} >
             <Image
               source={require('../Common/images/filter100.png')}
@@ -135,6 +185,12 @@ const FarmerFilter = ({
             selected={filterItem === 'Date'}
             onSelect={() => onchangeFilterItem('Date')}
           />
+            {
+            carbonFlag == true && <RadioForm label={t('Carbon/NonCarbon')}
+              selected={filterItem === 'Carbon'}
+              onSelect={() => onchangeFilterItem('Carbon')}
+            />
+          }
         </TouchableOpacity> : ""
       }
     </>

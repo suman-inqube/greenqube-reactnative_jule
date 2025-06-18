@@ -72,7 +72,7 @@
     "react-native-image-resizer": "^1.4.5",
     "react-native-images-to-pdf": "^0.2.1",
     "react-native-linear-gradient": "^2.8.3",
-    "react-native-maps": "^1.13.2",
+    "react-native-maps": "^1.13.0",
     "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-permissions": "^3.9.3",
     "react-native-popup-confirm-toast": "^2.3.2",

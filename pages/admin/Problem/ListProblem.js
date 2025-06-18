@@ -74,7 +74,7 @@ const ListProblem = ({ navigation }) => {
         setToDate("");
     }
     const handlePage = async (value) => {
-        handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id);
+        handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id,'',fromDate,toDate);
     }
     const navigateToPages = (pageName, fid) => {
         setItem("problem_id_data", fid)

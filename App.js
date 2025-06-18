@@ -22,6 +22,7 @@ import { userCreateContext } from './pages/Context/usersCreateContext';
 import { addModuleForView } from './config/apiHere';
 import { StyleSheet, Alert, View, Image, BackHandler, AppState, ImageBackground } from 'react-native';
 import JailMonkey from 'jail-monkey';
+import { mode } from '@env';
 const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
 function App() {
@@ -33,51 +34,53 @@ function App() {
   const navigationRef = useRef();
   const [isSecure, setIsSecure] = useState(null); // null = loading
   const [appState, setAppState] = useState(AppState.currentState);
-  // useEffect(() => {
-  //   const handleAppStateChange = async nextAppState => {
-  //     const isRooted = JailMonkey.isJailBroken();
-  //     const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-  //     if (isRooted || isDevMode) {
-  //       Alert.alert(
-  //         'Security Alert',
-  //         isRooted
-  //           ? 'This device is rooted. The app will now exit.'
-  //           : 'Developer mode is enabled. The app will now exit.',
-  //         [
-  //           {
-  //             text: 'OK',
-  //             onPress: () => {
-  //               setTimeout(() => {
-  //                 BackHandler.exitApp();
-  //               }, 800);
-  //             },
-  //           },
-  //         ],
-  //         { cancelable: false }
-  //       );
-  //       return;
-  //     }
+  useEffect(() => {
+    const handleAppStateChange = async nextAppState => {
+      if (mode !== 'dev') {
+        const isRooted = JailMonkey.isJailBroken();
+        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+        if (isRooted || isDevMode) {
+          Alert.alert(
+            'Security Alert',
+            isRooted
+              ? 'This device is rooted. The app will now exit.'
+              : 'Developer mode is enabled. The app will now exit.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  setTimeout(() => {
+                    BackHandler.exitApp();
+                  }, 800);
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+          return;
+        }
 
-  //     setIsSecure(true);
-  //     setAppState(nextAppState);
-  //   };
-  //   const subscription = AppState.addEventListener(
-  //     'change',
-  //     handleAppStateChange,
-  //   );
-  //   return () => {
-  //     subscription.remove();
-  //   };
-  // }, []);
-  // if (isSecure) {
-  //   return <View style={styles.content}>
-  //     <ImageBackground
-  //       source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
-  //       style={styles.backgroundImage}
-  //     >
-  //     </ImageBackground>
-  //   </View>
-  // }
+        setIsSecure(true);
+        setAppState(nextAppState);
+      };
+      const subscription = AppState.addEventListener(
+        'change',
+        handleAppStateChange,
+      );
+      return () => {
+        subscription.remove();
+      };
+    }
+  }, []);
+  if (isSecure) {
+    return <View style={styles.content}>
+      <ImageBackground
+        source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
+        style={styles.backgroundImage}
+      >
+      </ImageBackground>
+    </View>
+  }
   return (
     <Provider store={store}>
       <NavigationContainer ref={navigationRef} onReady={() => {

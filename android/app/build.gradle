@@ -82,7 +82,7 @@ android {
         versionCode 89
         versionName "8.7"
         versionCode 92
-        versionName "9.0"
+        versionName "9.1"
     }
     signingConfigs {
         debug {

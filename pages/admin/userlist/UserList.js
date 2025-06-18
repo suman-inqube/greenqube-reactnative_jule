@@ -87,7 +87,7 @@ const UserList = ({ navigation }) => {
         let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
         if (response.status === 200) {
             setPhoneNumber('');
-            const totalPage = Math.ceil(response.data.data.count / 20);
+            const totalPage = Math.ceil(response.data.data.count / response.data.data.no_of_item_per_page);
             setdbLanTokUsr({
                 ...dbLanTokUsr,
                 pageNo: 1,
@@ -128,7 +128,7 @@ const UserList = ({ navigation }) => {
                 if (response.status === 200) {
                     setIsLoading(false);
                     setuserList(response.data.data);
-                // basudev
+                    // basudev
                     await setItem("userListData", response.data.data)
                 }
             } else {
@@ -144,7 +144,7 @@ const UserList = ({ navigation }) => {
                 if (response.status === 200) {
                     setIsLoading(false);
                     setuserList(response.data.data);
-                // basudev
+                    // basudev
                     await setItem("userListData", response.data.data)
                 }
             }
