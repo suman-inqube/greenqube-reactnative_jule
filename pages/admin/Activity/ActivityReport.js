@@ -338,22 +338,20 @@ const ActivityReport = ({ navigation }) => {
                   ) {
                     var lastData =
                       activitySchedule.data.data.lastActivity.activityName
-                        .categoryName ;
-                    //     +
-                    //   ' (' +
-                    //   formatDate(
-                    //     activitySchedule.data.data.lastActivity
-                    //       ?.activity_start_date,
-                    //   ) +
-                    //   ' - ' +
-                    //   formatDate(
-                    //     activitySchedule.data.data.lastActivity
-                    //       ?.activity_end_date,
-                    //   ) +
-                    //   ')';
+                        .categoryName +
+                      ' (' +
+                      formatDate(
+                        activitySchedule?.data?.data?.lastActivity
+                          ?.act_start_date,
+                      ) +
+                      ' - ' +
+                      formatDate(
+                        activitySchedule?.data?.data?.lastActivity?.act_to_date,
+                      ) +
+                      ')';
                      setLastAct(lastData);
                   }
-                   console.log('sch== ',activitySchedule.data.data);
+                  //  console.log('sch== ',activitySchedule.data.data);
                   if (activitySchedule?.data?.data?.otherActivities.length > 0) {
                     activitySchedule?.data?.data?.otherActivities.forEach(
                       function (element) {
@@ -523,9 +521,16 @@ const ActivityReport = ({ navigation }) => {
           ) {
             var lastData =
               activitySchedule?.data?.data?.lastActivity?.activityName
-                ?.categoryName;
-
-                console.log('lastData', lastData);
+                ?.categoryName +
+              ' (' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_start_date,
+              ) +
+              ' - ' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_to_date,
+              ) +
+              ')';
             setLastAct(lastData);
           }
 
