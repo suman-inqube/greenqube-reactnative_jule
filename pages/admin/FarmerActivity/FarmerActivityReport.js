@@ -310,7 +310,16 @@ const FarmerActivityReport = ({ navigation }) => {
               ) {
                 var lastData =
                   activitySchedule?.data?.data?.lastActivity?.activityName
-                    ?.categoryName;
+                    ?.categoryName +
+                  ' (' +
+                  formatDate(
+                    activitySchedule?.data?.data?.lastActivity?.act_start_date,
+                  ) +
+                  ' - ' +
+                  formatDate(
+                    activitySchedule?.data?.data?.lastActivity?.act_to_date,
+                  ) +
+                  ')';
     
                 setLastAct(lastData);
               }
@@ -598,20 +607,19 @@ const FarmerActivityReport = ({ navigation }) => {
                             'No Last Activity'
                           ) {
                             var lastData =
-                              activitySchedule.data.data.lastActivity.activityName
-                                .categoryName ;
-                            //     +
-                            //   ' (' +
-                            //   formatDate(
-                            //     activitySchedule.data.data.lastActivity
-                            //       ?.activity_start_date,
-                            //   ) +
-                            //   ' - ' +
-                            //   formatDate(
-                            //     activitySchedule.data.data.lastActivity
-                            //       ?.activity_end_date,
-                            //   ) +
-                            //   ')';
+                              activitySchedule.data.data.lastActivity
+                                .activityName.categoryName +
+                              ' (' +
+                              formatDate(
+                                activitySchedule?.data?.data?.lastActivity
+                                  ?.act_start_date,
+                              ) +
+                              ' - ' +
+                              formatDate(
+                                activitySchedule?.data?.data?.lastActivity
+                                  ?.act_to_date,
+                              ) +
+                              ')';
                              setLastAct(lastData);
                           }
                            console.log('sch== ',activitySchedule.data.data);

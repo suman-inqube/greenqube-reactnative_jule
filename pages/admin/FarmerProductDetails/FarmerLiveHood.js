@@ -286,6 +286,8 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
       }
       if (LandUnitsquare_metre_res?.status == 200) {
         const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+
+        console.log("meter=2 == ",LandUnitsquare_metre_res?.data?.data);
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -1391,6 +1393,7 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
   };
   // GRQ-1132
   const finalizePolygon = () => {
+    let overlapFound = false;
     if (newPolygon.length > 2) {
 
       const closedPolygon = [...newPolygon];
@@ -1416,7 +1419,9 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
               });
       // setPolygons([newPolygon]);
 
+      
       if (!overlapFound) {
+       
       setPolygons([...nearPolSet, newPolygon]);
       setNewPolygon([]);
       setLocation(newPolygon);
@@ -1432,7 +1437,9 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
           geolib.getAreaOfPolygon(newPolygon),
         );
+       
       } else {
+       
         setArea(geolib.getAreaOfPolygon(newPolygon));
       }
 

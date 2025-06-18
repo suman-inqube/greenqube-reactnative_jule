@@ -66,12 +66,15 @@ const FarmerUsefulInformation = () => {
     };
     const onPageLoad = async () => {
         const noticeId = await getItem('userNoticeId');
+       
         if (noticeId) {
             let response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
             if (response?.status == 200) {
                 setNoticeDetails(response?.data?.data[0])
+                console.log('notice == ', response?.data?.data[0]);
                 setNoticeFiles(response?.data?.data[0]?.agri_files)
             }
+           
         }
     };
     const handleBackPress = () => { navigation.navigate('FarmerUsefulInformationList'); return true; }

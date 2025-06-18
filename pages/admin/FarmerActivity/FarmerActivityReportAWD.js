@@ -405,7 +405,16 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           ) {
             var lastData =
               activitySchedule?.data?.data?.lastActivity?.activityName
-                ?.categoryName;
+                ?.categoryName +
+              ' (' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_start_date,
+              ) +
+              ' - ' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_to_date,
+              ) +
+              ')';
 
             setLastAct(lastData);
           }
@@ -634,17 +643,18 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                       // console.log("lact11")
                       var lastData =
                         activitySchedule?.data?.data?.lastActivity?.activityName
-                          ?.categoryName ;
-                        //   +
-                        // ' (' +
-                        // formatDate(
-                        //   activitySchedule?.data?.data?.lastActivity?.activity_start_date,
-                        // ) +
-                        // ' - ' +
-                        // formatDate(
-                        //   activitySchedule?.data?.data?.lastActivity?.activity_end_date,
-                        // ) +
-                        // ')';
+                          ?.categoryName +
+                        ' (' +
+                        formatDate(
+                          activitySchedule?.data?.data?.lastActivity
+                            ?.act_start_date,
+                        ) +
+                        ' - ' +
+                        formatDate(
+                          activitySchedule?.data?.data?.lastActivity
+                            ?.act_to_date,
+                        ) +
+                        ')';
                       setLastAct(lastData);
                     }
                     // console.log(activitySchedule.data.data.lastActivity);
