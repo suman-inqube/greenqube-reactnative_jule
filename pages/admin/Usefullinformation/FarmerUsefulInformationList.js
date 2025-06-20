@@ -43,16 +43,19 @@ const FarmerUsefulInformationList = () => {
         if (response?.status == 200) {
             setNoticeList(response?.data?.data)
             setItem("userNoticeList", response?.data?.data)
+           
         }
     }
     const onPageLoad = async () => {
         const response = await cropListApi(dbname, lan_id, user_id);
         if (response?.status == 200) {
+           
             let cropId = "";
             const datam = response?.data?.data?.rows
             datam.map(async (item) => { cropId = cropId + item.crop_name_id + ","; });
             const newCropId = cropId.substring(0, cropId.length - 1);
             usefulInfoList(dbname, lan_id, user_id, agri_user_addresses[0].agri_state.fid, agri_user_addresses[0].agri_district.fid, agri_user_addresses[0].agri_subdivision.fid, newCropId)
+            
         }
     };
     useEffect(() => {

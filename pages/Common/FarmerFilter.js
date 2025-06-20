@@ -84,7 +84,7 @@ const FarmerFilter = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.dateContainer}>
                 <Text style={[styles.title, { marginRight: 7 }]}>
-                  {fromDate == "" ? t('from_date') : `${fromDate}`}
+                  {fromDate == "" ?  t('from_date') : `${fromDate}`}
                 </Text>
                 <Image source={require('./images/calendar.png')}
                   style={{ width: 27, height: 27 }}
@@ -92,7 +92,7 @@ const FarmerFilter = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setOpenToDate(true)} style={styles.dateContainer}>
                 <Text style={[styles.title, { marginRight: 7 }]}>
-                  {newToDate == "" ? t('to_date') : `${newToDate}`}</Text>
+                  {newToDate == "" ?  t('to_date') : `${newToDate}`}</Text>
                 <Image source={require('./images/calendar.png')}
                   style={{ width: 27, height: 27 }}
                 />

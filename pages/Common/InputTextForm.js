@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
 import React, { memo } from 'react'
-
+const sanitizeInput = (text) => text.replace(/<\/?[^>]+(>|$)/g, '');
 const InputTextForm = ({
   value,
   color,
@@ -17,7 +17,7 @@ const InputTextForm = ({
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
   return (
     <>
-      <Text style={[styles.title, {color: color ?? 'black'}]}>
+      <Text style={[styles.title, { color: color ?? 'black' }]}>
         {labelString}
       </Text>
       <View style={styles.container}>
@@ -31,7 +31,7 @@ const InputTextForm = ({
             },
           ]}
           //  style={[styles.simpleInputTextStyle, { color: 'black' }]}
-          onChangeText={onChangeText}
+          onChangeText={(text) => onChangeText(sanitizeInput(text))}
           onBlur={onBlur}
           value={value}
           keyboardType={keyboardType ?? 'default'}

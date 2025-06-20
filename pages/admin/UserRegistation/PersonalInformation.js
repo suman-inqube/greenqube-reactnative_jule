@@ -9,10 +9,10 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 import axios from 'axios';
 import config from '../../../config';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
-import DocumentPicker, {types} from 'react-native-document-picker';
+import DocumentPicker, { types } from 'react-native-document-picker';
 const PersonalInformation = () => {
     //GQR-65
-    const { dbLanTokUsr, InputTextForm, RadioForm, getItem, setItem, AlertMesg, t, PasswordComp, ButtonForm, onBackPress,   DeviceInfo,
+    const { dbLanTokUsr, InputTextForm, RadioForm, getItem, setItem, AlertMesg, t, PasswordComp, ButtonForm, onBackPress, DeviceInfo,
         DropdownForm, Root, Toast, CustomHeader, FormsTitle, ImagePlaceHolderCircle, logoImage, topBanner } = useContext(userCreateContext);
     //GQR-65
     const { netConnection } = DeviceInfo();
@@ -44,10 +44,10 @@ const PersonalInformation = () => {
         password: "",
         cpassword: "",
     });
-      const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-        {uri: '', name: '', type: '', fileName: '',imageType:'address'},
-        {uri: '', name: '', type: '', fileName: '',ImageType:'identity'},
-      ]);
+    const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
+        { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
+        { uri: '', name: '', type: '', fileName: '', ImageType: 'identity' },
+    ]);
     const [path, setPath] = useState("");
     const [regionaldatas, setregionaldatas] = useState({
         state: "",
@@ -259,7 +259,7 @@ const PersonalInformation = () => {
                                     "userType": "2"
                                 };
                                 let check_phone_res = await axios.post(config.phoneNoCheckAPI, inputBody, axiosConfig1);
-                  
+
                             } catch (error) {
                                 CrashlyticsRecordError(error)
                                 Toast.show({ text: `This ${farmerData.phone} Not Available`, ...AlertMesg[0] });
@@ -307,7 +307,7 @@ const PersonalInformation = () => {
         } else if (farmerData.password != farmerData.cpassword) {
             Toast.show({ text: `${t('same_pass')}`, ...AlertMesg[0] });
         } else {
-            const newfarmerData={...farmerData,identityProofIdentityPropf}
+            const newfarmerData = { ...farmerData, identityProofIdentityPropf }
             if (path != "") {
                 await setItem("storePersnolInfo_data", newfarmerData);
                 navigation.navigate(route.params.pagename, { data: remove });
@@ -320,206 +320,210 @@ const PersonalInformation = () => {
     const HandlerGoBack = () => {
         if (path != '') { navigation.navigate(path) } else { navigation.navigate('Dashboard') }
     }
-    const handleDocumentSelection = async(data, index) => {
+    const handleDocumentSelection = async (data, index) => {
         try {
-          const response = await DocumentPicker.pick({
-              presentationStyle: 'fullScreen',
-              type: [types.pdf, types.images]
-          });
-               const values = [...identityProofIdentityPropf];
-               values[index]["uri"] = response[0].uri;
-               values[index]["name"] = response[0].name;
-               values[index]["type"] = response[0].type;
-               values[index]["fileName"] = response[0].name;
-               values[index]["imageType"] = data;
-               setIdentityProofIdentityPropf(values)
-    
-      } catch (err) {
-          console.error(err);
-      }
-      };
-      const handleDocumentSelectionRemove=(index)=>{
+            const response = await DocumentPicker.pick({
+                presentationStyle: 'fullScreen',
+                type: [types.pdf, types.images]
+            });
+            const values = [...identityProofIdentityPropf];
+            values[index]["uri"] = response[0].uri;
+            values[index]["name"] = response[0].name;
+            values[index]["type"] = response[0].type;
+            values[index]["fileName"] = response[0].name;
+            values[index]["imageType"] = data;
+            setIdentityProofIdentityPropf(values)
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    const handleDocumentSelectionRemove = (index) => {
         const values = [...identityProofIdentityPropf];
         values[index]["uri"] = "";
         values[index]["name"] = "";
         values[index]["type"] = "";
         values[index]["fileName"] = "";
         setIdentityProofIdentityPropf(values)
-      }
+    }
     return (
-      <>
-        <Root>
-          <View style={{flex: 1}}>
-            <CustomHeader
-              path={path != '' ? path : 'Dashboard'}
-              HandlerGoBack={HandlerGoBack}
-              logoImage={logoImage}
-              topBanner={topBanner}
-            />
-            <FormsTitle title={t('personal_information')} />
-            <KeyboardAvoidingView
-              style={{flex: 1}}
-              // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
-              behavior={Platform.OS === 'ios' ? 'padding' : null}
-              // behavior='position'
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.container}>
-                  <ImagePlaceHolderCircle
-                    openImagePicker={openImagePicker}
-                    selectedImage={selectedImage}
-                  />
-                  <InputTextForm
-                    label={t('name')}
-                    color="red"
-                    onChangeText={value => handleAddData('name', value)}
-                    value={farmerData.name}
-                  />
-                  <InputTextForm
-                    label={t('new_reg_phone_number')}
-                    color="red"
-                    keyboardType="numeric"
-                    onChangeText={value => handleAddData('phone', value)}
-                    value={farmerData.phone}
-                    onBlur={phone => checkPhone(phone)}
-                    refname={phoneInputRef}
-                    maxLength={contact_no_digits}
-                  />
-                  <View>
-                    <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
-                    <RadioForm
-                      label={t('farmer_reg_male')}
-                      onSelect={() => handleAddData('gender', '1')}
-                      selected={farmerData.gender === '1'}
+        <>
+            <Root>
+                <View style={{ flex: 1 }}>
+                    <CustomHeader
+                        path={path != '' ? path : 'Dashboard'}
+                        HandlerGoBack={HandlerGoBack}
+                        logoImage={logoImage}
+                        topBanner={topBanner}
                     />
-                    <RadioForm
-                      label={t('farmer_reg_female')}
-                      onSelect={() => handleAddData('gender', '2')}
-                      selected={farmerData.gender === '2'}
-                    />
-                    <RadioForm
-                      label={t('farmer_reg_other')}
-                      onSelect={() => handleAddData('gender', '3')}
-                      selected={farmerData.gender === '3'}
-                    />
-                  </View>
-                  <View style={{marginBottom: 15}}>
-                    <Text style={styles.text}>{t('far_reg_far_type')}</Text>
-                    <RadioForm
-                      label={t('grower')}
-                      onSelect={() => handleAddData('userType', '1')}
-                      selected={farmerData.userType === '1'}
-                    />
-                    <RadioForm
-                      label={t('small_holder')}
-                      onSelect={() => handleAddData('userType', '2')}
-                      selected={farmerData.userType === '2'}
-                    />
-                    <RadioForm
-                      label={t('farm_worker')}
-                      onSelect={() => handleAddData('userType', '3')}
-                      selected={farmerData.userType === '3'}
-                    />
-                  </View>
-                  <InputTextForm
-                    label={t('age')}
-                    color="red"
-                    keyboardType={'number-pad'}
-                    maxLength={2}
-                    onChangeText={value => handleAddData('age', value)}
-                    value={farmerData.age}
-                  />
-                  <DropdownForm
-                    label={
-                      regionaldatas.state == ''
-                        ? t('state_col')
-                        : t(`${regionaldatas.state}`)
-                    }
-                    color="red"
-                    data={stateAll}
-                    onChange={item => {
-                      handleStateInfo(item, 'state', 'stateValue');
-                    }}
-                    val={farmerData.state}
-                  />
-                  <DropdownForm
-                    label={
-                      regionaldatas.district == ''
-                        ? t('select_zila')
-                        : t(`${regionaldatas.district}`)
-                    }
-                    color="red"
-                    data={districtAll}
-                    onChange={item => {
-                      handleDistrictInfo(item, 'district', 'districtValue');
-                    }}
-                    val={farmerData.district}
-                  />
-                  <DropdownForm
-                    label={
-                      regionaldatas.block == ''
-                        ? t('select_block_sub_county_upzila')
-                        : t(`${regionaldatas.block}`)
-                    }
-                    color="red"
-                    data={blockAll}
-                    onChange={item => {
-                      handleAddDataBlock(item, 'block', 'bloctValue');
-                    }}
-                    val={farmerData.block}
-                  />
-                  <InputTextForm
-                    label={t('enter_address')}
-                    onChangeText={value => handleAddData('address', value)}
-                    value={farmerData.address}
-                  />
-                  <InputTextForm
-                    label={t('valid_pin_code')}
-                    keyboardType={'number-pad'}
-                    maxLength={6}
-                    onChangeText={value => handleAddData('pin', value)}
-                    value={farmerData.pin}
-                  />
-                  <PasswordComp
-                    setPasswordVisibility={setPasswordVisibility}
-                    passwordVisibility={passwordVisibility}
-                    label={t('new_reg_password')}
-                    onChangeText={value => handleAddData('password', value)}
-                    value={farmerData.password}
-                  />
-                  <PasswordComp
-                    setPasswordVisibility={setcPasswordVisibility}
-                    passwordVisibility={cpasswordVisibility}
-                    label={t('new_reg_confirm_password')}
-                    onChangeText={value => handleAddData('cpassword', value)}
-                    value={farmerData.cpassword}
-                  />
-                  {/* <ProofAndIdentityPropfComp
+                    <FormsTitle title={t('personal_information')} />
+                    <KeyboardAvoidingView
+                        style={{ flex: 1 }}
+                        // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
+                        behavior={Platform.OS === 'ios' ? 'padding' : null}
+                        // behavior='position'
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <View style={styles.container}>
+                                <ImagePlaceHolderCircle
+                                    openImagePicker={openImagePicker}
+                                    selectedImage={selectedImage}
+                                />
+                                <InputTextForm
+                                    label={t('name')}
+                                    color="red"
+                                    onChangeText={value => handleAddData('name', value)}
+                                    value={farmerData.name}
+                                />
+                                <InputTextForm
+                                    label={t('new_reg_phone_number')}
+                                    color="red"
+                                    keyboardType="numeric"
+                                    onChangeText={value => {
+                                        const numericValue = value.replace(/[^0-9]/g, ''); // Remove non-digit characters
+                                        handleAddData('phone', numericValue);
+                                    }}
+                                    value={farmerData.phone}
+                                    onBlur={() => checkPhone(farmerData.phone)} // Pass the actual phone value
+                                    refname={phoneInputRef}
+                                    maxLength={contact_no_digits}
+                                />
+
+                                <View>
+                                    <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
+                                    <RadioForm
+                                        label={t('farmer_reg_male')}
+                                        onSelect={() => handleAddData('gender', '1')}
+                                        selected={farmerData.gender === '1'}
+                                    />
+                                    <RadioForm
+                                        label={t('farmer_reg_female')}
+                                        onSelect={() => handleAddData('gender', '2')}
+                                        selected={farmerData.gender === '2'}
+                                    />
+                                    <RadioForm
+                                        label={t('farmer_reg_other')}
+                                        onSelect={() => handleAddData('gender', '3')}
+                                        selected={farmerData.gender === '3'}
+                                    />
+                                </View>
+                                <View style={{ marginBottom: 15 }}>
+                                    <Text style={styles.text}>{t('far_reg_far_type')}</Text>
+                                    <RadioForm
+                                        label={t('grower')}
+                                        onSelect={() => handleAddData('userType', '1')}
+                                        selected={farmerData.userType === '1'}
+                                    />
+                                    <RadioForm
+                                        label={t('small_holder')}
+                                        onSelect={() => handleAddData('userType', '2')}
+                                        selected={farmerData.userType === '2'}
+                                    />
+                                    <RadioForm
+                                        label={t('farm_worker')}
+                                        onSelect={() => handleAddData('userType', '3')}
+                                        selected={farmerData.userType === '3'}
+                                    />
+                                </View>
+                                <InputTextForm
+                                    label={t('age')}
+                                    color="red"
+                                    keyboardType={'number-pad'}
+                                    maxLength={2}
+                                    onChangeText={value => handleAddData('age', value)}
+                                    value={farmerData.age}
+                                />
+                                <DropdownForm
+                                    label={
+                                        regionaldatas.state == ''
+                                            ? t('state_col')
+                                            : t(`${regionaldatas.state}`)
+                                    }
+                                    color="red"
+                                    data={stateAll}
+                                    onChange={item => {
+                                        handleStateInfo(item, 'state', 'stateValue');
+                                    }}
+                                    val={farmerData.state}
+                                />
+                                <DropdownForm
+                                    label={
+                                        regionaldatas.district == ''
+                                            ? t('select_zila')
+                                            : t(`${regionaldatas.district}`)
+                                    }
+                                    color="red"
+                                    data={districtAll}
+                                    onChange={item => {
+                                        handleDistrictInfo(item, 'district', 'districtValue');
+                                    }}
+                                    val={farmerData.district}
+                                />
+                                <DropdownForm
+                                    label={
+                                        regionaldatas.block == ''
+                                            ? t('select_block_sub_county_upzila')
+                                            : t(`${regionaldatas.block}`)
+                                    }
+                                    color="red"
+                                    data={blockAll}
+                                    onChange={item => {
+                                        handleAddDataBlock(item, 'block', 'bloctValue');
+                                    }}
+                                    val={farmerData.block}
+                                />
+                                <InputTextForm
+                                    label={t('enter_address')}
+                                    onChangeText={value => handleAddData('address', value)}
+                                    value={farmerData.address}
+                                />
+                                <InputTextForm
+                                    label={t('valid_pin_code')}
+                                    keyboardType={'number-pad'}
+                                    maxLength={6}
+                                    onChangeText={value => handleAddData('pin', value)}
+                                    value={farmerData.pin}
+                                />
+                                <PasswordComp
+                                    setPasswordVisibility={setPasswordVisibility}
+                                    passwordVisibility={passwordVisibility}
+                                    label={t('new_reg_password')}
+                                    onChangeText={value => handleAddData('password', value)}
+                                    value={farmerData.password}
+                                />
+                                <PasswordComp
+                                    setPasswordVisibility={setcPasswordVisibility}
+                                    passwordVisibility={cpasswordVisibility}
+                                    label={t('new_reg_confirm_password')}
+                                    onChangeText={value => handleAddData('cpassword', value)}
+                                    value={farmerData.cpassword}
+                                />
+                                {/* <ProofAndIdentityPropfComp
                                               identityProofIdentityPropf={identityProofIdentityPropf}
                                               t={t}
                                               title={t('address_proofAndIdentityPropf')}
                                               handleDocumentSelection={handleDocumentSelection}
                                               handleDocumentSelectionRemove={handleDocumentSelectionRemove}
                                             /> */}
-                  <ProofAndIdentityPropfComp
-                    identityProofIdentityPropf={identityProofIdentityPropf}
-                    t={t}
-                    title={t('address_proofAndIdentityPropf')}
-                    setStateValue={setIdentityProofIdentityPropf}
-                    stateValue={identityProofIdentityPropf}
-                    disable={true}
-                    InputTextFormEdit={true}
-                    // photoDeletedValue={photoDeletedValue}
-                    // setPhotoDeletedValue={setPhotoDeletedValue}
-                    // loginUser_data={loginUser_data}
-                  />
+                                <ProofAndIdentityPropfComp
+                                    identityProofIdentityPropf={identityProofIdentityPropf}
+                                    t={t}
+                                    title={t('address_proofAndIdentityPropf')}
+                                    setStateValue={setIdentityProofIdentityPropf}
+                                    stateValue={identityProofIdentityPropf}
+                                    disable={true}
+                                    InputTextFormEdit={true}
+                                // photoDeletedValue={photoDeletedValue}
+                                // setPhotoDeletedValue={setPhotoDeletedValue}
+                                // loginUser_data={loginUser_data}
+                                />
+                            </View>
+                        </ScrollView>
+                    </KeyboardAvoidingView>
                 </View>
-              </ScrollView>
-            </KeyboardAvoidingView>
-          </View>
-          <ButtonForm label={t('next')} onPress={handleNavigate} />
-        </Root>
-      </>
+                <ButtonForm label={t('next')} onPress={handleNavigate} />
+            </Root>
+        </>
     );
 }
 export default PersonalInformation

@@ -295,7 +295,7 @@ export const activityListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
+      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       axiosHeaders,
     );
     return response;
@@ -322,11 +322,9 @@ export const farmerActivityListAPI = async (
       information: `${dbName},${languageID},${userID}`,
     },
   };
-  console.log(axiosHeaders)
-  console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`)
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
+      `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       axiosHeaders,
     );
     return response;
@@ -2965,3 +2963,18 @@ export const showCarbonFlag = async (token, dbName, language, userId) => {
   }
 }
 
+export const getMapLocation = async (
+  inputData
+) => {
+  try {
+   
+    let response = await axios.get(
+      `https://api.mapbox.com/search/geocode/v6/forward?q=${inputData}&proximity=&access_token=pk.eyJ1IjoiYmlrcmFtOTgiLCJhIjoiY21jMnRiejc0MGN3azJqcXNwbmdqZ2R1bCJ9.15UR7tulXrt7znxkDPPfyg`,
+    );
+    return response;
+  } catch (error) {
+    // console.log(error);
+    CrashlyticsRecordError(error.response);
+    return error.response;
+  }
+};

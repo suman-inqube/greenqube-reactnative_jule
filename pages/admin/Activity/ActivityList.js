@@ -42,7 +42,7 @@ const ActivityList = ({ navigation }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const [fromDateFilter, setFromDateFilter] = useState('');
-        const [carbonType, setCarbonType] = useState('')
+    const [carbonType, setCarbonType] = useState('')
     const filterOptionShow = () => {
         if (!filterOption) {
             setFilterOption(true);
@@ -62,7 +62,7 @@ const ActivityList = ({ navigation }) => {
         setCarbonType("");
     }
     const handlePage = async (value) => {
-        handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id,'',fromDate,toDate,carbonType);
+        handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id, '', fromDate, toDate, carbonType);
     }
 
     const handleFilterList = async (item) => {
@@ -255,20 +255,24 @@ const ActivityList = ({ navigation }) => {
                 <FlatList
                     data={activityAll}
                     renderItem={({ item, index }) => (
-                        <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item.uact_id)}>
+                        <TouchableOpacity style={styles.wrapper} onPress={() => navigateToPages('activityDetail', item)}>
                             <View style={styles.activityListContainer}>
                                 <View style={styles.activityListItem}>
                                     <Text style={styles.title}>{t('farmer_name').substring(0, 10)} : {item?.agri_user?.userName.substring(0, 4) + '...'}</Text>
-                                    <Text style={styles.title}>{t('addcrop_plot')} : {item?.land_info?.plot_no.substring(0, 8) + '...'}</Text>
+                                    <Text style={styles.title}>{t('addcrop_plot')} : {item?.land_info?.plot_no.substring(0, 5) + '...'}</Text>
                                     <Text style={styles.title}>{t('perf_date')} : {item?.act_perform_date?.substring(0, 4) + '...'}</Text>
+                                    <Text style={styles.title}>{t('Sowing')} :  {item?.actCurel?.sowing_date?.substring(0, 10)}</Text>
                                 </View>
                                 <View style={styles.activityListItem}>
                                     <Text style={styles.title}>{t('farmer_number')} : {item?.agri_user?.contactNumber.substring(0, 7) + '...'}</Text>
                                     <Text style={styles.title}>{t('crop_name')} : {item?.cropName?.name.substring(0, 7) + '..'}</Text>
                                     <Text style={styles.title}>{t('deviation')} : {item?.deviation}{t('days')}</Text>
+                                    <Text style={styles.title}>{t('Harvesting')} : {item?.actCurel?.harvesting_date?.substring(0, 10)}</Text>
                                 </View>
                             </View>
                             <Text style={styles.title}>{t('cycle_start_date')} : {item?.cycle_start_date}</Text>
+                            <Text style={styles.title}>{t('act_name')} :{item?.typeActivity ? item?.typeActivity?.categoryName : ''}
+                            </Text>
                         </TouchableOpacity>
                     )
                     }
