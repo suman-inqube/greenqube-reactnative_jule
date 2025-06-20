@@ -84,9 +84,9 @@ const FarmerActivityList = ({ navigation }) => {
       })
     }
   };
-  const navigateToPages = async (pageName, uact_id) => {
+  const navigateToPages = async (pageName, uact_id,item) => {
     setItem('uact_id_data', uact_id);
-    navigation.navigate(pageName);
+    navigation.navigate(pageName,item);
     setIsLoading(true);
   };
 
@@ -152,7 +152,7 @@ const FarmerActivityList = ({ navigation }) => {
   const onChangeCarbonType = (_item) => {
     const { label, value } = _item
     setCarbonType(value)
-    fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '','', value);
+    fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
   }
   return (
     <Root>
@@ -193,7 +193,7 @@ const FarmerActivityList = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.wrapper}
                   onPress={() =>
-                    navigateToPages('FarmerActivityDetail', item.uact_id)
+                    navigateToPages('FarmerActivityDetail', item.uact_id,item)
                   }>
                   <View style={styles.activityListContainer}>
                     <View style={styles.activityListItem}>
@@ -201,11 +201,12 @@ const FarmerActivityList = ({ navigation }) => {
                         {t('pro_reg_name')} : {item.agri_user.userName}
                       </Text>
                       <Text style={styles.title}>
-                        {t('reg_plot_name')} : {item.land_info.plot_no.substring(0, 8) + '...'}
+                        {t('reg_plot_name')} : {item.land_info.plot_no.substring(0, 5) + '...'}
                       </Text>
                       <Text style={styles.title}>
-                        {t('perf_date')} : {item.act_perform_date}
+                        {t('perf_date')} : {item.act_perform_date?.substring(0, 4) + '...'}
                       </Text>
+              <Text style={styles.title}>{t('Sowing')} :  {item?.actCurel?.sowing_date?.substring(0, 10)}</Text>
                     </View>
                     <View style={styles.activityListItem}>
                       <Text style={styles.title}>
@@ -219,6 +220,7 @@ const FarmerActivityList = ({ navigation }) => {
                       <Text style={styles.title}>
                         {t('deviation')} : {item?.deviation} Day
                       </Text>
+                      <Text style={styles.title}>{t('Harvesting')} : {item?.actCurel?.harvesting_date?.substring(0, 10)}</Text>
                     </View>
                   </View>
                   <Text style={styles.title}>

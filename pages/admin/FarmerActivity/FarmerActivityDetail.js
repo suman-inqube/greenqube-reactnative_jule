@@ -1,3 +1,4 @@
+
 import { BackHandler, StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Linking, FlatList } from 'react-native'
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import InputTextForm from '../../Common/InputTextForm';
@@ -8,6 +9,7 @@ import AudioPlayerView from '../../Common/AudioPlayerView';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { PipeListDetails } from '../../../config/apiHere';
 const FarmerActivityDetail = () => {
+    const route = useRoute();
     const { LoadingScreen, CustomHeader, t, onBackPress, getItem, logoImage, topBanner, Root, SPSheet, loginUser_data } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data || {};
     const navigation = useNavigation();
@@ -35,67 +37,65 @@ const FarmerActivityDetail = () => {
             getItem('uact_id_data')
         ])
         if (activityData) {
-            const farmerFound = activityData.find(user => user.uact_id === uact_id_data);
-            setIsLoading(false);
+            const farmerFound = route.params;
             if (farmerFound?.type == "carbon_activity") {
                 const PipeListDetailsRes = await PipeListDetails(
-                  dbname,
-                  lan_id,
-                  token,
-                  user_id,
-                  farmerFound.plot_id,
-                  farmerFound?.act_master_id,
-                  farmerFound?.cu_rel_fid,
+                    dbname,
+                    lan_id,
+                    token,
+                    user_id,
+                    farmerFound.plot_id,
+                    farmerFound?.act_master_id,
+                    farmerFound?.cu_rel_fid,
                 );
                 if (PipeListDetailsRes?.status == 200) {
                     setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
                 }
-            } else {
-                if (farmerFound?.agri_files) {
-                    let Imag1 = ''
-                    let Imag2 = ''
-                    let Imag3 = ''
-                    let audio1 = '';
-                    let audio2 = '';
-                    let audio3 = '';
-                    let pic = 0;
-                    let aud = 0;
-                    for (let i = 0; i < farmerFound.agri_files.length; i++) {
-                        if (farmerFound.agri_files[i].term_type === "ua_activity") {
-                            if (aud === 0) {
-                                audio1 = farmerFound.agri_files[i].file_path
-                            } else if (aud === 1) {
-                                audio2 = farmerFound.agri_files[i].file_path
-                            } else if (aud === 2) {
-                                audio3 = farmerFound.agri_files[i].file_path
-                            }
-                            aud++;
-                        } else {
-                            if (pic === 0) {
-                                Imag1 = farmerFound.agri_files[i].file_path
-                            } else if (pic === 1) {
-                                Imag2 = farmerFound.agri_files[i].file_path
-                            } else if (pic === 2) {
-                                Imag3 = farmerFound.agri_files[i].file_path
-                            }
-                            pic++;
+            }
+            setIsLoading(false);
+            if (farmerFound?.agri_files) {
+                let Imag1 = ''
+                let Imag2 = ''
+                let Imag3 = ''
+                let audio1 = '';
+                let audio2 = '';
+                let audio3 = '';
+                let pic = 0;
+                let aud = 0;
+                for (let i = 0; i < farmerFound.agri_files.length; i++) {
+                    if (farmerFound.agri_files[i].term_type === "ua_activity") {
+                        if (aud === 0) {
+                            audio1 = farmerFound.agri_files[i].file_path
+                        } else if (aud === 1) {
+                            audio2 = farmerFound.agri_files[i].file_path
+                        } else if (aud === 2) {
+                            audio3 = farmerFound.agri_files[i].file_path
                         }
-
+                        aud++;
+                    } else {
+                        if (pic === 0) {
+                            Imag1 = farmerFound.agri_files[i].file_path
+                        } else if (pic === 1) {
+                            Imag2 = farmerFound.agri_files[i].file_path
+                        } else if (pic === 2) {
+                            Imag3 = farmerFound.agri_files[i].file_path
+                        }
+                        pic++;
                     }
-                    setSelectedImage({
-                        ...selectedImage,
-                        firstItem: Imag1,
-                        secondItem: Imag2,
-                        thirdItem: Imag3,
-                    })
-                    setSelectedRecord({
-                        firstItemRecord: audio1,
-                        secondItemRecord: audio2,
-                        thirdItemRecord: audio3,
-                    });
 
                 }
-                setCarbonActivity([]);
+                setSelectedImage({
+                    ...selectedImage,
+                    firstItem: Imag1,
+                    secondItem: Imag2,
+                    thirdItem: Imag3,
+                })
+                setSelectedRecord({
+                    firstItemRecord: audio1,
+                    secondItemRecord: audio2,
+                    thirdItemRecord: audio3,
+                });
+
             }
             setfarmerActivity(farmerFound);
         }
@@ -194,108 +194,93 @@ const FarmerActivityDetail = () => {
                                         <InputTextForm label={t('growth_stage')} value={farmerActivity?.growthStage && farmerActivity?.growthStage.name} />
 
                                         <InputTextForm label={t('act_per_date')} value={farmerActivity?.act_perform_date} />
-                                         {carbonActivity.length != 0 && <FlatList
-                                                                                scrollEnabled={false}
-                                                                                    data={carbonActivity}
-                                                                                    keyExtractor={(item, index) => index.toString()}
-                                                                                    renderItem={(_item) => {
-                                                                                        return (
-                                                                                          <View
-                                                                                            style={{
-                                                                                              backgroundColor:
-                                                                                                '#FFF',
-                                                                                              elevation: 3,
-                                                                                              padding: 10,
-                                                                                              margin: 2,
-                                                                                              marginVertical: 10,
-                                                                                              borderRadius: 10,
-                                                                                            }}>
-                                                                                            <View
-                                                                                              style={{
-                                                                                                flexDirection:
-                                                                                                  'row',
-                                                                                                marginBottom: 7,
-                                                                                              }}>
-                                                                                              <Text
-                                                                                                style={[
-                                                                                                  styles.title,
-                                                                                                  {
-                                                                                                    paddingVertical: 0,
-                                                                                                  },
-                                                                                                ]}>
-                                                                                                Instrument
-                                                                                                Name
-                                                                                                :
-                                                                                              </Text>
-                                                                                              <Text
-                                                                                                style={[
-                                                                                                  styles.title,
-                                                                                                  {
-                                                                                                    marginLeft: 10,
-                                                                                                    paddingVertical: 0,
-                                                                                                  },
-                                                                                                ]}>
-                                                                                                {
-                                                                                                  _item
-                                                                                                    .item
-                                                                                                    .pipe_name
-                                                                                                }
-                                                                                              </Text>
-                                                                                            </View>
-                                                                                            <View>
-                                                                                              {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
-                                                                                              {_item
-                                                                                                .item
-                                                                                                .pipeFiles
-                                                                                                .length !=
-                                                                                                0 && (
-                                                                                                <View
-                                                                                                  style={{
-                                                                                                    flexDirection:
-                                                                                                      'row',
-                                                                                                    gap: 20,
-                                                                                                  }}>
-                                                                                                  {_item
-                                                                                                    .item
-                                                                                                    .pipeFiles?.[0]
-                                                                                                    ?.file_path !=
-                                                                                                    undefined && (
-                                                                                                    <Image
-                                                                                                      source={{
-                                                                                                        uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
-                                                                                                      }}
-                                                                                                      style={{
-                                                                                                        width: 70,
-                                                                                                        height: 80,
-                                                                                                        borderRadius: 5,
-                                                                                                      }}
-                                                                                                      resizeMode="contain"
-                                                                                                    />
-                                                                                                  )}
-                                                                                                  {_item
-                                                                                                    .item
-                                                                                                    .pipeFiles?.[1]
-                                                                                                    ?.file_path !=
-                                                                                                    undefined && (
-                                                                                                    <Image
-                                                                                                      source={{
-                                                                                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
-                                                                                                      }}
-                                                                                                      style={{
-                                                                                                        width: 70,
-                                                                                                        height: 80,
-                                                                                                        borderRadius: 5,
-                                                                                                      }}
-                                                                                                      resizeMode="contain"
-                                                                                                    />
-                                                                                                  )}
-                                                                                                </View>
-                                                                                              )}
-                                                                                            </View>
-                                                                                          </View>
-                                                                                        );
+                                        {carbonActivity.length != 0 && <FlatList
+                                            scrollEnabled={false}
+                                            data={carbonActivity}
+                                            keyExtractor={(item, index) => index.toString()}
+                                            renderItem={(_item) => {
+                                                return (
+                                                    <View
+                                                        style={{
+                                                            backgroundColor: '#FFF',
+                                                            elevation: 3,
+                                                            padding: 10,
+                                                            margin: 2,
+                                                            marginVertical: 10,
+                                                            borderRadius: 10,
+                                                        }}>
+                                                        <View
+                                                            style={{
+                                                                flexDirection: 'row',
+                                                                marginBottom: 7,
+                                                            }}>
+                                                            <Text
+                                                                style={[
+                                                                    styles.title,
+                                                                    { paddingVertical: 0 },
+                                                                ]}>
+                                                                Instrument Name :
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.title,
+                                                                    {
+                                                                        marginLeft: 10,
+                                                                        paddingVertical: 0,
+                                                                    },
+                                                                ]}>
+                                                                {_item.item.pipe_name}
+                                                            </Text>
+                                                        </View>
+                                                        <View>
+                                                            {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
+                                                            {_item.item.pipeFiles
+                                                                .length != 0 && (
+                                                                    <View
+                                                                        style={{
+                                                                            flexDirection:
+                                                                                'row',
+                                                                            gap: 20,
+                                                                        }}>
+                                                                        {_item.item
+                                                                            .pipeFiles?.[0]
+                                                                            ?.file_path !=
+                                                                            undefined && (
+                                                                                <Image
+                                                                                    source={{
+                                                                                        uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
                                                                                     }}
-                                                                                />}
+                                                                                    style={{
+                                                                                        width: 70,
+                                                                                        height: 80,
+                                                                                        borderRadius: 5,
+                                                                                    }}
+                                                                                    resizeMode="contain"
+                                                                                />
+                                                                            )}
+                                                                        {_item.item
+                                                                            .pipeFiles?.[1]
+                                                                            ?.file_path !=
+                                                                            undefined && (
+                                                                                <Image
+                                                                                    source={{
+                                                                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                                                                    }}
+                                                                                    style={{
+                                                                                        width: 70,
+                                                                                        height: 80,
+                                                                                        borderRadius: 5,
+                                                                                    }}
+                                                                                    resizeMode="contain"
+                                                                                />
+                                                                            )}
+                                                                    </View>
+                                                                )}
+                                                        </View>
+                                                    </View>
+                                                );
+                                            }}
+                                        />}
                                         <InputTextForm label={t('your_comm_')} value={farmerActivity?.act_desc} />
                                         <InputTextForm label={t('material_used')} value={farmerActivity?.material_used} />
                                         <InputTextForm label={t('water_used')} value={farmerActivity?.water_used} />

@@ -126,7 +126,7 @@ const Filter = ({
                 /> */}
                 <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.dateContainer}>
                   <Text style={[styles.title, { marginLeft: 5 }]}>
-                    {fromDate == "" ? t('from_date') : `${fromDate}`}
+                    {fromDate == "" ?  t('from_date') : `${fromDate}`}
                   </Text>
                   <Image source={require('./images/calendar.png')}
                     style={{ width: 20, height: 20, marginLeft: 5 }}
@@ -134,7 +134,7 @@ const Filter = ({
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setOpenToDate(true)} style={styles.dateContainer}>
                   <Text style={styles.title}>
-                    {newToDate == "" ? t('to_date') : `${newToDate}`}</Text>
+                    {newToDate == "" ?  t('to_date') : `${newToDate}`}</Text>
                   <Image source={require('./images/calendar.png')}
                     style={{ width: 20, height: 20, marginLeft: 5 }}
                   />
