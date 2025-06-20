@@ -30,7 +30,7 @@ const SuggestiveSearchInput = ({placeholder, onSelect, fetchSuggestions}) => {
     <View style={styles.container}>
       <TextInput
         placeholder={placeholder || 'Search...'}
-        value={query}
+        value={query?.properties?.full_address}
         onChangeText={setQuery}
         style={styles.input}
       />
