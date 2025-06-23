@@ -240,6 +240,7 @@ const Login = ({route}) => {
           } else {
             await setItem('profileImgData', '');
           }
+          console.log("loginUserdata",JSON.stringify(loginUserdata))
           await setItem('loginUser_data', loginUserdata);
           await setItem('companyFirstEntry',0 );
           setstoreLoginUser({

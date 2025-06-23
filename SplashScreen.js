@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ActivityIndicator, ImageBackground, Dimensions, BackHandler } from 'react-native'
+import { StyleSheet, Text, View, Image, ActivityIndicator, ImageBackground, Dimensions, BackHandler,Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ButtonForm from './pages/Common/ButtonForm';
 import DropdownForm from './pages/Common/DropdownForm';
@@ -12,6 +12,7 @@ import i18next from 'i18next';
 import { Root, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './pages/Common/ToastAlert';
 import NotificationServices from './pages/PushNotification/NotificationServices';
+import JailMonkey from 'jail-monkey';
 const SplashScreen = ({ navigation }) => {
     // const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
@@ -67,13 +68,13 @@ const SplashScreen = ({ navigation }) => {
     }
     const languageHandle = async (item) => {
         await setItem('companyLanguage_data', {
-          language: item,
-          company: companyLanguage.company,
-          company_id: companyLanguage.company_id,
-          company_name: companyLanguage.company_name,
-          country_id: companyLanguage.country_id,
+            language: item,
+            company: companyLanguage.company,
+            company_id: companyLanguage.company_id,
+            company_name: companyLanguage.company_name,
+            country_id: companyLanguage.country_id,
         });
-        await setItem('companyFirstEntry',1 );
+        await setItem('companyFirstEntry', 1);
         navigation.replace('Login');
     }
     let languageDataList = async (dbName) => {
@@ -88,7 +89,39 @@ const SplashScreen = ({ navigation }) => {
             console.log("Error in language API", error.response);
         }
     }
+    const handleAppStateChange = async (nextAppState = 'active') => {
+        const isRooted = JailMonkey.isJailBroken();
+        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+
+        console.log("AppState:", nextAppState, "isRooted:", isRooted, "isDevMode:", isDevMode);
+
+        if (isRooted || isDevMode) {
+            Alert.alert(
+                'Security Alert',
+                isRooted
+                    ? 'This device is rooted. The app will now exit.'
+                    : 'Developer mode is enabled. The app will now exit.',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => {
+                            setTimeout(() => {
+                                BackHandler.exitApp();
+                            }, 800);
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
+            return false; // Stop execution of further logic
+        }
+
+        return true;
+    };
+
     const onPageLoad = async () => {
+        // const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
+        // if (shouldContinue==false) return;
         const [companyLanguage_data, loginUser_data] = await Promise.all([
             getItem('companyLanguage_data'),
             getItem('loginUser_data'),
@@ -114,7 +147,7 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const searchDBName = (text) => {
-        if(text.length > 0){
+        if (text.length > 0) {
             const result = companyDataRaw?.filter(item =>
                 item?.agri_company?.company_display_name?.toLowerCase().includes(text.toLowerCase())
             );
@@ -123,8 +156,8 @@ const SplashScreen = ({ navigation }) => {
             } else {
                 console.log('Item not found');
             }
-        }else{
-             setCompanyData([]);
+        } else {
+            setCompanyData([]);
         }
     }
     useEffect(() => {
