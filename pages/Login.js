@@ -269,18 +269,18 @@ const Login = ({route}) => {
             ),
           ]);
           if (defaultCurrRes?.status === 200) {
-            // if (defaultCurrRes.data.data.rows.length> 0) {
-            //   await setItem(
-            //     'currency',
-            //     defaultCurrRes.data.data.rows[0].symbol,
-            //   );
-            // } else {
-            //   Toast.show({
-            //     time: 1,
-            //     text: `Please ask to set currency by admin`,
-            //     ...AlertMesg[0],
-            //   });
-            // }
+            if (defaultCurrRes.data.data.rows.length> 0) {
+              await setItem(
+                'currency',
+                defaultCurrRes.data.data.rows[0].symbol,
+              );
+            } else {
+              Toast.show({
+                time: 1,
+                text: `Please ask to set currency by admin`,
+                ...AlertMesg[0],
+              });
+            }
             
           }
           if (fpoDetailsList_res?.status === 200) {
@@ -332,7 +332,6 @@ const Login = ({route}) => {
             }
             AllFarmerList();
             setIsLoading(false);
-            console.log(checked);
             if (checked) {
               await setItem('rememberData', {
                 company: storeLoginUser.company,
@@ -507,7 +506,6 @@ const Login = ({route}) => {
   const onChangeConpany = async item => {
     // db_name:dbname, company_id:value, agri_company.country_id:country_id
     const {country_id, dbname, value, label} = item;
-    console.log(label)
     const {language} = companyLanguage;
     setstoreLoginUser({...storeLoginUser, company: value,company_lable:label});
     checkPhoneNumber(country_id, dbname, language);

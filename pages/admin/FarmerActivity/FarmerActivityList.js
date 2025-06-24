@@ -84,9 +84,9 @@ const FarmerActivityList = ({ navigation }) => {
       })
     }
   };
-  const navigateToPages = async (pageName, uact_id,item) => {
+  const navigateToPages = async (pageName, uact_id, item) => {
     setItem('uact_id_data', uact_id);
-    navigation.navigate(pageName,item);
+    navigation.navigate(pageName, item);
     setIsLoading(true);
   };
 
@@ -179,8 +179,7 @@ const FarmerActivityList = ({ navigation }) => {
           carbonFlag={carbonFlag}
           onChangeCarbonType={onChangeCarbonType}
           carbonTypeVal={carbonType}
-          dataActivity={[{ label: "user activity ", value: "user_activity" },
-          { label: "carbon activity ", value: "carbon_activity" }]}
+          dataActivity={[{ label: "Carbon ", value: "carbon_activity" }, { label: "Non-Carbon ", value: "user_activity" }]}
         />
 
         {isLoading ? (
@@ -193,7 +192,7 @@ const FarmerActivityList = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.wrapper}
                   onPress={() =>
-                    navigateToPages('FarmerActivityDetail', item.uact_id,item)
+                    navigateToPages('FarmerActivityDetail', item.uact_id, item)
                   }>
                   <View style={styles.activityListContainer}>
                     <View style={styles.activityListItem}>
@@ -206,7 +205,7 @@ const FarmerActivityList = ({ navigation }) => {
                       <Text style={styles.title}>
                         {t('perf_date')} : {item.act_perform_date?.substring(0, 4) + '...'}
                       </Text>
-              <Text style={styles.title}>{t('Sowing')} :  {item?.actCurel?.sowing_date?.substring(0, 10)}</Text>
+                      <Text style={styles.title}>{t('Sowing')} :  {item?.actCurel?.sowing_date?.substring(0, 10)}</Text>
                     </View>
                     <View style={styles.activityListItem}>
                       <Text style={styles.title}>

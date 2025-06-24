@@ -104,19 +104,6 @@ const FarmerDashboard = ({ navigation }) => {
                       1,
                     );
                     break;
-                  case 'PackageOfPractices':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'POP',
-                      'module_view',
-                      'pop_user',
-                      1,
-                    );
-                    break;
-
                   case 'Weather':
                     addModuleForView(
                       dbname,

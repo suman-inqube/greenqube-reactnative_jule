@@ -1758,6 +1758,7 @@ const ActivityReportAWD = ({ navigation }) => {
                 label={t('farmer_number')}
                 color="red"
                 value={searchFarmerPhone}
+                editable={false}
               />
               <DropdownForm
                 label={t('select_plot')}

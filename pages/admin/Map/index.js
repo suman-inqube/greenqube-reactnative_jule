@@ -404,7 +404,7 @@ export default function Map({
             justifyContent: 'space-between',
           }}>
           <SuggestiveSearchInput
-            placeholder="Type to search..."
+            // placeholder="Type to search..."
             fetchSuggestions={fetchSearchSuggestions}
             onSelect={handleSelect}
           />
