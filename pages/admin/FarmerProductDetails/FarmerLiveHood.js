@@ -2013,13 +2013,13 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
                 onChangeText={text =>
                   handleAddUserData('expectedProduction', text)
                 }
-                editable={
-                  edit == ''
-                    ? harvested == 'same produce'
-                      ? false
-                      : true
-                    : !edit
-                }
+                // editable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? false
+                //       : true
+                //     : !edit
+                // }
               />
             </View>
             <View style={{ width: '45%' }}>
@@ -2031,13 +2031,13 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
                   handleAddData(item, 'unitProduct', 'unitProductValue');
                 }}
                 val={farmerData.unitProduct}
-                disable={
-                  edit == ''
-                    ? harvested == 'same produce'
-                      ? true
-                      : false
-                    : edit
-                }
+                // disable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? true
+                //       : false
+                //     : edit
+                // }
               />
             </View>
           </View>

@@ -83,8 +83,8 @@ const FarmerAddIncome = ({ navigation }) => {
     const handlePlot = async (relId) => {
         const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
         if (response?.status == 200) {
-            setNameVarityStartEnd({ ...nameVarityStartEnd, name: response.data.data.rows[0].crop_name?.name, varity: response.data.data.rows[0].crop_variety?.name })
-            const dateString = response?.data?.data?.rows[0]?.harvesting_date;
+            setNameVarityStartEnd({ ...nameVarityStartEnd, name: response.data.data.crop_name?.name, varity: response.data.data.crop_variety?.name })
+            const dateString = response?.data?.data?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
@@ -92,12 +92,12 @@ const FarmerAddIncome = ({ navigation }) => {
                 setSaveData({
                     ...saveData,
                     land_rel_id: relId.value,
-                    crop_name_id: response.data.data.rows[0].crop_name_id,
-                    harvesting_date: response.data.data.rows[0].harvesting_date,
-                    sowing_date: response.data.data.rows[0].sowing_date,
-                    // plot_size: response.data.data.rows[0].land_info.land_size,
-                    // plot_size: response.data.data.rows[0].land_info.land_unit.name,
-                    plot_size: response.data.data.rows[0].land_info.land_size + " " + response.data.data.rows[0].land_info.land_unit?.name,
+                    crop_name_id: response.data.data.crop_name_id,
+                    harvesting_date: response.data.data.harvesting_date,
+                    sowing_date: response.data.data.sowing_date,
+                    // plot_size: response.data.data.land_info.land_size,
+                    // plot_size: response.data.data.land_info.land_unit.name,
+                    plot_size: response.data.data.land_info.land_size + " " + response.data.data.land_info.land_unit?.name,
                     createdBy: user_id,
                 })
                 const response_farmIncome = await farmaccountsIncomeListAPI(dbname, lan_id, farmerID)

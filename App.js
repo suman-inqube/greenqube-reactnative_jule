@@ -93,7 +93,7 @@ function App() {
                 addModuleForView(dbname, lan_id, user_id, token, "Insurance User", "module_view", "insurance_user", 1);
                 break;
               case "PackageOfPractices":
-                addModuleForView(dbname, lan_id, user_id, token, "PoP User", "module_view", "POP_user", 1);
+                addModuleForView(dbname, lan_id, user_id, token, "PoP User", "module_view", "pop_user", 1);
                 break;
               default:
                 break;

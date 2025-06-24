@@ -128,7 +128,9 @@ const ActivityList = ({ navigation }) => {
                 const totalPage = Math.ceil(response.data.data.count / 20)
                 setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
                 setactivityAll(response?.data?.data?.rows);
-                setactivityAllRow(response?.data?.data?.rows);
+                if(carbonType==""){
+                    setactivityAllRow(response?.data?.data?.rows);
+                }
                 await setItem("activity_Data", response?.data?.data?.rows);
                 setIsLoading(false);
             } else {
@@ -175,7 +177,7 @@ const ActivityList = ({ navigation }) => {
     }
     useEffect(() => {
         if (isFocused) {
-            if (fromDate == "" && toDate == "" && searchFarmerName == "" && searchFarmerPhone == "") {
+            if (fromDate == "" && toDate == "" && searchFarmerName == "" && searchFarmerPhone == "" && pageNo==1) {
                 onPageLoad();
             }
             onBackPress(handleBackPress);
@@ -231,8 +233,7 @@ const ActivityList = ({ navigation }) => {
                     carbonFlag={carbonFlag}
                     onChangeCarbonType={onChangeCarbonType}
                     carbonTypeVal={carbonType}
-                    dataActivity={[{ label: "user activity ", value: "user_activity" },
-                    { label: "carbon activity ", value: "carbon_activity" }]}
+                    dataActivity={[{ label: "Carbon ", value: "carbon_activity" },{ label: "Non-Carbon ", value: "user_activity" }]}
                 />
                 <>
                     {

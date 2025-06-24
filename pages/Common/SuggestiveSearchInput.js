@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-const SuggestiveSearchInput = ({placeholder, onSelect, fetchSuggestions}) => {
+const SuggestiveSearchInput = ({placeholder,onSelect, fetchSuggestions}) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
 
@@ -22,7 +22,6 @@ const SuggestiveSearchInput = ({placeholder, onSelect, fetchSuggestions}) => {
         setSuggestions([]);
       }
     }, 1000); // debounce API call
-
     return () => clearTimeout(delayDebounce);
   }, [query]);
 
@@ -67,6 +66,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     borderRadius: 5,
+    backgroundColor:'#ccc'
   },
   suggestionBox: {
     borderWidth: 1,
