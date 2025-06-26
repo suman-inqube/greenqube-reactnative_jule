@@ -80,7 +80,10 @@ const UserCreateContextProvider = (props) => {
                 const { option_value } = resCarbonFlag?.data?.data || {};
                 setlogoImage(logoImageData);
                 settopBanner(topBannerData);
-                setloginUser_data({ ...loginUser_data, ... { carbonFlag: true } });
+                setloginUser_data({
+                  ...loginUser_data,
+                  ...{carbonFlag: option_value},
+                });
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
                     dbName: loginUser_data?.dbname,

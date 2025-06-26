@@ -935,6 +935,10 @@ export const inputListAPI = async (
       `${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
       axiosHeaders,
     );
+    console.log(
+      `${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
+      axiosHeaders,
+    );
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);

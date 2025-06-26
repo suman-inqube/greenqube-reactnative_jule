@@ -204,7 +204,16 @@ const FarmerPostNew = (props) => {
 
                 // console.log(database_res);
                 if (database_res) {
-                    addModuleForView(dbname, lan_id, saveData.farmer_id,token, "OutPut User", "module_hit", "output_user", 1);
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      saveData.farmer_id,
+                      token,
+                      'Output',
+                      'module_hit',
+                      'outPut_user',
+                      1,
+                    );
                     Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
                     setTimeout(() => {
                         props.sendDataToParent(2)

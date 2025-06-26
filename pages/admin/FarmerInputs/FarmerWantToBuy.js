@@ -70,13 +70,13 @@ const FarmerWantToBuy = ({ navigation }) => {
         if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
-                name: response?.data?.data?.rows[0].crop_name.name,
-                varity: response?.data?.data?.rows[0].crop_variety.name,
-                cycleStarts: response?.data?.data?.rows[0].sowing_date,//sowing_date
-                cycleEnd: response?.data?.data?.rows[0].harvesting_date,
-                production_process: response?.data?.data?.rows[0].farmer_production_system.name,
+                name: response?.data?.data?.crop_name.name,
+                varity: response?.data?.data?.crop_variety.name,
+                cycleStarts: response?.data?.data?.sowing_date,//sowing_date
+                cycleEnd: response?.data?.data?.harvesting_date,
+                production_process: response?.data?.data?.farmer_production_system.name,
             });
-            const dateString = response?.data?.data?.rows[0].harvesting_date;
+            const dateString = response?.data?.data?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {

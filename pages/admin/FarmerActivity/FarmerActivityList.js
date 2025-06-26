@@ -146,7 +146,7 @@ const FarmerActivityList = ({ navigation }) => {
         zIndex: 1000,
       });
     } else {
-      navigation.navigate('activityReport')
+      navigation.navigate('FarmerActivityReport');
     }
   }
   const onChangeCarbonType = (_item) => {

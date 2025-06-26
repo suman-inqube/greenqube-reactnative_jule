@@ -72,6 +72,7 @@ const FarmerInputList = ({ navigation }) => {
             inputCategoryAPI(dbname, lan_id, token, user_id)
         ])
         if (inputList.status == 200) {
+            console.log('unite==', JSON.stringify(inputList.data.data.rows));
             setInputListAll(inputList.data.data.rows);
             setInputListAllRaw(inputList.data.data.rows);
             setItem("input_data", inputList.data.data.rows);
