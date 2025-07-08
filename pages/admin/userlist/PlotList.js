@@ -197,8 +197,8 @@ const PlotList = () => {
                       <CollapsibleCard
                         width="100%"
                         header={
-                          <View style={{ height: 30 }}>
-                            <Text style={[styles.text, { fontSize: 15 }]}>
+                          <View style={{height: 30}}>
+                            <Text style={[styles.text, {fontSize: 15}]}>
                               {item?.plot_no}
                             </Text>
                             {/* <Text>3 items in cart</Text> */}
@@ -224,17 +224,33 @@ const PlotList = () => {
                               <View>
                                 <Text style={styles.text}>Plot Name</Text>
                                 {/* <Text style={styles.text}>Plot Size</Text> */}
-                                <Text style={styles.text}>  Reported Land Area  </Text>
-                                <Text style={styles.text}> Converted Land Area </Text>
+                                <Text style={styles.text}>
+                                  Reported Land Area{' '}
+                                </Text>
+                                <Text style={styles.text}>
+                                  Converted Land Area{' '}
+                                </Text>
+                                {/* <Text style={styles.text}>
+                                  Approved Land Area{' '}
+                                </Text> */}
                                 <Text style={styles.text}>Crop Name</Text>
                                 <Text style={styles.text}>Crop Variety</Text>
-                                <Text style={styles.text}>  Cycle Start Date </Text>
+                                <Text style={styles.text}>
+                                  {' '}
+                                  Cycle Start Date{' '}
+                                </Text>
                                 <Text style={styles.text}>Cycle End Date</Text>
                               </View>
-                              <View style={{ marginLeft: 10 }}>
-                                <Text style={styles.text}> : {item?.plot_no} </Text>
+                              <View style={{marginLeft: 10}}>
+                                <Text style={styles.text}>
+                                  {' '}
+                                  : {item?.plot_no}{' '}
+                                </Text>
                                 {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
-                                <Text style={styles.text}> : {item?.land_size} {item?.land_unit?.name}  </Text>
+                                <Text style={styles.text}>
+                                  {' '}
+                                  : {item?.land_size} {item?.land_unit?.name}{' '}
+                                </Text>
                                 <Text style={styles.text}>
                                   :{' '}
                                   {parseFloat(item?.land_convert_size).toFixed(
@@ -242,6 +258,25 @@ const PlotList = () => {
                                   )}{' '}
                                   {landAreaUnit?.[0]?.name}
                                 </Text>
+                                {/* <Text style={styles.text}>
+                                  :{' '}
+                                  {parseFloat(item?.land_convert_size) >
+                                  Number(
+                                    landUnitsquareMetre?.[0]
+                                      ?.defined_unit_value || 0,
+                                  ) *
+                                    Number(item?.google_area || 0)
+                                    ? parseFloat(
+                                        item?.land_convert_size,
+                                      ).toFixed(2)
+                                    : (Number(
+                                        landUnitsquareMetre?.[0]
+                                          ?.defined_unit_value || 0,
+                                      ) * Number(item?.google_area || 0)).toFixed(
+                                    2,
+                                  )}{' '}
+                                  {landAreaUnit?.[0]?.name || ''}
+                                </Text> */}
                                 <Text style={styles.text}>
                                   : {item?.plot_crops[0]?.crop_name?.name}
                                 </Text>
@@ -335,87 +370,87 @@ const PlotList = () => {
                                 color="green"
                                 iconFamily="Feather"
                               /> */}
-                                <Text style={{ color: '#155724', fontSize: 14 }}>
+                                <Text style={{color: '#155724', fontSize: 14}}>
                                   {item.status_level}
                                 </Text>
                               </View>
                             )}
                             {item.status_level ==
                               'CARBON_DOCUMENTS_SUBMITTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 120,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                              <View
+                                style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 120,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                 name="check"
                                 size={20}
                                 color="green"
                                 iconFamily="Feather"
                               /> */}
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
-                                    SUBMITTED
-                                  </Text>
-                                </View>
-                              )}
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  SUBMITTED
+                                </Text>
+                              </View>
+                            )}
                             {item.status_level ==
                               'CARBON_DOCUMENTS_REJECTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#F8D7DA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 180,
-                                    borderWidth: 1,
-                                    borderColor: '#F8D7DA',
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                              <View
+                                style={{
+                                  backgroundColor: '#F8D7DA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 180,
+                                  borderWidth: 1,
+                                  borderColor: '#F8D7DA',
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                             name="close"
                             size={16}
                             color="#FF5252"
                             iconFamily="AntDesign"
                           /> */}
-                                  <Text style={{ color: '#721C24', fontSize: 14 }}>
-                                    CARBON REJECTED
-                                  </Text>
-                                </View>
-                              )}
+                                <Text style={{color: '#721C24', fontSize: 14}}>
+                                  CARBON REJECTED
+                                </Text>
+                              </View>
+                            )}
 
                             {item.status_level ==
                               'CARBON_DOCUMENTS_APPROVED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
-                                    VERIFIED
-                                  </Text>
-                                </View>
-                              )}
+                              <View
+                                style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 100,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
+                                }}>
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  VERIFIED
+                                </Text>
+                              </View>
+                            )}
                             {item.status_level == 'PENDING' && (
                               <View
                                 style={{
@@ -438,7 +473,7 @@ const PlotList = () => {
                             color="#ffc107"
                             iconFamily="MaterialCommunityIcons"
                           /> */}
-                                <Text style={{ color: '#856404', fontSize: 14 }}>
+                                <Text style={{color: '#856404', fontSize: 14}}>
                                   {item.status_level}
                                 </Text>
                               </View>
@@ -464,7 +499,7 @@ const PlotList = () => {
                             color="#FF5252"
                             iconFamily="AntDesign"
                           /> */}
-                                <Text style={{ color: '#721C24', fontSize: 14 }}>
+                                <Text style={{color: '#721C24', fontSize: 14}}>
                                   {item.status_level}
                                 </Text>
                               </View>

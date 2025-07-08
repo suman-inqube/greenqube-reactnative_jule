@@ -317,6 +317,7 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
         ]);
       }
     }
+    console.log('farmer == ', JSON.stringify(res?.data));
     const farmerFound = res?.data?.data[0];
     if (farmerFound != undefined) {
       const dob = new Date(farmerFound?.date_of_birth);

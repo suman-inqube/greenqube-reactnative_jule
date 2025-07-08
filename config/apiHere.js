@@ -542,7 +542,7 @@ export const activityInfoAPI = async (
   cropName,
   actTypeID,
 ) => {
-  // console.log(`${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`);
+  // 
   // console.log({
   //     'authorization': `${token}`,
   //     'information': `${dbName},${languageID},${farmerID}`,
@@ -558,6 +558,7 @@ export const activityInfoAPI = async (
       `${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`,
       axiosHeaders,
     );
+    console.log("fi==",response);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -1273,6 +1274,7 @@ export const usefulInfoListAPI = async (
   subdiv_id,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -1281,7 +1283,7 @@ export const usefulInfoListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
     return response;

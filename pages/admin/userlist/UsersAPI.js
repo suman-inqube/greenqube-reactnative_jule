@@ -79,8 +79,8 @@ export const UserInformationUpdate = async (dbName, language, userId, token, far
         let response = await axios.put(`${config.BASE_URL}loginSignupRoute/update/${farmerId}`, formData, axiosHeaders);
         return response;
     } catch (error) {
-        console.log(error)
-        // CrashlyticsRecordError(error.response);
+        // console.log(error)
+         CrashlyticsRecordError(error.response);
         return error;
     }
 
@@ -94,6 +94,11 @@ export const farmerProfileInformation = async (dbName, languageId, token, farmer
     };
     try {
         const response = await axios.get(`${config.BASE_URL}loginSignupRoute/details/${farmerID}`, axiosHeaders);
+       
+        console.log(
+          `${config.BASE_URL}loginSignupRoute/details/${farmerID}`,
+          axiosHeaders,
+        );
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response);
