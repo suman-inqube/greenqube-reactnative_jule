@@ -18,6 +18,7 @@ const PlotList = () => {
   const { farmeruserID, agri_land_user_rels, } = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
+  const [addPlot, setAddPlot] = useState(false);
   const [plotList, setplotList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const scrollRef = useRef(null);
@@ -99,6 +100,7 @@ const PlotList = () => {
           setLandUnitsquareMetre([]);
         }
       }
+      setAddPlot(false);
       setIsLoading(false);
       setDataProps({});
     } catch (error) {
@@ -224,11 +226,11 @@ const PlotList = () => {
                               <View>
                                 <Text style={styles.text}>Plot Name</Text>
                                 {/* <Text style={styles.text}>Plot Size</Text> */}
-                                <Text style={styles.text}>  Reported Land Area  </Text>
-                                <Text style={styles.text}> Converted Land Area </Text>
+                                <Text style={styles.text}>Reported Land Area</Text>
+                                <Text style={styles.text}>Converted Land Area</Text>
                                 <Text style={styles.text}>Crop Name</Text>
                                 <Text style={styles.text}>Crop Variety</Text>
-                                <Text style={styles.text}>  Cycle Start Date </Text>
+                                <Text style={styles.text}>Cycle Start Date </Text>
                                 <Text style={styles.text}>Cycle End Date</Text>
                               </View>
                               <View style={{ marginLeft: 10 }}>
@@ -478,14 +480,22 @@ const PlotList = () => {
               />
             </View>
 
+
             {/* Tab 2 */}
             <View style={styles.page}>
               {
-                activeTab == 1 && <LiveHood dataProps={dataProps} activeTab={activeTab} setActiveTab={setActiveTab} onTabPress={onTabPress} />
+                activeTab == 1 && <LiveHood dataProps={dataProps} activeTab={activeTab} setActiveTab={setActiveTab} onTabPress={onTabPress} setAddPlot={setAddPlot} addPlot={addPlot} />
               }
-
             </View>
           </ScrollView>
+          {activeTab == 0 ? <TouchableOpacity
+            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+            onPress={() => { onTabPress(1); setDataProps({}); setAddPlot(true) }}>
+            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+              {t('Add Plot')}
+            </Text>
+          </TouchableOpacity> : null}
+
         </View>
       </Root>
     </>
@@ -724,5 +734,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-
+  locationAddMoreContainer: {
+    position: 'absolute',
+    bottom: 100,
+    right: 0,
+    backgroundColor: '#025502',
+    paddingVertical: 10,
+    paddingLeft: 20,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+  },
 });

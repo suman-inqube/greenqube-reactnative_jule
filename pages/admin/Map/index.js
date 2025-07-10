@@ -32,6 +32,7 @@ import { isWithin20Meters } from '../../Common/calculateAreaFun';
 import { v4 as uuid } from 'uuid';
 import SuggestiveSearchInput from '../../Common/SuggestiveSearchInput';
 import { getMapLocation, } from '../../../config/apiHere';
+import LoadingScreen from '../../Common/LoadingScreen';
 export default function Map({
   polygons,
   newPolygon,
@@ -50,6 +51,8 @@ export default function Map({
   statuslevel,
   type,
   baselatLong,
+   handleRegionChangeComplete,
+  isLoading
 }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
@@ -289,6 +292,11 @@ export default function Map({
   return (
     <>
       <View style={styles.container}>
+          {isLoading && (
+          <View style={styles.loaderOverlay}>
+            <LoadingScreen />
+          </View>
+        )}
         <TouchableOpacity
           style={styles.searchIcon}
           onPress={() => setShowModal(false)}>
@@ -302,6 +310,7 @@ export default function Map({
           style={styles.map}
           mapType="hybrid"
           provider={PROVIDER_GOOGLE}
+           onRegionChangeComplete={handleRegionChangeComplete}
           // region={currentLocation}
           // initialRegion={{
           //   latitude: currentLocation?.latitude || 22.2906, // Default if no location
@@ -321,6 +330,7 @@ export default function Map({
           rotateEnabled={false}
           userLocationUpdateInterval={5000}
           loadingEnabled={true}
+          // isLoading={isLoading}
           showsMyLocationButton
           zoomEnabled
           zoomControlEnabled={true} // ✅ Enable zoom buttons (Android)
@@ -348,7 +358,7 @@ export default function Map({
               fillColor="rgba(139, 236, 11, 0.73)"
               strokeColor="rgb(1, 255, 1)"
               strokeWidth={2}
-              zIndex={0}
+              zIndex={999}
             />
           )}
           {newPolygon.length > 0 && (
@@ -464,5 +474,16 @@ const styles = StyleSheet.create({
       top: 12,
       opacity: 0.7,
     },
+      loaderOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  }
   },
 });

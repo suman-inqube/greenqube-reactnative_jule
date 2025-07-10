@@ -88,7 +88,7 @@ const ProofAndIdentityPropfComp = ({
         }
         const values = [...stateValue];
         const photoId = values[index]?.id;
-        if (photoId && !photoDeletedValue.includes(photoId)) {
+        if (photoId && !photoDeletedValue?.includes(photoId)) {
           setPhotoDeletedValue(prev => [...prev, photoId]);
         }
         values[index] = {

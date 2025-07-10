@@ -25,8 +25,15 @@ import { checkAppVersion } from './pages/checkAppVersion';
 import { firebase } from '@react-native-firebase/analytics';
 import firebaseApp from "@react-native-firebase/app";
 import { mode } from '@env';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { use } from 'i18next';
 export default function Main() {
-
+    const navigationRef = createNavigationContainerRef();
+useEffect(() => {
+    if (navigationRef.isReady()) {
+      console.log("aaaaaaa",navigationRef.getCurrentRoute()?.name);
+  }
+}, [navigationRef.isReady()]);
     // Your Firebase config object
     // const firebaseConfig = {
     //     apiKey: "YOUR_API_KEY",

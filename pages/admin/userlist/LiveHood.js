@@ -10,7 +10,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import {
   ProductionSeasonAndApi,
   ProductionProcessAPI,
@@ -56,7 +56,7 @@ import * as turf from '@turf/turf';
 
 import SignatureCapture from '../../Common/SignaturePad';
 
-const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
+const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPlot, addPlot }) => {
   //GQR-65
   const {
     loginUser_data,
@@ -724,7 +724,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         IOTId: '',
         IOTLatLong: '',
         IOTLatlat: '',
-        ConvertedreportedLandsize: 0,
         crop_cycl_start_date: '',
       });
     }
@@ -1152,7 +1151,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       });
       const filterAddressImage = addressProof.filter(item => item.name !== '');
 
-      if (userData == 'addUserData') {
+      if (userData == 'addUserData' || addPlot==true) {
         addressProof.map((data, index) => {
           if (data.name != '') {
             formdata.append('plot_image', data);
@@ -1181,7 +1180,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
           // farmerData.cycleStartDate
           cusCropCyclStartDate = farmerData.crop_cycl_start_date;
         }
-        console.log(farmerData.crop_cycl_start_date);
         let cusGooglearea = 0;
         if (
           farmerData?.google_area > 0 &&
@@ -1268,31 +1266,31 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }
         if (
           statuslevel.label == 'APPROVED' ||
-          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED'&&carbonFlag == true
+          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' && carbonFlag == true
         ) {
-            const formdataCarbon = new FormData();
-            formdataCarbon.append('rel_id', farmerData.land_rel_id);
-            if (
-              carboncertificate[0]?.id != undefined &&
-              carboncertificate[0]?.id == '' &&
-              carboncertificate[0].uri != ''
-            ) {
-              formdataCarbon.append('carbon_agreement', carboncertificate[0]);
-            }
-            if (
-              signature?.id != undefined &&
-              signature?.id == '' &&
-              signature.uri != ''
-            ) {
-              formdataCarbon.append('signature', signature);
-            }
-            const carbonRes = await uploadCarbonAgrDocs(
-              dbname,
-              lan_id,
-              token,
-              farmeruserID,
-              formdataCarbon,
-            );
+          const formdataCarbon = new FormData();
+          formdataCarbon.append('rel_id', farmerData.land_rel_id);
+          if (
+            carboncertificate[0]?.id != undefined &&
+            carboncertificate[0]?.id == '' &&
+            carboncertificate[0].uri != ''
+          ) {
+            formdataCarbon.append('carbon_agreement', carboncertificate[0]);
+          }
+          if (
+            signature?.id != undefined &&
+            signature?.id == '' &&
+            signature.uri != ''
+          ) {
+            formdataCarbon.append('signature', signature);
+          }
+          const carbonRes = await uploadCarbonAgrDocs(
+            dbname,
+            lan_id,
+            token,
+            farmeruserID,
+            formdataCarbon,
+          );
         }
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
@@ -1305,6 +1303,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
   };
   const handleUserData = async () => {
     setOutofRange(false);
+    setAddPlot(true);
     //basude stop
     setstatuslevel({ label: '', value: '' });
     setUserData('addUserData');
@@ -1376,35 +1375,35 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         });
         // setPolygons([newPolygon]);
         //basudev
-        if (!overlapFound) {
-          setPolygons([...nearPolSet, newPolygon]);
-          setNewPolygon([]);
-          setLocation(newPolygon);
-          setEditing(false);
-          setShowModal(false);
-          // setArea(calculateAreaFun(newPolygon));
-          setfarmerData({
-            ...farmerData,
-            google_area: geolib.getAreaOfPolygon(newPolygon),
-          });
-          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-            setArea(
-              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-              geolib.getAreaOfPolygon(newPolygon),
-            );
-          } else {
-            setArea(geolib.getAreaOfPolygon(newPolygon));
-          }
+        // if (!overlapFound) {
+        setPolygons([...nearPolSet, newPolygon]);
+        setNewPolygon([]);
+        setLocation(newPolygon);
+        setEditing(false);
+        setShowModal(false);
+        // setArea(calculateAreaFun(newPolygon));
+        setfarmerData({
+          ...farmerData,
+          google_area: geolib.getAreaOfPolygon(newPolygon),
+        });
+        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+          setArea(
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+            geolib.getAreaOfPolygon(newPolygon),
+          );
         } else {
-          Alert.alert(
-            'Overlap Detected',
-            'Coordinates are overlapping',
-            [
-              { text: 'OK', onPress: () => console.log('OK Pressed') },
-            ],
-            { cancelable: false }
-          )
+          setArea(geolib.getAreaOfPolygon(newPolygon));
         }
+        // } else {
+        //   Alert.alert(
+        //     'Overlap Detected',
+        //     'Coordinates are overlapping',
+        //     [
+        //       { text: 'OK', onPress: () => console.log('OK Pressed') },
+        //     ],
+        //     { cancelable: false }
+        //   )
+        // }
       } else {
         // setArea(0);
         Alert.alert(
@@ -1424,7 +1423,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
 
   const clearNewPolygon = () => {
     setfarmerData({ ...farmerData, google_area: 0 });
-    if (userData == 'addUserData') {
+    if (userData == 'addUserData' || addPlot==true) {
       setNewPolygon([]);
       setPolygons(nearPolSet);
       removesetLocation();
@@ -1471,7 +1470,39 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       // {latitude: '', longitude: ''},
     ]);
   };
-
+  const regionRef = useRef(null);
+  const timeoutRef = useRef(null);
+  const handleRegionChangeComplete = async (newRegion) => {
+    const { latitude, longitude } = newRegion;
+    regionRef.current = newRegion;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(async () => {
+      const latestRegion = regionRef.current;
+      setIsLoading(true);
+      const isSameLat = Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
+      const isSameLng = Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
+      if (isSameLat && isSameLng) {
+        try {
+          const nearestLatLong_res = await nearestLatLong(dbname, lan_id, token, latitude, longitude);
+          if (nearestLatLong_res?.status === 200) {
+            const data = nearestLatLong_res?.data?.data;
+            setnearPolData(data);
+            const groupedData = groupByRelId(data);
+            setnearPolSet(groupedData);
+            setPolygons(groupedData);
+          }
+        } catch (error) {
+          console.error("Error fetching nearest polygon data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }, 3000);
+  };
   const handleIOTId = async (itemName, text) => {
     try {
       setfarmerData({ ...farmerData, "IOTId": text })
@@ -1593,7 +1624,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                 </Text>
               </View>
             )}
-            {userData == 'addUserData' ? (
+            {userData == 'addUserData' || addPlot==true ? (
               <InputTextForm
                 label={t('addland_select_plot')}
                 color="red"
@@ -1911,13 +1942,13 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                   onChangeText={text =>
                     handleAddUserData('expectedProduction', text)
                   }
-                  // editable={
-                  //   edit == ''
-                  //     ? harvested == 'same produce'
-                  //       ? false
-                  //       : true
-                  //     : !edit
-                  // }
+                // editable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? false
+                //       : true
+                //     : !edit
+                // }
                 />
               </View>
               <View style={{ width: '45%' }}>
@@ -1929,23 +1960,59 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                     handleAddData(item, 'unitProduct', 'unitProductValue');
                   }}
                   val={farmerData.unitProduct}
-                  // disable={edit}
-                  // disable={
-                  //   edit == ''
-                  //     ? harvested == 'same produce'
-                  //       ? true
-                  //       : false
-                  //     : edit
-                  // }
+                // disable={edit}
+                // disable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? true
+                //       : false
+                //     : edit
+                // }
                 />
               </View>
             </View>
+            <TouchableOpacity
+              onPress={() =>
+                harvested != '' || userData == 'addUserData' || addPlot==true
+                  ? setopenCycleStart(true)
+                  : null
+              }
+              activeOpacity={9}>
+              <Text style={{ marginBottom: 5, color: '#f40000' }}>
+                {t('showing_date')}
+              </Text>
+              <View style={styles.calenderContainer}>
+                <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={{ width: 20, height: 20 }}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                harvested != '' || userData == 'addUserData' || addPlot==true
+                  ? setopenCycleEnd(true)
+                  : null
+              }
+              activeOpacity={9}>
+              <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>
+                {t('harvesting_date_auto_calculated')}
+              </Text>
+              <View style={styles.calenderContainer}>
+                <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={{ width: 20, height: 20 }}
+                />
+              </View>
+            </TouchableOpacity>
             {(statuslevel.label == 'APPROVED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
               statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') && carbonFlag == true ? (
-              <>
+          <View style={{marginTop:15}}>
                 <CarbonCertificate
                   identityProofIdentityPropf={carboncertificate}
                   t={t}
@@ -1975,53 +2042,20 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                   signatureVal={signature}
                   statuslevel={statuslevel?.label}
                 />
-              </>
+              </View>
             ) : (
               <></>
             )}
-            <TouchableOpacity
-              onPress={() =>
-                harvested != '' || userData == 'addUserData'
-                  ? setopenCycleStart(true)
-                  : null
-              }
-              activeOpacity={9}>
-              <Text style={{ marginBottom: 5, color: '#f40000' }}>
-                {t('showing_date')}
-              </Text>
-              <View style={styles.calenderContainer}>
-                <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
-                <Image
-                  source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() =>
-                harvested != '' || userData == 'addUserData'
-                  ? setopenCycleEnd(true)
-                  : null
-              }
-              activeOpacity={9}>
-              <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>
-                {t('harvesting_date_auto_calculated')}
-              </Text>
-              <View style={styles.calenderContainer}>
-                <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
-                <Image
-                  source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.clickAddMorePlots}
-              onPress={() => handleUserData()}>
-              <Text style={styles.clickAddMorePlotsTitle}>
-                {t('click_to_add_more_plot')}
-              </Text>
-            </TouchableOpacity>
+            {
+            (addPlot == false ? (userData != 'addUserData' ?
+              <TouchableOpacity
+                style={styles.clickAddMorePlots}
+                onPress={() => handleUserData()}>
+                <Text style={styles.clickAddMorePlotsTitle}>
+                  {t('click_to_add_more_plot')}{addPlot}
+                </Text>
+              </TouchableOpacity> : null) : null)
+            }
           </View>
         </ScrollView>
         {/* <TouchableOpacity
@@ -2031,7 +2065,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
             {t('AddLocation')}
           </Text>
         </TouchableOpacity> */}
-        {plotEdit && (
+        {plotEdit || addPlot==true ? (
           <TouchableOpacity
             style={[styles.locationAddMoreContainer, { bottom: 250 }]}
             onPress={() => setShowModal(!showModal)}>
@@ -2039,7 +2073,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
               {t('MapView')}
             </Text>
           </TouchableOpacity>
-        )}
+        ) : null}
         <ButtonFormBottom
           label={t('submit')}
           onPress={() => handleUserListUpdate()}
@@ -2076,6 +2110,8 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
               statuslevel={statuslevel.label}
               type="livehoood"
               baselatLong={referencelatLong}
+              handleRegionChangeComplete={handleRegionChangeComplete}
+              isLoading={isLoading}
             />
           </Modal>
         )}

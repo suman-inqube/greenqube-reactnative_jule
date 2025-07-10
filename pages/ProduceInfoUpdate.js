@@ -9,7 +9,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import Logo from './Common/Logo';
 import ButtonForm from './Common/ButtonForm';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -53,7 +53,7 @@ const ProduceInfoUpdate = () => {
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [storeProduceInfoInArray, setstoreProduceInfoInArray] = useState([]);
   const [storeProduceInfo, setstoreProduceInfo] = useState({
     plotSiteName: '',
@@ -841,6 +841,39 @@ const ProduceInfoUpdate = () => {
       IOTLatLong: longitude,
     });
   }
+  const regionRef = useRef(null);
+      const timeoutRef = useRef(null);
+      const handleRegionChangeComplete = async (newRegion) => {
+        const { latitude, longitude } = newRegion;
+        regionRef.current = newRegion;
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(async () => {
+          const latestRegion = regionRef.current;
+          setIsLoading(true);
+          const isSameLat = Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
+          const isSameLng = Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
+          if (isSameLat && isSameLng) {
+            try {
+              const nearestLatLong_res = await nearestLatLong(dbName, lanID, "", latitude, longitude);
+              if (nearestLatLong_res?.status === 200) {
+                const data = nearestLatLong_res?.data?.data;
+                // setnearPolData(data);
+                const groupedData = groupByRelId(data);
+                setnearPolSet(groupedData);
+                setPolygons(groupedData);
+              }
+            } catch (error) {
+              console.error("Error fetching nearest polygon data:", error);
+            } finally {
+              setIsLoading(false);
+            }
+          } else {
+            setIsLoading(false);
+          }
+        }, 3000);
+      };
   return (
     <Root>
       {/* <ForegroundLocationService /> */}
@@ -907,9 +940,10 @@ const ProduceInfoUpdate = () => {
           <InputTextForm
             label={t('addland_landsize')}
             onChangeText={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, plotSize: item, ConvertedreportedLandsize: Number(storeProduceInfo?.sizevalue) * Number(item)
+              setstoreProduceInfo({
+                ...storeProduceInfo, plotSize: item, ConvertedreportedLandsize: Number(storeProduceInfo?.sizevalue) * Number(item)
                 // , cycleEnds: ""
-               })
+              })
             }
             value={storeProduceInfo.plotSize}
           />
@@ -1265,6 +1299,8 @@ const ProduceInfoUpdate = () => {
             area={area}
             //basudev
             location={location}
+            handleRegionChangeComplete={handleRegionChangeComplete}
+            isLoading={isLoading}
           />
         </Modal>
       )}

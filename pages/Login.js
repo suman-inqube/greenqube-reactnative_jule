@@ -493,11 +493,11 @@ const Login = ({route}) => {
       if (isFocused) {
         onPageLoad();
         // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-      }
-      if (route.params === undefined) {
-        i18next.changeLanguage('1');
-      } else {
-        i18next.changeLanguage(`${route.params.locale}`);
+        if (route.params === undefined) {
+          i18next.changeLanguage('1');
+        } else {
+          i18next.changeLanguage(`${route.params.locale}`);
+        }
       }
     } catch (err) {
       console.error(err);
