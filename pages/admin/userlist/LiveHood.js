@@ -2072,16 +2072,49 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             ) : (
               <></>
             )}
-            {
-            (addPlot == false ? (userData != 'addUserData' ?
-              <TouchableOpacity
-                style={styles.clickAddMorePlots}
-                onPress={() => handleUserData()}>
-                <Text style={styles.clickAddMorePlotsTitle}>
-                  {t('click_to_add_more_plot')}{addPlot}
-                </Text>
-              </TouchableOpacity> : null) : null)
-            }
+            <TouchableOpacity
+              onPress={() =>
+                harvested != '' || userData == 'addUserData'
+                  ? setopenCycleStart(true)
+                  : null
+              }
+              activeOpacity={9}>
+              <Text style={{marginBottom: 5, color: '#f40000'}}>
+                {t('showing_date')}
+              </Text>
+              <View style={styles.calenderContainer}>
+                <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                harvested != '' || userData == 'addUserData'
+                  ? setopenCycleEnd(true)
+                  : null
+              }
+              activeOpacity={9}>
+              <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
+                {t('harvesting_date_auto_calculated')}
+              </Text>
+              <View style={styles.calenderContainer}>
+                <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.clickAddMorePlots}
+              onPress={() => handleUserData()}>
+              <Text style={styles.clickAddMorePlotsTitle}>
+                {t('click_to_add_more_plot')}
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
         {/* <TouchableOpacity

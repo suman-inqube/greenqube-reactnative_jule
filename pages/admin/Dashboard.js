@@ -184,13 +184,13 @@ const Dashboard = ({ navigation }) => {
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
+        {/* <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} /> */}
         <View name="name">
-          <View style={styles.containerimg}>
+          {/* <View style={styles.containerimg}>
             {profileImg ?
               <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
             }
-          </View>
+          </View> */}
           <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
