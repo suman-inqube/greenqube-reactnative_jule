@@ -2,6 +2,10 @@ import axios from 'axios';
 import config from '../config';
 import { CrashlyticsRecordError } from '../pages/Crashlytics/CrashlyticsRecordError';
 import instance from './commonAxios'
+import { Image } from 'react-native';
+// import CryptoJS from 'react-native-crypto-js';
+import CryptoJS from 'crypto-js';
+
 const timeoutConfig = { timeout: 5000 };
 const headersWithCompanyDBlanID = (dbName, languageId) => {
   return {
@@ -1368,6 +1372,7 @@ export const trainingListAPI = async (
   subdiv_id,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -1376,7 +1381,7 @@ export const trainingListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
     // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
@@ -2126,6 +2131,7 @@ export const farmerUsefulInfoListAPI = async (
   newCropId,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -2134,7 +2140,7 @@ export const farmerUsefulInfoListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
       axiosHeaders,
     );
     return response;
@@ -2153,6 +2159,7 @@ export const faremerTrainingListAPI = async (
   cropId,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -2161,7 +2168,7 @@ export const faremerTrainingListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`,
       axiosHeaders,
     );
     // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
@@ -3033,51 +3040,33 @@ export const getMapLocation = async (
     return error.response;
   }
 };
+export const getDycryptedImage = async (encryptedHex, ivHex) => {
+  // var AES = require('react-native-crypto-js').AES;
+  // var SHA256 = require('react-native-crypto-js').SHA256;
+  try {
 
-export const ActivityPipeImages = async (token, dbName, language, userId, rel_id_plot) => {
-  const axiosHeaders = {
-    headers: {
-      authorization: `${token}`,
-      information: `${dbName},${language},${userId}`,
+  const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
+  const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
+
+  // Create the cipherParams object
+  const cipherParams = CryptoJS.lib.CipherParams.create({
+    ciphertext: CryptoJS.enc.Hex.parse(encryptedHex),
+  });
+
+  const decrypted = CryptoJS.AES.decrypt(
+    cipherParams, // Use the properly typed cipherParams
+    keyBytes,
+    {
+      iv: ivBytes,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
     },
-  };
-  console.log(`${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}`,
-    axiosHeaders,
   );
-  try {
-    let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}`,
-      axiosHeaders,
-    );
-    return response;
+
+  console.log('Decrypted Plaintext:', decrypted.toString(CryptoJS.enc.Utf8));
+    // return decImage;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
-    return error.response;
-  }
-}
-export const addActivityPipeImages = async (
-  dbName,
-  language,
-  userId,
-  token,
-  formData,
-) => {
-  const axiosHeaders = {
-    headers: {
-      authorization: `${token}`,
-      information: `${dbName},${language},${userId}`,
-      'Content-Type': 'multipart/form-data',
-    },
-  };
-  console.log(`${config.BASE_URL}landRoute/uploadPipeImages`, formData, axiosHeaders);
-  try {
-    let response = await axios.post(
-      `${config.BASE_URL}landRoute/uploadPipeImages`,
-      formData,
-      axiosHeaders
-    );
-    return response;
-  } catch (error) {
-    return error.response;
+    console.log(" ERROR HEX"+error);
+    // CrashlyticsRecordError(error.response);
   }
 };

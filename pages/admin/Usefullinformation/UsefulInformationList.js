@@ -273,7 +273,10 @@ const UsefulInformationList = () => {
                   <TouchableOpacity
                     onPress={() => detailItem(item.fid)}
                     style={isGridView ? styles.gridItem : styles.listItem}>
-                    {item.agri_files && item.agri_files.length !== 0 ? (
+                    {item.agri_files &&
+                    item.agri_files.filter(
+                      file => file.term_type === 'gen_info_img',
+                    ).length > 0 ? (
                       item.agri_files
                         .filter(file => file.term_type === 'gen_info_img')
                         .map(file => (
@@ -292,12 +295,12 @@ const UsefulInformationList = () => {
                         ))
                     ) : (
                       <Image
-                        source={require('../../Common/images/apple.png')}
+                        source={require('../../Common/images/greenqube_logo.png')}
                         style={styles.image}
                       />
                     )}
                     <Text style={styles.title}>
-                      {item.post_name.substring(0, 30)}
+                      {item.post_name.substring(0, 20)}
                     </Text>
                   </TouchableOpacity>
                 ) : (
@@ -352,9 +355,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   image: {
-    width: 100,
-    height: 100,
-    
+    width: '85%',
+    height: 120,
   },
   title: {
     fontFamily: 'Poppins-Regular',
