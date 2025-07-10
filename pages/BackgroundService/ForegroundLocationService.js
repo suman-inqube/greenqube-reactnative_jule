@@ -19,7 +19,7 @@ const ForegroundLocationService = () => {
                         fastInterval: 5000,
                     });
 
-                    console.log('GPS Check Result:', result);
+                    // console.log('GPS Check Result:', result);
                     if (result === 'enabled' || result === 'already-enabled') {
                         startLocationUpdates();
                     }
