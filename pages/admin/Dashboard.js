@@ -13,7 +13,12 @@ import FusedLocation from 'react-native-fused-location';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { userCreateContext } from '../Context/usersCreateContext';
 import MessageDialog from '../Common/MessageDialog';
-import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
+import {
+  getDycryptedImage,
+  LandUnitArea,
+  UnitConversonToDefault,
+} from '../../config/apiHere';
+ import CryptoJS from 'crypto-js';;
 const Dashboard = ({ navigation }) => {
   //GQR-65
   const {
@@ -91,6 +96,9 @@ const Dashboard = ({ navigation }) => {
         PERMISSIONS_TYPE.notifications,
       ]),
     ]);
+    // console.log("bottomBannerData==", bottomBannerData);
+    // console.log("topBannerData==", topBannerData);
+    // getDycryptedImage(bottomBannerData?.content, bottomBannerData?.iv);
     if (logoImage != null) {
       setlogoImage(logoImage);
     } else {
@@ -176,13 +184,13 @@ const Dashboard = ({ navigation }) => {
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-        {/* <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} /> */}
+        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
         <View name="name">
-          {/* <View style={styles.containerimg}>
+          <View style={styles.containerimg}>
             {profileImg ?
               <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
             }
-          </View> */}
+          </View>
           <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
