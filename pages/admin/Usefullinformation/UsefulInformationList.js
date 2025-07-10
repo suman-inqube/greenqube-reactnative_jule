@@ -1,5 +1,6 @@
 import {
-  Keyboard,TextInput,
+  Keyboard,
+  TextInput,
   Image,
   FlatList,
   StyleSheet,
@@ -95,19 +96,8 @@ const UsefulInformationList = () => {
       } else {
         Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
       }
-  
-  
-  
-  useEffect(() => {
-    if (isFocused) {
-      onPageLoad();
     }
-  }, [isFocused]);
-  useFocusEffect(
-    useCallback(() => {
-      onBackPress(handleBackPress);
-    }, []),
-  );
+  };
   const onPageLoad = async () => {
     const {agri_state, agri_district, agri_subdivision} =
       agri_user_addresses[0];
@@ -136,14 +126,7 @@ const UsefulInformationList = () => {
   );
   const searchByTitle = async () => {
     Keyboard.dismiss();
-    usefulInfoList(
-      dbname,
-      lan_id,
-      user_id,
-      "",
-      "",
-      "",
-    );
+    usefulInfoList(dbname, lan_id, user_id, '', '', '');
   };
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
@@ -284,7 +267,10 @@ const UsefulInformationList = () => {
                   <TouchableOpacity
                     onPress={() => detailItem(item.fid)}
                     style={isGridView ? styles.gridItem : styles.listItem}>
-                    {item.agri_files && item.agri_files.length !== 0 ? (
+                    {item.agri_files &&
+                    item.agri_files.filter(
+                      file => file.term_type === 'gen_info_img',
+                    ).length > 0 ? (
                       item.agri_files
                         .filter(file => file.term_type === 'gen_info_img')
                         .map(file => (
@@ -303,12 +289,12 @@ const UsefulInformationList = () => {
                         ))
                     ) : (
                       <Image
-                        source={require('../../Common/images/apple.png')}
+                        source={require('../../Common/images/greenqube_logo.png')}
                         style={styles.image}
                       />
                     )}
                     <Text style={styles.title}>
-                      {item.post_name.substring(0, 30)}
+                      {item.post_name.substring(0, 20)}
                     </Text>
                   </TouchableOpacity>
                 ) : (
@@ -332,7 +318,6 @@ const UsefulInformationList = () => {
     </Root>
   );
 };
-  }
 
 export default UsefulInformationList;
 
@@ -360,13 +345,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginVertical: 5,
-    marginHorizontal: 10, 
+    marginHorizontal: 10,
     elevation: 1,
   },
   image: {
-    width: 100,
-    height: 100,
-    
+    width: '85%',
+    height: 120,
   },
   title: {
     fontFamily: 'Poppins-Regular',
