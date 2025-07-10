@@ -19,27 +19,6 @@ import {
   StackActions,
 } from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
-import {
-  Keyboard,TextInput,
-  Image,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {usefulInfoListAPI} from '../../../config/apiHere';
-import ImageForm from '../../Common/ImageForm';
-import moment from 'moment';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-  useIsFocused,
-  StackActions,
-} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
 const UsefulInformationList = () => {
   //GQR-67
   const {
@@ -116,119 +95,19 @@ const UsefulInformationList = () => {
       } else {
         Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
       }
-  //GQR-67
-  const {
-    loginUser_data,
-    CustomHeader,
-    t,
-    AlertMesg,
-    onBackPress,
-    setItem,
-    logoImage,
-    topBanner,
-    Root,
-    Toast,
-    FormsTitle,
-  } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
-  //GQR-67
-  const isFocused = useIsFocused();
-  const navigation = useNavigation();
-  const [noticeList, setNoticeList] = useState([]);
-  const [isGridView, setIsGridView] = useState(true);
-  const numColumns = isGridView ? 1 : 2;
-  const [titleSearch, setTitleSearch] = useState('');
-
-  const toggleView = () => {
-    setIsGridView(!isGridView);
-  };
-  const detailItem = async itemId => {
-    await setItem('userNoticeId', itemId);
-    navigation.navigate('UsefulInformation', {
-      pagename: 'UsefulInformation',
-      noticeId: itemId,
-    });
-  };
-  function UserBoxDisplay({item, item2, item3, item4}) {
-    return (
-      <View style={styles.box1}>
-        <View style={styles.box1_1}>
-          <View style={{width: '70%'}}>
-            <Text style={styles.textOne}>{item}</Text>
-            <Text>{item2}</Text>
-          </View>
-          <View style={{width: '30%'}}>
-            <Text style={styles.readMore}>{item4}</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-  const usefulInfoList = async (
-    dbName,
-    languageID,
-    userID,
-    state_id,
-    district_id,
-    subdiv_id,
-  ) => {
-    let response = await usefulInfoListAPI(
-      dbName,
-      languageID,
-      userID,
-      state_id,
-      district_id,
-      subdiv_id,
-      'supervisor',
-      'general_info',
-      titleSearch,
-    );
-    if (response?.status == 200) {
-      if (response.data.data.rows != 0) {
-        console.log(JSON.stringify(response.data.data));
-        setNoticeList(response.data.data);
-        setItem('userNoticeList', response.data.data);
-      } else {
-        Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
-      }
-    }
-  };
-  const onPageLoad = async () => {
-    const {agri_state, agri_district, agri_subdivision} =
-      agri_user_addresses[0];
-    usefulInfoList(
-      dbname,
-      lan_id,
-      user_id,
-      agri_state.fid,
-      agri_district.fid,
-      agri_subdivision.fid,
-    );
-  };
+  
+  
+  
   useEffect(() => {
     if (isFocused) {
       onPageLoad();
     }
   }, [isFocused]);
-  const handleBackPress = () => {
-    navigation.navigate('Dashboard');
-    return true;
-  };
   useFocusEffect(
     useCallback(() => {
       onBackPress(handleBackPress);
     }, []),
   );
-  const searchByTitle = async () => {
-    Keyboard.dismiss();
-    usefulInfoList(
-      dbname,
-      lan_id,
-      user_id,
-      "",
-      "",
-      "",
-  };
   const onPageLoad = async () => {
     const {agri_state, agri_district, agri_subdivision} =
       agri_user_addresses[0];
@@ -453,6 +332,7 @@ const UsefulInformationList = () => {
     </Root>
   );
 };
+  }
 
 export default UsefulInformationList;
 
