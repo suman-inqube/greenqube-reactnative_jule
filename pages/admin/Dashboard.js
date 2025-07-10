@@ -147,7 +147,7 @@ const Dashboard = ({ navigation }) => {
         });
       }
     }
-    console.log(i);
+  
     if (i > 0) {
       setConvertionLUState(true);
     }
