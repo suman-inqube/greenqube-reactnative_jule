@@ -609,7 +609,7 @@ export const activityInfoAPI = async (
       `${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`,
       axiosHeaders,
     );
-    console.log("fi==",response);
+    console.log("fi==", response);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -3045,28 +3045,28 @@ export const getDycryptedImage = async (encryptedHex, ivHex) => {
   // var SHA256 = require('react-native-crypto-js').SHA256;
   try {
 
-  const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
-  const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
+    const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
+    const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
 
-  // Create the cipherParams object
-  const cipherParams = CryptoJS.lib.CipherParams.create({
-    ciphertext: CryptoJS.enc.Hex.parse(encryptedHex),
-  });
+    // Create the cipherParams object
+    const cipherParams = CryptoJS.lib.CipherParams.create({
+      ciphertext: CryptoJS.enc.Hex.parse(encryptedHex),
+    });
 
-  const decrypted = CryptoJS.AES.decrypt(
-    cipherParams, // Use the properly typed cipherParams
-    keyBytes,
-    {
-      iv: ivBytes,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    },
-  );
+    const decrypted = CryptoJS.AES.decrypt(
+      cipherParams, // Use the properly typed cipherParams
+      keyBytes,
+      {
+        iv: ivBytes,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+      },
+    );
 
-  console.log('Decrypted Plaintext:', decrypted.toString(CryptoJS.enc.Utf8));
+    return decrypted.toString(CryptoJS.enc.Utf8);
     // return decImage;
   } catch (error) {
-    console.log(" ERROR HEX"+error);
+    console.log(" ERROR HEX" + error);
     // CrashlyticsRecordError(error.response);
   }
 };

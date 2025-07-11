@@ -8,68 +8,73 @@ import { promptForEnableLocationIfNeeded } from 'react-native-android-location-e
 import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 const ForegroundLocationService = () => {
-    useEffect(() => {
-        let gpsCheckInterval;
+  useEffect(() => {
+    let isMounted = true;
+    let fusedLocationSubscription = null;
 
-        const checkGPSStatus = async () => {
-            if (Platform.OS === 'android') {
-                try {
-                    const result = await promptForEnableLocationIfNeeded({
-                        interval: 10000,
-                        fastInterval: 5000,
-                    });
+    const checkGPSStatus = async () => {
+      try {
+        if (Platform.OS === 'android') {
+          const result = await promptForEnableLocationIfNeeded({
+            interval: 10000,
+            fastInterval: 5000,
+          });
 
-                    // console.log('GPS Check Result:', result);
-                    if (result === 'enabled' || result === 'already-enabled') {
-                        startLocationUpdates();
-                    }
-                } catch (error) {
-                    console.log('GPS not enabled:', error.message);
-                    Alert.alert(
-                        'Enable GPS',
-                        'Location features will not work unless GPS is enabled.',
-                    );
-                }
-            } else {
-                // iOS - Permissions handling
-                const result = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-                if (result === RESULTS.GRANTED) {
-                    startLocationUpdates();
-                }
-            }
-        };
+          if ((result === 'enabled' || result === 'already-enabled') && isMounted) {
+            startLocationUpdates();
+          }
+        } else {
+          const result = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+          if (result === RESULTS.GRANTED && isMounted) {
+            startLocationUpdates();
+          }
+        }
+      } catch (error) {
+        console.log('GPS not enabled:', error.message);
+        if (isMounted) {
+          Alert.alert(
+            'Enable GPS',
+            'Location features will not work unless GPS is enabled.'
+          );
+        }
+      }
+    };
 
-        const startLocationUpdates = async () => {
-            try {
-                await FusedLocation.setLocationPriority(FusedLocation.Constants.HIGH_ACCURACY);
-                await FusedLocation.setLocationInterval(1000);
-                await FusedLocation.setFastestLocationInterval(1000);
-                await FusedLocation.startLocationUpdates();
+    const startLocationUpdates = async () => {
+      try {
+        await FusedLocation.setLocationPriority(FusedLocation.Constants.HIGH_ACCURACY);
+        await FusedLocation.setLocationInterval(1000);
+        await FusedLocation.setFastestLocationInterval(1000);
+        await FusedLocation.startLocationUpdates();
 
-                FusedLocation.on('fusedLocation', async (location) => {
-                    await setItem('fusedLocation', location);
-                    store.dispatch(updateLocation(location));
-                });
-            } catch (error) {
-                console.log('Error starting location updates:', error);
-            }
-        };
+        // Use addListener (returns a subscription)
+        fusedLocationSubscription = FusedLocation.on('fusedLocation', async (location) => {
+          if (!isMounted) return;
+          await setItem('fusedLocation', location);
+          store.dispatch(updateLocation(location));
+        });
+      } catch (error) {
+        console.log('Error starting location updates:', error);
+      }
+    };
 
-        const stopLocationUpdates = () => {
-            FusedLocation.stopLocationUpdates();
-            FusedLocation.off();
-        };
+    const stopLocationUpdates = () => {
+      if (fusedLocationSubscription?.remove) {
+        fusedLocationSubscription.remove(); // ✅ safe unsubscribe
+        fusedLocationSubscription = null;
+      }
+      FusedLocation.stopLocationUpdates();
+    };
 
-        checkGPSStatus(); // Check initially
-        gpsCheckInterval = setInterval(checkGPSStatus, 10000); // Check every 10 seconds
+    checkGPSStatus();
 
-        return () => {
-            clearInterval(gpsCheckInterval);
-            stopLocationUpdates();
-        };
-    }, []);
+    return () => {
+      isMounted = false;
+      stopLocationUpdates();
+    };
+  }, []);
 
-    return null;
+  return null;
 };
 
 export default ForegroundLocationService;

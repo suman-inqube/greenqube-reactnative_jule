@@ -154,8 +154,8 @@ const Profile = () => {
         locDiffLangRes?.data?.data || {};
       await Promise.all([
         stateInfoDataList(dbname, language.value, token),
-        districtDataList(dbname, language.value, stateData.fid),
-        blockDataList(dbname, language.value, distData.fid),
+        districtDataList(dbname, language.value, stateData?.fid),
+        blockDataList(dbname, language.value, distData?.fid),
       ]);
       setstorePersnolInfo({
         ...storePersnolInfo,
