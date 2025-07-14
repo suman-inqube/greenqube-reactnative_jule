@@ -70,12 +70,6 @@ const Dashboard = ({ navigation }) => {
     }
   };
   const onPageLoad = async () => {
-    if (agri_user_addresses.length > 0) {
-      const { block, district, state } = agri_user_addresses[0];
-      if (state == null || district == null || block == null) {
-        CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
-      }
-    }
     const [
       bottomBannerData,
       userNameData,
@@ -163,6 +157,12 @@ const Dashboard = ({ navigation }) => {
   };
   const HandlerGoBack = () => exit()
   useEffect(() => {
+    if (agri_user_addresses?.length > 0) {
+      const { agri_district,agri_state,agri_subdivision } = agri_user_addresses[0];
+      if (agri_district == null || agri_state == null || agri_subdivision == null) {
+        CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
+      }
+    }
     if (isFocused) {
 
       onPageLoad();

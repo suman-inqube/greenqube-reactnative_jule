@@ -15,7 +15,7 @@ const CustomAlert = (title, description, exitApp,OKText,CancelText) => {
             OKText&&{
                 text: 'OK',
                 onPress: () => {
-                    exitApp && BackHandler.exitApp();
+                    // exitApp && BackHandler.exitApp();
                 },
             },
            

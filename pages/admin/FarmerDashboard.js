@@ -130,9 +130,9 @@ const FarmerDashboard = ({ navigation }) => {
     };
     const onPageLoad = async () => {
         try {
-            if (agri_user_addresses.length > 0) {
-                const { block, district, state } = agri_user_addresses[0];
-                if (state == null || district == null || block == null) {
+            if (agri_user_addresses?.length > 0) {
+                const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
+                if (agri_district == null || agri_state == null || agri_subdivision == null) {
                     CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
                 }
             }
@@ -159,7 +159,7 @@ const FarmerDashboard = ({ navigation }) => {
             setuserName(userNameData);
             setprofileImg(profileImgData);
         } catch (error) {
-
+            console.log(error)
         }
 
     };
@@ -168,7 +168,7 @@ const FarmerDashboard = ({ navigation }) => {
         // requestUserPermission();
         // notificationListener();
         onPageLoad();
-    }, []);
+    }, [isFocused]);
 
     const HandlerGoBack = () => exit();
     useEffect(() => {

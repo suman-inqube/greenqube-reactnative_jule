@@ -8,7 +8,7 @@ import {
   BackHandler,
   Keyboard,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import ImageForm from '../../Common/ImageForm';
 import {
   fetchBlockAPI,
@@ -16,7 +16,7 @@ import {
   fetchStateAPI,
   UserInformationUpdate,
 } from './UsersAPI';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import config from '../../../config';
 import {
@@ -26,14 +26,14 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import DocumentPicker, {types} from 'react-native-document-picker';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import DocumentPicker, { types } from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import LoadingScreen from '../../Common/LoadingScreen';
-import {addIdAddressImgs} from '../../../config/apiHere';
-import {deletePlotImageAPI} from '../Loan/LoanAPI';
+import { addIdAddressImgs } from '../../../config/apiHere';
+import { deletePlotImageAPI } from '../Loan/LoanAPI';
 const qs = require('qs');
-const Information = ({sendDataToParent, farmerID}) => {
+const Information = ({ sendDataToParent, farmerID }) => {
   //GQR-66
   const {
     t,
@@ -76,7 +76,7 @@ const Information = ({sendDataToParent, farmerID}) => {
   const [districtAll, setdistrictAll] = useState([]);
   const [blockAll, setblockAll] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [myphoto, setmyPhoto] = useState({uri: '', type: '', name: ''});
+  const [myphoto, setmyPhoto] = useState({ uri: '', type: '', name: '' });
   const [farmerData, setfarmerData] = useState({
     userName: '',
     contactNumber: '',
@@ -103,6 +103,7 @@ const Information = ({sendDataToParent, farmerID}) => {
     company_name: '',
     policy_no: '',
     sum_insured: '',
+    districtName:'',
   });
   const [regionaldatas, setregionaldatas] = useState({
     state: '',
@@ -119,7 +120,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       imageType: 'address',
       file_path: '',
       file_id: '',
-      id:'',
+      id: '',
     },
     {
       uri: '',
@@ -129,7 +130,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       ImageType: 'identity',
       file_path: '',
       file_id: '',
-      id:'',
+      id: '',
     },
   ]);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
@@ -188,21 +189,32 @@ const Information = ({sendDataToParent, farmerID}) => {
     }
   };
   const handleStateDistrictBlock = (moduleName, data) => {
-    setfarmerData({
-      ...farmerData,
-      [moduleName]: data.value,
-      [`${moduleName}Name`]: data.label,
-    });
     if (moduleName === 'state') {
+      setfarmerData({
+        ...farmerData,
+        state: data.value,
+        stateName: data.label,
+        district: '',
+        districtName: '',
+        block: '',
+        blockName: '',
+      });
       const stateID = data.value;
       getDistrict(dbName, languageID, stateID);
     } else if (moduleName === 'district') {
+      setfarmerData({
+        ...farmerData,
+        district: data.value,
+        districtName: data.label,
+        block: '',
+        blockName: '',
+      });
       const districtID = data.value;
       getBlock(dbName, languageID, districtID);
     }
   };
   const handleEffectFrom = async item =>
-    setfarmerData({...farmerData, effective_from: effective_dates(item)});
+    setfarmerData({ ...farmerData, effective_from: effective_dates(item) });
   const onPageLoad = async () => {
     setIsLoading(true);
     const [userListData, state, district, block, curr] = await Promise.all([
@@ -214,7 +226,7 @@ const Information = ({sendDataToParent, farmerID}) => {
     ]);
     if (loginUser_data) {
       setcurrency(curr);
-      const {dbname, lan_id, token, user_id} = loginUser_data;
+      const { dbname, lan_id, token, user_id } = loginUser_data;
       setregionaldatas({
         ...regionaldatas,
         state: state,
@@ -234,12 +246,12 @@ const Information = ({sendDataToParent, farmerID}) => {
               getDistrict(
                 dbname,
                 lan_id,
-                farmerFound.agri_user_addresses[0].agri_state.fid,
+                farmerFound.agri_user_addresses[0]?.agri_state?.fid,
               ),
               getBlock(
                 dbname,
                 lan_id,
-                farmerFound.agri_user_addresses[0].agri_district.fid,
+                farmerFound.agri_user_addresses[0]?.agri_district?.fid,
               ),
             ]);
           }
@@ -266,10 +278,10 @@ const Information = ({sendDataToParent, farmerID}) => {
                   imageType: 'address', // Update the specific property
                   fileName: _file.file_name,
                   file_id: _file.file_id,
-                   id: _file.file_id,
+                  id: _file.file_id,
                 };
               });
-            
+
             // Update identity proof in the same object
             farmerFound.agri_files
               .filter((file) => file.term_type === 'farmer_identity')
@@ -285,10 +297,10 @@ const Information = ({sendDataToParent, farmerID}) => {
                   id: _file.file_id,
                 };
               });
-            
+
             // Update the state with modified objects
             setIdentityProofIdentityPropf(values_adress);
-            
+
           }
           setfarmerData({
             ...farmerData,
@@ -299,15 +311,15 @@ const Information = ({sendDataToParent, farmerID}) => {
             date_of_birth: farmerFound?.date_of_birth,
             age: yearsDiff.toString(),
             country: farmerFound?.agri_user_addresses[0]?.country,
-            state: farmerFound?.agri_user_addresses[0]?.agri_state.fid,
+            state: farmerFound?.agri_user_addresses[0]?.agri_state?.fid,
             stateName:
-              farmerFound?.agri_user_addresses[0]?.agri_state.state_name,
-            district: farmerFound?.agri_user_addresses[0]?.agri_district.fid,
+              farmerFound?.agri_user_addresses[0]?.agri_state?.state_name,
+            district: farmerFound?.agri_user_addresses[0]?.agri_district?.fid,
             districtName:
-              farmerFound?.agri_user_addresses[0]?.agri_district.district_name,
-            block: farmerFound?.agri_user_addresses[0]?.agri_subdivision.fid,
+              farmerFound?.agri_user_addresses[0]?.agri_district?.district_name,
+            block: farmerFound?.agri_user_addresses[0]?.agri_subdivision?.fid,
             blockName:
-              farmerFound?.agri_user_addresses[0]?.agri_subdivision.subdiv_name,
+              farmerFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
             aadhar_number: farmerFound?.aadhar_number,
             pan_number: farmerFound?.pan_number,
             voter_card_number: farmerFound?.voter_card_number,
@@ -347,156 +359,164 @@ const Information = ({sendDataToParent, farmerID}) => {
     onBackPress(handleBackPress);
   }, []);
   const handleUserListUpdate = async () => {
-    try {
-      setIsLoading(true);
-      Keyboard.dismiss();
-      const formData = new FormData();
-      formData.append('meta', []);
-      formData.append('lan_id', languageID);
-      formData.append('father_name', '');
-      formData.append('gender', farmerData.gender);
-      formData.append('cast', '');
-      formData.append('bankInfo', []);
-      formData.append(
-        'addressInfo',
-        JSON.stringify([
-          {
-            country: farmerData.country,
-            state: farmerData.state,
-            district: farmerData.district,
-            subdivision: farmerData.block,
-          },
-        ]),
-      );
-      formData.append('status', 1);
-      formData.append('userName', farmerData.userName);
-      formData.append('date_of_birth', farmerData.date_of_birth);
-      formData.append('unique_id', '');
-      formData.append('has_farmer_smart_phone', '');
-      formData.append('finance_agriculture_campagin', '');
-      formData.append('financial_or_bank_name', '');
-      formData.append('bank_account_number', '');
-      formData.append('financial_entity_name', '');
-      formData.append('farmer_belongs_name', '');
-      formData.append('emailId', '');
-      formData.append('type_percel_ownership_document', '');
-      formData.append('farmer_belongs_option', '');
-      formData.append('finance_agriculture_campagin_option', '');
-      formData.append('faco_value', '');
-      formData.append('agent_ally', '');
-      formData.append('aadhar_number', farmerData.aadhar_number);
-      formData.append('kcc_number', farmerData.kcc_number);
-      formData.append(
-        'user_bank_account_holder',
-        farmerData.user_bank_account_holder,
-      );
-      formData.append(
-        'user_bank_account_name',
-        farmerData.user_bank_account_name,
-      );
-      formData.append(
-        'user_bank_account_number',
-        farmerData.user_bank_account_number,
-      );
-      formData.append(
-        'user_bank_branch_name',
-        farmerData.user_bank_branch_name,
-      );
-      formData.append('user_bank_ifsc_code', farmerData.user_bank_ifsc_code);
-      formData.append(
-        'pension_details',
-        JSON.stringify({
-          pension_authority: farmerData.pension_authority,
-          pension_account_no: farmerData.pension_account_no,
-          effective_from: farmerData.effective_from,
-          pension_amount: farmerData.pension_amount,
-          frequency: farmerData.frequency,
-        }),
-      );
-      formData.append(
-        'lic_details',
-        JSON.stringify({
-          company_name: farmerData.company_name,
-          policy_no: farmerData.policy_no,
-          sum_insured: farmerData.sum_insured,
-        }),
-      );
-      formData.append('pan_number', farmerData.pan_number);
-      formData.append('voter_card_number', farmerData.voter_card_number);
-      formData.append('farmer_type', farmerData.farmer_type);
-      if (myphoto.name != '') {
-        formData.append('photo', myphoto);
-      }
-      const formDataPlotImg = new FormData();
-      if (
-        identityProofIdentityPropf[0]?.fileName != '' &&
-        identityProofIdentityPropf[0]?.fileName != ''
-      ) {
-        const {uri, type, name} = identityProofIdentityPropf[0];
-        formDataPlotImg.append('farmer_address', {
-          uri: uri,
-          type: type,
-          name: name,
+    if (farmerData?.stateName == "" || farmerData?.stateName == undefined) {
+      Toast.show({ text: t('select_state_first'), ...AlertMesg[0] });
+    } else if (farmerData?.districtName == "" || farmerData?.districtName == undefined) {
+      Toast.show({ text: t('select_district_first'), ...AlertMesg[0] });
+    } else if (farmerData?.blockName == "" || farmerData?.blockName == undefined) {
+      Toast.show({ text: t('select_block_first'), ...AlertMesg[0] });
+    } else {
+      try {
+        setIsLoading(true);
+        Keyboard.dismiss();
+        const formData = new FormData();
+        formData.append('meta', []);
+        formData.append('lan_id', languageID);
+        formData.append('father_name', '');
+        formData.append('gender', farmerData.gender);
+        formData.append('cast', '');
+        formData.append('bankInfo', []);
+        formData.append(
+          'addressInfo',
+          JSON.stringify([
+            {
+              country: farmerData.country,
+              state: farmerData.state,
+              district: farmerData.district,
+              subdivision: farmerData.block,
+            },
+          ]),
+        );
+        formData.append('status', 1);
+        formData.append('userName', farmerData.userName);
+        formData.append('date_of_birth', farmerData.date_of_birth);
+        formData.append('unique_id', '');
+        formData.append('has_farmer_smart_phone', '');
+        formData.append('finance_agriculture_campagin', '');
+        formData.append('financial_or_bank_name', '');
+        formData.append('bank_account_number', '');
+        formData.append('financial_entity_name', '');
+        formData.append('farmer_belongs_name', '');
+        formData.append('emailId', '');
+        formData.append('type_percel_ownership_document', '');
+        formData.append('farmer_belongs_option', '');
+        formData.append('finance_agriculture_campagin_option', '');
+        formData.append('faco_value', '');
+        formData.append('agent_ally', '');
+        formData.append('aadhar_number', farmerData.aadhar_number);
+        formData.append('kcc_number', farmerData.kcc_number);
+        formData.append(
+          'user_bank_account_holder',
+          farmerData.user_bank_account_holder,
+        );
+        formData.append(
+          'user_bank_account_name',
+          farmerData.user_bank_account_name,
+        );
+        formData.append(
+          'user_bank_account_number',
+          farmerData.user_bank_account_number,
+        );
+        formData.append(
+          'user_bank_branch_name',
+          farmerData.user_bank_branch_name,
+        );
+        formData.append('user_bank_ifsc_code', farmerData.user_bank_ifsc_code);
+        formData.append(
+          'pension_details',
+          JSON.stringify({
+            pension_authority: farmerData.pension_authority,
+            pension_account_no: farmerData.pension_account_no,
+            effective_from: farmerData.effective_from,
+            pension_amount: farmerData.pension_amount,
+            frequency: farmerData.frequency,
+          }),
+        );
+        formData.append(
+          'lic_details',
+          JSON.stringify({
+            company_name: farmerData.company_name,
+            policy_no: farmerData.policy_no,
+            sum_insured: farmerData.sum_insured,
+          }),
+        );
+        formData.append('pan_number', farmerData.pan_number);
+        formData.append('voter_card_number', farmerData.voter_card_number);
+        formData.append('farmer_type', farmerData.farmer_type);
+        if (myphoto.name != '') {
+          formData.append('photo', myphoto);
+        }
+        const formDataPlotImg = new FormData();
+        if (
+          identityProofIdentityPropf[0]?.fileName != '' &&
+          identityProofIdentityPropf[0]?.fileName != ''
+        ) {
+          const { uri, type, name } = identityProofIdentityPropf[0];
+          formDataPlotImg.append('farmer_address', {
+            uri: uri,
+            type: type,
+            name: name,
+          });
+        }
+        if (
+          identityProofIdentityPropf[1]?.fileName != '' &&
+          identityProofIdentityPropf[1]?.fileName != ''
+        ) {
+          const { uri, type, name } = identityProofIdentityPropf[1];
+          formDataPlotImg.append('farmer_identity', {
+            uri: uri,
+            type: type,
+            name: name,
+          });
+        }
+        formDataPlotImg.append('user_id', farmeruserID);
+        // console.error(farmeruserID)
+        let formDataDelete = qs.stringify({
+          file_delete_ids: photoDeletedValue.toString(),
         });
+        const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
+          UserInformationUpdate(
+            dbName,
+            languageID,
+            loginUserId,
+            loginUserToken,
+            farmeruserID,
+            formData,
+          ),
+          addIdAddressImgs(
+            dbName,
+            languageID,
+            loginUserId,
+            loginUserToken,
+            formDataPlotImg,
+          ),
+          deletePlotImageAPI(dbName, languageID, loginUserToken, formDataDelete),
+        ]);
+        if (userDataUpdate.status === 200) {
+          Toast.show({
+            text: 'User information update successfully',
+            ...AlertMesg[0],
+          });
+          setTimeout(() => {
+            // navigation.navigate('Dashboard');
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [
+                  { name: 'Dashboard' },
+                  {
+                    name: 'Dashboard',
+                    params: { pagename: 'Dashboard' },
+                  },
+                ],
+              }),
+            );
+          }, 2000);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
       }
-      if (
-        identityProofIdentityPropf[1]?.fileName != '' &&
-        identityProofIdentityPropf[1]?.fileName != ''
-      ) {
-        const {uri, type, name} = identityProofIdentityPropf[1];
-        formDataPlotImg.append('farmer_identity', {
-          uri: uri,
-          type: type,
-          name: name,
-        });
-      }
-      formDataPlotImg.append('user_id', farmeruserID);
-      // console.error(farmeruserID)
-      let formDataDelete = qs.stringify({
-        file_delete_ids: photoDeletedValue.toString(),
-      });
-      const [userDataUpdate,addIdAddressImgsRes] = await Promise.all([
-        UserInformationUpdate(
-          dbName,
-          languageID,
-          loginUserId,
-          loginUserToken,
-          farmeruserID,
-          formData,
-        ),
-        addIdAddressImgs(
-          dbName,
-          languageID,
-          loginUserId,
-          loginUserToken,
-          formDataPlotImg,
-        ),
-        deletePlotImageAPI(dbName, languageID, loginUserToken, formDataDelete),
-      ]);
-      if (userDataUpdate.status === 200) {
-        Toast.show({
-          text: 'User information update successfully',
-          ...AlertMesg[0],
-        });
-        setTimeout(() => {
-          // navigation.navigate('Dashboard');
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 1,
-              routes: [
-                {name: 'Dashboard'},
-                {
-                  name: 'Dashboard',
-                  params: {pagename: 'Dashboard'},
-                },
-              ],
-            }),
-          );
-        }, 2000);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error);
     }
   };
   const HandlerGoBack = () => navigation.navigate('userList');
@@ -576,7 +596,7 @@ const Information = ({sendDataToParent, farmerID}) => {
           </View>
         ) : null}
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{marginHorizontal: 20, backgroundColor: '#FFFFF'}}>
+          <View style={{ marginHorizontal: 20, backgroundColor: '#FFFFF' }}>
             <View
               style={{
                 backgroundColor: '#E9FCC5',
@@ -584,8 +604,8 @@ const Information = ({sendDataToParent, farmerID}) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <View style={{alignItems: 'center'}}>
+              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+                <View style={{ alignItems: 'center' }}>
                   <ImagePlaceHolderCircle
                     openImagePicker={openImagePicker}
                     selectedImage={selectedImage}
@@ -598,7 +618,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                     farmerData.userName == '' ? userName : farmerData.userName
                   }
                   onChangeText={userName => {
-                    setfarmerData({...farmerData, userName: userName});
+                    setfarmerData({ ...farmerData, userName: userName });
                   }}
                   editable={false}
                 />
@@ -613,7 +633,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                   editable={false}
                 />
                 <View>
-                  <Text style={{fontSize: 16, color: '#000'}}>
+                  <Text style={{ fontSize: 16, color: '#000' }}>
                     {t('farmer_reg_gnd')}
                   </Text>
                   <RadioForm
@@ -623,7 +643,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                         ? gender === '1'
                         : farmerData.gender == '1'
                     }
-                    onSelect={() => setfarmerData({...farmerData, gender: '1'})}
+                    onSelect={() => setfarmerData({ ...farmerData, gender: '1' })}
                   />
                   <RadioForm
                     label={t('farmer_reg_female')}
@@ -632,11 +652,11 @@ const Information = ({sendDataToParent, farmerID}) => {
                         ? gender === '2'
                         : farmerData.gender == '2'
                     }
-                    onSelect={() => setfarmerData({...farmerData, gender: '2'})}
+                    onSelect={() => setfarmerData({ ...farmerData, gender: '2' })}
                   />
                 </View>
-                <View style={{marginBottom: 15}}>
-                  <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
+                <View style={{ marginBottom: 15 }}>
+                  <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>
                     {t('far_reg_far_type')}
                   </Text>
                   <RadioForm
@@ -647,7 +667,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                         : farmerData.farmer_type === '1'
                     }
                     onSelect={() =>
-                      setfarmerData({...farmerData, farmer_type: '1'})
+                      setfarmerData({ ...farmerData, farmer_type: '1' })
                     }
                   />
                   <RadioForm
@@ -658,7 +678,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                         : farmerData.farmer_type === '2'
                     }
                     onSelect={() =>
-                      setfarmerData({...farmerData, farmer_type: '2'})
+                      setfarmerData({ ...farmerData, farmer_type: '2' })
                     }
                   />
                   <RadioForm
@@ -669,7 +689,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                         : farmerData.farmer_type === '3'
                     }
                     onSelect={() =>
-                      setfarmerData({...farmerData, farmer_type: '3'})
+                      setfarmerData({ ...farmerData, farmer_type: '3' })
                     }
                   />
                 </View>
@@ -710,7 +730,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                   }
                   data={blockAll}
                   onChange={item => {
-                    setfarmerData({...farmerData, block: item.value});
+                    setfarmerData({ ...farmerData, block: item.value,blockName:item.label });
                   }}
                   val={farmerData.blockName}
                 />
@@ -769,12 +789,12 @@ const Information = ({sendDataToParent, farmerID}) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
+              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
                 <>
                   <Text style={styles.title}>
                     {t('different_identity_number')}
                   </Text>
-                  <View style={{marginTop: 10}}>
+                  <View style={{ marginTop: 10 }}>
                     <InputTextForm
                       label={t('adhar_no')}
                       onChangeText={aadhar_number => {
@@ -791,7 +811,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                     label={t('pan_no')}
                     value={farmerData.pan_number}
                     onChangeText={pan_number => {
-                      setfarmerData({...farmerData, pan_number: pan_number});
+                      setfarmerData({ ...farmerData, pan_number: pan_number });
                     }}
                   />
                   <InputTextForm
@@ -807,7 +827,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                   <InputTextForm
                     label={t('kcc_no')}
                     onChangeText={kcc_number => {
-                      setfarmerData({...farmerData, kcc_number: kcc_number});
+                      setfarmerData({ ...farmerData, kcc_number: kcc_number });
                     }}
                     value={farmerData.kcc_number}
                   />
@@ -822,10 +842,10 @@ const Information = ({sendDataToParent, farmerID}) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
+              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
                 <>
                   <Text style={styles.title}>{t('bank_account_details')}</Text>
-                  <View style={{marginTop: 10}}>
+                  <View style={{ marginTop: 10 }}>
                     <InputTextForm
                       label={t('account_holder_name')}
                       onChangeText={user_bank_account_holder =>
@@ -891,10 +911,10 @@ const Information = ({sendDataToParent, farmerID}) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
+              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
                 <>
                   <Text style={styles.title}>{t('pension_details')}</Text>
-                  <View style={{marginTop: 10}}>
+                  <View style={{ marginTop: 10 }}>
                     <InputTextForm
                       label={t('pension_providing_authority')}
                       onChangeText={pension_authority =>
@@ -921,7 +941,7 @@ const Information = ({sendDataToParent, farmerID}) => {
 
                   <View>
                     <Text
-                      style={{marginBottom: 5, marginLeft: 5, color: '#000'}}>
+                      style={{ marginBottom: 5, marginLeft: 5, color: '#000' }}>
                       {t('effective_from')}
                     </Text>
                     <View style={styles.passwordMainContainer}>
@@ -972,7 +992,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                     label={t('per_month_quarter_year')}
                     data={config.pensionParMonthData}
                     onChange={frequency =>
-                      setfarmerData({...farmerData, frequency: frequency.value})
+                      setfarmerData({ ...farmerData, frequency: frequency.value })
                     }
                     val={farmerData.frequency}
                   />
@@ -987,12 +1007,12 @@ const Information = ({sendDataToParent, farmerID}) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
+              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
                 <>
                   <Text style={styles.title}>
                     {t('life_insurance_details')}
                   </Text>
-                  <View style={{marginTop: 10}}>
+                  <View style={{ marginTop: 10 }}>
                     <InputTextForm
                       label={t('lic_name_of_company')}
                       onChangeText={company_name =>
@@ -1007,7 +1027,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                   <InputTextForm
                     label={t('policy_number')}
                     onChangeText={policy_no =>
-                      setfarmerData({...farmerData, policy_no: policy_no})
+                      setfarmerData({ ...farmerData, policy_no: policy_no })
                     }
                     value={farmerData.policy_no}
                     keyboardType="numeric"
@@ -1015,7 +1035,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                   <InputTextForm
                     label={t('sum_insured_currency') + '(' + currency + ')'}
                     onChangeText={sum_insured =>
-                      setfarmerData({...farmerData, sum_insured: sum_insured})
+                      setfarmerData({ ...farmerData, sum_insured: sum_insured })
                     }
                     value={farmerData.sum_insured}
                     keyboardType="numeric"
@@ -1023,7 +1043,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                 </>
               </View>
             </View>
-            <View style={{backgroundColor: '#E9FCC5'}}></View>
+            <View style={{ backgroundColor: '#E9FCC5' }}></View>
           </View>
         </ScrollView>
         <ButtonForm

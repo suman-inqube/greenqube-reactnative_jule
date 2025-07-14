@@ -871,11 +871,11 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
   };
   //basudev
   const terraintype_resAPI = async (dbname, lan_id, type) => {
-    Toast.show({
-      text: 'terraintype_resAPI',
-      ...AlertMesg[0],
-    });
-    Alert.alert('terraintype')
+    // Toast.show({
+    //   text: 'terraintype_resAPI',
+    //   ...AlertMesg[0],
+    // });
+    // Alert.alert('terraintype')
 
     try {
       let terraintype_res = await landRouteApi(dbname, lan_id, type);
@@ -886,15 +886,15 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }));
         setterrainTypeAll(terraintypeArray);
       }
-      Toast.show({
-        text: JSON.stringify(terraintype_res?.status),
-        ...AlertMesg[0],
-      });
+      // Toast.show({
+      //   text: JSON.stringify(terraintype_res?.status),
+      //   ...AlertMesg[0],
+      // });
     } catch (error) {
-      Toast.show({
-        text: JSON.stringify(error),
-        ...AlertMesg[0],
-      });
+      // Toast.show({
+      //   text: JSON.stringify(error),
+      //   ...AlertMesg[0],
+      // });
       console.log('Error in terraintypeAPI API', error);
     }
   };
