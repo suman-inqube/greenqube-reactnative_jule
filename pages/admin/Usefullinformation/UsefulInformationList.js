@@ -1,5 +1,6 @@
 import {
-  Keyboard,TextInput,
+  Keyboard,
+  TextInput,
   Image,
   FlatList,
   StyleSheet,
@@ -8,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {usefulInfoListAPI} from '../../../config/apiHere';
+import {usefulInfoListAPI, getDycryptedImage} from '../../../config/apiHere';
 import ImageForm from '../../Common/ImageForm';
 import moment from 'moment';
 import {
@@ -42,6 +43,28 @@ const UsefulInformationList = () => {
   const [isGridView, setIsGridView] = useState(true);
   const numColumns = isGridView ? 1 : 2;
   const [titleSearch, setTitleSearch] = useState('');
+
+  const decryptAllImages =  allNotice => {
+    const updatedList = 
+      allNotice.rows.map(item => {
+        const updatedFiles = 
+          item.agri_files.map(file => {
+            if (file.term_type !== 'gen') {
+              const decryptedPath =  getDycryptedImage(
+                file.file_path.content,
+                file.file_path.iv,
+              );
+              return {...file, decryptedPath};
+            }
+            return file;
+          })
+       
+        return {...item, agri_files: updatedFiles};
+      })
+    
+    console.log('updatedList==', JSON.stringify(updatedList));
+    setNoticeList({...noticeList, rows: updatedList});
+  };
 
   const toggleView = () => {
     setIsGridView(!isGridView);
@@ -89,8 +112,9 @@ const UsefulInformationList = () => {
     );
     if (response?.status == 200) {
       if (response.data.data.rows != 0) {
-        console.log(JSON.stringify(response.data.data));
-        setNoticeList(response.data.data);
+        // console.log(JSON.stringify(response.data.data));
+        //  setNoticeList(response.data.data);
+         decryptAllImages(response.data.data);
         setItem('userNoticeList', response.data.data);
       } else {
         Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
@@ -125,14 +149,7 @@ const UsefulInformationList = () => {
   );
   const searchByTitle = async () => {
     Keyboard.dismiss();
-    usefulInfoList(
-      dbname,
-      lan_id,
-      user_id,
-      "",
-      "",
-      "",
-    );
+    usefulInfoList(dbname, lan_id, user_id, '', '', '');
   };
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
@@ -282,7 +299,7 @@ const UsefulInformationList = () => {
                         .map(file => (
                           <Image
                             key={file.file_id}
-                            source={{uri: file.file_path}}
+                            source={{uri: file.decryptedPath}}
                             style={{
                               width: 180,
                               height: 150,
@@ -351,7 +368,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginVertical: 5,
-    marginHorizontal: 10, 
+    marginHorizontal: 10,
     elevation: 1,
   },
   image: {

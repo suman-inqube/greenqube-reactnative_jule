@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, Image, Linking, ScrollView, useWindowDimensions } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
-import { noticeDetailsAPI } from '../../../config/apiHere';
+import {noticeDetailsAPI, getDycryptedImage} from '../../../config/apiHere';
 import { WebView } from 'react-native-webview';
 import { useNavigation, useRoute, useIsFocused, StackActions } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
@@ -56,7 +56,26 @@ const Training = () => {
             let response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
             if (response) {
                 setNoticeDetails(response.data.data[0])
-                setNoticeFiles(response.data.data[0].agri_files)
+                // setNoticeFiles(response.data.data[0].agri_files)
+                if (response.data.data[0].agri_files != undefined && response.data.data[0].agri_files!=null) {
+                
+                
+                              const decryptedFiles = Promise.all(
+                               response.data.data[0].agri_files.map(file => ({
+                                  ...file,
+                                  decrypted_path: getDycryptedImage(
+                                    file?.file_path?.content,
+                                    file?.file_path?.iv,
+                                  ),
+                                })),
+                              );
+                              return {
+                                ... response.data.data[0],
+                                agri_files: decryptedFiles,
+                              };
+                         
+                        }
+                         setNoticeFiles(response.data.data[0].agri_files);
             }
         }
     };
@@ -81,17 +100,28 @@ const Training = () => {
                                     keyExtractor={(item) => item.file_id}
                                     renderItem={({ item, index }) => {
                                         return (
-                                            <View style={{ width: 200, marginBottom: 15, backgroundColor: '#FFF', padding: 10, elevation: 5, borderRadius: 10 }}>
-                                                <TouchableOpacity onPress={() => detailItem(item.file_path)}>
-                                                    <DocumentDisplay
-                                                        item={item.file_path}
-                                                        file_ext={item.file_ext}
-                                                        item2={item.file_name}
-                                                        item3={item.term_type}
-                                                    />
-                                                </TouchableOpacity>
-                                            </View>
-                                        )
+                                          <View
+                                            style={{
+                                              width: 200,
+                                              marginBottom: 15,
+                                              backgroundColor: '#FFF',
+                                              padding: 10,
+                                              elevation: 5,
+                                              borderRadius: 10,
+                                            }}>
+                                            <TouchableOpacity
+                                              onPress={() =>
+                                                detailItem(item.decryptedFiles)
+                                              }>
+                                              <DocumentDisplay
+                                                item={item.decryptedFiles}
+                                                file_ext={item.file_ext}
+                                                item2={item.file_name}
+                                                item3={item.term_type}
+                                              />
+                                            </TouchableOpacity>
+                                          </View>
+                                        );
                                     }} />
                                 :
                                 ""
