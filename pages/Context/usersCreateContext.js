@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState, lazy } from 'react'
 import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
 // const { netConnection } = DeviceInfo();
 const userCreateContext = createContext();
-import { farmerByNameAPI, problemPlotAgainstFarmerAPI, showCarbonFlag } from '../../config/apiHere';
+import { farmerByNameAPI, problemPlotAgainstFarmerAPI, showCarbonFlag ,getDycryptedImage} from '../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../Common/ToastAlert';
 import { Root, Toast, Popup, SPSheet } from 'react-native-popup-confirm-toast';
@@ -78,8 +78,24 @@ const UserCreateContextProvider = (props) => {
                 }
                 const { company, country_id, language } = companyLanguage_data;
                 const { option_value } = resCarbonFlag?.data?.data || {};
+                if (logoImageData ) {
+                //   setlogoImage(
+                //     await getDycryptedImage(
+                //       logoImageData?.content,
+                //       logoImageData?.iv,
+                //     ),
+                //   );
                 setlogoImage(logoImageData);
+                }
+                if (topBannerData) {
+                //   settopBanner(
+                //     await getDycryptedImage(
+                //       topBannerData?.content,
+                //       topBannerData?.iv,
+                //     ),
+                //   );
                 settopBanner(topBannerData);
+                }
                 setloginUser_data({
                   ...loginUser_data,
                   ...{carbonFlag: option_value},

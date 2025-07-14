@@ -15,8 +15,8 @@ const ForegroundLocationService = () => {
             if (Platform.OS === 'android') {
                 try {
                     const result = await promptForEnableLocationIfNeeded({
-                        interval: 10000,
-                        fastInterval: 5000,
+                        interval: 100000,
+                        fastInterval: 50000,
                     });
 
                     // console.log('GPS Check Result:', result);

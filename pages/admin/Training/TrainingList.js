@@ -12,7 +12,7 @@ import {
 import React, { useState, useEffect, useContext } from 'react'
 import moment from "moment";
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { trainingListAPI } from '../../../config/apiHere';
+import {trainingListAPI, getDycryptedImage} from '../../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import FormsTitle from '../../Common/FormsTitle';
 import { userCreateContext } from '../../Context/usersCreateContext';
@@ -28,6 +28,28 @@ const TrainingList = () => {
     const [isGridView, setIsGridView] = useState(true);
       const numColumns = isGridView ? 1 : 2;
       const [titleSearch, setTitleSearch] = useState('');
+
+      const decryptAllImages =  allNotice => {
+          const updatedList = 
+            allNotice.rows.map(item => {
+              const updatedFiles = 
+                item.agri_files.map(file => {
+                  if (file.term_type !== 'gen') {
+                    const decryptedPath =  getDycryptedImage(
+                      file.file_path.content,
+                      file.file_path.iv,
+                    );
+                    return {...file, decryptedPath};
+                  }
+                  return file;
+                })
+             
+              return {...item, agri_files: updatedFiles};
+            })
+          
+          console.log('updatedList==', JSON.stringify(updatedList));
+          setTrainingList({...noticeList, rows: updatedList});
+        };
     
       const toggleView = () => {
         setIsGridView(!isGridView);
@@ -66,7 +88,8 @@ const TrainingList = () => {
         );
         if (response) {
             if (response.data.data.rows != 0) {
-                setTrainingList(response.data.data)
+                // setTrainingList(response.data.data)
+                  decryptAllImages(response.data.data);
                 setItem("userTrainingList", response.data.data)
             } else {
                 Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] })
@@ -189,7 +212,7 @@ const TrainingList = () => {
                           .map(file => (
                             <Image
                               key={file.file_id}
-                              source={{uri: file.file_path}}
+                              source={{uri: file.decryptedPath}}
                               style={{
                                 width: 180,
                                 height: 150,

@@ -1772,10 +1772,10 @@ export const livelihoodCropAndPlotDetailsAPI = async (
       information: `${dbName},${languageId},${userId}`,
     },
   };
-  //  console.log(
-  //    `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}&land_rel_id=${relId}`,
-  //    axiosHeaders,
-  //  );
+   console.log(
+     `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relId}`,
+     axiosHeaders,
+   );
   try {
     let response = await axios.get(
       `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relId}`,
@@ -3040,33 +3040,62 @@ export const getMapLocation = async (
     return error.response;
   }
 };
-export const getDycryptedImage = async (encryptedHex, ivHex) => {
+
+export const getDycryptedImage = (encryptedHex, ivHex) => {
   // var AES = require('react-native-crypto-js').AES;
   // var SHA256 = require('react-native-crypto-js').SHA256;
   try {
+    const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
+    const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
 
-  const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
-  const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
+    // Create the cipherParams object
+    const cipherParams = CryptoJS.lib.CipherParams.create({
+      ciphertext: CryptoJS.enc.Hex.parse(encryptedHex),
+    });
 
-  // Create the cipherParams object
-  const cipherParams = CryptoJS.lib.CipherParams.create({
-    ciphertext: CryptoJS.enc.Hex.parse(encryptedHex),
-  });
+    const decrypted = CryptoJS.AES.decrypt(
+      cipherParams, // Use the properly typed cipherParams
+      keyBytes,
+      {
+        iv: ivBytes,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+      },
+    );
 
-  const decrypted = CryptoJS.AES.decrypt(
-    cipherParams, // Use the properly typed cipherParams
-    keyBytes,
-    {
-      iv: ivBytes,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    },
-  );
-
-  console.log('Decrypted Plaintext:', decrypted.toString(CryptoJS.enc.Utf8));
+    return decrypted.toString(CryptoJS.enc.Utf8);
     // return decImage;
   } catch (error) {
-    console.log(" ERROR HEX"+error);
+    console.log(' ERROR HEX' + error);
     // CrashlyticsRecordError(error.response);
   }
 };
+// export const getDycryptedImage = async (encryptedHex, ivHex) => {
+//   // var AES = require('react-native-crypto-js').AES;
+//   // var SHA256 = require('react-native-crypto-js').SHA256;
+//   try {
+//     const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
+//     const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
+
+//     // Create the cipherParams object
+//     const cipherParams = CryptoJS.lib.CipherParams.create({
+//       ciphertext: CryptoJS.enc.Hex.parse(encryptedHex),
+//     });
+
+//     const decrypted = CryptoJS.AES.decrypt(
+//       cipherParams, // Use the properly typed cipherParams
+//       keyBytes,
+//       {
+//         iv: ivBytes,
+//         mode: CryptoJS.mode.CBC,
+//         padding: CryptoJS.pad.Pkcs7,
+//       },
+//     );
+
+//     // console.log('Decrypted Plaintext:', decrypted.toString(CryptoJS.enc.Utf8));
+//      return decrypted.toString(CryptoJS.enc.Utf8);
+//   } catch (error) {
+//     console.log(" ERROR HEX"+error);
+//     // CrashlyticsRecordError(error.response);
+//   }
+// };

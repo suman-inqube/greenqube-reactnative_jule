@@ -2,7 +2,7 @@ import { BackHandler, FlatList, StyleSheet, TouchableOpacity, useWindowDimension
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { WebView } from 'react-native-webview';
 import RenderHtml from 'react-native-render-html';
-import { noticeDetailsAPI } from '../../../config/apiHere';
+import {noticeDetailsAPI, getDycryptedImage} from '../../../config/apiHere';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const head = `
@@ -63,7 +63,26 @@ const UsefulInformation = () => {
             if (response?.status == 200) {
                 if (response.data.data.length != 0) {
                     setNoticeDetails(response.data.data[0])
-                    setNoticeFiles(response.data.data[0].agri_files)
+                    // setNoticeFiles(response.data.data[0].agri_files)
+                    if (response.data.data[0].agri_files != undefined && response.data.data[0].agri_files!=null) {
+                                    
+                                    
+                                                  const decryptedFiles = Promise.all(
+                                                   response.data.data[0].agri_files.map(file => ({
+                                                      ...file,
+                                                      decrypted_path: getDycryptedImage(
+                                                        file?.file_path?.content,
+                                                        file?.file_path?.iv,
+                                                      ),
+                                                    })),
+                                                  );
+                                                  return {
+                                                    ... response.data.data[0],
+                                                    agri_files: decryptedFiles,
+                                                  };
+                                             
+                                            }
+                                             setNoticeFiles(response.data.data[0].agri_files);
                 }
             }
         }
