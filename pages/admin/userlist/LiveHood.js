@@ -23,7 +23,8 @@ import {
   LandUnitsquare_metre,
   UnitConversonToDefault,
   nearestLatLong,
-  uploadCarbonAgrDocs
+  uploadCarbonAgrDocs,
+  landRouteApi
 } from '../../../config/apiHere';
 
 import {
@@ -195,7 +196,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       const fusedLocation = await getItem('fusedLocation');
       const { latitude, longitude } = fusedLocation;
       let groupedData;
-
       const axiosConfig = {
         headers: {
           information: `${dbname},${lan_id}`,
@@ -218,9 +218,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         ProductionSeasonAndApi(dbname, lan_id, ''),
         // livelihoodCropAndPlotDetailsAPI(dbname, lan_id, farmeruserID, dataProps?.rel_id),
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
-        terraintype_resAPI(axiosConfig),
-        soilType_resAPI(axiosConfig),
-        landType_resAPI(axiosConfig),
+        terraintype_resAPI(dbname, lan_id, 'terrain_type'),
+        soilType_resAPI(dbname, lan_id, 'soil_type'),
+        landType_resAPI(dbname, lan_id, 'land_type'),
         landunit_resAPI(axiosConfig),
         produceVarietyAPI(dbname, lan_id),
         productionProcessAPI(dbname, lan_id),
@@ -285,6 +285,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       }
       setIsLoading(false);
     } catch (error) {
+      Toast.show({
+        text: JSON.stringify(error),
+        ...AlertMesg[0],
+      });
       console.log(error);
       CrashlyticsRecordError(error);
     }
@@ -789,6 +793,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
     }
   };
   const handleAddData = async (item, name, value) => {
+    alert("handleAddData")
     let selectUnitValue = '';
     if (name === 'unit') {
       if (farmerData.unit_valueArr != '') {
@@ -865,9 +870,15 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
     }
   };
   //basudev
-  const terraintype_resAPI = async axiosConfig => {
+  const terraintype_resAPI = async (dbname, lan_id, type) => {
+    Toast.show({
+      text: 'terraintype_resAPI',
+      ...AlertMesg[0],
+    });
+    Alert.alert('terraintype')
+
     try {
-      let terraintype_res = await axios.get(config.terraintypeAPI, { ...axiosConfig, ...timeoutConfig });
+      let terraintype_res = await landRouteApi(dbname, lan_id, type);
       if (terraintype_res?.status == 200) {
         const terraintypeArray = terraintype_res.data.data.rows.map(data => ({
           value: data.fid,
@@ -875,13 +886,21 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }));
         setterrainTypeAll(terraintypeArray);
       }
+      Toast.show({
+        text: JSON.stringify(terraintype_res?.status),
+        ...AlertMesg[0],
+      });
     } catch (error) {
+      Toast.show({
+        text: JSON.stringify(error),
+        ...AlertMesg[0],
+      });
       console.log('Error in terraintypeAPI API', error);
     }
   };
-  const soilType_resAPI = async axiosConfig => {
+  const soilType_resAPI = async (dbname, lan_id, type) => {
     try {
-      let soilType_res = await axios.get(config.soiltypeAPI, { ...axiosConfig, ...timeoutConfig });
+      let soilType_res = await landRouteApi(dbname, lan_id, type);
       if (soilType_res?.status == 200) {
         const soilTypeArray = soilType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -893,9 +912,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
       console.log('Error in soiltypeAPI API', error);
     }
   };
-  const landType_resAPI = async axiosConfig => {
+  const landType_resAPI = async (dbname, lan_id, type) => {
     try {
-      let landType_res = await axios.get(config.landtypeAPI, { ...axiosConfig, ...timeoutConfig });
+      let landType_res = await landRouteApi(dbname, lan_id, type);
       if (landType_res?.status == 200) {
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1268,31 +1287,31 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }
         if (
           statuslevel.label == 'APPROVED' ||
-          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED'&&carbonFlag == true
+          statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' && carbonFlag == true
         ) {
-            const formdataCarbon = new FormData();
-            formdataCarbon.append('rel_id', farmerData.land_rel_id);
-            if (
-              carboncertificate[0]?.id != undefined &&
-              carboncertificate[0]?.id == '' &&
-              carboncertificate[0].uri != ''
-            ) {
-              formdataCarbon.append('carbon_agreement', carboncertificate[0]);
-            }
-            if (
-              signature?.id != undefined &&
-              signature?.id == '' &&
-              signature.uri != ''
-            ) {
-              formdataCarbon.append('signature', signature);
-            }
-            const carbonRes = await uploadCarbonAgrDocs(
-              dbname,
-              lan_id,
-              token,
-              farmeruserID,
-              formdataCarbon,
-            );
+          const formdataCarbon = new FormData();
+          formdataCarbon.append('rel_id', farmerData.land_rel_id);
+          if (
+            carboncertificate[0]?.id != undefined &&
+            carboncertificate[0]?.id == '' &&
+            carboncertificate[0].uri != ''
+          ) {
+            formdataCarbon.append('carbon_agreement', carboncertificate[0]);
+          }
+          if (
+            signature?.id != undefined &&
+            signature?.id == '' &&
+            signature.uri != ''
+          ) {
+            formdataCarbon.append('signature', signature);
+          }
+          const carbonRes = await uploadCarbonAgrDocs(
+            dbname,
+            lan_id,
+            token,
+            farmeruserID,
+            formdataCarbon,
+          );
         }
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
@@ -1643,6 +1662,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
               data={terrainTypeAll}
               val={farmerData.terrainType}
               onChange={item => {
+                Alert.alert("DropdownForm terrainType")
                 handleAddData(item, 'terrainType', 'terrainTypeValue');
               }}
             // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
@@ -1911,13 +1931,13 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                   onChangeText={text =>
                     handleAddUserData('expectedProduction', text)
                   }
-                  // editable={
-                  //   edit == ''
-                  //     ? harvested == 'same produce'
-                  //       ? false
-                  //       : true
-                  //     : !edit
-                  // }
+                // editable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? false
+                //       : true
+                //     : !edit
+                // }
                 />
               </View>
               <View style={{ width: '45%' }}>
@@ -1929,14 +1949,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
                     handleAddData(item, 'unitProduct', 'unitProductValue');
                   }}
                   val={farmerData.unitProduct}
-                  // disable={edit}
-                  // disable={
-                  //   edit == ''
-                  //     ? harvested == 'same produce'
-                  //       ? true
-                  //       : false
-                  //     : edit
-                  // }
+                // disable={edit}
+                // disable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? true
+                //       : false
+                //     : edit
+                // }
                 />
               </View>
             </View>

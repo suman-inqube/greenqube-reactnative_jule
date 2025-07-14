@@ -13,7 +13,8 @@ import FusedLocation from 'react-native-fused-location';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { userCreateContext } from '../Context/usersCreateContext';
 import MessageDialog from '../Common/MessageDialog';
-import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
+import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
+import CustomAlert from '../Common/CustomAlert';
 const Dashboard = ({ navigation }) => {
   //GQR-65
   const {
@@ -27,8 +28,9 @@ const Dashboard = ({ navigation }) => {
     Root,
     Toast,
     AlertMesg,
+    loginUser_data
   } = useContext(userCreateContext);
-  // const {dbname, lan_id, token, user_id} = loginUser_data || {};
+  const { agri_user_addresses } = loginUser_data || {};
   const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
@@ -40,27 +42,27 @@ const Dashboard = ({ navigation }) => {
   const [convertionLUState, setConvertionLUState] = useState(false);
   const navigateToPages = (pageName) => {
     if (isOnline) {
-       if (pageName == "PersonalInformation") {
+      if (pageName == "PersonalInformation") {
         //  if (defaultLand == true) {
-          if (convertionLUState == false) {
-            navigation.navigate(pageName, {data: 'remove'});
-          } else {
-            Toast.show({
-              text: 'Please add the unit equivalent factor to default unit',
-              ...AlertMesg[0],
-            });
-          }
-          
+        if (convertionLUState == false) {
+          navigation.navigate(pageName, { data: 'remove' });
+        } else {
+          Toast.show({
+            text: 'Please add the unit equivalent factor to default unit',
+            ...AlertMesg[0],
+          });
+        }
+
         // } else {
         //   Toast.show({
         //     text: 'Please set default land area unit',
         //     ...AlertMesg[0],
         //   });
         // }
-       }else{
-          navigation.navigate(pageName, {data: 'remove'});
-       }
-      
+      } else {
+        navigation.navigate(pageName, { data: 'remove' });
+      }
+
     } else {
       if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
         navigation.navigate(pageName, { data: 'remove' });
@@ -68,6 +70,12 @@ const Dashboard = ({ navigation }) => {
     }
   };
   const onPageLoad = async () => {
+    if (agri_user_addresses.length > 0) {
+      const { block, district, state } = agri_user_addresses[0];
+      if (state == null || district == null || block == null) {
+        CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
+      }
+    }
     const [
       bottomBannerData,
       userNameData,
@@ -122,11 +130,11 @@ const Dashboard = ({ navigation }) => {
         loginUser_data.token,
       ),
     ]);
-    
+
 
 
     let i = 0;
-    
+
     if (UnitConversonToDefault_res.status == 200) {
       if (UnitConversonToDefault_res.data.data?.count > 0) {
         UnitConversonToDefault_res.data.data.rows.forEach(element => {
@@ -156,7 +164,7 @@ const Dashboard = ({ navigation }) => {
   const HandlerGoBack = () => exit()
   useEffect(() => {
     if (isFocused) {
-      
+
       onPageLoad();
       onBackPress(exit);
     }
@@ -215,7 +223,7 @@ const Dashboard = ({ navigation }) => {
           </View>
         </ScrollView>
       </View>
-      <Root></Root> 
+      <Root></Root>
     </>
   )
 }

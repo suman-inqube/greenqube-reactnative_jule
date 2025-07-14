@@ -285,7 +285,7 @@ export const activityListAPI = async (
   searchItem = '',
   from_date = '',
   to_date = '',
-  carbonType=''
+  carbonType = ''
 ) => {
   const axiosHeaders = {
     headers: {
@@ -294,7 +294,7 @@ export const activityListAPI = async (
     },
   };
   console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-      axiosHeaders,)
+    axiosHeaders,)
   try {
     let response = await axios.get(
       `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
@@ -316,7 +316,7 @@ export const farmerActivityListAPI = async (
   searchItem = '',
   from_date = '',
   to_date = '',
-  carbonType='',
+  carbonType = '',
 ) => {
   const axiosHeaders = {
     headers: {
@@ -2973,7 +2973,7 @@ export const getMapLocation = async (
   inputData
 ) => {
   try {
-   
+
     let response = await axios.get(
       `https://api.mapbox.com/search/geocode/v6/forward?q=${inputData}&proximity=&access_token=pk.eyJ1IjoiYmlrcmFtOTgiLCJhIjoiY21jMnRiejc0MGN3azJqcXNwbmdqZ2R1bCJ9.15UR7tulXrt7znxkDPPfyg`,
     );
@@ -2984,3 +2984,17 @@ export const getMapLocation = async (
     return error.response;
   }
 };
+export const landRouteApi = async (dbName, language, type) => {
+  const axiosHeaders = {
+    headers: {
+      information: `${dbName},${language}`,
+    },
+  };
+  try {
+    let response = await axios.get(`${config.BASE_URL}landRoute/list/1/0/1?type=${type}&search_key=`, { ...axiosHeaders, ...timeoutConfig });
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
+    return console.log('error in showCarbonFlag ' + error.response);
+  }
+}
