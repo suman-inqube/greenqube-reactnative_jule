@@ -120,8 +120,8 @@ const SplashScreen = ({ navigation }) => {
     };
 
     const onPageLoad = async () => {
-        const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
-        if (shouldContinue==false) return;
+        // const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
+        // if (shouldContinue==false) return;
         const [companyLanguage_data, loginUser_data] = await Promise.all([
             getItem('companyLanguage_data'),
             getItem('loginUser_data'),

@@ -33,43 +33,43 @@ function App() {
   const { dbname, lan_id, token, user_id } = loginUser_data || {};
   const [isSecure, setIsSecure] = useState(null);
 
-  useEffect(() => {
-    const handleAppStateChange = async () => {
-      const isRooted = JailMonkey.isJailBroken();
-      const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+  // useEffect(() => {
+  //   const handleAppStateChange = async () => {
+  //     const isRooted = JailMonkey.isJailBroken();
+  //     const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
 
-      if (isRooted || isDevMode) {
-        Alert.alert(
-          'Security Alert',
-          isRooted
-            ? 'This device is rooted. The app will now exit.'
-            : 'Developer mode is enabled. The app will now exit.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                setTimeout(() => {
-                  BackHandler.exitApp();
-                }, 800);
-              },
-            },
-          ],
-          { cancelable: false }
-        );
-        setIsSecure(false);
-        return;
-      }
+  //     if (isRooted || isDevMode) {
+  //       Alert.alert(
+  //         'Security Alert',
+  //         isRooted
+  //           ? 'This device is rooted. The app will now exit.'
+  //           : 'Developer mode is enabled. The app will now exit.',
+  //         [
+  //           {
+  //             text: 'OK',
+  //             onPress: () => {
+  //               setTimeout(() => {
+  //                 BackHandler.exitApp();
+  //               }, 800);
+  //             },
+  //           },
+  //         ],
+  //         { cancelable: false }
+  //       );
+  //       setIsSecure(false);
+  //       return;
+  //     }
 
-      // setIsSecure(true);
-    };
+  //     // setIsSecure(true);
+  //   };
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    handleAppStateChange();
+  //   const subscription = AppState.addEventListener('change', handleAppStateChange);
+  //   handleAppStateChange();
 
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+  //   return () => {
+  //     subscription.remove();
+  //   };
+  // }, []);
   return (
     <Provider store={store}>
       <NavigationContainer

@@ -141,7 +141,6 @@ const Dashboard = ({ navigation }) => {
         });
       }
     }
-    console.log(i);
     if (i > 0) {
       setConvertionLUState(true);
     }
@@ -157,16 +156,20 @@ const Dashboard = ({ navigation }) => {
   };
   const HandlerGoBack = () => exit()
   useEffect(() => {
-    if (agri_user_addresses?.length > 0) {
-      const { agri_district,agri_state,agri_subdivision } = agri_user_addresses[0];
-      if (agri_district == null || agri_state == null || agri_subdivision == null) {
-        CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
-      }
-    }
-    if (isFocused) {
 
-      onPageLoad();
-      onBackPress(exit);
+    try {
+      if (agri_user_addresses?.length > 0) {
+        const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
+        if (agri_district == null || agri_state == null || agri_subdivision == null) {
+          CustomAlert("Address", "Location data not found Please add from admin", true, 'OK')
+        }
+      }
+      if (isFocused) {
+        onPageLoad();
+        onBackPress(exit);
+      }
+    } catch (error) {
+      console.log(error)
     }
   }, [isFocused, topBanner]);
   const exit = () => {

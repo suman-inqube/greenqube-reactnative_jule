@@ -888,9 +888,6 @@ export const updateUserInfoAPI = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-  console.log( `${config.BASE_URL}loginSignupRoute/update/${userId}`,
-      formData,
-      axiosHeaders,)
   try {
     let response = await axios.put(
       `${config.BASE_URL}loginSignupRoute/update/${userId}`,

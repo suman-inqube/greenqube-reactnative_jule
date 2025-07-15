@@ -130,12 +130,6 @@ const FarmerDashboard = ({ navigation }) => {
     };
     const onPageLoad = async () => {
         try {
-            if (agri_user_addresses?.length > 0) {
-                const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
-                if (agri_district == null || agri_state == null || agri_subdivision == null) {
-                    CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
-                }
-            }
             const [
                 userNameData,
                 profileImgData,
@@ -167,7 +161,19 @@ const FarmerDashboard = ({ navigation }) => {
     useEffect(() => {
         // requestUserPermission();
         // notificationListener();
-        onPageLoad();
+        try {
+            if (agri_user_addresses?.length > 0) {
+                const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
+                if (agri_district == null || agri_state == null || agri_subdivision == null) {
+                    CustomAlert("Address", "Location data not found Please add from admin", true, 'OK')
+                }
+            }
+            onPageLoad();
+
+        } catch (error) {
+            console.log(error)
+        }
+
     }, [isFocused]);
 
     const HandlerGoBack = () => exit();
