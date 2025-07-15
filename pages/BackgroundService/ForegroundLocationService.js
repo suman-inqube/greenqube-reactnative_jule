@@ -1,51 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { Platform, Alert, Linking } from 'react-native';
+import React, { useEffect, useRef } from 'react';
 import FusedLocation from 'react-native-fused-location';
+import { setItem } from '../../config/getDataFromStorage';
 import store from '../redux/store';
 import { updateLocation } from '../redux/actions/locationActions';
-import { check, PERMISSIONS, RESULTS } from '@react-native-community/permissions';
-import { setItem } from '../../config/getDataFromStorage'
+
 const ForegroundLocationService = () => {
-    const [fusedLocationData, setFusedLocationData] = useState("asada")
+    const subscriptionRef = useRef(null);
+    const lastSavedTimeRef = useRef(0); // for debouncing
+
     useEffect(() => {
-        const serviceStop = () => {
-          FusedLocation.off(this.subscription);
-          // FusedLocation.off(this.errSubscription);
-          FusedLocation.stopLocationUpdates();
-        };
         const startLocationUpdates = async () => {
             try {
+                await FusedLocation.getFusedLocation();
                 FusedLocation.setLocationPriority(FusedLocation.Constants.HIGH_ACCURACY);
-                FusedLocation.setLocationInterval(1000);
-                FusedLocation.setFastestLocationInterval(1000);
-                FusedLocation.startLocationUpdates();
-                // const subscription = FusedLocation.on('fusedLocation', location => {
-                //     // console.log(location)
-                //     // setFusedLocationData(location)
-                //     return location;
-                //     store.dispatch(updateLocation(location));
-                // });
-                FusedLocation.on('fusedLocation', async (location) => {
-                    // Inside the callback function, you can await asynchronous operations
-                    // store.dispatch(updateLocation(location));
-                    await setItem('fusedLocation', location);
+                FusedLocation.setLocationInterval(3000);
+                FusedLocation.setFastestLocationInterval(2000);
+                await FusedLocation.startLocationUpdates();
+                const sub = FusedLocation.on('fusedLocation', async (location) => {
+                    const now = Date.now();
+                    const lastSaved = lastSavedTimeRef.current;
+                    if (now - lastSaved > 10_000) {
+                        lastSavedTimeRef.current = now;
+                        await setItem('fusedLocation', location);
+                    }
                 });
-
-
-                // return () => {
-                //     FusedLocation.stopLocationUpdates();
-                //     subscription.remove();
-                // };
+                subscriptionRef.current = sub;
             } catch (error) {
-                setFusedLocationData(error)
-                console.log(error)
+                console.error('[ForegroundLocationService] Location start error:', error);
             }
         };
-        startLocationUpdates();
+        const timeout = setTimeout(startLocationUpdates, 1000); // Delay start by 1 second
+        return () => {
+            clearTimeout(timeout);
+            if (subscriptionRef.current && typeof subscriptionRef.current.remove === 'function') {
+                subscriptionRef.current.remove();
+                subscriptionRef.current = null;
+                console.log('[ForegroundLocationService] Subscription removed');
+            }
+            FusedLocation.stopLocationUpdates();
+            console.log('[ForegroundLocationService] Location updates stopped');
+        };
     }, []);
-    // return null; // This component doesn't render anything
-    // return null
-    // return { fusedLocationData };
 
+    return null; // No UI rendering needed
 };
+
 export default ForegroundLocationService;

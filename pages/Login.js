@@ -526,32 +526,6 @@ const Login = ({ route }) => {
     <Root>
       <ForegroundLocationService />
       <StatusBar barStyle="light-content" backgroundColor="#023316" />
-
-      {/* <Modal transparent={true} visible={modalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={[styles.title, {color: '#000'}]}>
-              Remember Credentials?
-            </Text>
-            <Text style={{color: '#000'}}>
-              Would you like to save your login details for next time?
-            </Text>
-
-            <View style={styles.buttonRow}>
-              <Button
-                title="No"
-                color="#003c04"
-                onPress={() => handleRememberMe(false)}
-              />
-              <Button
-                title="Yes"
-                color="#003c04"
-                onPress={() => handleRememberMe(true)}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal> */}
       <ScrollView>
         <View>
           <View style={{ paddingHorizontal: 20 }}>
