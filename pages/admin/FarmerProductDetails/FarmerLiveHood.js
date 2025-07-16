@@ -286,8 +286,6 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
       }
       if (LandUnitsquare_metre_res?.status == 200) {
         const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
-
-        console.log("meter=2 == ",LandUnitsquare_metre_res?.data?.data);
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -857,7 +855,6 @@ const FarmerLiveHood = ({ dataProps, setActiveTab, onTabPress }) => {
             formdata.append('plot_image', data);
           }
         });
-        console.log('formdata', JSON.stringify(formdata));
         const AddLandCropDetails_res = await AddLandCropDetailsAPI(
           dbname,
           lan_id,

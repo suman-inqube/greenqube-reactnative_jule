@@ -481,9 +481,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
             latitude: parseFloat(item.latitude),
             longitude: parseFloat(item.longitude),
           }));
-
-
-          // Find the index of the target array in mainArray
           const index = nearPolSet.findIndex(
             subArray =>
               JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
@@ -492,14 +489,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
           const foundArray = nearPolSet.filter(
             item => !isEqualCoordinatesArray(item, parsedTargetArray),
           );
-          // console.log('parsedTargetArray', parsedTargetArray);
-          // console.log('foundArray1', foundArray);
-
-          // If found, move it to the last index
-          // if (index !== -1) {
-          //   const [foundArray] = nearPolSet.splice(index, 1); // Remove it from current position
-          //    nearPolSet.push(foundArray); // Add it at the last index
-          // }
           setnearPolSet(foundArray);
           setPolygons(foundArray);
         } else {
@@ -886,10 +875,12 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }));
         setterrainTypeAll(terraintypeArray);
       }
-      // Toast.show({
-      //   text: JSON.stringify(terraintype_res?.status),
-      //   ...AlertMesg[0],
-      // });
+      Toast.show({
+        text: JSON.stringify(terraintype_res?.status),
+        ...AlertMesg[0],
+      });
+      // Alert.alert(terraintype_res?.data?.data?.count?.toString())
+          // Alert.alert(terraintype_res.data.data.rows.length)
     } catch (error) {
       // Toast.show({
       //   text: JSON.stringify(error),
@@ -2044,13 +2035,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-        {/* <TouchableOpacity
-          style={styles.locationAddMoreContainer}
-          onPress={addMoreLocation}>
-          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
-            {t('AddLocation')}
-          </Text>
-        </TouchableOpacity> */}
         {plotEdit && (
           <TouchableOpacity
             style={[styles.locationAddMoreContainer, { bottom: 250 }]}
