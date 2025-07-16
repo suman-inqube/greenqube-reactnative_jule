@@ -186,7 +186,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     if (locDiffLangRes?.status == 200) {
       const { distData, stateData, subdivData } = locDiffLangRes?.data?.data || {};
       if (distData == null || stateData == null || subdivData == null) {
-        CustomAlert("Address", "Location data not found in selected Language Please add from admin", true, 'OK')
+        CustomAlert("Address", "Location data not found in selected language. Please add them from admin.", true, 'OK')
       }
       await Promise.all([
         getState(dbname, data?.value, token),
