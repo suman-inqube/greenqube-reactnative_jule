@@ -3,7 +3,7 @@ import FusedLocation from 'react-native-fused-location';
 import { setItem } from '../../config/getDataFromStorage';
 import store from '../redux/store';
 import { updateLocation } from '../redux/actions/locationActions';
-
+import { Alert, Linking, Platform } from 'react-native';
 const ForegroundLocationService = () => {
     const subscriptionRef = useRef(null);
     const lastSavedTimeRef = useRef(0); // for debouncing
@@ -26,7 +26,25 @@ const ForegroundLocationService = () => {
                 });
                 subscriptionRef.current = sub;
             } catch (error) {
-                console.error('[ForegroundLocationService] Location start error:', error);
+                Alert.alert(
+                    'GPS Disabled',
+                    'Your GPS seems to be disabled, do you want to enable it?',
+                    [
+                        // { text: 'Cancel', style: 'cancel' },
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                if (Platform.OS === 'android') {
+                                  Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS');
+                                } else {
+                                    // openSettings(); // opens iOS app settings
+                                }
+                            },
+                        },
+                    ],
+                    { cancelable: false }
+                );
+                // console.error('[ForegroundLocationService] Location start error:', error);
             }
         };
         const timeout = setTimeout(startLocationUpdates, 1000); // Delay start by 1 second

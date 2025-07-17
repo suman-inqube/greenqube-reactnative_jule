@@ -389,12 +389,12 @@ export const productionSeasonAndLivelyhoodTypeListAPI = async (
   dbName,
   lan_id = '1',
 ) => {
-  // return console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`);
   const axiosHeaders = {
     headers: {
-      information: `${dbName}`,
+      information: `${dbName},${lan_id}`,
     },
   };
+  // console.log(`${config.BASE_URL}cropRoute/getCropRelationDropdown/${lan_id}?crop_type_id=&crop_name_id=`,axiosHeaders);
   try {
     let response = await axios.get(
       `${config.BASE_URL}cropRoute/getCropRelationDropdown/${lan_id}?crop_type_id=&crop_name_id=`,

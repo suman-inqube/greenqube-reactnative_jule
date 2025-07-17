@@ -875,10 +875,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress }) => {
         }));
         setterrainTypeAll(terraintypeArray);
       }
-      Toast.show({
-        text: JSON.stringify(terraintype_res?.status),
-        ...AlertMesg[0],
-      });
+      // Toast.show({
+      //   text: JSON.stringify(terraintype_res?.status),
+      //   ...AlertMesg[0],
+      // });
       // Alert.alert(terraintype_res?.data?.data?.count?.toString())
           // Alert.alert(terraintype_res.data.data.rows.length)
     } catch (error) {
