@@ -15,14 +15,23 @@ const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner, show 
 
       async function fetchData() {
       if (topBanner && topBanner?.content && topBanner?.iv) {
-        const uri = await getDycryptedImage(topBanner?.content, topBanner?.iv);
-        settopBanner(uri);
-        console.log('topBanner', uri);;
+        const uri = getDycryptedImage(topBanner?.content, topBanner?.iv);
+        if (uri) {
+          settopBanner(uri);
+          console.log('topBanner', uri);
+        } else {
+          console.log('logoImage decryption failed or returned null');
+        }
+        
       }
       if (logoImage?.content && logoImage?.iv) {
-        const uri = await getDycryptedImage(logoImage?.content, logoImage?.iv);
-        setlogoImage(uri);
-      }
+        const uri = getDycryptedImage(logoImage?.content, logoImage?.iv);
+         if (uri) {
+           setlogoImage(uri);
+         } else {
+           console.log('logoImage decryption failed or returned null22');
+         }
+      } 
     }
     fetchData();
     }, []);
@@ -61,9 +70,7 @@ const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner, show 
               }}>
               {logoImage ? (
                 <ImageForm
-                  source={{
-                    uri: logoImg,
-                  }}
+                  source={ logoImg ? { uri: logoImg } : require('../Common/images/avatar.png') }
                   resizeMode="contain"
                   // resizeMode='cover'
                   height={75}
@@ -83,9 +90,7 @@ const CustomHeader = ({ path, HandlerGoBack, banner, logoImage, topBanner, show 
               topBanner != null ||
               topBanner != 'null' ? (
                 <ImageForm
-                  source={{
-                    uri: topBannerImg,
-                  }}
+                  source={ topBannerImg ? { uri: topBannerImg } : require('../Common/images/dashboard.jpeg') }
                   resizeMode="cover"
                   height={200}
                   width={'100%'}

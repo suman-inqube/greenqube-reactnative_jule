@@ -69,13 +69,14 @@ const Training = () => {
                                   ),
                                 })),
                               );
-                              return {
-                                ... response.data.data[0],
-                                agri_files: decryptedFiles,
-                              };
+                            //   return {
+                            //     ... response.data.data[0],
+                            //     agri_files: decryptedFiles,
+                            //   };
+                            setNoticeFiles(decryptedFiles);
                          
                         }
-                         setNoticeFiles(response.data.data[0].agri_files);
+                         
             }
         }
     };

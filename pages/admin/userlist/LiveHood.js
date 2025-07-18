@@ -23,13 +23,15 @@ import {
   LandUnitsquare_metre,
   UnitConversonToDefault,
   nearestLatLong,
-  uploadCarbonAgrDocs
+  getDycryptedImage,
+  uploadCarbonAgrDocs,
 } from '../../../config/apiHere';
 
 import {
   addPlotImageAPI,
   getPlotDocAPI,
   deletePlotImageAPI,
+ 
 } from '../Loan/LoanAPI';
 import config from '../../../config';
 import axios from 'axios';
@@ -325,7 +327,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       const filteredSignature = plot_img.filter(item => item.term_type === 'signature');
       if (filteredSignature.length > 0) {
         setSignature({
-          uri: filteredSignature[filteredSignature.length - 1]?.file_path,
+          uri: getDycryptedImage(filteredSignature[filteredSignature.length - 1]
+            ?.file_path.content,filteredSignature[filteredSignature.length - 1]
+            ?.file_path.iv),
           name: filteredSignature[filteredSignature.length - 1]?.file_name,
           type: filteredSignature[filteredSignature.length - 1]?.file_ext,
           fileName: filteredSignature[filteredSignature.length - 1]?.file_name,
@@ -335,7 +339,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       addressProof.map((_data, _index) => {
         if (filteredPlotImages[_index] !== undefined && count > 0) {
           values[_index] = {
-            uri: filteredPlotImages[_index]?.file_path,
+            uri: getDycryptedImage(filteredPlotImages[_index]?.file_path.content,filteredPlotImages[_index]?.file_path.iv),
             name: filteredPlotImages[_index]?.file_name,
             type: filteredPlotImages[_index]?.file_ext,
             fileName: filteredPlotImages[_index]?.file_name,
@@ -348,8 +352,11 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       carboncertificate.map((_data, _index) => {
         if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
           carbonCertificateValues[_index] = {
-            uri: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-              ?.file_path,
+            uri: getDycryptedImage(filteredCarbonAgreement[
+              filteredCarbonAgreement.length - 1
+            ]?.file_path.content,filteredCarbonAgreement[
+              filteredCarbonAgreement.length - 1
+            ]?.file_path.iv),
             name: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
               ?.file_name,
             type: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]

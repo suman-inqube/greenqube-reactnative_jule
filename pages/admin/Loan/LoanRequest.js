@@ -30,6 +30,7 @@ import {
   deletePlotImageAPI,
   Addloan,
 } from './LoanAPI';
+import {getDycryptedImage} from './../../../config/apiHere';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import ProofAndIdentityPropfCompLoan from '../../Common/ProofAndIdentityPropfCompLoan';
 import DocumentScanner from 'react-native-document-scanner-plugin';
@@ -295,7 +296,7 @@ const LoanRequest = ({setActiveBtn}) => {
             addressProof.map((data, index1) => {
               if (address_proofArr[index1] != undefined) {
                 addressProof_value[index1] = {
-                  uri: address_proofArr[index1].file_path,
+                  uri: getDycryptedImage(address_proofArr[index1].file_path.content,address_proofArr[index1].file_path.iv),
                   id: address_proofArr[index1].file_id,
                   name: address_proofArr[index1].file_name,
                   type: '',
@@ -486,12 +487,12 @@ const LoanRequest = ({setActiveBtn}) => {
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
                   addressProof_value[index1] = {
-                    uri: address_proofArr[index1].file_path,
+                    uri: getDycryptedImage(address_proofArr[index1].file_path.content,address_proofArr[index1].file_path.iv),
                     id: address_proofArr[index1].file_id,
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -682,12 +683,12 @@ const LoanRequest = ({setActiveBtn}) => {
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
                   addressProof_value[index1] = {
-                    uri: address_proofArr[index1].file_path,
+                    uri: getDycryptedImage(address_proofArr[index1].file_path.content,address_proofArr[index1].file_path.iv),
                     id: address_proofArr[index1].file_id,
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -770,14 +771,14 @@ const LoanRequest = ({setActiveBtn}) => {
       if (farmerIdentityDoc.length > 0 && farmerAddressDoc.length > 0) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
-          uri: farmerIdentityDoc[0].file_path,
+          uri: getDycryptedImage(farmerIdentityDoc[0].file_path.content,farmerIdentityDoc[0].file_path.iv),
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
           fileName: farmerIdentityDoc[0].file_name,
         };
         farmerDocValue[1] = {
-          uri: farmerAddressDoc[0].file_path,
+          uri: getDycryptedImage(farmerAddressDoc[0].file_path.content,farmerAddressDoc[0].file_path.iv),
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
@@ -787,7 +788,7 @@ const LoanRequest = ({setActiveBtn}) => {
       } else if (farmerIdentityDoc.length > 0 && farmerAddressDoc.length == 0) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
-          uri: farmerIdentityDoc[0].file_path,
+          uri: getDycryptedImage(farmerIdentityDoc[0].file_path.content,farmerIdentityDoc[0].file_path.iv),
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
@@ -797,7 +798,7 @@ const LoanRequest = ({setActiveBtn}) => {
       } else if (farmerAddressDoc.length > 0 && farmerIdentityDoc.length == 0) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
-          uri: farmerAddressDoc[0].file_path,
+          uri: getDycryptedImage(farmerAddressDoc[0].file_path.content,farmerAddressDoc[0].file_path.iv),
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
@@ -973,12 +974,12 @@ const LoanRequest = ({setActiveBtn}) => {
         addressProof.map((data, index) => {
           if (address_proofArr[index] != undefined) {
             addressProof_value[index] = {
-              uri: address_proofArr[index].file_path,
+              uri: getDycryptedImage(address_proofArr[index].file_path.content,address_proofArr[index].file_path.iv),
               id: address_proofArr[index].file_id,
               name: address_proofArr[index].file_name,
               type: '',
               fileName: address_proofArr[index].file_name,
-              type:address_proofArr[index].file_ext,
+              type: address_proofArr[index].file_ext,
               value: '',
               imageType: 'AddressProof',
               plotId: value,

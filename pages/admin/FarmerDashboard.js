@@ -229,7 +229,7 @@ const FarmerDashboard = ({navigation}) => {
   };
   return (
     <>
-      <BackGroundLocation />
+      {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
       <CustomHeader

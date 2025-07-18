@@ -171,6 +171,13 @@ const Dashboard = ({ navigation }) => {
   };
   const HandlerGoBack = () => exit()
   useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', exit);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', exit);
+    };
+  }, [exit]);
+  useEffect(() => {
     if (isFocused) {
       
       onPageLoad();
@@ -188,7 +195,7 @@ const Dashboard = ({ navigation }) => {
   }
   return (
     <>
-      <BackGroundLocation />
+      {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{flex: 1, backgroundColor: '#f9f9f9'}}>
@@ -203,7 +210,7 @@ const Dashboard = ({ navigation }) => {
           <View style={styles.containerimg}>
             {profileImg ? (
               <ImagePlaceHolderCircleWithoutAddButton
-                imageurl={{uri: profileImg}}
+                imageurl={ profileImg ? { uri: profileImg } : require('../Common/images/avatar.png') }
               />
             ) : (
               <ImagePlaceHolderCircleWithoutAddButton
