@@ -15,6 +15,7 @@ const InputTextForm = ({
 }) => {
   const scheme = useColorScheme();
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
+  console.log("c11")
   return (
     <>
       <Text style={[styles.title, { color: color ?? 'black' }]}>

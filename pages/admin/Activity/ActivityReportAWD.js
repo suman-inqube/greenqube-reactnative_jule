@@ -39,6 +39,7 @@ import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
+import CustomAlert from '../../Common/CustomAlert';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
@@ -1304,6 +1305,7 @@ const ActivityReportAWD = ({ navigation }) => {
 
     watchId = Geolocation.watchPosition(async position => {
       const { latitude, longitude } = position.coords;
+        // CustomAlert('latitude', latitude +','+ longitude, true, 'OK');
       setLocation({ latitude, longitude });
     },
       error => Alert.alert('Location Error', error.message),
@@ -1565,7 +1567,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const [modalVisibleMap, setModalVisibleMap] = useState(false);
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem,setCameraItem]=useState("");
-  const TakePhoto = useCallback(() => {
+  const TakePhoto =() => {
 
    
     const options = {
@@ -1578,22 +1580,25 @@ const ActivityReportAWD = ({ navigation }) => {
     launchCamera(options, async (response) => {
       try {
         if (response.didCancel) {
-          console.log('User cancelled camera');
+          // console.log('User cancelled camera');
+          CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
           return;
         }
   
         if (response.errorCode) {
-          console.log('Camera Error:', response.errorMessage);
+          // console.log('Camera Error:', response.errorMessage);
+          CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
           return;
         }
   
         const asset = response.assets?.[0];
         if (!asset?.uri) {
-          console.warn('No image captured');
+          // console.warn('No image captured');
+          CustomAlert('Error', 'No image captured', true, 'OK');
           return;
         }
   
-        const timestamp = Date.now();
+          const timestamp = Date.now();
         const formattedTime = new Intl.DateTimeFormat('en-US', {
           year: 'numeric',
           month: '2-digit',
@@ -1604,6 +1609,13 @@ const ActivityReportAWD = ({ navigation }) => {
         }).format(timestamp);
   
         const watermarkText = `${location.latitude},${location.longitude},${formattedTime}`;
+        CustomAlert(
+          'latitude',
+          location.latitude + ',' + location.longitude,
+          true,
+          'OK',
+        );
+
   
         const markerOptions = {
           backgroundImage: { src: asset.uri, scale: 1 },
@@ -1630,6 +1642,7 @@ const ActivityReportAWD = ({ navigation }) => {
         };
   
         const path = await Marker.markText(markerOptions);
+        CustomAlert('Error_path', path, true, 'OK');
   
         setSelectedImagePipe((prev) => ({
           ...prev,
@@ -1644,12 +1657,18 @@ const ActivityReportAWD = ({ navigation }) => {
         // }
   
       } catch (error) {
-        console.error('TakePhoto Error:', error);
+         CustomAlert(
+           'Catch Error ',
+           error,
+           true,
+           'OK',
+         );
+        // console.error('TakePhoto Error:', error);
       } finally {
         setModalVisibleMap(false);
       }
     });
-  }, [location, cameraItem, setSelectedImagePipe, setModalVisibleMap]);
+  };
   return (
     <Root>
       <>
