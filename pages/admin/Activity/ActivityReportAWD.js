@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { PermissionsAndroid } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import { launchCamera } from 'react-native-image-picker';
 import Marker, { Position } from "react-native-image-marker";
@@ -48,8 +48,10 @@ import { isPointInPolygon, getDistance } from 'geolib';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import getCurrentLocation from '../../Common/getCurrentLocation';
 import ActivityMap from '../../Common/ActivityMap';
+import MyErrorBoundary from '../../Common/MyErrorBoundary';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 const ActivityReportAWD = ({ navigation }) => {
-  var watchId, watchIdSaveData;
+  const watchId = useRef(null);
   //GQR-67
   const { loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
     setItem, logoImage, topBanner, Root, Toast, SPSheet, DeviceInfo, effective_dates, FormsTitle
@@ -498,6 +500,7 @@ const ActivityReportAWD = ({ navigation }) => {
 
       setIsLoading(false);
     } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "handlePlot")
       console.log(error);
     }
   };
@@ -763,322 +766,334 @@ const ActivityReportAWD = ({ navigation }) => {
     return true;
   }
   const handleSave = async () => {
-    Keyboard.dismiss();
-    if (validateForm()) {
-      const formData = new FormData();
-      // formData.append("act_title", "");
-      // myphotoAll.forEach((photo) => {
-      //     formData.append("photo", photo);
-      // });
+    try {
+      Keyboard.dismiss();
+      if (validateForm()) {
+        const formData = new FormData();
+        // formData.append("act_title", "");
+        // myphotoAll.forEach((photo) => {
+        //     formData.append("photo", photo);
+        // });
 
-      formData.append("type", "carbon_activity");
-      if (soundRecordFirstItem.result != "") {
-        formData.append("audio", {
-          name: 'firstItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`
-        });
-      }
-      if (soundRecordSecoundItem.result != "") {
-        formData.append("audio", {
-          name: 'secoundItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`
-        });
-      }
-      if (soundRecordThirdItem.result != "") {
-        formData.append("audio", {
-          name: 'thirdItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`
-        });
-      }
-      // formData.append("latitude", saveData.latitude);
-      // formData.append("longitude", saveData.longitude);
-      formData.append("user_id", saveData.user_id);
-      formData.append("plot_id", saveData.plot_id);
-      formData.append("crop_name", saveData.crop_name);
-      formData.append("crop_season", saveData.crop_season);
-      formData.append("act_master_id", saveData.act_master_id);
-      // formData.append('cu_rel_fid', saveData.cu_rel_id);
-      formData.append('crop_variety', saveData.crop_variety);
-      formData.append("cycle_start_date", saveData.cycle_start_date);
-      formData.append("growth_stage", saveData.growth_stage);
-      formData.append("act_perform_date", saveData.act_perform_date);
-      // formData.append("act_pattern", "carbon");
-      formData.append("act_pattern", saveData.act_pattern);
-
-      if (saveData.act_pattern === 'schedule') {
-        formData.append("act_ref_type", saveData.act_ref_type);
-        formData.append("act_to_date", saveData.act_to_date);
-        // formData.append("act_start_date", saveData.act_start_date);
-        formData.append("act_start_date", saveData.act_start_date);
-        formData.append("act_ref", saveData.act_ref);
-        if (saveData.field_type == 'add') {
-          const pipe_data = pipeDetails.map(_data => {
-            const { selectedImagePipe, pipe_name } = _data;
-            const {
-              firstItemLat,
-              firstItemLong,
-              secondItemLat,
-              secondItemLong,
-            } = selectedImagePipe || {};
-            const pipe_lattlong = [];
-            if (firstItemLat != '') {
-              pipe_lattlong.push({
-                latitude: firstItemLat?.toString(),
-                longitude: firstItemLong?.toString() || '',
-              });
-            }
-            if (secondItemLat != '') {
-              pipe_lattlong.push({
-                latitude: secondItemLat?.toString(),
-                longitude: secondItemLong?.toString() || '',
-              });
-            }
-            return {
-              pipe_name,
-              pipe_lattlong,
-            };
+        formData.append("type", "carbon_activity");
+        if (soundRecordFirstItem.result != "") {
+          formData.append("audio", {
+            name: 'firstItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`
           });
-          formData.append("pipe_data", JSON.stringify(pipe_data));
-        } else {
-          const latlong = [];
-          if (selectedImagePipe?.firstItem != "") {
-            latlong.push({
-              latitude: selectedImagePipe.firstItemLat,
-              longitude: selectedImagePipe.firstItemLong,
-            });
-          }
-          if (selectedImagePipe?.secondItem != "") {
-            latlong.push({
-              latitude: selectedImagePipe.secondItemLat,
-              longitude: selectedImagePipe.secondItemLong,
-            });
-          }
-          const pipe_data = [
-            { pipe_id: selectPipeList.value, latlong: latlong },
-          ];
-          if (latlong.length != 0) {
-            formData.append(
-              'existing_pipe_ids',
-              JSON.stringify(pipe_data),
-            );
-          }
         }
-        if (saveData.field_type == 'add') {
-          pipeDetails.map((_data, _index) => {
-            const { selectedImagePipe } = _data;
-            const { firstItem, secondItem } = selectedImagePipe || {};
-            const firstItemfileName = firstItem.split('/').pop();
-            const secondItemfileName = secondItem.split('/').pop();
-            if (firstItemfileName != '') {
-              formData.append(`pipe_image_${_index + 1}`, {
-                uri: firstItem,
+        if (soundRecordSecoundItem.result != "") {
+          formData.append("audio", {
+            name: 'secoundItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`
+          });
+        }
+        if (soundRecordThirdItem.result != "") {
+          formData.append("audio", {
+            name: 'thirdItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`
+          });
+        }
+        // formData.append("latitude", saveData.latitude);
+        // formData.append("longitude", saveData.longitude);
+        formData.append("user_id", saveData.user_id);
+        formData.append("plot_id", saveData.plot_id);
+        formData.append("crop_name", saveData.crop_name);
+        formData.append("crop_season", saveData.crop_season);
+        formData.append("act_master_id", saveData.act_master_id);
+        // formData.append('cu_rel_fid', saveData.cu_rel_id);
+        formData.append('crop_variety', saveData.crop_variety);
+        formData.append("cycle_start_date", saveData.cycle_start_date);
+        formData.append("growth_stage", saveData.growth_stage);
+        formData.append("act_perform_date", saveData.act_perform_date);
+        // formData.append("act_pattern", "carbon");
+        formData.append("act_pattern", saveData.act_pattern);
+
+        if (saveData.act_pattern === 'schedule') {
+          formData.append("act_ref_type", saveData.act_ref_type);
+          formData.append("act_to_date", saveData.act_to_date);
+          // formData.append("act_start_date", saveData.act_start_date);
+          formData.append("act_start_date", saveData.act_start_date);
+          formData.append("act_ref", saveData.act_ref);
+          if (saveData.field_type == 'add') {
+            const pipe_data = pipeDetails.map(_data => {
+              const { selectedImagePipe, pipe_name } = _data;
+              const {
+                firstItemLat,
+                firstItemLong,
+                secondItemLat,
+                secondItemLong,
+              } = selectedImagePipe || {};
+              const pipe_lattlong = [];
+              if (firstItemLat != '') {
+                pipe_lattlong.push({
+                  latitude: firstItemLat?.toString(),
+                  longitude: firstItemLong?.toString() || '',
+                });
+              }
+              if (secondItemLat != '') {
+                pipe_lattlong.push({
+                  latitude: secondItemLat?.toString(),
+                  longitude: secondItemLong?.toString() || '',
+                });
+              }
+              return {
+                pipe_name,
+                pipe_lattlong,
+              };
+            });
+            formData.append("pipe_data", JSON.stringify(pipe_data));
+          } else {
+            const latlong = [];
+            if (selectedImagePipe?.firstItem != "") {
+              latlong.push({
+                latitude: selectedImagePipe.firstItemLat,
+                longitude: selectedImagePipe.firstItemLong,
+              });
+            }
+            if (selectedImagePipe?.secondItem != "") {
+              latlong.push({
+                latitude: selectedImagePipe.secondItemLat,
+                longitude: selectedImagePipe.secondItemLong,
+              });
+            }
+            const pipe_data = [
+              { pipe_id: selectPipeList.value, latlong: latlong },
+            ];
+            if (latlong.length != 0) {
+              formData.append(
+                'existing_pipe_ids',
+                JSON.stringify(pipe_data),
+              );
+            }
+          }
+          if (saveData.field_type == 'add') {
+            pipeDetails.map((_data, _index) => {
+              const { selectedImagePipe } = _data;
+              const { firstItem, secondItem } = selectedImagePipe || {};
+              const firstItemfileName = firstItem.split('/').pop();
+              const secondItemfileName = secondItem.split('/').pop();
+              if (firstItemfileName != '') {
+                formData.append(`pipe_image_${_index + 1}`, {
+                  uri: firstItem,
+                  type: 'image/jpeg',
+                  name: firstItemfileName,
+                });
+              }
+              if (secondItemfileName != '') {
+                formData.append(`pipe_image_${_index + 1}`, {
+                  uri: secondItem,
+                  type: 'image/jpeg',
+                  name: secondItemfileName,
+                });
+              }
+            });
+          } else {
+            const pipe_image = [];
+            if (selectedImagePipe?.firstItem != "") {
+              pipe_image.push({
+                uri: selectedImagePipe?.firstItem,
                 type: 'image/jpeg',
-                name: firstItemfileName,
+                name: selectedImagePipe?.firstItem.split('/').pop(),
               });
             }
-            if (secondItemfileName != '') {
-              formData.append(`pipe_image_${_index + 1}`, {
-                uri: secondItem,
+            if (selectedImagePipe?.secondItem != "") {
+              pipe_image.push({
+                uri: selectedImagePipe.secondItem,
                 type: 'image/jpeg',
-                name: secondItemfileName,
+                name: selectedImagePipe.secondItem.split('/').pop(),
               });
             }
-          });
-        } else {
-          const pipe_image = [];
-          if (selectedImagePipe?.firstItem != "") {
-            pipe_image.push({
-              uri: selectedImagePipe?.firstItem,
-              type: 'image/jpeg',
-              name: selectedImagePipe?.firstItem.split('/').pop(),
+            pipe_image.map((_data, _index) => {
+              formData.append(`pipe_files[0]`, _data);
             });
+
           }
-          if (selectedImagePipe?.secondItem != "") {
-            pipe_image.push({
-              uri: selectedImagePipe.secondItem,
-              type: 'image/jpeg',
-              name: selectedImagePipe.secondItem.split('/').pop(),
-            });
-          }
-          pipe_image.map((_data, _index) => {
-            formData.append(`pipe_files[0]`, _data);
-          });
 
         }
-
-      }
-      formData.append("act_desc", saveData.act_desc);
-      formData.append("material_used", saveData.material_used);
-      formData.append("water_used", saveData.water_used);
-      formData.append("power_used", saveData.power_used);
-      formData.append('cu_rel_fid', saveData.cu_rel_id);;
-      // Geolocation.clearWatch(watchIdSaveData);
-      if (isOnline) {
-        // const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData);addPrevPipeActivity
-        if (saveData.field_type == 'add') {
-          var database_res = await addUserPipeActivity(dbname, lan_id, token, saveData.user_id, formData, pipeDetails.length);
+        formData.append("act_desc", saveData.act_desc);
+        formData.append("material_used", saveData.material_used);
+        formData.append("water_used", saveData.water_used);
+        formData.append("power_used", saveData.power_used);
+        formData.append('cu_rel_fid', saveData.cu_rel_id);;
+        // Geolocation.clearWatch(watchIdSaveData);
+        if (isOnline) {
+          // const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData);addPrevPipeActivity
+          if (saveData.field_type == 'add') {
+            var database_res = await addUserPipeActivity(dbname, lan_id, token, saveData.user_id, formData, pipeDetails.length);
+          } else {
+            var database_res = await addPrevPipeActivity(dbname, lan_id, token, saveData.user_id, formData, 1);
+          }
+          if (database_res?.status == 200) {
+            AnalyticsLogEvent("activity_report", "activity_report");
+            Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+            setTimeout(() => {
+              navigation.navigate('activityList');
+            }, 1500);
+          } else if (database_res?.status == 409) {
+            Toast.show({ text: database_res?.data?.error?.errorMessage, ...AlertMesg[0] });
+          }
         } else {
-          var database_res = await addPrevPipeActivity(dbname, lan_id, token, saveData.user_id, formData, 1);
-        }
-        if (database_res?.status == 200) {
-          AnalyticsLogEvent("activity_report", "activity_report");
+          formData.append("farmerID", saveData.user_id);
+          let timeStamp = Date.now()
+          await setItem('off' + timeStamp, formData)
+          let offlineDataArr = await getItem('offlineSupervisorActivityData');
+          if (offlineDataArr) {
+            await setItem('offlineSupervisorActivityData', offlineDataArr + ',' + 'off' + timeStamp)
+          } else {
+            await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
+          }
           Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
             navigation.navigate('activityList');
-          }, 1500);
-        } else if (database_res?.status == 409) {
-          Toast.show({ text: database_res?.data?.error?.errorMessage, ...AlertMesg[0] });
+          }, 1000);
         }
-      } else {
-        formData.append("farmerID", saveData.user_id);
-        let timeStamp = Date.now()
-        await setItem('off' + timeStamp, formData)
-        let offlineDataArr = await getItem('offlineSupervisorActivityData');
-        if (offlineDataArr) {
-          await setItem('offlineSupervisorActivityData', offlineDataArr + ',' + 'off' + timeStamp)
-        } else {
-          await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
-        }
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-        setTimeout(() => {
-          navigation.navigate('activityList');
-        }, 1000);
       }
+    } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "handleSave")
     }
   }
 
   const handleActivityType = async (item) => {
-    let dataArray = [];
-    if (isOnline) {
-      var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
-      await setItem('activityInfo' + farmerID + CropType + CropName + item.value, response)
-    } else {
-      var response = await getItem('activityInfo' + farmerID + CropType + CropName + item.value)
-    }
-    setSaveData({
-      ...saveData,
-      act_to_date: "",
-      act_to_date_label: "",
-      act_start_date: "",
-      act_ref: "",
-      act_master_id: "",
-      act_ref_type: item.value,
-      field_type:  '',
-    });
-    setSelectedImagePipe({
-      ...selectedImagePipe,
-      firstItem: "",
-      firstItemLat: "",
-      firstItemLong: "",
-      secondItem: "",
-      secondItemLat: "",
-      secondItemLong: "",
-    });
-    setselectPipeList({
-      ...selectPipeList,
-      label: "",
-      value: '',
-    });
-    if (response.data.data.count > 0) {
-      response.data.data.rows.forEach(element => {
-        const monthNames = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
-        ];
-        const cycleDate = cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate;
-        const sdate = new Date(cycleDate);
-        sdate.setDate(sdate.getDate() + element?.days_from);
-        const smonth = monthNames[sdate.getMonth()];
-        const sday = sdate.getDate();
-        const syear = sdate.getFullYear();
-        const startDate = `${smonth} ${sday}, ${syear}`;
-        const edate = new Date(cycleDate);
-        edate.setDate(edate.getDate() + element?.days_to);
-        const emonth = monthNames[edate.getMonth()];
-        const eday = edate.getDate();
-        const eyear = edate.getFullYear();
-        const endDate = `${emonth} ${eday}, ${eyear}`;
-        const startDateEndDate = `${startDate}-${endDate}`
-        dataArray.push({
-          start_date: sdate,
-          end_date: edate,
-          value: element.act_rid,
-          label: element?.activity?.categoryName + " (" + startDateEndDate + ")",
-          act_master_id: element?.act_master_id,
-          field_type: element?.activity?.field_type,
-        });
-      });
-      if (isButtonDisabled) {
-        setActivityInfoAll(dataArray);
+    try {
+      let dataArray = [];
+      if (isOnline) {
+        var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
+        await setItem('activityInfo' + farmerID + CropType + CropName + item.value, response)
+      } else {
+        var response = await getItem('activityInfo' + farmerID + CropType + CropName + item.value)
       }
-      setPipeListDetailsResArr([]);
-    }else{
-       setActivityInfoAll([]);
+      setSaveData({
+        ...saveData,
+        act_to_date: "",
+        act_to_date_label: "",
+        act_start_date: "",
+        act_ref: "",
+        act_master_id: "",
+        act_ref_type: item.value,
+        field_type: '',
+      });
+      setSelectedImagePipe({
+        ...selectedImagePipe,
+        firstItem: "",
+        firstItemLat: "",
+        firstItemLong: "",
+        secondItem: "",
+        secondItemLat: "",
+        secondItemLong: "",
+      });
+      setselectPipeList({
+        ...selectPipeList,
+        label: "",
+        value: '',
+      });
+      if (response.data.data.count > 0) {
+        response.data.data.rows.forEach(element => {
+          const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+          ];
+          const cycleDate = cycleDtartDate == "" ? saveData.cycle_start_date : cycleDtartDate;
+          const sdate = new Date(cycleDate);
+          sdate.setDate(sdate.getDate() + element?.days_from);
+          const smonth = monthNames[sdate.getMonth()];
+          const sday = sdate.getDate();
+          const syear = sdate.getFullYear();
+          const startDate = `${smonth} ${sday}, ${syear}`;
+          const edate = new Date(cycleDate);
+          edate.setDate(edate.getDate() + element?.days_to);
+          const emonth = monthNames[edate.getMonth()];
+          const eday = edate.getDate();
+          const eyear = edate.getFullYear();
+          const endDate = `${emonth} ${eday}, ${eyear}`;
+          const startDateEndDate = `${startDate}-${endDate}`
+          dataArray.push({
+            start_date: sdate,
+            end_date: edate,
+            value: element.act_rid,
+            label: element?.activity?.categoryName + " (" + startDateEndDate + ")",
+            act_master_id: element?.act_master_id,
+            field_type: element?.activity?.field_type,
+          });
+        });
+        if (isButtonDisabled) {
+          setActivityInfoAll(dataArray);
+        }
+        setPipeListDetailsResArr([]);
+      } else {
+        setActivityInfoAll([]);
+      }
+    } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "handleActivityType")
     }
   }
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
   const handleActivityInfo = async (item) => {
-    const act_to_date1 = item.end_date;
-    const date1 = new Date(act_to_date1);
-    const year1 = date1.getFullYear();
-    const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
-    const day1 = date1.getDate().toString().padStart(2, '0');
-    const act_to_date = `${year1}-${month1}-${day1}`;
-    const act_start_date1 = item.start_date; ``
-    const date2 = new Date(act_start_date1);
-    const year2 = date2.getFullYear();
-    const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
-    const day2 = date2.getDate().toString().padStart(2, '0');
-    const act_start_date = `${year2}-${month2}-${day2}`;
-    setSaveData({
-      ...saveData,
-      act_to_date: act_to_date,
-      act_to_date_label: item.label,
-      act_start_date: act_start_date,
-      act_ref: item.value,
-      act_master_id: item?.act_master_id,
-       field_type: item?.field_type || '',
-    });
-    setSelectedImagePipe({
-      ...selectedImagePipe,
-      firstItem: "",
-      firstItemLat: "",
-      firstItemLong: "",
-      secondItem: "",
-      secondItemLat: "",
-      secondItemLong: "",
-    });
-    setselectPipeList({
-      ...selectPipeList,
-      label: "",
-      value: '',
-    });
-    const PipeListDetailsRes = await getUniquePipeNames(
-      dbname,
-      lan_id,
-      token,
-      farmerID,
-      saveData.plot_id,
-      item?.act_master_id,
-      saveData.cu_rel_id,
-    );
-    if (PipeListDetailsRes?.status == 200) {
-      const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map((_data, _index) => ({
-        value: _data.pipe_pid,
-        label: _data.pipe_name,
-      }));
-      setPipeListDetailsResArr(pipeDetailsArr);
-      if (PipeListDetailsRes?.data?.data?.length == 0) {
-        Keyboard.dismiss();
-        Toast.show({
-          time: 2, text: `${t('No pipe found ' + item.label)}`, ...AlertMesg[0]
-        })
+    try {
+      const act_to_date1 = item.end_date;
+      const date1 = new Date(act_to_date1);
+      const year1 = date1.getFullYear();
+      const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
+      const day1 = date1.getDate().toString().padStart(2, '0');
+      const act_to_date = `${year1}-${month1}-${day1}`;
+      const act_start_date1 = item.start_date; ``
+      const date2 = new Date(act_start_date1);
+      const year2 = date2.getFullYear();
+      const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+      const day2 = date2.getDate().toString().padStart(2, '0');
+      const act_start_date = `${year2}-${month2}-${day2}`;
+      setSaveData({
+        ...saveData,
+        act_to_date: act_to_date,
+        act_to_date_label: item.label,
+        act_start_date: act_start_date,
+        act_ref: item.value,
+        act_master_id: item?.act_master_id,
+        field_type: item?.field_type || '',
+      });
+      setSelectedImagePipe({
+        ...selectedImagePipe,
+        firstItem: "",
+        firstItemLat: "",
+        firstItemLong: "",
+        secondItem: "",
+        secondItemLat: "",
+        secondItemLong: "",
+      });
+      setselectPipeList({
+        ...selectPipeList,
+        label: "",
+        value: '',
+      });
+      const PipeListDetailsRes = await getUniquePipeNames(
+        dbname,
+        lan_id,
+        token,
+        farmerID,
+        saveData.plot_id,
+        item?.act_master_id,
+        saveData.cu_rel_id,
+      );
+      if (PipeListDetailsRes?.status == 200) {
+        const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map((_data, _index) => ({
+          value: _data.pipe_pid,
+          label: _data.pipe_name,
+        }));
+        setPipeListDetailsResArr(pipeDetailsArr);
+        if (PipeListDetailsRes?.data?.data?.length == 0) {
+          Keyboard.dismiss();
+          Toast.show({
+            time: 2, text: `${t('No pipe found ' + item.label)}`, ...AlertMesg[0]
+          })
+        }
+      } else {
+        setPipeListDetailsResArr([]);
       }
-    } else {
-      setPipeListDetailsResArr([]);
+    } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "handleActivityInfo")
     }
   }
   //basudev
@@ -1110,40 +1125,56 @@ const ActivityReportAWD = ({ navigation }) => {
     }
   };
   const onPageLoad = async () => {
-    setSaveData({ ...saveData, act_pattern: 'schedule' });
-    setisActiveMenu(true);
-    requestLivePermission();
-    if (isOnline) {
-      var response = await farmerByNameAPI(dbname, lan_id, token, user_id)
-      await setItem('farmerByNameAPI', response);
-    } else {
-      var response = await getItem('farmerByNameAPI');
+    try {
+      setSaveData({ ...saveData, act_pattern: 'schedule' });
+      setisActiveMenu(true);
+      requestLivePermission();
+      if (isOnline) {
+        var response = await farmerByNameAPI(dbname, lan_id, token, user_id)
+        await setItem('farmerByNameAPI', response);
+      } else {
+        var response = await getItem('farmerByNameAPI');
+      }
+      if (response) {
+        setIsLoading(false);
+        const dataArray = response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
+        setfarmerData(dataArray)
+      }
+      watchId.current = Geolocation.watchPosition(
+        async position => {
+          const { latitude, longitude } = position.coords;
+          setLocation(prev => {
+            if (prev?.latitude !== latitude || prev?.longitude !== longitude) {
+              return { latitude, longitude };
+            }
+            return prev;
+          });
+
+        },
+        error => Alert.alert('Location Error', error.message),
+        {
+          enableHighAccuracy: true,
+          distanceFilter: 0,
+        }
+      );
+      return () => {
+        if (watchId.current !== null) {
+          Geolocation.clearWatch(watchId.current);
+          watchId.current = null;
+        }
+      };
+    } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "onPageLoad")
     }
-    if (response) {
-      setIsLoading(false);
-      const dataArray = response?.data?.data?.rows.map(data => ({ value: data.user_id, label: data.userName, phone: data.contactNumber }));
-      setfarmerData(dataArray)
-    }
-
-    watchId = Geolocation.watchPosition(async position => {
-      const { latitude, longitude } = position.coords;
-      setLocation({ latitude, longitude });
-    },
-      error => Alert.alert('Location Error', error.message),
-      {
-        enableHighAccuracy: true,
-        distanceFilter: 0,
-      },
-    );
-
-
-
   };
   const handleBackPress = () => { navigation.navigate('activityList'); return true; }
   useEffect(() => {
-    // checkLocation();
+    const controller = new AbortController();
     onPageLoad();
     onBackPress(handleBackPress);
+    return () => {
+      controller.abort();
+    };
   }, []);
   const handleHarvested = async (data) => {
     if (data == 'Yes') {
@@ -1153,155 +1184,6 @@ const ActivityReportAWD = ({ navigation }) => {
     }
   }
   const HandlerGoBack = () => navigation.navigate('activityList');
-  const handleRecord = (item) => {
-    // setModalVisibleRecord(true);
-  }
-  const onStartRecordFirstItem = async () => {
-    const path = RNFS.DocumentDirectoryPath + "/firstItem.mp3";
-    await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    await audioRecorderPlayer.startRecorder(path);
-    audioRecorderPlayer.addRecordBackListener(e => {
-      setSoundRecordFirstItem({
-        isLoggingIn: true,
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(
-          Math.floor(e.currentPosition),
-        ),
-      });
-      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
-        onStopRecordFirstItem();
-        setModalVisibleRecordFirstItem(false);
-      }
-      return;
-    });
-  };
-  const onStartRecordSecoundItem = async () => {
-    const path = RNFS.DocumentDirectoryPath + "/secoundItem.mp3";
-    await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    await audioRecorderPlayer.startRecorder(path);
-    audioRecorderPlayer.addRecordBackListener(e => {
-      setSoundRecordSecoundItem({
-        isLoggingIn: true,
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(
-          Math.floor(e.currentPosition),
-        ),
-      });
-      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
-        onStopRecordSecoundItem();
-        setModalVisibleRecordSecoundItem(false);
-      }
-      return;
-    });
-  };
-  const onStartRecordThirdItem = async () => {
-    const path = RNFS.DocumentDirectoryPath + "/thirdItem.mp3";
-    await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    await audioRecorderPlayer.startRecorder(path);
-    audioRecorderPlayer.addRecordBackListener(e => {
-      setSoundRecordThirdItem({
-        isLoggingIn: true,
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(
-          Math.floor(e.currentPosition),
-        ),
-      });
-      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
-        onStopRecordThirdItem();
-        setModalVisibleRecordThirdItem(false);
-      }
-      return;
-    });
-  };
-  const onStopRecordFirstItem = useCallback(async () => {
-    // if (record == "firstItem") {
-    try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordFirstItem({ ...soundRecordFirstItem, isLoggingIn: false, result: result });
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
-    } catch (error) {
-      console.error("Error stopping the recording:", error);
-    }
-    // }
-  }, []);
-  const onStopRecordSecoundItem = useCallback(async () => {
-    // if (record == "firstItem") {
-    try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
-    } catch (error) {
-      console.error("Error stopping the recording:", error);
-    }
-    // }
-  }, []);
-  const onStopRecordThirdItem = useCallback(async () => {
-    // if (record == "firstItem") {
-    try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
-    } catch (error) {
-      console.error("Error stopping the recording:", error);
-    }
-    // }
-  }, []);
-  const cancelRecord = async (item) => {
-    await audioRecorderPlayer.stopPlayer();
-    if (item == "firstItem") {
-      setSoundRecordFirstItem({
-        item: '1',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: ""
-      });
-
-    } else if (item == "secoundItem") {
-      setSoundRecordSecoundItem({
-        item: '2',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: ""
-      });
-    } else if (item == "thirdItem") {
-      setSoundRecordThirdItem({
-        item: '3',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: ""
-      });
-    }
-  }
-  const soundPlay = async (item) => {
-    let path;
-    if (item == "firstItem") {
-      path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
-    } else if (item == "secoundItem") {
-      path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
-    } else if (item == "thirdItem") {
-      path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
-    }
-    SPSheet.show({
-      component: () => <AudioPlayerView path={path} />,
-      dragFromTopOnly: true,
-      onCloseComplete: () => {
-        // alert('onCloseComplete');
-      },
-      onOpenComplete: () => {
-        // console.log(SPSheet)
-      },
-      height: 260
-    });
-  }
   const [pipeNumber, setPipeNumber] = useState('');
   const [pipeDetails, setPipeDetails] = useState([])
   const [selectedImagePipe, setSelectedImagePipe] = useState({
@@ -1363,6 +1245,7 @@ const ActivityReportAWD = ({ navigation }) => {
       values.splice(_inde, 1);
       setPipeDetails(values);
     } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "handleRemovedpipeDetails")
       console.error(error)
     }
   }
@@ -1370,93 +1253,94 @@ const ActivityReportAWD = ({ navigation }) => {
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState("");
   const TakePhoto = useCallback(() => {
+    try {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 200,
+        maxWidth: 200,
+      };
+      launchCamera(options, async (response) => {
+        try {
+          if (response.didCancel) {
+            console.log('User cancelled camera');
+            return;
+          }
 
+          if (response.errorCode) {
+            console.log('Camera Error:', response.errorMessage);
+            return;
+          }
 
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
+          const asset = response.assets?.[0];
+          if (!asset?.uri) {
+            console.warn('No image captured');
+            return;
+          }
 
-    launchCamera(options, async (response) => {
-      try {
-        if (response.didCancel) {
-          console.log('User cancelled camera');
-          return;
-        }
+          const timestamp = Date.now();
+          const formattedTime = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
 
-        if (response.errorCode) {
-          console.log('Camera Error:', response.errorMessage);
-          return;
-        }
+          const watermarkText = `${location.latitude},${location.longitude},${formattedTime}`;
 
-        const asset = response.assets?.[0];
-        if (!asset?.uri) {
-          console.warn('No image captured');
-          return;
-        }
-
-        const timestamp = Date.now();
-        const formattedTime = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).format(timestamp);
-
-        const watermarkText = `${location.latitude},${location.longitude},${formattedTime}`;
-
-        const markerOptions = {
-          backgroundImage: { src: asset.uri, scale: 1 },
-          watermarkTexts: [
-            {
-              text: watermarkText,
-              positionOptions: { position: Position.bottomLeft },
-              style: {
-                color: '#df2020',
-                fontSize: 2,
-                fontName: 'Arial',
-                textBackgroundStyle: {
-                  padding: '10% 10%',
-                  color: '#00000000',
+          const markerOptions = {
+            backgroundImage: { src: asset.uri, scale: 1 },
+            watermarkTexts: [
+              {
+                text: watermarkText,
+                positionOptions: { position: Position.bottomLeft },
+                style: {
+                  color: '#df2020',
+                  fontSize: 2,
+                  fontName: 'Arial',
+                  textBackgroundStyle: {
+                    padding: '10% 10%',
+                    color: '#00000000',
+                  },
                 },
               },
-            },
-          ],
-          scale: 1,
-          quality: 100,
-          filename: asset.fileName,
-          saveFormat: asset.type,
-          maxSize: 1000,
-        };
+            ],
+            scale: 1,
+            quality: 100,
+            filename: asset.fileName,
+            saveFormat: asset.type,
+            maxSize: 1000,
+          };
 
-        const path = await Marker.markText(markerOptions);
+          const path = await Marker.markText(markerOptions);
 
-        setSelectedImagePipe((prev) => ({
-          ...prev,
-          [cameraItem]: `file://${path}`,
-          [`${cameraItem}Lat`]: location.latitude,
-          [`${cameraItem}Long`]: location.longitude,
-        }));
-        setModalVisibleMap(false);
-        // if (watchIdRef.current) {
-        //   Geolocation.clearWatch(watchIdRef.current);
-        //   watchIdRef.current = null;
-        // }
+          setSelectedImagePipe((prev) => ({
+            ...prev,
+            [cameraItem]: `file://${path}`,
+            [`${cameraItem}Lat`]: location.latitude,
+            [`${cameraItem}Long`]: location.longitude,
+          }));
+          setModalVisibleMap(false);
+          // if (watchIdRef.current) {
+          //   Geolocation.clearWatch(watchIdRef.current);
+          //   watchIdRef.current = null;
+          // }
 
-      } catch (error) {
-        console.error('TakePhoto Error:', error);
-      } finally {
-        setModalVisibleMap(false);
-      }
-    });
+        } catch (error) {
+          console.error('TakePhoto Error:', error);
+        } finally {
+          setModalVisibleMap(false);
+        }
+      });
+    } catch (error) {
+      CrashlyticsRecordError(error, "ActivityReportAWD", "TakePhoto")
+    }
   }, [location, cameraItem, setSelectedImagePipe, setModalVisibleMap]);
   return (
     <Root>
-      <>
+      <MyErrorBoundary>
         <View style={styles.container}>
           {modalVisibleMap && (
             <ActivityMap
@@ -1489,33 +1373,7 @@ const ActivityReportAWD = ({ navigation }) => {
             handleDatePicker={handleDatePicker2}
           />
           <FormsTitle title={t('add_recent_incident')} />
-          {modalVisibleRecordFirstItem ? (
-            <SoundRecord
-              modalVisibleRecord={modalVisibleRecordFirstItem}
-              setModalVisibleRecord={setModalVisibleRecordFirstItem}
-              onStartRecordFirstItem={onStartRecordFirstItem}
-              onStopRecordFirstItem={onStopRecordFirstItem}
-              soundRecord={soundRecordFirstItem}
-            />
-          ) : null}
-          {modalVisibleRecordSecoundItem ? (
-            <SoundRecord
-              modalVisibleRecord={modalVisibleRecordSecoundItem}
-              setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-              onStartRecordFirstItem={onStartRecordSecoundItem}
-              onStopRecordFirstItem={onStopRecordSecoundItem}
-              soundRecord={soundRecordSecoundItem}
-            />
-          ) : null}
-          {modalVisibleRecordThirdItem ? (
-            <SoundRecord
-              modalVisibleRecord={modalVisibleRecordThirdItem}
-              setModalVisibleRecord={setModalVisibleRecordThirdItem}
-              onStartRecordFirstItem={onStartRecordThirdItem}
-              onStopRecordFirstItem={onStopRecordThirdItem}
-              soundRecord={soundRecordThirdItem}
-            />
-          ) : null}
+
           <SafeAreaView>
             {searchResultsList && searchResultsList ? (
               <View style={styles.flatContainer}>
@@ -1910,7 +1768,7 @@ const ActivityReportAWD = ({ navigation }) => {
             <ButtonForm label={t('submit')} onPress={() => handleSave()} />
           </View>
         </View>
-      </>
+      </MyErrorBoundary>
     </Root>
   );
 }

@@ -68,7 +68,7 @@ export const firstLanguageListAPI = async dbName => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','firstLanguageListAPI');
     return console.log('firstLanguageListAPI' + error.response.data);
   }
 };
@@ -138,7 +138,7 @@ export const fetchStateAPI = async (dbName, languageID) => {
     let state_res = await axios.get(config.stateAPI, { headers });
     return state_res;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','fetchStateAPI');
     return console.log('error with state api' + error.response);
   }
 };
@@ -157,7 +157,7 @@ export const fetchDistrictAPI = async (dbName, languageID, stateID) => {
     let district_res = await axios.get(config.districtAPI + stateID, { headers });
     return district_res;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','fetchDistrictAPI');
     return console.log('error with district api' + error.response);
   }
 };
@@ -174,7 +174,7 @@ export const fetchBlockAPI = async (dbName, languageID, districtID) => {
     let block_res = await axios.get(config.blockAPI + districtID, { headers });
     return block_res;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','fetchBlockAPI');
     return console.log('error with Block api' + error.response);
   }
 };
@@ -199,7 +199,7 @@ export const dashboardDataListAPI = async (
     );
     return response.data;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','dashboardDataListAPI');
     return console.log('error with fpodetails api' + error.response);
   }
 };
@@ -219,7 +219,7 @@ export const userDataListAPI = async (dbName, languageId, token, user_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','userDataListAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -244,7 +244,7 @@ export const fpodetailsDataListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','fpodetailsDataListAPI');
     return error.response;
   }
 };
@@ -260,11 +260,6 @@ export const farmerAgainstSupervisorAPI = async (
       information: `${dbName},${languageID},${userId}`,
     },
   };
-  // console.log(dbName, languageID, userId)
-  // console.log({
-  //     'information': `${dbName},${languageID},${userId}`,
-  // })
-  // console.log(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=');
   try {
     let response = await axios.get(
       config.BASE_URL +
@@ -274,7 +269,7 @@ export const farmerAgainstSupervisorAPI = async (
     return response;
   } catch (error) {
     console.error(error);
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerAgainstSupervisorAPI');
     return error.response;
   }
 };
@@ -289,13 +284,15 @@ export const activityListAPI = async (
   searchItem = '',
   from_date = '',
   to_date = '',
-  carbonType = ''
+  carbonType = '',
+  signal
 ) => {
   const axiosHeaders = {
     headers: {
       authorization: `${token}`,
       information: `${dbName},${languageID},${userID}`,
     },
+    signal
   };
   try {
     let response = await axios.get(
@@ -304,7 +301,7 @@ export const activityListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'ActivityList','activityListAPI');
     return error.response;
   }
 };
@@ -332,7 +329,7 @@ export const activityListInstrumentWise = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','activityListInstrumentWise');
     return error.response;
   }
 };
@@ -360,7 +357,7 @@ export const FarmerActivityListInstrumentWise = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','FarmerActivityListInstrumentWise');
     return error.response;
   }
 };
@@ -389,7 +386,7 @@ export const farmerActivityListAPI = async (
     return response;
     //  return console.log(response.data.data);
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerActivityListAPI');
     return console.log('error in Activity api' + error.response);
   }
 };
@@ -411,7 +408,7 @@ export const farmerByNameAPI = async (dbName, languageID, token, userID) => {
 
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerByNameAPI');
     return error.response;
   }
 };
@@ -435,7 +432,7 @@ export const plotAgainstFarmerAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','plotAgainstFarmerAPI');
     return console.log('error in plotAgainstFarmerAPI ' + error.response.data);
   }
 };
@@ -446,7 +443,6 @@ export const productionSeasonAndLivelyhoodTypeListAPI = async (
   dbName,
   lan_id = '1',
 ) => {
-  // return console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`);
   const axiosHeaders = {
     headers: {
       information: `${dbName}`,
@@ -459,7 +455,7 @@ export const productionSeasonAndLivelyhoodTypeListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','productionSeasonAndLivelyhoodTypeListAPI');
     return error.response;
   }
 };
@@ -469,18 +465,12 @@ export const produceAgainstPlotAPI = async (
   farmerID,
   relID,
 ) => {
-  // return console.log(`${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`);
   const axiosHeaders = {
     headers: {
       information: `${dbName},${languageID},${farmerID}`,
     },
   };
   try {
-    // let response = await axios.get(
-    //   `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${farmerID}&land_rel_id=${relID}`,
-    //   axiosHeaders,
-    // );
-
     let response = await axios.get(
       `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`,
       axiosHeaders,
@@ -535,7 +525,7 @@ export const productionStageAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','productionStageAPI');
     return +error.response;
   }
 };
@@ -562,7 +552,7 @@ export const setCycleDateAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','setCycleDateAPI');
     return error.response;
   }
 };
@@ -579,7 +569,7 @@ export const activityTypeAPI = async (dbName, languageID, farmerID) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','activityTypeAPI');
     return console.log('error in activityTypeAPI ' + error.response);
   }
 };
@@ -593,11 +583,6 @@ export const activityInfoAPI = async (
   cropName,
   actTypeID,
 ) => {
-  // 
-  // console.log({
-  //     'authorization': `${token}`,
-  //     'information': `${dbName},${languageID},${farmerID}`,
-  // })
   const axiosHeaders = {
     headers: {
       authorization: `${token}`,
@@ -609,10 +594,9 @@ export const activityInfoAPI = async (
       `${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`,
       axiosHeaders,
     );
-    console.log("fi==", response);
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','activityInfoAPI');
     return console.log('error in activityInfoAPI ' + error.response);
   }
 };
@@ -630,9 +614,6 @@ export const activitySaveAPI = async (
       authorization: `${token}`,
     },
   };
-  console.log(axiosHeaders)
-  console.log(inputData)
-  console.log(`${config.BASE_URL}inputOutputRoute/addUserActivity`)
   try {
     let response = await axios.post(
       `${config.BASE_URL}inputOutputRoute/addUserActivity`,
@@ -670,7 +651,7 @@ export const problemListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemListAPI');
     return error.response;
   }
 };
@@ -694,7 +675,7 @@ export const problemPlotAgainstFarmerAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemPlotAgainstFarmerAPI');
     return console.log(
       'plotAgainstFarmerAPI ' + JSON.stringify(error.response.data, null, 2),
     );
@@ -724,7 +705,7 @@ export const problemProduceAgainstPlotAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemProduceAgainstPlotAPI');
     return console.log('error in produceAgainstPlotAPI ' + error.response);
   }
 };
@@ -749,7 +730,7 @@ export const problemProductionStageAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemProductionStageAPI');
     return console.log('error in productionStageAPI ' + error.response);
   }
 };
@@ -769,7 +750,7 @@ export const problemTypeNameAPI = async (dbName, languageID, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemTypeNameAPI');
     return console.log('error in problemTypeNameAPI ' + error.response);
   }
 };
@@ -787,7 +768,7 @@ export const problemSeverityAPI = async (dbName, languageID) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemSeverityAPI');
     return error.response;
   }
 };
@@ -818,7 +799,7 @@ export const problemSaveAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemSaveAPI');
     return error.response;
   }
 };
@@ -837,7 +818,7 @@ export const problemCommentListAPI = async (dbName, userId, questionId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemCommentListAPI');
     return console.log('error in problemCommentListAPI ' + error.response);
   }
 };
@@ -863,7 +844,7 @@ export const problemCommentSaveAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemCommentSaveAPI');
     return console.log('error in problemCommentSaveAPI ' + error);
   }
 };
@@ -888,7 +869,7 @@ export const problemAnswerListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','problemAnswerListAPI');
     return console.log('error in problemAnswerListAPI ' + error);
   }
 };
@@ -921,7 +902,7 @@ export const userDetailAPI = async (dbName, languageId, token, user_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','userDetailAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -948,7 +929,7 @@ export const updateUserInfoAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','updateUserInfoAPI');
     return error;
   }
 };
@@ -987,13 +968,9 @@ export const inputListAPI = async (
       `${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
       axiosHeaders,
     );
-    console.log(
-      `${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
-      axiosHeaders,
-    );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputListAPI');
     return error.response;
   }
 };
@@ -1012,7 +989,7 @@ export const inputCategoryAPI = async (dbName, languageId, token, userId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputCategoryAPI');
     return console.log('error in inputCategoryAPI ' + error);
   }
 };
@@ -1040,7 +1017,7 @@ export const inputSubCategoryAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputSubCategoryAPI');
     return console.log('error in inputCategoryAPI ' + error);
   }
 };
@@ -1065,7 +1042,7 @@ export const inputPastEnquiryListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputPastEnquiryListAPI');
     return console.log('error in inputPastEnquiryListAPI ' + error);
   }
 };
@@ -1090,7 +1067,7 @@ export const inputEnquiryViewAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputEnquiryViewAPI');
     return error.response;
   }
 };
@@ -1118,7 +1095,7 @@ export const inputSaveAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputSaveAPI');
     return console.log('outputSaveAPI:', error.response.data);
   }
 };
@@ -1148,7 +1125,7 @@ export const outputListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','outputListAPI');
     return console.log('error in outputListAPI ' + error);
   }
 };
@@ -1178,7 +1155,7 @@ export const livelihoodNameVarietyLandrelAPI = async (
     console.log(response);
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','livelihoodNameVarietyLandrelAPI');
     return console.log(
       'livelihoodNameVarietyLandrelAPI :' +
       JSON.stringify(error.response.data, null, 2),
@@ -1207,7 +1184,7 @@ export const unitByListAPI = async (
     // let response = await axios.get(`${config.BASE_URL}unitRoute/list/1/0/5?unit_type=product_unit&search_key=`, axiosHeaders);
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','unitByListAPI');
     return error.response;
   }
 };
@@ -1235,7 +1212,7 @@ export const outputSaveAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','outputSaveAPI');
     return console.log('outputSaveAPI:', error.response.data);
   }
 };
@@ -1257,7 +1234,7 @@ export const loanPurposeAPI = async (dbName, languageId, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','loanPurposeAPI');
     return console.log('error in updateUserInfoAPI api' + error.response.data);
   }
 };
@@ -1286,7 +1263,7 @@ export const loanRouteListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','loanRouteListAPI');
     return console.log('error in updateUserInfoAPI api' + error.response.data);
   }
 };
@@ -1310,7 +1287,7 @@ export const loanRouteFarmerListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','loanRouteFarmerListAPI');
     return console.log('error in updateUserInfoAPI api' + error.response.data);
   }
 };
@@ -1339,7 +1316,7 @@ export const usefulInfoListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','usefulInfoListAPI');
     return error.response;
   }
 };
@@ -1358,7 +1335,7 @@ export const noticeDetailsAPI = async (dbName, languageId, token, noticeId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','noticeDetailsAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -1387,7 +1364,7 @@ export const trainingListAPI = async (
     // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','noticeDetailsAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -1406,7 +1383,7 @@ export const numberDigitAPI = async (countryId, languageId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','noticeDetailsAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -1431,7 +1408,7 @@ export const signupSaveAPI = async (
     );
     return response;
   } catch (error) {
-    // CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','noticeDetailsAPI');
     console.log(error.response);
     console.log(error);
     console.log(error?.response?.data);
@@ -1454,7 +1431,7 @@ export const InsuranceListAPI = async (dbName, languageId, token, user_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','InsuranceListAPI');
     return error.response;
   }
 };
@@ -1480,7 +1457,7 @@ export const InsuranceAddAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','InsuranceAddAPI');
     return error.response;
   }
 };
@@ -1507,7 +1484,7 @@ export const DailySalesReportGetAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'DailySalesReportGetAPI','DailySalesReportGetAPI');
     return error.response;
   }
 };
@@ -1526,7 +1503,7 @@ export const ChooseDealerAPI = async (dbName, languageId, user_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','DailySalesReportGetAPI');
     return console.log('error in ChooseDealerAPI api' + error.response);
   }
 };
@@ -1549,7 +1526,7 @@ export const AllProductCategoryListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','AllProductCategoryListAPI');
     return error.response;
   }
 };
@@ -1574,7 +1551,7 @@ export const AllProductSubCategoryListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','AllProductSubCategoryListAPI');
     return error.response;
   }
 };
@@ -1599,7 +1576,7 @@ export const AllProductNameList = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','AllProductNameList');
     return error.response;
   }
 };
@@ -1625,7 +1602,7 @@ export const FarmerDailysalesreportAdd = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','FarmerDailysalesreportAdd');
     return error.response;
   }
 };
@@ -1651,7 +1628,7 @@ export const DealerDailysalesreportAdd = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','DealerDailysalesreportAdd');
     return error.response;
   }
 };
@@ -1681,7 +1658,7 @@ export const farmaccountsListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmaccountsListAPI');
     return error.response;
   }
 };
@@ -1706,7 +1683,7 @@ export const farmaccountsIncomeListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmaccountsIncomeListAPI');
     return console.log('farmaccountsIncomeListAPI : ' + error.response.data);
   }
 };
@@ -1730,7 +1707,7 @@ export const farmaccountsExpenseListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmaccountsExpenseListAPI');
     return console.log('farmaccountsExpenseListAPI : ' + error.response.data);
   }
 };
@@ -1756,7 +1733,7 @@ export const farmIncomeExpenceSaveAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmIncomeExpenceSaveAPI');
     return console.log('farmIncomeExpenceSaveAPI:', error.response.data);
   }
 };
@@ -1784,7 +1761,7 @@ export const livelihoodCropAndPlotDetailsAPI = async (
     // console.log('response== ', response);
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','livelihoodCropAndPlotDetailsAPI');
     return error.response;
   }
 };
@@ -1806,7 +1783,7 @@ export const ProductionSeasonAndApi = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','ProductionSeasonAndApi');
     return error.response;
   }
 };
@@ -1823,7 +1800,7 @@ export const ProductionProcessAPI = async (dbName, languageId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','ProductionProcessAPI');
     return error.response;
   }
 };
@@ -1842,7 +1819,7 @@ export const ProductionUnitAPI = async (dbName, languageId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','ProductionUnitAPI');
     return error.response;
   }
 };
@@ -1865,7 +1842,7 @@ export const PlotSiteUserLandDetails = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','PlotSiteUserLandDetails');
     return error.response;
   }
 };
@@ -1922,7 +1899,7 @@ export const AddLandCropDetailsAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','AddLandCropDetailsAPI');
     return error.response;
   }
 };
@@ -1942,7 +1919,7 @@ export const NewForgotPassword = async (dbName, language, userId, formData) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','NewForgotPassword');
     return error.response;
   }
 };
@@ -1963,7 +1940,7 @@ export const ChangePasswordApi = async (dbName, language, userId, formData) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','ChangePasswordApi');
     return error.response;
   }
 };
@@ -1985,7 +1962,7 @@ export const farmerProblemListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerProblemListAPI');
     return error.response;
   }
 };
@@ -2011,7 +1988,7 @@ export const farmerFarmaccountsListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerFarmaccountsListAPI');
     return error.response;
   }
 };
@@ -2029,7 +2006,7 @@ export const farmerProblemDetailApi = async (dbName, languageID, quesId) => {
     return response;
     // return console.log(JSON.stringify(response.data.data,null,2));
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerProblemDetailApi');
     return console.log('error in Problem api' + error.response);
   }
 };
@@ -2048,7 +2025,7 @@ export const reginalDataServiceAPI = async (dbName, languageID) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','reginalDataServiceAPI');
     return console.log('error with reginalDataServiceAPI ' + error.response);
   }
 };
@@ -2074,7 +2051,7 @@ export const FarmerinputPastEnquiryListAPI = async (
 
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','FarmerinputPastEnquiryListAPI');
     return console.log('error in inputPastEnquiryListAPI ' + error);
   }
 };
@@ -2099,7 +2076,7 @@ export const FarmeroutputListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','FarmeroutputListAPI');
     return console.log('error in outputListAPI ' + error);
   }
 };
@@ -2117,7 +2094,7 @@ export const cropListApi = async (dbName, languageId, userId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','cropListApi');
     return console.log('error with user api' + error.response);
   }
 };
@@ -2145,7 +2122,7 @@ export const farmerUsefulInfoListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','farmerUsefulInfoListAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -2174,7 +2151,7 @@ export const faremerTrainingListAPI = async (
     // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','faremerTrainingListAPI');
     return console.log('error with user api' + error.response);
   }
 };
@@ -2198,7 +2175,7 @@ export const outputEnquiryViewAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','outputEnquiryViewAPI');
     return console.log('error in inputListAPI ' + error);
   }
 };
@@ -2223,7 +2200,7 @@ export const FarmerInsuranceListAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','FarmerInsuranceListAPI');
     return error.response;
   }
 };
@@ -2247,7 +2224,7 @@ export const SupervisoroutputEnquiryViewAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','SupervisoroutputEnquiryViewAPI');
     return error.response;
   }
 };
@@ -2270,7 +2247,7 @@ export const calculatorRouteViewesultAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','calculatorRouteViewesultAPI');
     return error.response;
   }
 };
@@ -2298,7 +2275,7 @@ export const calculatorPestisideResultAPI = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','calculatorPestisideResultAPI');
     return error.response;
   }
 };
@@ -2315,7 +2292,7 @@ export const ProblemTypeAPI = async (dbName, lan_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','ProblemTypeAPI');
     return error.response;
   }
 };
@@ -2332,7 +2309,7 @@ export const ProblemNameAPI = async (dbName, lan_id, problem_type_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','ProblemNameAPI');
     return error.response;
   }
 };
@@ -2349,7 +2326,7 @@ export const PackageOfPracticesList = async (dbName, lan_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','PackageOfPracticesList');
     return error.response;
   }
 };
@@ -2366,7 +2343,7 @@ export const POPDetails = async (dbName, lan_id, productID) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','POPDetails');
     return error.response;
   }
 };
@@ -2383,7 +2360,7 @@ export const POPStaticMenuList = async (dbName, lan_id, productID) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','POPStaticMenuList');
     return error.response;
   }
 };
@@ -2406,7 +2383,7 @@ export const POPStaticMenuListDetails = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','POPStaticMenuListDetails');
     return error.response;
   }
 };
@@ -2424,7 +2401,7 @@ export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','DetailsCompany');
     return error.response;
   }
 };
@@ -2448,7 +2425,7 @@ export const SampleRequestList = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','SampleRequestList');
     return error.response;
   }
 };
@@ -2472,7 +2449,7 @@ export const SampleReport = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','SampleReport');
     return error.response;
   }
 };
@@ -2489,7 +2466,7 @@ export const soilTestLab = async (dbName, lan_id, user_id) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','soilTestLab');
     return error.response;
   }
 };
@@ -2508,7 +2485,7 @@ export const soilTestLabPostRequest = async (dbName, user_id, inputData) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','soilTestLabPostRequest');
     return error.response;
   }
 };
@@ -2545,7 +2522,7 @@ export const addModuleForView = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','addModuleForView');
     return error.response;
   }
 };
@@ -2563,7 +2540,7 @@ export const defaultCurrAPI = async (dbName, languageID, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','defaultCurrAPI');
     return error.response;
   }
 };
@@ -2582,7 +2559,7 @@ export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId)
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','getPlotDocAPI');
     return console.log('error in updateUserInfoAPI api' + error.response);
   }
 };
@@ -2606,7 +2583,7 @@ export const addIdAddressImgs = async (dbName, languageId, farmerID, token, form
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','addIdAddressImgs');
     return console.log('error in updateUserInfoAPI api' + error.response);
   }
 };
@@ -2631,7 +2608,7 @@ export const locDiffLang = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','locDiffLang');
     return console.log('error in locDiffLang api' + error.response);
   }
 };
@@ -2650,7 +2627,7 @@ export const defaultLandUnitArea = async (dbName, languageId, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','defaultLandUnitArea');
     return console.log('error in defaultLandUnitArea api' + error.response);
   }
 };
@@ -2679,13 +2656,14 @@ export const defaultLandUnitArea = async (dbName, languageId, token) => {
 //   }
 // };
 
-export const LandUnitArea = async (dbName, languageId, token) => {
+export const LandUnitArea = async (dbName, languageId, token,signal) => {
   const axiosHeaders = {
     headers: {
       authorization: `${token}`,
       information: `${dbName},${languageId}`,
       'Content-Type': 'multipart/form-data',
     },
+    signal
   };
   try {
     let response = await axios.get(
@@ -2694,7 +2672,7 @@ export const LandUnitArea = async (dbName, languageId, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','LandUnitArea');
     return console.log('error in unitRoute api' + error.response);
   }
 };
@@ -2704,7 +2682,7 @@ export const UnitConversonToDefault = async (dbName, languageId, token) => {
     headers: {
       authorization: `${token}`,
       information: `${dbName},${languageId}`,
-    },
+    }
   };
   try {
     let response = await axios.get(
@@ -2713,7 +2691,7 @@ export const UnitConversonToDefault = async (dbName, languageId, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','UnitConversonToDefault');
     return console.log('error in UnitConversonToDefault api' + error.response);
   }
 };
@@ -2732,7 +2710,7 @@ export const LandUnitsquare_metre = async (dbName, languageId, token) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','LandUnitsquare_metre');
     return console.log('error in LandUnitsquare_metre api' + error.response);
   }
 };
@@ -2784,7 +2762,7 @@ export const plotListApproval = async (dbname, lan_id, token, farmerID) => {
     // console.log("plot112",JSON.stringify(response.data.data));
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','LandUnitsquare_metre');
     return console.log(error.response);
   }
 }
@@ -2802,7 +2780,7 @@ export const activityTypeAPIAWD = async (dbName, languageID, farmerID) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','LandUnitsquare_metre');
     return console.log('error in activityTypeAPI ' + error.response);
   }
 };
@@ -2815,12 +2793,14 @@ export const PipeListDetails = async (
   plot_id,
   act_master_id,
   cu_rel_id,
+  signal={}
 ) => {
   const axiosHeaders = {
     headers: {
       authorization: `${token}`,
       information: `${dbName},${languageID},${farmerID}`,
     },
+    signal
   };
   try {
     let response = await axios.get(
@@ -2830,7 +2810,7 @@ export const PipeListDetails = async (
 
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','PipeListDetails');
     return console.log('error in activityInfoAPI ' + error.response);
   }
 };
@@ -2862,7 +2842,7 @@ export const getUniquePipeNames = async (
     // console.log(response);
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','getUniquePipeNames');
     return console.log('error in activityInfoAPI ' + error.response);
   }
 };
@@ -2894,7 +2874,7 @@ export const addUserPipeActivity = async (
     return response;
   } catch (error) {
     console.log(error);
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','addUserPipeActivity');
     return error.response;
   }
 };
@@ -2923,8 +2903,7 @@ export const addPrevPipeActivity = async (
     // console.log(JSON.stringify(response.data))
     return response;
   } catch (error) {
-    console.log(error);
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','addPrevPipeActivity');
     return error.response;
   }
 };
@@ -2949,7 +2928,7 @@ export const inputOutputRoutePipeImagesLatLong = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','inputOutputRoutePipeImagesLatLong');
     return console.log('error in activityTypeAPI ' + error.response);
   }
 };
@@ -3001,7 +2980,7 @@ export const uploadCarbonAgrDocs = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','uploadCarbonAgrDocs');
     return error.response;
   }
 };
@@ -3020,7 +2999,7 @@ export const showCarbonFlag = async (token, dbName, language, userId) => {
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','showCarbonFlag');
     return console.log('error in showCarbonFlag ' + error.response);
   }
 }
@@ -3036,7 +3015,7 @@ export const getMapLocation = async (
     return response;
   } catch (error) {
     // console.log(error);
-    CrashlyticsRecordError(error.response);
+    CrashlyticsRecordError(error.response,'','getMapLocation');
     return error.response;
   }
 };

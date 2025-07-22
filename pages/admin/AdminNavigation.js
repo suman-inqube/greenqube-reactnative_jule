@@ -60,6 +60,7 @@ const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
   return (
     <Drawer.Navigator
+      detachInactiveScreens={true}
       drawerContent={props => <CustomDrawer />}
       screenOptions={{
         headerShown: false,
@@ -307,7 +308,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="InstrumentWiseActivityDetails"
         component={InstrumentWiseActivityDetails}
-      options={{unmountOnBlur: true, gestureEnabled: false}}
+        options={{ unmountOnBlur: true, gestureEnabled: false }}
       />
 
     </Drawer.Navigator>

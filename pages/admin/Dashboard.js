@@ -18,7 +18,7 @@ import {
   LandUnitArea,
   UnitConversonToDefault,
 } from '../../config/apiHere';
- import CryptoJS from 'crypto-js';;
+import MyErrorBoundary from '../Common/MyErrorBoundary';
 const Dashboard = ({ navigation }) => {
   //GQR-65
   const {
@@ -43,140 +43,225 @@ const Dashboard = ({ navigation }) => {
   const [topBannerImg, settopBanner] = useState(topBanner);
   const [defaultLand, setDefaultLand] = useState(false);
   const [convertionLUState, setConvertionLUState] = useState(false);
-
-   const [startTime, setStartTime] = useState(0);
-   const [endTime, setEndTime] = useState(0);
-   const [loTime, setloTime] = useState("");
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
+  const [loTime, setloTime] = useState("");
   const navigateToPages = (pageName) => {
     if (isOnline) {
-       if (pageName == "PersonalInformation") {
+      if (pageName == "PersonalInformation") {
         //  if (defaultLand == true) {
-          if (convertionLUState == false) {
-            navigation.navigate(pageName, {data: 'remove'});
-          } else {
-            Toast.show({
-              text: 'Please add the unit equivalent factor to default unit',
-              ...AlertMesg[0],
-            });
-          }
-          
+        if (convertionLUState == false) {
+          navigation.navigate(pageName, { data: 'remove' });
+        } else {
+          Toast.show({
+            text: 'Please add the unit equivalent factor to default unit',
+            ...AlertMesg[0],
+          });
+        }
+
         // } else {
         //   Toast.show({
         //     text: 'Please set default land area unit',
         //     ...AlertMesg[0],
         //   });
         // }
-       }else{
-          navigation.navigate(pageName, {data: 'remove'});
-       }
-      
+      } else {
+        navigation.navigate(pageName, { data: 'remove' });
+      }
+
     } else {
       if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
         navigation.navigate(pageName, { data: 'remove' });
       }
     }
   };
-  const onPageLoad = async () => {
-    const [
-      bottomBannerData,
-      userNameData,
-      profileImgData,
-      loginUser_data,
-      company_website,
-      logoImageData,
-      topBannerData,
-    ] = await Promise.all([
-      getItem('bottomBannerData'),
-      getItem('userNameData'),
-      getItem('profileImgData'),
-      getItem('loginUser_data'),
-      getItem('company_website'),
-      getItem('logoImageData'),
-      getItem('topBannerData'),
-
-      Permission.requestMultiple([
-        PERMISSIONS_TYPE.microphone,
-        PERMISSIONS_TYPE.fineLocation,
-        PERMISSIONS_TYPE.notifications,
-      ]),
-    ]);
-    console.log("logoImage==", logoImage);
-    console.log('topBannerData==', topBanner);
-    // getDycryptedImage(bottomBannerData?.content, bottomBannerData?.iv);
-    if (bottomBanner?.content && bottomBanner?.iv) {
-      const uri = getDycryptedImage(bottomBanner?.content, bottomBanner?.iv);
-      setbottomBanner(uri);
-    }
-
-    if (logoImage != null) {
-      setlogoImage(logoImage);
-    } else {
-      setlogoImage(logoImageData);
-    }
-    if (topBanner != null) {
-      settopBanner(topBanner);
-    } else {
-      settopBanner(topBannerData);
-    }
-    setcompany_website(company_website);
-    setuserName(userNameData);
-
-    if (profileImgData && profileImgData?.content && profileImgData?.iv) {
-      const uri = getDycryptedImage(
-        profileImgData?.content,
-        profileImgData?.iv,
-      );
-      setprofileImg(uri);
-    }
-    const [UnitConversonToDefault_res, LandUnitArea_res] = await Promise.all([
-      UnitConversonToDefault(
-        loginUser_data.dbname,
-        loginUser_data.lan_id,
-        loginUser_data.token,
-      ),
-      LandUnitArea(
-        loginUser_data.dbname,
-        loginUser_data.lan_id,
-        loginUser_data.token,
-      ),
-    ]);
-
-    let i = 0;
-
-    if (UnitConversonToDefault_res.status == 200) {
-      if (UnitConversonToDefault_res.data.data?.count > 0) {
-        UnitConversonToDefault_res.data.data.rows.forEach(element => {
-          if (
-            element.defined_unit_value == null ||
-            element.defined_unit_value == ''
-          ) {
-            i = i + 1;
-          }
-        });
-      }
-    }
-    console.log(i);
-    if (i > 0) {
-      setConvertionLUState(true);
-    }
-    if (LandUnitArea_res.status == 200) {
-      if (LandUnitArea_res.data.data?.count > 0) {
-        LandUnitArea_res.data.data.rows.forEach(element => {
-          if (element.defined_unit_value.length > 0) {
-            setDefaultLand(true);
-          }
-        });
-      }
-    }
-  };
+  // const onPageLoad = async (signal) => {
+  //   const [
+  //     bottomBannerData,
+  //     userNameData,
+  //     profileImgData,
+  //     loginUser_data,
+  //     company_website,
+  //     logoImageData,
+  //     topBannerData,
+  //   ] = await Promise.all([
+  //     getItem('bottomBannerData'),
+  //     getItem('userNameData'),
+  //     getItem('profileImgData'),
+  //     getItem('loginUser_data'),
+  //     getItem('company_website'),
+  //     getItem('logoImageData'),
+  //     getItem('topBannerData'),
+  //     Permission.requestMultiple([
+  //       PERMISSIONS_TYPE.microphone,
+  //       PERMISSIONS_TYPE.fineLocation,
+  //       PERMISSIONS_TYPE.notifications,
+  //     ]),
+  //   ]);
+  //   if (bottomBanner?.content && bottomBanner?.iv) {
+  //     const uri = getDycryptedImage(bottomBanner?.content, bottomBanner?.iv);
+  //     setbottomBanner(uri);
+  //   }
+  //   if (logoImage != null) {
+  //     setlogoImage(logoImage);
+  //   } else {
+  //     setlogoImage(logoImageData);
+  //   }
+  //   if (topBanner != null) {
+  //     settopBanner(topBanner);
+  //   } else {
+  //     settopBanner(topBannerData);
+  //   }
+  //   setcompany_website(company_website);
+  //   setuserName(userNameData);
+  //   if (profileImgData && profileImgData?.content && profileImgData?.iv) {
+  //     const uri = getDycryptedImage(
+  //       profileImgData?.content,
+  //       profileImgData?.iv,
+  //     );
+  //     setprofileImg(uri);
+  //   }
+  //   const [UnitConversonToDefault_res, LandUnitArea_res] = await Promise.all([
+  //     UnitConversonToDefault(
+  //       loginUser_data.dbname,
+  //       loginUser_data.lan_id,
+  //       loginUser_data.token,
+  //       signal
+  //     ),
+  //     LandUnitArea(
+  //       loginUser_data.dbname,
+  //       loginUser_data.lan_id,
+  //       loginUser_data.token,
+  //       signal
+  //     ),
+  //   ]);
+  //   let i = 0;
+  //   if (UnitConversonToDefault_res.status == 200) {
+  //     if (UnitConversonToDefault_res.data.data?.count > 0) {
+  //       UnitConversonToDefault_res.data.data.rows.forEach(element => {
+  //         if (
+  //           element.defined_unit_value == null ||
+  //           element.defined_unit_value == ''
+  //         ) {
+  //           i = i + 1;
+  //         }
+  //       });
+  //     }
+  //   }
+  //   if (i > 0) {
+  //     setConvertionLUState(true);
+  //   }
+  //   if (LandUnitArea_res.status == 200) {
+  //     if (LandUnitArea_res.data.data?.count > 0) {
+  //       LandUnitArea_res.data.data.rows.forEach(element => {
+  //         if (element.defined_unit_value.length > 0) {
+  //           setDefaultLand(true);
+  //         }
+  //       });
+  //     }
+  //   }
+  // };
   const HandlerGoBack = () => exit()
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     if (isFocused) {
-      
-      onPageLoad();
+      const onPageLoad = async () => {
+        const [
+          bottomBannerData,
+          userNameData,
+          profileImgData,
+          loginUser_data,
+          company_website,
+          logoImageData,
+          topBannerData,
+        ] = await Promise.all([
+          getItem('bottomBannerData'),
+          getItem('userNameData'),
+          getItem('profileImgData'),
+          getItem('loginUser_data'),
+          getItem('company_website'),
+          getItem('logoImageData'),
+          getItem('topBannerData'),
+          Permission.requestMultiple([
+            PERMISSIONS_TYPE.microphone,
+            PERMISSIONS_TYPE.fineLocation,
+            PERMISSIONS_TYPE.notifications,
+          ]),
+        ]);
+        if (bottomBanner?.content && bottomBanner?.iv) {
+          const uri = getDycryptedImage(bottomBanner?.content, bottomBanner?.iv);
+          setbottomBanner(uri);
+        }
+        if (logoImage != null) {
+          setlogoImage(logoImage);
+        } else {
+          setlogoImage(logoImageData);
+        }
+        if (topBanner != null) {
+          settopBanner(topBanner);
+        } else {
+          settopBanner(topBannerData);
+        }
+        setcompany_website(company_website);
+        setuserName(userNameData);
+        if (profileImgData && profileImgData?.content && profileImgData?.iv) {
+          const uri = getDycryptedImage(
+            profileImgData?.content,
+            profileImgData?.iv,
+          );
+          setprofileImg(uri);
+        }
+        const [UnitConversonToDefault_res, LandUnitArea_res] = await Promise.all([
+          UnitConversonToDefault(
+            loginUser_data.dbname,
+            loginUser_data.lan_id,
+            loginUser_data.token
+          ),
+          LandUnitArea(
+            loginUser_data.dbname,
+            loginUser_data.lan_id,
+            loginUser_data.token
+          ),
+        ]);
+        let i = 0;
+        if (UnitConversonToDefault_res.status == 200) {
+          if (UnitConversonToDefault_res.data.data?.count > 0) {
+            UnitConversonToDefault_res.data.data.rows.forEach(element => {
+              if (
+                element.defined_unit_value == null ||
+                element.defined_unit_value == ''
+              ) {
+                i = i + 1;
+              }
+            });
+          }
+        }
+        if (i > 0) {
+          setConvertionLUState(true);
+        }
+        if (LandUnitArea_res.status == 200) {
+          if (LandUnitArea_res.data.data?.count > 0) {
+            LandUnitArea_res.data.data.rows.forEach(element => {
+              if (element.defined_unit_value.length > 0) {
+                setDefaultLand(true);
+              }
+            });
+          }
+        }
+      };
+
       onBackPress(exit);
+      onPageLoad();
     }
+    return () => {
+      controller.abort();
+    };
   }, [isFocused, topBanner]);
+
+
+
   const exit = () => {
     Alert.alert(`${t('app_name')}`, `${t('close_app')}`,
       [{ text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' }, { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() }],
@@ -187,11 +272,11 @@ const Dashboard = ({ navigation }) => {
     if (company_website != "") { Linking.openURL(company_website) } else { Alert.alert("Company website not found") }
   }
   return (
-    <>
+    <MyErrorBoundary>
       <BackGroundLocation />
       <ForegroundLocationService />
       <ForegroundHandler />
-      <View style={{flex: 1, backgroundColor: '#f9f9f9'}}>
+      <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
         <CustomHeader
           path="exit"
           HandlerGoBack={HandlerGoBack}
@@ -203,7 +288,7 @@ const Dashboard = ({ navigation }) => {
           <View style={styles.containerimg}>
             {profileImg ? (
               <ImagePlaceHolderCircleWithoutAddButton
-                imageurl={{uri: profileImg}}
+                imageurl={{ uri: profileImg }}
               />
             ) : (
               <ImagePlaceHolderCircleWithoutAddButton
@@ -266,7 +351,7 @@ const Dashboard = ({ navigation }) => {
                 onpress={() => navigateToPages('UsefulInformationList')}
               />
             </View>
-            <View style={{marginTop: 16, elevation: 5}}>
+            <View style={{ marginTop: 16, elevation: 5 }}>
               {bottomBanner ? (
                 <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
                   <ImageForm
@@ -293,7 +378,7 @@ const Dashboard = ({ navigation }) => {
         </ScrollView>
       </View>
       <Root></Root>
-    </>
+    </MyErrorBoundary>
   );
 }
 

@@ -59,6 +59,7 @@ const Drawer = createDrawerNavigator();
 const FarmerNavigation = () => {
     return (
       <Drawer.Navigator
+       detachInactiveScreens={true}
         drawerContent={props => <FarmerDrawer />}
         screenOptions={{
           headerShown: false,

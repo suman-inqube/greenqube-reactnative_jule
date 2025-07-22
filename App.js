@@ -89,8 +89,8 @@ const App = withSecurityCheck(() => {
             routeNameRef.current = currentRouteName;
           }}
         >
-          <Stack.Navigator initialRouteName="SplashScreen">
-            <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
+          <Stack.Navigator initialRouteName="SplashScreen" screenOptions={{ detachInactiveScreens: true }}>
+            <Stack.Screen name="SplashScreen"  component={SplashScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
             <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
             <Stack.Screen name="SignUpViwer" component={SignUpViwer} options={{ headerShown: false }} />

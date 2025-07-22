@@ -27,13 +27,15 @@ import firebaseApp from "@react-native-firebase/app";
 import { mode } from '@env';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { use } from 'i18next';
+import MyErrorBoundary from './pages/Common/MyErrorBoundary';
+import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
 export default function Main() {
     const navigationRef = createNavigationContainerRef();
-useEffect(() => {
-    if (navigationRef.isReady()) {
-      console.log("aaaaaaa",navigationRef.getCurrentRoute()?.name);
-  }
-}, [navigationRef.isReady()]);
+    useEffect(() => {
+        if (navigationRef.isReady()) {
+            console.log("aaaaaaa", navigationRef.getCurrentRoute()?.name);
+        }
+    }, [navigationRef.isReady()]);
     // Your Firebase config object
     // const firebaseConfig = {
     //     apiKey: "YOUR_API_KEY",
@@ -81,13 +83,37 @@ useEffect(() => {
             console.log(error); // Or log the error to your logging service
         }
     };
-    setJSExceptionHandler(exceptionHandler, true);
+      const jsExceptionHandler = (error, isFatal) => {
+    if (isFatal) {
+      Alert.alert(
+        'Unexpected error occurred fff',
+        `
+              Error: ${(isFatal) ? 'Fatal:' : ''} ${error.name} ${error.message}
+              We will need to restart the app.
+            `,
+        [{
+          text: "Close",
+          onPress: () => CrashlyticsRecordError(error.message)
+        }]
+      );
+    } else {
+      console.log(error); // So that we can see it in the ADB logs in case of Android if needed
+    }
+  };
+    // setJSExceptionHandler(exceptionHandler, true);
+      setJSExceptionHandler(jsExceptionHandler, true);
+  setNativeExceptionHandler((errorString) => {
+    console.error('[Native Exception]', errorString);
+    // Optionally show alert here – be careful, may crash the app UI
+  });
     return (
-        <UserCreateContextProvider>
-            <PopupRootProvider>
-                <App />
-            </PopupRootProvider>
-        </UserCreateContextProvider>
+        <MyErrorBoundary>
+            <UserCreateContextProvider>
+                <PopupRootProvider>
+                    <App />
+                </PopupRootProvider>
+            </UserCreateContextProvider>
+        </MyErrorBoundary>
     );
 }
 
