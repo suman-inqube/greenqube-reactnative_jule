@@ -24,6 +24,7 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import {LoanUpdate, farmerDocAPI} from './LoanAPI';
+import {getDycryptedImage} from './../../../config/apiHere';
 import {userCreateContext} from '../../Context/usersCreateContext';
 const LoanEnquiryDetail = () => {
   //GQR-67
@@ -224,14 +225,14 @@ const LoanEnquiryDetail = () => {
       ) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
-          uri: farmerIdentityDoc[0].file_path,
+          uri: getDycryptedImage(farmerIdentityDoc[0].file_path.content,farmerIdentityDoc[0].file_path.iv),
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
           fileName: farmerIdentityDoc[0].file_name,
         };
         farmerDocValue[1] = {
-          uri: farmerAddressDoc[0].file_path,
+          uri: getDycryptedImage(farmerAddressDoc[0].file_path.content,farmerAddressDoc[0].file_path.iv),
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
@@ -244,7 +245,7 @@ const LoanEnquiryDetail = () => {
       ) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
-          uri: farmerIdentityDoc[0].file_path,
+          uri: getDycryptedImage(farmerIdentityDoc[0].file_path.content,farmerIdentityDoc[0].file_path.iv),
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
@@ -257,7 +258,7 @@ const LoanEnquiryDetail = () => {
       ) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
-          uri: farmerAddressDoc[0].file_path,
+          uri: getDycryptedImage(farmerAddressDoc[0].file_path.content,farmerAddressDoc[0].file_path.iv),
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
@@ -287,7 +288,7 @@ const LoanEnquiryDetail = () => {
     landProof.map((data, index) => {
       if (loan_landArr[index] != undefined && data.uri == '') {
         landProofValue[index] = {
-          uri: loan_landArr[index].file_path,
+          uri: getDycryptedImage(loan_landArr[index].file_path.content,loan_landArr[index].file_path.iv),
           id: loan_landArr[index].file_id,
           name: loan_landArr[index].file_name,
           type: '',
@@ -536,7 +537,7 @@ const LoanEnquiryDetail = () => {
                             <TouchableOpacity
                               style={styles.idItem}
                               key={index}
-                              onPress={() => openURL(data.file_path)}>
+                              onPress={() => openURL(getDycryptedImage(data.file_path.content,data.file_path.iv))}>
                               <Image
                                 source={require('../../Common/images/document.png')}
                                 style={styles.idImage}

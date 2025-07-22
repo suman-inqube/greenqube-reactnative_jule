@@ -165,7 +165,6 @@ const Dashboard = ({ navigation }) => {
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
-
     if (isFocused) {
       const onPageLoad = async () => {
         const [
@@ -273,7 +272,7 @@ const Dashboard = ({ navigation }) => {
   }
   return (
     <MyErrorBoundary>
-      <BackGroundLocation />
+      {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>

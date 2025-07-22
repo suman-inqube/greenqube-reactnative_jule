@@ -30,7 +30,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import LoadingScreen from '../../Common/LoadingScreen';
-import {addIdAddressImgs} from '../../../config/apiHere';
+import {addIdAddressImgs,getDycryptedImage} from '../../../config/apiHere';
 import {deletePlotImageAPI} from '../Loan/LoanAPI';
 const qs = require('qs');
 const Information = ({sendDataToParent, farmerID}) => {
@@ -248,7 +248,9 @@ const Information = ({sendDataToParent, farmerID}) => {
             const filteredFilesProfile = farmerFound.agri_files.filter(
               file => file.term_type === '1',
             );
-            setSelectedImage(filteredFilesProfile[0]?.file_path);
+            setSelectedImage(
+              getDycryptedImage(filteredFilesProfile[0]?.file_path.content,filteredFilesProfile[0]?.file_path.iv)
+            );
             const identityProofIdentityPropfValue = [
               ...identityProofIdentityPropf,
             ];
@@ -260,7 +262,7 @@ const Information = ({sendDataToParent, farmerID}) => {
               .map((_file) => {
                 values_adress[0] = {
                   ...values_adress[0], // Keep other properties intact
-                  uri: _file.file_path,
+                  uri: getDycryptedImage(_file.file_path.content,_file.file_path.iv),
                   name: _file.file_name,
                   type: _file.file_ext,
                   imageType: 'address', // Update the specific property
@@ -276,7 +278,7 @@ const Information = ({sendDataToParent, farmerID}) => {
               .map((_file) => {
                 values_adress[1] = {
                   ...values_adress[1], // Keep other properties intact
-                  uri: _file.file_path,
+                  uri:getDycryptedImage(_file.file_path.content,_file.file_path.iv),
                   name: _file.file_name,
                   type: _file.file_ext,
                   imageType: 'identity', // Update the specific property

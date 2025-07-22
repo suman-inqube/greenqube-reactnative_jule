@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { Platform, Alert } from 'react-native';
+import React, {useEffect} from 'react';
+import {Platform, Alert} from 'react-native';
 import FusedLocation from 'react-native-fused-location';
 import store from '../redux/store';
-import { updateLocation } from '../redux/actions/locationActions';
-import { setItem } from '../../config/getDataFromStorage';
-import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
-import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import {updateLocation} from '../redux/actions/locationActions';
+import {setItem} from '../../config/getDataFromStorage';
+import {promptForEnableLocationIfNeeded} from 'react-native-android-location-enabler';
+import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 const ForegroundLocationService = () => {
   useEffect(() => {

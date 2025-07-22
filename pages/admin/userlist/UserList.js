@@ -2,6 +2,7 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View, TextInput, Keyboard
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import ImageForm from '../../Common/ImageForm';
 import { userDataListAPI } from './UsersAPI';
+import {getDycryptedImage} from '../../../config/apiHere';
 import { useIsFocused } from '@react-navigation/native';
 //GQR-66
 import { userCreateContext } from '../../Context/usersCreateContext';
@@ -21,7 +22,8 @@ const UserList = ({ navigation }) => {
             const PlotdataArray = agri_land_user_rels?.agri_land_user_rels.map(data => ({ value: data.rel_id, label: data.plot_no }))
             let file_path = "";
             if (agri_land_user_rels.agri_files[0] != undefined) {
-                file_path = agri_land_user_rels.agri_files[0].file_path;
+                file_path =
+                  getDycryptedImage(agri_land_user_rels.agri_files[0].file_path.content,agri_land_user_rels.agri_files[0].file_path.iv);
             }
             navigation.navigate(menuName, {
                 farmeruserID: farmeruserID, agri_land_user_rels: PlotdataArray, userName: agri_land_user_rels.userName, contactNumber: agri_land_user_rels.contactNumber, profileImage: file_path, gender: agri_land_user_rels.gender, farmer_type: agri_land_user_rels.farmer_type
@@ -115,9 +117,14 @@ const UserList = ({ navigation }) => {
             if (phoneNumber == "") {
                 onPageLoad();
             }
-            onBackPress(handleBackPress);
+            // onBackPress(handleBackPress);
+            const backHandler = onBackPress(handleBackPress);
+            return () => {
+              if (backHandler && backHandler.remove) backHandler.remove();
+            };
         }
     }, [isFocused]);
+    
     const handlePage = async (value) => {
         let currentPage = dbLanTokUsr.pageNo + 1;
         if (value === 'next') {
