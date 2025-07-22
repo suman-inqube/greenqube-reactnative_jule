@@ -89,38 +89,8 @@ const SplashScreen = ({ navigation }) => {
             console.log("Error in language API", error.response);
         }
     }
-    const handleAppStateChange = async (nextAppState = 'active') => {
-        const isRooted = JailMonkey.isJailBroken();
-        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-
-        console.log("AppState:", nextAppState, "isRooted:", isRooted, "isDevMode:", isDevMode);
-
-        if (isRooted || isDevMode) {
-            Alert.alert(
-                'Security Alert',
-                isRooted
-                    ? 'This device is rooted. The app will now exit.'
-                    : 'Developer mode is enabled. The app will now exit.',
-                [
-                    {
-                        text: 'OK',
-                        onPress: () => {
-                            setTimeout(() => {
-                                BackHandler.exitApp();
-                            }, 800);
-                        },
-                    },
-                ],
-                { cancelable: false }
-            );
-            return false; // Stop execution of further logic
-        }
-
-        return true;
-    };
-
     const onPageLoad = async () => {
-        // const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
+
         // if (shouldContinue==false) return;
         const [companyLanguage_data, loginUser_data] = await Promise.all([
             getItem('companyLanguage_data'),

@@ -52,6 +52,9 @@ import MySoil from './SoilHealth/MySoil';
 import SampleRequested from './SoilHealth/SampleRequested';
 import SampleReport from './SoilHealth/SampleReport';
 import AudioPlayerView from '../Common/AudioPlayerView';
+import FarmerInstrumentWiseActivityDetails from './FarmerActivity/FarmerInstrumentWiseActivityDetails';
+import FarmerInstrumentWiseActivityView from './FarmerActivity/FarmerInstrumentWiseActivityView';
+
 const Drawer = createDrawerNavigator();
 const FarmerNavigation = () => {
     return (
@@ -279,6 +282,16 @@ const FarmerNavigation = () => {
         <Drawer.Screen
           name="AudioPlayerView"
           component={AudioPlayerView}
+          options={{unmountOnBlur: true, gestureEnabled: false}}
+        />
+          <Drawer.Screen
+          name="FarmerInstrumentWiseActivityView"
+          component={FarmerInstrumentWiseActivityView}
+          // options={{unmountOnBlur: true, gestureEnabled: false}}
+        />
+            <Drawer.Screen
+          name="FarmerInstrumentWiseActivityDetails"
+          component={FarmerInstrumentWiseActivityDetails}
           options={{unmountOnBlur: true, gestureEnabled: false}}
         />
       </Drawer.Navigator>

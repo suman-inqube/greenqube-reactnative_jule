@@ -9,7 +9,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   useNavigation,
   useRoute,
@@ -152,15 +152,15 @@ const PlotSiteProduceInformation = () => {
     }, {});
     return Object.values(grouped);
   };
+  //GQR-65
+  const { dbName, languageId, token, supervisorId, company, country } =
+    dbLanTokUsr;
+  //GQR-65
   const onPageLoad = async () => {
 
     const fusedLocation = await getItem('fusedLocation');
     const { latitude, longitude } = fusedLocation;
     let groupedData;
-    //GQR-65
-    const { dbName, languageId, token, supervisorId, company, country } =
-      dbLanTokUsr;
-    //GQR-65
     var terraintypeArray = [];
     var landTypeArray = [];
     var soilTypeArray = [];
@@ -763,7 +763,7 @@ const PlotSiteProduceInformation = () => {
       if (deviation >= -5 && deviation <= 5) {
 
       } else {
-         setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
+        setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
@@ -773,7 +773,7 @@ const PlotSiteProduceInformation = () => {
           { cancelable: false }
 
 
-          
+
         )
         setIsLoading(false);
         return;
@@ -1002,6 +1002,39 @@ const PlotSiteProduceInformation = () => {
     setPolygons(nearPolSet);
     removesetLocation();
     setArea(0);
+  };
+  const regionRef = useRef(null);
+  const timeoutRef = useRef(null);
+  const handleRegionChangeComplete = async (newRegion) => {
+    const { latitude, longitude } = newRegion;
+    regionRef.current = newRegion;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(async () => {
+      const latestRegion = regionRef.current;
+      setIsLoading(true);
+      const isSameLat = Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
+      const isSameLng = Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
+      if (isSameLat && isSameLng) {
+        try {
+          const nearestLatLong_res = await nearestLatLong(dbName, languageId, token, latitude, longitude);
+          if (nearestLatLong_res?.status === 200) {
+            const data = nearestLatLong_res?.data?.data;
+            // setnearPolData(data);
+            const groupedData = groupByRelId(data);
+            setnearPolSet(groupedData);
+            setPolygons(groupedData);
+          }
+        } catch (error) {
+          console.error("Error fetching nearest polygon data:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }, 3000);
   };
   // GRQ-1130
   // GRQ-1135
@@ -1522,6 +1555,8 @@ const PlotSiteProduceInformation = () => {
             baselatLong={referencelatLong}
             statuslevel={""}
             type="livehoood"
+            handleRegionChangeComplete={handleRegionChangeComplete}
+            isLoading={isLoading}
           />
         </Modal>
       )}

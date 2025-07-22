@@ -16,15 +16,16 @@ const FormsTitle = ({
 export default memo(FormsTitle)
 
 const styles = StyleSheet.create({
-    titleContainer: {
-        width: "95%",
-        alignItems: 'flex-end'
-    },
-    title: {
-        color: '#000',
-        fontFamily: 'Poppins-SemiBold',
-        paddingBottom: 8,
-        paddingTop: 4,
-        fontSize: 18
-    }
-})
+  titleContainer: {
+    width: '95%',
+    paddingTop: 4,
+    alignItems: 'flex-end',
+  },
+  title: {
+    color: '#000',
+    fontFamily: 'Poppins-SemiBold',
+    paddingBottom: 8,
+    paddingTop: 4,
+    fontSize: 18,
+  },
+});

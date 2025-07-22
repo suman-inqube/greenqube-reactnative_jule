@@ -93,6 +93,9 @@ const Dashboard = ({ navigation }) => {
         PERMISSIONS_TYPE.notifications,
       ]),
     ]);
+    // console.log("bottomBannerData==", bottomBannerData);
+    // console.log("topBannerData==", topBannerData);
+    // getDycryptedImage(bottomBannerData?.content, bottomBannerData?.iv);
     if (logoImage != null) {
       setlogoImage(logoImage);
     } else {
@@ -183,7 +186,7 @@ const Dashboard = ({ navigation }) => {
   }
   return (
     <>
-      <BackGroundLocation />
+      {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
@@ -214,7 +217,7 @@ const Dashboard = ({ navigation }) => {
               <BoxDisplay text={t('market_information')} imageurl={require('../Common/images/market_information_only.png')} />
               <BoxDisplay text={t('useful_ninformation_dash')} imageurl={require('../Common/images/dash_useful_information.png')} onpress={() => navigateToPages('UsefulInformationList')} />
             </View>
-            <View style={{ marginTop: 16, elevation: 5 }}>
+            {/* <View style={{ marginTop: 16, elevation: 5 }}>
               {bottomBanner ?
                 <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
                   <ImageForm source={{ uri: bottomBanner }} resizeMode="cover" height={200} width={'100%'} />
@@ -222,7 +225,7 @@ const Dashboard = ({ navigation }) => {
                 : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
                   <ImageForm source={require('../Common/images/ad_banner_space.jpg')} resizeMode="cover" height={200} width={'100%'} />
                 </TouchableOpacity>}
-            </View>
+            </View> */}
           </View>
         </ScrollView>
       </View>

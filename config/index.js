@@ -2,6 +2,7 @@
   // const BASE_URL = "https://mygreenqube.com:4003/";
 
 // import { BASE_URL } from "@env"
+const decryptSecretKey = 'greenQube_96740_64428';
 const countryAPI = BASE_URL + 'locationRoute/countryList/1/0/2?search_key=';
 const companyAPI = BASE_URL + 'locationRoute/locationHierarchy/';
 const supervisorAPI = BASE_URL + 'agentRoute/listAgentByCompanyID/';

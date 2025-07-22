@@ -2,6 +2,10 @@ import axios from 'axios';
 import config from '../config';
 import { CrashlyticsRecordError } from '../pages/Crashlytics/CrashlyticsRecordError';
 import instance from './commonAxios'
+import { Image } from 'react-native';
+// import CryptoJS from 'react-native-crypto-js';
+import CryptoJS from 'crypto-js';
+
 const timeoutConfig = { timeout: 5000 };
 const headersWithCompanyDBlanID = (dbName, languageId) => {
   return {
@@ -293,8 +297,8 @@ export const activityListAPI = async (
       information: `${dbName},${languageID},${userID}`,
     },
   };
-  console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-    axiosHeaders,)
+  // console.log(`${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+  //   axiosHeaders,)
   try {
     let response = await axios.get(
       `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
@@ -306,7 +310,62 @@ export const activityListAPI = async (
     return error.response;
   }
 };
-
+export const activityListInstrumentWise = async (
+  dbName,
+  languageID,
+  token,
+  userID,
+  pageNO,
+  searchItem = '',
+  from_date = '',
+  to_date = '',
+  carbonType = ''
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageID},${userID}`,
+    },
+  };
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
+    return error.response;
+  }
+};
+export const FarmerActivityListInstrumentWise = async (
+  dbName,
+  languageID,
+  token,
+  userID,
+  pageNO,
+  searchItem = '',
+  from_date = '',
+  to_date = '',
+  carbonType = ''
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageID},${userID}`,
+    },
+  };
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=${carbonType}&farmer_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
+    return error.response;
+  }
+};
 export const farmerActivityListAPI = async (
   dbName,
   languageID,
@@ -428,12 +487,6 @@ export const produceAgainstPlotAPI = async (
       `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`,
       axiosHeaders,
     );
-    console.log(
-      `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`,
-      axiosHeaders,
-    );
-
-    console.log(response.data.data);
     return response;
   } catch (error) {
     // CrashlyticsRecordError(error.response);
@@ -542,7 +595,7 @@ export const activityInfoAPI = async (
   cropName,
   actTypeID,
 ) => {
-  // console.log(`${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`);
+  // 
   // console.log({
   //     'authorization': `${token}`,
   //     'information': `${dbName},${languageID},${farmerID}`,
@@ -558,6 +611,7 @@ export const activityInfoAPI = async (
       `${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`,
       axiosHeaders,
     );
+   
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -1273,6 +1327,7 @@ export const usefulInfoListAPI = async (
   subdiv_id,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -1281,7 +1336,7 @@ export const usefulInfoListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
     return response;
@@ -1319,6 +1374,7 @@ export const trainingListAPI = async (
   subdiv_id,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -1327,7 +1383,7 @@ export const trainingListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
     // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
@@ -2077,6 +2133,7 @@ export const farmerUsefulInfoListAPI = async (
   newCropId,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -2085,7 +2142,7 @@ export const farmerUsefulInfoListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
       axiosHeaders,
     );
     return response;
@@ -2104,6 +2161,7 @@ export const faremerTrainingListAPI = async (
   cropId,
   userType,
   post,
+  titleSearch,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -2112,7 +2170,7 @@ export const faremerTrainingListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`,
+      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`,
       axiosHeaders,
     );
     // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
@@ -2707,7 +2765,7 @@ export const nearestLatLong = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    // CrashlyticsRecordError(error.response);
     return error.response;
   }
 };
@@ -2974,6 +3032,7 @@ export const getMapLocation = async (
 ) => {
   try {
 
+
     let response = await axios.get(
       `https://api.mapbox.com/search/geocode/v6/forward?q=${inputData}&proximity=&access_token=pk.eyJ1IjoiYmlrcmFtOTgiLCJhIjoiY21jMnRiejc0MGN3azJqcXNwbmdqZ2R1bCJ9.15UR7tulXrt7znxkDPPfyg`,
     );
@@ -2998,3 +3057,62 @@ export const landRouteApi = async (dbName, language, type) => {
     return console.log('error in showCarbonFlag ' + error.response);
   }
 }
+
+export const ActivityPipeImages = async (
+  token,
+  dbName,
+  language,
+  userId,
+  rel_id_plot,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${language},${userId}`,
+    },
+  };
+  console.log(
+    `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}`,
+    axiosHeaders,
+  );
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
+    return error.response;
+  }
+};
+export const addActivityPipeImages = async (
+  dbName,
+  language,
+  userId,
+  token,
+  formData,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${language},${userId}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  console.log(
+    `${config.BASE_URL}landRoute/uploadPipeImages`,
+    formData,
+    axiosHeaders,
+  );
+  try {
+    let response = await axios.post(
+      `${config.BASE_URL}landRoute/uploadPipeImages`,
+      formData,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};

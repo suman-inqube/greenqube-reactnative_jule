@@ -26,6 +26,7 @@ const PlotListFarmer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
+  const [addPlot, setAddPlot] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const onTabPress = (index, data) => {
     setActiveTab(index);
@@ -102,6 +103,7 @@ const PlotListFarmer = () => {
           setLandUnitsquareMetre([]);
         }
       }
+            setAddPlot(false);
       setIsLoading(false);
       setDataProps({});
     } catch (error) {
@@ -502,10 +504,19 @@ const PlotListFarmer = () => {
                   dataProps={dataProps}
                   activeTab={activeTab}
                   onTabPress={onTabPress}
+                  setAddPlot={setAddPlot} 
+                  addPlot={addPlot}
                 />
               )}
             </View>
           </ScrollView>
+          {activeTab == 0 ? <TouchableOpacity
+            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+            onPress={() => { onTabPress(1); setDataProps({}); setAddPlot(true) }}>
+            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+              {t('Add Plot')}
+            </Text>
+          </TouchableOpacity> : null}
         </View>
       </Root>
     </>
@@ -744,5 +755,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-
+  locationAddMoreContainer: {
+    position: 'absolute',
+    bottom: 100,
+    right: 0,
+    backgroundColor: '#025502',
+    paddingVertical: 10,
+    paddingLeft: 20,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+  },
 });
