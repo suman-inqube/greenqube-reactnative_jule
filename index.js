@@ -27,25 +27,9 @@ import firebaseApp from "@react-native-firebase/app";
 import { mode } from '@env';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { use } from 'i18next';
+import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 export default function Main() {
-    const navigationRef = createNavigationContainerRef();
-useEffect(() => {
-    if (navigationRef.isReady()) {
-      console.log("aaaaaaa",navigationRef.getCurrentRoute()?.name);
-  }
-}, [navigationRef.isReady()]);
-    // Your Firebase config object
-    // const firebaseConfig = {
-    //     apiKey: "YOUR_API_KEY",
-    //     authDomain: "YOUR_AUTH_DOMAIN",
-    //     projectId: "YOUR_PROJECT_ID",
-    //     appId: "YOUR_APP_ID",
-    // };
 
-    // Initialize Firebase
-    // if (!firebase.apps.length) {
-    //     firebase.initializeApp(firebaseConfig);
-    // }
 
     const onSignIn = async (error) => {
         const { dbLanTokUsr } = useContext(userCreateContext);
@@ -81,13 +65,37 @@ useEffect(() => {
             console.log(error); // Or log the error to your logging service
         }
     };
-    setJSExceptionHandler(exceptionHandler, true);
+    const jsExceptionHandler = (error, isFatal) => {
+        if (isFatal) {
+            Alert.alert(
+                'Unexpected error occurred fff',
+                `
+              Error: ${(isFatal) ? 'Fatal:' : ''} ${error.name} ${error.message}
+              We will need to restart the app.
+            `,
+                [{
+                    text: "Close",
+                    onPress: () => CrashlyticsRecordError(error.message)
+                }]
+            );
+        } else {
+            console.log(error);
+        }
+    };
+    // setJSExceptionHandler(exceptionHandler, true);
+    setJSExceptionHandler(jsExceptionHandler, true);
+    setNativeExceptionHandler((errorString) => {
+        console.error('[Native Exception]', errorString);
+        // Optionally show alert here – be careful, may crash the app UI
+    });
     return (
-        <UserCreateContextProvider>
-            <PopupRootProvider>
-                <App />
-            </PopupRootProvider>
-        </UserCreateContextProvider>
+        <MyErrorBoundary>
+            <UserCreateContextProvider>
+                <PopupRootProvider>
+                    <App />
+                </PopupRootProvider>
+            </UserCreateContextProvider>
+        </MyErrorBoundary>
     );
 }
 

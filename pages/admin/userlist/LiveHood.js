@@ -23,7 +23,8 @@ import {
   LandUnitsquare_metre,
   UnitConversonToDefault,
   nearestLatLong,
-  uploadCarbonAgrDocs
+  uploadCarbonAgrDocs,
+  landRouteApi
 } from '../../../config/apiHere';
 
 import {
@@ -55,7 +56,7 @@ import { APP_MAP_RANGE_POLYGON } from '@env';
 import * as turf from '@turf/turf';
 
 import SignatureCapture from '../../Common/SignaturePad';
-
+import MyErrorBoundary from '../../Common/MyErrorBoundary';
 const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPlot, addPlot }) => {
   //GQR-65
   const {
@@ -196,7 +197,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       const fusedLocation = await getItem('fusedLocation');
       const { latitude, longitude } = fusedLocation;
       let groupedData;
-
       const axiosConfig = {
         headers: {
           information: `${dbname},${lan_id}`,
@@ -219,9 +219,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         ProductionSeasonAndApi(dbname, lan_id, ''),
         // livelihoodCropAndPlotDetailsAPI(dbname, lan_id, farmeruserID, dataProps?.rel_id),
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
-        terraintype_resAPI(axiosConfig),
-        soilType_resAPI(axiosConfig),
-        landType_resAPI(axiosConfig),
+        terraintype_resAPI(dbname, lan_id, 'terrain_type'),
+        soilType_resAPI(dbname, lan_id, 'soil_type'),
+        landType_resAPI(dbname, lan_id, 'land_type'),
         landunit_resAPI(axiosConfig),
         produceVarietyAPI(dbname, lan_id),
         productionProcessAPI(dbname, lan_id),
@@ -286,8 +286,11 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       }
       setIsLoading(false);
     } catch (error) {
-      console.log(error);
-      CrashlyticsRecordError(error);
+      Toast.show({
+        text: JSON.stringify(error),
+        ...AlertMesg[0],
+      });
+      CrashlyticsRecordError(error, 'LiveHood','onpageload');
     }
   };
 
@@ -370,7 +373,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     }
     if (cropAndPlotDetails?.status === 200) {
       const data = cropAndPlotDetails?.data?.data || {};
-      console.log('details', data);
+      // console.log('details', data);
       plotSiteUserLandDetails.map((dataLandDetails, index) => {
         if (dataLandDetails?.rel_id == findData.value) {
           if (
@@ -386,6 +389,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               { cancelable: false },
             );
           }
+
           setstatuslevel({
             label: dataLandDetails?.status_level,
             value: dataLandDetails?.status_level,
@@ -479,9 +483,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             latitude: parseFloat(item.latitude),
             longitude: parseFloat(item.longitude),
           }));
-
-
-          // Find the index of the target array in mainArray
           const index = nearPolSet.findIndex(
             subArray =>
               JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
@@ -490,14 +491,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           const foundArray = nearPolSet.filter(
             item => !isEqualCoordinatesArray(item, parsedTargetArray),
           );
-          // console.log('parsedTargetArray', parsedTargetArray);
-          // console.log('foundArray1', foundArray);
-
-          // If found, move it to the last index
-          // if (index !== -1) {
-          //   const [foundArray] = nearPolSet.splice(index, 1); // Remove it from current position
-          //    nearPolSet.push(foundArray); // Add it at the last index
-          // }
           setnearPolSet(foundArray);
           setPolygons(foundArray);
         } else {
@@ -866,9 +859,15 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     }
   };
   //basudev
-  const terraintype_resAPI = async axiosConfig => {
+  const terraintype_resAPI = async (dbname, lan_id, type) => {
+    // Toast.show({
+    //   text: 'terraintype_resAPI',
+    //   ...AlertMesg[0],
+    // });
+    // Alert.alert('terraintype')
+
     try {
-      let terraintype_res = await axios.get(config.terraintypeAPI, { ...axiosConfig, ...timeoutConfig });
+      let terraintype_res = await landRouteApi(dbname, lan_id, type);
       if (terraintype_res?.status == 200) {
         const terraintypeArray = terraintype_res.data.data.rows.map(data => ({
           value: data.fid,
@@ -876,13 +875,23 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         }));
         setterrainTypeAll(terraintypeArray);
       }
+      // Toast.show({
+      //   text: JSON.stringify(terraintype_res?.status),
+      //   ...AlertMesg[0],
+      // });
+      // Alert.alert(terraintype_res?.data?.data?.count?.toString())
+          // Alert.alert(terraintype_res.data.data.rows.length)
     } catch (error) {
+      // Toast.show({
+      //   text: JSON.stringify(error),
+      //   ...AlertMesg[0],
+      // });
       console.log('Error in terraintypeAPI API', error);
     }
   };
-  const soilType_resAPI = async axiosConfig => {
+  const soilType_resAPI = async (dbname, lan_id, type) => {
     try {
-      let soilType_res = await axios.get(config.soiltypeAPI, { ...axiosConfig, ...timeoutConfig });
+      let soilType_res = await landRouteApi(dbname, lan_id, type);
       if (soilType_res?.status == 200) {
         const soilTypeArray = soilType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -894,9 +903,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       console.log('Error in soiltypeAPI API', error);
     }
   };
-  const landType_resAPI = async axiosConfig => {
+  const landType_resAPI = async (dbname, lan_id, type) => {
     try {
-      let landType_res = await axios.get(config.landtypeAPI, { ...axiosConfig, ...timeoutConfig });
+      let landType_res = await landRouteApi(dbname, lan_id, type);
       if (landType_res?.status == 200) {
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1009,23 +1018,38 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     // area
     if (area != null && area != undefined && area != '' && area != 0) {
       const deviation = Math.abs(farmerData?.ConvertedreportedLandsize - area) / ((farmerData?.ConvertedreportedLandsize + area) / 2) * 100;
-      // if (deviation >= -5 && deviation <= 5) {
+    if (
+      ![
+        'APPROVED',
+        'CARBON_DOCUMENTS_SUBMITTED',
+        'CARBON_DOCUMENTS_APPROVED',
+        'CARBON_DOCUMENTS_REJECTED',
+      ].includes(statuslevel.label)
+    ) {
       if (deviation >= -5 && deviation <= 5) {
-        console.log("deviation ==",farmerData?.ConvertedreportedLandsize,deviation)
-
+        console.log(
+          'deviation ==',
+          farmerData?.ConvertedreportedLandsize,
+          deviation,
+        );
       } else {
-        console.log("deviation1212 ==",farmerData?.ConvertedreportedLandsize,deviation)
+        console.log(
+          'deviation1212 ==',
+          farmerData?.ConvertedreportedLandsize,
+          deviation,
+        );
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [
-            { text: 'OK', onPress: () => console.log(area) },
-          ],
-          { cancelable: false }
-        )
+          [{text: 'OK', onPress: () => console.log(area)}],
+          {cancelable: false},
+        );
         setIsLoading(false);
         return;
       }
+    } else {
+      console.log('ess==', farmerData?.ConvertedreportedLandsize, deviation);
+    }
     }
     location.map((data, index) => {
       if (data?.latitude != '' && data?.latitude != undefined) {
@@ -1554,7 +1578,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
 
 
   return (
-    <>
+    <MyErrorBoundary>
       <>
         {/* <ForegroundLocationService /> */}
         <DatePickerComp
@@ -1801,7 +1825,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               />
             )}
 
-            {area != 0 && area != null && (
+            {/* {area != 0 && area != null && (
               <InputTextForm
                 label={
                   t('Calculated Map Area ') +
@@ -1815,7 +1839,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 onChangeText={text => handleAddUserData('daag_no', text)}
                 editable={false}
               />
-            )}
+            )} */}
             <View style={{marginTop: 10}}>
               <InputTextForm
                 label={t('Enter IOT Id')}
@@ -2142,7 +2166,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           </Modal>
         )}
       </>
-    </>
+    </MyErrorBoundary>
   );
 };
 export default LiveHood;

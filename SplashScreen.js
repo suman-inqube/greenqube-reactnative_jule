@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ActivityIndicator, ImageBackground, Dimensions, BackHandler,Alert } from 'react-native'
+import { StyleSheet, Text, View, Image, ActivityIndicator, ImageBackground, Dimensions, BackHandler, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ButtonForm from './pages/Common/ButtonForm';
 import DropdownForm from './pages/Common/DropdownForm';
@@ -13,6 +13,8 @@ import { Root, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './pages/Common/ToastAlert';
 import NotificationServices from './pages/PushNotification/NotificationServices';
 import JailMonkey from 'jail-monkey';
+import MyErrorBoundary from './pages/Common/MyErrorBoundary';
+import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
 const SplashScreen = ({ navigation }) => {
     // const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
@@ -90,31 +92,35 @@ const SplashScreen = ({ navigation }) => {
         }
     }
     const onPageLoad = async () => {
-
-        // if (shouldContinue==false) return;
-        const [companyLanguage_data, loginUser_data] = await Promise.all([
-            getItem('companyLanguage_data'),
-            getItem('loginUser_data'),
-            // requestUserPermission(),
-            // notificationListener(),
-        ])
-        if (loginUser_data) {
-            i18next.changeLanguage(`${loginUser_data.lan_id}`);
-            setTimeout(async () => {
-                const userType = await getItem("userType");
-                if (userType === 3) {
-                    navigation.navigate('AdminNavigation');
-                } else if (userType === 2) {
-                    navigation.navigate('FarmerNavigation');
-                }
-            }, 2000);
-        } else {
-            if (companyLanguage_data) {
-                navigation.replace('Login');
+        try {
+            // if (shouldContinue==false) return;
+            const [companyLanguage_data, loginUser_data] = await Promise.all([
+                getItem('companyLanguage_data'),
+                getItem('loginUser_data'),
+                // requestUserPermission(),
+                // notificationListener(),
+            ])
+            if (loginUser_data) {
+                i18next.changeLanguage(`${loginUser_data.lan_id}`);
+                setTimeout(async () => {
+                    const userType = await getItem("userType");
+                    if (userType === 3) {
+                        navigation.navigate('AdminNavigation');
+                    } else if (userType === 2) {
+                        navigation.navigate('FarmerNavigation');
+                    }
+                }, 2000);
             } else {
-                databaseList();
+                if (companyLanguage_data) {
+                    navigation.replace('Login');
+                } else {
+                    databaseList();
+                }
             }
+        } catch (error) {
+            CrashlyticsRecordError(error, 'SplashScreen', 'onPageLoad')
         }
+
     }
     const searchDBName = (text) => {
         if (text.length > 0) {
@@ -136,25 +142,27 @@ const SplashScreen = ({ navigation }) => {
     }, []);
 
     return (
-        <Root>
-            <ImageBackground
-                source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
-                style={styles.backgroundImage}
-            >
-                <View style={styles.container}>
-                    <SplashScreenModal height={height} setModalVisible={setModalVisible} modalVisible={modalVisible} companyData={companyData} sendDataToParent={companyHandle} searchTextData={searchDBName}
-                        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
-                    />
-                    <SplashScreenModalLanguage setModalVisibleLan={setModalVisibleLan} modalVisibleLan={modalVisibleLan} companyData={languageData} sendDataToParentLan={languageHandle}
-                        style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
-                    />
+        <MyErrorBoundary>
+            <Root>
+                <ImageBackground
+                    source={require('./pages/Common/images/crystal_splash_screen.jpg')} // Replace with the path to your image
+                    style={styles.backgroundImage}
+                >
+                    <View style={styles.container}>
+                        <SplashScreenModal height={height} setModalVisible={setModalVisible} modalVisible={modalVisible} companyData={companyData} sendDataToParent={companyHandle} searchTextData={searchDBName}
+                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                        />
+                        <SplashScreenModalLanguage setModalVisibleLan={setModalVisibleLan} modalVisibleLan={modalVisibleLan} companyData={languageData} sendDataToParentLan={languageHandle}
+                            style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                        />
 
-                    <View style={styles.content}>
-                        <Image source={require('./pages/Common/images/greenqube_logo.png')} style={styles.logo} />
+                        <View style={styles.content}>
+                            <Image source={require('./pages/Common/images/greenqube_logo.png')} style={styles.logo} />
+                        </View>
                     </View>
-                </View>
-            </ImageBackground>
-        </Root>
+                </ImageBackground>
+            </Root>
+        </MyErrorBoundary>
     )
 }
 

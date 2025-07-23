@@ -27,7 +27,7 @@ export const userDataListAPI = async (dbName, languageId, token, user_id, page, 
         );
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response);
+        CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
         return error.response;
     }
 

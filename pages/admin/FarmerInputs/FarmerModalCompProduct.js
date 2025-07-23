@@ -71,7 +71,7 @@ const FarmerModalCompProduct = (props) => {
                                                             <Text style={styles.strikethroughText} >
                                                                 {/* {item.discounted_price}/{item.agri_unit.unit_name} */}
                                                             </Text>
-                                                            {item.discounted_price == "0" || item.discounted_price == null ? `  ${currency} ` + item.sales_price + " / " + item.agri_unit.unit_name.substring(0, 7) + '..' : `  ${currency} ` + item.discounted_price + " / " + item.agri_unit.unit_name.substring(0, 7) + '..'}
+                                                            {item?.discounted_price == "0" || item?.discounted_price == null ? `  ${currency} ` + item?.sales_price + " / " + item?.agri_unit?.unit_name.substring(0, 7) + '..' : `  ${currency} ` + item?.discounted_price + " / " + item?.agri_unit?.unit_name.substring(0, 7) + '..'}
                                                         </Text>
                                                     ))
                                                     :

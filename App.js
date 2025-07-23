@@ -31,7 +31,7 @@ export const navigationRef = createNavigationContainerRef();
 
 const App = withSecurityCheck(() => {
   const routeNameRef = useRef();
-  const { loginUser_data } = useContext(userCreateContext);
+  const { loginUser_data,setItem } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id } = loginUser_data || {};
 
   const onStateChange = () => {
@@ -83,6 +83,7 @@ const App = withSecurityCheck(() => {
                   user_id: user_id,
                   timestamp: new Date().toISOString(),
                 }),
+                setItem('currentRouteName', currentRouteName),
               ]);
             }
 

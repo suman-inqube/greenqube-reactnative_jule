@@ -11,10 +11,11 @@ import BackGroundLocation from '../BackgroundService/BackGroundLocation';
 import { userCreateContext } from '../Context/usersCreateContext';
 import { addModuleForView } from '../../config/apiHere';
 // import DeviceInfo from 'react-native-device-info';
+import CustomAlert from '../Common/CustomAlert';
 const FarmerDashboard = ({ navigation }) => {
     //GQR-65
     const { getItem, t, CustomHeader, DeviceInfo, onBackPress, logoImage, topBanner, loginUser_data, dbLanTokUsr } = useContext(userCreateContext) || {};
-    const { dbname, lan_id, token, user_id } = loginUser_data || {};
+    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data || {};
     //GQR-65
     const { netConnection } = DeviceInfo();
     const isFocused = useIsFocused();
@@ -32,92 +33,92 @@ const FarmerDashboard = ({ navigation }) => {
                 navigation.navigate(pageName, { latLong });
             } else {
                 switch (pageName) {
-                  case 'FarmerListProblem':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'Problem User',
-                      'module_view',
-                      'problem_user',
-                      1,
-                    );
-                    break;
-                  case 'FarmerActivityList':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'Activity User',
-                      'module_view',
-                      'activity_user',
-                      1,
-                    );
-                    break;
-                  case 'FarmerInputList':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'Input User',
-                      'module_view',
-                      'input_user',
-                      1,
-                    );
-                    break;
-                  case 'FarmerOutPutList':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'Output',
-                      'module_view',
-                      'outPut_user',
-                      1,
-                    );
-                    break;
-                  case 'FarmerUsefulInformationList':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'UsefulInformation User',
-                      'module_view',
-                      'usefulInformation_user',
-                      1,
-                    );
-                    break;
-                  case 'FarmerTrainingList':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'Training User',
-                      'module_view',
-                      'training_user',
-                      1,
-                    );
-                    break;
-                  case 'Weather':
-                    addModuleForView(
-                      dbname,
-                      lan_id,
-                      user_id,
-                      token,
-                      'Weather',
-                      'module_view',
-                      'weather_user',
-                      1,
-                    );
-                    break;
-                  default:
-                  // code block FarmerTrainingList
+                    case 'FarmerListProblem':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'Problem User',
+                            'module_view',
+                            'problem_user',
+                            1,
+                        );
+                        break;
+                    case 'FarmerActivityList':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'Activity User',
+                            'module_view',
+                            'activity_user',
+                            1,
+                        );
+                        break;
+                    case 'FarmerInputList':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'Input User',
+                            'module_view',
+                            'input_user',
+                            1,
+                        );
+                        break;
+                    case 'FarmerOutPutList':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'Output',
+                            'module_view',
+                            'outPut_user',
+                            1,
+                        );
+                        break;
+                    case 'FarmerUsefulInformationList':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'UsefulInformation User',
+                            'module_view',
+                            'usefulInformation_user',
+                            1,
+                        );
+                        break;
+                    case 'FarmerTrainingList':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'Training User',
+                            'module_view',
+                            'training_user',
+                            1,
+                        );
+                        break;
+                    case 'Weather':
+                        addModuleForView(
+                            dbname,
+                            lan_id,
+                            user_id,
+                            token,
+                            'Weather',
+                            'module_view',
+                            'weather_user',
+                            1,
+                        );
+                        break;
+                    default:
+                    // code block FarmerTrainingList
                 }
                 navigation.navigate(pageName);
             }
@@ -128,36 +129,52 @@ const FarmerDashboard = ({ navigation }) => {
         }
     };
     const onPageLoad = async () => {
-        const [
-          userNameData,
-          profileImgData,
-          bottomBannerData,
-          // loginUser_data,
-          company_website,
-        ] = await Promise.all([
-          getItem('userNameData'),
-          getItem('profileImgData'),
-          getItem('bottomBannerData'),
-          // getItem('loginUser_data'),
-          getItem('company_website'),
-          Permission.requestMultiple([
-            PERMISSIONS_TYPE.microphone,
-            PERMISSIONS_TYPE.fineLocation,
-          ]),
-          // GeolocationApi(),
-        ]);
+        try {
+            const [
+                userNameData,
+                profileImgData,
+                bottomBannerData,
+                // loginUser_data,
+                company_website,
+            ] = await Promise.all([
+                getItem('userNameData'),
+                getItem('profileImgData'),
+                getItem('bottomBannerData'),
+                // getItem('loginUser_data'),
+                getItem('company_website'),
+                Permission.requestMultiple([
+                    PERMISSIONS_TYPE.microphone,
+                    PERMISSIONS_TYPE.fineLocation,
+                ]),
+                // GeolocationApi(),
+            ]);
             setbottomBanner(bottomBannerData);
-        setcompany_website(company_website);
-        setuserName(userNameData);
-        setprofileImg(profileImgData);
+            setcompany_website(company_website);
+            setuserName(userNameData);
+            setprofileImg(profileImgData);
+        } catch (error) {
+            console.log(error)
+        }
 
     };
 
     useEffect(() => {
         // requestUserPermission();
         // notificationListener();
-        onPageLoad();
-    }, []);
+        try {
+            if (agri_user_addresses?.length > 0) {
+                const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
+                if (agri_district == null || agri_state == null || agri_subdivision == null) {
+                    CustomAlert("Address", "Location data not found Please add from admin.", true, 'OK')
+                }
+            }
+            onPageLoad();
+
+        } catch (error) {
+            console.log(error)
+        }
+
+    }, [isFocused]);
 
     const HandlerGoBack = () => exit();
     useEffect(() => {

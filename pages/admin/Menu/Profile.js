@@ -7,8 +7,8 @@ import {
   Image,
   BackHandler,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {userDetailAPI} from '../../../config/apiHere';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { userDetailAPI } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import {
   updateUserInfoAPI,
@@ -23,8 +23,9 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
+import CustomAlert from '../../Common/CustomAlert';
 const Profile = () => {
   //GQR-67
   const {
@@ -42,7 +43,7 @@ const Profile = () => {
     DropdownForm,
     ButtonForm,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
@@ -80,12 +81,12 @@ const Profile = () => {
         subdivision: storePersnolInfo.block,
       },
     ];
-    if (storePersnolInfo.stateName == '') {
-      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
-    } else if (storePersnolInfo.districtName == '') {
-      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
-    } else if (storePersnolInfo.blockName == '') {
-      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
+    if (storePersnolInfo.stateName == ''|| storePersnolInfo.stateName==undefined) {
+      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
+    } else if (storePersnolInfo.districtName == ''|| storePersnolInfo.districtName==undefined) {
+      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
+    } else if (storePersnolInfo.blockName == ''|| storePersnolInfo.blockName==undefined) {
+      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
     } else {
       const formData = new FormData();
       formData.append('lan_id', storePersnolInfo.langId);
@@ -120,7 +121,7 @@ const Profile = () => {
           ...AlertMesg[0],
         });
         handleLogout();
-        navigation.navigate('Login', {pagename: 'Login'});
+        navigation.navigate('Login', { pagename: 'Login' });
       }
     }
   };
@@ -140,22 +141,25 @@ const Profile = () => {
     }
   };
   const handleLanguage = async language => {
-    const {block, district, state} = storePersnolInfo;
+    const { block, district, state } = storePersnolInfo;
     const locDiffLangRes = await locDiffLang(
       dbname,
       language.value,
       token,
-      state,
-      district,
-      block,
+      state || '',
+      district || '',
+      block || '',
     );
     if (locDiffLangRes?.status == 200) {
-      const {distData, stateData, subdivData} =
+      const { distData, stateData, subdivData } =
         locDiffLangRes?.data?.data || {};
+      if (distData == null || stateData == null || subdivData == null) {
+        CustomAlert("Address", "Location data not found in selected language. Please add them from admin.", true, 'OK')
+      }
       await Promise.all([
-        stateInfoDataList(dbname, language.value, token),
-        districtDataList(dbname, language.value, stateData?.fid),
-        blockDataList(dbname, language.value, distData?.fid),
+        stateInfoDataList(dbname, language?.value, token),
+        districtDataList(dbname, language?.value, stateData?.fid??0),
+        blockDataList(dbname, language?.value, distData?.fid??0),
       ]);
       setstorePersnolInfo({
         ...storePersnolInfo,
@@ -239,62 +243,62 @@ const Profile = () => {
     }
   };
   const userDetails = async (dbname, languageId, token, user_id) => {
-   try {
-    setIsLoading(true);
-    let response = await userDetailAPI(dbname, languageId, token, user_id);
-    if (response?.status == 200) {
-      setstorePersnolInfo({
-        ...storePersnolInfo,
-        userId: user_id,
-        userName: response?.data?.data[0]?.userName,
-        contactNumber: response?.data?.data[0]?.contactNumber,
-        date_of_birth: response?.data?.data[0]?.date_of_birth,
-        langId: response?.data?.data[0]?.agri_language.id,
-        langIdName: response?.data?.data[0]?.agri_language.name,
-        locale: response?.data?.data[0]?.agri_language.sname,
-        state: response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
-        stateName:
-          response?.data?.data[0]?.agri_user_addresses[0]?.agri_state
-            ?.state_name,
-        district:
-          response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid,
-        districtName:
-          response?.data?.data[0]?.agri_user_addresses[0]?.agri_district
-            ?.district_name,
-        block:
-          response?.data?.data[0]?.agri_user_addresses[0]?.agri_subdivision
-            ?.fid,
-        blockName:
-          response?.data?.data[0]?.agri_user_addresses[0].agri_subdivision
-            ?.subdiv_name,
-      });
-      languageDataList(dbname);
-      if (response?.data?.data[0]?.agri_language.id) {
-        stateInfoDataList(
-          dbname,
-          response?.data?.data[0]?.agri_language.id,
-          token,
-        );
+    try {
+      setIsLoading(true);
+      let response = await userDetailAPI(dbname, languageId, token, user_id);
+      if (response?.status == 200) {
+        setstorePersnolInfo({
+          ...storePersnolInfo,
+          userId: user_id,
+          userName: response?.data?.data[0]?.userName,
+          contactNumber: response?.data?.data[0]?.contactNumber,
+          date_of_birth: response?.data?.data[0]?.date_of_birth,
+          langId: response?.data?.data[0]?.agri_language.id,
+          langIdName: response?.data?.data[0]?.agri_language.name,
+          locale: response?.data?.data[0]?.agri_language.sname,
+          state: response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
+          stateName:
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_state
+              ?.state_name,
+          district:
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid,
+          districtName:
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_district
+              ?.district_name,
+          block:
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_subdivision
+              ?.fid,
+          blockName:
+            response?.data?.data[0]?.agri_user_addresses[0].agri_subdivision
+              ?.subdiv_name,
+        });
+        languageDataList(dbname);
+        if (response?.data?.data[0]?.agri_language.id) {
+          stateInfoDataList(
+            dbname,
+            response?.data?.data[0]?.agri_language.id,
+            token,
+          );
+        }
+        if (response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid) {
+          districtDataList(
+            dbname,
+            response?.data?.data[0]?.agri_language.id,
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
+          );
+        }
+        if (response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid) {
+          blockDataList(
+            dbname,
+            response?.data?.data[0]?.agri_language.id,
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid,
+          );
+        }
       }
-      if (response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid) {
-        districtDataList(
-          dbname,
-          response?.data?.data[0]?.agri_language.id,
-          response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
-        );
-      }
-      if (response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid) {
-        blockDataList(
-          dbname,
-          response?.data?.data[0]?.agri_language.id,
-          response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid,
-        );
-      }
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error)
     }
-    setIsLoading(false);
-   } catch (error) {
-    console.log(error)
-   }
   };
   const onPageLoad = async () => {
     try {
@@ -312,7 +316,7 @@ const Profile = () => {
           district: district,
           block: block,
         });
-        const {dbname, lan_id, token, user_id} = loginUser_data;
+        const { dbname, lan_id, token, user_id } = loginUser_data;
         userDetails(dbname, lan_id, token, user_id);
       }
       setIsLoading(false);
@@ -337,10 +341,10 @@ const Profile = () => {
       CommonActions.reset({
         index: 4,
         routes: [
-          {name: 'Login'},
+          { name: 'Login' },
           {
             name: 'Login',
-            params: {pagename: 'Login', locale: storePersnolInfo.langId},
+            params: { pagename: 'Login', locale: storePersnolInfo.langId },
           },
         ],
       }),
@@ -355,8 +359,10 @@ const Profile = () => {
       return true;
     };
     BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () =>
+
+    return () => {
       BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    };
   }, [isFocused]);
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
@@ -412,12 +418,12 @@ const Profile = () => {
                   {t('date_of_birth')}
                 </Text>
                 <TouchableOpacity style={styles.DateofBirth}>
-                  <Text style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
+                  <Text style={{ color: '#000', fontFamily: 'Poppins-Regular' }}>
                     {storePersnolInfo.date_of_birth}{' '}
                   </Text>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
+                    style={{ width: 20, height: 20 }}
                   />
                 </TouchableOpacity>
               </View>

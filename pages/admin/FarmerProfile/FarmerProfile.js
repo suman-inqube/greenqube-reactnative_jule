@@ -37,6 +37,7 @@ import {
 import { addIdAddressImgs } from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
 const qs = require('qs');
+import CustomAlert from '../../Common/CustomAlert';
 const FarmerProfile = ({ sendDataToParent, farmerID }) => {
   //GQR-67
   const {
@@ -57,6 +58,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     setItem,
     CustomHeader,
     effective_dates,
+    Popup
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
   //GQR-67
@@ -85,6 +87,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     state: '',
     district: '',
     block: '',
+    blockName:'',
     aadhar_number: '',
     pan_number: '',
     voter_card_number: '',
@@ -173,19 +176,22 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     const { block, district, state } = farmerData;
     const locDiffLangRes = await locDiffLang(
       dbname,
-      data.value,
+      data?.value,
       token,
-      state,
-      district,
-      block,
+      state || '',
+      district || '',
+      block || '',
     );
+
     if (locDiffLangRes?.status == 200) {
-      const { distData, stateData, subdivData } =
-        locDiffLangRes?.data?.data || {};
+      const { distData, stateData, subdivData } = locDiffLangRes?.data?.data || {};
+      if (distData == null || stateData == null || subdivData == null) {
+        CustomAlert("Address", "Location data not found in selected language. Please add them from admin.", true, 'OK')
+      }
       await Promise.all([
-        getState(dbname, data.value, token),
-        getDistrict(dbname, data.value, stateData?.fid),
-        getBlock(dbname, data.value, distData?.fid),
+        getState(dbname, data?.value, token),
+        getDistrict(dbname, data?.value, stateData?.fid ?? 0),
+        getBlock(dbname, data?.value, distData?.fid ?? 0),
       ]);
       setfarmerData({
         ...farmerData,
@@ -239,11 +245,11 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     setIsLoading(false);
   };
   const handleStateDistrictBlock = (moduleName, data) => {
-    setfarmerData({
-      ...farmerData,
-      [moduleName]: data.value,
-      [`${moduleName}Name`]: data.label,
-    });
+    // setfarmerData({
+    //   ...farmerData,
+    //   [moduleName]: data.value,
+    //   [`${moduleName}Name`]: data.label,
+    // });
     if (moduleName === 'state') {
       setfarmerData({
         ...farmerData,
@@ -257,6 +263,13 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
       const stateID = data.value;
       getDistrict(dbName, languageID, stateID);
     } else if (moduleName === 'district') {
+      setfarmerData({
+        ...farmerData,
+        district: data.value,
+        districtName: data.label,
+        block: '',
+        blockName: '',
+      });
       const dataArray = [];
       setblockAll(dataArray);
       const districtID = data.value;
@@ -561,14 +574,19 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     } else if (farmerData.age < 18) {
       Toast.show({ text: t('please_eligible_birth_date'), ...AlertMesg[0] });
       return false;
-    } else if (farmerData.state == '') {
+    } else if (farmerData.state == '' || farmerData.state == undefined) {
       Toast.show({ text: t('select_state_first'), ...AlertMesg[0] });
+      console.log(t('select_state_first'))
       return false;
-    } else if (farmerData.district == '') {
+    } else if (farmerData.district == '' || farmerData.district == undefined) {
       Toast.show({ text: t('select_district_first'), ...AlertMesg[0] });
+      console.log(t('select_district_first'))
+
       return false;
-    } else if (farmerData.block == '') {
+    } else if (farmerData.block == '' || farmerData.block == undefined) {
       Toast.show({ text: t('select_block_first'), ...AlertMesg[0] });
+      console.log(t('select_block_first'))
+
       return false;
     }
     return true;
@@ -709,7 +727,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                   }
                   data={blockAll}
                   onChange={item => {
-                    setfarmerData({ ...farmerData, block: item.value });
+                    setfarmerData({ ...farmerData, block: item.value, blockName: item.value });
                   }}
                   val={farmerData.blockName}
                 />

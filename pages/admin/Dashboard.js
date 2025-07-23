@@ -13,12 +13,9 @@ import FusedLocation from 'react-native-fused-location';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
 import { userCreateContext } from '../Context/usersCreateContext';
 import MessageDialog from '../Common/MessageDialog';
-import {
-  getDycryptedImage,
-  LandUnitArea,
-  UnitConversonToDefault,
-} from '../../config/apiHere';
- import CryptoJS from 'crypto-js';;
+import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
+import CustomAlert from '../Common/CustomAlert';
+import { CrashlyticsRecordError } from '../Crashlytics/CrashlyticsRecordError';
 const Dashboard = ({ navigation }) => {
   //GQR-65
   const {
@@ -32,8 +29,9 @@ const Dashboard = ({ navigation }) => {
     Root,
     Toast,
     AlertMesg,
+    loginUser_data
   } = useContext(userCreateContext);
-  // const {dbname, lan_id, token, user_id} = loginUser_data || {};
+  const { agri_user_addresses } = loginUser_data || {};
   const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
@@ -45,27 +43,27 @@ const Dashboard = ({ navigation }) => {
   const [convertionLUState, setConvertionLUState] = useState(false);
   const navigateToPages = (pageName) => {
     if (isOnline) {
-       if (pageName == "PersonalInformation") {
+      if (pageName == "PersonalInformation") {
         //  if (defaultLand == true) {
-          if (convertionLUState == false) {
-            navigation.navigate(pageName, {data: 'remove'});
-          } else {
-            Toast.show({
-              text: 'Please add the unit equivalent factor to default unit',
-              ...AlertMesg[0],
-            });
-          }
-          
+        if (convertionLUState == false) {
+          navigation.navigate(pageName, { data: 'remove' });
+        } else {
+          Toast.show({
+            text: 'Please add the unit equivalent factor to default unit',
+            ...AlertMesg[0],
+          });
+        }
+
         // } else {
         //   Toast.show({
         //     text: 'Please set default land area unit',
         //     ...AlertMesg[0],
         //   });
         // }
-       }else{
-          navigation.navigate(pageName, {data: 'remove'});
-       }
-      
+      } else {
+        navigation.navigate(pageName, { data: 'remove' });
+      }
+
     } else {
       if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
         navigation.navigate(pageName, { data: 'remove' });
@@ -73,100 +71,115 @@ const Dashboard = ({ navigation }) => {
     }
   };
   const onPageLoad = async () => {
-    const [
-      bottomBannerData,
-      userNameData,
-      profileImgData,
-      loginUser_data,
-      company_website,
-      logoImageData,
-      topBannerData,
-    ] = await Promise.all([
-      getItem('bottomBannerData'),
-      getItem('userNameData'),
-      getItem('profileImgData'),
-      getItem('loginUser_data'),
-      getItem('company_website'),
-      getItem('logoImageData'),
-      getItem('topBannerData'),
+    try {
 
-      Permission.requestMultiple([
-        PERMISSIONS_TYPE.microphone,
-        PERMISSIONS_TYPE.fineLocation,
-        PERMISSIONS_TYPE.notifications,
-      ]),
-    ]);
-    // console.log("bottomBannerData==", bottomBannerData);
-    // console.log("topBannerData==", topBannerData);
-    // getDycryptedImage(bottomBannerData?.content, bottomBannerData?.iv);
-    if (logoImage != null) {
-      setlogoImage(logoImage);
-    } else {
-      setlogoImage(logoImageData);
-    }
-    if (topBanner != null) {
-      settopBanner(topBanner);
-    } else {
-      settopBanner(topBannerData);
-    }
-    setcompany_website(company_website);
-    setbottomBanner(bottomBannerData);
-    setuserName(userNameData);
-    setprofileImg(profileImgData);
+      const [
+        bottomBannerData,
+        userNameData,
+        profileImgData,
+        loginUser_data,
+        company_website,
+        logoImageData,
+        topBannerData,
+      ] = await Promise.all([
+        getItem('bottomBannerData'),
+        getItem('userNameData'),
+        getItem('profileImgData'),
+        getItem('loginUser_data'),
+        getItem('company_website'),
+        getItem('logoImageData'),
+        getItem('topBannerData'),
 
-    // if (loginUser_data) {
-    //   console.log(loginUser_data.dbname);
-    // }
-    //  console.log(loginUser_data);
-    const [UnitConversonToDefault_res, LandUnitArea_res] = await Promise.all([
-      UnitConversonToDefault(
-        loginUser_data.dbname,
-        loginUser_data.lan_id,
-        loginUser_data.token,
-      ),
-      LandUnitArea(
-        loginUser_data.dbname,
-        loginUser_data.lan_id,
-        loginUser_data.token,
-      ),
-    ]);
-    
-
-
-    let i = 0;
-    
-    if (UnitConversonToDefault_res.status == 200) {
-      if (UnitConversonToDefault_res.data.data?.count > 0) {
-        UnitConversonToDefault_res.data.data.rows.forEach(element => {
-          if (
-            element.defined_unit_value == null ||
-            element.defined_unit_value == ''
-          ) {
-            i = i + 1;
-          }
-        });
+        Permission.requestMultiple([
+          PERMISSIONS_TYPE.microphone,
+          PERMISSIONS_TYPE.fineLocation,
+          PERMISSIONS_TYPE.notifications,
+        ]),
+      ]);
+      // console.log("bottomBannerData==", bottomBannerData);
+      // console.log("topBannerData==", topBannerData);
+      // getDycryptedImage(bottomBannerData?.content, bottomBannerData?.iv);
+      if (logoImage != null) {
+        setlogoImage(logoImage);
+      } else {
+        setlogoImage(logoImageData);
       }
-    }
-  
-    if (i > 0) {
-      setConvertionLUState(true);
-    }
-    if (LandUnitArea_res.status == 200) {
-      if (LandUnitArea_res.data.data?.count > 0) {
-        LandUnitArea_res.data.data.rows.forEach(element => {
-          if (element.defined_unit_value.length > 0) {
-            setDefaultLand(true);
-          }
-        });
+      if (topBanner != null) {
+        settopBanner(topBanner);
+      } else {
+        settopBanner(topBannerData);
       }
+      setcompany_website(company_website);
+      setbottomBanner(bottomBannerData);
+      setuserName(userNameData);
+      setprofileImg(profileImgData);
+
+      // if (loginUser_data) {
+      //   console.log(loginUser_data.dbname);
+      // }
+      //  console.log(loginUser_data);
+      const [UnitConversonToDefault_res, LandUnitArea_res] = await Promise.all([
+        UnitConversonToDefault(
+          loginUser_data.dbname,
+          loginUser_data.lan_id,
+          loginUser_data.token,
+        ),
+        LandUnitArea(
+          loginUser_data.dbname,
+          loginUser_data.lan_id,
+          loginUser_data.token,
+        ),
+      ]);
+
+
+
+      let i = 0;
+
+      if (UnitConversonToDefault_res.status == 200) {
+        if (UnitConversonToDefault_res.data.data?.count > 0) {
+          UnitConversonToDefault_res.data.data.rows.forEach(element => {
+            if (
+              element.defined_unit_value == null ||
+              element.defined_unit_value == ''
+            ) {
+              i = i + 1;
+            }
+          });
+        }
+      }
+      if (i > 0) {
+        setConvertionLUState(true);
+      }
+      if (LandUnitArea_res.status == 200) {
+        if (LandUnitArea_res.data.data?.count > 0) {
+          LandUnitArea_res.data.data.rows.forEach(element => {
+            if (element.defined_unit_value.length > 0) {
+              setDefaultLand(true);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      CrashlyticsRecordError(error, "Dashboard", "onPageLoad");
+
     }
   };
   const HandlerGoBack = () => exit()
   useEffect(() => {
-    if (isFocused) {
-      
-      onPageLoad();
-      onBackPress(exit);
+    try {
+      if (agri_user_addresses?.length > 0) {
+        const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
+        if (agri_district == null || agri_state == null || agri_subdivision == null) {
+          CustomAlert("Address", "Location data not found Please add from admin.", true, 'OK')
+        }
+      }
+      if (isFocused) {
+        onPageLoad();
+        onBackPress(exit);
+      }
+    } catch (error) {
+      CrashlyticsRecordError(error, "Dashboard", "useEffect");
+      console.log(error)
     }
   }, [isFocused, topBanner]);
   const exit = () => {
@@ -180,7 +193,7 @@ const Dashboard = ({ navigation }) => {
   }
   return (
     <>
-      <BackGroundLocation />
+      {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
       <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
@@ -223,7 +236,7 @@ const Dashboard = ({ navigation }) => {
           </View>
         </ScrollView>
       </View>
-      <Root></Root> 
+      <Root></Root>
     </>
   )
 }

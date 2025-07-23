@@ -12,14 +12,14 @@ import {
   StatusBar,
   Modal,
 } from 'react-native';
-import React, {useEffect, useState, useContext} from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import FilterDropDownForm from './Common/FilterDropDownForm';
 import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
-import {getItem, removeItem, setItem} from '../config/getDataFromStorage';
+import { getItem, removeItem, setItem } from '../config/getDataFromStorage';
 import {
   databaseListAPI,
   fpodetailsDataListAPI,
@@ -30,38 +30,40 @@ import {
 } from '../config/apiHere';
 import MessageDialog from './Common/MessageDialog';
 import i18next from './services/i18next';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
-import {Root, Popup, Toast} from 'react-native-popup-confirm-toast';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import Checkbox from './Common/CheckboxCom';
-import {AlertMesg} from './Common/ToastAlert';
+import { AlertMesg } from './Common/ToastAlert';
 import {
   useNavigation,
   useIsFocused,
   StackActions,
 } from '@react-navigation/native';
-import {Permission, PERMISSIONS_TYPE} from './AppPermission/AppPermission';
+import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
-import {userCreateContext} from './Context/usersCreateContext';
-const Login = ({route}) => {
-  const {setlogoImage, settopBanner, AllFarmerList, t} =
+import { userCreateContext } from './Context/usersCreateContext';
+import MyErrorBoundary from './Common/MyErrorBoundary';
+import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
+const Login = ({ route }) => {
+  const { setlogoImage, settopBanner, AllFarmerList, t } =
     useContext(userCreateContext);
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const roleData = [
-    {label: t('login_farmer'), value: '2'},
-    {label: t('retailer'), value: '3'},
+    { label: t('login_farmer'), value: '2' },
+    { label: t('retailer'), value: '3' },
   ];
   const [checked, setChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   // const { fusedLocationData } = ForegroundLocationService();
-  const {requestUserPermission, notificationListener} = NotificationServices();
+  const { requestUserPermission, notificationListener } = NotificationServices();
   const [isLoading, setIsLoading] = useState(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation();
   const [companyData, setCompanyData] = useState([]);
- const [navigationTo, setNavigationTo] = useState('');
+  const [navigationTo, setNavigationTo] = useState('');
   // let navigationTo = '';
   const [companyLanguage, setcompanyLanguage] = useState({
     company: '',
@@ -103,7 +105,7 @@ const Login = ({route}) => {
   //         navigation.navigate('FarmerNavigation');
   //       }
   //       console.log(remUser);
-        
+
   //     } else {
   //       await setItem('rememberData', {
   //         company:'',
@@ -240,16 +242,14 @@ const Login = ({route}) => {
           } else {
             await setItem('profileImgData', '');
           }
-          await setItem('loginUser_data', loginUserdata);
-          await setItem('companyFirstEntry',0 );
           setstoreLoginUser({
             ...storeLoginUser,
             phone: '',
             password: '',
             role: '',
-            company_lable:"",
+            company_lable: "",
           });
-          const [fpoDetailsList_res, reginalRes,defaultCurrRes] = await Promise.all([
+          const [fpoDetailsList_res, reginalRes, defaultCurrRes] = await Promise.all([
             fpodetailsDataListAPI(
               loginUserdata.dbname,
               loginUserdata.lan_id,
@@ -267,9 +267,11 @@ const Login = ({route}) => {
               loginUserdata.lan_id,
               loginUserdata.token,
             ),
+            await setItem('loginUser_data', loginUserdata),
+            await setItem('companyFirstEntry', 0),
           ]);
           if (defaultCurrRes?.status === 200) {
-            if (defaultCurrRes.data.data.rows.length> 0) {
+            if (defaultCurrRes.data.data.rows.length > 0) {
               await setItem(
                 'currency',
                 defaultCurrRes.data.data.rows[0].symbol,
@@ -281,11 +283,11 @@ const Login = ({route}) => {
                 ...AlertMesg[0],
               });
             }
-            
+
           }
           if (fpoDetailsList_res?.status === 200) {
             // i18next.changeLanguage(loginUserdata?.lan_id.toString());
-            const {company_website} = fpoDetailsList_res.data.data[0];
+            const { company_website } = fpoDetailsList_res.data.data[0];
             var url_regex = /^(http|https)/;
             if (url_regex.test(String(company_website).toLowerCase()) == true) {
               await setItem('company_website', company_website);
@@ -302,10 +304,10 @@ const Login = ({route}) => {
                 await setItem('district', item.categoryName);
               } else if (item.static_cid === 3) {
                 await setItem('block', item.categoryName);
-              } 
-            //   else if (item.static_cid === 4) {
-            //     await setItem('currency', item.categoryName);
-            //   }
+              }
+              //   else if (item.static_cid === 4) {
+              //     await setItem('currency', item.categoryName);
+              //   }
             });
           }
           if (fpoDetailsList_res?.status === 200) {
@@ -385,6 +387,7 @@ const Login = ({route}) => {
           }
         }
       } catch (error) {
+        CrashlyticsRecordError(error, 'Login', 'saveHandle');
         Toast.show({
           text: `${error.response?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
@@ -394,99 +397,103 @@ const Login = ({route}) => {
     }
   };
   const onPageLoad = async () => {
-    const [companyFirstEntry,rememberData, companyLanguage_data, company_res] = await Promise.all(
-      [
-        getItem('companyFirstEntry'),
-        getItem('rememberData'),
-        getItem('companyLanguage_data'),
-        databaseListAPI(),
-        removeItem('storeSignup_data'),
-        removeItem('storePersnolInfo_data'),
-        removeItem('storeFinancial_data'),
-        removeItem('storeProduceInfo_data'),
-        requestUserPermission(),
-        notificationListener(),
-        Permission.requestMultiple([
-          PERMISSIONS_TYPE.microphone,
-          PERMISSIONS_TYPE.fineLocation,
-          PERMISSIONS_TYPE.notifications,
-        ]),
-        removeItem('side_menu_option'),
-      ],
-    );
-    
-    // else {
-    //   setcompanyLanguage({
-    //     ...companyLanguage,
-    //     company: '',
-    //     language: '',
-    //     company_id: '',
-    //     company_name: '',
-    //   });
-    // }
-    if (companyLanguage_data != '' && companyLanguage_data != null) {
-      setcompanyLanguage(companyLanguage_data);
-      const {country_id, company, language} = companyLanguage_data;
-      checkPhoneNumber(country_id, company, language);
+    try {
 
-      if (companyFirstEntry == 1) {
-        setstoreLoginUser({
-          ...storeLoginUser,
-          phone: '',
-          password: '',
-          role: '',
-          company: companyLanguage_data.company_id,
-          // FcmUserToken: fcmToken_res,
-        });
-      } else{
+      const [companyFirstEntry, rememberData, companyLanguage_data, company_res] = await Promise.all(
+        [
+          getItem('companyFirstEntry'),
+          getItem('rememberData'),
+          getItem('companyLanguage_data'),
+          databaseListAPI(),
+          removeItem('storeSignup_data'),
+          removeItem('storePersnolInfo_data'),
+          removeItem('storeFinancial_data'),
+          removeItem('storeProduceInfo_data'),
+          requestUserPermission(),
+          notificationListener(),
+          Permission.requestMultiple([
+            PERMISSIONS_TYPE.microphone,
+            PERMISSIONS_TYPE.fineLocation,
+            PERMISSIONS_TYPE.notifications,
+          ]),
+          removeItem('side_menu_option'),
+        ],
+      );
 
-        if (rememberData?.contactNumber.length > 4) {
-          setstoreLoginUser({
-            ...storeLoginUser,
-            phone: rememberData.contactNumber,
-            password: rememberData.password,
-            role: rememberData.type,
-            company: rememberData.company,
-            // FcmUserToken: fcmToken_res,
-          });
-          setcompanyLanguage({
-            ...companyLanguage,
-            company_name: rememberData.company_name,
-          });
-        } else {
+      // else {
+      //   setcompanyLanguage({
+      //     ...companyLanguage,
+      //     company: '',
+      //     language: '',
+      //     company_id: '',
+      //     company_name: '',
+      //   });
+      // }
+      if (companyLanguage_data != '' && companyLanguage_data != null) {
+        setcompanyLanguage(companyLanguage_data);
+        const { country_id, company, language } = companyLanguage_data;
+        checkPhoneNumber(country_id, company, language);
+
+        if (companyFirstEntry == 1) {
           setstoreLoginUser({
             ...storeLoginUser,
             phone: '',
             password: '',
             role: '',
-            company: '',
+            company: companyLanguage_data.company_id,
+            // FcmUserToken: fcmToken_res,
           });
-          setcompanyLanguage({
-            ...companyLanguage,
-            company_name: '',
-          });
+        } else {
+
+          if (rememberData?.contactNumber.length > 4) {
+            setstoreLoginUser({
+              ...storeLoginUser,
+              phone: rememberData.contactNumber,
+              password: rememberData.password,
+              role: rememberData.type,
+              company: rememberData.company,
+              // FcmUserToken: fcmToken_res,
+            });
+            setcompanyLanguage({
+              ...companyLanguage,
+              company_name: rememberData.company_name,
+            });
+          } else {
+            setstoreLoginUser({
+              ...storeLoginUser,
+              phone: '',
+              password: '',
+              role: '',
+              company: '',
+            });
+            setcompanyLanguage({
+              ...companyLanguage,
+              company_name: '',
+            });
+          }
+
+
         }
 
 
+
       }
-
-
-      
-    }
-    if (company_res.status == 200) {
-      let companyArray = [];
-      company_res?.data?.data?.map((data, index) => {
-        const {company_id, agri_company, db_name} = data;
-        companyArray.push({
-          value: company_id,
-          label: agri_company.company_name,
-          dbname: db_name,
-          country_id: agri_company.country_id,
+      if (company_res.status == 200) {
+        let companyArray = [];
+        company_res?.data?.data?.map((data, index) => {
+          const { company_id, agri_company, db_name } = data;
+          companyArray.push({
+            value: company_id,
+            label: agri_company.company_name,
+            dbname: db_name,
+            country_id: agri_company.country_id,
+          });
         });
-      });
-      setCompanyData(companyArray);
+        setCompanyData(companyArray);
+      }
+    } catch (error) {
+      CrashlyticsRecordError(error, 'Login', 'onPageLoad');
     }
-    
   };
   useEffect(() => {
     try {
@@ -500,165 +507,152 @@ const Login = ({route}) => {
         }
       }
     } catch (err) {
-      console.error(err);
+      CrashlyticsRecordError(err, 'Login', 'useEffect');
     }
   }, [isFocused, netConnection]);
+
   const onChangeConpany = async item => {
-    // db_name:dbname, company_id:value, agri_company.country_id:country_id
-    const {country_id, dbname, value, label} = item;
-    const {language} = companyLanguage;
-    setstoreLoginUser({...storeLoginUser, company: value,company_lable:label});
-    checkPhoneNumber(country_id, dbname, language);
-  };
-  const checkPhoneNumber = async (country_id, company, language) => {
-    const checkPhoneNumber = await checkPhoneDigitAPI(
-      country_id,
-      company,
-      language,
-    );
-    if (checkPhoneNumber.status == 200) {
-      const {contact_no_digits} = checkPhoneNumber.data?.data;
-      setcontact_no_digits(contact_no_digits);
+    try {
+      // db_name:dbname, company_id:value, agri_company.country_id:country_id
+      const { country_id, dbname, value, label } = item;
+      const { language } = companyLanguage;
+      setstoreLoginUser({ ...storeLoginUser, company: value, company_lable: label });
+      checkPhoneNumber(country_id, dbname, language);
+    } catch (error) {
+      CrashlyticsRecordError(error, 'Login', 'onChangeConpany');
+
     }
   };
+  const checkPhoneNumber = async (country_id, company, language) => {
+    try {
+      const checkPhoneNumber = await checkPhoneDigitAPI(
+        country_id,
+        company,
+        language,
+      );
+      if (checkPhoneNumber.status == 200) {
+        const { contact_no_digits } = checkPhoneNumber.data?.data;
+        setcontact_no_digits(contact_no_digits);
+      }
+    } catch (error) {
+      CrashlyticsRecordError(error, 'Login', 'checkPhoneNumber');
+    }
+
+  };
   return (
-    <Root>
-      <ForegroundLocationService />
-      <StatusBar barStyle="light-content" backgroundColor="#023316" />
-
-      {/* <Modal transparent={true} visible={modalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={[styles.title, {color: '#000'}]}>
-              Remember Credentials?
-            </Text>
-            <Text style={{color: '#000'}}>
-              Would you like to save your login details for next time?
-            </Text>
-
-            <View style={styles.buttonRow}>
-              <Button
-                title="No"
-                color="#003c04"
-                onPress={() => handleRememberMe(false)}
-              />
-              <Button
-                title="Yes"
-                color="#003c04"
-                onPress={() => handleRememberMe(true)}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal> */}
-      <ScrollView>
-        <View>
-          <View style={{paddingHorizontal: 20}}>
-            <View style={{flex: 1, alignItems: 'center', marginTop: 50}}>
-              <Image
-                source={require('../pages/Common/images/logo.png')}
-                style={styles.logo}
-              />
-            </View>
-            <View>
-              {isLoading ? (
-                <View style={styles.loadingScreen}>
-                  <LoadingScreen />
-                </View>
-              ) : null}
-              <Text
-                style={{
-                  fontSize: 25,
-                  color: '#000',
-                  fontFamily: 'Poppins-Regular',
-                }}>
-                {t('sign_in')}
-              </Text>
-              <Text style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
-                {t('login_with_your_registerd_phone_number_and_password')}
-              </Text>
-              <TextInput
-                style={styles.simpleInputTextStyle}
-                placeholderTextColor={'#000'}
-                placeholder={t('enter_your_registered_Phone_no')}
-                keyboardType="numeric"
-                value={storeLoginUser.phone}
-                onChangeText={phone =>
-                  setstoreLoginUser({...storeLoginUser, phone: phone})
-                }
-                maxLength={contact_no_digits}
-              />
-              <TextInput
-                style={styles.simpleInputTextStyle}
-                placeholderTextColor={'#000'}
-                placeholder={t('enter_your_Password')}
-                secureTextEntry={true}
-                onChangeText={password =>
-                  setstoreLoginUser({...storeLoginUser, password: password})
-                }
-                value={storeLoginUser.password}
-              />
-              <View style={{marginTop: 20}}>
-                <DropdownForm
-                  data={roleData}
-                  label={t('select_role')}
-                  onChange={role =>
-                    setstoreLoginUser({...storeLoginUser, role: role.value})
-                  }
-                  val={storeLoginUser.role}
+    <MyErrorBoundary>
+      <Root>
+        <ForegroundLocationService />
+        <StatusBar barStyle="light-content" backgroundColor="#023316" />
+        <ScrollView>
+          <View>
+            <View style={{ paddingHorizontal: 20 }}>
+              <View style={{ flex: 1, alignItems: 'center', marginTop: 50 }}>
+                <Image
+                  source={require('../pages/Common/images/logo.png')}
+                  style={styles.logo}
                 />
               </View>
-              <View style={{marginTop: 5}}>
-                {/* <DropdownForm
+              <View>
+                {isLoading ? (
+                  <View style={styles.loadingScreen}>
+                    <LoadingScreen />
+                  </View>
+                ) : null}
+                <Text
+                  style={{
+                    fontSize: 25,
+                    color: '#000',
+                    fontFamily: 'Poppins-Regular',
+                  }}>
+                  {t('sign_in')}
+                </Text>
+                <Text style={{ color: '#000', fontFamily: 'Poppins-Regular' }}>
+                  {t('login_with_your_registerd_phone_number_and_password')}
+                </Text>
+                <TextInput
+                  style={styles.simpleInputTextStyle}
+                  placeholderTextColor={'#000'}
+                  placeholder={t('enter_your_registered_Phone_no')}
+                  keyboardType="numeric"
+                  value={storeLoginUser.phone}
+                  onChangeText={phone =>
+                    setstoreLoginUser({ ...storeLoginUser, phone: phone })
+                  }
+                  maxLength={contact_no_digits}
+                />
+                <TextInput
+                  style={styles.simpleInputTextStyle}
+                  placeholderTextColor={'#000'}
+                  placeholder={t('enter_your_Password')}
+                  secureTextEntry={true}
+                  onChangeText={password =>
+                    setstoreLoginUser({ ...storeLoginUser, password: password })
+                  }
+                  value={storeLoginUser.password}
+                />
+                <View style={{ marginTop: 20 }}>
+                  <DropdownForm
+                    data={roleData}
+                    label={t('select_role')}
+                    onChange={role =>
+                      setstoreLoginUser({ ...storeLoginUser, role: role.value })
+                    }
+                    val={storeLoginUser.role}
+                  />
+                </View>
+                <View style={{ marginTop: 5 }}>
+                  {/* <DropdownForm
                   data={companyData}
                   label={t('select_company')}
                   onChange={company => onChangeConpany(company)}
                   val={companyLanguage.company_id}
                 /> */}
-                <FilterDropDownForm
-                  data={companyData}
-                  label={t('select_company')}
-                  onChange={company => onChangeConpany(company)}
-                  val={companyLanguage.company_id}
-                  diffLabel={companyLanguage.company_name}
-                />
-              </View>
-              <View style={{alignItems: 'center'}}>
-                <Checkbox
-                  label="Remember Me"
-                  checked={checked}
-                  onPress={() => setChecked(!checked)}
-                />
-              </View>
-              {/* <View>
+                  <FilterDropDownForm
+                    data={companyData}
+                    label={t('select_company')}
+                    onChange={company => onChangeConpany(company)}
+                    val={companyLanguage.company_id}
+                    diffLabel={companyLanguage.company_name}
+                  />
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                  <Checkbox
+                    label="Remember Me"
+                    checked={checked}
+                    onPress={() => setChecked(!checked)}
+                  />
+                </View>
+                {/* <View>
                 <CheckBoxComp
                   isChecked={checked}
                   title="Remember Me"
                   onCheckBox={() =>setChecked(!checked)}
                 />
               </View> */}
-              <View style={{alignItems: 'center'}}>
-                <Text style={[styles.title, {color: '#000'}]}>
-                  {t('forgot_Password')}
-                </Text>
-              </View>
-              <View style={{alignItems: 'center', marginTop: 10}}>
-                <TouchableOpacity>
-                  <Text
-                    style={[styles.title, {color: '#000'}]}
-                    onPress={() => navigation.navigate('Signup')}>
-                    {t('new_to_farmer')} {t('signup_now')}
+                <View style={{ alignItems: 'center' }}>
+                  <Text style={[styles.title, { color: '#000' }]}>
+                    {t('forgot_Password')}
                   </Text>
-                </TouchableOpacity>
+                </View>
+                <View style={{ alignItems: 'center', marginTop: 10 }}>
+                  <TouchableOpacity>
+                    <Text
+                      style={[styles.title, { color: '#000' }]}
+                      onPress={() => navigation.navigate('Signup')}>
+                      {t('new_to_farmer')} {t('signup_now')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
+        </ScrollView>
+        <View style={{ marginTop: 10 }}>
+          <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
         </View>
-      </ScrollView>
-      <View style={{marginTop: 10}}>
-        <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
-      </View>
-    </Root>
+      </Root>
+    </MyErrorBoundary>
   );
 };
 
@@ -679,7 +673,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     padding: 20,
@@ -717,7 +711,7 @@ const styles = StyleSheet.create({
     left: '45%',
   },
 
-modalContainer: {
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -730,7 +724,7 @@ modalContainer: {
     borderRadius: 10,
     alignItems: 'center',
   },
-  title: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
+  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

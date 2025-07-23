@@ -1,80 +1,66 @@
-import React, { useEffect } from 'react';
-import { Platform, Alert } from 'react-native';
+import React, { useEffect, useRef } from 'react';
 import FusedLocation from 'react-native-fused-location';
+import { setItem } from '../../config/getDataFromStorage';
 import store from '../redux/store';
 import { updateLocation } from '../redux/actions/locationActions';
-import { setItem } from '../../config/getDataFromStorage';
-import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
-import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
-
+import { Alert, Linking, Platform } from 'react-native';
 const ForegroundLocationService = () => {
-  useEffect(() => {
-    let isMounted = true;
-    let fusedLocationSubscription = null;
+    const subscriptionRef = useRef(null);
+    const lastSavedTimeRef = useRef(0); // for debouncing
 
-    const checkGPSStatus = async () => {
-      try {
-        if (Platform.OS === 'android') {
-          const result = await promptForEnableLocationIfNeeded({
-            interval: 10000,
-            fastInterval: 5000,
-          });
+    useEffect(() => {
+        const startLocationUpdates = async () => {
+            try {
+                await FusedLocation.getFusedLocation();
+                FusedLocation.setLocationPriority(FusedLocation.Constants.HIGH_ACCURACY);
+                FusedLocation.setLocationInterval(3000);
+                FusedLocation.setFastestLocationInterval(2000);
+                await FusedLocation.startLocationUpdates();
+                const sub = FusedLocation.on('fusedLocation', async (location) => {
+                    const now = Date.now();
+                    const lastSaved = lastSavedTimeRef.current;
+                    if (now - lastSaved > 10_000) {
+                        lastSavedTimeRef.current = now;
+                        await setItem('fusedLocation', location);
+                    }
+                });
+                subscriptionRef.current = sub;
+            } catch (error) {
+                // Alert.alert(
+                //     'GPS Disabled',
+                //     'Your GPS seems to be disabled, do you want to enable it?',
+                //     [
+                //         // { text: 'Cancel', style: 'cancel' },
+                //         {
+                //             text: 'OK',
+                //             onPress: () => {
+                //                 if (Platform.OS === 'android') {
+                //                   Linking.openURL('android.settings.LOCATION_SOURCE_SETTINGS');
+                //                 } else {
+                //                     // openSettings(); // opens iOS app settings
+                //                 }
+                //             },
+                //         },
+                //     ],
+                //     { cancelable: false }
+                // );
+                console.error('[ForegroundLocationService] Location start error:', error);
+            }
+        };
+        const timeout = setTimeout(startLocationUpdates, 1000); // Delay start by 1 second
+        return () => {
+            clearTimeout(timeout);
+            if (subscriptionRef.current && typeof subscriptionRef.current.remove === 'function') {
+                subscriptionRef.current.remove();
+                subscriptionRef.current = null;
+                console.log('[ForegroundLocationService] Subscription removed');
+            }
+            FusedLocation.stopLocationUpdates();
+            console.log('[ForegroundLocationService] Location updates stopped');
+        };
+    }, []);
 
-          if ((result === 'enabled' || result === 'already-enabled') && isMounted) {
-            startLocationUpdates();
-          }
-        } else {
-          const result = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-          if (result === RESULTS.GRANTED && isMounted) {
-            startLocationUpdates();
-          }
-        }
-      } catch (error) {
-        console.log('GPS not enabled:', error.message);
-        if (isMounted) {
-          Alert.alert(
-            'Enable GPS',
-            'Location features will not work unless GPS is enabled.'
-          );
-        }
-      }
-    };
-
-    const startLocationUpdates = async () => {
-      try {
-        await FusedLocation.setLocationPriority(FusedLocation.Constants.HIGH_ACCURACY);
-        await FusedLocation.setLocationInterval(1000);
-        await FusedLocation.setFastestLocationInterval(1000);
-        await FusedLocation.startLocationUpdates();
-
-        // Use addListener (returns a subscription)
-        fusedLocationSubscription = FusedLocation.on('fusedLocation', async (location) => {
-          if (!isMounted) return;
-          await setItem('fusedLocation', location);
-          store.dispatch(updateLocation(location));
-        });
-      } catch (error) {
-        console.log('Error starting location updates:', error);
-      }
-    };
-
-    const stopLocationUpdates = () => {
-      if (fusedLocationSubscription?.remove) {
-        fusedLocationSubscription.remove(); // ✅ safe unsubscribe
-        fusedLocationSubscription = null;
-      }
-      FusedLocation.stopLocationUpdates();
-    };
-
-    checkGPSStatus();
-
-    return () => {
-      isMounted = false;
-      stopLocationUpdates();
-    };
-  }, []);
-
-  return null;
+    return null; // No UI rendering needed
 };
 
 export default ForegroundLocationService;
