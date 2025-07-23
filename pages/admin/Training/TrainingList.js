@@ -119,7 +119,7 @@ const TrainingList = () => {
               ) : (
                 <Image
                   source={require('../../Common/images/view_grid.png')}
-                  style={{width: 30, height: 30}}
+                  style={{width: 25, height: 25}}
                 />
               )}
             </TouchableOpacity>
@@ -137,8 +137,8 @@ const TrainingList = () => {
               <ImageForm
                 source={require('../../Common/images/search.png')}
                 resizeMode="cover"
-                height={40}
-                width={40}
+                height={30}
+                width={30}
               />
             </TouchableOpacity>
           </View>
@@ -191,12 +191,13 @@ const TrainingList = () => {
                               key={file.file_id}
                               source={{uri: file.file_path}}
                               style={{
-                                width: 180,
-                                height: 150,
+                                width: 160,
+                                height: 130,
                                 resizeMode: 'cover',
                                 shadowOpacity: 0.25,
                                 shadowRadius: 3.84,
                                 borderRadius: 25,
+                                marginLeft: 10,
                               }}
                             />
                           ))
@@ -207,7 +208,7 @@ const TrainingList = () => {
                         />
                       )}
                       <Text style={styles.title}>
-                        {item.post_name.substring(0, 20)}
+                        {item.post_name.substring(0, 15)}
                       </Text>
                     </TouchableOpacity>
                   ) : (
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginVertical: 5,
-    marginHorizontal: 10, 
+    marginHorizontal: 10,
     elevation: 1,
   },
   image: {
@@ -329,9 +330,10 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: '#FFF',
+    color: '#000',
+    fontWeight: 'bold',
     marginTop: 15,
-    marginLeft: 10,
+    marginLeft: 20,
     position: 'absolute',
     textAlign: 'right',
   },
@@ -425,7 +427,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   textInput: {
-    height: 45,
+    height: 40,
     width: '100%',
     color: '#000',
     fontFamily: 'Poppins-Regular',

@@ -1291,7 +1291,7 @@ const ActivityReportAWD = ({navigation}) => {
     //      distanceFilter: 0,
     //    },
     //  );
-    watchId = Geolocation.watchPosition(
+    watchId.current = Geolocation.watchPosition(
       async position => {
         const {latitude, longitude} = position.coords;
         setLocation(prev => {
@@ -1548,15 +1548,15 @@ const ActivityReportAWD = ({navigation}) => {
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState('');
   const TakePhoto = useCallback(() => {
-    console.log('hasPermission');
+   
 
     //    const hasPermission = requestCameraPermission();
     // if (!hasPermission) return;
     const options = {
       mediaType: 'photo',
       includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
+      maxHeight: 900,
+      maxWidth: 900,
     };
 
     launchCamera(options, async response => {

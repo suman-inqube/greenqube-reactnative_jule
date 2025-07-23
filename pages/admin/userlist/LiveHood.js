@@ -143,6 +143,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
   ]);
+  const [mainLocation, setmainLocation] = useState([
+    {latitude: '', longitude: ''},
+  ]);
   const [locationType, setLocationType] = useState('location_tap');
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
@@ -478,6 +481,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           }
         });
         setLocation(values);
+        setmainLocation(values);
         setPreviousPlotLatlong(values);
         if (locationLength >= 2 == true) {
           const parsedTargetArray = values.map(item => ({
@@ -522,7 +526,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           }
         });
         setLocation(values);
-
+        setmainLocation(values);
         setPreviousPlotLatlong(values);
         if (locationLength >= 2 == true) {
 
@@ -784,7 +788,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     }
   };
   const handleAddData = async (item, name, value) => {
-    alert("handleAddData")
+    // alert("handleAddData")
     let selectUnitValue = '';
     if (name === 'unit') {
       if (farmerData.unit_valueArr != '') {
@@ -1521,8 +1525,22 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             const data = nearestLatLong_res?.data?.data;
             setnearPolData(data);
             const groupedData = groupByRelId(data);
-            setnearPolSet(groupedData);
-            setPolygons(groupedData);
+
+            const parsedTargetArray = mainLocation.map(item => ({
+              latitude: parseFloat(item.latitude),
+              longitude: parseFloat(item.longitude),
+            }));
+            const index = groupedData.findIndex(
+              subArray =>
+                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+            );
+            const foundArray = groupedData.filter(
+              item => !isEqualCoordinatesArray(item, parsedTargetArray),
+            );
+             setnearPolSet(foundArray);
+
+            // setnearPolSet(groupedData);
+            setPolygons(foundArray);
           }
         } catch (error) {
           console.error("Error fetching nearest polygon data:", error);
@@ -1707,7 +1725,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               data={terrainTypeAll}
               val={farmerData.terrainType}
               onChange={item => {
-                Alert.alert("DropdownForm terrainType")
                 handleAddData(item, 'terrainType', 'terrainTypeValue');
               }}
               // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}

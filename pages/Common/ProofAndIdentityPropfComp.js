@@ -84,7 +84,7 @@ const ProofAndIdentityPropfComp = ({
           const fileSizeInMB = fileStat.size / (1024 * 1024); // File size in MB
           console.log(`PDF Size: ${fileSizeInMB} MB`);
           // Log or use width and height as needed
-          console.log(`Width: ${width}, Height: ${height}`);
+          // console.log(`Width: ${width}, Height: ${height}`);
         }
         const values = [...stateValue];
         const photoId = values[index]?.id;

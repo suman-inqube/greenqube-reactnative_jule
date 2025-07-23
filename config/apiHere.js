@@ -319,7 +319,7 @@ export const activityListInstrumentWise = async (
   searchItem = '',
   from_date = '',
   to_date = '',
-  carbonType = ''
+  carbonType = 'carbon_activity',
 ) => {
   const axiosHeaders = {
     headers: {
@@ -327,9 +327,13 @@ export const activityListInstrumentWise = async (
       information: `${dbName},${languageID},${userID}`,
     },
   };
+  console.log(
+    `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=carbon_activity&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
+    axiosHeaders,
+  );
   try {
     let response = await axios.get(
-      `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=carbon_activity&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
       axiosHeaders,
     );
     return response;
@@ -347,7 +351,7 @@ export const FarmerActivityListInstrumentWise = async (
   searchItem = '',
   from_date = '',
   to_date = '',
-  carbonType = ''
+  carbonType = 'carbon_activity',
 ) => {
   const axiosHeaders = {
     headers: {
@@ -357,7 +361,7 @@ export const FarmerActivityListInstrumentWise = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=${carbonType}&farmer_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `${config.BASE_URL}settingsRoute/listPipeActivity/1/${pageNO}/2?type=carbon_activity&farmer_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
       axiosHeaders,
     );
     return response;
@@ -2922,7 +2926,11 @@ export const addPrevPipeActivity = async (
       inputData,
       axiosHeaders,
     );
-    // console.log(JSON.stringify(response.data))
+     console.log(
+       `${config.BASE_URL}inputOutputRoute/updatePipeActivity`,
+       inputData,
+       axiosHeaders,
+     );
     return response;
   } catch (error) {
     console.log(error);
@@ -3064,6 +3072,8 @@ export const ActivityPipeImages = async (
   language,
   userId,
   rel_id_plot,
+  act_name_fid,
+  pipe_id,
 ) => {
   const axiosHeaders = {
     headers: {
@@ -3072,12 +3082,12 @@ export const ActivityPipeImages = async (
     },
   };
   console.log(
-    `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}`,
+    `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
     axiosHeaders,
   );
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}`,
+      `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
       axiosHeaders,
     );
     return response;

@@ -101,6 +101,7 @@ const InstrumentWiseActivityView = () => {
             const item = '';
             const response = await activityListInstrumentWise(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date)
             if (response?.status == 200) {
+                 console.log(JSON.stringify(response?.data?.data));
                 setactivityAll(response?.data?.data?.rows);
                 setItem("activity_Data", response?.data?.data?.rows);
             }
@@ -118,8 +119,9 @@ const InstrumentWiseActivityView = () => {
             var response = await getItem('activityList');
         }
         if (response?.status == 200) {
-            if (response.data.data.count != 0) {
-                const totalPage = Math.ceil(response.data.data.count / 20)
+             console.log(JSON.stringify(response?.data?.data));
+            if (response?.data?.data?.count != 0) {
+                const totalPage = Math.ceil(response?.data?.data?.count / 10)
                 setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
                 setactivityAll(response?.data?.data?.rows);
                 if (carbonType == "") {
@@ -209,7 +211,7 @@ const InstrumentWiseActivityView = () => {
               header={
                 <View style={{height: 30}}>
                   <Text style={[styles.title, {fontSize: 15}]}>
-                    {item?.pipeUser?.userName}
+                    {item?.pipe_name}
                   </Text>
                 </View>
               }
@@ -227,36 +229,43 @@ const InstrumentWiseActivityView = () => {
                       <Text style={styles.title}>
                         {t('farmer_name').substring(0, 10)}
                       </Text>
-                      <Text style={styles.title}>{t('addcrop_plot')}</Text>
-                      <Text style={styles.title}>{t('perf_date')}</Text>
-                      <Text style={styles.title}>{t('Sowing')}</Text>
                       <Text style={styles.title}>{t('farmer_number')}</Text>
+                      <Text style={styles.title}>{t('addcrop_plot')}</Text>
+                      {/* <Text style={styles.title}>{t('perf_date')}</Text>
+                      <Text style={styles.title}>{t('Sowing')}</Text> */}
                       <Text style={styles.title}>{t('crop_name')}</Text>
-                      <Text style={styles.title}>{t('deviation')}</Text>
+                      <Text style={styles.title}>{t('crop_veriety')}</Text>
+                      {/* <Text style={styles.title}>{t('deviation')}</Text>
                       <Text style={styles.title}>{t('Harvesting')}</Text>
-                      <Text style={styles.title}>{t('cycle_start_date')}</Text>
+                      <Text style={styles.title}>{t('cycle_start_date')}</Text> */}
+                      <Text style={styles.title}>{t('activity_type')}</Text>
                       <Text style={styles.title}>{t('act_name')}</Text>
+                      <Text style={styles.title}>{t('instrument_name')}</Text>
                     </View>
                     <View style={{marginLeft: 10}}>
                       <Text style={styles.title}>
                         : {item?.pipeUser?.userName}
                       </Text>
                       <Text style={styles.title}>
-                        : {item?.pipeLand?.plot_no}
+                        : {item?.pipeUser?.contactNumber}
                       </Text>
                       <Text style={styles.title}>
+                        : {item?.pipeLand?.plot_no}
+                      </Text>
+                      {/* <Text style={styles.title}>
                         : {item?.pipeActivity?.act_perform_date}
                       </Text>
                       <Text style={styles.title}>
                         : {item?.pipeActivity?.actCurel?.sowing_date}
+                      </Text> */}
+
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.cropName?.name}
                       </Text>
                       <Text style={styles.title}>
-                        : {item?.pipeUser?.contactNumber}
+                        : {item?.pipeActivity?.cropVariety?.name}
                       </Text>
-                      <Text style={styles.title}>
-                        : {item?.pipeUser?.owner?.userName}
-                      </Text>
-                      <Text style={styles.title}>
+                      {/* <Text style={styles.title}>
                         : {item?.pipeActivity?.deviation}
                       </Text>
                       <Text style={styles.title}>
@@ -268,10 +277,14 @@ const InstrumentWiseActivityView = () => {
                       </Text>
                       <Text style={styles.title}>
                         : {item?.pipeActivity?.cycle_start_date}
+                      </Text> */}
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.activityType?.categoryName}
                       </Text>
                       <Text style={styles.title}>
                         : {item?.pipeActivity?.activityName?.categoryName}
                       </Text>
+                      <Text style={styles.title}>: {item?.pipe_name}</Text>
                     </View>
                   </View>
 
@@ -304,15 +317,16 @@ const InstrumentWiseActivityView = () => {
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
+                    alignSelf: 'flex-end',
                   }}>
-                  <Image
+                  {/* <Image
                     source={require('../../Common/images/area-with-pins.png')}
                     style={{
                       width: 25,
                       height: 25,
                       tintColor: '#0d8320',
                     }}
-                  />
+                  /> */}
                   {item.status_label == 'APPROVED' && (
                     <View
                       style={{
@@ -520,7 +534,7 @@ const InstrumentWiseActivityView = () => {
             filterDataRemove={filterDataRemove}
             FarmerProductNameValue={searchFarmerName}
             FarmerProductPhoneValue={searchFarmerPhone}
-            carbonFlag={carbonFlag}
+            carbonFlag={false}
             onChangeCarbonType={onChangeCarbonType}
             carbonTypeVal={carbonType}
             dataActivity={[

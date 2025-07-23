@@ -139,7 +139,7 @@ const FarmerUsefulInformationList = () => {
             ) : (
               <Image
                 source={require('../../Common/images/view_grid.png')}
-                style={{width: 30, height: 30}}
+                style={{width: 25, height: 25}}
               />
             )}
           </TouchableOpacity>
@@ -157,69 +157,70 @@ const FarmerUsefulInformationList = () => {
             <ImageForm
               source={require('../../Common/images/search.png')}
               resizeMode="cover"
-              height={40}
-              width={40}
+              height={30}
+              width={30}
             />
           </TouchableOpacity>
         </View>
 
-         <View style={{flex: 1}}>
-                  {noticeList && (
-                    <FlatList
-                      key={`${isGridView}-${numColumns}`} // 🔑 unique key forces re-render
-                      showsVerticalScrollIndicator={false}
-                      data={noticeList.rows}
-                      numColumns={numColumns}
-                      keyExtractor={item => item.fid.toString()}
-                      renderItem={({item}) =>
-                        !isGridView ? (
-                          <TouchableOpacity
-                            onPress={() => detailItem(item.fid)}
-                            style={isGridView ? styles.gridItem : styles.listItem}>
-                            {item.agri_files && item.agri_files.length !== 0 ? (
-                              item.agri_files
-                                .filter(file => file.term_type === 'gen_info_img')
-                                .map(file => (
-                                  <Image
-                                    key={file.file_id}
-                                    source={{uri: file.file_path}}
-                                    style={{
-                                      width: 180,
-                                      height: 150,
-                                      resizeMode: 'cover',
-                                      shadowOpacity: 0.25,
-                                      shadowRadius: 3.84,
-                                      borderRadius: 25,
-                                    }}
-                                  />
-                                ))
-                            ) : (
-                              <Image
-                                source={require('../../Common/images/greenqube_logo.png')}
-                                style={styles.image}
-                              />
-                            )}
-                            <Text style={styles.title}>
-                              {item.post_name.substring(0, 10)}
-                            </Text>
-                          </TouchableOpacity>
-                        ) : (
-                          <View style={{marginBottom: 10}}>
-                            <TouchableOpacity onPress={() => detailItem(item.fid)}>
-                              <UserBoxDisplay
-                                item={item.post_name.substring(0, 50)}
-                                item2={moment(item.updated_at)
-                                  .utc()
-                                  .format('YYYY-MM-DD')}
-                                item4={t('read_more')}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        )
-                      }
-                    />
-                  )}
-                </View>
+        <View style={{flex: 1}}>
+          {noticeList && (
+            <FlatList
+              key={`${isGridView}-${numColumns}`} // 🔑 unique key forces re-render
+              showsVerticalScrollIndicator={false}
+              data={noticeList.rows}
+              numColumns={numColumns}
+              keyExtractor={item => item.fid.toString()}
+              renderItem={({item}) =>
+                !isGridView ? (
+                  <TouchableOpacity
+                    onPress={() => detailItem(item.fid)}
+                    style={isGridView ? styles.gridItem : styles.listItem}>
+                    {item.agri_files && item.agri_files.length !== 0 ? (
+                      item.agri_files
+                        .filter(file => file.term_type === 'gen_info_img')
+                        .map(file => (
+                          <Image
+                            key={file.file_id}
+                            source={{uri: file.file_path}}
+                            style={{
+                              width: 160,
+                              height: 130,
+                              resizeMode: 'cover',
+                              shadowOpacity: 0.25,
+                              shadowRadius: 3.84,
+                              borderRadius: 25,
+                              marginLeft: 10,
+                            }}
+                          />
+                        ))
+                    ) : (
+                      <Image
+                        source={require('../../Common/images/greenqube_logo.png')}
+                        style={styles.image}
+                      />
+                    )}
+                    <Text style={styles.title}>
+                      {item.post_name.substring(0, 15)}
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={{marginBottom: 10}}>
+                    <TouchableOpacity onPress={() => detailItem(item.fid)}>
+                      <UserBoxDisplay
+                        item={item.post_name.substring(0, 50)}
+                        item2={moment(item.updated_at)
+                          .utc()
+                          .format('YYYY-MM-DD')}
+                        item4={t('read_more')}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )
+              }
+            />
+          )}
+        </View>
         {/* <FormsTitle title={t('dash_useful_information')} /> */}
         {/* <View style={{ flex: 1 }}>
                 {
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginVertical: 5,
-    marginHorizontal: 10, 
+    marginHorizontal: 10,
     elevation: 1,
   },
   image: {
@@ -348,9 +349,10 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: '#FFF',
+    color: '#000',
+    fontWeight: 'bold',
     marginTop: 15,
-    marginLeft: 10,
+    marginLeft: 20,
     position: 'absolute',
     textAlign: 'right',
   },
@@ -444,7 +446,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   textInput: {
-    height: 45,
+    height: 40,
     width: '100%',
     color: '#000',
     fontFamily: 'Poppins-Regular',
