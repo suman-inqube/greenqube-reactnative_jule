@@ -2926,7 +2926,11 @@ export const addPrevPipeActivity = async (
       inputData,
       axiosHeaders,
     );
-    // console.log(JSON.stringify(response.data))
+     console.log(
+       `${config.BASE_URL}inputOutputRoute/updatePipeActivity`,
+       inputData,
+       axiosHeaders,
+     );
     return response;
   } catch (error) {
     console.log(error);

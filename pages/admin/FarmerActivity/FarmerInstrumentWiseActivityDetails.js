@@ -257,13 +257,13 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     )
 }
 
-export default FarmerInstrumentWiseActivityDetails
+export default FarmerInstrumentWiseActivityDetails;
 
 const styles = StyleSheet.create({
-    LoadingScreen: {
-        position: 'absolute',
-        top: '52%',
-        left: '45%',
-        zIndex: 9999,
-    },
-})
+  LoadingScreen: {
+    position: 'absolute',
+    top: '52%',
+    left: '45%',
+    zIndex: 9999,
+  },
+});

@@ -199,86 +199,93 @@ const InstrumentWiseActivityView = () => {
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
   }
 
-  const renderItem = useCallback(({ item }) => {
-    return (
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('InstrumentWiseActivityDetails', item)
-        }>
-        <CollapsibleCard
-          width="100%"
-          header={
-            <View style={{ height: 30 }}>
-              <Text style={[styles.title, { fontSize: 15 }]}>
-                {item?.pipeUser?.userName}
-              </Text>
-            </View>
-          }
-          content={
-            <>
-              <View
-                style={{
-                  backgroundColor: 'white',
-                  borderRadius: 8,
-                  marginVertical: 10,
-                  shadowColor: '#000',
-                  flexDirection: 'row',
-                }}>
-                <View>
-                  <Text style={styles.title}>
-                    {t('farmer_name').substring(0, 10)}
-                  </Text>
-                  <Text style={styles.title}>{t('addcrop_plot')}</Text>
-                  <Text style={styles.title}>{t('perf_date')}</Text>
-                  <Text style={styles.title}>{t('Sowing')}</Text>
-                  <Text style={styles.title}>{t('farmer_number')}</Text>
-                  <Text style={styles.title}>{t('crop_name')}</Text>
-                  <Text style={styles.title}>{t('deviation')}</Text>
-                  <Text style={styles.title}>{t('Harvesting')}</Text>
-                  <Text style={styles.title}>{t('cycle_start_date')}</Text>
-                  <Text style={styles.title}>{t('act_name')}</Text>
-                  <Text style={styles.title}>{t('Pipe Name')}</Text>
-                </View>
-                <View style={{ marginLeft: 10 }}>
-                  <Text style={styles.title}>
-                    : {item?.pipeUser?.userName}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeLand?.plot_no}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeActivity?.act_perform_date}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeActivity?.actCurel?.sowing_date}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeUser?.contactNumber}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeUser?.owner?.userName}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeActivity?.deviation}
-                  </Text>
-                  <Text style={styles.title}>
-                    :{' '}
-                    {item?.pipeActivity?.actCurel?.harvesting_date?.substring(
-                      0,
-                      10,
-                    )}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeActivity?.cycle_start_date}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipeActivity?.activityName?.categoryName}
-                  </Text>
-                  <Text style={styles.title}>
-                    : {item?.pipe_name}
+    const renderItem = useCallback(({item}) => {
+        return (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('InstrumentWiseActivityDetails', item)
+            }>
+            <CollapsibleCard
+              width="100%"
+              header={
+                <View style={{height: 30}}>
+                  <Text style={[styles.title, {fontSize: 15}]}>
+                    {item?.pipe_name}
                   </Text>
                 </View>
-              </View>
+              }
+              content={
+                <>
+                  <View
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: 8,
+                      marginVertical: 10,
+                      shadowColor: '#000',
+                      flexDirection: 'row',
+                    }}>
+                    <View>
+                      <Text style={styles.title}>
+                        {t('farmer_name').substring(0, 10)}
+                      </Text>
+                      <Text style={styles.title}>{t('farmer_number')}</Text>
+                      <Text style={styles.title}>{t('addcrop_plot')}</Text>
+                      {/* <Text style={styles.title}>{t('perf_date')}</Text>
+                      <Text style={styles.title}>{t('Sowing')}</Text> */}
+                      <Text style={styles.title}>{t('crop_name')}</Text>
+                      <Text style={styles.title}>{t('crop_veriety')}</Text>
+                      {/* <Text style={styles.title}>{t('deviation')}</Text>
+                      <Text style={styles.title}>{t('Harvesting')}</Text>
+                      <Text style={styles.title}>{t('cycle_start_date')}</Text> */}
+                      <Text style={styles.title}>{t('activity_type')}</Text>
+                      <Text style={styles.title}>{t('act_name')}</Text>
+                      <Text style={styles.title}>{t('instrument_name')}</Text>
+                    </View>
+                    <View style={{marginLeft: 10}}>
+                      <Text style={styles.title}>
+                        : {item?.pipeUser?.userName}
+                      </Text>
+                      <Text style={styles.title}>
+                        : {item?.pipeUser?.contactNumber}
+                      </Text>
+                      <Text style={styles.title}>
+                        : {item?.pipeLand?.plot_no}
+                      </Text>
+                      {/* <Text style={styles.title}>
+                        : {item?.pipeActivity?.act_perform_date}
+                      </Text>
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.actCurel?.sowing_date}
+                      </Text> */}
+
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.cropName?.name}
+                      </Text>
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.cropVariety?.name}
+                      </Text>
+                      {/* <Text style={styles.title}>
+                        : {item?.pipeActivity?.deviation}
+                      </Text>
+                      <Text style={styles.title}>
+                        :{' '}
+                        {item?.pipeActivity?.actCurel?.harvesting_date?.substring(
+                          0,
+                          10,
+                        )}
+                      </Text>
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.cycle_start_date}
+                      </Text> */}
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.activityType?.categoryName}
+                      </Text>
+                      <Text style={styles.title}>
+                        : {item?.pipeActivity?.activityName?.categoryName}
+                      </Text>
+                      <Text style={styles.title}>: {item?.pipe_name}</Text>
+                    </View>
+                  </View>
 
               {/* {item?.status_label === 'REJECTED' && (
                                                 <View
@@ -302,38 +309,39 @@ const InstrumentWiseActivityView = () => {
                                                     </Text>
                                                 </View>
                                             )} */}
-            </>
-          }
-          footer={
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <Image
-                source={require('../../Common/images/area-with-pins.png')}
-                style={{
-                  width: 25,
-                  height: 25,
-                  tintColor: '#0d8320',
-                }}
-              />
-              {item.status_label == 'APPROVED' && (
+                </>
+              }
+              footer={
                 <View
                   style={{
-                    backgroundColor: '#D4EDDA',
-                    padding: 8,
-                    borderRadius: 5,
-                    // marginRight: 15,
                     flexDirection: 'row',
-                    justifyContent: 'space-evenly',
-                    alignItems: 'center',
-                    width: 100,
-                    // borderWidth: 1,
-                    // borderColor: "#b8f8a9",
-                    height: 38,
+                    justifyContent: 'space-between',
+                    alignSelf: 'flex-end',
                   }}>
-                  {/* <Icon
+                  {/* <Image
+                    source={require('../../Common/images/area-with-pins.png')}
+                    style={{
+                      width: 25,
+                      height: 25,
+                      tintColor: '#0d8320',
+                    }}
+                  /> */}
+                  {item.status_label == 'APPROVED' && (
+                    <View
+                      style={{
+                        backgroundColor: '#D4EDDA',
+                        padding: 8,
+                        borderRadius: 5,
+                        // marginRight: 15,
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                        alignItems: 'center',
+                        width: 100,
+                        // borderWidth: 1,
+                        // borderColor: "#b8f8a9",
+                        height: 38,
+                      }}>
+                      {/* <Icon
                                                 name="check"
                                                 size={20}
                                                 color="green"

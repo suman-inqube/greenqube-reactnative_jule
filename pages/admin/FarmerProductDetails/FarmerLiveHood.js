@@ -139,6 +139,9 @@ const FarmerLiveHood = ({
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
   ]);
+  const [mainLocation, setmainLocation] = useState([
+      {latitude: '', longitude: ''},
+    ]);
   const [newDate, setnewDate] = useState(new Date());
   const [locationType, setLocationType] = useState('location_tap');
   const [penCycleStart, setopenCycleStart] = useState(false);
@@ -1288,6 +1291,7 @@ const FarmerLiveHood = ({
           }
         });
         setLocation(values);
+        setmainLocation(values);
         setPreviousPlotLatlong(values);
         if (locationLength >= 2 == true) {
           // GRQ-1131
@@ -1334,6 +1338,7 @@ const FarmerLiveHood = ({
           }
         });
         setLocation(values);
+        setmainLocation(values);
         setPreviousPlotLatlong(values);
         if (locationLength >= 2 == true) {
           // GRQ-1131
@@ -1703,8 +1708,20 @@ const FarmerLiveHood = ({
             const data = nearestLatLong_res.data.data;
             setnearPolData(data);
             const groupedData = groupByRelId(data);
-            setnearPolSet(groupedData);
-            setPolygons(groupedData);
+             const parsedTargetArray = mainLocation.map(item => ({
+               latitude: parseFloat(item.latitude),
+               longitude: parseFloat(item.longitude),
+             }));
+             const index = groupedData.findIndex(
+               subArray =>
+                 JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+             );
+             const foundArray = groupedData.filter(
+               item => !isEqualCoordinatesArray(item, parsedTargetArray),
+             );
+             setnearPolSet(foundArray);
+            // setnearPolSet(groupedData);
+            setPolygons(foundArray);
           }
         } catch (error) {
           console.error('Error fetching nearest polygon data:', error);

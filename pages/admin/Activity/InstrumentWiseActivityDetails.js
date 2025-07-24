@@ -280,13 +280,13 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
     )
 }
 
-export default InstrumentWiseActivityDetails
+export default InstrumentWiseActivityDetails;
 
 const styles = StyleSheet.create({
-    LoadingScreen: {
-        position: 'absolute',
-        top: '52%',
-        left: '45%',
-        zIndex: 9999,
-    },
-})
+  LoadingScreen: {
+    position: 'absolute',
+    top: '52%',
+    left: '45%',
+    zIndex: 9999,
+  },
+});
