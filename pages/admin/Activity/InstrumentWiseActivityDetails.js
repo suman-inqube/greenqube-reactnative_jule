@@ -176,11 +176,17 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
         const options = {
             mediaType: 'photo',
             includeBase64: true,
-            maxHeight: 900,
-            maxWidth: 900,
+            maxHeight: 600,
+            maxWidth: 600,
         };
         launchCamera(options, async response => {
             try {
+
+              if (!response) {
+                // Response is null, handle it safely
+                CustomAlert('Camera Error:','Respose is blank.', true, 'OK');
+                return;
+              }
                 if (response.didCancel) {
                     return;
                 }
@@ -189,6 +195,10 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
                     return;
                 }
                 const asset = response.assets?.[0];
+                if (asset?.uri === null) {
+                  CustomAlert('Error', 'Asset is blank', true, 'OK');
+                  return;
+                }
                 if (!asset?.uri) {
                     CustomAlert('Error', 'No image captured', true, 'OK');
                     return;

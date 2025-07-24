@@ -5,16 +5,18 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Dimensions, Alert, Keyboard
+  Dimensions,
+  Alert,
+  Keyboard,
 } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, {useEffect, useState, useCallback, useContext} from 'react';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 // import TakePhoto from './TakePhoto';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
 import RecordComp from '../Activity/RecordComp';
 import {
   activityInfoAPI,
@@ -33,22 +35,23 @@ import {
   inputOutputRoutePipeImagesLatLong,
   activityScheduleAPI,
 } from '../../../config/apiHere';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useFocusEffect } from '@react-navigation/native';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {useFocusEffect} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import AudioPlayerView from '../../Common/AudioPlayerView';
+import CustomAlert from '../../Common/CustomAlert';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { plotHook } from '../../hooks/plotHook';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {plotHook} from '../../hooks/plotHook';
 import HarvestedModel from '../../Common/HarvestedModel';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import ActivityMap from '../../Common/ActivityMap';
 import getCurrentLocation from '../../Common/getCurrentLocation';
-import { isWithin20Meters } from '../../Common/calculateAreaFun';
-import { isPointInPolygon, getDistance } from 'geolib';
-import { APP_MAP_RANGE_POLYGON } from '@env';
-const FarmerActivityReportAWD = ({ navigation }) => {
+import {isWithin20Meters} from '../../Common/calculateAreaFun';
+import {isPointInPolygon, getDistance} from 'geolib';
+import {APP_MAP_RANGE_POLYGON} from '@env';
+const FarmerActivityReportAWD = ({navigation}) => {
   const {
     InputTextForm,
     DropdownForm,
@@ -73,8 +76,8 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     LoadingScreen,
   } = useContext(userCreateContext);
   var watchId, watchIdSaveData;
-  const { dbname, lan_id, token, user_id } = loginUser_data;
-  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(
+  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
     token,
@@ -83,7 +86,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [location, setLocation] = useState(null);
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -147,11 +150,10 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     result: '',
   });
 
-
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
-  const [upcomingAct, setUpcomingAct] = useState("");
+  const [upcomingAct, setUpcomingAct] = useState('');
   const [scheduleInfo, setScheduleInfo] = useState({
     lastAct: '',
     upcomingAct: '',
@@ -188,9 +190,9 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   const [myphotoAll, setmyPhotoAll] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectPipeList, setselectPipeList] = useState({
-    label: "",
+    label: '',
     value: '',
-  })
+  });
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
   const openImagePicker = item => {
     const options = {
@@ -219,15 +221,16 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           },
           watermarkTexts: [
             {
-              text: `${saveData.latitude},${saveData.longitude
-                },${new Intl.DateTimeFormat('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
-                }).format(timestamp)}`,
+              text: `${saveData.latitude},${
+                saveData.longitude
+              },${new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }).format(timestamp)}`,
 
               positionOptions: {
                 position: Position.bottomLeft,
@@ -273,7 +276,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({ ...saveData, act_perform_date: effective_date });
+    setSaveData({...saveData, act_perform_date: effective_date});
   };
   const setCycleDate = async () => {
     setIsLoading(true);
@@ -325,7 +328,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       setIsLoading(false);
 
       if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-
         activitySchedule?.data?.data?.otherActivities.forEach(function (
           element,
         ) {
@@ -364,9 +366,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
             'December',
           ];
           const cycleDate =
-            cycleDtartDate == ''
-              ? saveData.cycle_start_date
-              : cycleDtartDate;
+            cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
           // const cycleDate =
           //   data.crop_cycl_start_date == null ||
           //   data.crop_cycl_start_date == '2004-02-29'
@@ -389,15 +389,13 @@ const FarmerActivityReportAWD = ({ navigation }) => {
 
           setUpcomingAct(
             upcomingActivity?.activityName?.categoryName +
-            ' (' +
-            startDateEndDate +
-            ')',
+              ' (' +
+              startDateEndDate +
+              ')',
           );
         }
       }
-      if (
-        activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-      ) {
+      if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
         var lastData =
           activitySchedule?.data?.data?.lastActivity?.activityName
             ?.categoryName +
@@ -406,9 +404,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
             activitySchedule?.data?.data?.lastActivity?.act_start_date,
           ) +
           ' - ' +
-          formatDate(
-            activitySchedule?.data?.data?.lastActivity?.act_to_date,
-          ) +
+          formatDate(activitySchedule?.data?.data?.lastActivity?.act_to_date) +
           ')';
 
         setLastAct(lastData);
@@ -418,7 +414,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   };
 
   const handlePlot = async relId => {
-
     setIsLoading(true);
     setShowingMenu(false);
     setNameVarityStartEnd({
@@ -469,14 +464,14 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               text: 'OK',
             },
           ],
-          { cancelable: false },
+          {cancelable: false},
         );
       }
       const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
+      const {latitude, longitude} = fusedLocation;
       if (latandlongArr.length != 0) {
         setPlotPolygon(latandlongArr);
-        const inside = isPointInPolygon({ latitude, longitude }, latandlongArr);
+        const inside = isPointInPolygon({latitude, longitude}, latandlongArr);
         if (inside) {
           setOutofRange(true);
           setOutofRangeCheck(true);
@@ -492,12 +487,12 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         const data = response?.data?.data;
         setShowingMenu(true);
         data.crop_cycl_start_date == null ||
-          data.crop_cycl_start_date == '2004-02-29'
+        data.crop_cycl_start_date == '2004-02-29'
           ? setIsButtonDisabled(false)
           : setIsButtonDisabled(true);
         let cycle_start_date =
           data.crop_cycl_start_date == null ||
-            data.crop_cycl_start_date == '2004-02-29'
+          data.crop_cycl_start_date == '2004-02-29'
             ? data.sowing_date
             : data.crop_cycl_start_date;
         setCycleStartDate(cycle_start_date);
@@ -606,23 +601,21 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           setproductionStageAll(dataArray);
         }
         if (activitySchedule.status == 200) {
-
           // console.log("lact1561",activitySchedule?.data?.data);
-          if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
-
+          if (
+            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
+          ) {
             // console.log("lact11")
             var lastData =
               activitySchedule?.data?.data?.lastActivity?.activityName
                 ?.categoryName +
               ' (' +
               formatDate(
-                activitySchedule?.data?.data?.lastActivity
-                  ?.act_start_date,
+                activitySchedule?.data?.data?.lastActivity?.act_start_date,
               ) +
               ' - ' +
               formatDate(
-                activitySchedule?.data?.data?.lastActivity
-                  ?.act_to_date,
+                activitySchedule?.data?.data?.lastActivity?.act_to_date,
               ) +
               ')';
             setLastAct(lastData);
@@ -689,7 +682,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               //     : cycleDtartDate;
               const cycleDate =
                 data.crop_cycl_start_date == null ||
-                  data.crop_cycl_start_date == '2004-02-29'
+                data.crop_cycl_start_date == '2004-02-29'
                   ? data.sowing_date
                   : data.crop_cycl_start_date;
               const sdate = new Date(cycleDate);
@@ -708,9 +701,9 @@ const FarmerActivityReportAWD = ({ navigation }) => {
 
               setUpcomingAct(
                 upcomingActivity?.activityName?.categoryName +
-                ' (' +
-                startDateEndDate +
-                ')',
+                  ' (' +
+                  startDateEndDate +
+                  ')',
               );
             }
           }
@@ -727,8 +720,8 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           //   JSON.stringify(pipeLatLongRes?.data?.data?.pipeData),
           // );
           setIsLoading(false);
-          const pipeLatLongArr =
-            pipeLatLongRes?.data?.data?.pipeData?.rows.map(_data => {
+          const pipeLatLongArr = pipeLatLongRes?.data?.data?.pipeData?.rows.map(
+            _data => {
               // return _data.pipeLatLong.map(latLong => ({
               //   latitude: parseFloat(latLong.latitude),
               //   longitude: parseFloat(latLong.longitude),
@@ -743,7 +736,8 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                   _data?.pipeActName?.categoryName +
                   ')',
               };
-            });
+            },
+          );
           // console.log(overdueAct);
           setPipeLatLong(pipeLatLongArr);
         } else {
@@ -758,8 +752,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         setModalVisible(true);
       }
     }
-
-
   };
 
   const formatDate = dateString => {
@@ -867,7 +859,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -876,7 +868,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -892,7 +884,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       return false;
     }
     if (!saveData.cycle_start_date) {
-
       Toast.show({
         time: 2,
         text: t('please_select_sowing_date_first'),
@@ -983,17 +974,17 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
+      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
       return false;
     }
 
     if (!isGeoFence) {
-      Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
+      Toast.show({text: 'Plot is not geofenced ', ...AlertMesg[0]});
 
       return;
     }
     if (!outofRangeCheck) {
-      Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+      Toast.show({text: 'You are out of range', ...AlertMesg[0]});
 
       return;
     }
@@ -1004,62 +995,58 @@ const FarmerActivityReportAWD = ({ navigation }) => {
 
     if (validateForm()) {
       const formData = new FormData();
-      formData.append("act_title", "");
+      formData.append('act_title', '');
       // myphotoAll.forEach((photo) => {
       //   formData.append("photo", photo);
       // });
 
-      formData.append("type", "carbon_activity");
-      if (soundRecordFirstItem.result != "") {
-        formData.append("audio", {
+      formData.append('type', 'carbon_activity');
+      if (soundRecordFirstItem.result != '') {
+        formData.append('audio', {
           name: 'firstItem.mp3',
           type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`
+          uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
         });
       }
-      if (soundRecordSecoundItem.result != "") {
-        formData.append("audio", {
+      if (soundRecordSecoundItem.result != '') {
+        formData.append('audio', {
           name: 'secoundItem.mp3',
           type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`
+          uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
         });
       }
-      if (soundRecordThirdItem.result != "") {
-        formData.append("audio", {
+      if (soundRecordThirdItem.result != '') {
+        formData.append('audio', {
           name: 'thirdItem.mp3',
           type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`
+          uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
         });
       }
       // formData.append("latitude", saveData.latitude);
       // formData.append("longitude", saveData.longitude);
-      formData.append("user_id", saveData.user_id);
-      formData.append("plot_id", saveData.plot_id);
-      formData.append("crop_name", saveData.crop_name);
-      formData.append("crop_season", saveData.crop_season);
-      formData.append("act_master_id", saveData.act_master_id);
+      formData.append('user_id', saveData.user_id);
+      formData.append('plot_id', saveData.plot_id);
+      formData.append('crop_name', saveData.crop_name);
+      formData.append('crop_season', saveData.crop_season);
+      formData.append('act_master_id', saveData.act_master_id);
       formData.append('cu_rel_fid', saveData.cu_rel_id);
 
-      formData.append("crop_variety", saveData.crop_variety);
-      formData.append("cycle_start_date", saveData.cycle_start_date);
-      formData.append("growth_stage", saveData.growth_stage);
-      formData.append("act_perform_date", saveData.act_perform_date);
+      formData.append('crop_variety', saveData.crop_variety);
+      formData.append('cycle_start_date', saveData.cycle_start_date);
+      formData.append('growth_stage', saveData.growth_stage);
+      formData.append('act_perform_date', saveData.act_perform_date);
       formData.append('act_pattern', 'schedule');
 
       if (saveData.act_pattern === 'schedule') {
-        formData.append("act_ref_type", saveData.act_ref_type);
-        formData.append("act_to_date", saveData.act_to_date);
-        formData.append("act_start_date", saveData.act_start_date);
-        formData.append("act_ref", saveData.act_ref);
+        formData.append('act_ref_type', saveData.act_ref_type);
+        formData.append('act_to_date', saveData.act_to_date);
+        formData.append('act_start_date', saveData.act_start_date);
+        formData.append('act_ref', saveData.act_ref);
         if (saveData.field_type == 'add') {
           const pipe_data = pipeDetails.map(_data => {
-            const { selectedImagePipe, pipe_name } = _data;
-            const {
-              firstItemLat,
-              firstItemLong,
-              secondItemLat,
-              secondItemLong,
-            } = selectedImagePipe || {};
+            const {selectedImagePipe, pipe_name} = _data;
+            const {firstItemLat, firstItemLong, secondItemLat, secondItemLong} =
+              selectedImagePipe || {};
 
             const pipe_lattlong = [];
 
@@ -1082,17 +1069,17 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               pipe_lattlong,
             };
           });
-          formData.append("pipe_data", JSON.stringify(pipe_data));
+          formData.append('pipe_data', JSON.stringify(pipe_data));
         } else {
           // const pipe_lattlong = [];latlong;
           const latlong = [];
-          if (selectedImagePipe?.firstItem != "") {
+          if (selectedImagePipe?.firstItem != '') {
             latlong.push({
               latitude: selectedImagePipe.firstItemLat,
               longitude: selectedImagePipe.firstItemLong,
             });
           }
-          if (selectedImagePipe?.secondItem != "") {
+          if (selectedImagePipe?.secondItem != '') {
             latlong.push({
               latitude: selectedImagePipe.secondItemLat,
               longitude: selectedImagePipe.secondItemLong,
@@ -1111,8 +1098,8 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         }
         if (saveData.field_type == 'add') {
           pipeDetails.map((_data, _index) => {
-            const { selectedImagePipe } = _data;
-            const { firstItem, secondItem } = selectedImagePipe || {};
+            const {selectedImagePipe} = _data;
+            const {firstItem, secondItem} = selectedImagePipe || {};
             const firstItemfileName = firstItem.split('/').pop();
             const secondItemfileName = secondItem.split('/').pop();
             if (firstItemfileName != '') {
@@ -1132,14 +1119,14 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           });
         } else {
           const pipe_image = [];
-          if (selectedImagePipe?.firstItem != "") {
+          if (selectedImagePipe?.firstItem != '') {
             pipe_image.push({
               uri: selectedImagePipe?.firstItem,
               type: 'image/jpeg',
               name: selectedImagePipe?.firstItem.split('/').pop(),
             });
           }
-          if (selectedImagePipe?.secondItem != "") {
+          if (selectedImagePipe?.secondItem != '') {
             pipe_image.push({
               uri: selectedImagePipe.secondItem,
               type: 'image/jpeg',
@@ -1149,47 +1136,63 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           pipe_image.map((_data, _index) => {
             formData.append(`pipe_files[0]`, _data);
           });
-
         }
-
       }
-      formData.append("act_desc", saveData.act_desc);
-      formData.append("material_used", saveData.material_used);
-      formData.append("water_used", saveData.water_used);
-      formData.append("power_used", saveData.power_used);
+      formData.append('act_desc', saveData.act_desc);
+      formData.append('material_used', saveData.material_used);
+      formData.append('water_used', saveData.water_used);
+      formData.append('power_used', saveData.power_used);
 
       if (isOnline) {
         if (saveData.field_type == 'add') {
-
-          var database_res = await addUserPipeActivity(dbname, lan_id, token, farmerID, formData, pipeDetails.length);
+          var database_res = await addUserPipeActivity(
+            dbname,
+            lan_id,
+            token,
+            farmerID,
+            formData,
+            pipeDetails.length,
+          );
         } else {
-
-          var database_res = await addPrevPipeActivity(dbname, lan_id, token, farmerID, formData, 1);
+          var database_res = await addPrevPipeActivity(
+            dbname,
+            lan_id,
+            token,
+            farmerID,
+            formData,
+            1,
+          );
         }
         if (database_res?.status == 200) {
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             navigation.navigate('FarmerActivityList');
           }, 1500);
         } else if (database_res?.status == 409) {
-          Toast.show({ text: database_res?.data?.error?.errorMessage, ...AlertMesg[0] });
+          Toast.show({
+            text: database_res?.data?.error?.errorMessage,
+            ...AlertMesg[0],
+          });
         }
       } else {
-        let timeStamp = Date.now()
-        await setItem('off' + timeStamp, formData)
+        let timeStamp = Date.now();
+        await setItem('off' + timeStamp, formData);
         let offlineDataArr = await getItem('offlineSupervisorActivityData');
         if (offlineDataArr) {
-          await setItem('offlineSupervisorActivityData', offlineDataArr + ',' + 'off' + timeStamp)
+          await setItem(
+            'offlineSupervisorActivityData',
+            offlineDataArr + ',' + 'off' + timeStamp,
+          );
         } else {
-          await setItem('offlineSupervisorActivityData', 'off' + timeStamp)
+          await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           navigation.navigate('FarmerActivityList');
         }, 1000);
       }
     }
-  }
+  };
   const handleActivityType = async item => {
     if (netConnection) {
       var response = await activityInfoAPI(
@@ -1211,7 +1214,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         response,
       );
     }
-    setSaveData({ ...saveData, act_ref_type: item.value, field_type: '', });
+    setSaveData({...saveData, act_ref_type: item.value, field_type: ''});
     if (response.data.data.count > 0) {
       const dataArray = [];
       response.data.data.rows.forEach(element => {
@@ -1242,7 +1245,10 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         const eyear = edate.getFullYear();
         const endDate = `${emonth} ${eday}, ${eyear}`;
         const startDateEndDate = `${startDate}-${endDate}`;
-        console.log("element?.activity?.field_type", element?.activity?.field_type);
+        console.log(
+          'element?.activity?.field_type',
+          element?.activity?.field_type,
+        );
         dataArray.push({
           start_date: sdate,
           end_date: edate,
@@ -1253,7 +1259,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           field_type: element?.activity?.field_type,
         });
       });
-      // 
+      //
       if (isButtonDisabled) {
         setActivityInfoAll(dataArray);
       }
@@ -1287,7 +1293,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     });
     setselectPipeList({
       ...selectPipeList,
-      label: "",
+      label: '',
       value: '',
     });
     const PipeListDetailsRes = await getUniquePipeNames(
@@ -1300,12 +1306,14 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       saveData.cu_rel_id,
     );
     if (PipeListDetailsRes?.status == 200) {
-      const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map((_data, _index) => ({
-        value: _data.pipe_pid,
-        label: _data.pipe_name,
-        // pipeFiles: _data?.pipeFiles,
-        // pipeLatLong: _data?.pipeLatLong
-      }))
+      const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
+        (_data, _index) => ({
+          value: _data.pipe_pid,
+          label: _data.pipe_name,
+          // pipeFiles: _data?.pipeFiles,
+          // pipeLatLong: _data?.pipeLatLong
+        }),
+      );
       setPipeListDetailsResArr(pipeDetailsArr);
     } else {
       setPipeListDetailsResArr([]);
@@ -1393,7 +1401,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   const onPageLoad = async () => {
     handleClear();
     requestLivePermission();
-    setSaveData({ ...saveData, act_pattern: 'schedule' });
+    setSaveData({...saveData, act_pattern: 'schedule'});
     setisActiveMenu(true);
 
     setfarmerID(user_id);
@@ -1408,15 +1416,19 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       setIsLoading(false);
       const dataArray = [];
       activityType_res.data.data.rows.forEach(element => {
-        dataArray.push({ value: element.fid, label: element.categoryName, field_type: element.field_type });
+        dataArray.push({
+          value: element.fid,
+          label: element.categoryName,
+          field_type: element.field_type,
+        });
       });
       setactivityTypeAll(dataArray);
     }
     watchId = Geolocation.watchPosition(
       async position => {
-        const { latitude, longitude } = position.coords;
+        const {latitude, longitude} = position.coords;
 
-        setLocation({ latitude, longitude });
+        setLocation({latitude, longitude});
       },
       error => Alert.alert('Location Error', error.message),
       {
@@ -1428,7 +1440,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      setSaveData({ plot_id: '' });
+      setSaveData({plot_id: ''});
       onBackPress(() => {
         navigation.navigate('FarmerActivityList');
         return true;
@@ -1522,24 +1534,25 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   };
   const [pipeType, setPipeType] = useState('addPipe');
   const [pipeNumber, setPipeNumber] = useState('');
-  const [pipeDetails, setPipeDetails] = useState([])
+  const [pipeDetails, setPipeDetails] = useState([]);
   const [selectedImagePipe, setSelectedImagePipe] = useState({
-    firstItem: "",
-    firstItemLat: "",
-    firstItemLong: "",
-    secondItem: "",
-    secondItemLat: "",
-    secondItemLong: "",
+    firstItem: '',
+    firstItemLat: '',
+    firstItemLong: '',
+    secondItem: '',
+    secondItemLat: '',
+    secondItemLong: '',
   });
-  const handleActivityPipeNumber = (text) => {
+  const handleActivityPipeNumber = text => {
     setPipeNumber(text);
-  }
+  };
   const addMorePipe = () => {
-    if (pipeNumber == "") {
+    if (pipeNumber == '') {
       Toast.show({
-        time: 2, text: `${t('Please enter pipe name')}`, ...AlertMesg[0]
-      })
-
+        time: 2,
+        text: `${t('Please enter pipe name')}`,
+        ...AlertMesg[0],
+      });
     } else if (
       selectedImagePipe.firstItem == '' &&
       selectedImagePipe.secondItem == ''
@@ -1552,7 +1565,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     } else {
       setPipeDetails([
         ...pipeDetails,
-        { pipe_name: pipeNumber, selectedImagePipe },
+        {pipe_name: pipeNumber, selectedImagePipe},
       ]);
       setSelectedImagePipe({
         firstItem: '',
@@ -1564,7 +1577,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       });
       setPipeNumber('');
     }
-  }
+  };
   // const openImagePickerPipe = (item) => {
   //   try {
   //     const options = {
@@ -1629,20 +1642,19 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   //     console.error(error);
   //   }
   // };
-  const handleRemovedpipeDetails = (_inde) => {
+  const handleRemovedpipeDetails = _inde => {
     try {
       const values = [...pipeDetails];
       values.splice(_inde, 1);
       setPipeDetails(values);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
-
+  };
 
   const [modalVisibleMap, setModalVisibleMap] = useState(false);
   const [plotPolygon, setPlotPolygon] = useState([]);
-  const [cameraItem, setCameraItem] = useState("");
+  const [cameraItem, setCameraItem] = useState('');
 
   const openImagePickerPipe = async item => {
     setCameraItem(item);
@@ -1650,17 +1662,20 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   };
 
   const TakePhoto = useCallback(() => {
-
-
     const options = {
       mediaType: 'photo',
       includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
+      maxHeight: 600,
+      maxWidth: 600,
     };
 
-    launchCamera(options, async (response) => {
+    launchCamera(options, async response => {
       try {
+        if (!response) {
+          // Response is null, handle it safely
+          CustomAlert('Camera Error:', 'Respose is blank.', true, 'OK');
+          return;
+        }
         if (response.didCancel) {
           console.log('User cancelled camera');
           return;
@@ -1672,6 +1687,10 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         }
 
         const asset = response.assets?.[0];
+        if (asset?.uri === null) {
+          CustomAlert('Error', 'Asset is blank', true, 'OK');
+          return;
+        }
         if (!asset?.uri) {
           console.warn('No image captured');
           return;
@@ -1690,11 +1709,11 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         const watermarkText = `${location.latitude},${location.longitude},${formattedTime}`;
 
         const markerOptions = {
-          backgroundImage: { src: asset.uri, scale: 1 },
+          backgroundImage: {src: asset.uri, scale: 1},
           watermarkTexts: [
             {
               text: watermarkText,
-              positionOptions: { position: Position.bottomLeft },
+              positionOptions: {position: Position.bottomLeft},
               style: {
                 color: '#df2020',
                 fontSize: 2,
@@ -1715,7 +1734,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
 
         const path = await Marker.markText(markerOptions);
 
-        setSelectedImagePipe((prev) => ({
+        setSelectedImagePipe(prev => ({
           ...prev,
           [cameraItem]: `file://${path}`,
           [`${cameraItem}Lat`]: location.latitude,
@@ -1726,7 +1745,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         //   Geolocation.clearWatch(watchIdRef.current);
         //   watchIdRef.current = null;
         // }
-
       } catch (error) {
         console.error('TakePhoto Error:', error);
       } finally {
@@ -1734,15 +1752,14 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       }
     });
   }, [location, cameraItem, setSelectedImagePipe, setModalVisibleMap]);
-  const handleActivityPipe = (_item) => {
-    const { pipeFiles, pipeLatLong, label, value } = _item || {};
+  const handleActivityPipe = _item => {
+    const {pipeFiles, pipeLatLong, label, value} = _item || {};
 
-    setselectPipeList({ ...selectPipeList, label, value })
-  }
+    setselectPipeList({...selectPipeList, label, value});
+  };
   return (
     <>
       <View style={styles.container}>
-
         {modalVisibleMap && (
           <ActivityMap
             modalVisibleMap={modalVisibleMap}
@@ -1868,7 +1885,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               color="red"
               data={productionStageAll}
               onChange={production_stage =>
-                setSaveData({ ...saveData, growth_stage: production_stage.value })
+                setSaveData({...saveData, growth_stage: production_stage.value})
               }
             />
 
@@ -1881,7 +1898,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                   style={styles.cycleContainerDate}
                   disabled={isButtonDisabled}
                   onPress={() => srtCycleStartDate(true)}>
-                  <View style={{ width: '80%' }}>
+                  <View style={{width: '80%'}}>
                     <Text style={styles.title}>
                       {cycleDtartDate == ''
                         ? saveData.cycle_start_date
@@ -1890,7 +1907,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                   </View>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{ width: 20, height: 20 }}
+                    style={{width: 20, height: 20}}
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -1905,7 +1922,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                   <Text
                     style={[
                       styles.title,
-                      { color: isButtonDisabled ? '#000' : '#FFF' },
+                      {color: isButtonDisabled ? '#000' : '#FFF'},
                     ]}>
                     {t('set_the_crop_cycle_start_date')}
                   </Text>
@@ -1985,35 +2002,36 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                     </View>
                   </View>
                 ) : null}
-                {saveData.field_type != "" && saveData.field_type != null && <>
-                  <Text
-                    style={[
-                      styles.title,
-                      {
-                        marginHorizontal: 5,
-                        marginBottom: 5,
-                        color: 'red',
-                        fontFamily: 'Poppins-Regular',
-                      },
-                    ]}>
-                    {t('Enter Activity Detail')}
-                  </Text>
-                  <View
-                    style={{
-                      backgroundColor: '#FFF',
-                      padding: 10,
-                      borderRadius: 5,
-                      elevation: 1,
-                      marginBottom: 10,
-                      borderColor: '#fcf7f7',
-                      borderWidth: 1.3,
-                      borderRadius: 8,
-                      paddingHorizontal: 8,
-                      backgroundColor: '#ffffff',
-                      width: '100%',
-                      elevation: 1,
-                    }}>
-                    {/* <View style={styles.activityPattern}>
+                {saveData.field_type != '' && saveData.field_type != null && (
+                  <>
+                    <Text
+                      style={[
+                        styles.title,
+                        {
+                          marginHorizontal: 5,
+                          marginBottom: 5,
+                          color: 'red',
+                          fontFamily: 'Poppins-Regular',
+                        },
+                      ]}>
+                      {t('Enter Activity Detail')}
+                    </Text>
+                    <View
+                      style={{
+                        backgroundColor: '#FFF',
+                        padding: 10,
+                        borderRadius: 5,
+                        elevation: 1,
+                        marginBottom: 10,
+                        borderColor: '#fcf7f7',
+                        borderWidth: 1.3,
+                        borderRadius: 8,
+                        paddingHorizontal: 8,
+                        backgroundColor: '#ffffff',
+                        width: '100%',
+                        elevation: 1,
+                      }}>
+                      {/* <View style={styles.activityPattern}>
                       <RadioForm
                         label={t('Add Instrument ID')}
                         selected={pipeType === 'addPipe'}
@@ -2025,86 +2043,87 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                         onSelect={() => handleActivityPipeType('UpdatePipe')}
                       />
                     </View> */}
-                    {saveData.field_type == 'add' ? (
-                      <InputTextForm
-                        label={t('Enter Instrument Name')}
+                      {saveData.field_type == 'add' ? (
+                        <InputTextForm
+                          label={t('Enter Instrument Name')}
+                          color="red"
+                          value={pipeNumber}
+                          onChangeText={text => handleActivityPipeNumber(text)}
+                        />
+                      ) : (
+                        <DropdownForm
+                          label={t('Instrument')}
+                          color="red"
+                          data={PipeListDetailsArr}
+                          onChange={item => handleActivityPipe(item)}
+                          val={selectPipeList.label}
+                        />
+                      )}
+                      <TakePhotoPipe
+                        openImagePicker={openImagePickerPipe}
+                        selectedImage={selectedImagePipe}
+                        title={t('Take a photo')}
                         color="red"
-                        value={pipeNumber}
-                        onChangeText={text => handleActivityPipeNumber(text)}
                       />
-                    ) : (
-                      <DropdownForm
-                        label={t('Instrument')}
-                        color="red"
-                        data={PipeListDetailsArr}
-                        onChange={item => handleActivityPipe(item)}
-                        val={selectPipeList.label}
-                      />
-                    )}
-                    <TakePhotoPipe
-                      openImagePicker={openImagePickerPipe}
-                      selectedImage={selectedImagePipe}
-                      title={t('Take a photo')}
-                      color="red"
-                    />
-                    {saveData.field_type == 'add' && (
-                      <TouchableOpacity
-                        style={{
-                          alignSelf: 'flex-end',
-                          paddingVertical: 10,
-                          paddingHorizontal: 20,
-                          backgroundColor: 'green',
-                          borderRadius: 50,
-                        }}
-                        onPress={() => addMorePipe()}>
-                        <Text style={{ color: '#FFF' }}>
-                          Save and Add Instrument
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    <View style={{ marginTop: 10 }}>
-                      {pipeDetails.map((_data, _index) => (
+                      {saveData.field_type == 'add' && (
                         <TouchableOpacity
                           style={{
-                            backgroundColor: '#fff',
-                            padding: 20,
-                            margin: 10,
-                            borderRadius: 5,
-                            elevation: 2, // <-- Only works on Android
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
+                            alignSelf: 'flex-end',
+                            paddingVertical: 10,
+                            paddingHorizontal: 20,
+                            backgroundColor: 'green',
+                            borderRadius: 50,
                           }}
-                          key={_index}>
-                          <>
-                            <Text
-                              style={{
-                                color: '#000',
-                                fontSize: 12,
-                                paddingHorizontal: 10,
-                              }}>
-                              {_data.pipe_name}
-                            </Text>
-                          </>
-                          <TouchableOpacity
-                            onPress={() => handleRemovedpipeDetails(_index)}>
-                            <Image
-                              source={require('../../Common/images/cross.png')}
-                              style={{ width: 20, height: 20 }}
-                            />
-                          </TouchableOpacity>
+                          onPress={() => addMorePipe()}>
+                          <Text style={{color: '#FFF'}}>
+                            Save and Add Instrument
+                          </Text>
                         </TouchableOpacity>
-                      ))}
+                      )}
+                      <View style={{marginTop: 10}}>
+                        {pipeDetails.map((_data, _index) => (
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#fff',
+                              padding: 20,
+                              margin: 10,
+                              borderRadius: 5,
+                              elevation: 2, // <-- Only works on Android
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                            }}
+                            key={_index}>
+                            <>
+                              <Text
+                                style={{
+                                  color: '#000',
+                                  fontSize: 12,
+                                  paddingHorizontal: 10,
+                                }}>
+                                {_data.pipe_name}
+                              </Text>
+                            </>
+                            <TouchableOpacity
+                              onPress={() => handleRemovedpipeDetails(_index)}>
+                              <Image
+                                source={require('../../Common/images/cross.png')}
+                                style={{width: 20, height: 20}}
+                              />
+                            </TouchableOpacity>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                </>}
+                  </>
+                )}
               </>
             ) : (
               ''
             )}
 
             <View>
-              <Text style={{ color: 'red' }}>
+              <Text style={{color: 'red'}}>
                 {t('pick_activity_perform_date')}
               </Text>
               <TouchableOpacity
@@ -2113,7 +2132,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                 <Text style={styles.title}>{activityPreFormDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
+                  style={{width: 20, height: 20}}
                 />
               </TouchableOpacity>
             </View>
@@ -2122,7 +2141,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               label={t('your_comm_')}
               value={saveData.act_desc}
               onChangeText={act_desc =>
-                setSaveData({ ...saveData, act_desc: act_desc })
+                setSaveData({...saveData, act_desc: act_desc})
               }
             />
 
@@ -2130,7 +2149,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               label={t('material_used')}
               value={saveData.material_used}
               onChangeText={material_used =>
-                setSaveData({ ...saveData, material_used: material_used })
+                setSaveData({...saveData, material_used: material_used})
               }
             />
 
@@ -2138,7 +2157,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               label={t('water_used')}
               value={saveData.water_used}
               onChangeText={water_used =>
-                setSaveData({ ...saveData, water_used: water_used })
+                setSaveData({...saveData, water_used: water_used})
               }
             />
 
@@ -2146,7 +2165,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               label={t('power_used')}
               value={saveData.power_used}
               onChangeText={power_used =>
-                setSaveData({ ...saveData, power_used: power_used })
+                setSaveData({...saveData, power_used: power_used})
               }
             />
 
@@ -2181,7 +2200,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
             handleHarvested={handleHarvested}
           />
         )}
-        <View style={{ marginTop: 10 }}>
+        <View style={{marginTop: 10}}>
           <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
         <Root></Root>

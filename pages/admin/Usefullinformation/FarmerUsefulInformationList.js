@@ -190,6 +190,7 @@ const FarmerUsefulInformationList = () => {
                               shadowOpacity: 0.25,
                               shadowRadius: 3.84,
                               borderRadius: 25,
+                              marginRight: 10,
                               marginLeft: 10,
                             }}
                           />

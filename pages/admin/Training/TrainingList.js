@@ -198,6 +198,7 @@ const TrainingList = () => {
                                 shadowRadius: 3.84,
                                 borderRadius: 25,
                                 marginLeft: 10,
+                                marginRight: 10,
                               }}
                             />
                           ))

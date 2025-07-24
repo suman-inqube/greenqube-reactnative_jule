@@ -532,7 +532,7 @@ const InstrumentWiseActivityView = () => {
           filterDataRemove={filterDataRemove}
           FarmerProductNameValue={searchFarmerName}
           FarmerProductPhoneValue={searchFarmerPhone}
-          carbonFlag={carbonFlag}
+          carbonFlag={false}
           onChangeCarbonType={onChangeCarbonType}
           carbonTypeVal={carbonType}
           dataActivity={[
