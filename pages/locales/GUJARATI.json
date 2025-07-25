@@ -1039,5 +1039,10 @@
   "Please_try_again_to_reach_the_accurancy": "કૃપા કરીને ચોકસાઈ સુધી પહોંચવા માટે ફરી પ્રયાસ કરો",
   "All": "All",
   "existing_loan_amount_enter": "Please enter existing loan amount",
-  "instrument_name": "Instrument Name"
+  "instrument_name": "Instrument Name",
+  "activity_description1": "Activity \n Description",
+  "instrument_Wise_Activity_View": "Instrument Wise Activity View",
+  "activity_Pipe_Images": "Activity Pipe Images",
+  "please_update_both_image": "Please update both image.",
+  "activity_Pipe_List": "Activity Pipe List"
 }

@@ -197,138 +197,181 @@ const FarmerInstrumentWiseActivityView = ({ navigation }) => {
         fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
     }
     return (
-        <Root>
-            <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-            <View style={{ flex: 1 }}>
-                {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
-                {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
-                <FarmerFilter
-                    filterItem={filterItem}
-                    filterOption={filterOption}
-                    setOpenToDate={setOpenToDate}
-                    fromDate={fromDate}
-                    newToDate={toDate}
-                    setOpenFromDate={setOpenFromDate}
-                    filterOptionShow={filterOptionShow}
-                    onchangeFilterItem={onchangeFilterItem}
-                    onChangeText={item => handleFilter(item)}
-                    title={t('Activity Pipe List')}
-                    // filterItem={'Date'}
-                    onlyDate={true}
-                    filterDataRemove={filterDataRemove}
-                    carbonFlag={false}
-                    onChangeCarbonType={onChangeCarbonType}
-                    carbonTypeVal={carbonType}
-                    dataActivity={[{ label: "Carbon ", value: "carbon_activity" }, { label: "Non-Carbon ", value: "user_activity" }]}
-                />
-                <>
-                    {
-                        searchResultsList && searchResultsList ?
-                            <View View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
-                                <FlatList
-                                    style={searchResults.length > 8 ? styles.flatlistHeight : ""}
-                                    data={searchResults}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity onPress={() => handleResultSelectList(item)} style={styles.flatlistitem}>
-                                            <Text style={[styles.flatlisttitle, { color: 'black' }]}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    keyExtractor={(item, index) => index}
-                                />
-                            </View> : ""
-                    }
-                </>
-                {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
+      <Root>
+        <CustomHeader
+          path="FarmerDashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <View style={{flex: 1}}>
+          {openFromDate && (
+            <DatePickerComp
+              openDate={openFromDate}
+              newDate={newFromDate}
+              setOpenDate={setOpenFromDate}
+              handleDatePicker={handleDatePicker}
+            />
+          )}
+          {openToDate && (
+            <DatePickerComp
+              openDate={openToDate}
+              newDate={newToDate}
+              setOpenDate={setOpenToDate}
+              handleDatePicker={handleDatePicker2}
+              minimumDate={
+                fromDate == ''
+                  ? ''
+                  : new Date(
+                      `${new Date(fromDate).getFullYear()}-${
+                        new Date(fromDate).getMonth() + 1
+                      }-${new Date(fromDate).getDate() + 1}`,
+                    )
+              }
+            />
+          )}
+          <FarmerFilter
+            filterItem={filterItem}
+            filterOption={filterOption}
+            setOpenToDate={setOpenToDate}
+            fromDate={fromDate}
+            newToDate={toDate}
+            setOpenFromDate={setOpenFromDate}
+            filterOptionShow={filterOptionShow}
+            onchangeFilterItem={onchangeFilterItem}
+            onChangeText={item => handleFilter(item)}
+            title={t('activity_Pipe_List')}
+            // filterItem={'Date'}
+            onlyDate={true}
+            filterDataRemove={filterDataRemove}
+            carbonFlag={false}
+            onChangeCarbonType={onChangeCarbonType}
+            carbonTypeVal={carbonType}
+            dataActivity={[
+              {label: 'Carbon ', value: 'carbon_activity'},
+              {label: 'Non-Carbon ', value: 'user_activity'},
+            ]}
+          />
+          <>
+            {searchResultsList && searchResultsList ? (
+              <View
+                View
+                style={
+                  isKeyboardVisible
+                    ? styles.flatContainerLengthUp
+                    : styles.flatContainer
+                }>
                 <FlatList
-                    data={activityAll}
-                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                    style={{ padding: 10 }}
-                    renderItem={({ item, index }) => {
-                        return (
-                          <TouchableOpacity
-                            onPress={() =>
-                              navigation.navigate(
-                                'FarmerInstrumentWiseActivityDetails',
-                                item,
-                              )
-                            }>
-                            <CollapsibleCard
-                              width="100%"
-                              header={
-                                <View style={{height: 30}}>
-                                  <Text style={[styles.title, {fontSize: 15}]}>
-                                    {item?.pipe_name}
-                                  </Text>
-                                </View>
-                              }
-                              content={
-                                <>
-                                  <View
-                                    style={{
-                                      backgroundColor: 'white',
-                                      borderRadius: 8,
-                                      marginVertical: 10,
-                                      shadowColor: '#000',
-                                      flexDirection: 'row',
-                                    }}>
-                                    <View>
-                                      <Text style={styles.title}>
-                                        {t('farmer_name').substring(0, 10)}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        {t('farmer_number')}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        {t('addcrop_plot')}
-                                      </Text>
-                                      {/* <Text style={styles.title}>{t('perf_date')}</Text>
+                  style={searchResults.length > 8 ? styles.flatlistHeight : ''}
+                  data={searchResults}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      onPress={() => handleResultSelectList(item)}
+                      style={styles.flatlistitem}>
+                      <Text style={[styles.flatlisttitle, {color: 'black'}]}>
+                        {filterName == 'PhoneNumber' ? item.phone : item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item, index) => index}
+                />
+              </View>
+            ) : (
+              ''
+            )}
+          </>
+          {isLoading && (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          )}
+          <FlatList
+            data={activityAll}
+            keyExtractor={(item, index) =>
+              item?.id?.toString() || index.toString()
+            }
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            style={{padding: 10}}
+            renderItem={({item, index}) => {
+              return (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate(
+                      'FarmerInstrumentWiseActivityDetails',
+                      item,
+                    )
+                  }>
+                  <CollapsibleCard
+                    width="100%"
+                    header={
+                      <View style={{height: 30}}>
+                        <Text style={[styles.title, {fontSize: 15}]}>
+                          {item?.pipe_name}
+                        </Text>
+                      </View>
+                    }
+                    content={
+                      <>
+                        <View
+                          style={{
+                            backgroundColor: 'white',
+                            borderRadius: 8,
+                            marginVertical: 10,
+                            shadowColor: '#000',
+                            flexDirection: 'row',
+                          }}>
+                          <View>
+                            <Text style={styles.title}>
+                              {t('farmer_name').substring(0, 10)}
+                            </Text>
+                            <Text style={styles.title}>
+                              {t('farmer_number')}
+                            </Text>
+                            <Text style={styles.title}>
+                              {t('addcrop_plot')}
+                            </Text>
+                            {/* <Text style={styles.title}>{t('perf_date')}</Text>
                                                          <Text style={styles.title}>{t('Sowing')}</Text> */}
-                                      <Text style={styles.title}>
-                                        {t('crop_name')}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        {t('crop_veriety')}
-                                      </Text>
-                                      {/* <Text style={styles.title}>{t('deviation')}</Text>
+                            <Text style={styles.title}>{t('crop_name')}</Text>
+                            <Text style={styles.title}>
+                              {t('crop_veriety')}
+                            </Text>
+                            {/* <Text style={styles.title}>{t('deviation')}</Text>
                                                          <Text style={styles.title}>{t('Harvesting')}</Text>
                                                          <Text style={styles.title}>{t('cycle_start_date')}</Text> */}
-                                      <Text style={styles.title}>
-                                        {t('activity_type')}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        {t('act_name')}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        {t('instrument_name')}
-                                      </Text>
-                                    </View>
-                                    <View style={{marginLeft: 10}}>
-                                      <Text style={styles.title}>
-                                        : {item?.pipeUser?.userName}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        : {item?.pipeUser?.contactNumber}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        : {item?.pipeLand?.plot_no}
-                                      </Text>
-                                      {/* <Text style={styles.title}>
+                            <Text style={styles.title}>
+                              {t('activity_type')}
+                            </Text>
+                            <Text style={styles.title}>{t('act_name')}</Text>
+                            <Text style={styles.title}>
+                              {t('instrument_name')}
+                            </Text>
+                          </View>
+                          <View style={{marginLeft: 10}}>
+                            <Text style={styles.title}>
+                              : {item?.pipeUser?.userName}
+                            </Text>
+                            <Text style={styles.title}>
+                              : {item?.pipeUser?.contactNumber}
+                            </Text>
+                            <Text style={styles.title}>
+                              : {item?.pipeLand?.plot_no}
+                            </Text>
+                            {/* <Text style={styles.title}>
                                                            : {item?.pipeActivity?.act_perform_date}
                                                          </Text>
                                                          <Text style={styles.title}>
                                                            : {item?.pipeActivity?.actCurel?.sowing_date}
                                                          </Text> */}
 
-                                      <Text style={styles.title}>
-                                        : {item?.pipeActivity?.cropName?.name}
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        :{' '}
-                                        {item?.pipeActivity?.cropVariety?.name}
-                                      </Text>
-                                      {/* <Text style={styles.title}>
+                            <Text style={styles.title}>
+                              : {item?.pipeActivity?.cropName?.name}
+                            </Text>
+                            <Text style={styles.title}>
+                              : {item?.pipeActivity?.cropVariety?.name}
+                            </Text>
+                            {/* <Text style={styles.title}>
                                                            : {item?.pipeActivity?.deviation}
                                                          </Text>
                                                          <Text style={styles.title}>
@@ -341,27 +384,19 @@ const FarmerInstrumentWiseActivityView = ({ navigation }) => {
                                                          <Text style={styles.title}>
                                                            : {item?.pipeActivity?.cycle_start_date}
                                                          </Text> */}
-                                      <Text style={styles.title}>
-                                        :{' '}
-                                        {
-                                          item?.pipeActivity?.activityType
-                                            ?.categoryName
-                                        }
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        :{' '}
-                                        {
-                                          item?.pipeActivity?.activityName
-                                            ?.categoryName
-                                        }
-                                      </Text>
-                                      <Text style={styles.title}>
-                                        : {item?.pipe_name}
-                                      </Text>
-                                    </View>
-                                  </View>
+                            <Text style={styles.title}>
+                              : {item?.pipeActivity?.activityType?.categoryName}
+                            </Text>
+                            <Text style={styles.title}>
+                              : {item?.pipeActivity?.activityName?.categoryName}
+                            </Text>
+                            <Text style={styles.title}>
+                              : {item?.pipe_name}
+                            </Text>
+                          </View>
+                        </View>
 
-                                  {/* {item?.status_label === 'REJECTED' && (
+                        {/* {item?.status_label === 'REJECTED' && (
                                                 <View
                                                     style={{
                                                         backgroundColor: '#F8D7DA',
@@ -383,16 +418,16 @@ const FarmerInstrumentWiseActivityView = ({ navigation }) => {
                                                     </Text>
                                                 </View>
                                             )} */}
-                                </>
-                              }
-                              footer={
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignSelf: 'flex-end',
-                                  }}>
-                                  {/* <Image
+                      </>
+                    }
+                    footer={
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignSelf: 'flex-end',
+                        }}>
+                        {/* <Image
                                     source={require('../../Common/images/area-with-pins.png')}
                                     style={{
                                       width: 25,
@@ -400,204 +435,201 @@ const FarmerInstrumentWiseActivityView = ({ navigation }) => {
                                       tintColor: '#0d8320',
                                     }}
                                   /> */}
-                                  {item.status_label == 'APPROVED' && (
-                                    <View
-                                      style={{
-                                        backgroundColor: '#D4EDDA',
-                                        padding: 8,
-                                        borderRadius: 5,
-                                        // marginRight: 15,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                        alignItems: 'center',
-                                        width: 100,
-                                        // borderWidth: 1,
-                                        // borderColor: "#b8f8a9",
-                                        height: 38,
-                                      }}>
-                                      {/* <Icon
+                        {item.status_label == 'APPROVED' && (
+                          <View
+                            style={{
+                              backgroundColor: '#D4EDDA',
+                              padding: 8,
+                              borderRadius: 5,
+                              // marginRight: 15,
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              alignItems: 'center',
+                              width: 100,
+                              // borderWidth: 1,
+                              // borderColor: "#b8f8a9",
+                              height: 38,
+                            }}>
+                            {/* <Icon
                                                 name="check"
                                                 size={20}
                                                 color="green"
                                                 iconFamily="Feather"
                                               /> */}
-                                      <Text
-                                        style={{
-                                          color: '#155724',
-                                          fontSize: 14,
-                                        }}>
-                                        {item.status_label}
-                                      </Text>
-                                    </View>
-                                  )}
-                                  {item.status_label ==
-                                    'CARBON_DOCUMENTS_SUBMITTED' && (
-                                    <View
-                                      style={{
-                                        backgroundColor: '#D4EDDA',
-                                        padding: 8,
-                                        borderRadius: 5,
-                                        // marginRight: 15,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                        alignItems: 'center',
-                                        width: 120,
-                                        // borderWidth: 1,
-                                        // borderColor: "#b8f8a9",
-                                        height: 38,
-                                      }}>
-                                      {/* <Icon
+                            <Text
+                              style={{
+                                color: '#155724',
+                                fontSize: 14,
+                              }}>
+                              {item.status_label}
+                            </Text>
+                          </View>
+                        )}
+                        {item.status_label == 'CARBON_DOCUMENTS_SUBMITTED' && (
+                          <View
+                            style={{
+                              backgroundColor: '#D4EDDA',
+                              padding: 8,
+                              borderRadius: 5,
+                              // marginRight: 15,
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              alignItems: 'center',
+                              width: 120,
+                              // borderWidth: 1,
+                              // borderColor: "#b8f8a9",
+                              height: 38,
+                            }}>
+                            {/* <Icon
                                                 name="check"
                                                 size={20}
                                                 color="green"
                                                 iconFamily="Feather"
                                               /> */}
-                                      <Text
-                                        style={{
-                                          color: '#155724',
-                                          fontSize: 14,
-                                        }}>
-                                        SUBMITTED
-                                      </Text>
-                                    </View>
-                                  )}
-                                  {item.status_label ==
-                                    'CARBON_DOCUMENTS_REJECTED' && (
-                                    <View
-                                      style={{
-                                        backgroundColor: '#F8D7DA',
-                                        padding: 8,
-                                        borderRadius: 5,
-                                        // marginRight: 15,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                        alignItems: 'center',
-                                        width: 180,
-                                        borderWidth: 1,
-                                        borderColor: '#F8D7DA',
-                                        height: 38,
-                                      }}>
-                                      {/* <Icon
+                            <Text
+                              style={{
+                                color: '#155724',
+                                fontSize: 14,
+                              }}>
+                              SUBMITTED
+                            </Text>
+                          </View>
+                        )}
+                        {item.status_label == 'CARBON_DOCUMENTS_REJECTED' && (
+                          <View
+                            style={{
+                              backgroundColor: '#F8D7DA',
+                              padding: 8,
+                              borderRadius: 5,
+                              // marginRight: 15,
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              alignItems: 'center',
+                              width: 180,
+                              borderWidth: 1,
+                              borderColor: '#F8D7DA',
+                              height: 38,
+                            }}>
+                            {/* <Icon
                                             name="close"
                                             size={16}
                                             color="#FF5252"
                                             iconFamily="AntDesign"
                                           /> */}
-                                      <Text
-                                        style={{
-                                          color: '#721C24',
-                                          fontSize: 14,
-                                        }}>
-                                        CARBON REJECTED
-                                      </Text>
-                                    </View>
-                                  )}
+                            <Text
+                              style={{
+                                color: '#721C24',
+                                fontSize: 14,
+                              }}>
+                              CARBON REJECTED
+                            </Text>
+                          </View>
+                        )}
 
-                                  {item.status_label ==
-                                    'CARBON_DOCUMENTS_APPROVED' && (
-                                    <View
-                                      style={{
-                                        backgroundColor: '#D4EDDA',
-                                        padding: 8,
-                                        borderRadius: 5,
-                                        // marginRight: 15,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                        alignItems: 'center',
-                                        width: 100,
-                                        // borderWidth: 1,
-                                        // borderColor: "#b8f8a9",
-                                        height: 38,
-                                      }}>
-                                      <Text
-                                        style={{
-                                          color: '#155724',
-                                          fontSize: 14,
-                                        }}>
-                                        VERIFIED
-                                      </Text>
-                                    </View>
-                                  )}
-                                  {item.status_label == 'PENDING' && (
-                                    <View
-                                      style={{
-                                        // backgroundColor:'#ffe69b',
-                                        backgroundColor: '#FFF3CD',
-                                        padding: 8,
-                                        borderRadius: 5,
-                                        // marginRight: 15,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                        alignItems: 'center',
-                                        width: 100,
-                                        // borderWidth: 1,
-                                        // borderColor: "#ffc107",
-                                        height: 38,
-                                      }}>
-                                      {/* <Icon
+                        {item.status_label == 'CARBON_DOCUMENTS_APPROVED' && (
+                          <View
+                            style={{
+                              backgroundColor: '#D4EDDA',
+                              padding: 8,
+                              borderRadius: 5,
+                              // marginRight: 15,
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              alignItems: 'center',
+                              width: 100,
+                              // borderWidth: 1,
+                              // borderColor: "#b8f8a9",
+                              height: 38,
+                            }}>
+                            <Text
+                              style={{
+                                color: '#155724',
+                                fontSize: 14,
+                              }}>
+                              VERIFIED
+                            </Text>
+                          </View>
+                        )}
+                        {item.status_label == 'PENDING' && (
+                          <View
+                            style={{
+                              // backgroundColor:'#ffe69b',
+                              backgroundColor: '#FFF3CD',
+                              padding: 8,
+                              borderRadius: 5,
+                              // marginRight: 15,
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              alignItems: 'center',
+                              width: 100,
+                              // borderWidth: 1,
+                              // borderColor: "#ffc107",
+                              height: 38,
+                            }}>
+                            {/* <Icon
                                             name="av-timer"
                                             size={20}
                                             color="#ffc107"
                                             iconFamily="MaterialCommunityIcons"
                                           /> */}
-                                      <Text
-                                        style={{
-                                          color: '#856404',
-                                          fontSize: 14,
-                                        }}>
-                                        {item.status_label}
-                                      </Text>
-                                    </View>
-                                  )}
-                                  {item.status_label == 'REJECTED' && (
-                                    <View
-                                      style={{
-                                        backgroundColor: '#F8D7DA',
-                                        padding: 8,
-                                        borderRadius: 5,
-                                        // marginRight: 15,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-evenly',
-                                        alignItems: 'center',
-                                        width: 100,
-                                        borderWidth: 1,
-                                        borderColor: '#F8D7DA',
-                                        height: 38,
-                                      }}>
-                                      {/* <Icon
+                            <Text
+                              style={{
+                                color: '#856404',
+                                fontSize: 14,
+                              }}>
+                              {item.status_label}
+                            </Text>
+                          </View>
+                        )}
+                        {item.status_label == 'REJECTED' && (
+                          <View
+                            style={{
+                              backgroundColor: '#F8D7DA',
+                              padding: 8,
+                              borderRadius: 5,
+                              // marginRight: 15,
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              alignItems: 'center',
+                              width: 100,
+                              borderWidth: 1,
+                              borderColor: '#F8D7DA',
+                              height: 38,
+                            }}>
+                            {/* <Icon
                                             name="close"
                                             size={16}
                                             color="#FF5252"
                                             iconFamily="AntDesign"
                                           /> */}
-                                      <Text
-                                        style={{
-                                          color: '#721C24',
-                                          fontSize: 14,
-                                        }}>
-                                        {item.status_label}
-                                      </Text>
-                                    </View>
-                                  )}
-                                </View>
-                              }
-                            />
-                          </TouchableOpacity>
-                        );
-                    }}
-                />
+                            <Text
+                              style={{
+                                color: '#721C24',
+                                fontSize: 14,
+                              }}>
+                              {item.status_label}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    }
+                  />
+                </TouchableOpacity>
+              );
+            }}
+          />
 
-                <View style={styles.prevNextPage}>
-                    <TouchableOpacity onPress={() => handlePage('previous')}>
-                        <Text style={styles.title}>{t('prev_page')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handlePage('next')}>
-                        <Text style={styles.title}>{t('next_page')}</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Root>
-    )
+          <View style={styles.prevNextPage}>
+            <TouchableOpacity onPress={() => handlePage('previous')}>
+              <Text style={styles.title}>{t('prev_page')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handlePage('next')}>
+              <Text style={styles.title}>{t('next_page')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Root>
+    );
 }
 export default FarmerInstrumentWiseActivityView;
 const styles = StyleSheet.create({

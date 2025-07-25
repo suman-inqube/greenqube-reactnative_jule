@@ -1220,7 +1220,7 @@ const ActivityReportAWD = ({navigation}) => {
           Keyboard.dismiss();
           Toast.show({
             time: 2,
-            text: `${t('No pipe found ' + item.label)}`,
+            text: `${t('No pipe found in ' + item.label)}`,
             ...AlertMesg[0],
           });
         }
@@ -1501,7 +1501,7 @@ const ActivityReportAWD = ({navigation}) => {
         ...AlertMesg[0],
       });
     } else if (
-      selectedImagePipe.firstItem == '' &&
+      selectedImagePipe.firstItem == '' ||
       selectedImagePipe.secondItem == ''
     ) {
       Toast.show({

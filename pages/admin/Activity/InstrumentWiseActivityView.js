@@ -493,7 +493,7 @@ const InstrumentWiseActivityView = () => {
         logoImage={logoImage}
         topBanner={topBanner}
       />
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         {openFromDate && (
           <DatePickerComp
             openDate={openFromDate}
@@ -512,9 +512,10 @@ const InstrumentWiseActivityView = () => {
               fromDate == ''
                 ? ''
                 : new Date(
-                  `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
-                  }-${new Date(fromDate).getDate() + 1}`,
-                )
+                    `${new Date(fromDate).getFullYear()}-${
+                      new Date(fromDate).getMonth() + 1
+                    }-${new Date(fromDate).getDate() + 1}`,
+                  )
             }
           />
         )}
@@ -528,7 +529,7 @@ const InstrumentWiseActivityView = () => {
           filterOptionShow={filterOptionShow}
           onchangeFilterItem={onchangeFilterItem}
           onChangeText={item => handleFilterList(item)}
-          title={t('Activity Pipe List')}
+          title={t('activity_Pipe_List')}
           filterDataRemove={filterDataRemove}
           FarmerProductNameValue={searchFarmerName}
           FarmerProductPhoneValue={searchFarmerPhone}
@@ -536,8 +537,8 @@ const InstrumentWiseActivityView = () => {
           onChangeCarbonType={onChangeCarbonType}
           carbonTypeVal={carbonType}
           dataActivity={[
-            { label: 'Carbon ', value: 'carbon_activity' },
-            { label: 'Non-Carbon ', value: 'user_activity' },
+            {label: 'Carbon ', value: 'carbon_activity'},
+            {label: 'Non-Carbon ', value: 'user_activity'},
           ]}
         />
         <>
@@ -552,11 +553,11 @@ const InstrumentWiseActivityView = () => {
               <FlatList
                 style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                 data={searchResults}
-                renderItem={({ item }) => (
+                renderItem={({item}) => (
                   <TouchableOpacity
                     onPress={() => handleResultSelectList(item)}
                     style={styles.flatlistitem}>
-                    <Text style={[styles.flatlisttitle, { color: 'black' }]}>
+                    <Text style={[styles.flatlisttitle, {color: 'black'}]}>
                       {filterName == 'PhoneNumber' ? item.phone : item.label}
                     </Text>
                   </TouchableOpacity>
@@ -580,7 +581,7 @@ const InstrumentWiseActivityView = () => {
           }
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          style={{ padding: 10 }}
+          style={{padding: 10}}
           renderItem={renderItem}
           windowSize={5}
           removeClippedSubviews={true}

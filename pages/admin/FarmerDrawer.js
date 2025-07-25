@@ -63,7 +63,7 @@ const FarmerDrawer = (props) => {
   return (
     <View>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ marginBottom: 80 }}>
+        <View style={{marginBottom: 80}}>
           <TouchableOpacity
             style={[styles.container, props.style]}
             activeOpacity={1}
@@ -72,10 +72,10 @@ const FarmerDrawer = (props) => {
               <TouchableOpacity
                 style={styles.memuContainer}
                 onPress={() => navigateToPages('FarmerProfile')}>
-                <View style={[styles.menuItem, { marginTop: 8 }]}>
+                <View style={[styles.menuItem, {marginTop: 8}]}>
                   <Image
                     source={require('../Common/images/user_menu.png')}
-                    style={[{ height: 28, width: 28, tintColor: '#FFF' }]}
+                    style={[{height: 28, width: 28, tintColor: '#FFF'}]}
                   />
                   <Text style={styles.menuText}>{t('profile')}</Text>
                 </View>
@@ -86,7 +86,7 @@ const FarmerDrawer = (props) => {
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/land.png')}
-                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]}
+                    style={[{height: 30, width: 30, tintColor: '#FFF'}]}
                   />
                   <Text style={styles.menuText}>
                     {t('plot_and_crop_details')}
@@ -99,11 +99,9 @@ const FarmerDrawer = (props) => {
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/scientific_farming.png')}
-                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]}
+                    style={[{height: 30, width: 30, tintColor: '#FFF'}]}
                   />
-                  <Text style={styles.menuText}>
-                    {t('scientific_farming')}
-                  </Text>
+                  <Text style={styles.menuText}>{t('scientific_farming')}</Text>
                 </View>
               </TouchableOpacity>
               {side_menu_option?.soil_testing ? (
@@ -113,7 +111,7 @@ const FarmerDrawer = (props) => {
                   <View style={styles.menuItem}>
                     <Image
                       source={require('../Common/images/soil.png')}
-                      style={[{ height: 30, width: 30, tintColor: '#FFF' }]}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
                     />
                     <Text style={styles.menuText}>
                       {t('soil_health_management')}
@@ -125,7 +123,7 @@ const FarmerDrawer = (props) => {
                   <View style={styles.menuItem}>
                     <Image
                       source={require('../Common/images/soil.png')}
-                      style={[{ height: 30, width: 30, tintColor: '#FFF' }]}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
                     />
                     <Text style={styles.menuText}>
                       {t('soil_health_management')}
@@ -140,11 +138,9 @@ const FarmerDrawer = (props) => {
                   <View style={styles.menuItem}>
                     <Image
                       source={require('../Common/images/calculator.png')}
-                      style={[{ height: 25, width: 25 }]}
+                      style={[{height: 25, width: 25}]}
                     />
-                    <Text style={styles.menuText}>
-                      {t('agri_calculator')}
-                    </Text>
+                    <Text style={styles.menuText}>{t('agri_calculator')}</Text>
                   </View>
                 </TouchableOpacity>
               ) : (
@@ -152,24 +148,20 @@ const FarmerDrawer = (props) => {
                   <View style={styles.menuItem}>
                     <Image
                       source={require('../Common/images/calculator.png')}
-                      style={[{ height: 25, width: 25 }]}
+                      style={[{height: 25, width: 25}]}
                     />
-                    <Text style={styles.menuText}>
-                      {t('agri_calculator')}
-                    </Text>
+                    <Text style={styles.menuText}>{t('agri_calculator')}</Text>
                   </View>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
                 style={styles.memuContainer}
-                onPress={() =>
-                  navigateToPages('FarmerFarmIncomeExpenseList')
-                }>
+                onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')}>
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/insurance_menu.png')}
-                    style={[{ height: 25, width: 25 }]}
+                    style={[{height: 25, width: 25}]}
                   />
                   <Text style={styles.menuText}>
                     {t('farm_income_amp_expense')}
@@ -182,7 +174,7 @@ const FarmerDrawer = (props) => {
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/dash_apply_for_loan_off.png')}
-                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]}
+                    style={[{height: 30, width: 30, tintColor: '#FFF'}]}
                   />
                   <Text style={styles.menuText}>
                     {t('loan_ninquiry_far_dash')}
@@ -195,25 +187,37 @@ const FarmerDrawer = (props) => {
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/dash_apply_for_insurance_off.png')}
-                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]}
+                    style={[{height: 30, width: 30, tintColor: '#FFF'}]}
                   />
                   <Text style={styles.menuText}>{t('ins_inq_far_dash')}</Text>
                 </View>
               </TouchableOpacity>
-              {carbonFlag ?<TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmerInstrumentWiseActivityView')}>
-                <View style={styles.menuItem}>
-                  <Image source={require('../Common/images/activity_report_only.png')}
-                    style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                  <Text style={styles.menuText}>{t('Instrument Wise Activity View')}</Text>
-                </View>
-              </TouchableOpacity> : "" }
+              {carbonFlag ? (
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() =>
+                    navigateToPages('FarmerInstrumentWiseActivityView')
+                  }>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/activity_report_only.png')}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>
+                      {t('instrument_Wise_Activity_View')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ) : (
+                ''
+              )}
               <TouchableOpacity
                 style={styles.memuContainer}
                 onPress={() => navigateToPages('FarmerChangePassword')}>
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/change_password_white.png')}
-                    style={[{ height: 30, width: 30 }]}
+                    style={[{height: 30, width: 30}]}
                   />
                   <Text style={styles.menuText}>{t('change_password')}</Text>
                 </View>
@@ -225,7 +229,7 @@ const FarmerDrawer = (props) => {
                 <View style={styles.menuItem}>
                   <Image
                     source={require('../Common/images/logout.png')}
-                    style={[{ height: 25, width: 25 }]}
+                    style={[{height: 25, width: 25}]}
                   />
                   <Text style={styles.menuText}>{t('sign_out')}</Text>
                 </View>

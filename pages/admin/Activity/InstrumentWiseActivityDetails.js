@@ -1,272 +1,287 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useEffect, useState, useRef } from 'react'
-import ButtonFormBottom from '../../Common/ButtonFormBottom'
-import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp'
-import { userCreateContext } from '../../Context/usersCreateContext'
-import { useRoute, useIsFocused } from '@react-navigation/native';
-import { ActivityPipeImages, addActivityPipeImages } from '../../../config/apiHere'
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useContext, useEffect, useState, useRef} from 'react';
+import ButtonFormBottom from '../../Common/ButtonFormBottom';
+import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {useRoute, useIsFocused} from '@react-navigation/native';
+import {
+  ActivityPipeImages,
+  addActivityPipeImages,
+} from '../../../config/apiHere';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
-import Marker, { Position } from 'react-native-image-marker';
-import { launchCamera } from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
-import useLocationTracking from '../../Common/useLocationTracking'
-const InstrumentWiseActivityDetails = ({ navigation }) => {
-    const location = useLocationTracking();
-    const {
-        loginUser_data,
-        t,
-        AlertMesg,
-        onBackPress,
-        getItem,
-        Root,
-        Toast,
-        LoadingScreen,
-        DatePickerComp,
-        FormsTitle,
-        CustomHeader,
-        ButtonFormBottom,
-        InputTextForm,
-        DropdownForm,
-        effective_dates,
-        logoImage, topBanner,
-    } = useContext(userCreateContext);
-    const { dbname, lan_id, token, user_id } = loginUser_data;
-    const route = useRoute();
-    const isFocused = useIsFocused();
-    const [pipeimage, setPipeimage] = useState([
-        { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
-        { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' }
+import useLocationTracking from '../../Common/useLocationTracking';
+const InstrumentWiseActivityDetails = ({navigation}) => {
+  const location = useLocationTracking();
+  const {
+    loginUser_data,
+    t,
+    AlertMesg,
+    onBackPress,
+    getItem,
+    Root,
+    Toast,
+    LoadingScreen,
+    DatePickerComp,
+    FormsTitle,
+    CustomHeader,
+    ButtonFormBottom,
+    InputTextForm,
+    DropdownForm,
+    effective_dates,
+    logoImage,
+    topBanner,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const route = useRoute();
+  const isFocused = useIsFocused();
+  const [pipeimage, setPipeimage] = useState([
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+  ]);
+  const [pipeName, setpipeName] = useState('');
+  const [selectedImagePipe, setSelectedImagePipe] = useState({
+    firstItem: '',
+    firstItemLat: '',
+    firstItemLong: '',
+    firstItemName: '',
+    secondItem: '',
+    secondItemLat: '',
+    secondItemLong: '',
+    secondItemName: '',
+    firstItemid: '',
+    secondItemid: '',
+    firstItemType: '',
+    secondItemType: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
+  const HandlerGoBack = () => {
+    setPipeimage([
+      {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
     ]);
-    const [pipeName, setpipeName] = useState('');
-    const [selectedImagePipe, setSelectedImagePipe] = useState({
-        firstItem: '',
-        firstItemLat: '',
-        firstItemLong: '',
-        firstItemName: '',
-        secondItem: '',
-        secondItemLat: '',
-        secondItemLong: '',
-        secondItemName: '',
-        firstItemid: '',
-        secondItemid: '',
-        firstItemType: '',
-        secondItemType: '',
-    });
-    const [isLoading, setIsLoading] = useState(false);
-    const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
-    const HandlerGoBack = () => {
-        setPipeimage([
-            { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
-            { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' }
-        ]);
-        navigation.navigate('InstrumentWiseActivityView')
-    };
-    const { params } = route;
-    const onPageLoad = async () => {
-        try {
-            setIsLoading(true);
-            const pipeRes = await ActivityPipeImages(
-                token,
-                dbname,
-                lan_id,
-                user_id,
-                params?.pipeLand?.rel_id,
-                params?.act_name_fid,
-                params?.pipe_id,
-            );
-            if (pipeRes?.status == 200) {
-                const { rows, count } = pipeRes?.data?.data;
-                if (count > 0) {
-                    rows.map(item => {
-                        if (item?.pipe_id === params?.pipe_id) {
-                            setpipeName(item?.pipe_name);
-                            item?.pipeFiles?.map((item, index) => {
-                                if (index == 0) {
-                                    setSelectedImagePipe(prev => ({
-                                        ...prev,
-                                        firstItem: item?.file_path,
-                                        firstItemLat: "",
-                                        firstItemLong: "",
-                                        firstItemid: item?.file_id,
-                                        firstItemName: item?.file_name,
-                                    }));
-                                } else if (index == 1) {
-                                    setSelectedImagePipe(prev => ({
-                                        ...prev,
-                                        secondItem: item?.file_path,
-                                        secondItemLat: "",
-                                        secondItemLong: "",
-                                        secondItemid: item?.file_id,
-                                        secondItemName: item?.file_name,
-                                    }));
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-            setIsLoading(false);
-        } catch (error) {
-            setIsLoading(false);
-        }
-    };
-    useEffect(() => {
-        if (isFocused) {
-            onPageLoad();
-            onBackPress(() => {
-                navigation.navigate('InstrumentWiseActivityView'); return true;
-            });
-        }
-    }, [isFocused]);
-    const handleImgUpdate = async () => {
-        setIsLoading(true);
-        var imgCount = 0;
-        const formData = new FormData();
-        if (selectedImagePipe.firstItemid == '') {
-            imgCount++;
-            formData.append('pipe_image', {
-                uri: selectedImagePipe.firstItem,
-                name: selectedImagePipe.firstItemName,
-                type: 'image/jpeg',
-            });
-        }
-        if (selectedImagePipe.secondItemid == '') {
-            imgCount++;
-            formData.append('pipe_image', {
-                uri: selectedImagePipe.secondItem,
-                name: selectedImagePipe.secondItemName,
-                type: 'image/jpeg',
-            });
-        }
-        formData.append('pipe_id', params?.pipe_id);
-        if (imgCount > 1) {
-            const updateActivityPipeImages = await addActivityPipeImages(
-                dbname,
-                lan_id,
-                user_id,
-                token,
-                formData,
-            );
-            if (updateActivityPipeImages?.status === 200) {
-                Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-                setTimeout(() => {
-                    navigation.navigate('InstrumentWiseActivityView');
-                }, 1500);
-            } else {
-                console.log(
-                    'Error in updating activity pipe images',
-                    updateActivityPipeImages?.data?.error?.errorMessage,
-                );
-                Toast.show({
-                    text: updateActivityPipeImages?.data?.error?.errorMessage
-                        ? updateActivityPipeImages?.data?.error?.errorMessage
-                        : 'Error in updating activity pipe images',
-                    ...AlertMesg[0],
-                });
-            }
-        } else {
-            Toast.show({
-                text: 'Please update both image.',
-                ...AlertMesg[0],
-            });
-        }
-        setIsLoading(false);
-    };
-    const openImagePickerPipe = (cameraItem) => {
-        const options = {
-            mediaType: 'photo',
-            includeBase64: true,
-            maxHeight: 600,
-            maxWidth: 600,
-        };
-        launchCamera(options, async response => {
-            try {
-
-              if (!response) {
-                // Response is null, handle it safely
-                CustomAlert('Camera Error:','Respose is blank.', true, 'OK');
-                return;
-              }
-                if (response.didCancel) {
-                    return;
-                }
-                if (response.errorCode) {
-                    CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-                    return;
-                }
-                const asset = response.assets?.[0];
-                if (asset?.uri === null) {
-                  CustomAlert('Error', 'Asset is blank', true, 'OK');
-                  return;
-                }
-                if (!asset?.uri) {
-                    CustomAlert('Error', 'No image captured', true, 'OK');
-                    return;
-                }
-                const timestamp = Date.now();
-                const formattedTime = new Intl.DateTimeFormat('en-US', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                }).format(timestamp);
-
-                const watermarkText = `${location?.latitude},${location?.longitude},${formattedTime}`;
-
-                const markerOptions = {
-                    backgroundImage: { src: asset.uri, scale: 1 },
-                    watermarkTexts: [
-                        {
-                            text: watermarkText,
-                            positionOptions: { position: Position.bottomLeft },
-                            style: {
-                                color: '#df2020',
-                                fontSize: 30,
-                                fontName: 'Arial',
-                                textBackgroundStyle: {
-                                    padding: '10% 10%',
-                                    color: '#00000000',
-                                },
-                            },
-                        },
-                    ],
-                    scale: 1,
-                    quality: 100,
-                    filename: asset.fileName,
-                    saveFormat: asset.type,
-                    maxSize: 1000,
-                };
-                const path = await Marker.markText(markerOptions);
-                setSelectedImagePipe(prev => ({
+    navigation.navigate('InstrumentWiseActivityView');
+  };
+  const {params} = route;
+  const onPageLoad = async () => {
+    try {
+      setIsLoading(true);
+      const pipeRes = await ActivityPipeImages(
+        token,
+        dbname,
+        lan_id,
+        user_id,
+        params?.pipeLand?.rel_id,
+        params?.act_name_fid,
+        params?.pipe_id,
+      );
+      if (pipeRes?.status == 200) {
+        const {rows, count} = pipeRes?.data?.data;
+        if (count > 0) {
+          rows.map(item => {
+            if (item?.pipe_id === params?.pipe_id) {
+              setpipeName(item?.pipe_name);
+              item?.pipeFiles?.map((item, index) => {
+                if (index == 0) {
+                  setSelectedImagePipe(prev => ({
                     ...prev,
-                    [cameraItem]: asset.uri,
-                    [`${cameraItem}Lat`]: location?.latitude,
-                    [`${cameraItem}Long`]: location?.longitude,
-                    [`${cameraItem}id`]: '',
-                    [`${cameraItem}Name`]: asset.fileName,
-                    [`${cameraItem}Type`]: asset.type,
-                }));
-            } catch (error) {
-                CustomAlert('Catch Error ', error, true, 'OK');
-            } finally {
+                    firstItem: item?.file_path,
+                    firstItemLat: '',
+                    firstItemLong: '',
+                    firstItemid: item?.file_id,
+                    firstItemName: item?.file_name,
+                  }));
+                } else if (index == 1) {
+                  setSelectedImagePipe(prev => ({
+                    ...prev,
+                    secondItem: item?.file_path,
+                    secondItemLat: '',
+                    secondItemLong: '',
+                    secondItemid: item?.file_id,
+                    secondItemName: item?.file_name,
+                  }));
+                }
+              });
             }
+          });
+        }
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (isFocused) {
+      onPageLoad();
+      onBackPress(() => {
+        navigation.navigate('InstrumentWiseActivityView');
+        return true;
+      });
+    }
+  }, [isFocused]);
+  const handleImgUpdate = async () => {
+    setIsLoading(true);
+    var imgCount = 0;
+    const formData = new FormData();
+    if (selectedImagePipe.firstItemid == '') {
+      if (selectedImagePipe.firstItem != '') {
+        imgCount++;
+        formData.append('pipe_image', {
+          uri: selectedImagePipe.firstItem,
+          name: selectedImagePipe.firstItemName,
+          type: 'image/jpeg',
         });
+      }
+    }
+    if (selectedImagePipe.secondItemid == '') {
+      if (selectedImagePipe.secondItem != '') {
+        imgCount++;
+        formData.append('pipe_image', {
+          uri: selectedImagePipe.secondItem,
+          name: selectedImagePipe.secondItemName,
+          type: 'image/jpeg',
+        });
+      }
+    }
+    formData.append('pipe_id', params?.pipe_id);
+    if (imgCount > 1) {
+      // console.log(JSON.stringify(formData));
+      const updateActivityPipeImages = await addActivityPipeImages(
+        dbname,
+        lan_id,
+        user_id,
+        token,
+        formData,
+      );
+      console.log(JSON.stringify(updateActivityPipeImages));
+      if (updateActivityPipeImages?.status === 200) {
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+        setTimeout(() => {
+          navigation.navigate('InstrumentWiseActivityView');
+        }, 1500);
+      } else {
+        console.log(
+          'Error in updating activity pipe images',
+          updateActivityPipeImages?.data?.error?.errorMessage,
+        );
+        Toast.show({
+          text: updateActivityPipeImages?.data?.error?.errorMessage
+            ? updateActivityPipeImages?.data?.error?.errorMessage
+            : 'Error in updating activity pipe images',
+          ...AlertMesg[0],
+        });
+      }
+    } else {
+      Toast.show({
+        text: t('please_update_both_image'),
+        ...AlertMesg[0],
+      });
+    }
+    setIsLoading(false);
+  };
+  const openImagePickerPipe = cameraItem => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      maxHeight: 600,
+      maxWidth: 600,
     };
-    return (
-        <Root>
-            <View style={{ flex: 1 }}>
-                {isLoading ? (
-                    <View style={styles.LoadingScreen}>
-                        <LoadingScreen />
-                    </View>
-                ) : null}
-                <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-                <FormsTitle title={t('Activity Pipe Images')} />
-                <View style={{ padding: 10, height: 200 }}>
-                    {/* APPROVED */}
-                    {/* <ProofAndIdentityPropfComp
+    launchCamera(options, async response => {
+      try {
+        if (!response) {
+          // Response is null, handle it safely
+          CustomAlert('Camera Error:', 'Respose is blank.', true, 'OK');
+          return;
+        }
+        if (response.didCancel) {
+          return;
+        }
+        if (response.errorCode) {
+          CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+          return;
+        }
+        const asset = response.assets?.[0];
+        if (asset?.uri === null) {
+          CustomAlert('Error', 'Asset is blank', true, 'OK');
+          return;
+        }
+        if (!asset?.uri) {
+          CustomAlert('Error', 'No image captured', true, 'OK');
+          return;
+        }
+        const timestamp = Date.now();
+        const formattedTime = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }).format(timestamp);
+
+        const watermarkText = `${location?.latitude},${location?.longitude},${formattedTime}`;
+
+        const markerOptions = {
+          backgroundImage: {src: asset.uri, scale: 1},
+          watermarkTexts: [
+            {
+              text: watermarkText,
+              positionOptions: {position: Position.bottomLeft},
+              style: {
+                color: '#df2020',
+                fontSize: 30,
+                fontName: 'Arial',
+                textBackgroundStyle: {
+                  padding: '10% 10%',
+                  color: '#00000000',
+                },
+              },
+            },
+          ],
+          scale: 1,
+          quality: 100,
+          filename: asset.fileName,
+          saveFormat: asset.type,
+          maxSize: 1000,
+        };
+        const path = await Marker.markText(markerOptions);
+        setSelectedImagePipe(prev => ({
+          ...prev,
+          [cameraItem]: asset.uri,
+          [`${cameraItem}Lat`]: location?.latitude,
+          [`${cameraItem}Long`]: location?.longitude,
+          [`${cameraItem}id`]: '',
+          [`${cameraItem}Name`]: asset.fileName,
+          [`${cameraItem}Type`]: asset.type,
+        }));
+      } catch (error) {
+        CustomAlert('Catch Error ', error, true, 'OK');
+      } finally {
+      }
+    });
+  };
+  return (
+    <Root>
+      <View style={{flex: 1}}>
+        {isLoading ? (
+          <View style={styles.LoadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : null}
+        <CustomHeader
+          path="Dashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <FormsTitle title={t('activity_Pipe_Images')} />
+        <View style={{padding: 10, height: 200}}>
+          {/* APPROVED */}
+          {/* <ProofAndIdentityPropfComp
                         title={t('Activity Pipe')}
                         setStateValue={setAddressProof}
                         stateValue={addressProof}
@@ -275,20 +290,23 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
                         InputTextFormEdit={params?.status_label == "REJECTED" ? true : false}
                         setPhotoDeletedValue={setPhotoDeletedValue}
                     /> */}
-                    <View style={{ backgroundColor: '#FFF', padding: 10, borderRadius: 10 }}>
-                        <TakePhotoPipe
-                            openImagePicker={openImagePickerPipe}
-                            selectedImage={selectedImagePipe}
-                            title={`${pipeName}`}
-                            color="black"
-                        />
-                    </View>
-                </View>
-                {params?.status_label == "REJECTED" && <ButtonFormBottom label="Update" onPress={() => handleImgUpdate()} />}
-            </View>
-        </Root>
-    )
-}
+          <View
+            style={{backgroundColor: '#FFF', padding: 10, borderRadius: 10}}>
+            <TakePhotoPipe
+              openImagePicker={openImagePickerPipe}
+              selectedImage={selectedImagePipe}
+              title={`${pipeName}`}
+              color="black"
+            />
+          </View>
+        </View>
+        {params?.status_label == 'REJECTED' && (
+          <ButtonFormBottom label="Update" onPress={() => handleImgUpdate()} />
+        )}
+      </View>
+    </Root>
+  );
+};
 
 export default InstrumentWiseActivityDetails;
 

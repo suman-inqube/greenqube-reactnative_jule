@@ -1193,78 +1193,181 @@ const FarmerActivityReportAWD = ({navigation}) => {
       }
     }
   };
-  const handleActivityType = async item => {
-    if (netConnection) {
-      var response = await activityInfoAPI(
-        dbname,
-        lan_id,
-        token,
-        farmerID,
-        CropType,
-        CropName,
-        item.value,
-      );
-      await setItem(
-        'activityInfo' + CropType + CropName + item.value,
-        response,
-      );
-    } else {
-      var response = await getItem(
-        'activityInfo' + CropType + CropName + item.value,
-        response,
-      );
-    }
-    setSaveData({...saveData, act_ref_type: item.value, field_type: ''});
-    if (response.data.data.count > 0) {
-      const dataArray = [];
-      response.data.data.rows.forEach(element => {
-        const monthNames = [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December',
-        ];
-        const sdate = new Date(cycleDtartDate);
-        sdate.setDate(sdate.getDate() + element.days_from);
-        const smonth = monthNames[sdate.getMonth()];
-        const sday = sdate.getDate();
-        const syear = sdate.getFullYear();
-        const startDate = `${smonth} ${sday}, ${syear}`;
-        const edate = new Date(cycleDtartDate);
-        edate.setDate(edate.getDate() + element.days_to);
-        const emonth = monthNames[edate.getMonth()];
-        const eday = edate.getDate();
-        const eyear = edate.getFullYear();
-        const endDate = `${emonth} ${eday}, ${eyear}`;
-        const startDateEndDate = `${startDate}-${endDate}`;
-        console.log(
-          'element?.activity?.field_type',
-          element?.activity?.field_type,
-        );
-        dataArray.push({
-          start_date: sdate,
-          end_date: edate,
-          value: element?.act_rid,
-          label:
-            element?.activity?.categoryName + ' (' + startDateEndDate + ')',
-          act_master_id: element?.act_master_id,
-          field_type: element?.activity?.field_type,
+  // const handleActivityType = async item => {
+  //   let dataArray = [];
+  //   if (netConnection) {
+  //     var response = await activityInfoAPI(
+  //       dbname,
+  //       lan_id,
+  //       token,
+  //       farmerID,
+  //       CropType,
+  //       CropName,
+  //       item.value,
+  //     );
+  //     await setItem(
+  //       'activityInfo' + CropType + CropName + item.value,
+  //       response,
+  //     );
+  //   } else {
+  //     // var response = await getItem(
+  //     //   'activityInfo' + CropType + CropName + item.value,
+  //     //   response,
+  //     // );
+  //   }
+  //   setSaveData({...saveData, act_ref_type: item.value, field_type: ''});
+  //   if (response.data.data.count > 0) {
+  //     // const dataArray = [];
+  //     response.data.data.rows.forEach(element => {
+  //       const monthNames = [
+  //         'January',
+  //         'February',
+  //         'March',
+  //         'April',
+  //         'May',
+  //         'June',
+  //         'July',
+  //         'August',
+  //         'September',
+  //         'October',
+  //         'November',
+  //         'December',
+  //       ];
+  //       const sdate = new Date(cycleDtartDate);
+  //       sdate.setDate(sdate.getDate() + element.days_from);
+  //       const smonth = monthNames[sdate.getMonth()];
+  //       const sday = sdate.getDate();
+  //       const syear = sdate.getFullYear();
+  //       const startDate = `${smonth} ${sday}, ${syear}`;
+  //       const edate = new Date(cycleDtartDate);
+  //       edate.setDate(edate.getDate() + element.days_to);
+  //       const emonth = monthNames[edate.getMonth()];
+  //       const eday = edate.getDate();
+  //       const eyear = edate.getFullYear();
+  //       const endDate = `${emonth} ${eday}, ${eyear}`;
+  //       const startDateEndDate = `${startDate}-${endDate}`;
+  //       // console.log(
+  //       //   'element?.activity?.field_type',
+  //       //   element?.activity?.field_type,
+  //       // );
+  //       dataArray.push({
+  //         start_date: sdate,
+  //         end_date: edate,
+  //         value: element?.act_rid,
+  //         label:
+  //           element?.activity?.categoryName + ' (' + startDateEndDate + ')',
+  //         act_master_id: element?.act_master_id,
+  //         field_type: element?.activity?.field_type,
+  //       });
+  //     });
+  //     //
+  //     if (isButtonDisabled) {
+  //       setActivityInfoAll(dataArray);
+  //     }
+  //   } else {
+  //     setActivityInfoAll([]);
+  //   }
+  // };
+ 
+   const handleActivityType = async item => {
+      try {
+        let dataArray = [];
+        if (isOnline) {
+          var response = await activityInfoAPI(
+            dbname,
+            lan_id,
+            token,
+            farmerID,
+            CropType,
+            CropName,
+            item.value,
+          );
+          await setItem(
+            'activityInfo' + farmerID + CropType + CropName + item.value,
+            response,
+          );
+        } else {
+          var response = await getItem(
+            'activityInfo' + farmerID + CropType + CropName + item.value,
+          );
+        }
+        setSaveData({
+          ...saveData,
+          act_to_date: '',
+          act_to_date_label: '',
+          act_start_date: '',
+          act_ref: '',
+          act_master_id: '',
+          act_ref_type: item.value,
+          field_type: '',
         });
-      });
-      //
-      if (isButtonDisabled) {
-        setActivityInfoAll(dataArray);
+        setSelectedImagePipe({
+          ...selectedImagePipe,
+          firstItem: '',
+          firstItemLat: '',
+          firstItemLong: '',
+          secondItem: '',
+          secondItemLat: '',
+          secondItemLong: '',
+        });
+        setselectPipeList({
+          ...selectPipeList,
+          label: '',
+          value: '',
+        });
+        if (response.data.data.count > 0) {
+          response.data.data.rows.forEach(element => {
+            const monthNames = [
+              'January',
+              'February',
+              'March',
+              'April',
+              'May',
+              'June',
+              'July',
+              'August',
+              'September',
+              'October',
+              'November',
+              'December',
+            ];
+            const cycleDate =
+              cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
+            const sdate = new Date(cycleDate);
+            sdate.setDate(sdate.getDate() + element?.days_from);
+            const smonth = monthNames[sdate.getMonth()];
+            const sday = sdate.getDate();
+            const syear = sdate.getFullYear();
+            const startDate = `${smonth} ${sday}, ${syear}`;
+            const edate = new Date(cycleDate);
+            edate.setDate(edate.getDate() + element?.days_to);
+            const emonth = monthNames[edate.getMonth()];
+            const eday = edate.getDate();
+            const eyear = edate.getFullYear();
+            const endDate = `${emonth} ${eday}, ${eyear}`;
+            const startDateEndDate = `${startDate}-${endDate}`;
+            dataArray.push({
+              start_date: sdate,
+              end_date: edate,
+              value: element.act_rid,
+              label:
+                element?.activity?.categoryName + ' (' + startDateEndDate + ')',
+              act_master_id: element?.act_master_id,
+              field_type: element?.activity?.field_type,
+            });
+          });
+          if (isButtonDisabled) {
+            setActivityInfoAll(dataArray);
+          }
+          setPipeListDetailsResArr([]);
+        } else {
+          setActivityInfoAll([]);
+        }
+      } catch (error) {
+        CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityType');
       }
-    }
-  };
+    };
+    
   const handleActivityInfo = async item => {
     // console.warn(item);
     const act_to_date1 = item.end_date;
@@ -1315,6 +1418,14 @@ const FarmerActivityReportAWD = ({navigation}) => {
         }),
       );
       setPipeListDetailsResArr(pipeDetailsArr);
+      if (PipeListDetailsRes?.data?.data?.length == 0) {
+        Keyboard.dismiss();
+        Toast.show({
+          time: 2,
+          text: `${t('No pipe found in ' + item.label)}`,
+          ...AlertMesg[0],
+        });
+      }
     } else {
       setPipeListDetailsResArr([]);
     }
@@ -1554,7 +1665,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
         ...AlertMesg[0],
       });
     } else if (
-      selectedImagePipe.firstItem == '' &&
+      selectedImagePipe.firstItem == '' ||
       selectedImagePipe.secondItem == ''
     ) {
       Toast.show({

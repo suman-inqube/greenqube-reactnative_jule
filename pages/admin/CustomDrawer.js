@@ -44,87 +44,144 @@ const CustomDrawer = (props) => {
         }
     };
     return (
-        <View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{ marginBottom: 80 }}>
-                    <TouchableOpacity style={[styles.container, props.style]} activeOpacity={1} onPress={() => props.setModalVisible(!props.modalVisible)}>
-                        <View style={styles.modalView}>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Profile')}>
-                                <View style={[styles.menuItem, { marginTop: 8 }]}>
-                                    <Image source={require('../Common/images/user_menu.png')}
-                                        style={[{ height: 28, width: 28, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('profile')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Business')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/inncome_expence_menu.png')}
-                                        style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('traceability')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('DailySalesReport')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/dash_sale_your_product_off.png')}
-                                        style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('daily_sales_report')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('TraingList')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/soil.png')}
-                                        style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('training_support')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('FarmIncomeExpenseList')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/insurance_menu.png')}
-                                        style={[{ height: 25, width: 25 }]} />
-                                    <Text style={styles.menuText}>{t('farm_income_amp_expense')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('Loan')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/dash_apply_for_loan_off.png')}
-                                        style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('loan_ninquiry_far_dash')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('InsuranceEnquiry')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/dash_apply_for_insurance_off.png')}
-                                        style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('ins_inq_far_dash')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                             {carbonFlag ?<TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('InstrumentWiseActivityView')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/activity_report_only.png')}
-                                        style={[{ height: 30, width: 30, tintColor: '#FFF' }]} />
-                                    <Text style={styles.menuText}>{t('Instrument Wise Activity View')}</Text>
-                                </View>
-                            </TouchableOpacity>: ""}
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => navigateToPages('ChangePassword')}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/change_password_white.png')}
-                                        style={[{ height: 30, width: 30 }]} />
-                                    <Text style={styles.menuText}>{t('change_password')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.memuContainer} onPress={() => handleLogout()}>
-                                <View style={styles.menuItem}>
-                                    <Image source={require('../Common/images/logout.png')}
-                                        style={[{ height: 25, width: 25 }]} />
-                                    <Text style={styles.menuText}>{t('sign_out')}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </View>
-    )
+      <View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{marginBottom: 80}}>
+            <TouchableOpacity
+              style={[styles.container, props.style]}
+              activeOpacity={1}
+              onPress={() => props.setModalVisible(!props.modalVisible)}>
+              <View style={styles.modalView}>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('Profile')}>
+                  <View style={[styles.menuItem, {marginTop: 8}]}>
+                    <Image
+                      source={require('../Common/images/user_menu.png')}
+                      style={[{height: 28, width: 28, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>{t('profile')}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('Business')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/inncome_expence_menu.png')}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>{t('traceability')}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('DailySalesReport')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/dash_sale_your_product_off.png')}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>
+                      {t('daily_sales_report')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('TraingList')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/soil.png')}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>{t('training_support')}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('FarmIncomeExpenseList')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/insurance_menu.png')}
+                      style={[{height: 25, width: 25}]}
+                    />
+                    <Text style={styles.menuText}>
+                      {t('farm_income_amp_expense')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('Loan')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/dash_apply_for_loan_off.png')}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>
+                      {t('loan_ninquiry_far_dash')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('InsuranceEnquiry')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/dash_apply_for_insurance_off.png')}
+                      style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                    />
+                    <Text style={styles.menuText}>{t('ins_inq_far_dash')}</Text>
+                  </View>
+                </TouchableOpacity>
+                {carbonFlag ? (
+                  <TouchableOpacity
+                    style={styles.memuContainer}
+                    onPress={() =>
+                      navigateToPages('InstrumentWiseActivityView')
+                    }>
+                    <View style={styles.menuItem}>
+                      <Image
+                        source={require('../Common/images/activity_report_only.png')}
+                        style={[{height: 30, width: 30, tintColor: '#FFF'}]}
+                      />
+                      <Text style={styles.menuText}>
+                        {t('instrument_Wise_Activity_View')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  ''
+                )}
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => navigateToPages('ChangePassword')}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/change_password_white.png')}
+                      style={[{height: 30, width: 30}]}
+                    />
+                    <Text style={styles.menuText}>{t('change_password')}</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.memuContainer}
+                  onPress={() => handleLogout()}>
+                  <View style={styles.menuItem}>
+                    <Image
+                      source={require('../Common/images/logout.png')}
+                      style={[{height: 25, width: 25}]}
+                    />
+                    <Text style={styles.menuText}>{t('sign_out')}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    );
 }
 export default memo(CustomDrawer)
 const styles = StyleSheet.create({
