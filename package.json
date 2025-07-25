@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@animatereactnative/marquee": "^0.5.2",
     "@hookform/resolvers": "^5.0.1",
     "@notifee/react-native": "^7.8.2",
     "@react-native-async-storage/async-storage": "^1.19.3",
@@ -74,6 +75,7 @@
     "react-native-images-to-pdf": "^0.2.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-maps": "^1.13.0",
+    "react-native-marquee": "^0.5.0",
     "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-permissions": "^3.9.3",
     "react-native-popup-confirm-toast": "^2.3.2",

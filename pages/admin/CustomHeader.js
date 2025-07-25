@@ -25,7 +25,7 @@ const CustomHeader = ({
   }, []);
   return (
     <View style={styles.mainContainer}>
-      <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
+      <StatusBar barStyle="light-content" backgroundColor={'#478541'} />
       <View
         style={
           Platform.OS === 'android'
@@ -37,14 +37,21 @@ const CustomHeader = ({
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{width: 30, height: 30}}
+              style={{width: 30, height: 30, tintColor: 'white'}}
             />
           </TouchableOpacity>
-          <Image
-            source={require('../Common/images/logo.png')}
-            style={{width: 100, height: 50}}
-            resizeMode="contain"
-          />
+          <View
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 10,
+              marginLeft: 10,
+            }}>
+            <Image
+              source={require('../Common/images/logo.png')}
+              style={{width: 100, height: 50}}
+              resizeMode="contain"
+            />
+          </View>
         </View>
         <TouchableOpacity onPress={openDrawer}>
           <View
@@ -61,13 +68,29 @@ const CustomHeader = ({
                 source={{uri: logoImage}}
                 resizeMode="contain"
                 // resizeMode='cover'
-                height={75}
-                width={80}
+                height={50}
+                width={50}
+                borderRadius={50}
               />
             ) : (
               ''
             )}
-            <Image source={require('../Common/images/3dot.png')} />
+            <View
+              style={{
+                width: 32,
+                backgroundColor: 'white',
+                height: 32,
+                borderRadius: 12,
+                marginLeft: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 10,
+              }}>
+              <Image
+                source={require('../Common/images/4dot.png')}
+                style={{width: 25, height: 25}}
+              />
+            </View>
           </View>
         </TouchableOpacity>
       </View>
@@ -99,7 +122,8 @@ const styles = StyleSheet.create({
   mainContainer: {
     // borderBottomWidth: 2,
     // marginTop:StatusBar.currentHeight,
-    backgroundColor: '#FFF',
+    backgroundColor: '#478541',
+    // marginTop: 30,
   },
   androidContainer: {
     justifyContent: 'space-between',

@@ -1,65 +1,122 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native'
-import React from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  TextInput,
+} from 'react-native';
+import React from 'react';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Colors, Fonts} from '../utils/Constants';
 
-const PasswordComp = ({ setPasswordVisibility, passwordVisibility, label, onChangeText, value }) => {
-    return (
-        <>
-            <Text style={styles.formMargin}>{label}</Text>
-            <View style={styles.passwordMainContainer}>
-                <View style={styles.passwordContainer}>
-                    <TextInput secureTextEntry={passwordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={onChangeText} value={value} />
-                    <TouchableOpacity onPress={() => setPasswordVisibility(!passwordVisibility)} style={{ marginRight: 10 }} opacity={0.5}>
-                        {
-                            passwordVisibility ?
-                                <Image source={require('../Common/images/show.png')} style={{ width: 22, height: 22 }} />
-                                :
-                                <Image source={require('../Common/images/hide.png')} style={{ width: 22, height: 20 }} />
-                        }
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </>
-    )
-}
+const PasswordComp = ({
+  setPasswordVisibility,
+  color = '#4e4e4e',
+  passwordVisibility,
+  label,
+  onChangeText,
+  value,
+  required = false,
+  iconName = null,
+  iconSize = 20,
+  iconColor = null,
+}) => {
+  return (
+    <>
+      <View style={styles.labelContainer}>
+        {iconName && (
+          <MaterialIcons
+            name={iconName}
+            size={iconSize}
+            color={iconColor || color}
+            style={styles.labelIcon}
+          />
+        )}
+        <Text style={[styles.formMargin, {color: color ?? 'black'}]}>
+          {label}
+        </Text>
+        {required && <Text style={styles.requiredStar}> *</Text>}
+      </View>
+      <View style={styles.passwordMainContainer}>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            secureTextEntry={passwordVisibility ? false : true}
+            style={styles.inputTextStyle}
+            onChangeText={onChangeText}
+            value={value}
+          />
+          <TouchableOpacity
+            onPress={() => setPasswordVisibility(!passwordVisibility)}
+            style={{marginRight: 10}}
+            opacity={0.5}>
+            {passwordVisibility ? (
+              <MaterialIcons name={'visibility'} color={'black'} size={20} />
+            ) : (
+              <MaterialIcons
+                name={'visibility-off'}
+                color={'black'}
+                size={20}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </>
+  );
+};
 
-export default PasswordComp
+export default PasswordComp;
 
 const styles = StyleSheet.create({
-    formMargin: {
-        marginHorizontal: 10,
-        color: 'red',
-        marginBottom: 5,
-    },
-    passwordMainContainer: {
-        alignItems: 'center',
-        elevation: 2,
-        backgroundColor: '#ffffff',
-        justifyContent: 'center',
-        height: 50,
-        borderWidth: 0.5,
-        borderRadius: 8,
-        borderColor: '#ffffff',
-        paddingEnd: 8,
-        marginBottom: 10
-    },
-    passwordContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: 5,
+  },
+  labelIcon: {
+    marginRight: 8, // Space between icon and label
+  },
+  formMargin: {
+    // marginHorizontal: 10,
+    color: 'red',
+    fontSize: 15,
+    // marginBottom: 5,
+  },
+  requiredStar: {
+    color: 'red',
+    fontSize: 16,
+    fontFamily: 'Poppins-Bold',
+  },
+  passwordMainContainer: {
+    height: 50,
+    borderColor: Colors.secondary, // Make sure this color is visible
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    width: '100%',
+    elevation: 1,
+    paddingHorizontal: 10,
+    color: '#000000', // Changed from 'white' to 'black' for better visibility
+    marginBottom: 20,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
 
-        width: '100%',
-        // paddingEnd: 8,
-        backgroundColor: '#ffffff',
-        // height: 50,
-        // marginBottom: 15,
-
-    },
-    inputTextStyle: {
-        flex: 1,
-        height: 44,
-        marginHorizontal: 10,
-        borderColor: 'gray',
-        color: "#000",
-        fontFamily: 'Poppins-Regular',
-
-    },
-})
+    width: '100%',
+    // paddingEnd: 8,
+    backgroundColor: '#ffffff',
+    // height: 50,
+    // marginBottom: 15,
+  },
+  inputTextStyle: {
+    flex: 1,
+    height: 44,
+    marginHorizontal: 10,
+    borderColor: 'gray',
+    color: '#000',
+    fontFamily: 'Poppins-Regular',
+  },
+});

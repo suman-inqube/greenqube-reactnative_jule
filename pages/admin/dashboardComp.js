@@ -55,8 +55,8 @@ export const BoxDisplay = ({
             {/* <MaterialIcons name={iconName} size={30} color="#4CAF50" /> */}
             <ImageForm
               source={imageurl}
-              width={30}
-              height={30}
+              width={35}
+              height={35}
               align={align}
               justify="center"
             />
@@ -128,18 +128,19 @@ export const BoxDisplaySingleLine = ({name, imageurl}) => {
 };
 const styles = StyleSheet.create({
   textGlowContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.58)', // light glow effect
+    backgroundColor: 'rgba(255, 255, 255, 0.68)', // light glow effect
+    // backgroundColor: 'white',
     borderRadius: 48,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    marginTop: 20,
+    // paddingHorizontal: 8,
+    // paddingVertical: 4,
+    marginTop: 25,
     shadowColor: '#ccc',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.4,
     shadowRadius: 3,
-    elevation: 3,
+    // elevation: 3,
     alignSelf: 'center', // optional: centers text block
-    width: 100,
+    width: 90,
     height: 27,
     justifyContent: 'center',
     alignItems: 'center',
@@ -147,49 +148,67 @@ const styles = StyleSheet.create({
   mainView: {
     flex: 1,
     // backgroundColor: 'blue',
-    marginBottom: 200,
+    // marginBottom: 200,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 180,
-    width: 98,
-    marginHorizontal: 12,
+    height: 160,
+    width: '100%',
+    marginHorizontal: 10,
+    alignSelf: 'center',
+    // backgroundColor: 'black',
+    // elevation: 10,
+    marginHorizontal: 15,
   },
   boxContainer: {
-    flex: 1,
-    paddingTop: 20,
+    // flex: 1,
+    // paddingTop: 20,
     // paddingLeft: 5,
-    // backgroundColor: 'red',
-    marginLeft: 12,
+    // backgroundColor: 'pink',
+    // marginLeft: 12,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 10,
+    alignItems: 'center',
+    // elevation: 10,
   },
   box1: {
-    borderRadius: 50,
+    borderRadius: 60,
     // flexDirection: 'row',
     alignItems: 'center',
-    height: 52,
-    width: 52,
+    height: 60,
+    width: 60,
     backgroundColor: 'white',
     // shadowColor: 'rgba(0, 0, 0, 0.2)',
     // shadowOffset: { width: 0, height: 2 },
     // shadowOpacity: 0.8,
     // shadowRadius: 20,
-    marginTop: 30,
-    marginLeft: 10,
-    marginRight: 32,
+    // marginTop: 30,
+    // marginLeft: 10,
+    // marginRight: 32,
     // elevation: 3,
-    borderWidth: 0.2,
+    // borderWidth: 0.2,
     borderBlockColor: 'green',
+    alignSelf: 'center',
+    padding: 10,
+    elevation: 8,
+    shadowColor: 'rgba(0, 0, 0, 1)',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    margin: 10,
   },
   marketView: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)', // light glow effect
+    backgroundColor: 'rgba(255, 255, 255, 0.58)', // light glow effect
+    // backgroundColor: 'white',
     borderRadius: 48,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    marginTop: 15,
+    marginTop: 25,
     shadowColor: '#ccc',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.4,
     shadowRadius: 3,
-    elevation: 3,
+    // elevation: 3,
     alignSelf: 'center', // optional: centers text block
     width: 92,
     height: 27,
@@ -210,17 +229,18 @@ const styles = StyleSheet.create({
   boxText: {
     fontFamily: 'Poppins-Medium',
     color: 'black',
-    fontSize: 12.5,
+    fontSize: 13,
   },
   box1_1: {
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     fontWeight: '400',
-    color: '#000',
-    fontFamily: 'Poppins-Regular',
-    fontSize: 15,
-    marginTop: 10,
+    alignSelf: 'center',
+    // color: '#000',
+    // fontFamily: 'Poppins-Regular',
+    // fontSize: 15,
+    // marginTop: 5,
   },
   box1_de: {
     color: '#494a49',

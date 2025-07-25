@@ -87,6 +87,7 @@ const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
                 resizeMode="contain"
                 height={50}
                 width={50}
+                borderRadius={50}
               />
             ) : (
               ''
@@ -135,17 +136,11 @@ const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
 export default CustomHeaderCopy;
 const styles = StyleSheet.create({
   mainContainer: {
-    // borderBottomWidth: 2,
-    // marginTop:StatusBar.currentHeight,
-    //backgroundColor: '#d0f3cd',
     position: 'relative',
     overflow: 'hidden',
     backgroundColor: '#00451c',
   },
-  // overlay: {
-  //   ...StyleSheet.absoluteFillObject,
-  //   backgroundColor: 'rgba(223, 237, 226, 0.68)',
-  // },
+
   androidContainer: {
     justifyContent: 'space-between',
     alignItems: 'center',

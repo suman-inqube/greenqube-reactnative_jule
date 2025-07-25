@@ -1,46 +1,42 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {StyleSheet} from 'react-native';
+import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import FarmerDashboard from './FarmerDashboard';
-import CustomHeader from './CustomHeader';
-import {getItem, setItem} from '../../config/getDataFromStorage';
-import {fpodetailsDataListAPI} from '../../config/apiHere';
-import FarmerActivityList from './FarmerActivity/FarmerActivityList';
-import FarmerActivityDetail from './FarmerActivity/FarmerActivityDetail';
-import FarmerActivityReport from './FarmerActivity/FarmerActivityReport';
-import FarmerActivityReportAWD from './FarmerActivity/FarmerActivityReportAWD';
-import FarmerInputList from './FarmerInputs/FarmerInputList';
-import FarmerPastEnquiries from './FarmerInputs/FarmerPastEnquiries';
-import FarmerProfile from './FarmerProfile/FarmerProfile';
-import FarmerListProblem from './FarmerProblem/FarmerListProblem';
-import FarmerCreateProblem from './FarmerProblem/FarmerCrateProblem';
-import FarmerViewProblem from './FarmerProblem/FarmerViewProblem';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import FarmerDrawer from './FarmerDrawer';
-import FarmerWantToBuy from './FarmerInputs/FarmerWantToBuy';
 
-import FarmerOutPut from './FarmerOutput/FarmerOutPut';
-import FarmerPostNew from './FarmerOutput/FarmerPostNew';
-import FarmerViewPast from './FarmerOutput/FarmerViewPast';
+// All Screens
+import FarmerDashboard from './FarmerDashboard';
 import PlotListFarmer from './FarmerProductDetails/PlotListFarmer';
-// import FarmerLiveHood from './FarmerProductDetails/FarmerLiveHood';
-import FarmerChangePassword from './FarmerProfile/FarmerChangePassword';
-
-import FarmerLoanEnquiry from './FarmerLoan/FarmerLoanEnquiry';
-import FarmerLoanEnquiryDetail from './FarmerLoan/FarmerLoanEnquiryDetail';
 import FarmerTraining from './Training/FarmerTraining';
 import FarmerTrainingList from './Training/FarmerTrainingList';
 import FarmerUsefulInformation from './Usefullinformation/FarmerUsefulInformation';
 import FarmerUsefulInformationList from './Usefullinformation/FarmerUsefulInformationList';
+import FarmerCreateProblem from './FarmerProblem/FarmerCrateProblem';
+import FarmerListProblem from './FarmerProblem/FarmerListProblem';
+import FarmerViewProblem from './FarmerProblem/FarmerViewProblem';
+import FarmerOutPut from './FarmerOutput/FarmerOutPut';
+import FarmerPostNew from './FarmerOutput/FarmerPostNew';
+import FarmerViewPast from './FarmerOutput/FarmerViewPast';
+import FarmerLoanEnquiry from './FarmerLoan/FarmerLoanEnquiry';
+import FarmerLoanEnquiryDetail from './FarmerLoan/FarmerLoanEnquiryDetail';
+import FarmerInputList from './FarmerInputs/FarmerInputList';
+import FarmerWantToBuy from './FarmerInputs/FarmerWantToBuy';
+import FarmerPastEnquiries from './FarmerInputs/FarmerPastEnquiries';
+import FarmerActivityList from './FarmerActivity/FarmerActivityList';
+import FarmerActivityReport from './FarmerActivity/FarmerActivityReport';
+import FarmerActivityReportAWD from './FarmerActivity/FarmerActivityReportAWD';
+import FarmerActivityDetail from './FarmerActivity/FarmerActivityDetail';
+import FarmerProfile from './FarmerProfile/FarmerProfile';
 import FarmerInsuranceEnquiry from './FarmerInsurance/FarmerInsuranceEnquiry';
 import DailySalesReport from './DailySalesReport/DailySalesReport';
 import SalesDetail from './DailySalesReport/SalesDetail';
 import DealerReport from './DailySalesReport/DealerReport';
 import FarmerReport from './DailySalesReport/FarmerReport';
-
 import FarmerFarmIncomeExpenseList from './FarmerFarmIncomeExpense/FarmerFarmIncomeExpenseList';
 import FarmerFarmIncomeExpenseView from './FarmerFarmIncomeExpense/FarmerFarmIncomeExpenseView';
 import FarmerAddIncome from './FarmerFarmIncomeExpense/FarmerAddIncome';
 import FarmerAddExpense from './FarmerFarmIncomeExpense/FarmerAddExpense';
+import FarmerChangePassword from './FarmerProfile/FarmerChangePassword';
 import Weather from './Weather/Weather';
 import Calculator from './Calculator';
 import PackageOfPractices from './PackageOfPractices';
@@ -52,17 +48,111 @@ import MySoil from './SoilHealth/MySoil';
 import SampleRequested from './SoilHealth/SampleRequested';
 import SampleReport from './SoilHealth/SampleReport';
 import AudioPlayerView from '../Common/AudioPlayerView';
+import {Colors} from '../utils/Constants';
 const Drawer = createDrawerNavigator();
+const Stack = createNativeStackNavigator();
+
+const FarmerMainStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      contentStyle: {backgroundColor: 'transparent'},
+    }}>
+    <Stack.Screen name="FarmerDashboard" component={FarmerDashboard} />
+    <Stack.Screen name="FarmerLiveHood" component={PlotListFarmer} />
+    <Stack.Screen name="FarmerTraining" component={FarmerTraining} />
+    <Stack.Screen name="FarmerTrainingList" component={FarmerTrainingList} />
+    <Stack.Screen
+      name="FarmerUsefulInformation"
+      component={FarmerUsefulInformation}
+    />
+    <Stack.Screen
+      name="FarmerUsefulInformationList"
+      component={FarmerUsefulInformationList}
+    />
+    <Stack.Screen name="FarmerCreateProblem" component={FarmerCreateProblem} />
+    <Stack.Screen name="FarmerListProblem" component={FarmerListProblem} />
+    <Stack.Screen name="FarmerViewProblem" component={FarmerViewProblem} />
+    <Stack.Screen name="FarmerOutPutList" component={FarmerOutPut} />
+    <Stack.Screen name="FarmerPostNew" component={FarmerPostNew} />
+    <Stack.Screen name="FarmerViewPast" component={FarmerViewPast} />
+    <Stack.Screen name="FarmerLoan" component={FarmerLoanEnquiry} />
+    <Stack.Screen
+      name="FarmerLoanEnquiryDetail"
+      component={FarmerLoanEnquiryDetail}
+    />
+    <Stack.Screen name="FarmerInputList" component={FarmerInputList} />
+    <Stack.Screen name="FarmerWantToBuy" component={FarmerWantToBuy} />
+    <Stack.Screen name="FarmerPastEnquiry" component={FarmerPastEnquiries} />
+    <Stack.Screen name="FarmerActivityList" component={FarmerActivityList} />
+    <Stack.Screen
+      name="FarmerActivityReport"
+      component={FarmerActivityReport}
+    />
+    <Stack.Screen
+      name="FarmerActivityReportAWD"
+      component={FarmerActivityReportAWD}
+    />
+    <Stack.Screen
+      name="FarmerActivityDetail"
+      component={FarmerActivityDetail}
+    />
+    <Stack.Screen name="FarmerProfile" component={FarmerProfile} />
+    <Stack.Screen
+      name="FarmerInsuranceEnquiry"
+      component={FarmerInsuranceEnquiry}
+    />
+    <Stack.Screen name="DailySalesReport" component={DailySalesReport} />
+    <Stack.Screen name="SalesDetail" component={SalesDetail} />
+    <Stack.Screen name="DealerReport" component={DealerReport} />
+    <Stack.Screen name="FarmerReport" component={FarmerReport} />
+    <Stack.Screen
+      name="FarmerFarmIncomeExpenseList"
+      component={FarmerFarmIncomeExpenseList}
+    />
+    <Stack.Screen
+      name="FarmerFarmIncomeExpenseView"
+      component={FarmerFarmIncomeExpenseView}
+    />
+    <Stack.Screen name="FarmerAddIncome" component={FarmerAddIncome} />
+    <Stack.Screen name="FarmerAddExpense" component={FarmerAddExpense} />
+    <Stack.Screen
+      name="FarmerChangePassword"
+      component={FarmerChangePassword}
+    />
+    <Stack.Screen name="Weather" component={Weather} />
+    <Stack.Screen name="Calculator" component={Calculator} />
+    <Stack.Screen name="PackageOfPractices" component={PackageOfPractices} />
+    <Stack.Screen
+      name="PackageOfPracticesDetails"
+      component={PackageOfPracticesDetails}
+    />
+    <Stack.Screen name="PackageItemDetails" component={PackageItemDetails} />
+    <Stack.Screen
+      name="SoilHealthManagement"
+      component={SoilHealthManagement}
+    />
+    <Stack.Screen name="PostRequest" component={PostRequest} />
+    <Stack.Screen name="MySoil" component={MySoil} />
+    <Stack.Screen name="SampleRequested" component={SampleRequested} />
+    <Stack.Screen name="SampleReport" component={SampleReport} />
+    <Stack.Screen name="AudioPlayerView" component={AudioPlayerView} />
+  </Stack.Navigator>
+);
+
 const FarmerNavigation = () => {
   return (
     <Drawer.Navigator
-      drawerContent={props => <FarmerDrawer />}
+      drawerContent={props => <FarmerDrawer {...props} />}
       screenOptions={{
         headerShown: false,
         // header: () => <CustomHeader />,
+
+        drawerType: 'slide',
         drawerPosition: 'right',
         drawerActiveTintColor: '#f8f8f8',
-        drawerActiveBackgroundColor: '#093514',
+        drawerActiveBackgroundColor: Colors.drawer,
+        overlayColor: 'transparent',
         drawerInactiveTintColor: '#FFF',
         drawerStatusBarAnimation: 'fade',
         drawerItemStyle: {
@@ -74,213 +164,14 @@ const FarmerNavigation = () => {
           marginLeft: -20,
         },
         drawerStyle: {
-          backgroundColor: '#093514',
-          width: '80%',
-          marginTop: 50,
+          backgroundColor: Colors.drawer, //dark brown //'#0f1e47',dark blue //'#1a5f3c dark green'//'#093514',green
+          width: '65%', // pre-80%
+          // marginTop: 50,
+          marginLeft: -0.2,
         },
+        sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
       }}>
-      <Drawer.Screen name="FarmerDashboard" component={FarmerDashboard} />
-      <Drawer.Screen
-        name="FarmerLiveHood"
-        component={PlotListFarmer}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerTraining"
-        component={FarmerTraining}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerTrainingList"
-        component={FarmerTrainingList}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerUsefulInformation"
-        component={FarmerUsefulInformation}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerUsefulInformationList"
-        component={FarmerUsefulInformationList}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerCreateProblem"
-        component={FarmerCreateProblem}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerListProblem"
-        component={FarmerListProblem}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerViewProblem"
-        component={FarmerViewProblem}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerOutPutList"
-        component={FarmerOutPut}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerPostNew"
-        component={FarmerPostNew}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerViewPast"
-        component={FarmerViewPast}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerLoan"
-        component={FarmerLoanEnquiry}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerLoanEnquiryDetail"
-        component={FarmerLoanEnquiryDetail}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerInputList"
-        component={FarmerInputList}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerWantToBuy"
-        component={FarmerWantToBuy}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerPastEnquiry"
-        component={FarmerPastEnquiries}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerActivityList"
-        component={FarmerActivityList}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerActivityReport"
-        component={FarmerActivityReport}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerActivityReportAWD"
-        component={FarmerActivityReportAWD}
-        options={{unmountOnBlur: true}}
-      />
-
-      <Drawer.Screen
-        name="FarmerActivityDetail"
-        component={FarmerActivityDetail}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerProfile"
-        component={FarmerProfile}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerInsuranceEnquiry"
-        component={FarmerInsuranceEnquiry}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="DailySalesReport"
-        component={DailySalesReport}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="SalesDetail"
-        component={SalesDetail}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="DealerReport"
-        component={DealerReport}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerReport"
-        component={FarmerReport}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerFarmIncomeExpenseList"
-        component={FarmerFarmIncomeExpenseList}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerFarmIncomeExpenseView"
-        component={FarmerFarmIncomeExpenseView}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerAddIncome"
-        component={FarmerAddIncome}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerAddExpense"
-        component={FarmerAddExpense}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="FarmerChangePassword"
-        component={FarmerChangePassword}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="Weather"
-        component={Weather}
-        options={{unmountOnBlur: true}}
-      />
-      <Drawer.Screen
-        name="Calculator"
-        component={Calculator}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="PackageOfPractices"
-        component={PackageOfPractices}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="PackageOfPracticesDetails"
-        component={PackageOfPracticesDetails}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="PackageItemDetails"
-        component={PackageItemDetails}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="SoilHealthManagement"
-        component={SoilHealthManagement}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="PostRequest"
-        component={PostRequest}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="MySoil"
-        component={MySoil}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="AudioPlayerView"
-        component={AudioPlayerView}
-        options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
+      <Drawer.Screen name="FarmerMainStack" component={FarmerMainStack} />
     </Drawer.Navigator>
   );
 };

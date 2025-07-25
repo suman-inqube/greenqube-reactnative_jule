@@ -39,7 +39,7 @@ const navigationRef = createNavigationContainerRef();
 
 function App() {
   const routeNameRef = useRef();
-  const {loginUser_data} = useContext(userCreateContext);
+  const {loginUser_data} = useContext(userCreateContext)||{};
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const [isSecure, setIsSecure] = useState(null);
 

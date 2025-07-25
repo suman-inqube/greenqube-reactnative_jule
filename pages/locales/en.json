@@ -981,8 +981,8 @@
     "enter_new_password": "Please Enter New Password",
     "enter_old_password": "Please Enter New Password",
     "update_msg": "Press  Yes  to confirm the update and login again. Press  No  to cancel the update.",
-    "prev_page": "Prev Page",
-    "next_page": "Next Page",
+    "prev_page": "Pre",
+    "next_page": "Next",
     "please_enter_new_password": "Please enter new password",
     "please_enter_old_password": "Please enter old password",
     "problem_reporting": "Problem Reporting",
@@ -1047,5 +1047,14 @@
 
 
     "tirthooooo":"Tirthoooo",
-    "Remember_me":"Remember me"
+    "Remember_me":"Remember me",
+    "Visit_Company_Website":"Visit Us",
+    "plot_and_crop":"Plot/Site & Produce",
+    "upcomming_act":"Upcoming Activity",
+    "Tracking":"Tracking",
+    "information":"information",
+    "Date":"Date",
+    "Your_Profile":"Your Profile",
+    "view_details":"View Details"
+
 }

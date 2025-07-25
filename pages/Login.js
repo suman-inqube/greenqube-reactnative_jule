@@ -49,6 +49,8 @@ import DeviceInfo from './DeviceInfo';
 import {userCreateContext} from './Context/usersCreateContext';
 import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
+import {axiosPost} from './utils/api';
+import {ROUTES} from './utils/Routes';
 const Login = ({route}) => {
   const {setlogoImage, settopBanner, AllFarmerList, t} =
     useContext(userCreateContext);
@@ -194,7 +196,8 @@ const Login = ({route}) => {
       // });
       try {
         setIsLoading(true);
-        let userIno = await axios.post(config.loginAPI, inputdata);
+        // let userIno = await axios.post(config.loginAPI, inputdata);
+        let userIno = await axiosPost(ROUTES.LOGIN, inputdata);
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,
@@ -733,6 +736,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 50,
     marginBottom: 15,
+    marginTop: 20,
   },
   simpleInputTextStyle: {
     flex: 1,

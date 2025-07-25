@@ -1,10 +1,19 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView, Image, Animated, Dimensions, Modal
-} from 'react-native'
-import React, { useEffect, useState, useRef, useContext } from 'react'
-const { width } = Dimensions.get('window');
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Animated,
+  Dimensions,
+  Modal,
+} from 'react-native';
+import React, {useEffect, useState, useRef, useContext} from 'react';
+const {width} = Dimensions.get('window');
 import CollapsibleCard from '../../Common/CollapsibleCard';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {
   plotListApproval,
   LandUnitArea,
@@ -13,8 +22,9 @@ import {
 const qs = require('qs');
 import FarmerLiveHood from './FarmerLiveHood';
 //GQR-65
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AlertMesg } from '../../Common/ToastAlert';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {AlertMesg} from '../../Common/ToastAlert';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const PlotListFarmer = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -30,16 +40,16 @@ const PlotListFarmer = () => {
   const onTabPress = (index, data) => {
     setActiveTab(index);
     if (data) {
-      setDataProps(data)
+      setDataProps(data);
     } else {
-      setDataProps({})
+      setDataProps({});
     }
-    scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
+    scrollRef.current?.scrollTo({x: Number(index) * width, animated: true});
   };
 
   const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
-    { useNativeDriver: false },
+    [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+    {useNativeDriver: false},
   );
 
   const indicatorPosition = animatedValue.interpolate({
@@ -65,7 +75,7 @@ const PlotListFarmer = () => {
     DropdownForm,
     effective_dates,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-65
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
   useEffect(() => {
@@ -83,11 +93,11 @@ const PlotListFarmer = () => {
           LandUnitsquare_metre(dbname, lan_id, token),
         ]);
       if (plotListApprovalRes?.status == 200) {
-        const { data } = plotListApprovalRes?.data;
+        const {data} = plotListApprovalRes?.data;
         setplotList(data);
       }
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -95,7 +105,7 @@ const PlotListFarmer = () => {
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -116,249 +126,261 @@ const PlotListFarmer = () => {
     }, 2000);
   };
   return (
-    <>
-      <Root>
-        <View style={styles.container}>
-          <View style={{ width: '100%' }}>
-            <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
-          </View>
-          {/* Tab Bar */}
-          <View style={styles.tabBar}>
-            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === 0 && styles.activeTabText,
-                ]}>
-                Plot Status
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(1)}>
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === 1 && styles.activeTabText,
-                ]}>
-                Plot Add and Edit
-              </Text>
-            </TouchableOpacity>
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <Root>
+          <View style={styles.container}>
+            <View style={{width: '100%'}}>
+              <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
+            </View>
+            {/* Tab Bar */}
+            <View style={styles.tabBar}>
+              <TouchableOpacity
+                style={styles.tab}
+                onPress={() => onTabPress(0)}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 0 && styles.activeTabText,
+                  ]}>
+                  Plot Status
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.tab}
+                onPress={() => onTabPress(1)}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 1 && styles.activeTabText,
+                  ]}>
+                  Plot Add and Edit
+                </Text>
+              </TouchableOpacity>
 
-            {/* Animated Tab Indicator */}
-            <Animated.View
-              style={[
-                styles.indicator,
-                { transform: [{ translateX: indicatorPosition }] },
-              ]}
-            />
-          </View>
+              {/* Animated Tab Indicator */}
+              <Animated.View
+                style={[
+                  styles.indicator,
+                  {transform: [{translateX: indicatorPosition}]},
+                ]}
+              />
+            </View>
 
-          {/* Swipeable Content */}
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={onScroll}
-            onMomentumScrollEnd={event => {
-              const index = Math.round(
-                event.nativeEvent.contentOffset.x / width,
-              );
-              setActiveTab(index);
-            }}
-            //basudev
-            scrollEnabled={false}
-            scrollEventThrottle={16}>
-            {/* Tab 1 */}
-            <View style={styles.page}>
-              {isLoading ? (
-                <View style={styles.LoadingScreen}>
-                  <LoadingScreen />
-                </View>
-              ) : null}
-              <FlatList
-                data={plotList}
-                keyExtractor={(item, index) =>
-                  item?.id?.toString() || index.toString()
-                }
-                refreshing={refreshing} // Enable pull-to-refresh
-                onRefresh={onRefresh}
-                showsVerticalScrollIndicator={false} // Hides vertical scrollbar
-                showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-                style={{ padding: 10 }}
-                renderItem={({ _index, item }) => {
-                  return (
-                    <TouchableOpacity
-                      style={
-                        {
-                          // backgroundColor: 'white',
-                          // borderRadius: 8,
-                          // marginBottom: 12,
-                          // shadowColor: '#000',
-                          // shadowOffset: { width: 0, height: 2 },
-                          // shadowOpacity: 0.1,
-                          // shadowRadius: 4,
-                          // // elevation: 3,
-                          // borderWidth: 0.6,
-                          // borderColor: '#d0d4dc',
-                          // padding: 15,
-                          // flexDirection: 'row'
+            {/* Swipeable Content */}
+            <ScrollView
+              ref={scrollRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={onScroll}
+              onMomentumScrollEnd={event => {
+                const index = Math.round(
+                  event.nativeEvent.contentOffset.x / width,
+                );
+                setActiveTab(index);
+              }}
+              //basudev
+              scrollEnabled={false}
+              scrollEventThrottle={16}>
+              {/* Tab 1 */}
+              <View style={styles.page}>
+                {isLoading ? (
+                  <View style={styles.LoadingScreen}>
+                    <LoadingScreen />
+                  </View>
+                ) : null}
+                <FlatList
+                  data={plotList}
+                  keyExtractor={(item, index) =>
+                    item?.id?.toString() || index.toString()
+                  }
+                  refreshing={refreshing} // Enable pull-to-refresh
+                  onRefresh={onRefresh}
+                  showsVerticalScrollIndicator={false} // Hides vertical scrollbar
+                  showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
+                  style={{padding: 10}}
+                  renderItem={({_index, item}) => {
+                    return (
+                      <TouchableOpacity
+                        style={
+                          {
+                            // backgroundColor: 'white',
+                            // borderRadius: 8,
+                            // marginBottom: 12,
+                            // shadowColor: '#000',
+                            // shadowOffset: { width: 0, height: 2 },
+                            // shadowOpacity: 0.1,
+                            // shadowRadius: 4,
+                            // // elevation: 3,
+                            // borderWidth: 0.6,
+                            // borderColor: '#d0d4dc',
+                            // padding: 15,
+                            // flexDirection: 'row'
+                          }
                         }
-                      }
-                      onPress={() => onTabPress(1, item)}>
-                      <CollapsibleCard
-                        width="100%"
-                        header={
-                          <View style={{ height: 30 }}>
-                            <Text style={[styles.text, { fontSize: 15 }]}>
-                              {item?.plot_no}
-                            </Text>
-                            {/* <Text>3 items in cart</Text> */}
-                          </View>
-                        }
-                        content={
-                          <>
-                            <View
-                              style={{
-                                backgroundColor: 'white',
-                                borderRadius: 8,
-                                // marginBottom: 12,
-                                marginVertical: 10,
-                                shadowColor: '#000',
-                                // shadowOffset: { width: 0, height: 2 },
-                                // shadowOpacity: 0.1,
-                                // shadowRadius: 4,
-                                // elevation: 3,
-                                // borderWidth: 0.6,
-                                // borderColor: '#d0d4dc',
-                                flexDirection: 'row',
-                              }}>
-                              <View>
-                                <Text style={styles.text}>Plot Name</Text>
-                                {/* <Text style={styles.text}>Plot Size</Text> */}
-                                <Text style={styles.text}>
-                                  Reported Land Area
-                                </Text>
-                                <Text style={styles.text}>
-                                  Converted Land Area
-                                </Text>
-                                <Text style={styles.text}>Crop Name</Text>
-                                <Text style={styles.text}>Crop Variety</Text>
-                                <Text style={styles.text}>
-                                  Cycle Start Date
-                                </Text>
-                                <Text style={styles.text}>Cycle End Date</Text>
-                              </View>
-                              <View style={{ marginLeft: 10 }}>
-                                <Text style={styles.text}>
-                                  : {item?.plot_no}
-                                </Text>
-                                {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
-                                <Text style={styles.text}>
-                                  : {item?.land_size} {item?.land_unit?.name}
-                                </Text>
-                                <Text style={styles.text}>
-                                  : {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}
-                                </Text>
-                                <Text style={styles.text}>
-                                  : {item?.plot_crops[0]?.crop_name?.name}
-                                </Text>
-                                <Text style={styles.text}>
-                                  : {item?.plot_crops[0]?.crop_variety?.name}
-                                </Text>
-                                <Text style={styles.text}>
-                                  : {item?.plot_crops[0]?.sowing_date}
-                                </Text>
-                                <Text style={styles.text}>
-                                  :{' '}
-                                  {item?.plot_crops[0]?.harvesting_date.substring(
-                                    0,
-                                    10,
-                                  )}
-                                </Text>
-                              </View>
-                            </View>
-                            {/* basu */}
-                            {item?.status_level == 'REJECTED' && (
-                              <View
-                                style={{
-                                  backgroundColor: '#F8D7DA',
-                                  borderRadius: 5,
-                                  borderColor: '#F8D7DA',
-                                  elevation: 1,
-                                  marginVertical: 10,
-                                }}>
-                                <Text
-                                  style={{
-                                    paddingHorizontal: 10,
-                                    color: '#721C24',
-                                    fontFamily: 'Poppins-Regular',
-                                    fontSize: 14,
-                                  }}>
-                                  {item?.comment}{' '}
-                                </Text>
-                              </View>
-                            )}
-                          </>
-                        }
-                        footer={
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                              }}>
-                              <Image
-                                source={require('../../Common/images/area-with-pins.png')}
-                                style={{
-                                  width: 25,
-                                  height: 25,
-                                  tintColor: '#0d8320',
-                                }}
-                              />
-                              <Text style={styles.text}>
-                                {' '}
-                                {
-                                  parseFloat(Number(
-                                    landUnitsquareMetre?.[0]
-                                      ?.defined_unit_value,
-                                  ) * Number(item?.google_area))
-                                    .toFixed(2)}{' '}
-                                {landAreaUnit?.[0]?.name}
+                        onPress={() => onTabPress(1, item)}>
+                        <CollapsibleCard
+                          width="100%"
+                          header={
+                            <View style={{height: 30}}>
+                              <Text style={[styles.text, {fontSize: 15}]}>
+                                {item?.plot_no}
                               </Text>
-                              {/* basu */}
+                              {/* <Text>3 items in cart</Text> */}
                             </View>
-                            {item.status_level == 'APPROVED' && (
+                          }
+                          content={
+                            <>
                               <View
                                 style={{
-                                  backgroundColor: '#D4EDDA',
-                                  padding: 8,
-                                  borderRadius: 5,
-                                  // marginRight: 15,
+                                  backgroundColor: 'white',
+                                  borderRadius: 8,
+                                  // marginBottom: 12,
+                                  marginVertical: 10,
+                                  shadowColor: '#000',
+                                  // shadowOffset: { width: 0, height: 2 },
+                                  // shadowOpacity: 0.1,
+                                  // shadowRadius: 4,
+                                  // elevation: 3,
+                                  // borderWidth: 0.6,
+                                  // borderColor: '#d0d4dc',
                                   flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  alignItems: 'center',
-                                  width: 100,
-                                  // borderWidth: 1,
-                                  // borderColor: "#b8f8a9",
-                                  height: 38,
                                 }}>
-                                {/* <Icon
+                                <View>
+                                  <Text style={styles.text}>Plot Name</Text>
+                                  {/* <Text style={styles.text}>Plot Size</Text> */}
+                                  <Text style={styles.text}>
+                                    Reported Land Area
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    Converted Land Area
+                                  </Text>
+                                  <Text style={styles.text}>Crop Name</Text>
+                                  <Text style={styles.text}>Crop Variety</Text>
+                                  <Text style={styles.text}>
+                                    Cycle Start Date
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    Cycle End Date
+                                  </Text>
+                                </View>
+                                <View style={{marginLeft: 10}}>
+                                  <Text style={styles.text}>
+                                    : {item?.plot_no}
+                                  </Text>
+                                  {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
+                                  <Text style={styles.text}>
+                                    : {item?.land_size} {item?.land_unit?.name}
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    :{' '}
+                                    {parseFloat(
+                                      item?.land_convert_size,
+                                    ).toFixed(2)}{' '}
+                                    {landAreaUnit?.[0]?.name}
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    : {item?.plot_crops[0]?.crop_name?.name}
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    : {item?.plot_crops[0]?.crop_variety?.name}
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    : {item?.plot_crops[0]?.sowing_date}
+                                  </Text>
+                                  <Text style={styles.text}>
+                                    :{' '}
+                                    {item?.plot_crops[0]?.harvesting_date.substring(
+                                      0,
+                                      10,
+                                    )}
+                                  </Text>
+                                </View>
+                              </View>
+                              {/* basu */}
+                              {item?.status_level == 'REJECTED' && (
+                                <View
+                                  style={{
+                                    backgroundColor: '#F8D7DA',
+                                    borderRadius: 5,
+                                    borderColor: '#F8D7DA',
+                                    elevation: 1,
+                                    marginVertical: 10,
+                                  }}>
+                                  <Text
+                                    style={{
+                                      paddingHorizontal: 10,
+                                      color: '#721C24',
+                                      fontFamily: 'Poppins-Regular',
+                                      fontSize: 14,
+                                    }}>
+                                    {item?.comment}{' '}
+                                  </Text>
+                                </View>
+                              )}
+                            </>
+                          }
+                          footer={
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                              }}>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                }}>
+                                <Image
+                                  source={require('../../Common/images/area-with-pins.png')}
+                                  style={{
+                                    width: 25,
+                                    height: 25,
+                                    tintColor: '#0d8320',
+                                  }}
+                                />
+                                <Text style={styles.text}>
+                                  {' '}
+                                  {parseFloat(
+                                    Number(
+                                      landUnitsquareMetre?.[0]
+                                        ?.defined_unit_value,
+                                    ) * Number(item?.google_area),
+                                  ).toFixed(2)}{' '}
+                                  {landAreaUnit?.[0]?.name}
+                                </Text>
+                                {/* basu */}
+                              </View>
+                              {item.status_level == 'APPROVED' && (
+                                <View
+                                  style={{
+                                    backgroundColor: '#D4EDDA',
+                                    padding: 8,
+                                    borderRadius: 5,
+                                    // marginRight: 15,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-evenly',
+                                    alignItems: 'center',
+                                    width: 100,
+                                    // borderWidth: 1,
+                                    // borderColor: "#b8f8a9",
+                                    height: 38,
+                                  }}>
+                                  {/* <Icon
                                                       name="check"
                                                       size={20}
                                                       color="green"
                                                       iconFamily="Feather"
                                                     /> */}
-                                <Text style={{ color: '#155724', fontSize: 14 }}>
-                                  {item.status_level}
-                                </Text>
-                              </View>
-                            )}
-                            {item.status_level ==
-                              'CARBON_DOCUMENTS_SUBMITTED' && (
+                                  <Text
+                                    style={{color: '#155724', fontSize: 14}}>
+                                    {item.status_level}
+                                  </Text>
+                                </View>
+                              )}
+                              {item.status_level ==
+                                'CARBON_DOCUMENTS_SUBMITTED' && (
                                 <View
                                   style={{
                                     backgroundColor: '#D4EDDA',
@@ -379,13 +401,14 @@ const PlotListFarmer = () => {
                                                       color="green"
                                                       iconFamily="Feather"
                                                     /> */}
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
+                                  <Text
+                                    style={{color: '#155724', fontSize: 14}}>
                                     SUBMITTED
                                   </Text>
                                 </View>
                               )}
-                            {item.status_level ==
-                              'CARBON_DOCUMENTS_REJECTED' && (
+                              {item.status_level ==
+                                'CARBON_DOCUMENTS_REJECTED' && (
                                 <View
                                   style={{
                                     backgroundColor: '#F8D7DA',
@@ -406,14 +429,15 @@ const PlotListFarmer = () => {
                                                   color="#FF5252"
                                                   iconFamily="AntDesign"
                                                 /> */}
-                                  <Text style={{ color: '#721C24', fontSize: 14 }}>
+                                  <Text
+                                    style={{color: '#721C24', fontSize: 14}}>
                                     CARBON REJECTED
                                   </Text>
                                 </View>
                               )}
 
-                            {item.status_level ==
-                              'CARBON_DOCUMENTS_APPROVED' && (
+                              {item.status_level ==
+                                'CARBON_DOCUMENTS_APPROVED' && (
                                 <View
                                   style={{
                                     backgroundColor: '#D4EDDA',
@@ -428,94 +452,98 @@ const PlotListFarmer = () => {
                                     // borderColor: "#b8f8a9",
                                     height: 38,
                                   }}>
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
+                                  <Text
+                                    style={{color: '#155724', fontSize: 14}}>
                                     VERIFIED
                                   </Text>
                                 </View>
                               )}
-                            {item.status_level == 'PENDING' && (
-                              <View
-                                style={{
-                                  // backgroundColor:'#ffe69b',
-                                  backgroundColor: '#FFF3CD',
-                                  padding: 8,
-                                  borderRadius: 5,
-                                  // marginRight: 15,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  alignItems: 'center',
-                                  width: 100,
-                                  // borderWidth: 1,
-                                  // borderColor: "#ffc107",
-                                  height: 38,
-                                }}>
-                                {/* <Icon
+                              {item.status_level == 'PENDING' && (
+                                <View
+                                  style={{
+                                    // backgroundColor:'#ffe69b',
+                                    backgroundColor: '#FFF3CD',
+                                    padding: 8,
+                                    borderRadius: 5,
+                                    // marginRight: 15,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-evenly',
+                                    alignItems: 'center',
+                                    width: 100,
+                                    // borderWidth: 1,
+                                    // borderColor: "#ffc107",
+                                    height: 38,
+                                  }}>
+                                  {/* <Icon
                                                   name="av-timer"
                                                   size={20}
                                                   color="#ffc107"
                                                   iconFamily="MaterialCommunityIcons"
                                                 /> */}
-                                <Text style={{ color: '#856404', fontSize: 14 }}>
-                                  {item.status_level}
-                                </Text>
-                              </View>
-                            )}
-                            {item.status_level == 'REJECTED' && (
-                              <View
-                                style={{
-                                  backgroundColor: '#F8D7DA',
-                                  padding: 8,
-                                  borderRadius: 5,
-                                  // marginRight: 15,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  alignItems: 'center',
-                                  width: 100,
-                                  borderWidth: 1,
-                                  borderColor: '#F8D7DA',
-                                  height: 38,
-                                }}>
-                                {/* <Icon
+                                  <Text
+                                    style={{color: '#856404', fontSize: 14}}>
+                                    {item.status_level}
+                                  </Text>
+                                </View>
+                              )}
+                              {item.status_level == 'REJECTED' && (
+                                <View
+                                  style={{
+                                    backgroundColor: '#F8D7DA',
+                                    padding: 8,
+                                    borderRadius: 5,
+                                    // marginRight: 15,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-evenly',
+                                    alignItems: 'center',
+                                    width: 100,
+                                    borderWidth: 1,
+                                    borderColor: '#F8D7DA',
+                                    height: 38,
+                                  }}>
+                                  {/* <Icon
                                                   name="close"
                                                   size={16}
                                                   color="#FF5252"
                                                   iconFamily="AntDesign"
                                                 /> */}
-                                <Text style={{ color: '#721C24', fontSize: 14 }}>
-                                  {item.status_level}
-                                </Text>
-                              </View>
-                            )}
-                          </View>
-                        }
-                      />
-                    </TouchableOpacity>
-                  );
-                }}
-              />
-            </View>
-
-            {/* Tab 2 */}
-            <View style={styles.page}>
-              {activeTab == 1 && (
-                <FarmerLiveHood
-                  dataProps={dataProps}
-                  activeTab={activeTab}
-                  onTabPress={onTabPress}
+                                  <Text
+                                    style={{color: '#721C24', fontSize: 14}}>
+                                    {item.status_level}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
+                          }
+                        />
+                      </TouchableOpacity>
+                    );
+                  }}
                 />
-              )}
-            </View>
-          </ScrollView>
-        </View>
-      </Root>
-    </>
-  );
-}
+              </View>
 
-export default PlotListFarmer
+              {/* Tab 2 */}
+              <View style={styles.page}>
+                {activeTab == 1 && (
+                  <FarmerLiveHood
+                    dataProps={dataProps}
+                    activeTab={activeTab}
+                    onTabPress={onTabPress}
+                  />
+                )}
+              </View>
+            </ScrollView>
+          </View>
+        </Root>
+      </>
+    </FarmerDrawerScreenWrapper1>
+  );
+};
+
+export default PlotListFarmer;
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -523,7 +551,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // elevation: 3,
@@ -535,8 +563,8 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
   },
-  tabText: { fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold', },
-  activeTabText: { fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold', },
+  tabText: {fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold'},
+  activeTabText: {fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold'},
   indicator: {
     position: 'absolute',
     bottom: 0,
@@ -578,7 +606,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     borderWidth: 0.6,
-    borderColor: '#d0d4dc'
+    borderColor: '#d0d4dc',
   },
   skeletonCard: {
     flex: 1, // Ensure it fills the parent wrapper
@@ -636,14 +664,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     elevation: 1,
     marginVertical: 7,
-    borderRadius: 10
+    borderRadius: 10,
   },
   latlongContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 5,
-    padding: 3
+    padding: 3,
   },
   calenderContainer: {
     backgroundColor: '#FFF',
@@ -744,5 +772,4 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-
 });

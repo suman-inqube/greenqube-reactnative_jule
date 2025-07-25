@@ -1,12 +1,12 @@
-import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
-import React, { useEffect, useRef } from 'react';
+import {StyleSheet, Text, View, TouchableOpacity, Animated} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const RadioForm = ({ label, selected, onSelect }) => {
+const RadioForm = ({label, selected, onSelect}) => {
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
 
   const animatedBg = useRef(new Animated.Value(selected ? 1 : 0)).current;
-  const dotScale = useRef(new Animated.Value(selected ? 1 : 0)).current;
-
+  const iconScale = useRef(new Animated.Value(selected ? 1 : 0)).current;
   useEffect(() => {
     Animated.timing(animatedBg, {
       toValue: selected ? 1 : 0,
@@ -14,7 +14,7 @@ const RadioForm = ({ label, selected, onSelect }) => {
       useNativeDriver: false,
     }).start();
 
-    Animated.spring(dotScale, {
+    Animated.spring(iconScale, {
       toValue: selected ? 1 : 0,
       friction: 5,
       useNativeDriver: true,
@@ -23,7 +23,7 @@ const RadioForm = ({ label, selected, onSelect }) => {
 
   const backgroundColor = animatedBg.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#E5E5E5', '#074609'],
+    outputRange: ['white', '#478541'],
   });
 
   return (
@@ -35,18 +35,19 @@ const RadioForm = ({ label, selected, onSelect }) => {
             {
               backgroundColor,
             },
-          ]}
-        >
-          {selected && (
-            <Animated.View
-              style={[
-                styles.selectedRb,
-                {
-                  transform: [{ scale: dotScale }],
-                },
-              ]}
-            />
-          )}
+          ]}>
+          {/* {selected && ( */}
+          <Animated.View
+            style={[
+              // styles.selectedRb,
+              {
+                transform: [{scale: iconScale}],
+                opacity: iconScale,
+              },
+            ]}
+          />
+          <MaterialIcons name="check" size={16} color="white" />
+          {/* )} */}
         </Animated.View>
       </View>
       <Text style={styles.radioText}>{labelString}</Text>
@@ -61,23 +62,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 5,
+    marginLeft: 25,
   },
   radioCircle: {
     height: 24, // Adjust based on outer size + 2 * margin (24 + 6)
     width: 24, // Adjust based on outer size + 2 * margin (24 + 6)
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#0a3e08',
+    borderColor: '#478541',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 15,
   },
   innerCircle: {
-    height: 16, // Adjust based on outer size - 2 * margin (24 - 6)
-    width: 16,
+    height: 18, // Adjust based on outer size - 2 * margin (24 - 6)
+    width: 18,
     borderRadius: 9,
     margin: 2, // <- 3px gap between border and fill
-    
+
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -91,6 +93,6 @@ const styles = StyleSheet.create({
   radioText: {
     color: '#000',
     fontFamily: 'Poppins-Regular',
-    fontSize: 16,
+    fontSize: 14,
   },
 });

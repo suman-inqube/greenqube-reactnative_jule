@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
 import ImageForm from '../../Common/ImageForm';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 import {
   fetchBlockAPI,
   fetchDistrictAPI,
@@ -36,6 +38,8 @@ import {
 } from '../Loan/LoanAPI';
 import {addIdAddressImgs} from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors, Fronts} from '../../utils/Constants';
 const qs = require('qs');
 const FarmerProfile = ({sendDataToParent, farmerID}) => {
   //GQR-67
@@ -57,6 +61,7 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
     setItem,
     CustomHeader,
     effective_dates,
+    FormsTitle,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
   //GQR-67
@@ -381,18 +386,12 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
     }
     setIsLoading(false);
   };
-  const handleBackPress = () => {
-    navigation.navigate('FarmerDashboard');
-    return true;
-  };
+
   useEffect(() => {
-    if (isFocused) {
-      setmyPhoto({uri: '', type: '', name: ''});
-      setSelectedImage(null);
-      onPageLoad();
-      onBackPress(handleBackPress);
-    }
-  }, [isFocused]);
+    setmyPhoto({uri: '', type: '', name: ''});
+    setSelectedImage(null);
+    onPageLoad();
+  }, []);
   const handleUserListUpdate = async () => {
     setIsLoading(true);
     if (validateForm()) {
@@ -574,457 +573,517 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   return (
-    <>
-      <Root>
-        <CustomHeader
-          path="FarmerDashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        {isLoading ? (
-          <View style={styles.LoadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <ScrollView>
-          <View style={{marginHorizontal: 20, backgroundColor: '#FFFFF'}}>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 30,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <View style={{alignItems: 'Left'}}>
-                  <ImagePlaceHolderCircle
-                    openImagePicker={openImagePicker}
-                    selectedImage={selectedImage}
-                  />
-                </View>
-                <InputTextForm
-                  label={t('name')}
-                  color="red"
-                  value={farmerData.userName}
-                  onChangeText={userName => {
-                    setfarmerData({...farmerData, userName: userName});
-                  }}
-                />
-                <InputTextForm
-                  label={t('new_reg_phone_number')}
-                  color="red"
-                  value={farmerData.contactNumber}
-                  editable={false}
-                />
-                <View>
-                  <Text style={{fontSize: 16, color: '#000'}}>
-                    {t('farmer_reg_gnd')}
-                  </Text>
-                  <RadioForm
-                    label={t('farmer_reg_male')}
-                    selected={farmerData.gender == '1'}
-                    onSelect={() => setfarmerData({...farmerData, gender: '1'})}
-                  />
-                  <RadioForm
-                    label={t('farmer_reg_female')}
-                    selected={farmerData.gender == '2'}
-                    onSelect={() => setfarmerData({...farmerData, gender: '2'})}
-                  />
-                </View>
-                <View style={{marginBottom: 15}}>
-                  <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
-                    {t('far_reg_far_type')}
-                  </Text>
-                  <RadioForm
-                    label={t('grower')}
-                    selected={farmerData.farmer_type == '1'}
-                    onSelect={() =>
-                      setfarmerData({...farmerData, farmer_type: '1'})
-                    }
-                  />
-                  <RadioForm
-                    label={t('small_holder')}
-                    selected={farmerData.farmer_type == '2'}
-                    onSelect={() =>
-                      setfarmerData({...farmerData, farmer_type: '2'})
-                    }
-                  />
-                  <RadioForm
-                    label={t('farm_worker')}
-                    selected={farmerData.farmer_type == '3'}
-                    onSelect={() =>
-                      setfarmerData({...farmerData, farmer_type: '3'})
-                    }
-                  />
-                </View>
-                <InputTextForm
-                  label={t('age')}
-                  value={farmerData.age ?? farmerData.age}
-                  keyboardType="numeric"
-                  onChangeText={age => {
-                    setfarmerData({...farmerData, age: age});
-                  }}
-                />
-                <DropdownForm
-                  label={t('add_class_language')}
-                  color="black"
-                  data={languageData}
-                  onChange={item => {
-                    handleLanguage(item);
-                  }}
-                  val={farmerData.lanName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.state == ''
-                      ? t('pre_state_division_zone')
-                      : t(`${regionaldatas.state}`)
-                  }
-                  data={stateAll}
-                  onChange={data => {
-                    handleStateDistrictBlock('state', data);
-                  }}
-                  val={farmerData.stateName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.district == ''
-                      ? t('pre_district_county')
-                      : t(`${regionaldatas.district}`)
-                  }
-                  data={districtAll}
-                  onChange={data => {
-                    handleStateDistrictBlock('district', data);
-                  }}
-                  val={farmerData.districtName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.block == ''
-                      ? t('select_block_sub_county_upzila')
-                      : t(`${regionaldatas.block}`)
-                  }
-                  data={blockAll}
-                  onChange={item => {
-                    setfarmerData({...farmerData, block: item.value});
-                  }}
-                  val={farmerData.blockName}
-                />
-                <ProofAndIdentityPropfComp
-                  t={t}
-                  title={t('address_proofAndIdentityPropf')}
-                  setStateValue={setIdentityProofIdentityPropf}
-                  stateValue={identityProofIdentityPropf}
-                  photoDeletedValue={photoDeletedValue}
-                  setPhotoDeletedValue={setPhotoDeletedValue}
-                  loginUser_data={loginUser_data}
-                  disable={true}
-                  InputTextFormEdit={true}
-                />
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <Root>
+          <View style={styles.mainContainer}>
+            <CustomHeader
+              path="FarmerDashboard"
+              HandlerGoBack={HandlerGoBack}
+              logoImage={logoImage}
+              topBanner={topBanner}
+            />
+            {isLoading ? (
+              <View style={styles.LoadingScreen}>
+                <LoadingScreen />
               </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
+            ) : null}
+            <FormsTitle title={t('Your_Profile')} />
+            <ScrollView>
+              <View style={{marginBottom: 40, marginTop: 20}}>
+                <View style={styles.firatFormContainer}>
+                  <View style={styles.profileImg}>
+                    <ImagePlaceHolderCircle
+                      openImagePicker={openImagePicker}
+                      selectedImage={selectedImage}
+                    />
+                    <Text style={styles.userName}>{farmerData.userName}</Text>
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <InputTextForm
+                      label={t('name')}
+                      required={true}
+                      value={farmerData.userName}
+                      onChangeText={userName => {
+                        setfarmerData({...farmerData, userName: userName});
+                      }}
+                    />
+                    <InputTextForm
+                      label={t('new_reg_phone_number')}
+                      required={true}
+                      value={farmerData.contactNumber}
+                      editable={false}
+                    />
+                    <View>
+                      <Text style={styles.radioTitle}>
+                        {t('farmer_reg_gnd')}
+                      </Text>
+                      <RadioForm
+                        label={t('farmer_reg_male')}
+                        selected={farmerData.gender == '1'}
+                        onSelect={() =>
+                          setfarmerData({...farmerData, gender: '1'})
+                        }
+                      />
+                      <RadioForm
+                        label={t('farmer_reg_female')}
+                        selected={farmerData.gender == '2'}
+                        onSelect={() =>
+                          setfarmerData({...farmerData, gender: '2'})
+                        }
+                      />
+                    </View>
+                    <View style={{marginBottom: 15, marginTop: 15}}>
+                      <Text style={styles.radioTitle}>
+                        {t('far_reg_far_type')}
+                      </Text>
+                      <RadioForm
+                        label={t('grower')}
+                        selected={farmerData.farmer_type == '1'}
+                        onSelect={() =>
+                          setfarmerData({...farmerData, farmer_type: '1'})
+                        }
+                      />
+                      <RadioForm
+                        label={t('small_holder')}
+                        selected={farmerData.farmer_type == '2'}
+                        onSelect={() =>
+                          setfarmerData({...farmerData, farmer_type: '2'})
+                        }
+                      />
+                      <RadioForm
+                        label={t('farm_worker')}
+                        selected={farmerData.farmer_type == '3'}
+                        onSelect={() =>
+                          setfarmerData({...farmerData, farmer_type: '3'})
+                        }
+                      />
+                    </View>
+                    <InputTextForm
+                      label={t('age')}
+                      value={farmerData.age ?? farmerData.age}
+                      keyboardType="numeric"
+                      onChangeText={age => {
+                        setfarmerData({...farmerData, age: age});
+                      }}
+                    />
+                    <DropdownForm
+                      label={t('add_class_language')}
+                      color="black"
+                      data={languageData}
+                      onChange={item => {
+                        handleLanguage(item);
+                      }}
+                      val={farmerData.lanName}
+                    />
+                    <DropdownForm
+                      label={
+                        regionaldatas.state == ''
+                          ? t('pre_state_division_zone')
+                          : t(`${regionaldatas.state}`)
+                      }
+                      data={stateAll}
+                      onChange={data => {
+                        handleStateDistrictBlock('state', data);
+                      }}
+                      val={farmerData.stateName}
+                    />
+                    <DropdownForm
+                      label={
+                        regionaldatas.district == ''
+                          ? t('pre_district_county')
+                          : t(`${regionaldatas.district}`)
+                      }
+                      data={districtAll}
+                      onChange={data => {
+                        handleStateDistrictBlock('district', data);
+                      }}
+                      val={farmerData.districtName}
+                    />
+                    <DropdownForm
+                      label={
+                        regionaldatas.block == ''
+                          ? t('select_block_sub_county_upzila')
+                          : t(`${regionaldatas.block}`)
+                      }
+                      data={blockAll}
+                      onChange={item => {
+                        setfarmerData({...farmerData, block: item.value});
+                      }}
+                      val={farmerData.blockName}
+                    />
+                    <ProofAndIdentityPropfComp
+                      t={t}
+                      title={t('address_proofAndIdentityPropf')}
+                      setStateValue={setIdentityProofIdentityPropf}
+                      stateValue={identityProofIdentityPropf}
+                      photoDeletedValue={photoDeletedValue}
+                      setPhotoDeletedValue={setPhotoDeletedValue}
+                      loginUser_data={loginUser_data}
+                      disable={true}
+                      InputTextFormEdit={true}
+                    />
+                  </View>
+                </View>
+              </View>
+              <View style={styles.formContainer}>
+                <View style={styles.formHeader}>
                   <Text style={styles.title}>
                     {t('different_identity_number')}
                   </Text>
-                  <View style={{marginTop: 10}}>
+                </View>
+                <View style={styles.inputContainer2}>
+                  <>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('adhar_no')}
+                        onChangeText={aadhar_number => {
+                          setfarmerData({
+                            ...farmerData,
+                            aadhar_number: aadhar_number,
+                          });
+                        }}
+                        keyboardType="numeric"
+                        value={farmerData.aadhar_number}
+                      />
+                    </View>
                     <InputTextForm
-                      label={t('adhar_no')}
-                      onChangeText={aadhar_number => {
+                      label={t('pan_no')}
+                      value={farmerData.pan_number}
+                      onChangeText={pan_number => {
+                        setfarmerData({...farmerData, pan_number: pan_number});
+                      }}
+                    />
+                    <InputTextForm
+                      label={t('voter_card_no')}
+                      value={farmerData.voter_card_number}
+                      onChangeText={voter_card_number => {
                         setfarmerData({
                           ...farmerData,
-                          aadhar_number: aadhar_number,
+                          voter_card_number: voter_card_number,
                         });
                       }}
-                      keyboardType="numeric"
-                      value={farmerData.aadhar_number}
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('pan_no')}
-                    value={farmerData.pan_number}
-                    onChangeText={pan_number => {
-                      setfarmerData({...farmerData, pan_number: pan_number});
-                    }}
-                  />
-                  <InputTextForm
-                    label={t('voter_card_no')}
-                    value={farmerData.voter_card_number}
-                    onChangeText={voter_card_number => {
-                      setfarmerData({
-                        ...farmerData,
-                        voter_card_number: voter_card_number,
-                      });
-                    }}
-                  />
-                  <InputTextForm
-                    label={t('kcc_no')}
-                    onChangeText={kcc_number => {
-                      setfarmerData({...farmerData, kcc_number: kcc_number});
-                    }}
-                    value={farmerData.kcc_number}
-                  />
-                </>
+                    <InputTextForm
+                      label={t('kcc_no')}
+                      onChangeText={kcc_number => {
+                        setfarmerData({...farmerData, kcc_number: kcc_number});
+                      }}
+                      value={farmerData.kcc_number}
+                    />
+                  </>
+                </View>
               </View>
-            </View>
 
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
+              <View style={styles.formContainer}>
+                <View style={styles.formHeader}>
                   <Text style={styles.title}>{t('bank_account_details')}</Text>
-                  <View style={{marginTop: 10}}>
+                </View>
+                <View style={styles.inputContainer2}>
+                  <>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('account_holder_name')}
+                        onChangeText={user_bank_account_holder =>
+                          setfarmerData({
+                            ...farmerData,
+                            user_bank_account_holder: user_bank_account_holder,
+                          })
+                        }
+                        value={farmerData.user_bank_account_holder}
+                      />
+                    </View>
                     <InputTextForm
-                      label={t('account_holder_name')}
-                      onChangeText={user_bank_account_holder =>
+                      label={t('farmer_reg_bankifsc')}
+                      onChangeText={user_bank_account_name =>
                         setfarmerData({
                           ...farmerData,
-                          user_bank_account_holder: user_bank_account_holder,
+                          user_bank_account_name: user_bank_account_name,
                         })
                       }
-                      value={farmerData.user_bank_account_holder}
+                      value={farmerData.user_bank_account_name}
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('farmer_reg_bankifsc')}
-                    onChangeText={user_bank_account_name =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_account_name: user_bank_account_name,
-                      })
-                    }
-                    value={farmerData.user_bank_account_name}
-                  />
 
-                  <InputTextForm
-                    label={t('branch_name')}
-                    onChangeText={user_bank_branch_name =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_branch_name: user_bank_branch_name,
-                      })
-                    }
-                    value={farmerData.user_bank_branch_name}
-                  />
+                    <InputTextForm
+                      label={t('branch_name')}
+                      onChangeText={user_bank_branch_name =>
+                        setfarmerData({
+                          ...farmerData,
+                          user_bank_branch_name: user_bank_branch_name,
+                        })
+                      }
+                      value={farmerData.user_bank_branch_name}
+                    />
 
-                  <InputTextForm
-                    label={t('bank_account')}
-                    onChangeText={user_bank_account_number =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_account_number: user_bank_account_number,
-                      })
-                    }
-                    value={farmerData.user_bank_account_number}
-                    keyboardType="numeric"
-                  />
+                    <InputTextForm
+                      label={t('bank_account')}
+                      onChangeText={user_bank_account_number =>
+                        setfarmerData({
+                          ...farmerData,
+                          user_bank_account_number: user_bank_account_number,
+                        })
+                      }
+                      value={farmerData.user_bank_account_number}
+                      keyboardType="numeric"
+                    />
 
-                  <InputTextForm
-                    label={t('ifsc_no')}
-                    onChangeText={user_bank_ifsc_code =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_ifsc_code: user_bank_ifsc_code,
-                      })
-                    }
-                    value={farmerData.user_bank_ifsc_code}
-                  />
-                </>
+                    <InputTextForm
+                      label={t('ifsc_no')}
+                      onChangeText={user_bank_ifsc_code =>
+                        setfarmerData({
+                          ...farmerData,
+                          user_bank_ifsc_code: user_bank_ifsc_code,
+                        })
+                      }
+                      value={farmerData.user_bank_ifsc_code}
+                    />
+                  </>
+                </View>
               </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
+              <View style={styles.formContainer}>
+                <View style={styles.formHeader}>
                   <Text style={styles.title}>{t('pension_details')}</Text>
-                  <View style={{marginTop: 10}}>
+                </View>
+                <View style={styles.inputContainer2}>
+                  <>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('pension_providing_authority')}
+                        onChangeText={pension_authority =>
+                          setfarmerData({
+                            ...farmerData,
+                            pension_authority: pension_authority,
+                          })
+                        }
+                        value={farmerData.pension_authority}
+                      />
+                    </View>
+
                     <InputTextForm
-                      label={t('pension_providing_authority')}
-                      onChangeText={pension_authority =>
+                      label={t('pension_account_number')}
+                      onChangeText={pension_account_no =>
                         setfarmerData({
                           ...farmerData,
-                          pension_authority: pension_authority,
+                          pension_account_no: pension_account_no,
                         })
                       }
-                      value={farmerData.pension_authority}
+                      value={farmerData.pension_account_no}
+                      keyboardType="numeric"
                     />
-                  </View>
 
-                  <InputTextForm
-                    label={t('pension_account_number')}
-                    onChangeText={pension_account_no =>
-                      setfarmerData({
-                        ...farmerData,
-                        pension_account_no: pension_account_no,
-                      })
-                    }
-                    value={farmerData.pension_account_no}
-                    keyboardType="numeric"
-                  />
+                    <View>
+                      <Text style={styles.dateText}>{t('effective_from')}</Text>
+                      <View style={styles.passwordMainContainer}>
+                        <TouchableOpacity
+                          style={styles.passwordContainer}
+                          onPress={() => setOpen(true)}
+                          activeOpacity={0.7}>
+                          <Text style={styles.inputTextStyle}>
+                            {farmerData.effective_from}
+                          </Text>
+                          <TouchableOpacity onPress={() => setOpen(true)}>
+                            <MaterialIcons
+                              name="calendar-month"
+                              size={25}
+                              color="#1d3122"
+                            />
 
-                  <View>
-                    <Text
-                      style={{marginBottom: 5, marginLeft: 5, color: '#000'}}>
-                      {t('effective_from')}
-                    </Text>
-                    <View style={styles.passwordMainContainer}>
-                      <TouchableOpacity
-                        style={styles.passwordContainer}
-                        onPress={() => setOpen(true)}
-                        activeOpacity={0.7}>
-                        <Text style={styles.inputTextStyle}>
-                          {farmerData.effective_from}
-                        </Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
-                          <ImageForm
-                            source={require('../../Common/images/calendar.png')}
-                            resizeMode="cover"
-                            height={30}
-                            width={30}
+                            {/* <ImageForm
+                              source={require('../../Common/images/calendar.png')}
+                              resizeMode="cover"
+                              height={30}
+                              width={30}
+                            /> */}
+                          </TouchableOpacity>
+                          <DatePicker
+                            modal
+                            mode="date"
+                            open={open}
+                            date={newdate}
+                            onConfirm={item => {
+                              handleEffectFrom(item);
+                              setOpen(false);
+                            }}
+                            onCancel={() => {
+                              setOpen(false);
+                            }}
                           />
                         </TouchableOpacity>
-                        <DatePicker
-                          modal
-                          mode="date"
-                          open={open}
-                          date={newdate}
-                          onConfirm={item => {
-                            handleEffectFrom(item);
-                            setOpen(false);
-                          }}
-                          onCancel={() => {
-                            setOpen(false);
-                          }}
-                        />
-                      </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
 
-                  <InputTextForm
-                    label={t('pension_amount_currency')}
-                    onChangeText={pension_amount =>
-                      setfarmerData({
-                        ...farmerData,
-                        pension_amount: pension_amount,
-                      })
-                    }
-                    value={farmerData.pension_amount}
-                    keyboardType="numeric"
-                  />
-                  <DropdownForm
-                    label={t('per_month_quarter_year')}
-                    data={config.pensionParMonthData}
-                    onChange={frequency =>
-                      setfarmerData({...farmerData, frequency: frequency.value})
-                    }
-                    val={farmerData.frequency}
-                  />
-                </>
+                    <InputTextForm
+                      label={t('pension_amount_currency')}
+                      onChangeText={pension_amount =>
+                        setfarmerData({
+                          ...farmerData,
+                          pension_amount: pension_amount,
+                        })
+                      }
+                      value={farmerData.pension_amount}
+                      keyboardType="numeric"
+                    />
+                    <DropdownForm
+                      label={t('per_month_quarter_year')}
+                      data={config.pensionParMonthData}
+                      onChange={frequency =>
+                        setfarmerData({
+                          ...farmerData,
+                          frequency: frequency.value,
+                        })
+                      }
+                      val={farmerData.frequency}
+                    />
+                  </>
+                </View>
               </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                marginBottom: 80,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
+              <View style={styles.formContainer}>
+                <View style={styles.formHeader}>
                   <Text style={styles.title}>
                     {t('life_insurance_details')}
                   </Text>
-                  <View style={{marginTop: 10}}>
+                </View>
+                <View style={styles.inputContainer2}>
+                  <>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('lic_name_of_company')}
+                        onChangeText={company_name =>
+                          setfarmerData({
+                            ...farmerData,
+                            company_name: company_name,
+                          })
+                        }
+                        value={farmerData.company_name}
+                      />
+                    </View>
                     <InputTextForm
-                      label={t('lic_name_of_company')}
-                      onChangeText={company_name =>
-                        setfarmerData({
-                          ...farmerData,
-                          company_name: company_name,
-                        })
+                      label={t('policy_number')}
+                      onChangeText={policy_no =>
+                        setfarmerData({...farmerData, policy_no: policy_no})
                       }
-                      value={farmerData.company_name}
+                      value={farmerData.policy_no}
+                      keyboardType="numeric"
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('policy_number')}
-                    onChangeText={policy_no =>
-                      setfarmerData({...farmerData, policy_no: policy_no})
-                    }
-                    value={farmerData.policy_no}
-                    keyboardType="numeric"
-                  />
-                  <InputTextForm
-                    label={t('sum_insured_currency')}
-                    onChangeText={sum_insured =>
-                      setfarmerData({...farmerData, sum_insured: sum_insured})
-                    }
-                    value={farmerData.sum_insured}
-                    keyboardType="numeric"
-                  />
-                </>
+                    <InputTextForm
+                      label={t('sum_insured_currency')}
+                      onChangeText={sum_insured =>
+                        setfarmerData({...farmerData, sum_insured: sum_insured})
+                      }
+                      value={farmerData.sum_insured}
+                      keyboardType="numeric"
+                    />
+                  </>
+                </View>
               </View>
-            </View>
-            <View style={{backgroundColor: '#E9FCC5'}}></View>
+              <View style={{backgroundColor: '#E9FCC5'}}></View>
+            </ScrollView>
+            <ButtonForm
+              label={t('submit')}
+              onPress={() => handleUserListUpdate()}
+              iconName="check-circle"
+              iconColor="#fff"
+              iconSize={30}
+            />
           </View>
-        </ScrollView>
-        <ButtonForm
-          label={t('submit')}
-          onPress={() => handleUserListUpdate()}
-        />
-      </Root>
-    </>
+        </Root>
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
 export default FarmerProfile;
 
 const styles = StyleSheet.create({
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
+  firatFormContainer: {
+    backgroundColor: Colors.containerGreen,
+    marginTop: 50,
+    borderRadius: 30,
+    elevation: 3,
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    // paddingTop: 10,
+    // marginBottom: 30,
+  },
+  formContainer: {
+    backgroundColor: Colors.containerGreen,
+    // marginTop: 30,
+    borderRadius: 25,
+    elevation: 3,
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    // paddingTop: 10,
+    marginBottom: 30,
+  },
+  inputContainer: {marginTop: '30%', marginHorizontal: 15},
+  inputContainer2: {marginHorizontal: 15},
+  profileImg: {
+    position: 'absolute',
+    top: -40, // Half outside (adjust based on your image size)
+    alignSelf: 'center', // Center horizontally
+    zIndex: 2,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // For iOS shadow
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   passwordMainContainer: {
     flex: 1,
     alignItems: 'center',
+  },
+  userName: {
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
+    color: Colors.drawer,
+    paddingTop: 5,
+  },
+  radioTitle: {
+    fontSize: 15,
+    color: '#4e4e4e',
+    fontFamily: 'Poppins-Regular',
+    paddingLeft: 10,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    width: '100%',
-    paddingEnd: 8,
-    backgroundColor: 'white',
-    height: 40,
     marginBottom: 15,
+    height: 50,
+    borderColor: Colors.secondary, // Make sure this color is visible
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    width: '100%',
+    elevation: 1,
+    paddingHorizontal: 10,
+    color: '#000000',
   },
   inputTextStyle: {
     marginHorizontal: 10,
     borderColor: 'gray',
     color: '#000',
   },
+  formHeader: {
+    backgroundColor: Colors.useGreen,
+    height: 60,
+    width: '100%',
+    justifyContent: 'center',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   title: {
-    color: '#454545',
+    color: 'rgba(255, 255, 255, 1)',
     fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -1045,5 +1104,10 @@ const styles = StyleSheet.create({
     top: '52%',
     left: '45%',
     zIndex: 9999,
+  },
+  dateText: {
+    marginBottom: 5,
+    marginLeft: 5,
+    color: '#4e4e4e',
   },
 });

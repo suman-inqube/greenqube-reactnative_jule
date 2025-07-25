@@ -79,8 +79,8 @@ android {
         applicationId "com.inqube.greenqube"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 94
-        versionName "9.2"
+        versionCode 95
+        versionName "9.3"
     }
     signingConfigs {
         debug {

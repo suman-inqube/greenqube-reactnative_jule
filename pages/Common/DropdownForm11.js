@@ -123,7 +123,7 @@ const DropdownForm = ({
         </Text>
         <View style={styles.container}>
           <Dropdown
-            mode="modal"
+            mode="default"
             style={[styles.dropdown, dropdownStyle]}
             placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
             selectedTextStyle={[styles.selectedTextStyle, selectedTextStyle]}
