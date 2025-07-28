@@ -24,7 +24,8 @@ import {
   UnitConversonToDefault,
   nearestLatLong,
   uploadCarbonAgrDocs,
-  landRouteApi
+  landRouteApi,
+  uploadFarmerIdAdd
 } from '../../../config/apiHere';
 
 import {
@@ -133,6 +134,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     { uri: '', name: '', type: '', fileName: '', id: '' },
     { uri: '', name: '', type: '', fileName: '', id: '' },
   ]);
+  const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
     {
       uri: '',
@@ -149,13 +151,12 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       name: '',
       type: '',
       fileName: '',
-      ImageType: 'identity',
+      imageType: 'identity',
       file_path: '',
       file_id: '',
       id: '',
     },
   ]);
-  const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [identityPhotoDeletedValue, setIdentityPhotoDeletedValue] = useState([]);
   const [terrainTypeAll, setterrainTypeAll] = useState([]);
   const [soilTypeAll, setsetsoilTypeAll] = useState([]);
@@ -346,12 +347,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     if (getPlotDoc?.status == 200) {
       // console.log('getPlotDoc', getPlotDoc?.data?.data?.rows[0]);
       const { count } = getPlotDoc?.data?.data;
-      const { plot_img } = getPlotDoc?.data?.data?.rows[0] || {};
+      const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
       const values = [...addressProof];
       const carbonCertificateValues = [...carboncertificate];
       const filteredPlotImages = plot_img.filter(item => item.term_type === 'plot_image');
       const filteredCarbonAgreement = plot_img.filter(item => item.term_type === 'carbon_agreement');
       const filteredSignature = plot_img.filter(item => item.term_type === 'signature');
+      const filterLandUserImgsAddress = landUserImgs.filter(item => item.term_type === 'farmer_address');
+      const filterLandUserImgsIdentity = landUserImgs.filter(item => item.term_type === 'farmer_identity');
       if (filteredSignature.length > 0) {
         setSignature({
           uri: filteredSignature[filteredSignature.length - 1]?.file_path,
@@ -395,7 +398,28 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       });
       setCarboncertificate(carbonCertificateValues);
       setAddressProof(values);
-
+      setIdentityProofIdentityPropf([
+        {
+          uri: filterLandUserImgsAddress?.[0]?.file_path || '',
+          name: filterLandUserImgsAddress?.[0]?.file_name || '',
+          type: filterLandUserImgsAddress?.[0]?.file_ext || '',
+          fileName: filterLandUserImgsAddress?.[0]?.file_name || '',
+          imageType: 'address',
+          file_path: filterLandUserImgsAddress?.[0]?.file_path || '',
+          file_id: filterLandUserImgsAddress?.[0]?.file_id || '',
+          id: filterLandUserImgsAddress?.[0]?.file_id || '',
+        },
+        {
+          uri: filterLandUserImgsIdentity?.[0]?.file_path || '',
+          name: filterLandUserImgsIdentity?.[0]?.file_name || '',
+          type: filterLandUserImgsIdentity?.[0]?.file_ext || '',
+          fileName: filterLandUserImgsIdentity?.[0]?.file_name || '',
+          imageType: 'identity',
+          file_path: filterLandUserImgsIdentity?.[0]?.file_path || '',
+          file_id: filterLandUserImgsIdentity?.[0]?.file_id || '',
+          id: filterLandUserImgsIdentity?.[0]?.file_id || '',
+        },
+      ]);
     }
     if (cropAndPlotDetails?.status === 200) {
       const data = cropAndPlotDetails?.data?.data || {};
@@ -645,9 +669,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     return true;
   };
   useEffect(() => {
+    
     onPageLoad();
     removesetLocation();
-    onBackPress(handleBackPress);
+    // onBackPress(handleBackPress);
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
@@ -1033,6 +1058,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     }
   };
   const handleUserListUpdate = async () => {
+
     Keyboard.dismiss();
     const locationArry = [];
     const latlongArr = [];
@@ -1319,6 +1345,39 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           );
           setIsLoading(false);
           return;
+        }
+      
+        if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
+          const formdatauploadFarmerIdAdd = new FormData();
+          if (identityProofIdentityPropf[0]?.id == "") {
+            const { uri, type, name } = identityProofIdentityPropf[0];
+            formdatauploadFarmerIdAdd.append('farmer_address', {
+              uri,
+              type,
+              name
+            });
+          }
+          if (identityProofIdentityPropf[1]?.id == "") {
+            const { uri, type, name } = identityProofIdentityPropf[1];
+            formdatauploadFarmerIdAdd.append('farmer_identity', {
+              uri,
+              type,
+              name
+            });
+          }
+          formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
+          formdatauploadFarmerIdAdd.append('user_id', farmeruserID);
+
+          const resOocUpdate = await uploadFarmerIdAdd(
+            dbname,
+            lan_id,
+            farmeruserID,
+            token,
+            formdatauploadFarmerIdAdd
+          );
+          if (resOocUpdate?.status != 200) {
+            Toast.show({ text: resOocUpdate?.data?.error?.errorMessage, ...AlertMesg[0] });
+          }
         }
         if (
           statuslevel.label == 'APPROVED' ||
@@ -1857,9 +1916,23 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 photoDeletedValue={identityPhotoDeletedValue}
                 setPhotoDeletedValue={setIdentityPhotoDeletedValue}
                 loginUser_data={loginUser_data}
-                disable={true}
-                InputTextFormEdit={true}
-                
+                status_level={statuslevel.label}
+                InputTextFormEdit={statuslevel.label == 'PENDING' ||
+                  statuslevel.label == 'REJECTED'
+                  ? true
+                  : false}
+                disable={
+                  statuslevel.label == 'APPROVED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    ? false
+                    : statuslevel.label == 'PENDING' ||
+                      statuslevel.label == 'REJECTED'
+                      ? false
+                      : true
+                }
+
               />
             </View>
             {area != 0 && area != null && (

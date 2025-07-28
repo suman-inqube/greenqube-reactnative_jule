@@ -156,11 +156,39 @@ const FarmerActivityList = ({ navigation }) => {
   }
   return (
     <Root>
-      <CustomHeader path="FarmerDashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-      <View style={{ flex: 1 }}>
-        <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
-        <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == '' ? '' : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`,)} />
-        <WidgetsSide location={'FarmerActivityReport'} title={t('add_recent_incident')} onPress={() => handleSPSheetShow()} />
+      <CustomHeader
+        path="FarmerDashboard"
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+      <View style={{flex: 1}}>
+        <DatePickerComp
+          openDate={openFromDate}
+          newDate={newFromDate}
+          setOpenDate={setOpenFromDate}
+          handleDatePicker={handleDatePicker}
+        />
+        <DatePickerComp
+          openDate={openToDate}
+          newDate={newToDate}
+          setOpenDate={setOpenToDate}
+          handleDatePicker={handleDatePicker2}
+          minimumDate={
+            fromDate == ''
+              ? ''
+              : new Date(
+                  `${new Date(fromDate).getFullYear()}-${
+                    new Date(fromDate).getMonth() + 1
+                  }-${new Date(fromDate).getDate() + 1}`,
+                )
+          }
+        />
+        <WidgetsSide
+          location={'FarmerActivityReport'}
+          title={t('add_recent_incident')}
+          onPress={() => handleSPSheetShow()}
+        />
 
         <FarmerFilter
           filterItem={filterItem}
@@ -179,7 +207,10 @@ const FarmerActivityList = ({ navigation }) => {
           carbonFlag={carbonFlag}
           onChangeCarbonType={onChangeCarbonType}
           carbonTypeVal={carbonType}
-          dataActivity={[{ label: "Carbon ", value: "carbon_activity" }, { label: "Non-Carbon ", value: "user_activity" }]}
+          dataActivity={[
+            {label: 'Carbon ', value: 'carbon_activity'},
+            {label: 'Non-Carbon ', value: 'user_activity'},
+          ]}
         />
 
         {isLoading ? (
@@ -188,7 +219,7 @@ const FarmerActivityList = ({ navigation }) => {
           <>
             <FlatList
               data={activityAll}
-              renderItem={({ item, index }) => (
+              renderItem={({item, index}) => (
                 <TouchableOpacity
                   style={styles.wrapper}
                   onPress={() =>
@@ -200,12 +231,17 @@ const FarmerActivityList = ({ navigation }) => {
                         {t('pro_reg_name')} : {item.agri_user.userName}
                       </Text>
                       <Text style={styles.title}>
-                        {t('reg_plot_name')} : {item.land_info.plot_no.substring(0, 5) + '...'}
+                        {t('reg_plot_name')} :{' '}
+                        {item.land_info.plot_no.substring(0, 5) + '...'}
                       </Text>
                       <Text style={styles.title}>
-                        {t('perf_date')} : {item.act_perform_date?.substring(0, 4) + '...'}
+                        {t('perf_date')} :{' '}
+                        {item.act_perform_date?.substring(0, 4) + '...'}
                       </Text>
-                      <Text style={styles.title}>{t('Sowing')} :  {item?.actCurel?.sowing_date?.substring(0, 10)}</Text>
+                      <Text style={styles.title}>
+                        {t('Sowing')} :{' '}
+                        {item?.actCurel?.sowing_date?.substring(0, 10)}
+                      </Text>
                     </View>
                     <View style={styles.activityListItem}>
                       <Text style={styles.title}>
@@ -219,14 +255,17 @@ const FarmerActivityList = ({ navigation }) => {
                       <Text style={styles.title}>
                         {t('deviation')} : {item?.deviation} Day
                       </Text>
-                      <Text style={styles.title}>{t('Harvesting')} : {item?.actCurel?.harvesting_date?.substring(0, 10)}</Text>
+                      <Text style={styles.title}>
+                        {t('Harvesting')} :{' '}
+                        {item?.actCurel?.harvesting_date?.substring(0, 10)}
+                      </Text>
                     </View>
                   </View>
                   <Text style={styles.title}>
                     {t('pick_crop_cycle_start_date')} : {item?.cycle_start_date}
                   </Text>
                   <Text style={styles.title}>
-                    {t('act_name')} :
+                    {t('activity_type')} :
                     {item?.typeActivity ? item?.typeActivity?.categoryName : ''}
                   </Text>
                 </TouchableOpacity>

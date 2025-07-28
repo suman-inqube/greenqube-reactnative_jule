@@ -3110,14 +3110,34 @@ export const addActivityPipeImages = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-  console.log(
-    `${config.BASE_URL}landRoute/uploadPipeImages`,
-    formData,
-    axiosHeaders,
-  );
   try {
     let response = await axios.post(
       `${config.BASE_URL}landRoute/uploadPipeImages`,
+      formData,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+export const uploadFarmerIdAdd = async (
+  dbName,
+  language,
+  userId,
+  token,
+  formData,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${language},${userId}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  try {
+    let response = await axios.put(
+      `${config.BASE_URL}settingsRoute/uploadFarmerIdAdd`,
       formData,
       axiosHeaders,
     );

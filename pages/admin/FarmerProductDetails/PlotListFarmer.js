@@ -69,10 +69,20 @@ const PlotListFarmer = () => {
   const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-65
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+    const handleBackPress = () => {
+    if (activeTab == 1) {
+      setActiveTab(0)
+      onTabPress(0)
+      return true;
+    }
+    navigation.navigate('FarmerDashboard');
+    return true;
+  };
   useEffect(() => {
     if (activeTab == 0) {
       onPageLoad();
     }
+     onBackPress(handleBackPress);
   }, [activeTab]);
   const onPageLoad = async () => {
     try {

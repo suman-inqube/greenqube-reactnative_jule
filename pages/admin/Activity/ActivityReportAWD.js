@@ -12,7 +12,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {
   useEffect,
@@ -22,8 +22,8 @@ import React, {
   useRef,
 } from 'react';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
 import {
   inputOutputRoutePipeImagesLatLong,
   activityInfoAPI,
@@ -41,7 +41,7 @@ import {
   inputOutputRoutePipeImages,
   activityScheduleAPI,
 } from '../../../config/apiHere';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
@@ -49,16 +49,16 @@ import CustomAlert from '../../Common/CustomAlert';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AnalyticsLogEvent } from '../../Analytics';
-import { isPointInPolygon, getDistance } from 'geolib';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {AnalyticsLogEvent} from '../../Analytics';
+import {isPointInPolygon, getDistance} from 'geolib';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import getCurrentLocation from '../../Common/getCurrentLocation';
 import ActivityMap from '../../Common/ActivityMap';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-const ActivityReportAWD = ({ navigation }) => {
+const ActivityReportAWD = ({navigation}) => {
   var watchId = useRef(null);
   //GQR-67
   const {
@@ -85,10 +85,10 @@ const ActivityReportAWD = ({ navigation }) => {
     DatePickerComp,
     isOnline,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
   //GQR-67
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const [isLoading, setIsLoading] = useState(true);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -235,7 +235,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({ ...saveData, act_perform_date: effective_date });
+    setSaveData({...saveData, act_perform_date: effective_date});
   };
   const handleResultSelect = async (name, currentfarmerId, phone) => {
     setSearchResultsList(false);
@@ -244,7 +244,7 @@ const ActivityReportAWD = ({ navigation }) => {
     setSearchFarmerName(name);
     setSearchResults([]);
     setfarmerID(currentfarmerId);
-    setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
+    setSaveData({...saveData, plot_id: '', plot_Name: ''});
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
       name: '',
@@ -292,7 +292,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const handlePlot = async relId => {
     try {
       const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
+      const {latitude, longitude} = fusedLocation;
       setIsLoading(true);
       if (isOnline) {
         var [response] = await Promise.all([
@@ -321,7 +321,7 @@ const ActivityReportAWD = ({ navigation }) => {
                 text: 'OK',
               },
             ],
-            { cancelable: false },
+            {cancelable: false},
           );
         }
         const latandlongArr =
@@ -333,7 +333,7 @@ const ActivityReportAWD = ({ navigation }) => {
           );
         if (latandlongArr.length != 0) {
           setPlotPolygon(latandlongArr);
-          const inside = isPointInPolygon({ latitude, longitude }, latandlongArr);
+          const inside = isPointInPolygon({latitude, longitude}, latandlongArr);
           if (inside) {
             setOutofRange(true);
             setOutofRangeCheck(true);
@@ -349,12 +349,12 @@ const ActivityReportAWD = ({ navigation }) => {
           const data = response?.data?.data;
           setShowingMenu(true);
           data.crop_cycl_start_date == null ||
-            data.crop_cycl_start_date == '2004-02-29'
+          data.crop_cycl_start_date == '2004-02-29'
             ? setIsButtonDisabled(false)
             : setIsButtonDisabled(true);
           let cycle_start_date =
             data.crop_cycl_start_date == null ||
-              data.crop_cycl_start_date == '2004-02-29'
+            data.crop_cycl_start_date == '2004-02-29'
               ? data.sowing_date
               : data.crop_cycl_start_date;
           setNameVarityStartEnd({
@@ -513,7 +513,7 @@ const ActivityReportAWD = ({ navigation }) => {
                 //     : cycleDtartDate;
                 const cycleDate =
                   data.crop_cycl_start_date == null ||
-                    data.crop_cycl_start_date == '2004-02-29'
+                  data.crop_cycl_start_date == '2004-02-29'
                     ? data.sowing_date
                     : data.crop_cycl_start_date;
                 const sdate = new Date(cycleDate);
@@ -532,9 +532,9 @@ const ActivityReportAWD = ({ navigation }) => {
 
                 setUpcomingAct(
                   upcomingActivity?.activityName?.categoryName +
-                  ' (' +
-                  startDateEndDate +
-                  ')',
+                    ' (' +
+                    startDateEndDate +
+                    ')',
                 );
               }
               //  console.log(
@@ -657,7 +657,9 @@ const ActivityReportAWD = ({ navigation }) => {
               activitySchedule?.data?.data?.lastActivity?.act_start_date,
             ) +
             ' - ' +
-            formatDate(activitySchedule?.data?.data?.lastActivity?.act_to_date) +
+            formatDate(
+              activitySchedule?.data?.data?.lastActivity?.act_to_date,
+            ) +
             ')';
 
           setLastAct(lastData);
@@ -725,9 +727,9 @@ const ActivityReportAWD = ({ navigation }) => {
 
             setUpcomingAct(
               upcomingActivity?.activityName?.categoryName +
-              ' (' +
-              startDateEndDate +
-              ')',
+                ' (' +
+                startDateEndDate +
+                ')',
             );
           }
           // console.log(
@@ -847,16 +849,16 @@ const ActivityReportAWD = ({ navigation }) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
+      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
       return false;
     }
     if (!isGeoFence) {
-      Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
+      Toast.show({text: 'Plot is not geofenced ', ...AlertMesg[0]});
       // Alert.alert('You are out of range');
       return;
     }
     if (!outofRangeCheck) {
-      Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+      Toast.show({text: 'You are out of range', ...AlertMesg[0]});
       // Alert.alert('You are out of range');
       return;
     }
@@ -917,8 +919,8 @@ const ActivityReportAWD = ({ navigation }) => {
         formData.append('act_ref', saveData.act_ref);
         if (saveData.field_type == 'add') {
           const pipe_data = pipeDetails.map(_data => {
-            const { selectedImagePipe, pipe_name } = _data;
-            const { firstItemLat, firstItemLong, secondItemLat, secondItemLong } =
+            const {selectedImagePipe, pipe_name} = _data;
+            const {firstItemLat, firstItemLong, secondItemLat, secondItemLong} =
               selectedImagePipe || {};
             const pipe_lattlong = [];
             if (firstItemLat != '') {
@@ -953,15 +955,15 @@ const ActivityReportAWD = ({ navigation }) => {
               longitude: selectedImagePipe.secondItemLong,
             });
           }
-          const pipe_data = [{ pipe_id: selectPipeList.value, latlong: latlong }];
+          const pipe_data = [{pipe_id: selectPipeList.value, latlong: latlong}];
           if (latlong.length != 0) {
             formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
           }
         }
         if (saveData.field_type == 'add') {
           pipeDetails.map((_data, _index) => {
-            const { selectedImagePipe } = _data;
-            const { firstItem, secondItem } = selectedImagePipe || {};
+            const {selectedImagePipe} = _data;
+            const {firstItem, secondItem} = selectedImagePipe || {};
             const firstItemfileName = firstItem.split('/').pop();
             const secondItemfileName = secondItem.split('/').pop();
             if (firstItemfileName != '') {
@@ -1029,7 +1031,7 @@ const ActivityReportAWD = ({ navigation }) => {
         }
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             navigation.navigate('activityList');
           }, 1500);
@@ -1052,7 +1054,7 @@ const ActivityReportAWD = ({ navigation }) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           navigation.navigate('activityList');
         }, 1000);
@@ -1062,8 +1064,6 @@ const ActivityReportAWD = ({ navigation }) => {
 
   const handleActivityType = async item => {
     try {
-
-
       let dataArray = [];
       if (isOnline) {
         var response = await activityInfoAPI(
@@ -1158,7 +1158,6 @@ const ActivityReportAWD = ({ navigation }) => {
       }
     } catch (error) {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityType');
-
     }
   };
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
@@ -1221,7 +1220,7 @@ const ActivityReportAWD = ({ navigation }) => {
           Keyboard.dismiss();
           Toast.show({
             time: 2,
-            text: `${t('No pipe found ' + item.label)}`,
+            text: `${t('No pipe found in ' + item.label)}`,
             ...AlertMesg[0],
           });
         }
@@ -1238,8 +1237,8 @@ const ActivityReportAWD = ({ navigation }) => {
     value: '',
   });
   const handleActivityPipe = _item => {
-    const { pipeFiles, pipeLatLong, label, value } = _item || {};
-    setselectPipeList({ ...selectPipeList, label, value });
+    const {pipeFiles, pipeLatLong, label, value} = _item || {};
+    setselectPipeList({...selectPipeList, label, value});
   };
   const requestLivePermission = async () => {
     try {
@@ -1263,8 +1262,7 @@ const ActivityReportAWD = ({ navigation }) => {
   };
   const onPageLoad = async () => {
     try {
-
-      setSaveData({ ...saveData, act_pattern: 'schedule' });
+      setSaveData({...saveData, act_pattern: 'schedule'});
       setisActiveMenu(true);
       requestLivePermission();
       if (isOnline) {
@@ -1284,10 +1282,10 @@ const ActivityReportAWD = ({ navigation }) => {
       }
       watchId = Geolocation.watchPosition(
         async position => {
-          const { latitude, longitude } = position.coords;
+          const {latitude, longitude} = position.coords;
           setLocation(prev => {
             if (prev?.latitude !== latitude || prev?.longitude !== longitude) {
-              return { latitude, longitude };
+              return {latitude, longitude};
             }
             return prev;
           });
@@ -1305,7 +1303,11 @@ const ActivityReportAWD = ({ navigation }) => {
         }
       };
     } catch (error) {
-      CrashlyticsRecordError(error, 'SupervisorActivityReportAWD', 'onPageLoad');
+      CrashlyticsRecordError(
+        error,
+        'SupervisorActivityReportAWD',
+        'onPageLoad',
+      );
     }
   };
   const handleBackPress = () => {
@@ -1408,7 +1410,7 @@ const ActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1421,7 +1423,7 @@ const ActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1499,7 +1501,7 @@ const ActivityReportAWD = ({ navigation }) => {
         ...AlertMesg[0],
       });
     } else if (
-      selectedImagePipe.firstItem == '' &&
+      selectedImagePipe.firstItem == '' ||
       selectedImagePipe.secondItem == ''
     ) {
       Toast.show({
@@ -1510,7 +1512,7 @@ const ActivityReportAWD = ({ navigation }) => {
     } else {
       setPipeDetails([
         ...pipeDetails,
-        { pipe_name: pipeNumber, selectedImagePipe },
+        {pipe_name: pipeNumber, selectedImagePipe},
       ]);
       setSelectedImagePipe({
         ...selectedImagePipe,
@@ -1542,19 +1544,22 @@ const ActivityReportAWD = ({ navigation }) => {
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState('');
   const TakePhoto = useCallback(() => {
-   
-
     //    const hasPermission = requestCameraPermission();
     // if (!hasPermission) return;
     const options = {
       mediaType: 'photo',
       includeBase64: true,
-      maxHeight: 900,
-      maxWidth: 900,
+      maxHeight: 600,
+      maxWidth: 600,
     };
 
     launchCamera(options, async response => {
       try {
+        if (!response) {
+          // Response is null, handle it safely
+          CustomAlert('Camera Error:', 'Respose is blank.', true, 'OK');
+          return;
+        }
         if (response.didCancel) {
           // console.log('User cancelled camera');
           CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
@@ -1568,6 +1573,10 @@ const ActivityReportAWD = ({ navigation }) => {
         }
 
         const asset = response.assets?.[0];
+        if (asset?.uri === null) {
+          CustomAlert('Error', 'Asset is blank', true, 'OK');
+          return;
+        }
         if (!asset?.uri) {
           // console.warn('No image captured');
           CustomAlert('Error', 'No image captured', true, 'OK');
@@ -1587,11 +1596,11 @@ const ActivityReportAWD = ({ navigation }) => {
         const watermarkText = `${location.latitude},${location.longitude},${formattedTime}`;
 
         const markerOptions = {
-          backgroundImage: { src: asset.uri, scale: 1 },
+          backgroundImage: {src: asset.uri, scale: 1},
           watermarkTexts: [
             {
               text: watermarkText,
-              positionOptions: { position: Position.bottomLeft },
+              positionOptions: {position: Position.bottomLeft},
               style: {
                 color: '#df2020',
                 fontSize: 2,
@@ -1698,9 +1707,11 @@ const ActivityReportAWD = ({ navigation }) => {
               {searchResultsList && searchResultsList ? (
                 <View style={styles.flatContainer}>
                   <FlatList
-                    style={searchResults.length > 5 ? styles.flatlistHeight : ''}
+                    style={
+                      searchResults.length > 5 ? styles.flatlistHeight : ''
+                    }
                     data={searchResults}
-                    renderItem={({ item }) => (
+                    renderItem={({item}) => (
                       <TouchableOpacity
                         onPress={() =>
                           handleResultSelect(item.label, item.value, item.phone)
@@ -1804,7 +1815,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       style={styles.cycleContainerDate}
                       disabled={isButtonDisabled}
                       onPress={() => srtCycleStartDate(true)}>
-                      <View style={{ width: '80%' }}>
+                      <View style={{width: '80%'}}>
                         <Text style={styles.title}>
                           {cycleDtartDate == ''
                             ? saveData.cycle_start_date
@@ -1813,14 +1824,16 @@ const ActivityReportAWD = ({ navigation }) => {
                       </View>
                       <Image
                         source={require('../../Common/images/calendar.png')}
-                        style={{ width: 20, height: 20 }}
+                        style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[
                         styles.cycleContainerStartDate,
                         {
-                          backgroundColor: isButtonDisabled ? '#EBEBE4' : 'green',
+                          backgroundColor: isButtonDisabled
+                            ? '#EBEBE4'
+                            : 'green',
                         },
                       ]}
                       disabled={isButtonDisabled}
@@ -1828,7 +1841,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       <Text
                         style={[
                           styles.title,
-                          { color: isButtonDisabled ? '#000' : '#FFF' },
+                          {color: isButtonDisabled ? '#000' : '#FFF'},
                         ]}>
                         {t('set_the_crop_cycle_start_date')}
                       </Text>
@@ -1910,36 +1923,37 @@ const ActivityReportAWD = ({ navigation }) => {
                         </View>
                       </View>
                     ) : null}
-                    {saveData.field_type != '' && saveData.field_type != null && (
-                      <>
-                        <Text
-                          style={[
-                            styles.title,
-                            {
-                              marginHorizontal: 5,
-                              marginBottom: 5,
-                              color: 'red',
-                              fontFamily: 'Poppins-Regular',
-                            },
-                          ]}>
-                          {t('Enter Pipe Detail')}
-                        </Text>
-                        <View
-                          style={{
-                            backgroundColor: '#FFF',
-                            padding: 10,
-                            borderRadius: 5,
-                            elevation: 1,
-                            marginBottom: 10,
-                            borderColor: '#fcf7f7',
-                            borderWidth: 1.3,
-                            borderRadius: 8,
-                            paddingHorizontal: 8,
-                            backgroundColor: '#ffffff',
-                            width: '100%',
-                            elevation: 1,
-                          }}>
-                          {/* <View style={styles.activityPattern}>
+                    {saveData.field_type != '' &&
+                      saveData.field_type != null && (
+                        <>
+                          <Text
+                            style={[
+                              styles.title,
+                              {
+                                marginHorizontal: 5,
+                                marginBottom: 5,
+                                color: 'red',
+                                fontFamily: 'Poppins-Regular',
+                              },
+                            ]}>
+                            {t('Enter Pipe Detail')}
+                          </Text>
+                          <View
+                            style={{
+                              backgroundColor: '#FFF',
+                              padding: 10,
+                              borderRadius: 5,
+                              elevation: 1,
+                              marginBottom: 10,
+                              borderColor: '#fcf7f7',
+                              borderWidth: 1.3,
+                              borderRadius: 8,
+                              paddingHorizontal: 8,
+                              backgroundColor: '#ffffff',
+                              width: '100%',
+                              elevation: 1,
+                            }}>
+                            {/* <View style={styles.activityPattern}>
                         <RadioForm
                           label={t('Add Pipe')}
                           selected={pipeType === 'addPipe'}
@@ -1951,90 +1965,90 @@ const ActivityReportAWD = ({ navigation }) => {
                           onSelect={() => handleActivityPipeType('UpdatePipe')}
                         />
                       </View> */}
-                          {saveData.field_type == 'add' ? (
-                            <InputTextForm
-                              label={t('Enter Instrument Name')}
+                            {saveData.field_type == 'add' ? (
+                              <InputTextForm
+                                label={t('Enter Instrument Name')}
+                                color="red"
+                                value={pipeNumber}
+                                onChangeText={text =>
+                                  handleActivityPipeNumber(text)
+                                }
+                              />
+                            ) : (
+                              <DropdownForm
+                                label={t('Instrument')}
+                                color="red"
+                                data={PipeListDetailsArr}
+                                onChange={item => handleActivityPipe(item)}
+                                val={selectPipeList.label}
+                              />
+                            )}
+                            <TakePhotoPipe
+                              openImagePicker={openImagePickerPipe}
+                              selectedImage={selectedImagePipe}
+                              title={t('Take a photo')}
                               color="red"
-                              value={pipeNumber}
-                              onChangeText={text =>
-                                handleActivityPipeNumber(text)
-                              }
                             />
-                          ) : (
-                            <DropdownForm
-                              label={t('Instrument')}
-                              color="red"
-                              data={PipeListDetailsArr}
-                              onChange={item => handleActivityPipe(item)}
-                              val={selectPipeList.label}
-                            />
-                          )}
-                          <TakePhotoPipe
-                            openImagePicker={openImagePickerPipe}
-                            selectedImage={selectedImagePipe}
-                            title={t('Take a photo')}
-                            color="red"
-                          />
-                          {saveData.field_type == 'add' && (
-                            <TouchableOpacity
-                              style={{
-                                alignSelf: 'flex-end',
-                                paddingVertical: 10,
-                                paddingHorizontal: 20,
-                                backgroundColor: 'green',
-                                borderRadius: 50,
-                              }}
-                              onPress={() => addMorePipe()}>
-                              <Text style={{ color: '#FFF' }}>
-                                Save and Add Instrument
-                              </Text>
-                            </TouchableOpacity>
-                          )}
-                          <View style={{ marginTop: 10 }}>
-                            {pipeDetails.map((_data, _index) => (
+                            {saveData.field_type == 'add' && (
                               <TouchableOpacity
                                 style={{
-                                  backgroundColor: '#fff',
-                                  padding: 20,
-                                  margin: 10,
-                                  borderRadius: 5,
-                                  elevation: 2, // <-- Only works on Android
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
+                                  alignSelf: 'flex-end',
+                                  paddingVertical: 10,
+                                  paddingHorizontal: 20,
+                                  backgroundColor: 'green',
+                                  borderRadius: 50,
                                 }}
-                                key={_index}>
-                                <>
-                                  <Text
-                                    style={{
-                                      color: '#000',
-                                      fontSize: 12,
-                                      paddingHorizontal: 10,
-                                    }}>
-                                    {_data.pipe_name}
-                                  </Text>
-                                </>
-                                <TouchableOpacity
-                                  onPress={() =>
-                                    handleRemovedpipeDetails(_index)
-                                  }>
-                                  <Image
-                                    source={require('../../Common/images/cross.png')}
-                                    style={{ width: 20, height: 20 }}
-                                  />
-                                </TouchableOpacity>
+                                onPress={() => addMorePipe()}>
+                                <Text style={{color: '#FFF'}}>
+                                  Save and Add Instrument
+                                </Text>
                               </TouchableOpacity>
-                            ))}
+                            )}
+                            <View style={{marginTop: 10}}>
+                              {pipeDetails.map((_data, _index) => (
+                                <TouchableOpacity
+                                  style={{
+                                    backgroundColor: '#fff',
+                                    padding: 20,
+                                    margin: 10,
+                                    borderRadius: 5,
+                                    elevation: 2, // <-- Only works on Android
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                  }}
+                                  key={_index}>
+                                  <>
+                                    <Text
+                                      style={{
+                                        color: '#000',
+                                        fontSize: 12,
+                                        paddingHorizontal: 10,
+                                      }}>
+                                      {_data.pipe_name}
+                                    </Text>
+                                  </>
+                                  <TouchableOpacity
+                                    onPress={() =>
+                                      handleRemovedpipeDetails(_index)
+                                    }>
+                                    <Image
+                                      source={require('../../Common/images/cross.png')}
+                                      style={{width: 20, height: 20}}
+                                    />
+                                  </TouchableOpacity>
+                                </TouchableOpacity>
+                              ))}
+                            </View>
                           </View>
-                        </View>
-                      </>
-                    )}
+                        </>
+                      )}
                   </>
                 ) : (
                   ''
                 )}
                 <View>
-                  <Text style={{ color: 'red' }}>
+                  <Text style={{color: 'red'}}>
                     {t('pick_activity_perform_date')}
                   </Text>
                   <TouchableOpacity
@@ -2043,7 +2057,7 @@ const ActivityReportAWD = ({ navigation }) => {
                     <Text style={styles.title}>{activityPreFormDate}</Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                     />
                   </TouchableOpacity>
                 </View>
@@ -2051,28 +2065,28 @@ const ActivityReportAWD = ({ navigation }) => {
                   label={t('your_comm_')}
                   value={saveData.act_desc}
                   onChangeText={act_desc =>
-                    setSaveData({ ...saveData, act_desc: act_desc })
+                    setSaveData({...saveData, act_desc: act_desc})
                   }
                 />
                 <InputTextForm
                   label={t('material_used')}
                   value={saveData.material_used}
                   onChangeText={material_used =>
-                    setSaveData({ ...saveData, material_used: material_used })
+                    setSaveData({...saveData, material_used: material_used})
                   }
                 />
                 <InputTextForm
                   label={t('water_used')}
                   value={saveData.water_used}
                   onChangeText={water_used =>
-                    setSaveData({ ...saveData, water_used: water_used })
+                    setSaveData({...saveData, water_used: water_used})
                   }
                 />
                 <InputTextForm
                   label={t('power_used')}
                   value={saveData.power_used}
                   onChangeText={power_used =>
-                    setSaveData({ ...saveData, power_used: power_used })
+                    setSaveData({...saveData, power_used: power_used})
                   }
                 />
                 {/* <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} /> */}
@@ -2091,7 +2105,7 @@ const ActivityReportAWD = ({ navigation }) => {
                             /> */}
               </View>
             </ScrollView>
-            <View style={{ marginTop: 10 }}>
+            <View style={{marginTop: 10}}>
               <ButtonForm label={t('submit')} onPress={() => handleSave()} />
             </View>
           </View>

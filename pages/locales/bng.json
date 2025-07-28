@@ -1040,5 +1040,10 @@
   "All": "সমস্ত",
   "existing_loan_amount_enter": "দয়া করে ঋণ পরিমাণ লিখুন",
   "MapView": "মানচিত্র দেখা",
-  "instrument_name": "Instrument Name"
+  "instrument_name": "যন্ত্রের নাম",
+  "activity_description1": "কার্যকলাপ \n  বর্ণনা",
+  "instrument_Wise_Activity_View": "পাইপ ওয়াইজ অ্যাক্টিভিটি ভিউ",
+  "activity_Pipe_Images": "অ্যাক্টিভিটি পাইপ ছবি",
+  "please_update_both_image": "দয়া করে উভয় ছবিই আপডেট করুন.",
+  "activity_Pipe_List": "কার্যকলাপ পাইপ তালিকা"
 }

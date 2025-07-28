@@ -155,6 +155,7 @@ const ActivityDetail = () => {
                 }
                 setCarbonActivity([]);
             }
+            console.log(JSON.stringify(farmerFound));
 
             setfarmerActivity({
                 ...farmerActivity,
@@ -194,159 +195,248 @@ const ActivityDetail = () => {
         });
     }
     return (
-        <Root>
-            {
-                isLoading ? (
-                    <LoadingScreen />
-                ) : (
-                    <View style={styles.container}>
-                        <CustomHeader path='activityList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-                        <FormsTitle title={t('act_detail_')} />
-                        <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
-                            {
-                                farmerActivity
-                                    ?
-                                    <View style={styles.fromContainer}>
-                                        <InputTextForm label={t('farmer_name')} value={farmerActivity.userName}
-                                        />
-                                        <InputTextForm label={t('farmer_number')} value={farmerActivity.contactNumber} />
-                                        {
-                                            farmerActivity.cropActivitycategoryName != "" && farmerActivity.cropActivitycategoryName != null ?
-                                                <>
-                                                    <InputTextForm label={t('activity_type')} value={farmerActivity.activitycategoryName.categoryName} />
-                                                    {farmerActivity.cropActivitycategoryName != null ?
-                                                        <InputTextForm label={t('activity_name')} value={`${farmerActivity.cropActivitycategoryName.activity.categoryName} ${formatDateToDateName(farmerActivity.act_start_date)} - ${formatDateToDateName(farmerActivity.act_to_date)}`} />
-                                                        : null}
-                                                    <View style={styles.activityContainer}>
-                                                        <View style={{ width: '30%', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                                            <Text style={styles.title}>{t('activity_description')}</Text>
-                                                            <Text style={styles.title}>{t('activity_date')}</Text>
-                                                        </View>
-                                                        <View style={styles.activityWrapper}>
-                                                            <Text style={[styles.title]} >
-                                                                {farmerActivity.cropActivitycategoryName != null ? farmerActivity.cropActivitycategoryName.activity.categoryName : ""}
-                                                            </Text>
-                                                            <View style={[styles.title, { flexDirection: 'column' }]}>
-                                                                <Text style={{ color: '#000' }}>{formatDateToDateName(farmerActivity.act_start_date)}</Text>
-                                                                <Text style={{ color: '#000' }}>-{formatDateToDateName(farmerActivity.act_to_date)}</Text>
-                                                            </View>
-                                                        </View>
-                                                        <View style={{ justifyContent: 'center', elevation: 5, backgroundColor: '#FFF', padding: 5, borderRadius: 10 }}>
-                                                            <Image source={require('../../Common/images/logo.png')} style={{ width: 100, height: 60, resizeMode: "cover" }} />
-                                                        </View>
-                                                    </View>
-                                                </>
-                                                : ''
-                                        }
-                                        <InputTextForm label={t('reg_plot_name')} value={farmerActivity.plot_no} />
-                                        <InputTextForm label={t('crop_name')} value={farmerActivity.cropName} />
-                                        <InputTextForm label={t('growth_stage')} value={farmerActivity.growthStage} />
-                                        <InputTextForm label={t('act_per_date')} value={formatDateToDateName(farmerActivity.act_perform_date)} />
-                                        {carbonActivity.length != 0 && <FlatList
-                                            scrollEnabled={false}
-                                            data={carbonActivity}
-                                            keyExtractor={(item, index) => index.toString()}
-                                            renderItem={(_item) => {
-                                                return (
-                                                    <View
-                                                        style={{
-                                                            backgroundColor: '#FFF',
-                                                            elevation: 3,
-                                                            padding: 10,
-                                                            margin: 2,
-                                                            marginVertical: 10,
-                                                            borderRadius: 10,
-                                                        }}>
-                                                        <View
-                                                            style={{
-                                                                flexDirection: 'row',
-                                                                marginBottom: 7,
-                                                            }}>
-                                                            <Text
-                                                                style={[
-                                                                    styles.title,
-                                                                    { paddingVertical: 0 },
-                                                                ]}>
-                                                                Instrument Name :
-                                                            </Text>
-                                                            <Text
-                                                                style={[
-                                                                    styles.title,
-                                                                    {
-                                                                        marginLeft: 10,
-                                                                        paddingVertical: 0,
-                                                                    },
-                                                                ]}>
-                                                                {_item.item.pipe_name}
-                                                            </Text>
-                                                        </View>
-                                                        <View>
-                                                            {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
-                                                            {_item.item.pipeFiles
-                                                                .length != 0 && (
-                                                                    <View
-                                                                        style={{
-                                                                            flexDirection:
-                                                                                'row',
-                                                                            gap: 20,
-                                                                        }}>
-                                                                        {_item.item
-                                                                            .pipeFiles?.[0]
-                                                                            ?.file_path !=
-                                                                            undefined && (
-                                                                                <Image
-                                                                                    source={{
-                                                                                        uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
-                                                                                    }}
-                                                                                    style={{
-                                                                                        width: 70,
-                                                                                        height: 80,
-                                                                                        borderRadius: 5,
-                                                                                    }}
-                                                                                    resizeMode="contain"
-                                                                                />
-                                                                            )}
-                                                                        {_item.item
-                                                                            .pipeFiles?.[1]
-                                                                            ?.file_path !=
-                                                                            undefined && (
-                                                                                <Image
-                                                                                    source={{
-                                                                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
-                                                                                    }}
-                                                                                    style={{
-                                                                                        width: 70,
-                                                                                        height: 80,
-                                                                                        borderRadius: 5,
-                                                                                    }}
-                                                                                    resizeMode="contain"
-                                                                                />
-                                                                            )}
-                                                                    </View>
-                                                                )}
-                                                        </View>
-                                                    </View>
-                                                );
-                                            }}
-                                        />}
-                                        <InputTextForm label={t('your_comm_')} value={farmerActivity.act_desc} />
-                                        <InputTextForm label={t('material_used')} value={farmerActivity.material_used} />
-                                        <InputTextForm label={t('water_used')} value={farmerActivity.water_used} />
-                                        <InputTextForm label={t('power_used')} value={farmerActivity.power_used} />
-                                        {carbonActivity.length == 0 && <><TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} />
-                                            <RecordComp selectedRecord={selectedRecord} title={t('record_your_comment_optional')} soundPlay={soundPlay} /></>}
-                                    </View>
-                                    :
-                                    ''
-                            }
-
-                        </ScrollView>
-                    </View>
-                )
-            }
-
-        </Root>
-    )
+      <Root>
+        {isLoading ? (
+          <LoadingScreen />
+        ) : (
+          <View style={styles.container}>
+            <CustomHeader
+              path="activityList"
+              HandlerGoBack={HandlerGoBack}
+              logoImage={logoImage}
+              topBanner={topBanner}
+            />
+            <FormsTitle title={t('act_detail_')} />
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}>
+              {farmerActivity ? (
+                <View style={styles.fromContainer}>
+                  <InputTextForm
+                    label={t('farmer_name')}
+                    value={farmerActivity?.userName}
+                  />
+                  <InputTextForm
+                    label={t('farmer_number')}
+                    value={farmerActivity?.contactNumber}
+                  />
+                  {farmerActivity?.cropActivitycategoryName != '' &&
+                  farmerActivity?.cropActivitycategoryName != null ? (
+                    <>
+                      <InputTextForm
+                        label={t('activity_type')}
+                        value={
+                          farmerActivity?.activitycategoryName?.categoryName
+                        }
+                      />
+                      {farmerActivity?.cropActivitycategoryName != null ? (
+                        <InputTextForm
+                          label={t('activity_name')}
+                          value={`${
+                            farmerActivity?.cropActivitycategoryName?.activity
+                              ?.categoryName
+                          } ${formatDateToDateName(
+                            farmerActivity?.act_start_date,
+                          )} - ${formatDateToDateName(
+                            farmerActivity?.act_to_date,
+                          )}`}
+                        />
+                      ) : null}
+                      <View style={styles.activityContainer}>
+                        <View
+                          style={{
+                            width: '25%',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={[styles.title, {fontWeight: 'bold'}]}>
+                            {t('activity_description1')}
+                          </Text>
+                          <Text style={[styles.title, {fontWeight: 'bold'}]}>
+                            {t('activity_date')}
+                          </Text>
+                        </View>
+                        <View style={[styles.activityWrapper, {width: '45%'}]}>
+                          <Text style={[styles.title]}>
+                            {farmerActivity?.cropActivitycategoryName != null
+                              ? farmerActivity?.cropActivitycategoryName
+                                  ?.activity?.categoryName
+                              : ''}
+                          </Text>
+                          <View
+                            style={[styles.title, {flexDirection: 'column'}]}>
+                            <Text style={{color: '#000'}}>
+                              {formatDateToDateName(
+                                farmerActivity?.act_start_date,
+                              )}
+                            </Text>
+                            <Text style={{color: '#000'}}>
+                              -
+                              {formatDateToDateName(
+                                farmerActivity?.act_to_date,
+                              )}
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            justifyContent: 'center',
+                            elevation: 5,
+                            backgroundColor: '#FFF',
+                            padding: 5,
+                            borderRadius: 10,
+                          }}>
+                          <Image
+                            source={require('../../Common/images/logo.png')}
+                            style={{
+                              width: 100,
+                              height: 60,
+                              resizeMode: 'cover',
+                            }}
+                          />
+                        </View>
+                      </View>
+                    </>
+                  ) : (
+                    ''
+                  )}
+                  <InputTextForm
+                    label={t('reg_plot_name')}
+                    value={farmerActivity?.plot_no}
+                  />
+                  <InputTextForm
+                    label={t('crop_name')}
+                    value={farmerActivity?.cropName}
+                  />
+                  <InputTextForm
+                    label={t('growth_stage')}
+                    value={farmerActivity?.growthStage}
+                  />
+                  <InputTextForm
+                    label={t('act_per_date')}
+                    value={formatDateToDateName(
+                      farmerActivity?.act_perform_date,
+                    )}
+                  />
+                  {carbonActivity.length != 0 && (
+                    <FlatList
+                      scrollEnabled={false}
+                      data={carbonActivity}
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={_item => {
+                        return (
+                          <View
+                            style={{
+                              backgroundColor: '#FFF',
+                              elevation: 3,
+                              padding: 10,
+                              margin: 2,
+                              marginVertical: 10,
+                              borderRadius: 10,
+                            }}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                marginBottom: 7,
+                              }}>
+                              <Text
+                                style={[styles.title, {paddingVertical: 0}]}>
+                                Instrument Name :
+                              </Text>
+                              <Text
+                                style={[
+                                  styles.title,
+                                  {
+                                    marginLeft: 10,
+                                    paddingVertical: 0,
+                                  },
+                                ]}>
+                                {_item?.item?.pipe_name}
+                              </Text>
+                            </View>
+                            <View>
+                              {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
+                              {_item?.item?.pipeFiles.length != 0 && (
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    gap: 20,
+                                  }}>
+                                  {_item.item.pipeFiles?.[0]?.file_path !=
+                                    undefined && (
+                                    <Image
+                                      source={{
+                                        uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
+                                      }}
+                                      style={{
+                                        width: 70,
+                                        height: 80,
+                                        borderRadius: 5,
+                                      }}
+                                      resizeMode="contain"
+                                    />
+                                  )}
+                                  {_item.item.pipeFiles?.[1]?.file_path !=
+                                    undefined && (
+                                    <Image
+                                      source={{
+                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                      }}
+                                      style={{
+                                        width: 70,
+                                        height: 80,
+                                        borderRadius: 5,
+                                      }}
+                                      resizeMode="contain"
+                                    />
+                                  )}
+                                </View>
+                              )}
+                            </View>
+                          </View>
+                        );
+                      }}
+                    />
+                  )}
+                  <InputTextForm
+                    label={t('your_comm_')}
+                    value={farmerActivity.act_desc}
+                  />
+                  <InputTextForm
+                    label={t('material_used')}
+                    value={farmerActivity.material_used}
+                  />
+                  <InputTextForm
+                    label={t('water_used')}
+                    value={farmerActivity.water_used}
+                  />
+                  <InputTextForm
+                    label={t('power_used')}
+                    value={farmerActivity.power_used}
+                  />
+                  {carbonActivity.length == 0 && (
+                    <>
+                      <TakePhoto
+                        openImagePicker={openImagePicker}
+                        selectedImage={selectedImage}
+                        title={t('take_a_photo_optional')}
+                      />
+                      <RecordComp
+                        selectedRecord={selectedRecord}
+                        title={t('record_your_comment_optional')}
+                        soundPlay={soundPlay}
+                      />
+                    </>
+                  )}
+                </View>
+              ) : (
+                ''
+              )}
+            </ScrollView>
+          </View>
+        )}
+      </Root>
+    );
 }
 
 export default ActivityDetail
