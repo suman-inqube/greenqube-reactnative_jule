@@ -56,7 +56,7 @@ const PersnolUpdate = () => {
   });
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
     {uri: '', name: '', type: '', fileName: '', imageType: 'address'},
-    {uri: '', name: '', type: '', fileName: '', ImageType: 'identity'},
+    {uri: '', name: '', type: '', fileName: '', imageType: 'identity'},
   ]);
   let languageDataList = async dbname => {
     // console.log(dbname);

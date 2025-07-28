@@ -43,7 +43,7 @@ const axiosHeaders = {
 };
 
 export const databaseListAPI = async () => {
-  const database_res = await instance.get(
+  const database_res = await axios.get(
     config.BASE_URL + 'hostRoute/databaseList',
   );
   return database_res;
@@ -613,7 +613,7 @@ export const activityInfoAPI = async (
       `${config.BASE_URL}inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`,
       axiosHeaders,
     );
-   
+
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -1810,7 +1810,7 @@ export const ProductionSeasonAndApi = async (
     );
     return response;
   } catch (error) {
-    CrashlyticsRecordError(error.response,'', 'ProductionSeasonAndApi');
+    CrashlyticsRecordError(error.response, '', 'ProductionSeasonAndApi');
     return error.response;
   }
 };
@@ -2918,19 +2918,19 @@ export const addPrevPipeActivity = async (
     },
   };
   console.log(`${config.BASE_URL}inputOutputRoute/updatePipeActivity`,
-      inputData,
-      axiosHeaders)
+    inputData,
+    axiosHeaders)
   try {
     let response = await axios.post(
       `${config.BASE_URL}inputOutputRoute/updatePipeActivity`,
       inputData,
       axiosHeaders,
     );
-     console.log(
-       `${config.BASE_URL}inputOutputRoute/updatePipeActivity`,
-       inputData,
-       axiosHeaders,
-     );
+    console.log(
+      `${config.BASE_URL}inputOutputRoute/updatePipeActivity`,
+      inputData,
+      axiosHeaders,
+    );
     return response;
   } catch (error) {
     console.log(error);
@@ -3122,6 +3122,32 @@ export const addActivityPipeImages = async (
   }
 };
 export const uploadFarmerIdAdd = async (
+  dbName,
+  language,
+  userId,
+  token,
+  formData,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${language},${userId}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+  try {
+    let response = await axios.put(
+      `${config.BASE_URL}settingsRoute/uploadFarmerIdAdd`,
+      formData,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const onlyUpdateIdAddrFile = async (
   dbName,
   language,
   userId,

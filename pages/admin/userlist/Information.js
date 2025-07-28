@@ -30,7 +30,7 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import LoadingScreen from '../../Common/LoadingScreen';
-import { addIdAddressImgs } from '../../../config/apiHere';
+import { addIdAddressImgs,onlyUpdateIdAddrFile } from '../../../config/apiHere';
 import { deletePlotImageAPI } from '../Loan/LoanAPI';
 const qs = require('qs');
 const Information = ({ sendDataToParent, farmerID }) => {
@@ -127,7 +127,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
       name: '',
       type: '',
       fileName: '',
-      ImageType: 'identity',
+      imageType: 'identity',
       file_path: '',
       file_id: '',
       id: '',
@@ -484,10 +484,10 @@ const Information = ({ sendDataToParent, farmerID }) => {
             farmeruserID,
             formData,
           ),
-          addIdAddressImgs(
+          onlyUpdateIdAddrFile(
             dbName,
             languageID,
-            loginUserId,
+            farmeruserID,
             loginUserToken,
             formDataPlotImg,
           ),

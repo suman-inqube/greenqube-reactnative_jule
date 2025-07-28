@@ -34,7 +34,7 @@ import {
   deletePlotImageAPI,
   addPlotImageAPI,
 } from '../Loan/LoanAPI';
-import { addIdAddressImgs } from '../../../config/apiHere';
+import { addIdAddressImgs,onlyUpdateIdAddrFile } from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
 const qs = require('qs');
 import CustomAlert from '../../Common/CustomAlert';
@@ -121,7 +121,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
       name: '',
       type: '',
       fileName: '',
-      ImageType: 'identity',
+      imageType: 'identity',
       file_path: '',
       file_id: '',
     },
@@ -539,7 +539,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
             loginUserToken,
             formData,
           ),
-          addIdAddressImgs(dbName, lan_id, loginUserId, token, formDataDoc),
+          onlyUpdateIdAddrFile(dbName, lan_id, loginUserId, token, formDataDoc),
           deletePlotImageAPI(dbName, lan_id, token, formDataDelete),
         ]);
       if (userDataUpdate.status === 200) {

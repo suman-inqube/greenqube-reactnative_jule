@@ -46,7 +46,7 @@ const SplashScreen = ({ navigation }) => {
                 if (company_res?.data?.data) {
                     const delay = 1000;
                     const timeout = setTimeout(() => {
-                        
+
                         // setCompanyData(company_res.data.data);
                         setCompanyDataRaw(company_res.data.data);
                         setModalVisible(true);
@@ -57,7 +57,7 @@ const SplashScreen = ({ navigation }) => {
             }
         } catch (error) {
             CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
-            CustomAlert('Error:', 'Respose is blank.' + error, true, 'OK');
+            // CustomAlert('Error:', 'Respose is blank.' + error, true, 'OK');
             console.error('company APi error code with :', error);
         }
     }
@@ -96,9 +96,38 @@ const SplashScreen = ({ navigation }) => {
             console.log("Error in language API", error.response);
         }
     }
+    const handleAppStateChange = async (nextAppState = 'active') => {
+        const isRooted = JailMonkey.isJailBroken();
+        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+        if (!__DEV__) {
+            if (isRooted || isDevMode) {
+                Alert.alert(
+                    'Security Alert',
+                    isRooted
+                        ? 'This device is rooted. The app will now exit.'
+                        : 'Developer mode is enabled. The app will now exit.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                setTimeout(() => {
+                                    BackHandler.exitApp();
+                                }, 800);
+                            },
+                        },
+                    ],
+                    { cancelable: false },
+                );
+                return false; // Stop execution of further logic
+            }
+
+            return true;
+        }
+    };
     const onPageLoad = async () => {
         try {
-            // if (shouldContinue==false) return;
+            const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
+            if (shouldContinue == false) return;
             const [companyLanguage_data, loginUser_data] = await Promise.all([
                 getItem('companyLanguage_data'),
                 getItem('loginUser_data'),
@@ -176,8 +205,8 @@ export default SplashScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent:'center',
-        alignItems:'center'
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     backgroundImage: {
         flex: 1,
