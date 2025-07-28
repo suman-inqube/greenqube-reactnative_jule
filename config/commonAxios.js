@@ -2,7 +2,7 @@ import axios from 'axios';
 import {getItem} from './getDataFromStorage';
 const instance = axios.create({
   baseURL: 'https://mygreenqube.com:4003/',
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

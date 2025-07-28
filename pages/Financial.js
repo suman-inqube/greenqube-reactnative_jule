@@ -69,14 +69,23 @@ const Financial = () => {
     };
     const getLocation = () => {
         Geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                setlocation({ ...location, lat: latitude.toFixed(7), long: longitude.toFixed(7) })
-            },
-            (error) => {
-                console.error(error);
-            },
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+          position => {
+            const {latitude, longitude} = position.coords;
+            setlocation({
+              ...location,
+              lat: latitude.toFixed(7),
+              long: longitude.toFixed(7),
+            });
+          },
+          error => {
+            console.error(error);
+          },
+          {
+            enableHighAccuracy: true,
+            distanceFilter: 0,
+            timeout: 30000,
+            maximumAge: 0,
+          },
         );
     }
     useEffect(() => {

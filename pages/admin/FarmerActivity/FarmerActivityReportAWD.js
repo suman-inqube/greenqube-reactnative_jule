@@ -1543,8 +1543,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
       },
       error => Alert.alert('Location Error', error.message),
       {
-        enableHighAccuracy: false,
+        enableHighAccuracy: true,
         distanceFilter: 0,
+        timeout: 30000,
+        maximumAge: 0,
       },
     );
   };

@@ -11,6 +11,7 @@ import { HeaderBackButton } from 'react-navigation';
 import i18next from 'i18next';
 import { Root, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './pages/Common/ToastAlert';
+import CustomAlert from './pages/Common/CustomAlert';
 import NotificationServices from './pages/PushNotification/NotificationServices';
 import JailMonkey from 'jail-monkey';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
@@ -45,15 +46,19 @@ const SplashScreen = ({ navigation }) => {
                 if (company_res?.data?.data) {
                     const delay = 1000;
                     const timeout = setTimeout(() => {
-                        setModalVisible(true)
+                        
                         // setCompanyData(company_res.data.data);
                         setCompanyDataRaw(company_res.data.data);
+                        setModalVisible(true);
 
                     }, delay);
                 }
+                // console.log('company APi called');
             }
         } catch (error) {
-            console.error('company APi error code with :', error.response);
+            CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
+            CustomAlert('Error:', 'Respose is blank.' + error, true, 'OK');
+            console.error('company APi error code with :', error);
         }
     }
     const companyHandle = async (dbName, company_id, company_name, country_id) => {
@@ -170,9 +175,9 @@ export default SplashScreen
 
 const styles = StyleSheet.create({
     container: {
-        // flex: 1,
-        // justifyContent:'center',
-        // alignItems:'center'
+        flex: 1,
+        justifyContent:'center',
+        alignItems:'center'
     },
     backgroundImage: {
         flex: 1,

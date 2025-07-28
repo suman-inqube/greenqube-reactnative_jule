@@ -1280,20 +1280,24 @@ const ActivityReportAWD = ({navigation}) => {
         }));
         setfarmerData(dataArray);
       }
-      watchId = Geolocation.watchPosition(
+      watchId.current = Geolocation.watchPosition(
         async position => {
           const {latitude, longitude} = position.coords;
+        
           setLocation(prev => {
             if (prev?.latitude !== latitude || prev?.longitude !== longitude) {
               return {latitude, longitude};
             }
             return prev;
+
           });
         },
         error => Alert.alert('Location Error', error.message),
         {
-          enableHighAccuracy: false,
+          enableHighAccuracy: true,
           distanceFilter: 0,
+          timeout: 30000,
+          maximumAge: 0,
         },
       );
       return () => {
