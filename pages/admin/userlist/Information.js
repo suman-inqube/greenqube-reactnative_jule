@@ -133,6 +133,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
       id: '',
     },
   ]);
+  
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const openImagePicker = () => {
     const options = {

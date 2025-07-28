@@ -49,9 +49,7 @@ export default function Main() {
         await firebase.analytics().setAnalyticsCollectionEnabled(true);
     }
     useEffect(() => {
-        if (mode !== 'dev') {
-            checkAppVersion();
-        }
+        checkAppVersion();
         setAnalyticsEnabled()
     }, []);
     const exceptionHandler = (error, isFatal) => {
