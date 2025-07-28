@@ -91,7 +91,7 @@ const UserList = ({ navigation }) => {
             setIsLoading(true);
             console.log('check');
             let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
-            if (response.status === 200) {
+            // if (response.status === 200) {
                 setPhoneNumber('');
                 const totalPage = Math.ceil(response.data.data.count / response.data.data.no_of_item_per_page);
                 setdbLanTokUsr({
@@ -103,11 +103,11 @@ const UserList = ({ navigation }) => {
                 setIsLoading(false);
                 setuserList(response.data.data)
                 await setItem("userListData", response.data.data)
-            } else {
-                setIsLoading(false);
-                const userListData = await getItem('userListData');
-                setuserList(userListData)
-            }
+            // } else {
+            //     setIsLoading(false);
+            //     const userListData = await getItem('userListData');
+            //     setuserList(userListData)
+            // }
         } catch (error) {
             CrashlyticsRecordError(error, 'UserList', 'userDataListAPI1');
 

@@ -14,7 +14,7 @@ const instance = axios.create({
 });
  
   function findField(obj, keyToFind) {
-    console.log('zz encryt err')
+    // console.log('zz encryt err')
   if (obj.hasOwnProperty(keyToFind)) return obj[keyToFind];
 
   for (let key in obj) {
@@ -30,15 +30,35 @@ const instance = axios.create({
 instance.interceptors.response.use(
   response => {
     try {
-     console.log('zz 1', response?.data);
-      // const encrypted = findField(response?.data, 'respo');
-      // if (encrypted != undefined) {
-      //   const bytes = CryptoJS.AES.decrypt(encrypted, secretKey);
-      //   const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      //   response.data = decryptedData;
-      // }else{
-      //    response.data = response?.data;
-      // }
+    //  console.log('zz 1', response?.data?.data);
+      const encrypted = findField(response?.data, 'respo');
+       const ivHex = findField(response?.data, 'eid');
+      if (encrypted != undefined) {
+
+            const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
+            const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
+
+            // Create the cipherParams object
+            const cipherParams = CryptoJS.lib.CipherParams.create({
+              ciphertext: CryptoJS.enc.Hex.parse(encrypted),
+            });
+
+            const decrypted = CryptoJS.AES.decrypt(
+              cipherParams, // Use the properly typed cipherParams
+              keyBytes,
+              {
+                iv: ivBytes,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7,
+              },
+            );
+
+            return decrypted.toString(CryptoJS.enc.Utf8);
+
+        // response.data = decryptedData;
+      }else{
+         response.data = response?.data;
+      }
     } catch (err) {
       console.error('Decryption failed:', err);
     }
