@@ -89,6 +89,7 @@ const UserList = ({ navigation }) => {
 
 
             setIsLoading(true);
+            console.log('check');
             let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
             if (response.status === 200) {
                 setPhoneNumber('');

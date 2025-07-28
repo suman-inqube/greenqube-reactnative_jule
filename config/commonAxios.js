@@ -1,28 +1,67 @@
 import axios from 'axios';
 import {getItem} from './getDataFromStorage';
-const instance = axios.create({
-  baseURL: 'https://mygreenqube.com:4003/',
-  timeout: 15000,
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-});
-instance.interceptors.request.use(
-  async config => {
-    try {
-      const loginUser_data = await getItem('loginUser_data');
-      const {token} = loginUser_data || {};
+import CryptoJS from 'crypto-js';
 
-      if (token) {
-        config.headers['Authorization'] = token;
-      }
-      return config;
-    } catch (error) {
-      console.error('Axios token load error:', error);
-      return config; 
+const secretKey = 'greenQube_96740_64428'; // Must match encryption key
+
+const instance = axios.create({
+  baseURL: 'http://34.87.10.106:4003/',
+  timeout: 5000,
+  // headers: {
+  //   'Content-Type': 'application/json',
+  //   Accept: 'application/json',
+  // },
+});
+ 
+  function findField(obj, keyToFind) {
+    console.log('zz encryt err')
+  if (obj.hasOwnProperty(keyToFind)) return obj[keyToFind];
+
+  for (let key in obj) {
+    if (typeof obj[key] === 'object') {
+      const result = findField(obj[key], keyToFind);
+      if (result !== undefined) return result;
     }
+  }
+  return undefined;
+}
+
+
+instance.interceptors.response.use(
+  response => {
+    try {
+     console.log('zz 1', response?.data);
+      // const encrypted = findField(response?.data, 'respo');
+      // if (encrypted != undefined) {
+      //   const bytes = CryptoJS.AES.decrypt(encrypted, secretKey);
+      //   const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      //   response.data = decryptedData;
+      // }else{
+      //    response.data = response?.data;
+      // }
+    } catch (err) {
+      console.error('Decryption failed:', err);
+    }
+     return response;
   },
   error => Promise.reject(error),
 );
-export default instance;
+// // instance.interceptors.request.use(
+//   async config => {
+//     try {
+//       const loginUser_data = await getItem('loginUser_data');
+//       const {token} = loginUser_data || {};
+
+//       if (token) {
+//         config.headers['Authorization'] = token;
+//       }
+//       return config;
+//     } catch (error) {
+//       console.error('Axios token load error:', error);
+//       return config; 
+//     }
+//   },
+//   error => Promise.reject(error),
+// );
+ export default instance;
+

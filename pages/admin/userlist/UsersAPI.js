@@ -1,6 +1,7 @@
 import axios from 'axios';
 import config from '../../../config';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import instants from './../../../config/commonAxios'
 const timeoutConfig = {timeout: 5000};
 const headersWithCompanyDBlanID = (dbName, languageId) => {
     return {
@@ -15,18 +16,33 @@ export const userDataListAPI = async (dbName, languageId, token, user_id, page, 
             'information': `${dbName},${languageId},${user_id}`,
         },
     };
-    console.log(config.BASE_URL +
-            `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`)
-            console.log(axiosHeaders)
+    console.log(
+        `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+    );
+    //         console.log(axiosHeaders)
     try {
 
-        let response = await axios.get(
-          config.BASE_URL +
-            `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`,
-          {...axiosHeaders, ...timeoutConfig},
+        // let response = await instance.get(
+        //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,{
+        //   headers: {
+        //     'authorization': `${token}`,
+        //     'information': `${dbName},${languageId},${user_id}`,
+        // }}
+        // );
+
+        const response = await instants.get(
+          `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+          {
+            headers: {
+              authorization: `${token}`,
+              information: `${dbName},${languageId},${user_id}`,
+            },
+          },
         );
+         console.log(response);
         return response;
     } catch (error) {
+        console.log('r1',error.response);
         CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
         return error.response;
     }

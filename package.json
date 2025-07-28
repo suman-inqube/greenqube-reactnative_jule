@@ -53,6 +53,7 @@
     "react-native-buffer": "^6.0.3",
     "react-native-check-box": "^2.1.7",
     "react-native-compass-heading": "^2.0.2",
+    "react-native-crypto-js": "^1.0.0",
     "react-native-date-picker": "^4.3.7",
     "react-native-device-info": "^10.13.0",
     "react-native-document-picker": "^9.0.1",
