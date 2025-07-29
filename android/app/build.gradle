@@ -81,6 +81,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 98
         versionName "9.6"
+        buildConfigField "String", "baseUrl", "\"HelloFromGradle\""
     }
     signingConfigs {
         debug {

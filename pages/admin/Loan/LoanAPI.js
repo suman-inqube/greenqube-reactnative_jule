@@ -1,6 +1,7 @@
 import config from "../../../config";
 import axios from 'axios';
 import { CrashlyticsRecordError } from "../../Crashlytics/CrashlyticsRecordError";
+import instance from "../../../config/commonAxios";
 const timeoutConfig = {timeout: 5000};
 
 export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) => {
@@ -53,11 +54,17 @@ export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId)
   };
 
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}landRoute/getPlotImgs/${plotId}`,
-      {...axiosHeaders, ...timeoutConfig},
+    let response = await instance.get(
+      `${config.BASE_URL}landRoute/getPlotImgs_e/${plotId}`,
+      axiosHeaders,
     );
-    return response;
+    
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return console.log('error in updateUserInfoAPI api' + error.response);

@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
-    color: '#000',
+    color: '#FFF',
     fontWeight: 'bold',
     marginTop: 15,
     marginLeft: 20,

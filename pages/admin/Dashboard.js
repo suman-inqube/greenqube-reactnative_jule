@@ -16,7 +16,10 @@ import MessageDialog from '../Common/MessageDialog';
 import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
 import CustomAlert from '../Common/CustomAlert';
 import { CrashlyticsRecordError } from '../Crashlytics/CrashlyticsRecordError';
+import {NativeModules} from 'react-native';
+
 const Dashboard = ({ navigation }) => {
+  const {ConfigModule} = NativeModules;
   //GQR-65
   const {
     getItem,
@@ -70,8 +73,16 @@ const Dashboard = ({ navigation }) => {
       }
     }
   };
+  
   const onPageLoad = async () => {
     try {
+ConfigModule.getGradleValue()
+  .then(value => {
+    console.log('Gradle value:', value); // Should print "HelloFromGradle"
+  })
+  .catch(error => {
+    console.error('Error fetching Gradle value:', error);
+  });
 
       const [
         bottomBannerData,

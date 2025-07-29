@@ -11,6 +11,7 @@ import com.facebook.soloader.SoLoader;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.FirebaseApp;
 import java.util.List;
+import com.inqube.greenqube.ConfigPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -26,7 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          // packages.add(new MyReactNativePackage());
+          packages.add(new ConfigPackage());
           return packages;
         }
 

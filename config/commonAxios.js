@@ -53,8 +53,14 @@ instance.interceptors.response.use(
               },
             );
 
-            resultJson = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
-            resultJson.status = 200;
+            // resultJson = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+            // resultJson.status = 200;
+            // console.log('plot11==', resultJson);
+            const parsed = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+            const resultJson = {
+              data: parsed,
+              status: 200,
+            };
              return resultJson;
 
         // response.data = decryptedData;
