@@ -53,7 +53,7 @@ instance.interceptors.response.use(
               },
             );
 
-            return decrypted.toString(CryptoJS.enc.Utf8);
+            return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
 
         // response.data = decryptedData;
       }else{
