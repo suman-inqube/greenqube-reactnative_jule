@@ -30,7 +30,7 @@ const instance = axios.create({
 instance.interceptors.response.use(
   response => {
     try {
-    //  console.log('zz 1', response?.data?.data);
+      //  console.log('zz 1', JSON.stringify(response.status));
       const encrypted = findField(response?.data, 'respo');
        const ivHex = findField(response?.data, 'eid');
       if (encrypted != undefined) {
@@ -53,7 +53,9 @@ instance.interceptors.response.use(
               },
             );
 
-            return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+            resultJson = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+            resultJson.status = 200;
+             return resultJson;
 
         // response.data = decryptedData;
       }else{

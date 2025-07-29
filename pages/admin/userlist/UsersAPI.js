@@ -45,11 +45,11 @@ export const userDataListAPI = async (
         },
       },
     );
-    //  console.log('check11', typeof response);
+      console.log('check11',  response);
     return response;
   } catch (error) {
-    console.log('r1', error.response);
-    CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
+    // console.log('r1', error.response);
+    // CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
     return error.response;
   }
 };
