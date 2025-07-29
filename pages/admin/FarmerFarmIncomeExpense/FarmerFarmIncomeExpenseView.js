@@ -223,7 +223,7 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
                   return (
                     <View key={index}>
                       {data.inexType && data.inexType.taxonomy === 'income' ? (
-                        <View style={styles.flatListItem} key={index}>
+                        <View style={styles.flatListItem2} key={index}>
                           <Text style={styles.text}>
                             {data.inexType &&
                               data.inexType.inexName &&
@@ -329,12 +329,12 @@ const styles = StyleSheet.create({
   },
   ExpenseTitle: {
     color: 'red',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 18,
   },
   IncomeHeadingTitle: {
     color: '#005C08',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 18,
   },
   subTitle: {
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 15,
     borderWidth: 0.5,
-    borderColor: '#6F7E8C',
+    borderColor: 'red',
   },
   IncomeConItem: {
     width: '100%',
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 15,
     borderWidth: 0.5,
-    borderColor: '#6F7E8C',
+    borderColor: 'green',
   },
   IncomeContainer: {
     backgroundColor: '#6F7E8C',
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     alignItems: 'center',
     borderWidth: 0.5,
-    borderColor: '#6F7E8C',
+    borderColor: 'green',
   },
   IncomeTitle: {
     color: '#FFF',
@@ -402,7 +402,19 @@ const styles = StyleSheet.create({
     elevation: 5,
     // borderBottomWidth: 1,
     borderWidth: 0.5,
-    borderColor: '#6F7E8C',
+    borderColor: 'red',
+  },
+  flatListItem2: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    // marginVertical: 10,
+    backgroundColor: '#FFF',
+    paddingVertical: 15,
+    // borderRadius: 10,
+    elevation: 5,
+    // borderBottomWidth: 1,
+    borderWidth: 0.5,
+    borderColor: 'green',
   },
   text: {
     color: '#000',

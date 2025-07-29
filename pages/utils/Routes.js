@@ -1,4 +1,5 @@
 export const ROUTES = {
-  LOGIN: 'sessionRoute/login',
-  LIST_USER_ACTIVITY: 'inputOutputRoute/listUserActivity',
+  POST: {LOGIN: 'sessionRoute/login'},
+
+  GET: {LIST_USER_ACTIVITY: 'inputOutputRoute/listUserActivity'},
 };

@@ -475,6 +475,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginVertical: 10,
     borderRadius: 20,
+    borderLeftWidth: 5,
+    borderColor: Colors.borderGreen,
     // padding: 10,
   },
   cardHeader: {
@@ -487,14 +489,14 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 14,
     // fontWeight: '600',
     color: Colors.useGreen,
     // marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
   },
   cardTitleRe: {
-    fontSize: 15,
+    fontSize: 14,
     // fontWeight: '600',
     color: Colors.useGreen,
     // marginLeft: 5,
@@ -577,14 +579,14 @@ const styles = StyleSheet.create({
   flatlistitem: {},
 
   title: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.text,
     marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
     paddingBottom: 5,
   },
   titleRe: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.text,
     marginLeft: 5,
     fontFamily: 'Poppins-Regular',

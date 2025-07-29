@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StatusBar, StyleSheet} from 'react-native';
 import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -49,6 +49,7 @@ import SampleRequested from './SoilHealth/SampleRequested';
 import SampleReport from './SoilHealth/SampleReport';
 import AudioPlayerView from '../Common/AudioPlayerView';
 import {Colors} from '../utils/Constants';
+
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 

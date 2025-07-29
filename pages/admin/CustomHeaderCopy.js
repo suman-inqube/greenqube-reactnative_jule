@@ -21,6 +21,7 @@ import {
 } from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {useDrawerStatus} from '@react-navigation/drawer';
+import {Colors, Fonts} from '../utils/Constants';
 
 const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
   const drawerStatus = useDrawerStatus(); // 'open' or 'closed'
@@ -52,7 +53,7 @@ const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
     <View style={styles.mainContainer}>
       <StatusBar
         barStyle={drawerStatus === 'open' ? 'light-content' : 'light-content'}
-        backgroundColor={drawerStatus === 'open' ? '#192911' : '#00451c'}
+        backgroundColor={drawerStatus === 'open' ? Colors.drawer : '#00451c'}
       />
       <View
         style={

@@ -37,7 +37,11 @@ import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
-import {createPdf} from 'react-native-images-to-pdf'; 
+import {createPdf} from 'react-native-images-to-pdf';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const qs = require('qs');
 const FarmerLoanRequest = ({setActiveBtn}) => {
   const scrollViewRef = useRef(null);
@@ -83,57 +87,57 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   ]);
 
   const [addressProof, setAddressProof] = useState([
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-    ]);
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+  ]);
   const [landProof, setLandProof] = useState([
     {
       uri: '',
@@ -491,7 +495,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -676,9 +680,10 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
 
           if (getPlotDoc?.status === 200) {
             if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-              const address_proofArr = getPlotDoc?.data?.data?.rows[0]?.plot_img;
+              const address_proofArr =
+                getPlotDoc?.data?.data?.rows[0]?.plot_img;
 
-              console.log(address_proofArr)
+              console.log(address_proofArr);
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
                   addressProof_value[index1] = {
@@ -687,7 +692,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -767,7 +772,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     }
   };
 
-  
   const handlePlotCheck = async (value, label) => {
     if (isPlotChecked == 1 && isPlotCheckedId != '') {
       const formData = new FormData();
@@ -777,7 +781,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           formData.append('plot_image', data);
         }
       });
-     
 
       const addPlotImage = addPlotImageAPI(
         dbname,
@@ -786,7 +789,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
         user_id,
         formData,
       );
-      
+
       setIsPlotChecked(0);
       setIsPlotCheckedId('');
     }
@@ -895,14 +898,14 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     if (getPlotDoc.status === 200) {
       if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
         const address_proofArr = getPlotDoc.data.data.rows[0].plot_img;
-       
+
         addressProof.map((data, index) => {
           if (address_proofArr[index] != undefined) {
             addressProof_value[index] = {
               uri: address_proofArr[index].file_path,
               id: address_proofArr[index].file_id,
               name: address_proofArr[index].file_name,
-              type:address_proofArr[index].file_ext,
+              type: address_proofArr[index].file_ext,
               fileName: address_proofArr[index].file_name,
               value: '',
               imageType: 'AddressProof',
@@ -974,7 +977,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     setfarmerID(loginUser_data.user_id);
 
     if (farmarDoc.status === 200) {
-
       const farmerIdentityDoc = farmarDoc.data.data[0].agri_files.filter(
         item => item.term_type === 'farmer_identity',
       );
@@ -1164,7 +1166,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           formDataPlotImg.append('plot_image', data);
         }
       });
-      
 
       const addPlotImage = await addPlotImageAPI(
         dbname,
@@ -1181,8 +1182,8 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     if (photoDeletedValue.length > 0) {
       const deleteValue = [];
       photoDeletedValue.map(data => {
-        if(data.length > 2){
-        deleteValue.push(data);
+        if (data.length > 2) {
+          deleteValue.push(data);
         }
       });
       let formDataDelete = qs.stringify({
@@ -1195,7 +1196,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
         token,
         formDataDelete,
       );
-    
     }
     setIsLoading(true);
     Keyboard.dismiss();
@@ -1259,92 +1259,100 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     setIsLoading(false);
   };
   const openIdentity = async propsData => {
-       if (propsData) {
-         await Linking.openURL(propsData);
-       }
-     };
+    if (propsData) {
+      await Linking.openURL(propsData);
+    }
+  };
 
-//    const openURL = async propsData => {
-      
-//         let uri = '';
-//         if (propsData?.data?.file_path) {
-//           await Linking.openURL(propsData?.data?.file_path);
-//           propsData.spSheet.hide();
-//         } else {
-//           await Linking.openURL(propsData?.data?.uri);
-//           propsData.spSheet.hide();
-//         }
-//       };
+  //    const openURL = async propsData => {
+
+  //         let uri = '';
+  //         if (propsData?.data?.file_path) {
+  //           await Linking.openURL(propsData?.data?.file_path);
+  //           propsData.spSheet.hide();
+  //         } else {
+  //           await Linking.openURL(propsData?.data?.uri);
+  //           propsData.spSheet.hide();
+  //         }
+  //       };
   return (
-    <>
-      <Root>
-        {isLoading ? (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
-          <View style={styles.container}>
-            <InputTextForm label={t('farmer_name')} value={userName} />
-            <InputTextForm
-              label={t('farmer_number')}
-              value={contactNumber}
-              keyboardType={'numeric'}
-            />
-            <InputTextForm label={t('adhar_no')} value={aadhar_number} />
-            <InputTextForm label={t('kcc_no')} value={kcc_number} />
-
-            <View style={styles.idcontainer}>
-              <Text style={{color:'#000'}}>{t('identity_proof')}</Text>
-              <View style={styles.idItemContainer}>
-                {identityProof &&
-                  identityProof.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        style={styles.idItem}
-                        key={index}
-                        onPress={() => openIdentity(data.uri)}>
-                        <Image
-                          source={require('../../Common/images/document.png')}
-                          style={styles.idImage}
-                        />
-                        <Text>
-                          {data.name == '' ? '' : data.name.substring(1, 20)}
-                          {/* {data.name.substring(7, 12)} */}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-              </View>
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <Root>
+          {isLoading ? (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
             </View>
-            <InputTextForm
-              label={t('existing_loan_amount') + '(' + currency + ')'}
-              keyboardType={'numeric'}
-              color={'#FF0000'}
-              onChangeText={text => handledataAdd('existing_loan_amount', text)}
-              value={saveData.existing_loan_amount}
-            />
-            <InputTextForm
-              label={t('loan_required_in_rupees') + '(' + currency + ')'}
-              keyboardType={'numeric'}
-              color={'#FF0000'}
-              onChangeText={text => handledataAdd('loan_amount', text)}
-              value={saveData.loan_amount}
-            />
-            <InputTextForm
-              label={t('annual_income') + '(' + currency + ')'}
-              keyboardType={'numeric'}
-              color={'#FF0000'}
-              onChangeText={text => handledataAdd('apx_annual_income', text)}
-              value={saveData.apx_annual_income}
-            />
-            <DropdownForm
-              label={t('loan_purpose')}
-              data={loanPurpose}
-              onChange={text => handledataAdd('loan_purpose', text.value)}
-              color={'#FF0000'}
-            />
-            {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
+          ) : null}
+          <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
+            <View style={styles.container}>
+              <View style={styles.inputContainer}>
+                <InputTextForm label={t('farmer_name')} value={userName} />
+                <InputTextForm
+                  label={t('farmer_number')}
+                  value={contactNumber}
+                  keyboardType={'numeric'}
+                />
+                <InputTextForm label={t('adhar_no')} value={aadhar_number} />
+                <InputTextForm label={t('kcc_no')} value={kcc_number} />
+
+                <View style={styles.idcontainer}>
+                  <Text style={{color: '#000'}}>{t('identity_proof')}</Text>
+                  <View style={styles.idItemContainer}>
+                    {identityProof &&
+                      identityProof.map((data, index) => {
+                        return (
+                          <TouchableOpacity
+                            style={styles.idItem}
+                            key={index}
+                            onPress={() => openIdentity(data.uri)}>
+                            <Image
+                              source={require('../../Common/images/document.png')}
+                              style={styles.idImage}
+                            />
+                            <Text>
+                              {data.name == ''
+                                ? ''
+                                : data.name.substring(1, 20)}
+                              {/* {data.name.substring(7, 12)} */}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                  </View>
+                </View>
+                <InputTextForm
+                  label={t('existing_loan_amount') + '(' + currency + ')'}
+                  keyboardType={'numeric'}
+                  color={'#FF0000'}
+                  onChangeText={text =>
+                    handledataAdd('existing_loan_amount', text)
+                  }
+                  value={saveData.existing_loan_amount}
+                />
+                <InputTextForm
+                  label={t('loan_required_in_rupees') + '(' + currency + ')'}
+                  keyboardType={'numeric'}
+                  color={'#FF0000'}
+                  onChangeText={text => handledataAdd('loan_amount', text)}
+                  value={saveData.loan_amount}
+                />
+                <InputTextForm
+                  label={t('annual_income') + '(' + currency + ')'}
+                  keyboardType={'numeric'}
+                  color={'#FF0000'}
+                  onChangeText={text =>
+                    handledataAdd('apx_annual_income', text)
+                  }
+                  value={saveData.apx_annual_income}
+                />
+                <DropdownForm
+                  label={t('loan_purpose')}
+                  data={loanPurpose}
+                  onChange={text => handledataAdd('loan_purpose', text.value)}
+                  color={'#FF0000'}
+                />
+                {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
                         <View style={styles.PlotSiteList}>
                             {
                                 plotSite && plotSite.map((data, index) => {
@@ -1362,7 +1370,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                                 })
                             }
                         </View> */}
-            {/* <View style={styles.plotContainer}>
+                {/* <View style={styles.plotContainer}>
                             {
                                 nameVarityStartEnd.map((data, index) => {
                                     return (
@@ -1385,106 +1393,111 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                             }
                         </View> */}
 
-            <DropdownForm
-              label={t('select_plot')}
-              data={plotSite}
-              onChange={item => handlePlotCheck(item.value, item.label)}
-              color={'#FF0000'}
-            />
-            <View style={styles.plotContainer}>
-              {nameVarityStartEnd.map((data, index) => {
-                if (data.isChecked == '1') {
-                  return (
-                    <View key={index}>
-                      <TouchableOpacity
-                        onPress={() => produceRemoveDetails(index)}>
-                        <Image
-                          source={require('../../Common/images/x-mark.png')}
-                          style={styles.xMarkImage}
-                        />
-                      </TouchableOpacity>
-                      <View style={styles.plotContainerItem}>
-                        <View>
-                          <Text style={styles.plotText}>
-                            {t('select_plot')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropname')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropvariety')}
-                          </Text>
-                          {/* <Text style={styles.plotText}>
+                <DropdownForm
+                  label={t('select_plot')}
+                  data={plotSite}
+                  onChange={item => handlePlotCheck(item.value, item.label)}
+                  color={'#FF0000'}
+                />
+                <View style={styles.plotContainer}>
+                  {nameVarityStartEnd.map((data, index) => {
+                    if (data.isChecked == '1') {
+                      return (
+                        <View key={index}>
+                          <TouchableOpacity
+                            onPress={() => produceRemoveDetails(index)}>
+                            <Image
+                              source={require('../../Common/images/x-mark.png')}
+                              style={styles.xMarkImage}
+                            />
+                          </TouchableOpacity>
+                          <View style={styles.plotContainerItem}>
+                            <View>
+                              <Text style={styles.plotText}>
+                                {t('select_plot')}
+                              </Text>
+                              <Text style={styles.plotText}>
+                                {t('addcrop_cropname')}
+                              </Text>
+                              <Text style={styles.plotText}>
+                                {t('addcrop_cropvariety')}
+                              </Text>
+                              {/* <Text style={styles.plotText}>
                                                      {t('showing_date')}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      {t('harvesting_date_auto_calculated')}
                                                    </Text> */}
-                        </View>
-                        <View>
-                          <Text style={styles.plotText}>
-                            :{data.plot_no.substring(-1, 15)}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :{data.name.substring(-1, 15)}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :{data.varity.substring(-1, 15)}
-                          </Text>
-                          {/* <Text style={styles.plotText}>
+                            </View>
+                            <View>
+                              <Text style={styles.plotText}>
+                                :{data.plot_no.substring(-1, 15)}
+                              </Text>
+                              <Text style={styles.plotText}>
+                                :{data.name.substring(-1, 15)}
+                              </Text>
+                              <Text style={styles.plotText}>
+                                :{data.varity.substring(-1, 15)}
+                              </Text>
+                              {/* <Text style={styles.plotText}>
                                                      :{data.cycleStarts}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      :{data.cycleEnd.substring(0, 10)}
                                                    </Text> */}
-                        </View>
-                      </View>
+                            </View>
+                          </View>
 
-                      <View style={styles.idcontainer}>
-                  
-                        <View style={styles.idItemContainer}>
-                          <ProofAndIdentityPropfCompLoan
-                           identityProofIdentityPropf={data.addressProof}
-                           t={t}
-                           title={t('address_proof')}
-                           handleDocumentSelection={handleDocumentSelection}
-                           handleDocumentSelectionRemove={
-                             handleDocumentSelectionRemove
-                           }
-                           handleScanAndCreatePdf={handleScanAndCreatePdf}
-                           parent={data}
-                          />
+                          <View style={styles.idcontainer}>
+                            <View style={styles.idItemContainer}>
+                              <ProofAndIdentityPropfCompLoan
+                                identityProofIdentityPropf={data.addressProof}
+                                t={t}
+                                title={t('address_proof')}
+                                handleDocumentSelection={
+                                  handleDocumentSelection
+                                }
+                                handleDocumentSelectionRemove={
+                                  handleDocumentSelectionRemove
+                                }
+                                handleScanAndCreatePdf={handleScanAndCreatePdf}
+                                parent={data}
+                              />
+                            </View>
+                          </View>
                         </View>
-                      </View>
-                    </View>
-                  );
-                }
-              })}
-            </View>
+                      );
+                    }
+                  })}
+                </View>
 
-            <TouchableOpacity
-              style={styles.clickAddMorePlots}
-              onPress={() => handle_button()}>
-              <Text style={styles.clickAddMorePlotsTitle}>
-                {t('click_to_add_more_plot')}
-              </Text>
-            </TouchableOpacity>
-          
-            <View style={styles.idcontainer}>
-              <ProofAndIdentityPropfCompLoan
-                identityProofIdentityPropf={landProof}
-                t={t}
-                title={t('land_records')}
-                handleDocumentSelection={handleDocumentSelection}
-                handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-                handleScanAndCreatePdf={handleScanAndCreatePdf}
-              />
+                <TouchableOpacity
+                  style={styles.clickAddMorePlots}
+                  onPress={() => handle_button()}>
+                  <Text style={styles.clickAddMorePlotsTitle}>
+                    {t('click_to_add_more_plot')}
+                  </Text>
+                </TouchableOpacity>
+
+                <View style={styles.idcontainer}>
+                  <ProofAndIdentityPropfCompLoan
+                    identityProofIdentityPropf={landProof}
+                    t={t}
+                    title={t('land_records')}
+                    handleDocumentSelection={handleDocumentSelection}
+                    handleDocumentSelectionRemove={
+                      handleDocumentSelectionRemove
+                    }
+                    handleScanAndCreatePdf={handleScanAndCreatePdf}
+                  />
+                </View>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-        <ButtonForm label={t('submit')} onPress={handleSave} />
-      </Root>
-    </>
+          </ScrollView>
+          <ButtonForm label={t('submit')} onPress={handleSave} />
+        </Root>
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -1492,16 +1505,22 @@ export default FarmerLoanRequest;
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: Colors.containerGreen,
+
     marginHorizontal: '3%',
-    paddingVertical: 10,
-    marginBottom: 250,
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+    marginBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
+  inputContainer: {marginHorizontal: '4%', marginVertical: 20},
   idcontainer: {
     marginVertical: 10,
-    backgroundColor:'#FFF',
-    elevation:2,
-    borderRadius:5,
-    padding:10
+    backgroundColor: '#FFF',
+    elevation: 2,
+    borderRadius: 5,
+    padding: 10,
   },
   idItemContainer: {
     flexDirection: 'row',
