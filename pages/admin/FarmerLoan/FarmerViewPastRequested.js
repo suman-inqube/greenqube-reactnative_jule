@@ -185,17 +185,7 @@ const FarmerViewPastRequested = ({setActiveBtn}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <SafeAreaView style={{flex: 1}}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: Colors.containerGreen,
-            marginHorizontal: '3%',
-            borderWidth: 0.5,
-            borderColor: Colors.borderGreen,
-            borderBottomLeftRadius: 20,
-            borderBottomRightRadius: 20,
-            marginBottom: 20,
-          }}>
+        <View style={styles.main}>
           <View style={{}}>
             <DatePickerComp
               openDate={openFromDate}
@@ -297,14 +287,12 @@ const FarmerViewPastRequested = ({setActiveBtn}) => {
                     <View style={styles.flatListItem}>
                       <View style={styles.cardHeader}>
                         <View style={styles.marqueeContainer}>
-                          <Marquee speed={0.5} spacing={150} fade={true}>
-                            <Text style={styles.cardTitleRe}>
-                              {t('loan_amt') + `(${currency})`}: {'  '}
-                              <Text style={styles.cardTitle}>
-                                {item.loan_amount}
-                              </Text>
+                          <Text style={styles.cardTitleRe}>
+                            {t('loan_amt') + `(${currency})`}: {'  '}
+                            <Text style={styles.cardTitle}>
+                              {item.loan_amount}
                             </Text>
-                          </Marquee>
+                          </Text>
                         </View>
                         <View style={styles.cardFooter}>
                           <Text style={styles.viewDetailsText}>
@@ -379,6 +367,16 @@ const FarmerViewPastRequested = ({setActiveBtn}) => {
 export default FarmerViewPastRequested;
 
 const styles = StyleSheet.create({
+  main: {
+    flex: 1,
+    backgroundColor: Colors.containerGreen,
+    marginHorizontal: '3%',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    marginBottom: 20,
+  },
   container: {
     flex: 1,
   },

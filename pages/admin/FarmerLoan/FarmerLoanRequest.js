@@ -38,7 +38,6 @@ import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {createPdf} from 'react-native-images-to-pdf';
-import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -1276,83 +1275,148 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   //         }
   //       };
   return (
-    <FarmerDrawerScreenWrapper1>
-      <>
-        <Root>
-          {isLoading ? (
-            <View style={styles.loadingScreen}>
-              <LoadingScreen />
-            </View>
-          ) : null}
-          <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
-            <View style={styles.container}>
-              <View style={styles.inputContainer}>
-                <InputTextForm label={t('farmer_name')} value={userName} />
-                <InputTextForm
-                  label={t('farmer_number')}
-                  value={contactNumber}
-                  keyboardType={'numeric'}
-                />
-                <InputTextForm label={t('adhar_no')} value={aadhar_number} />
-                <InputTextForm label={t('kcc_no')} value={kcc_number} />
+    <>
+      <Root>
+        {isLoading ? (
+          <View style={styles.loadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : null}
+        <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
+          <View style={styles.container}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('personal_information')}</Text>
 
-                <View style={styles.idcontainer}>
-                  <Text style={{color: '#000'}}>{t('identity_proof')}</Text>
-                  <View style={styles.idItemContainer}>
-                    {identityProof &&
-                      identityProof.map((data, index) => {
-                        return (
-                          <TouchableOpacity
-                            style={styles.idItem}
-                            key={index}
-                            onPress={() => openIdentity(data.uri)}>
-                            <Image
-                              source={require('../../Common/images/document.png')}
-                              style={styles.idImage}
-                            />
-                            <Text>
-                              {data.name == ''
-                                ? ''
-                                : data.name.substring(1, 20)}
-                              {/* {data.name.substring(7, 12)} */}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                  </View>
+              <View style={styles.infoRow}>
+                <MaterialIcons name="person" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('farmer_name')}</Text>
+                  <Text style={styles.infoValue}>{userName}</Text>
+                  {/* <InputTextForm label={t('farmer_name')} value={userName} /> */}
                 </View>
-                <InputTextForm
-                  label={t('existing_loan_amount') + '(' + currency + ')'}
-                  keyboardType={'numeric'}
-                  color={'#FF0000'}
-                  onChangeText={text =>
-                    handledataAdd('existing_loan_amount', text)
-                  }
-                  value={saveData.existing_loan_amount}
+              </View>
+
+              <View style={styles.infoRow}>
+                <MaterialIcons name="phone" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('farmer_number')}</Text>
+                  <Text style={styles.infoValue}>{contactNumber}</Text>
+                </View>
+              </View>
+              {/* <InputTextForm
+                label={t('farmer_number')}
+                value={contactNumber}
+                keyboardType={'numeric'}
+              /> */}
+              <View style={styles.infoRow}>
+                <MaterialIcons name="credit-card" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('adhar_no')}</Text>
+                  {aadhar_number ? (
+                    <Text style={styles.infoValue}>{aadhar_number}</Text>
+                  ) : (
+                    <View style={styles.emptyContainer}>
+                      <Text style={styles.emptyText}>N/A</Text>
+                    </View>
+                  )}
+                  <Text style={styles.infoValue}>{aadhar_number}</Text>
+                </View>
+              </View>
+
+              {/* <InputTextForm label={t('adhar_no')} value={aadhar_number} /> */}
+
+              <View style={styles.infoRow}>
+                <MaterialIcons
+                  name="card-membership"
+                  size={20}
+                  color="#4a8c29"
                 />
-                <InputTextForm
-                  label={t('loan_required_in_rupees') + '(' + currency + ')'}
-                  keyboardType={'numeric'}
-                  color={'#FF0000'}
-                  onChangeText={text => handledataAdd('loan_amount', text)}
-                  value={saveData.loan_amount}
-                />
-                <InputTextForm
-                  label={t('annual_income') + '(' + currency + ')'}
-                  keyboardType={'numeric'}
-                  color={'#FF0000'}
-                  onChangeText={text =>
-                    handledataAdd('apx_annual_income', text)
-                  }
-                  value={saveData.apx_annual_income}
-                />
-                <DropdownForm
-                  label={t('loan_purpose')}
-                  data={loanPurpose}
-                  onChange={text => handledataAdd('loan_purpose', text.value)}
-                  color={'#FF0000'}
-                />
-                {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('kcc_no')}</Text>
+                  {kcc_number ? (
+                    <Text style={styles.infoValue}>{kcc_number}</Text>
+                  ) : (
+                    <View style={styles.emptyContainer}>
+                      <Text style={styles.emptyText}>N/A</Text>
+                    </View>
+                  )}
+                  <Text style={styles.infoValue}>{kcc_number}</Text>
+                </View>
+              </View>
+
+              {/* <InputTextForm label={t('kcc_no')} value={kcc_number} /> */}
+            </View>
+
+            <View style={styles.idcontainer}>
+              <Text
+                style={{
+                  fontSize: 16,
+
+                  color: Colors.borderGreen,
+                  marginBottom: 12,
+                  fontFamily: 'Poppins-SemiBold',
+                }}>
+                {t('identity_proof')}
+              </Text>
+              <View style={styles.idItemContainer}>
+                {identityProof &&
+                  identityProof.map((data, index) => {
+                    return (
+                      <TouchableOpacity
+                        style={styles.idItem}
+                        key={index}
+                        onPress={() => openIdentity(data.uri)}>
+                        <MaterialIcons
+                          name="description"
+                          size={35}
+                          color="#4a8c29"
+                        />
+                        {/* <Image
+                          source={require('../../Common/images/document.png')}
+                          style={styles.idImage}
+                        /> */}
+                        <Text>
+                          {data.name == '' ? '' : data.name.substring(1, 20)}
+                          {/* {data.name.substring(7, 12)} */}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('loan_information')}</Text>
+              <InputTextForm
+                label={t('existing_loan_amount') + '(' + currency + ')'}
+                keyboardType={'numeric'}
+                required={true}
+                onChangeText={text =>
+                  handledataAdd('existing_loan_amount', text)
+                }
+                value={saveData.existing_loan_amount}
+              />
+              <InputTextForm
+                label={t('loan_required_in_rupees') + '(' + currency + ')'}
+                keyboardType={'numeric'}
+                required={true}
+                onChangeText={text => handledataAdd('loan_amount', text)}
+                value={saveData.loan_amount}
+              />
+              <InputTextForm
+                label={t('annual_income') + '(' + currency + ')'}
+                keyboardType={'numeric'}
+                required={true}
+                onChangeText={text => handledataAdd('apx_annual_income', text)}
+                value={saveData.apx_annual_income}
+              />
+              <DropdownForm
+                label={t('loan_purpose')}
+                data={loanPurpose}
+                onChange={text => handledataAdd('loan_purpose', text.value)}
+                required={true}
+              />
+              {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
                         <View style={styles.PlotSiteList}>
                             {
                                 plotSite && plotSite.map((data, index) => {
@@ -1370,7 +1434,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                                 })
                             }
                         </View> */}
-                {/* <View style={styles.plotContainer}>
+              {/* <View style={styles.plotContainer}>
                             {
                                 nameVarityStartEnd.map((data, index) => {
                                     return (
@@ -1393,111 +1457,107 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                             }
                         </View> */}
 
-                <DropdownForm
-                  label={t('select_plot')}
-                  data={plotSite}
-                  onChange={item => handlePlotCheck(item.value, item.label)}
-                  color={'#FF0000'}
-                />
-                <View style={styles.plotContainer}>
-                  {nameVarityStartEnd.map((data, index) => {
-                    if (data.isChecked == '1') {
-                      return (
-                        <View key={index}>
-                          <TouchableOpacity
-                            onPress={() => produceRemoveDetails(index)}>
-                            <Image
-                              source={require('../../Common/images/x-mark.png')}
-                              style={styles.xMarkImage}
-                            />
-                          </TouchableOpacity>
-                          <View style={styles.plotContainerItem}>
-                            <View>
-                              <Text style={styles.plotText}>
-                                {t('select_plot')}
-                              </Text>
-                              <Text style={styles.plotText}>
-                                {t('addcrop_cropname')}
-                              </Text>
-                              <Text style={styles.plotText}>
-                                {t('addcrop_cropvariety')}
-                              </Text>
-                              {/* <Text style={styles.plotText}>
+              <DropdownForm
+                label={t('select_plot')}
+                data={plotSite}
+                onChange={item => handlePlotCheck(item.value, item.label)}
+                required={true}
+              />
+            </View>
+            <View style={styles.plotContainer}>
+              {nameVarityStartEnd.map((data, index) => {
+                if (data.isChecked == '1') {
+                  return (
+                    <View key={index}>
+                      <TouchableOpacity
+                        onPress={() => produceRemoveDetails(index)}>
+                        <Image
+                          source={require('../../Common/images/x-mark.png')}
+                          style={styles.xMarkImage}
+                        />
+                      </TouchableOpacity>
+                      <View style={styles.plotContainerItem}>
+                        <View>
+                          <Text style={styles.plotText}>
+                            {t('select_plot')}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            {t('addcrop_cropname')}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            {t('addcrop_cropvariety')}
+                          </Text>
+                          {/* <Text style={styles.plotText}>
                                                      {t('showing_date')}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      {t('harvesting_date_auto_calculated')}
                                                    </Text> */}
-                            </View>
-                            <View>
-                              <Text style={styles.plotText}>
-                                :{data.plot_no.substring(-1, 15)}
-                              </Text>
-                              <Text style={styles.plotText}>
-                                :{data.name.substring(-1, 15)}
-                              </Text>
-                              <Text style={styles.plotText}>
-                                :{data.varity.substring(-1, 15)}
-                              </Text>
-                              {/* <Text style={styles.plotText}>
+                        </View>
+                        <View>
+                          <Text style={styles.plotText}>
+                            :{data.plot_no.substring(-1, 15)}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            :{data.name.substring(-1, 15)}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            :{data.varity.substring(-1, 15)}
+                          </Text>
+                          {/* <Text style={styles.plotText}>
                                                      :{data.cycleStarts}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      :{data.cycleEnd.substring(0, 10)}
                                                    </Text> */}
-                            </View>
-                          </View>
-
-                          <View style={styles.idcontainer}>
-                            <View style={styles.idItemContainer}>
-                              <ProofAndIdentityPropfCompLoan
-                                identityProofIdentityPropf={data.addressProof}
-                                t={t}
-                                title={t('address_proof')}
-                                handleDocumentSelection={
-                                  handleDocumentSelection
-                                }
-                                handleDocumentSelectionRemove={
-                                  handleDocumentSelectionRemove
-                                }
-                                handleScanAndCreatePdf={handleScanAndCreatePdf}
-                                parent={data}
-                              />
-                            </View>
-                          </View>
                         </View>
-                      );
-                    }
-                  })}
-                </View>
+                      </View>
 
-                <TouchableOpacity
-                  style={styles.clickAddMorePlots}
-                  onPress={() => handle_button()}>
-                  <Text style={styles.clickAddMorePlotsTitle}>
-                    {t('click_to_add_more_plot')}
-                  </Text>
-                </TouchableOpacity>
-
-                <View style={styles.idcontainer}>
-                  <ProofAndIdentityPropfCompLoan
-                    identityProofIdentityPropf={landProof}
-                    t={t}
-                    title={t('land_records')}
-                    handleDocumentSelection={handleDocumentSelection}
-                    handleDocumentSelectionRemove={
-                      handleDocumentSelectionRemove
-                    }
-                    handleScanAndCreatePdf={handleScanAndCreatePdf}
-                  />
-                </View>
-              </View>
+                      <View style={styles.idcontainer}>
+                        <View style={styles.idItemContainer}>
+                          <ProofAndIdentityPropfCompLoan
+                            identityProofIdentityPropf={data.addressProof}
+                            t={t}
+                            title={t('address_proof')}
+                            handleDocumentSelection={handleDocumentSelection}
+                            handleDocumentSelectionRemove={
+                              handleDocumentSelectionRemove
+                            }
+                            handleScanAndCreatePdf={handleScanAndCreatePdf}
+                            parent={data}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  );
+                }
+              })}
             </View>
-          </ScrollView>
-          <ButtonForm label={t('submit')} onPress={handleSave} />
-        </Root>
-      </>
-    </FarmerDrawerScreenWrapper1>
+
+            <TouchableOpacity
+              style={styles.clickAddMorePlots}
+              onPress={() => handle_button()}>
+              <Text style={styles.clickAddMorePlotsTitle}>
+                {t('click_to_add_more_plot')}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.idcontainer}>
+              <Text style={styles.cardTitle}>{t('land_records')}</Text>
+              <ProofAndIdentityPropfCompLoan
+                identityProofIdentityPropf={landProof}
+                t={t}
+                // title={t('land_records')}
+                handleDocumentSelection={handleDocumentSelection}
+                handleDocumentSelectionRemove={handleDocumentSelectionRemove}
+                handleScanAndCreatePdf={handleScanAndCreatePdf}
+              />
+            </View>
+          </View>
+        </ScrollView>
+        <ButtonForm label={t('submit')} onPress={handleSave} />
+      </Root>
+    </>
   );
 };
 
@@ -1505,22 +1565,20 @@ export default FarmerLoanRequest;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: Colors.containerGreen,
-
     marginHorizontal: '3%',
     borderWidth: 0.5,
     borderColor: Colors.borderGreen,
     marginBottom: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
   },
-  inputContainer: {marginHorizontal: '4%', marginVertical: 20},
   idcontainer: {
     marginVertical: 10,
     backgroundColor: '#FFF',
     elevation: 2,
-    borderRadius: 5,
+    borderRadius: 12,
     padding: 10,
+    marginHorizontal: '3%',
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -1613,7 +1671,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   clickAddMorePlots: {
-    backgroundColor: '#045004',
+    backgroundColor: Colors.subBtn,
     marginHorizontal: 35,
     paddingVertical: 15,
     marginVertical: 20,
@@ -1624,5 +1682,57 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
+  },
+  /////////////
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginVertical: '5%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '3%',
+  },
+  cardTitle: {
+    fontSize: 16,
+    // fontWeight: '600',
+    color: Colors.borderGreen,
+    marginBottom: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  emptyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginTop: 2,
+  },
+  emptyText: {
+    color: '#ff0000',
+    marginLeft: 6,
+    fontSize: 13,
+    fontFamily: Fonts.SemiBold,
   },
 });

@@ -2,7 +2,7 @@ export const Colors = {
   primary: '#f7ca49',
   primary_light: '#ffe141',
   secondary: '#0d8320',
-  text: '#585858',
+  text: '#4e4e4e',
   disabled: '#9197a6',
   border: '#d0d4dc',
   backgroundSecondary: '#f5f6fb',
@@ -12,6 +12,7 @@ export const Colors = {
   containerGreen: '#d7edd5',
   pageBackground: '#F7FCFF',
   borderGreen: '#107808ff',
+  subBtn: '#21374A',
 };
 export const Fonts = {
   Regular: 'Poppins-Regular',

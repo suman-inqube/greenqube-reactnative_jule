@@ -214,9 +214,9 @@ const FarmerDashboard = ({navigation}) => {
       console.error('Error fetching activities:', error);
     }
   };
-  useEffect(() => {
-    fetchLatestActivities();
-  }, []);
+  // useEffect(() => {
+  //   fetchLatestActivities();
+  // }, []);
 
   const fetchUsefulInformation = async () => {
     try {
@@ -251,9 +251,9 @@ const FarmerDashboard = ({navigation}) => {
       console.error('Error fetching useful information:', error);
     }
   };
-  useEffect(() => {
-    fetchUsefulInformation();
-  }, []);
+  // useEffect(() => {
+  //   fetchUsefulInformation();
+  // }, []);
   const onPageLoad = async () => {
     const [
       userNameData,
@@ -282,6 +282,8 @@ const FarmerDashboard = ({navigation}) => {
     if (loginUser_data && loginUser_data.dbname) {
       setCompanyName(loginUser_data.dbname);
     }
+    fetchLatestActivities();
+    fetchUsefulInformation();
   };
 
   useEffect(() => {

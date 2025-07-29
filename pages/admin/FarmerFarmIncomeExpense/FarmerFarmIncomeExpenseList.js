@@ -302,15 +302,15 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                     }>
                     <View style={styles.cardHeader}>
                       <View style={styles.marqueeContainer}>
-                        <Marquee speed={0.5} spacing={150} fade={true}>
-                          <Text style={styles.cardTitleRe}>
-                            {t('addcrop_plot')} :{'  '}
-                            <Text style={styles.cardTitle}>
-                              {item.land_info &&
-                                item.land_info.plot_no.substring(0, 50)}
-                            </Text>
+                        <Text style={styles.cardTitleRe}>
+                          {t('addcrop_plot')} :{'  '}
+                          <Text
+                            style={styles.cardTitle}
+                            numberOfLines={1}
+                            ellipsizeMode="tail">
+                            {item.land_info && item.land_info.plot_no}
                           </Text>
-                        </Marquee>
+                        </Text>
                       </View>
                       <View style={styles.cardFooter}>
                         <Text style={styles.viewDetailsText}>
@@ -327,11 +327,11 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                       <View style={styles.activityListItem}>
                         <Text style={styles.titleRe}>
                           {t('showing_date')} :{'   '}
-                          <Text style={styles.title}>
-                            {formatDateToDateName(item.sowing_date).substring(
-                              0,
-                              25,
-                            ) + '..'}
+                          <Text
+                            style={styles.title}
+                            numberOfLines={1}
+                            ellipsizeMode="tail">
+                            {formatDateToDateName(item.sowing_date)}
                           </Text>
                         </Text>
                         <Text style={styles.titleRe}>
@@ -343,18 +343,21 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                         </Text>
                         <Text style={styles.titleRe}>
                           {t('knowyourplot_cropinfo_cropname')} :{'   '}
-                          <Text style={styles.title}>
-                            {item.crop_name &&
-                              item.crop_name.name.substring(0, 20) + '..'}
+                          <Text
+                            style={styles.title}
+                            numberOfLines={1}
+                            ellipsizeMode="tail">
+                            {item.crop_name && item.crop_name.name}
                           </Text>
                         </Text>
 
                         <Text style={styles.titleRe}>
                           {t('harvesting_date_auto_calculated')} :{'   '}
-                          <Text style={styles.title}>
-                            {formatDateToDateName(
-                              item.harvesting_date,
-                            ).substring(0, 15) + '..'}
+                          <Text
+                            style={styles.title}
+                            numberOfLines={1}
+                            ellipsizeMode="tail">
+                            {formatDateToDateName(item.harvesting_date)}
                           </Text>
                         </Text>
                         <Text style={styles.titleRe}>

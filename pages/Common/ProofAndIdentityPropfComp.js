@@ -429,11 +429,11 @@ const ProofAndIdentityPropfComp = ({
                   height: 220 + marginBottom,
                 });
               }}>
-              <View>
+              <View style={{marginTop: 30}}>
                 {data?.uri ? (
                   data?.type == 'application/pdf' ? (
                     <MaterialIcons
-                      name="upload-file"
+                      name="edit-document"
                       size={45}
                       color="#0d8320"
                     />

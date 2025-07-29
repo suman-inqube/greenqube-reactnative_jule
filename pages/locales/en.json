@@ -954,7 +954,7 @@
     "approved_date": "Approved Date",
     "sta_": "Status",
     "full_fill_status": "Fulfillment status",
-    "pending": "Pending",
+    "pending": "PENDING",
     "processed": "Processed",
     "paid_": "Paid",
     "activity_date": "Activity Scheduled Date",
@@ -1024,8 +1024,8 @@
     "product_sub_category": "Product Sub Category",
     "title_activity_maps": "MapsActivity",
     "closed": "Closed",
-    "Approved": "Approved",
-    "Rejected": "Rejected",
+    "Approved": "APPROVED",
+    "Rejected": "REJECTED",
     "SanctionedDate": "Sanctioned Date",
     "LoanOrderID": "Loan Order ID",
     "LoanSanctioned": "Loan Sanctioned",
@@ -1055,6 +1055,8 @@
     "information":"information",
     "Date":"Date",
     "Your_Profile":"Your Profile",
-    "view_details":"View Details"
+    "view_details":"View Details",
+    "documents":"Documents",
+    "loan_information":"Loan Information"
 
 }
