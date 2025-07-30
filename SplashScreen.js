@@ -16,7 +16,9 @@ import NotificationServices from './pages/PushNotification/NotificationServices'
 import JailMonkey from 'jail-monkey';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
+import {NativeModules} from 'react-native';
 const SplashScreen = ({ navigation }) => {
+    const {ConfigModule} = NativeModules;
     // const { requestUserPermission, notificationListener } = NotificationServices();
     const { width, height } = Dimensions.get('window');
     const [companyData, setCompanyData] = useState([]);
@@ -126,6 +128,11 @@ const SplashScreen = ({ navigation }) => {
     };
     const onPageLoad = async () => {
         try {
+
+            //  const baseUrl = await ConfigModule.getBaseURL();
+            //  const encryptedKey = await ConfigModule.getEncryptedKey();
+            //  console.log('Base URL:', baseUrl);
+            //  console.log('Encrypted Key:', encryptedKey);
             const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
             if (shouldContinue == false) return;
             const [companyLanguage_data, loginUser_data] = await Promise.all([

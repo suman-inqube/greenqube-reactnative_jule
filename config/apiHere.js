@@ -5,8 +5,20 @@ import instance from './commonAxios'
 import { Image } from 'react-native';
 // import CryptoJS from 'react-native-crypto-js';
 import CryptoJS from 'crypto-js';
+import { NativeModules } from 'react-native';
 
 const timeoutConfig = { timeout: 5000 };
+const getApiConfig = async () => {
+  const { ConfigModule } = NativeModules;
+  try {
+    const BASE_URL = await ConfigModule.getBaseURL();
+     return BASE_URL;
+    // const decryptSecretKey = config.encryptedKey;
+  }catch(err){
+    console.log('config index',err);
+
+  }
+}
 const headersWithCompanyDBlanID = (dbName, languageId) => {
   return {
     information: `${dbName},${languageId}`,
@@ -43,6 +55,7 @@ const axiosHeaders = {
 };
 
 export const databaseListAPI = async () => {
+  // console.log('bas==', JSON.stringify(await getApiConfig()));
   const database_res = await instance.get(
     config.BASE_URL + 'hostRoute/databaseList',
   );

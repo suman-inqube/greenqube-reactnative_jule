@@ -20,9 +20,18 @@ public class ConfigModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getGradleValue(Promise promise) {
+    public void getBaseURL(Promise promise) {
         try {
             promise.resolve(BuildConfig.baseUrl);
+        } catch (Exception e) {
+            promise.reject("ERROR", e);
+        }
+    }
+    
+    @ReactMethod
+    public void getEncryptedKey(Promise promise) {
+        try {
+            promise.resolve(BuildConfig.encryptedKey);
         } catch (Exception e) {
             promise.reject("ERROR", e);
         }

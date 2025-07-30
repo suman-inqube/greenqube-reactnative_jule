@@ -23,10 +23,10 @@ export const userDataListAPI = async (
       information: `${dbName},${languageId},${user_id}`,
     },
   };
-  // console.log(
-  //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
-  // );
-  //         console.log(axiosHeaders)
+  console.log(
+      `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+  );
+          console.log(axiosHeaders)
   try {
     // let response = await instance.get(
     //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,{
@@ -45,10 +45,10 @@ export const userDataListAPI = async (
         },
       },
     );
-    //   console.log('check11',  response);
+      //  console.log('check12',  response);
     return response;
   } catch (error) {
-    // console.log('r1', error.response);
+    console.log('r1', error);
     // CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
     return error.response;
   }

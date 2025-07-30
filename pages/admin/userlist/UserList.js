@@ -91,7 +91,7 @@ const UserList = ({ navigation }) => {
             setIsLoading(true);
            
             let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
-               console.log('check11', response);
+            //    console.log('check11', response);
              if (response.status === 200) {
                 setPhoneNumber('');
                 const totalPage = Math.ceil(

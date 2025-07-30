@@ -1,20 +1,53 @@
 import axios from 'axios';
 import {getItem} from './getDataFromStorage';
 import CryptoJS from 'crypto-js';
+import {NativeModules} from 'react-native';
+ 
+// const secretKey = 'greenQube_96740_64428'; // Must match encryption key
 
-const secretKey = 'greenQube_96740_64428'; // Must match encryption key
+const getApiConfig = async (item) => {
+  const {ConfigModule} = NativeModules;
+ 
+  try {
+    // const [BASE_URL, key] = Promise.all([
+      
+    //   ,
+    // ]);
 
+    // const BASE_URL = await ConfigModule.getBaseURL();
+    //  const key = await ConfigModule.getEncryptedKey();
+    
+     if (item === 'BASE_URL') {
+       return await ConfigModule.getBaseURL();
+     } else if (item === 'key'){
+       return await ConfigModule.getEncryptedKey();
+     }
+    // const decryptSecretKey = config.encryptedKey;
+  }catch(err){
+    console.log('config index',err);
+
+  }
+}
+// const getEncryptKey = async () => {
+ 
+//   try {
+//     const key = await ConfigModule.getEncryptedKey();
+//     console.log('key', key);
+
+//     return key;
+//     // const decryptSecretKey = config.encryptedKey;
+//   } catch (err) {
+//     console.log('config index', err);
+//   }
+// };
 const instance = axios.create({
   baseURL: 'http://34.87.10.106:4003/',
   timeout: 5000,
-  // headers: {
-  //   'Content-Type': 'application/json',
-  //   Accept: 'application/json',
-  // },
 });
- 
-  function findField(obj, keyToFind) {
-    // console.log('zz encryt err')
+
+function findField(obj, keyToFind) {
+  if (obj === null || typeof obj !== 'object') return undefined;
+
   if (obj.hasOwnProperty(keyToFind)) return obj[keyToFind];
 
   for (let key in obj) {
@@ -28,23 +61,23 @@ const instance = axios.create({
 
 
 instance.interceptors.response.use(
-  response => {
+   response => {
     try {
-      //  console.log('zz 1', JSON.stringify(response.status));
+       console.log('BASE_URL22', getApiConfig('BASE_URL'));
+    console.log('check12', getApiConfig('key'));
       const encrypted = findField(response?.data, 'respo');
        const ivHex = findField(response?.data, 'eid');
       if (encrypted != undefined) {
 
-            const keyBytes = CryptoJS.SHA256('greenQube_96740_64428');
+            const keyBytes = CryptoJS.SHA256(getApiConfig('key'));
             const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
 
-            // Create the cipherParams object
             const cipherParams = CryptoJS.lib.CipherParams.create({
               ciphertext: CryptoJS.enc.Hex.parse(encrypted),
             });
 
             const decrypted = CryptoJS.AES.decrypt(
-              cipherParams, // Use the properly typed cipherParams
+              cipherParams,
               keyBytes,
               {
                 iv: ivBytes,
@@ -53,17 +86,15 @@ instance.interceptors.response.use(
               },
             );
 
-            // resultJson = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
-            // resultJson.status = 200;
-            // console.log('plot11==', resultJson);
             const parsed = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
             const resultJson = {
               data: parsed,
               status: 200,
             };
+            console.log('check13');
              return resultJson;
 
-        // response.data = decryptedData;
+        
       }else{
          response.data = response?.data;
       }
@@ -74,22 +105,5 @@ instance.interceptors.response.use(
   },
   error => Promise.reject(error),
 );
-// // instance.interceptors.request.use(
-//   async config => {
-//     try {
-//       const loginUser_data = await getItem('loginUser_data');
-//       const {token} = loginUser_data || {};
-
-//       if (token) {
-//         config.headers['Authorization'] = token;
-//       }
-//       return config;
-//     } catch (error) {
-//       console.error('Axios token load error:', error);
-//       return config; 
-//     }
-//   },
-//   error => Promise.reject(error),
-// );
  export default instance;
 
