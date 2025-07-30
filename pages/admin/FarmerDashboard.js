@@ -27,7 +27,6 @@ const FarmerDashboard = ({ navigation }) => {
     });
     const [company_website, setcompany_website] = useState("");
     const navigateToPages = (pageName) => {
-        console.log(pageName)
         if (netConnection) {
             if (pageName == 'Weather') {
                 navigation.navigate(pageName, { latLong });
@@ -120,11 +119,11 @@ const FarmerDashboard = ({ navigation }) => {
                     default:
                     // code block FarmerTrainingList
                 }
-                navigation.navigate(pageName);
+                navigation.navigate(pageName, { data: 'remove' });
             }
         } else {
             if (pageName == "FarmerListProblem" || pageName == "FarmerActivityList") {
-                navigation.navigate(pageName);
+                navigation.navigate(pageName, { data: 'remove' });
             }
         }
     };

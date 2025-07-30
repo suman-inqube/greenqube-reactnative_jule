@@ -241,7 +241,6 @@ const ActivityReport = ({ navigation }) => {
         const latandlongArr = response?.data?.data?.land_info?.agri_land_user_latlongs?.map((_data, _index) => ({
             longitude: _data.longitude, latitude: _data.latitude
         }))
-        console.log('78', latitude, longitude, latandlongArr);
         if (latandlongArr.length != 0) {
             const is20Meters = isWithin20Meters({ latitude, longitude }, latandlongArr, 20);
             if (is20Meters.length != 0) {
@@ -364,7 +363,6 @@ const ActivityReport = ({ navigation }) => {
                             ' - ' +
                             formatDate(element?.activity_end_date) +
                             ')';
-                          console.log(overdueData);
                           setOverdueAct(prevItems => [
                             ...prevItems,
                             overdueData,
@@ -538,7 +536,6 @@ const ActivityReport = ({ navigation }) => {
             activitySchedule?.data?.data?.otherActivities.forEach(function (
               element,
             ) {
-              console.log("rrr")
               var overdueData;
               if (element?.days_until_start < 0) {
                 overdueData =
@@ -775,7 +772,6 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityType = async (item) => {
-      console.log('item1==',item);
         let dataArray = [];
         if (isOnline) {
             var response = await activityInfoAPI(dbname, lan_id, token, farmerID, CropType, CropName, item.value)
@@ -785,7 +781,6 @@ const ActivityReport = ({ navigation }) => {
         }
         setSaveData({ ...saveData, act_ref_type: item.value });
         if (response.data.data.count > 0) {
-          console.log(response.data.data.rows);
             response.data.data.rows.forEach(element => {
                 const monthNames = [
                     "January", "February", "March", "April", "May", "June",
@@ -824,7 +819,6 @@ const ActivityReport = ({ navigation }) => {
         }
     }
     const handleActivityInfo = async (item) => {
-      console.log(item);
         const act_to_date1 = item.end_date;
         const date1 = new Date(act_to_date1);
         const year1 = date1.getFullYear();

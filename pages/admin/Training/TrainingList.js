@@ -8,436 +8,362 @@ import {
   TouchableOpacity,
   View,
   BackHandler,
+  Animated,
+  ActivityIndicator
 } from 'react-native';
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react'
 import moment from "moment";
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
 import { trainingListAPI } from '../../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import FormsTitle from '../../Common/FormsTitle';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import ImageForm from '../../Common/ImageForm';
+import ListItemComponent from '../../Common/ListItemComponent';
+import GridItemComponent from '../../Common/GridItemComponent';
+import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
 const TrainingList = () => {
-    //GQR-67
-    const { loginUser_data, CustomHeader, t, AlertMesg, onBackPress, getItem, setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
-    const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
-    //GQR-67
-    const isFocused = useIsFocused();
-    const navigation = useNavigation();
-    const [noticeList, setTrainingList] = useState([]);
-    const [isGridView, setIsGridView] = useState(true);
-      const numColumns = isGridView ? 1 : 2;
-      const [titleSearch, setTitleSearch] = useState('');
-    
-      const toggleView = () => {
-        setIsGridView(!isGridView);
-      };
+  //GQR-67
+  const { loginUser_data, CustomHeader, t, AlertMesg, onBackPress, getItem, setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
+  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+  //GQR-67
+  const isFocused = useIsFocused();
+  const navigation = useNavigation();
+  const [noticeList, setTrainingList] = useState([]);
+  const [isGridView, setIsGridView] = useState(false);
+  const [titleSearch, setTitleSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const animationValues = useRef({});
+  const numColumns = isGridView ? 1 : 2;
+  const { currentRoute, previousRoute } = useCurrentAndPreviousRoute();
+  const toggleView = () => {
+    setIsGridView(!isGridView);
+  };
+  const getAnimationValue = (fid) => {
+    if (!animationValues.current[fid]) {
+      animationValues.current[fid] = new Animated.Value(0);
+    }
+    return animationValues.current[fid];
+  };
+  const detailItem = async (itemId) => {
+    await setItem("userNoticeId", itemId);
+    navigation.navigate('Training', { pagename: 'Training', noticeId: itemId });
+  }
 
-    const detailItem = async (itemId) => {
-        await setItem("userNoticeId", itemId);
-        navigation.navigate('Training', { pagename: 'Training', noticeId: itemId });
+  const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id) => {
+    setLoading(true);
+    let response = await trainingListAPI(
+      dbName,
+      languageID,
+      userID,
+      state_id,
+      district_id,
+      subdiv_id,
+      'supervisor',
+      'training',
+      titleSearch,
+    );
+    if (response) {
+      if (response.data.data.rows != 0) {
+        setTrainingList(response.data.data)
+        setItem("userTrainingList", response.data.data)
+      } else {
+        setTrainingList([]);
+        Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] })
+      }
     }
-    function UserBoxDisplay({ item, item2, item3, item4 }) {
-        return (
-            <View style={styles.box1}>
-                <View style={styles.box1_1}>
-                    <View style={{ width: '70%' }}>
-                        <Text style={styles.textOne}>{item}</Text>
-                        <Text>{item2}</Text>
-                    </View>
-                    <View style={{ width: '30%' }}>
-                        <Text style={styles.readMore}>{item4}</Text>
-                    </View>
-                </View>
-            </View>
-        );
+    setLoading(false);
+
+  }
+  const onPageLoad = async () => {
+    const { agri_state, agri_district, agri_subdivision } = agri_user_addresses[0];
+    trainingList(dbname, lan_id, user_id, agri_state.fid, agri_district.fid, agri_subdivision.fid);
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      if (currentRoute.params != undefined) {
+        onPageLoad();
+      }
+      onBackPress(() => {
+        setTrainingList([]);
+        setTitleSearch('');
+        navigation.navigate('Dashboard'); return true;
+      })
     }
-    const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id) => {
-        let response = await trainingListAPI(
-          dbName,
-          languageID,
-          userID,
-          state_id,
-          district_id,
-          subdiv_id,
-          'supervisor',
-          'training',
-          titleSearch,
-        );
-        if (response) {
-            if (response.data.data.rows != 0) {
-                setTrainingList(response.data.data)
-                setItem("userTrainingList", response.data.data)
-            } else {
-                Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] })
-            }
-        }
-    }
-    const onPageLoad = async () => {
-        const { agri_state, agri_district, agri_subdivision } = agri_user_addresses[0];
-        trainingList(dbname, lan_id, user_id, agri_state.fid, agri_district.fid, agri_subdivision.fid);
-    };
-    useEffect(() => {
-        if (isFocused) {
-            onPageLoad();
-            onBackPress(() => { navigation.navigate('Dashboard'); return true; })
-        }
-    }, [isFocused]);
-    const HandlerGoBack = () => {
-        navigation.navigate('Dashboard')
-    }
-    const searchByTitle = async () => {
-        Keyboard.dismiss();
-        trainingList(dbname, lan_id, user_id, '', '', '');
-      };
-    return (
-      <>
-        <View style={{flex: 1}}>
-          <CustomHeader
-            path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          {/* <FormsTitle title={t('training_support')} /> */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: 16,
-              paddingVertical: 8,
-            }}>
-            <View style={{flex: 1}}>
-              <FormsTitle title={t('training_support')} />
-            </View>
-            <TouchableOpacity onPress={toggleView}>
-              {isGridView ? (
-                <Image
-                  source={require('../../Common/images/view_list.png')}
-                  style={{width: 30, height: 30}}
-                />
-              ) : (
-                <Image
-                  source={require('../../Common/images/view_grid.png')}
-                  style={{width: 25, height: 25}}
-                />
-              )}
-            </TouchableOpacity>
+  }, [isFocused]);
+  const HandlerGoBack = () => {
+    setTrainingList([]);
+    setTitleSearch('');
+    navigation.navigate('Dashboard')
+  }
+  const searchByTitle = async () => {
+    Keyboard.dismiss();
+    trainingList(dbname, lan_id, user_id, '', '', '');
+  };
+  const renderItem = useCallback(
+    ({ item }) =>
+      isGridView
+        ? <GridItemComponent item={item} onPress={detailItem} getAnimationValue={getAnimationValue} noticeList={noticeList} />
+        : <ListItemComponent item={item} onPress={detailItem} getAnimationValue={getAnimationValue} noticeList={noticeList} />,
+    [isGridView, noticeList, detailItem]
+  );
+  const keyExtractor = useCallback((item) => item.fid.toString(), []);
+  return (
+    <Root>
+      <View style={styles.container}>
+        <CustomHeader
+          path="Dashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+
+        {/* Header with Title and Toggle Button */}
+        <View style={styles.headerContainer}>
+          <View style={styles.titleContainer}>
+            <FormsTitle title={t('training_support')} />
           </View>
-          <View style={styles.searchContainer}>
-            <View style={styles.textInputContainer}>
-              <TextInput
-                placeholderTextColor={'#000'}
-                style={styles.textInput}
-                value={titleSearch}
-                onChangeText={text => setTitleSearch(text)}
-              />
-            </View>
-            <TouchableOpacity onPress={searchByTitle} style={styles.searchIcon}>
-              <ImageForm
-                source={require('../../Common/images/search.png')}
-                resizeMode="cover"
-                height={30}
-                width={30}
-              />
-            </TouchableOpacity>
-          </View>
-          {/* <View>
-            {noticeList ? (
-              <FlatList
-                style={{marginHorizontal: '2.5%'}}
-                showsVerticalScrollIndicator={false}
-                data={noticeList.rows}
-                keyExtractor={item => item.fid}
-                renderItem={({item, index}) => (
-                  <View style={{marginBottom: 10}}>
-                    <TouchableOpacity onPress={() => detailItem(item.fid)}>
-                      <UserBoxDisplay
-                        item={item.post_name.substring(0, 50)}
-                        item2={moment(item.updated_at)
-                          .utc()
-                          .format('YYYY-MM-DD')}
-                        item4={t('read_more')}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                )}
+          <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
+            {isGridView ? (
+              <Image
+                source={require('../../Common/images/view_list.png')}
+                style={styles.toggleIcon}
               />
             ) : (
-              ''
-            )}
-          </View> */}
-          <View style={{flex: 1}}>
-            {noticeList && (
-              <FlatList
-                key={`${isGridView}-${numColumns}`} // 🔑 unique key forces re-render
-                showsVerticalScrollIndicator={false}
-                data={noticeList.rows}
-                numColumns={numColumns}
-                keyExtractor={item => item.fid.toString()}
-                renderItem={({item}) =>
-                  !isGridView ? (
-                    <TouchableOpacity
-                      onPress={() => detailItem(item.fid)}
-                      style={isGridView ? styles.gridItem : styles.listItem}>
-                      {item.agri_files &&
-                      item.agri_files.filter(
-                        file => file.term_type === 'gen_info_img',
-                      ).length > 0 ? (
-                        item.agri_files
-                          .filter(file => file.term_type === 'gen_info_img')
-                          .map(file => (
-                            <Image
-                              key={file.file_id}
-                              source={{uri: file.file_path}}
-                              style={{
-                                width: 160,
-                                height: 130,
-                                resizeMode: 'cover',
-                                shadowOpacity: 0.25,
-                                shadowRadius: 3.84,
-                                borderRadius: 25,
-                                marginLeft: 10,
-                                marginRight: 10,
-                              }}
-                            />
-                          ))
-                      ) : (
-                        <Image
-                          source={require('../../Common/images/greenqube_logo.png')}
-                          style={styles.image}
-                        />
-                      )}
-                      <Text style={styles.title}>
-                        {item.post_name.substring(0, 15)}
-                      </Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <View style={{marginBottom: 10}}>
-                      <TouchableOpacity onPress={() => detailItem(item.fid)}>
-                        <UserBoxDisplay
-                          item={item.post_name.substring(0, 50)}
-                          item2={moment(item.updated_at)
-                            .utc()
-                            .format('YYYY-MM-DD')}
-                          item4={t('read_more')}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  )
-                }
+              <Image
+                source={require('../../Common/images/view_grid.png')}
+                style={styles.toggleIcon}
               />
             )}
-          </View>
+          </TouchableOpacity>
         </View>
-        <Root></Root>
-      </>
-    );
+
+        {/* Search Container */}
+        <View style={styles.searchContainer}>
+          <View style={styles.textInputContainer}>
+            <TextInput
+              placeholder={'Search...'}
+              placeholderTextColor={'#999'}
+              style={styles.textInput}
+              value={titleSearch}
+              onChangeText={setTitleSearch}
+              onSubmitEditing={searchByTitle}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+              autoCorrect={false}
+            />
+          </View>
+          <TouchableOpacity onPress={searchByTitle} style={styles.searchIcon}>
+            <ImageForm
+              source={require('../../Common/images/search.png')}
+              resizeMode="cover"
+              height={24}
+              width={24}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* FlatList Container */}
+        <View style={styles.flatListContainer}>
+          {loading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#156106ff" />
+            </View>
+          )
+            : noticeList && noticeList.rows && noticeList.rows.length > 0 ? (
+              <FlatList
+                key={isGridView ? 'grid' : 'list'} // Force re-render on view change
+                data={noticeList.rows}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}
+                numColumns={isGridView ? 2 : 1}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.flatListContent}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                // columnWrapperStyle={isGridView ? { ...styles.gridRow, gap: 4 } : null}
+                removeClippedSubviews={true} // performance optimization
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+              />
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>{t('no_data_found')}</Text>
+              </View>
+            )}
+        </View>
+      </View>
+    </Root>
+  );
 }
-export default TrainingList
-// const styles = StyleSheet.create({
-//     header:
-//     {
-//         flexDirection: 'row',
-//         justifyContent: "space-between",
-//         alignItems: 'center'
-//     },
-//     titleContainer: {
-//         width: "95%",
-//         alignItems: 'flex-end',
-//         paddingVertical: 10,
-//     },
-//     box1:
-//     {
-//         // marginBottom: 10,
-//         borderRadius: 10,
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         height: 70,
-//         backgroundColor: 'white',
-//         shadowColor: 'rgba(0, 0, 0, 0.2)',
-//         shadowOffset: { width: 0, height: 2 },
-//         shadowOpacity: 0.8,
-//         shadowRadius: 20,
-//     },
-//     box1_1: {
-//         flex: 1,
-//         flexDirection: 'row',
-//         justifyContent: 'space-between',
-//         alignItems: 'center',
-//         marginHorizontal: 20,
-//     },
-//     boxMenu:
-//     {
-//         borderRadius: 10,
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         height: 50,
-//         backgroundColor: 'white',
-//         shadowColor: 'rgba(0, 0, 0, 0.2)',
-//         shadowOffset: { width: 0, height: 2 },
-//         shadowOpacity: 0.8,
-//         shadowRadius: 20,
-//     },
-//     readMore:
-//     {
-//         color: "lightblue",
-//         fontFamily: 'Poppins-Regular',
-//         textAlign: 'right',
-//         fontWeight: 'bold',
-//         fontStyle: 'italic',
-//         textDecorationLine: 'underline',
-//         marginTop: 20,
-//         fontSize: 14,
-//     },
-//     textOne:
-//     {
-//         color: 'black',
-//         fontFamily: 'Poppins-Regular',
-//         fontSize: 14
-//     },
-// })
 const styles = StyleSheet.create({
-  gridItem: {
+  container: {
     flex: 1,
-    margin: 10,
-    backgroundColor: '#f2f2',
-    padding: 10,
-    alignItems: 'center',
-    flexDirection: 'column',
-    // margin: 1,
-    // padding: 20,
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    borderRadius: 30,
-    elevation: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 100,
-    margin: 5,
-    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
   },
-  listItem: {
-    flex: 1,
+  headerContainer: {
     flexDirection: 'row',
-    marginVertical: 5,
-    marginHorizontal: 10,
-    elevation: 1,
-  },
-  image: {
-    width: '90%',
-    height: 120,
-  },
-  title: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 16,
-    color: '#000',
-    fontWeight: 'bold',
-    marginTop: 15,
-    marginLeft: 20,
-    position: 'absolute',
-    textAlign: 'right',
-  },
-  date: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  readMore: {
-    fontSize: 12,
-    color: 'blue',
-    marginTop: 2,
-  },
-  header: {
-    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
   },
   titleContainer: {
-    width: '95%',
-    alignItems: 'flex-end',
-    paddingVertical: 10,
-  },
-  toggleButtonContainer: {
-    alignItems: 'flex-end',
-    margin: 10,
-  },
-  gridItem: {
     flex: 1,
-    margin: 5,
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
+  toggleButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
   },
-  box1: {
-    marginHorizontal: '2.5%',
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 70,
-    backgroundColor: 'white',
-    shadowColor: 'rgba(0, 0, 0, 0.2)',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-  },
-
-  box1_1: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 20,
-  },
-  boxMenu: {
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 50,
-    backgroundColor: 'white',
-    shadowColor: 'rgba(0, 0, 0, 0.2)',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-  },
-  readMore: {
-    color: '#18a7d7',
-    textAlign: 'right',
-    fontStyle: 'italic',
-    textDecorationLine: 'underline',
-    marginTop: 20,
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-  },
-  textOne: {
-    color: 'black',
-    // color: "black",
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+  toggleIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#333',
   },
   searchContainer: {
     marginHorizontal: '3%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderWidth: 1,
     alignItems: 'center',
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginVertical: 7,
-    elevation: 1,
-    backgroundColor: '#FFF',
-  },
-  textInput: {
-    height: 40,
-    width: '100%',
-    color: '#000',
-    fontFamily: 'Poppins-Regular',
-    lineHeight: 18,
-  },
-  searchIcon: {
-    width: '10%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    // marginVertical: 12,
+    marginTop: 15,
+    marginBottom: 7,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   textInputContainer: {
-    width: '90%',
+    flex: 1,
   },
+  textInput: {
+    height: 48,
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+  },
+  searchIcon: {
+    padding: 8,
+  },
+  flatListContainer: {
+    flex: 1,
+  },
+  flatListContent: {
+    padding: '2.3%',
+  },
+  separator: {
+    height: 12,
+  },
+  gridRow: {
+    justifyContent: 'space-between',
+  },
+  // List Item Styles
+  listItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  listImageContainer: {
+    marginRight: 16,
+  },
+  listImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  listContent: {
+    flex: 1,
+  },
+  listTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    // marginBottom: 4,
+  },
+  listDate: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+    marginBottom: 8,
+  },
+  readMoreText: {
+    fontSize: 14,
+    color: '#18a7d7',
+    fontFamily: 'Poppins-Regular',
+    fontStyle: 'italic',
+    textDecorationLine: 'underline',
+  },
+  // Grid Item Styles
+  gridItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    flex: 1,
+    marginHorizontal: 6,
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  gridImageContainer: {
+    width: '100%',
+    height: 100,
+  },
+  gridImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#f0f0f0',
+  },
+  gridContent: {
+    padding: 8
+  },
+  gridTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    // marginBottom: 4,
+    // minHeight: 40,
+  },
+  gridDate: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+  },
+  // Empty State
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+  },
+    loaderContainer: {
+  flex: 1,
+  alignItems: 'center',
+  paddingVertical: 40,
+},
 });
+
+export default TrainingList

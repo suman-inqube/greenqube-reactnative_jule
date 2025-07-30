@@ -669,7 +669,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     return true;
   };
   useEffect(() => {
-    
+
     onPageLoad();
     removesetLocation();
     // onBackPress(handleBackPress);
@@ -1346,7 +1346,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           setIsLoading(false);
           return;
         }
-      
+
         if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
           const formdatauploadFarmerIdAdd = new FormData();
           if (identityProofIdentityPropf[0]?.id == "") {
@@ -1484,41 +1484,42 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           const existingGeo = turf.polygon([
             [...poly, poly[0]].map((p) => [p.longitude, p.latitude]),
           ]);
-          if (turf.booleanOverlap(existingGeo, newGeo)) {
+          if (turf.booleanOverlap(existingGeo, newGeo) ||
+            turf.booleanWithin(newGeo, existingGeo)) {
             overlapFound = true;
           }
         });
         // setPolygons([newPolygon]);
         //basudev
-        // if (!overlapFound) {
-        setPolygons([...nearPolSet, newPolygon]);
-        setNewPolygon([]);
-        setLocation(newPolygon);
-        setEditing(false);
-        setShowModal(false);
-        // setArea(calculateAreaFun(newPolygon));
-        setfarmerData({
-          ...farmerData,
-          google_area: geolib.getAreaOfPolygon(newPolygon),
-        });
-        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-          setArea(
-            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
-          );
+        if (!overlapFound) {
+          setPolygons([...nearPolSet, newPolygon]);
+          setNewPolygon([]);
+          setLocation(newPolygon);
+          setEditing(false);
+          setShowModal(false);
+          // setArea(calculateAreaFun(newPolygon));
+          setfarmerData({
+            ...farmerData,
+            google_area: geolib.getAreaOfPolygon(newPolygon),
+          });
+          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+            setArea(
+              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(newPolygon),
+            );
+          } else {
+            setArea(geolib.getAreaOfPolygon(newPolygon));
+          }
         } else {
-          setArea(geolib.getAreaOfPolygon(newPolygon));
+          Alert.alert(
+            'Overlap Detected',
+            'Coordinates are overlapping',
+            [
+              { text: 'OK', onPress: () => console.log('OK Pressed') },
+            ],
+            { cancelable: false }
+          )
         }
-        // } else {
-        //   Alert.alert(
-        //     'Overlap Detected',
-        //     'Coordinates are overlapping',
-        //     [
-        //       { text: 'OK', onPress: () => console.log('OK Pressed') },
-        //     ],
-        //     { cancelable: false }
-        //   )
-        // }
       } else {
         // setArea(0);
         Alert.alert(

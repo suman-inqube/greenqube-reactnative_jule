@@ -96,7 +96,7 @@ const FarmerNavigation = () => {
         <Drawer.Screen
           name="FarmerTrainingList"
           component={FarmerTrainingList}
-          options={{unmountOnBlur: true}}
+          // options={{unmountOnBlur: true}}
         />
         <Drawer.Screen
           name="FarmerUsefulInformation"
@@ -106,7 +106,7 @@ const FarmerNavigation = () => {
         <Drawer.Screen
           name="FarmerUsefulInformationList"
           component={FarmerUsefulInformationList}
-          options={{unmountOnBlur: true}}
+          // options={{unmountOnBlur: true}}
         />
         <Drawer.Screen
           name="FarmerCreateProblem"

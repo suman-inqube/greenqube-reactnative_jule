@@ -104,7 +104,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="UsefulInformationList"
         component={UsefulInformationList}
-        options={{ gestureEnabled: false }}
+        // options={{ gestureEnabled: false ,unmountOnBlur: true,}}
       />
 
       <Drawer.Screen

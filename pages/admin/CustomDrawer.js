@@ -40,7 +40,7 @@ const CustomDrawer = (props) => {
     }
     const navigateToPages = (pageName) => {
         if (netConnection) {
-            navigation.navigate(pageName, { onPageName: "CustomDrawer" });
+            navigation.navigate(pageName, { onPageName: "CustomDrawer", });
         }
     };
     return (

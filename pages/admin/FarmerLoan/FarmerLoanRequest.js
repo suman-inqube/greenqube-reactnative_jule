@@ -17,7 +17,7 @@ import React, {
   useRef,
 } from 'react';
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import DocumentPicker, {types} from 'react-native-document-picker';
+import DocumentPicker, { types } from 'react-native-document-picker';
 import {
   problemPlotAgainstFarmerAPI,
   loanPurposeAPI,
@@ -30,16 +30,16 @@ import {
   getPlotDocAPI,
   deletePlotImageAPI,
 } from '../Loan/LoanAPI';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {addModuleForView} from '../../../config/apiHere';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { addModuleForView } from '../../../config/apiHere';
 import ProofAndIdentityPropfCompLoan from '../../Common/ProofAndIdentityPropfCompLoan';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
-import {createPdf} from 'react-native-images-to-pdf'; 
+import { createPdf } from 'react-native-images-to-pdf';
 const qs = require('qs');
-const FarmerLoanRequest = ({setActiveBtn}) => {
+const FarmerLoanRequest = ({ setActiveBtn }) => {
   const scrollViewRef = useRef(null);
   //GQR-67
   const {
@@ -78,62 +78,62 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
   const [identityProof, setIdentityProof] = useState([
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
+    { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'address', },
+    { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'identity', },
   ]);
 
   const [addressProof, setAddressProof] = useState([
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-        plotId: '',
-      },
-    ]);
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      id: '',
+      imageType: 'AddressProof',
+      plotId: '',
+    },
+  ]);
   const [landProof, setLandProof] = useState([
     {
       uri: '',
@@ -356,7 +356,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
         presentationStyle: 'fullScreen',
         type: [types.pdf, types.images],
       });
-      const {uri, name, type} = response?.[0] || {};
+      const { uri, name, type } = response?.[0] || {};
       let resizedUri = uri;
       let width = 0;
       let height = 0;
@@ -491,7 +491,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -526,18 +526,18 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   };
   const handleScanAndCreatePdf = async (data, index, objData, p1, par) => {
     try {
-      const {scannedImages} = await DocumentScanner.scanDocument({
+      const { scannedImages } = await DocumentScanner.scanDocument({
         croppedImageQuality: 100,
       });
       if (!scannedImages?.length) {
         throw new Error('No images scanned');
       }
       // Resize images to reduce size
-      const {width, height} = await new Promise((resolve, reject) => {
+      const { width, height } = await new Promise((resolve, reject) => {
         Image.getSize(
           scannedImages[0],
           (imgWidth, imgHeight) => {
-            resolve({width: imgWidth, height: imgHeight});
+            resolve({ width: imgWidth, height: imgHeight });
           },
           reject,
         );
@@ -552,7 +552,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
 
       // Create PDF from resized images
       const path = await createPdf({
-        pages: resizedImages.map(imagePath => ({imagePath})),
+        pages: resizedImages.map(imagePath => ({ imagePath })),
         outputPath,
       });
 
@@ -687,7 +687,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -763,11 +763,11 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
 
   const handle_button = () => {
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({y: 600, animated: true});
+      scrollViewRef.current.scrollTo({ y: 600, animated: true });
     }
   };
 
-  
+
   const handlePlotCheck = async (value, label) => {
     if (isPlotChecked == 1 && isPlotCheckedId != '') {
       const formData = new FormData();
@@ -777,7 +777,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           formData.append('plot_image', data);
         }
       });
-     
+
 
       const addPlotImage = addPlotImageAPI(
         dbname,
@@ -786,7 +786,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
         user_id,
         formData,
       );
-      
+
       setIsPlotChecked(0);
       setIsPlotCheckedId('');
     }
@@ -844,69 +844,35 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
       getPlotDocAPI(dbname, lan_id, token, user_id, value),
     ]);
 
-    const addressProof_value = [
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-    ];
-
-    if (getPlotDoc.status === 200) {
+    const addressProof_value = [...addressProof];
+    if (getPlotDoc?.status === 200) {
       if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-        const address_proofArr = getPlotDoc.data.data.rows[0].plot_img;
-       
+        const { plot_img } = getPlotDoc?.data?.data?.rows[0] || {};
+        const address_proofArr = plot_img?.filter(item => item.term_type === 'plot_image');
         addressProof.map((data, index) => {
           if (address_proofArr[index] != undefined) {
             addressProof_value[index] = {
               uri: address_proofArr[index].file_path,
               id: address_proofArr[index].file_id,
               name: address_proofArr[index].file_name,
-              type:address_proofArr[index].file_ext,
+              type: '',
               fileName: address_proofArr[index].file_name,
+              type: address_proofArr[index].file_ext,
               value: '',
               imageType: 'AddressProof',
               plotId: value,
+            };
+          } else {
+            addressProof_value[index] = {
+              uri: "",
+              id: "",
+              name: "",
+              type: "",
+              fileName: "",
+              type: "",
+              value: '',
+              imageType: 'AddressProof',
+              plotId: '',
             };
           }
         });
@@ -951,7 +917,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     }
 
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({y: 1400, animated: true});
+      scrollViewRef.current.scrollTo({ y: 1400, animated: true });
     }
   };
 
@@ -989,6 +955,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
+          imageType: 'identity',
           fileName: farmerIdentityDoc[0].file_name,
         };
         farmerDocValue[1] = {
@@ -996,6 +963,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
+          imageType: 'address',
           fileName: farmerAddressDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -1009,6 +977,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
+          imageType: 'identity',
           fileName: farmerIdentityDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -1022,6 +991,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
+          imageType: 'address',
           fileName: farmerAddressDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -1054,8 +1024,8 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   useEffect(() => {
     onPageLoad();
     setIdentityProof([
-      {uri: '', name: '', type: '', fileName: '', value: ''},
-      {uri: '', name: '', type: '', fileName: '', value: ''},
+      { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'address', },
+      { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'identity', },
     ]);
     setAddressProof([
       {
@@ -1153,7 +1123,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     ]);
   }, []);
   const handledataAdd = (name, text) => {
-    setSaveData({...saveData, [name]: text});
+    setSaveData({ ...saveData, [name]: text });
   };
   const handleSave = async () => {
     if (isPlotChecked == 1 && isPlotCheckedId != '') {
@@ -1164,7 +1134,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           formDataPlotImg.append('plot_image', data);
         }
       });
-      
+
 
       const addPlotImage = await addPlotImageAPI(
         dbname,
@@ -1181,8 +1151,8 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     if (photoDeletedValue.length > 0) {
       const deleteValue = [];
       photoDeletedValue.map(data => {
-        if(data.length > 2){
-        deleteValue.push(data);
+        if (data.length > 2) {
+          deleteValue.push(data);
         }
       });
       let formDataDelete = qs.stringify({
@@ -1195,7 +1165,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
         token,
         formDataDelete,
       );
-    
+
     }
     setIsLoading(true);
     Keyboard.dismiss();
@@ -1215,13 +1185,13 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     });
 
     if (saveData.loan_amount == '') {
-      Toast.show({text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0] });
     } else if (saveData.apx_annual_income == '') {
-      Toast.show({text: `${t('pls_enter_income')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('pls_enter_income')}`, ...AlertMesg[0] });
     } else if (saveData.existing_loan_amount == '') {
-      Toast.show({text: t('existing_loan_amount_enter'), ...AlertMesg[0]});
+      Toast.show({ text: t('existing_loan_amount_enter'), ...AlertMesg[0] });
     } else if (saveData.loan_purpose == '') {
-      Toast.show({text: `${t('please_enter_pur')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_pur')}`, ...AlertMesg[0] });
     } else if (checkValue.length < 1) {
       Toast.show({
         text: `${t('please_select_plot_first')}`,
@@ -1259,22 +1229,22 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     setIsLoading(false);
   };
   const openIdentity = async propsData => {
-       if (propsData) {
-         await Linking.openURL(propsData);
-       }
-     };
+    if (propsData) {
+      await Linking.openURL(propsData);
+    }
+  };
 
-//    const openURL = async propsData => {
-      
-//         let uri = '';
-//         if (propsData?.data?.file_path) {
-//           await Linking.openURL(propsData?.data?.file_path);
-//           propsData.spSheet.hide();
-//         } else {
-//           await Linking.openURL(propsData?.data?.uri);
-//           propsData.spSheet.hide();
-//         }
-//       };
+  //    const openURL = async propsData => {
+
+  //         let uri = '';
+  //         if (propsData?.data?.file_path) {
+  //           await Linking.openURL(propsData?.data?.file_path);
+  //           propsData.spSheet.hide();
+  //         } else {
+  //           await Linking.openURL(propsData?.data?.uri);
+  //           propsData.spSheet.hide();
+  //         }
+  //       };
   return (
     <>
       <Root>
@@ -1295,7 +1265,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
             <InputTextForm label={t('kcc_no')} value={kcc_number} />
 
             <View style={styles.idcontainer}>
-              <Text style={{color:'#000'}}>{t('identity_proof')}</Text>
+              <Text style={{ color: '#000' }}>{t('identity_proof')}</Text>
               <View style={styles.idItemContainer}>
                 {identityProof &&
                   identityProof.map((data, index) => {
@@ -1304,13 +1274,16 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                         style={styles.idItem}
                         key={index}
                         onPress={() => openIdentity(data.uri)}>
+                        <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.plotText, { fontSize: 12 }]}>
+                          {data.imageType == undefined ? null : data?.imageType == "address" ? <Text>Identity   Proof</Text> : <Text >Address Proof</Text>}
+                        </Text>
                         <Image
                           source={require('../../Common/images/document.png')}
                           style={styles.idImage}
                         />
-                        <Text>
-                          {data.name == '' ? '' : data.name.substring(1, 20)}
-                          {/* {data.name.substring(7, 12)} */}
+                        <Text numberOfLines={1}
+                          ellipsizeMode="head" style={styles.plotText}>
+                          {data.name == '' ? '' : data.name}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -1441,18 +1414,19 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                       </View>
 
                       <View style={styles.idcontainer}>
-                  
+
                         <View style={styles.idItemContainer}>
                           <ProofAndIdentityPropfCompLoan
-                           identityProofIdentityPropf={data.addressProof}
-                           t={t}
-                           title={t('address_proof')}
-                           handleDocumentSelection={handleDocumentSelection}
-                           handleDocumentSelectionRemove={
-                             handleDocumentSelectionRemove
-                           }
-                           handleScanAndCreatePdf={handleScanAndCreatePdf}
-                           parent={data}
+                            identityProofIdentityPropf={data.addressProof}
+                            t={t}
+                            title={t('address_proof')}
+                            handleDocumentSelection={handleDocumentSelection}
+                            handleDocumentSelectionRemove={
+                              handleDocumentSelectionRemove
+                            }
+                            handleScanAndCreatePdf={handleScanAndCreatePdf}
+                            parent={data}
+                            InputTextFormEdit={false}
                           />
                         </View>
                       </View>
@@ -1469,7 +1443,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                 {t('click_to_add_more_plot')}
               </Text>
             </TouchableOpacity>
-          
+
             <View style={styles.idcontainer}>
               <ProofAndIdentityPropfCompLoan
                 identityProofIdentityPropf={landProof}
@@ -1498,10 +1472,10 @@ const styles = StyleSheet.create({
   },
   idcontainer: {
     marginVertical: 10,
-    backgroundColor:'#FFF',
-    elevation:2,
-    borderRadius:5,
-    padding:10
+    backgroundColor: '#FFF',
+    elevation: 2,
+    borderRadius: 5,
+    padding: 10
   },
   idItemContainer: {
     flexDirection: 'row',

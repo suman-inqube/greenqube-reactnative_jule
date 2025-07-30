@@ -923,7 +923,7 @@ const PlotSiteProduceInformation = () => {
         const existingGeo = turf.polygon([
           [...poly, poly[0]].map((p) => [p.longitude, p.latitude]),
         ]);
-        if (turf.booleanOverlap(existingGeo, newGeo)) {
+        if (turf.booleanOverlap(existingGeo, newGeo)||turf.booleanWithin(newGeo, existingGeo)) {
           overlapFound = true;
         }
       });

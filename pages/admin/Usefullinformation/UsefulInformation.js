@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { WebView } from 'react-native-webview';
 import RenderHtml from 'react-native-render-html';
 import { noticeDetailsAPI } from '../../../config/apiHere';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 const head = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -22,6 +22,7 @@ const UsefulInformation = () => {
     const [noticeFiles, setNoticeFiles] = useState([]);
     const { width, height } = useWindowDimensions();
     const navigation = useNavigation();
+    const isFocused = useIsFocused();
     const detailItem = (path, file_ext) => {
         if (file_ext != "video/mp4") {
             Linking.openURL(path);
@@ -59,7 +60,6 @@ const UsefulInformation = () => {
         const noticeId = await getItem('userNoticeId');
         if (noticeId) {
             let response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
-            console.log(response.data.data[0].agri_files)
             if (response?.status == 200) {
                 if (response.data.data.length != 0) {
                     setNoticeDetails(response.data.data[0])
@@ -69,16 +69,17 @@ const UsefulInformation = () => {
         }
     };
     const handleBackPress = () => {
-        navigation.navigate('UsefulInformationList'); return true;
+
+        navigation.navigate('UsefulInformationList');
+        return true;
     }
     useEffect(() => {
-        onPageLoad();
-    }, []);
-    useFocusEffect(
-        useCallback(() => {
-            onBackPress(handleBackPress);
-        }, [])
-    );
+        if (isFocused) {
+            onPageLoad();
+        }
+        onBackPress(handleBackPress);
+    }, [isFocused]);
+
     const HandlerGoBack = () => {
         navigation.navigate('UsefulInformationList');
     }

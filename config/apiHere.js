@@ -669,7 +669,7 @@ export const problemListAPI = async (
   };
   try {
     let response = await axios.get(
-      `${config.BASE_URL}questionRoute/list/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
+      `${config.BASE_URL}questionRoute/list/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
       axiosHeaders,
     );
     return response;
@@ -2149,7 +2149,6 @@ export const farmerUsefulInfoListAPI = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error with user api' + error.response);
   }
 };
 export const faremerTrainingListAPI = async (
