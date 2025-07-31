@@ -105,6 +105,7 @@ const ActivityDetail = () => {
                     farmerFound?.act_master_id,
                     farmerFound?.cu_rel_fid,
                 );
+                // console.log('PipeListDetailsRes==', PipeListDetailsRes);
                 if (PipeListDetailsRes?.status == 200) {
                     setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
                 }
@@ -155,7 +156,7 @@ const ActivityDetail = () => {
                 }
                 setCarbonActivity([]);
             }
-            console.log(JSON.stringify(farmerFound));
+            // console.log(JSON.stringify(farmerFound));
 
             setfarmerActivity({
                 ...farmerActivity,

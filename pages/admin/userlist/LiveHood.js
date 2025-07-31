@@ -245,7 +245,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         LandUnitsquare_metre(dbname, lan_id, token),
         ProductionSeasonAndApi(dbname, lan_id, ''),
         // livelihoodCropAndPlotDetailsAPI(dbname, lan_id, farmeruserID, dataProps?.rel_id),
-        getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
+         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
         terraintype_resAPI(dbname, lan_id, 'terrain_type'),
         soilType_resAPI(dbname, lan_id, 'soil_type'),
         landType_resAPI(dbname, lan_id, 'land_type'),
@@ -344,6 +344,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       ]);
     setPlotId(findData.value);
     //basudev
+
     if (getPlotDoc?.status == 200) {
       // console.log('getPlotDoc', getPlotDoc?.data?.data?.rows[0]);
       const { count } = getPlotDoc?.data?.data;
