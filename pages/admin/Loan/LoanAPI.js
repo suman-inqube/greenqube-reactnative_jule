@@ -2,6 +2,7 @@ import config from "../../../config";
 import axios from 'axios';
 import { CrashlyticsRecordError } from "../../Crashlytics/CrashlyticsRecordError";
 import instance from "../../../config/commonAxios";
+import {getAxiosInstance} from '../../../config/axiosInstance';
 const timeoutConfig = {timeout: 5000};
 
 export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) => {
@@ -54,9 +55,15 @@ export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId)
   };
 
   try {
+    const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}landRoute/getPlotImgs_e/${plotId}`,
-      axiosHeaders,
+      {
+        headers: {
+          authorization: `${token}`,
+          information: `${dbName},${languageId},${farmerID}`,
+        },
+      },
     );
     
     const resultJson = {
@@ -67,7 +74,7 @@ export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId)
     return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response);
+    return console.log('error in getPlotDocAPI api' + error.response);
   }
 };
 
@@ -113,7 +120,7 @@ export const loanPurposeAPI = async (dbName, languageId, token) => {
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response)
-        return console.log("error in updateUserInfoAPI api" + error.response);
+        return console.log('error in loanPurposeAPI api' + error.response);
     }
 }
 

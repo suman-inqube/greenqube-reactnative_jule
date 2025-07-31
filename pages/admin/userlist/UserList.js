@@ -91,11 +91,12 @@ const UserList = ({ navigation }) => {
             setIsLoading(true);
            
             let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
-            //    console.log('check11', response);
+               
              if (response.status === 200) {
                 setPhoneNumber('');
                 const totalPage = Math.ceil(
-                  response?.data?.count / response?.data?.no_of_item_per_page,
+                  response?.data?.data?.count /
+                    response?.data?.data?.no_of_item_per_page,
                 );
                 setdbLanTokUsr({
                     ...dbLanTokUsr,
@@ -104,8 +105,8 @@ const UserList = ({ navigation }) => {
                     totalPage: totalPage
                 });
                 setIsLoading(false);
-                setuserList(response?.data)
-                await setItem('userListData', response?.data);
+                setuserList(response?.data?.data)
+                await setItem('userListData', response?.data?.data);
             
             } else {
                 setIsLoading(false);
@@ -178,6 +179,7 @@ const UserList = ({ navigation }) => {
     const searchByPhoneNumber = async () => {
         Keyboard.dismiss();
         const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, '0', phoneNumber);
+       console.log('check123', response);
         if (response.status === 200) {
             if (response.data.data.count != 0) {
                 setuserList(response.data.data);

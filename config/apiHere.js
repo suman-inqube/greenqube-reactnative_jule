@@ -1,7 +1,8 @@
 import axios from 'axios';
 import config from '../config';
 import { CrashlyticsRecordError } from '../pages/Crashlytics/CrashlyticsRecordError';
-import instance from './commonAxios'
+import commonAxios from './commonAxios';
+import {getAxiosInstance} from './axiosInstance';
 import { Image } from 'react-native';
 // import CryptoJS from 'react-native-crypto-js';
 import CryptoJS from 'crypto-js';
@@ -55,12 +56,27 @@ const axiosHeaders = {
 };
 
 export const databaseListAPI = async () => {
-  // console.log('bas==', JSON.stringify(await getApiConfig()));
-  const database_res = await instance.get(
-    config.BASE_URL + 'hostRoute/databaseList',
-  );
-  return database_res;
+  try {
+    const instance = await getAxiosInstance();
+    let response = await instance.get('hostRoute/databaseList');
+    // console.log('err11=', response);
+    return response
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
 };
+// export const databaseListAPI = async () => {
+ 
+//   try {
+//      const inst = await commonAxios();
+//     const database_res = await inst.get('hostRoute/databaseList');
+//     return database_res;
+//   } catch (error) {
+//     console.log('err11=', error);
+    
+//   }
+// };
 // export const firstLanguageListAPI = async (dbName) => {
 //     const headers = headersWithCompanyDB(dbName);
 //     const res = await axios.get(config.BASE_URL + "locationRoute/getLang?status=1&search", { headers });
@@ -251,11 +267,21 @@ export const fpodetailsDataListAPI = async (
     },
   };
   try {
-    let response = await axios.get(
-      config.BASE_URL + 'loginSignupRoute/fpodetails/' + compCode,
-      axiosHeaders,
-    );
-    return response;
+    // let response = await axios.get(
+    //   config.BASE_URL + 'loginSignupRoute/fpodetails/' + compCode,
+    //   axiosHeaders,
+    // );
+    // return response;
+    const instance = await getAxiosInstance();
+     let response = await instance.get(
+      'loginSignupRoute/fpodetails_e/' + compCode,
+       axiosHeaders,
+     );
+      const resultJson = {
+        data: response,
+        status: 200,
+      };
+      return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return error.response;
@@ -315,6 +341,7 @@ export const activityListAPI = async (
     //   `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
     //   axiosHeaders,
     // );
+     const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}settingsRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       {
@@ -418,6 +445,7 @@ export const farmerActivityListAPI = async (
     //   axiosHeaders,
     // );
     // return response;
+     const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}settingsRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       {
@@ -1303,7 +1331,7 @@ export const loanPurposeAPI = async (dbName, languageId, token) => {
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response.data);
+    return console.log('error in loanPurposeAPI api' + error.response.data);
   }
 };
 
@@ -1332,7 +1360,7 @@ export const loanRouteListAPI = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response.data);
+    return console.log('error in loanRouteListAPI api' + error.response.data);
   }
 };
 
@@ -1356,7 +1384,9 @@ export const loanRouteFarmerListAPI = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response.data);
+    return console.log(
+      'error in loanRouteFarmerListAPI api' + error.response.data,
+    );
   }
 };
 
@@ -1378,11 +1408,22 @@ export const usefulInfoListAPI = async (
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+    // let response = await axios.get(
+    //   `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+    //   axiosHeaders,
+    // );
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    return response;
+    console.log('generalInfoRoute==', response);
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return error.response;
@@ -1397,10 +1438,17 @@ export const noticeDetailsAPI = async (dbName, languageId, token, noticeId) => {
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/details/${noticeId}`,
+    // let response = await axios.get(
+    //   `${config.BASE_URL}generalInfoRoute/details/${noticeId}`,
+    //   axiosHeaders,
+    // );
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `generalInfoRoute/details/${noticeId}`,
       axiosHeaders,
     );
+    console.log('che11=', response);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -1425,12 +1473,23 @@ export const trainingListAPI = async (
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+    // let response = await axios.get(
+    //   `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+    //   axiosHeaders,
+    // );
+    // // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
-    return response;
+   
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return console.log('error with user api' + error.response);
@@ -2183,11 +2242,22 @@ export const farmerUsefulInfoListAPI = async (
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
+    // let response = await axios.get(
+    //   `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
+    //   axiosHeaders,
+    // );
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    return response;
+
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return console.log('error with user api' + error.response);
@@ -2211,12 +2281,23 @@ export const faremerTrainingListAPI = async (
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`,
+    // let response = await axios.get(
+    //   `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${cropId}`,
+    //   axiosHeaders,
+    // );
+    // // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    // generalInfoRoute / list / 1 / 0 / 2 ? user_id = c8e666ba - 5046 - 48ba - 8561 - 27c3c22be0cc & search_key=& role_type=supervisor & post_type=training & state_id=5 & district_id=11 & subdiv_id=21 & crop_name_id=
-    return response;
+
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return console.log('error with user api' + error.response);
@@ -2632,7 +2713,7 @@ export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId)
     return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response);
+    return console.log('error in getPlotDocAPI api' + error.response);
   }
 };
 
@@ -2656,7 +2737,7 @@ export const addIdAddressImgs = async (dbName, languageId, farmerID, token, form
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response);
+    return console.log('error in addIdAddressImgs api' + error.response);
   }
 };
 export const locDiffLang = async (
@@ -2830,6 +2911,7 @@ export const plotListApproval = async (dbname, lan_id, token, farmerID) => {
     //   `${config.BASE_URL}landRoute/userLandCropList/${farmerID}`,
     //   { ...axiosHeaders, ...timeoutConfig },
     // );
+     const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}landRoute/userLandCropList_e/${farmerID}`,
       {
@@ -2881,6 +2963,7 @@ export const PipeListDetails = async (
     },
   };
   try {
+     const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}landRoute/plotPipes_e?plot_fid=${plot_id}&act_name_fid=${act_master_id}&cu_rel_fid=${cu_rel_id}&pipe_id=`,
       {

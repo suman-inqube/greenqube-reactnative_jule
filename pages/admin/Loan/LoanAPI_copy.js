@@ -29,7 +29,7 @@ export const loanPurposeAPI = async (dbName, languageId, token) => {
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response)
-        return console.log("error in updateUserInfoAPI api" + error.response);
+        return console.log('error in loanPurposeAPI api' + error.response);
     }
 }
 
@@ -46,9 +46,9 @@ export const Addloan = async (dbName, languageId, token, user_id, inputValue) =>
         let response = await axios.post(config.BASE_URL + 'loanRoute/add', inputValue, axiosHeaders);
         return response;
     } catch (error) {
-        CrashlyticsRecordError(error.response)
-        // return console.log("error in updateUserInfoAPI api" + error.response);
-        return error.response;
+      CrashlyticsRecordError(error.response);
+      // return console.log("error in Addloan api" + error.response);
+      return error.response;
     }
 }
 export const loanRouteListAPI = async (dbName,

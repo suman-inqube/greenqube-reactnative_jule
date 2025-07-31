@@ -2,6 +2,7 @@ import axios from 'axios';
 import config from '../../../config';
 import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 import instance from './../../../config/commonAxios';
+import {getAxiosInstance} from './../../../config/axiosInstance';
 const timeoutConfig = {timeout: 5000};
 const headersWithCompanyDBlanID = (dbName, languageId) => {
   return {
@@ -23,10 +24,10 @@ export const userDataListAPI = async (
       information: `${dbName},${languageId},${user_id}`,
     },
   };
-  console.log(
-      `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
-  );
-          console.log(axiosHeaders)
+  // console.log(
+  //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+  // );
+  //         console.log(axiosHeaders)
   try {
     // let response = await instance.get(
     //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,{
@@ -35,6 +36,9 @@ export const userDataListAPI = async (
     //     'information': `${dbName},${languageId},${user_id}`,
     // }}
     // );
+
+    const instance = await getAxiosInstance();
+    // const response = await instance.get('hostRoute/databaseList');
 
     const response = await instance.get(
       `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
@@ -45,8 +49,13 @@ export const userDataListAPI = async (
         },
       },
     );
-      //  console.log('check12',  response);
-    return response;
+    // console.log('check12', response);
+    const resultJson = {
+      
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
     console.log('r1', error);
     // CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
