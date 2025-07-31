@@ -66,8 +66,8 @@ const LoanEnquiryDetail = () => {
       type: '',
       fileName: '',
       value: '',
-    },]
-  );
+    },
+  ]);
   const [addressProof, setAddressProof] = useState([
     {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
     {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
@@ -210,7 +210,6 @@ const LoanEnquiryDetail = () => {
     ]);
 
     if (farmarDoc.status === 200) {
-
       const farmerIdentityDoc = farmarDoc.data.data[0].agri_files.filter(
         item => item.term_type === 'farmer_identity',
       );
@@ -218,10 +217,7 @@ const LoanEnquiryDetail = () => {
         item => item.term_type === 'farmer_address',
       );
 
-      if (
-        farmerIdentityDoc.length > 0 &&
-        farmerAddressDoc.length > 0
-      ) {
+      if (farmerIdentityDoc.length > 0 && farmerAddressDoc.length > 0) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
           uri: farmerIdentityDoc[0].file_path,
@@ -296,7 +292,7 @@ const LoanEnquiryDetail = () => {
       }
     });
     // store.dispatch(updateLoan({ landProofValue: landProofValue, addressProof_value: addressProof_value }));
-     setLandProof(landProofValue);
+    setLandProof(landProofValue);
     // setAddressProof(addressProof_value);
     setIsLoading(false);
   };
@@ -377,10 +373,10 @@ const LoanEnquiryDetail = () => {
     setIsLoading(false);
   };
   const openURL = async propsData => {
-       if (propsData) {
-         await Linking.openURL(propsData);
-       }
-     };
+    if (propsData) {
+      await Linking.openURL(propsData);
+    }
+  };
   return (
     <Root>
       {isLoading ? (

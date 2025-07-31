@@ -9,6 +9,7 @@ import {
   View,
   Image,
   Dimensions,
+  StatusBar,
 } from 'react-native';
 import {DrawerActions} from '@react-navigation/native';
 import {getItem, removeItem} from '../../config/getDataFromStorage';
@@ -61,7 +62,8 @@ const FarmerDrawer = props => {
   const [calculatorExpanded, setCalculatorExpanded] = useState(
     isSubRouteActive(calculatorRoutes),
   );
-
+  console.log('Active Route:', activeRouteName);
+  console.log('Is FarmerDashboard active:', isActive('FarmerDashboard'));
   // Helper functions
 
   const handleMenuExpand = menuName => {
@@ -151,122 +153,128 @@ const FarmerDrawer = props => {
     }
   };
   return (
-    <View style={styles.mainView}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{marginBottom: 80}}>
-          <TouchableOpacity
-            style={[
-              styles.memuContainer,
-              isActive('FarmerDashboard') && styles.activeSingleMenu, // Apply active style
-            ]}
-            onPress={() => navigateToPages('FarmerDashboard')}>
-            <View style={[styles.menuItemCal]}>
-              <View
-                style={[
-                  styles.iconView,
-                  isActive('FarmerDashboard') && styles.activeIcon, // Apply active style
-                ]}>
-                <MaterialIcons
-                  name="home"
-                  size={25}
-                  color={isActive('FarmerDashboard') ? '#030635' : '#030730'}
-                />
-              </View>
-              {/* <Image
+    <>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.drawer} />
+      <View style={styles.mainView}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{marginBottom: 80}}>
+            <TouchableOpacity
+              style={[
+                styles.memuContainer,
+                isActive('FarmerDashboard') && styles.activeSingleMenu, // Apply active style
+              ]}
+              onPress={() => navigateToPages('FarmerDashboard')}>
+              <View style={[styles.menuItemCal]}>
+                <View
+                  style={[
+                    styles.iconView,
+                    isActive('FarmerDashboard') && styles.activeIcon, // Apply active style
+                  ]}>
+                  <MaterialIcons
+                    name="home"
+                    size={25}
+                    color={isActive('FarmerDashboard') ? '#030635' : '#030730'}
+                  />
+                </View>
+                {/* <Image
                 source={require('../Common/images/add_tree.png')}
                 style={[{height: 30, width: 30, tintColor: '#FFF'}]}
               /> */}
-              <Text
-                style={[
-                  styles.menuText,
-                  isActive('FarmerDashboard') && styles.activeText, // Active text color
-                ]}>
-                {t('Home')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+                <Text
+                  style={[
+                    styles.menuText,
+                    isActive('FarmerDashboard') && styles.activeText, // Active text color
+                  ]}>
+                  {t('Home')}
+                </Text>
+              </View>
+            </TouchableOpacity>
 
-          {/* Profile Section */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => handleMenuExpand('profile')}>
-            <View style={[styles.menuItem, {marginTop: 8}]}>
-              <View style={styles.iconView}>
-                <MaterialIcons name={'person'} size={22} color="#030730" />
-                {/* <Image
+            {/* Profile Section */}
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => handleMenuExpand('profile')}>
+              <View style={[styles.menuItem, {marginTop: 8}]}>
+                <View style={styles.iconView}>
+                  <MaterialIcons name={'person'} size={22} color="#030730" />
+                  {/* <Image
                   source={require('../Common/images/user_menu.png')}
                   style={[{height: 28, width: 28, tintColor: '#030730'}]}
                 /> */}
-              </View>
-              <Text
-                style={[
-                  styles.menuText,
-                  isParentActive('FarmerProfile', profileRoutes) &&
-                    styles.activeText,
-                  isParentActive('FarmerProfile', profileRoutes) && {
-                    color: Colors.primary_light,
-                  },
-                ]}>
-                {t('profile')}
-              </Text>
-              <MaterialIcons
-                name={profileExpanded ? 'expand-less' : 'expand-more'}
-                size={22}
-                color="#d5dbd7"
-                style={{marginLeft: 5}}
-              />
-            </View>
-          </TouchableOpacity>
-          {profileExpanded && (
-            <>
-              <View style={{marginBottom: 30}}>
-                <TouchableOpacity
+                </View>
+                <Text
                   style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('FarmerProfile') && styles.activeSubMenu,
-                  ]}
-                  onPress={() => navigateToPages('FarmerProfile')}>
-                  <View style={styles.subMenuItem}>
-                    <MaterialIcons
-                      name="supervisor-account"
-                      size={22}
-                      color={isActive('FarmerProfile') ? '#030635' : '#eaf3ee'}
-                    />
+                    styles.menuText,
+                    isParentActive('FarmerProfile', profileRoutes) &&
+                      styles.activeText,
+                    isParentActive('FarmerProfile', profileRoutes) && {
+                      color: Colors.primary_light,
+                    },
+                  ]}>
+                  {t('profile')}
+                </Text>
+                <MaterialIcons
+                  name={profileExpanded ? 'expand-less' : 'expand-more'}
+                  size={22}
+                  color="#d5dbd7"
+                  style={{marginLeft: 5}}
+                />
+              </View>
+            </TouchableOpacity>
+            {profileExpanded && (
+              <>
+                <View style={{marginBottom: 30}}>
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('FarmerProfile') && styles.activeSubMenu,
+                    ]}
+                    onPress={() => navigateToPages('FarmerProfile')}>
+                    <View style={styles.subMenuItem}>
+                      <MaterialIcons
+                        name="supervisor-account"
+                        size={22}
+                        color={
+                          isActive('FarmerProfile') ? '#030635' : '#eaf3ee'
+                        }
+                      />
 
-                    {/* <Image
+                      {/* <Image
                     source={require('../Common/images/user_menu.png')}
                     style={[
                       {height: 20, width: 20},
                       isActive('FarmerProfile') && {tintColor: '#030635'},
                     ]}
                   /> */}
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('FarmerProfile') && styles.activeSubText,
-                      ]}>
-                      {t('profile')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('FarmerProfile') && styles.activeSubText,
+                        ]}>
+                        {t('profile')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('FarmerChangePassword') && styles.activeSubMenu,
-                  ]}
-                  onPress={() => navigateToPages('FarmerChangePassword')}>
-                  <View style={styles.subMenuItem}>
-                    <MaterialIcons
-                      name="lock-reset"
-                      size={22}
-                      color={
-                        isActive('FarmerChangePassword') ? '#030635' : '#eaf3ee'
-                      }
-                    />
-                    {/* <Image
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('FarmerChangePassword') && styles.activeSubMenu,
+                    ]}
+                    onPress={() => navigateToPages('FarmerChangePassword')}>
+                    <View style={styles.subMenuItem}>
+                      <MaterialIcons
+                        name="lock-reset"
+                        size={22}
+                        color={
+                          isActive('FarmerChangePassword')
+                            ? '#030635'
+                            : '#eaf3ee'
+                        }
+                      />
+                      {/* <Image
                     source={require('../Common/images/change_password_white.png')}
                     style={[
                       {height: 20, width: 20},
@@ -275,56 +283,56 @@ const FarmerDrawer = props => {
                       },
                     ]}
                   /> */}
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('FarmerChangePassword') &&
-                          styles.activeSubText,
-                      ]}>
-                      {t('change_password')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('FarmerChangePassword') &&
+                            styles.activeSubText,
+                        ]}>
+                        {t('change_password')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
 
-          {/* Plot & Crop Details Section */}
-          <TouchableOpacity
-            style={[
-              styles.memuContainer,
-              isActive('FarmerLiveHood') && styles.activeSingleMenu, // Apply active style
-            ]}
-            onPress={() => navigateToPages('FarmerLiveHood')}>
-            <View style={[styles.menuItemCal]}>
-              <View
-                style={[
-                  styles.iconView,
-                  isActive('FarmerLiveHood') && styles.activeIcon, // Apply active style
-                ]}>
-                <Image
-                  source={require('../Common/images/land.png')}
+            {/* Plot & Crop Details Section */}
+            <TouchableOpacity
+              style={[
+                styles.memuContainer,
+                isActive('FarmerLiveHood') && styles.activeSingleMenu, // Apply active style
+              ]}
+              onPress={() => navigateToPages('FarmerLiveHood')}>
+              <View style={[styles.menuItemCal]}>
+                <View
                   style={[
-                    {height: 20, width: 20},
-                    isActive('FarmerLiveHood')
-                      ? {
-                          tintColor: 'black',
-                        }
-                      : {tintColor: 'black'},
-                  ]}
-                />
+                    styles.iconView,
+                    isActive('FarmerLiveHood') && styles.activeIcon, // Apply active style
+                  ]}>
+                  <Image
+                    source={require('../Common/images/land.png')}
+                    style={[
+                      {height: 20, width: 20},
+                      isActive('FarmerLiveHood')
+                        ? {
+                            tintColor: 'black',
+                          }
+                        : {tintColor: 'black'},
+                    ]}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.menuText,
+                    isActive('FarmerLiveHood') && styles.activeText, // Active text color
+                  ]}>
+                  {t('plot_and_crop')}
+                </Text>
               </View>
-              <Text
-                style={[
-                  styles.menuText,
-                  isActive('FarmerLiveHood') && styles.activeText, // Active text color
-                ]}>
-                {t('plot_and_crop')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          {/* {plotInfoExpanded && (
+            {/* {plotInfoExpanded && (
             <TouchableOpacity
               style={[
                 styles.subMenu,
@@ -351,101 +359,102 @@ const FarmerDrawer = props => {
             </TouchableOpacity>
           )} */}
 
-          {/* Scientific Farming Section */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => handleMenuExpand('practice')}>
-            <View style={styles.menuItem}>
-              <View style={styles.iconView}>
-                {/* <MaterialIcons name="science" size={22} color="#030635" /> */}
-                <Image
-                  source={require('../Common/images/plant.png')}
-                  style={[{height: 22, width: 22, tintColor: '#030730'}]}
+            {/* Scientific Farming Section */}
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => handleMenuExpand('practice')}>
+              <View style={styles.menuItem}>
+                <View style={styles.iconView}>
+                  {/* <MaterialIcons name="science" size={22} color="#030635" /> */}
+                  <Image
+                    source={require('../Common/images/plant.png')}
+                    style={[{height: 22, width: 22, tintColor: '#030730'}]}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.menuText,
+                    isParentActive('PackageOfPractices', practiceRoutes) &&
+                      styles.activeText,
+                    isParentActive('PackageOfPractices', practiceRoutes) && {
+                      color: Colors.primary_light,
+                    },
+                  ]}>
+                  {t('scientific_farming')}
+                </Text>
+                <MaterialIcons
+                  name={practiceExpanded ? 'expand-less' : 'expand-more'}
+                  size={22}
+                  color="#d5dbd7"
+                  style={{marginLeft: 5}}
                 />
               </View>
-              <Text
-                style={[
-                  styles.menuText,
-                  isParentActive('PackageOfPractices', practiceRoutes) &&
-                    styles.activeText,
-                  isParentActive('PackageOfPractices', practiceRoutes) && {
-                    color: Colors.primary_light,
-                  },
-                ]}>
-                {t('scientific_farming')}
-              </Text>
-              <MaterialIcons
-                name={practiceExpanded ? 'expand-less' : 'expand-more'}
-                size={22}
-                color="#d5dbd7"
-                style={{marginLeft: 5}}
-              />
-            </View>
-          </TouchableOpacity>
-          {practiceExpanded && (
-            <>
-              <View style={{marginBottom: 30}}>
-                <TouchableOpacity
-                  style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('PackageOfPractices') && styles.activeSubMenu,
-                  ]}
-                  onPress={() => navigateToPages('PackageOfPractices')}>
-                  <View style={styles.subMenuItem}>
-                    <Image
-                      source={require('../Common/images/plant.png')}
-                      style={[
-                        {height: 20, width: 20},
-                        {
-                          tintColor: isActive('PackageOfPractices')
-                            ? '#030635'
-                            : '#eaf3ee',
-                        },
-                      ]}
-                    />
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('PackageOfPractices') && styles.activeSubText,
-                      ]}>
-                      {t('scientific_farming')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+            </TouchableOpacity>
+            {practiceExpanded && (
+              <>
+                <View style={{marginBottom: 30}}>
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('PackageOfPractices') && styles.activeSubMenu,
+                    ]}
+                    onPress={() => navigateToPages('PackageOfPractices')}>
+                    <View style={styles.subMenuItem}>
+                      <Image
+                        source={require('../Common/images/plant.png')}
+                        style={[
+                          {height: 20, width: 20},
+                          {
+                            tintColor: isActive('PackageOfPractices')
+                              ? '#030635'
+                              : '#eaf3ee',
+                          },
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('PackageOfPractices') &&
+                            styles.activeSubText,
+                        ]}>
+                        {t('scientific_farming')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('SoilHealthManagement') && styles.activeSubMenu,
-                  ]}
-                  onPress={() => navigateToPages('SoilHealthManagement')}>
-                  <View style={styles.subMenuItem}>
-                    <Image
-                      source={require('../Common/images/soil.png')}
-                      style={[
-                        {height: 22, width: 22},
-                        {
-                          tintColor: isActive('SoilHealthManagement')
-                            ? '#030635'
-                            : '#eaf3ee',
-                        },
-                      ]}
-                    />
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('SoilHealthManagement') &&
-                          styles.activeSubText,
-                      ]}>
-                      {t('soil_health_management')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('SoilHealthManagement') && styles.activeSubMenu,
+                    ]}
+                    onPress={() => navigateToPages('SoilHealthManagement')}>
+                    <View style={styles.subMenuItem}>
+                      <Image
+                        source={require('../Common/images/soil.png')}
+                        style={[
+                          {height: 22, width: 22},
+                          {
+                            tintColor: isActive('SoilHealthManagement')
+                              ? '#030635'
+                              : '#eaf3ee',
+                          },
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('SoilHealthManagement') &&
+                            styles.activeSubText,
+                        ]}>
+                        {t('soil_health_management')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
 
-              {/* <TouchableOpacity style={[styles.subMenu, {paddingLeft: 30}]}>
+                {/* <TouchableOpacity style={[styles.subMenu, {paddingLeft: 30}]}>
                   <View style={styles.subMenuItem}>
                     <Image
                       source={require('../Common/images/soil.png')}
@@ -456,102 +465,102 @@ const FarmerDrawer = props => {
                     </Text>
                   </View>
                 </TouchableOpacity> */}
-            </>
-          )}
+              </>
+            )}
 
-          {/* Calculator Section */}
+            {/* Calculator Section */}
 
-          <TouchableOpacity
-            style={[
-              styles.memuContainer,
-              isActive('Calculator') && styles.activeSingleMenu, // Apply active style
-            ]}
-            onPress={() => navigateToPages('Calculator')}>
-            <View style={[styles.menuItemCal]}>
-              <View
-                style={[
-                  styles.iconView,
-                  isActive('Calculator') && styles.activeIcon, // Apply active style
-                ]}>
-                <MaterialIcons name="calculate" size={22} color="#030730" />
+            <TouchableOpacity
+              style={[
+                styles.memuContainer,
+                isActive('Calculator') && styles.activeSingleMenu, // Apply active style
+              ]}
+              onPress={() => navigateToPages('Calculator')}>
+              <View style={[styles.menuItemCal]}>
+                <View
+                  style={[
+                    styles.iconView,
+                    isActive('Calculator') && styles.activeIcon, // Apply active style
+                  ]}>
+                  <MaterialIcons name="calculate" size={22} color="#030730" />
 
-                {/* <Image
+                  {/* <Image
                   source={require('../Common/images/calculator.png')}
                   style={[{height: 25, width: 25, tintColor: '#030730'}]}
                 /> */}
+                </View>
+
+                <Text
+                  style={[
+                    styles.menuText,
+                    isActive('Calculator') && styles.activeText, // Active text color
+                  ]}>
+                  {t('agri_calculator')}
+                </Text>
               </View>
+            </TouchableOpacity>
 
-              <Text
-                style={[
-                  styles.menuText,
-                  isActive('Calculator') && styles.activeText, // Active text color
-                ]}>
-                {t('agri_calculator')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+            {/* Farm Accounts Section */}
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={() => handleMenuExpand('farmAcc')}>
+              <View style={styles.menuItem}>
+                <View style={styles.iconView}>
+                  <MaterialIcons name="man" size={22} color="#030730" />
 
-          {/* Farm Accounts Section */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => handleMenuExpand('farmAcc')}>
-            <View style={styles.menuItem}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="man" size={22} color="#030730" />
-
-                {/* <Image
+                  {/* <Image
                   source={require('../Common/images/insurance_menu.png')}
                   style={[{height: 25, width: 25, tintColor: '#030730'}]}
                 /> */}
-              </View>
-              <Text
-                style={[
-                  styles.menuText,
-                  isParentActive(
-                    'FarmerFarmIncomeExpenseList',
-                    farmAccRoutes,
-                  ) && styles.activeText,
-                  isParentActive(
-                    'FarmerFarmIncomeExpenseList',
-                    farmAccRoutes,
-                  ) && {
-                    color: Colors.primary_light,
-                  },
-                ]}>
-                {t('farm_income_amp_expense')}
-              </Text>
-              <MaterialIcons
-                name={farmAccExpanded ? 'expand-less' : 'expand-more'}
-                size={22}
-                color="#d5dbd7"
-                style={{marginLeft: 5}}
-              />
-            </View>
-          </TouchableOpacity>
-          {farmAccExpanded && (
-            <>
-              <View style={{marginBottom: 10}}>
-                <TouchableOpacity
+                </View>
+                <Text
                   style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('FarmerFarmIncomeExpenseList') &&
-                      styles.activeSubMenu,
-                  ]}
-                  onPress={() =>
-                    navigateToPages('FarmerFarmIncomeExpenseList')
-                  }>
-                  <View style={styles.subMenuItem}>
-                    <MaterialIcons
-                      name="man"
-                      size={20}
-                      color={
-                        isActive('FarmerFarmIncomeExpenseList')
-                          ? '#030635'
-                          : '#eaf3ee'
-                      }
-                    />
-                    {/* <Image
+                    styles.menuText,
+                    isParentActive(
+                      'FarmerFarmIncomeExpenseList',
+                      farmAccRoutes,
+                    ) && styles.activeText,
+                    isParentActive(
+                      'FarmerFarmIncomeExpenseList',
+                      farmAccRoutes,
+                    ) && {
+                      color: Colors.primary_light,
+                    },
+                  ]}>
+                  {t('farm_income_amp_expense')}
+                </Text>
+                <MaterialIcons
+                  name={farmAccExpanded ? 'expand-less' : 'expand-more'}
+                  size={22}
+                  color="#d5dbd7"
+                  style={{marginLeft: 5}}
+                />
+              </View>
+            </TouchableOpacity>
+            {farmAccExpanded && (
+              <>
+                <View style={{marginBottom: 10}}>
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('FarmerFarmIncomeExpenseList') &&
+                        styles.activeSubMenu,
+                    ]}
+                    onPress={() =>
+                      navigateToPages('FarmerFarmIncomeExpenseList')
+                    }>
+                    <View style={styles.subMenuItem}>
+                      <MaterialIcons
+                        name="man"
+                        size={20}
+                        color={
+                          isActive('FarmerFarmIncomeExpenseList')
+                            ? '#030635'
+                            : '#eaf3ee'
+                        }
+                      />
+                      {/* <Image
                     source={require('../Common/images/insurance_menu.png')}
                     style={[
                       {height: 20, width: 20},
@@ -560,65 +569,66 @@ const FarmerDrawer = props => {
                       },
                     ]}
                   /> */}
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('FarmerFarmIncomeExpenseList') &&
-                          styles.activeSubText,
-                      ]}>
-                      {t('farm_income_amp_expense')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('FarmerFarmIncomeExpenseList') &&
+                            styles.activeSubText,
+                        ]}>
+                        {t('farm_income_amp_expense')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('FarmerLoan') && styles.activeSubMenu,
-                  ]}
-                  onPress={() => navigateToPages('FarmerLoan')}>
-                  <View style={styles.subMenuItem}>
-                    <MaterialIcons
-                      name="real-estate-agent"
-                      size={20}
-                      color={isActive('FarmerLoan') ? '#030635' : '#eaf3ee'}
-                    />
-                    {/* <Image
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('FarmerLoan') && styles.activeSubMenu,
+                    ]}
+                    onPress={() => navigateToPages('FarmerLoan')}>
+                    <View style={styles.subMenuItem}>
+                      <MaterialIcons
+                        name="real-estate-agent"
+                        size={20}
+                        color={isActive('FarmerLoan') ? '#030635' : '#eaf3ee'}
+                      />
+                      {/* <Image
                     source={require('../Common/images/dash_apply_for_loan_off.png')}
                     style={[
                       {height: 20, width: 20},
                       isActive('FarmerLoan') && {tintColor: '#030635'},
                     ]}
                   /> */}
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('FarmerLoan') && styles.activeSubText,
-                      ]}>
-                      {t('loan_ninquiry_far_dash')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('FarmerLoan') && styles.activeSubText,
+                        ]}>
+                        {t('loan_ninquiry_far_dash')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.subMenu,
-                    {paddingLeft: 30},
-                    isActive('FarmerInsuranceEnquiry') && styles.activeSubMenu,
-                  ]}
-                  onPress={() => navigateToPages('FarmerInsuranceEnquiry')}>
-                  <View style={styles.subMenuItem}>
-                    <MaterialIcons
-                      name="security"
-                      size={20}
-                      color={
-                        isActive('FarmerInsuranceEnquiry')
-                          ? '#030635'
-                          : '#eaf3ee'
-                      }
-                    />
-                    {/* <Image
+                  <TouchableOpacity
+                    style={[
+                      styles.subMenu,
+                      {paddingLeft: 30},
+                      isActive('FarmerInsuranceEnquiry') &&
+                        styles.activeSubMenu,
+                    ]}
+                    onPress={() => navigateToPages('FarmerInsuranceEnquiry')}>
+                    <View style={styles.subMenuItem}>
+                      <MaterialIcons
+                        name="security"
+                        size={20}
+                        color={
+                          isActive('FarmerInsuranceEnquiry')
+                            ? '#030635'
+                            : '#eaf3ee'
+                        }
+                      />
+                      {/* <Image
                     source={require('../Common/images/dash_apply_for_insurance_off.png')}
                     style={[
                       {height: 20, width: 20},
@@ -627,36 +637,39 @@ const FarmerDrawer = props => {
                       },
                     ]}
                   /> */}
-                    <Text
-                      style={[
-                        styles.subText,
-                        isActive('FarmerInsuranceEnquiry') &&
-                          styles.activeSubText,
-                      ]}>
-                      {t('ins_inq_far_dash')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+                      <Text
+                        style={[
+                          styles.subText,
+                          isActive('FarmerInsuranceEnquiry') &&
+                            styles.activeSubText,
+                        ]}>
+                        {t('ins_inq_far_dash')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
 
-          {/* Logout Section */}
-          <TouchableOpacity style={styles.memuContainer} onPress={handleLogout}>
-            <View style={styles.menuItem}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="logout" size={22} color="#030730" />
-                {/* <Image
+            {/* Logout Section */}
+            <TouchableOpacity
+              style={styles.memuContainer}
+              onPress={handleLogout}>
+              <View style={styles.menuItem}>
+                <View style={styles.iconView}>
+                  <MaterialIcons name="logout" size={22} color="#030730" />
+                  {/* <Image
                   source={require('../Common/images/logout.png')}
                   style={[{height: 25, width: 25, tintColor: '#030730'}]}
                 /> */}
+                </View>
+                <Text style={styles.menuText}>{t('sign_out')}</Text>
               </View>
-              <Text style={styles.menuText}>{t('sign_out')}</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 };
 export default FarmerDrawer;

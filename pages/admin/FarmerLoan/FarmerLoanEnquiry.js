@@ -95,8 +95,7 @@ const styles = StyleSheet.create({
   },
   btnRequstContainer: {
     flexDirection: 'row',
-    // justifyContent: 'space-between',
-    // marginHorizontal: '3%',
+
     paddingTop: 10,
     justifyContent: 'center',
     alignItems: 'center',

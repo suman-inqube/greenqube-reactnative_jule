@@ -9,19 +9,19 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ButtonForm from './Common/ButtonForm';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
 import axios from 'axios';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
-import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from './Common/ToastAlert';
-import { useTranslation } from 'react-i18next';
+import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
+import {Root, Toast} from 'react-native-popup-confirm-toast';
+import {AlertMesg} from './Common/ToastAlert';
+import {useTranslation} from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
 import DeviceInfo from './DeviceInfo';
 import Map from './admin/Map';
@@ -31,18 +31,25 @@ import {
   convertedArrayLatLong,
   calculatePolygonArea,
 } from './Common/calculateAreaFun';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
-import { LandUnitArea, LandUnitsquare_metre, nearestLatLong, } from '../config/apiHere';
+import {
+  LandUnitArea,
+  LandUnitsquare_metre,
+  nearestLatLong,
+} from '../config/apiHere';
 const ProduceInfo = () => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
   const route = useRoute();
-  const { pagename, arrayIndex, locationData } = route.params;
+  const {pagename, arrayIndex, locationData} = route.params;
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
-  const [referencelatLong, setreferencelatLong] = useState({ latitude: 0, longitude: 0 });
+  const [referencelatLong, setreferencelatLong] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
   const [storeProduceInfoInArray, setstoreProduceInfoInArray] = useState([]);
   const [storeProduceInfo, setstoreProduceInfo] = useState({
     plotSiteName: '',
@@ -67,16 +74,16 @@ const ProduceInfo = () => {
     cycleEnds: '',
     lat: '',
     long: '',
-    IOTId: "",
-    IOTLatLong: "",
-    IOTLatlat: ""
+    IOTId: '',
+    IOTLatLong: '',
+    IOTLatlat: '',
   });
   const [landProof, setLandProof] = useState([
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
   ]);
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -509,14 +516,14 @@ const ProduceInfo = () => {
     const x1 = x[0].split('-');
     const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
     setStartDate(cycleStarts);
-    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts });
+    setstoreProduceInfo({...storeProduceInfo, cycleStarts: cycleStarts});
   };
   const handlecycleEnd = async item => {
     const dt = new Date(item);
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
+    setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
   };
   const validationData = () => {
     if (!storeProduceInfo.plotSiteName) {
@@ -552,7 +559,7 @@ const ProduceInfo = () => {
       return false;
     }
     if (!storeProduceInfo.plotSize) {
-      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
       return false;
     }
     if (!storeProduceInfo?.landUnit) {
@@ -667,9 +674,9 @@ const ProduceInfo = () => {
       lat: '',
       long: '',
       google_area: '',
-      IOTId: "",
-      IOTLatLong: "",
-      IOTLatlat: ""
+      IOTId: '',
+      IOTLatLong: '',
+      IOTLatlat: '',
     });
   };
   const saveInObject = async () => {
@@ -729,7 +736,7 @@ const ProduceInfo = () => {
   };
   const onPageLoad = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     let groupedData;
     const [storeSignup_data, storePersnolInfo_data] = await Promise.all([
       getItem('storeSignup_data'),
@@ -738,14 +745,13 @@ const ProduceInfo = () => {
     const dbName = storeSignup_data.company.dbname;
     const languageID = storePersnolInfo_data.language.value;
 
-
     const [nearestLatLong_res, LandUnitArea_res, LandUnitsquare_metre_res] =
       await Promise.all([
-        nearestLatLong(dbName, languageID, "", latitude, longitude),
+        nearestLatLong(dbName, languageID, '', latitude, longitude),
         LandUnitArea(dbName, languageID),
         LandUnitsquare_metre(dbName, languageID),
       ]);
-      setreferencelatLong({latitude, longitude});
+    setreferencelatLong({latitude, longitude});
     if (nearestLatLong_res.status == 200) {
       groupedData = groupByRelId(nearestLatLong_res.data.data);
       console.log(groupedData);
@@ -753,7 +759,7 @@ const ProduceInfo = () => {
       setPolygons(groupedData);
     }
     if (LandUnitArea_res?.status == 200) {
-      const { count, rows } = LandUnitArea_res?.data?.data || {};
+      const {count, rows} = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
         setLandAreaUnit(rows);
       } else {
@@ -761,7 +767,7 @@ const ProduceInfo = () => {
       }
     }
     if (LandUnitsquare_metre_res?.status == 200) {
-      const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+      const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
         setLandUnitsquareMetre(rows);
       } else {
@@ -790,19 +796,19 @@ const ProduceInfo = () => {
           emptyFieldsValue();
           removesetLocation();
           // setPolygons([]);
-          setPolygons(nearPolSet)
+          setPolygons(nearPolSet);
           setArea(0);
           setAreaSQMeter(0);
           setstoreProduceInfoInArray([
             ...storeProduceInfoInArray,
-            { storeProduceInfo: storeProduceInfo, location: location, landProof },
+            {storeProduceInfo: storeProduceInfo, location: location, landProof},
           ]);
           setLandProof([
-            { uri: '', name: '', type: '', fileName: '' },
-            { uri: '', name: '', type: '', fileName: '' },
-            { uri: '', name: '', type: '', fileName: '' },
-            { uri: '', name: '', type: '', fileName: '' },
-            { uri: '', name: '', type: '', fileName: '' },
+            {uri: '', name: '', type: '', fileName: ''},
+            {uri: '', name: '', type: '', fileName: ''},
+            {uri: '', name: '', type: '', fileName: ''},
+            {uri: '', name: '', type: '', fileName: ''},
+            {uri: '', name: '', type: '', fileName: ''},
           ]);
         }
       }
@@ -820,7 +826,7 @@ const ProduceInfo = () => {
     setstoreProduceInfoInArray(values);
   };
   const [location, setLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
@@ -828,7 +834,7 @@ const ProduceInfo = () => {
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({ latitude: '', longitude: '' }),
+        (val, idx) => ({latitude: '', longitude: ''}),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -837,13 +843,13 @@ const ProduceInfo = () => {
       setPolygons([]);
     } else {
       setPolygons([]);
-      setLocation([...location, { latitude: '', longitude: '' }]);
+      setLocation([...location, {latitude: '', longitude: ''}]);
     }
   };
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
     const values = [...location];
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
 
     if (
       fusedLocation != null &&
@@ -852,7 +858,7 @@ const ProduceInfo = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = { latitude: latitude, longitude: longitude };
+      values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       if (filteredDatalatLong.length >= 3) {
@@ -861,7 +867,10 @@ const ProduceInfo = () => {
 
         // setArea(calculateAreaFun(filteredDatalatLong));
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-          setArea(Number(landUnitsquareMetre?.[0]?.defined_unit_value) * geolib.getAreaOfPolygon(filteredDatalatLong));
+          setArea(
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(filteredDatalatLong),
+          );
           setstoreProduceInfo({
             ...storeProduceInfo,
             google_area: geolib.getAreaOfPolygon(filteredDatalatLong),
@@ -869,7 +878,6 @@ const ProduceInfo = () => {
               Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
               geolib.getAreaOfPolygon(filteredDatalatLong),
           });
-
         } else {
           setArea(geolib.getAreaOfPolygon(filteredDatalatLong));
           setstoreProduceInfo({
@@ -877,7 +885,6 @@ const ProduceInfo = () => {
             google_area: geolib.getAreaOfPolygon(filteredDatalatLong),
             google_area_default: geolib.getAreaOfPolygon(filteredDatalatLong),
           });
-
         }
       } else {
         setArea(0);
@@ -889,7 +896,6 @@ const ProduceInfo = () => {
         ...AlertMesg[0],
       });
     }
-
   };
   // GRQ-1130
   const [polygons, setPolygons] = useState([]);
@@ -900,8 +906,8 @@ const ProduceInfo = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, { latitude, longitude }]);
+    const {latitude, longitude} = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, {latitude, longitude}]);
   };
   const undoMark = () => {
     try {
@@ -926,7 +932,7 @@ const ProduceInfo = () => {
       setShowModal(false);
       setArea(
         Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-        geolib.getAreaOfPolygon(newPolygon),
+          geolib.getAreaOfPolygon(newPolygon),
       );
       setAreaSQMeter(geolib.getAreaOfPolygon(newPolygon));
       setstoreProduceInfo({
@@ -945,7 +951,7 @@ const ProduceInfo = () => {
   };
 
   const clearNewPolygon = () => {
-    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
+    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
     setNewPolygon([]);
     // setPolygons([]);
     setPolygons(nearPolSet);
@@ -958,7 +964,7 @@ const ProduceInfo = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -990,13 +996,13 @@ const ProduceInfo = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     setstoreProduceInfo({
       ...storeProduceInfo,
       IOTLatlat: latitude,
       IOTLatLong: longitude,
     });
-  }
+  };
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />

@@ -9,26 +9,26 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Logo from './Common/Logo';
 import ButtonForm from './Common/ButtonForm';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
 import axios from 'axios';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
-import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
-import { isNotEmpty } from './Common/ValidationFunctions';
+import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
+import {isNotEmpty} from './Common/ValidationFunctions';
 import MessageDialog from './Common/MessageDialog';
-import { useFocusEffect } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
+import {useFocusEffect} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import {useSelector} from 'react-redux';
+import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from './Common/ToastAlert';
+import {Root, Toast} from 'react-native-popup-confirm-toast';
+import {AlertMesg} from './Common/ToastAlert';
 import Map from './admin/Map';
 import * as geolib from 'geolib';
 import {
@@ -36,7 +36,7 @@ import {
   calculateAreaFun,
   calculatePolygonArea,
 } from './Common/calculateAreaFun';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
 import {
   LandUnitArea,
@@ -45,11 +45,11 @@ import {
 } from '../config/apiHere';
 import * as turf from '@turf/turf';
 const ProduceInfoUpdate = () => {
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const ForegroundLocationData = useSelector(state => state.locationData);
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const route = useRoute();
-  const { pagename, arrayIndex } = route.params;
+  const {pagename, arrayIndex} = route.params;
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
@@ -79,18 +79,18 @@ const ProduceInfoUpdate = () => {
     lat: '',
     long: '',
     google_area: '',
-    IOTId: "",
-    IOTLatLong: "",
-    IOTLatlat: "",
+    IOTId: '',
+    IOTLatLong: '',
+    IOTLatlat: '',
     ConvertedreportedLandsize: 0,
   });
   const [landProof, setLandProof] = useState([
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
   ]);
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -272,7 +272,7 @@ const ProduceInfoUpdate = () => {
   };
 
   const HandlelivehoodType = async livelihoodType => {
-    setstoreProduceInfo({ ...storeProduceInfo, livelihoodType: livelihoodType });
+    setstoreProduceInfo({...storeProduceInfo, livelihoodType: livelihoodType});
     produceNameDataList(livelihoodType, lanID, dbName);
   };
 
@@ -353,7 +353,7 @@ const ProduceInfoUpdate = () => {
   };
 
   const HandleproduceName = async produceName => {
-    setstoreProduceInfo({ ...storeProduceInfo, produceName: produceName });
+    setstoreProduceInfo({...storeProduceInfo, produceName: produceName});
     produceVarientyDataList(produceName, lanID, dbName);
   };
 
@@ -442,7 +442,7 @@ const ProduceInfoUpdate = () => {
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts });
+    setstoreProduceInfo({...storeProduceInfo, cycleStarts: cycleStarts});
   };
 
   const handlecycleEnd = async item => {
@@ -450,7 +450,7 @@ const ProduceInfoUpdate = () => {
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
+    setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
   };
   const handleLandUnit = async item => {
     let landUnitSize;
@@ -465,32 +465,33 @@ const ProduceInfoUpdate = () => {
       landUnit: item.value,
       landUnitSize: landUnitSize,
       landUnitName: item.label,
-      ConvertedreportedLandsize: Number(item?.sizevalue) * Number(storeProduceInfo?.plotSize),
+      ConvertedreportedLandsize:
+        Number(item?.sizevalue) * Number(storeProduceInfo?.plotSize),
       // cycleEnds: ""
     });
   };
 
   const handleSave = async () => {
     if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation = Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) / ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2) * 100;
+      const deviation =
+        (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
+          ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
+        100;
       if (deviation >= -5 && deviation <= 5) {
-
       } else {
         // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [
-            { text: 'OK', onPress: () => console.log(area) },
-          ],
-          { cancelable: false }
-        )
+          [{text: 'OK', onPress: () => console.log(area)}],
+          {cancelable: false},
+        );
         return;
       }
     }
     const locationEmpty = location.filter(item => item.latitude !== '');
     if (storeProduceInfo.plotSize == '') {
-      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
     } else if (!storeProduceInfo.productionProcess.value) {
       Toast.show({
         time: 3,
@@ -526,13 +527,13 @@ const ProduceInfoUpdate = () => {
       storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
       storeProduceInfoInArray[arrayIndex].location = location;
       await setItem('storeProduceInfo_data', storeProduceInfoInArray);
-      navigation.navigate(pagename, { pagename: '' });
+      navigation.navigate(pagename, {pagename: ''});
     }
   };
 
   const onPageLoad = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     let groupedData;
     const [
       storeSignup_data,
@@ -567,7 +568,7 @@ const ProduceInfoUpdate = () => {
       }
     }
     if (LandUnitArea_res?.status == 200) {
-      const { count, rows } = LandUnitArea_res?.data?.data || {};
+      const {count, rows} = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
         setLandAreaUnit(rows);
       } else {
@@ -575,7 +576,7 @@ const ProduceInfoUpdate = () => {
       }
     }
     if (LandUnitsquare_metre_res?.status == 200) {
-      const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+      const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
         setLandUnitsquareMetre(rows);
       } else {
@@ -659,7 +660,7 @@ const ProduceInfoUpdate = () => {
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
     const values = [...location];
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     if (
       fusedLocation != null &&
       longitude.toString().length == 10 &&
@@ -667,37 +668,37 @@ const ProduceInfoUpdate = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = { latitude: latitude, longitude: longitude };
+      values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
       if (filteredDatalatLong.length >= 3) {
-
         // setArea(calculatePolygonArea(filteredDatalatLong).toFixed(3));
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
+              geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
           );
           setstoreProduceInfo({
             ...storeProduceInfo,
-            google_area:
-              geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
+            google_area: geolib
+              .getAreaOfPolygon(filteredDatalatLong)
+              .toFixed(3),
             google_area_default:
               Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
               geolib.getAreaOfPolygon(newPolygon),
           });
-
         } else {
           setArea(geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3));
           setstoreProduceInfo({
             ...storeProduceInfo,
-            google_area:
-              geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
-            google_area_default:
-              geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
+            google_area: geolib
+              .getAreaOfPolygon(filteredDatalatLong)
+              .toFixed(3),
+            google_area_default: geolib
+              .getAreaOfPolygon(filteredDatalatLong)
+              .toFixed(3),
           });
-
         }
       } else {
         setArea(0);
@@ -713,7 +714,7 @@ const ProduceInfoUpdate = () => {
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({ latitude: '', longitude: '' }),
+        (val, idx) => ({latitude: '', longitude: ''}),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -721,7 +722,7 @@ const ProduceInfoUpdate = () => {
       setNewPolygon([]);
     } else {
       setNewPolygon([]);
-      setLocation([...location, { latitude: '', longitude: '' }]);
+      setLocation([...location, {latitude: '', longitude: ''}]);
     }
   };
   // GRQ-1130
@@ -732,8 +733,8 @@ const ProduceInfoUpdate = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, { latitude, longitude }]);
+    const {latitude, longitude} = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, {latitude, longitude}]);
   };
   // GRQ-1132
   const finalizePolygon = () => {
@@ -750,7 +751,7 @@ const ProduceInfoUpdate = () => {
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+            geolib.getAreaOfPolygon(newPolygon),
         );
         setstoreProduceInfo({
           ...storeProduceInfo,
@@ -767,7 +768,6 @@ const ProduceInfoUpdate = () => {
           google_area_default: geolib.getAreaOfPolygon(newPolygon),
         });
       }
-
     } else {
       //  setArea(0);
       Alert.alert('Error', 'A polygon requires at least 3 points.');
@@ -775,7 +775,7 @@ const ProduceInfoUpdate = () => {
     setLocationType('polygon_tap');
   };
   const clearNewPolygon = () => {
-    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
+    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
     setNewPolygon([]);
     setPolygons(nearPolSet);
     setArea(0);
@@ -785,7 +785,7 @@ const ProduceInfoUpdate = () => {
   const undoMark = () => {
     try {
       const value = [...newPolygon];
-      console.log("value");
+      console.log('value');
       console.log(value);
       value.pop();
       setNewPolygon(value);
@@ -799,7 +799,7 @@ const ProduceInfoUpdate = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -834,46 +834,46 @@ const ProduceInfoUpdate = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     setstoreProduceInfo({
       ...storeProduceInfo,
       IOTLatlat: latitude,
       IOTLatLong: longitude,
     });
-  }
+  };
   return (
     <Root>
       {/* <ForegroundLocationService /> */}
       <StatusBar barStyle="light-content" backgroundColor="#023316" />
-      <ScrollView style={{ backgroundColor: '#D5FFD0' }}>
-        <View style={{ paddingHorizontal: 20, marginBottom: 120 }}>
+      <ScrollView style={{backgroundColor: '#D5FFD0'}}>
+        <View style={{paddingHorizontal: 20, marginBottom: 120}}>
           <Logo iheight={100} iwidth={100} />
           <InputTextForm
             label={t('pre_plot_name')}
             color="black"
             onChangeText={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })
+              setstoreProduceInfo({...storeProduceInfo, plotSiteName: item})
             }
             value={storeProduceInfo.plotSiteName}
           />
           <InputTextForm
             label={t('daag_no')}
             onChangeText={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
+              setstoreProduceInfo({...storeProduceInfo, daagNo: item})
             }
             value={storeProduceInfo.daagNo}
           />
           <InputTextForm
             label={t('khatian_no')}
             onChangeText={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
+              setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
             }
             value={storeProduceInfo.khatianNo}
           />
           <InputTextForm
             label={t('no_of_plants')}
             onChangeText={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
+              setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
             }
             value={storeProduceInfo.noOfPlants}
           />
@@ -882,7 +882,7 @@ const ProduceInfoUpdate = () => {
             color="black"
             data={terrainTypeData}
             onChange={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, terrainType: item })
+              setstoreProduceInfo({...storeProduceInfo, terrainType: item})
             }
             val={storeProduceInfo.terrainType.label}
           />
@@ -891,7 +891,7 @@ const ProduceInfoUpdate = () => {
             color="black"
             data={landTypeData}
             onChange={item => {
-              setstoreProduceInfo({ ...storeProduceInfo, landType: item });
+              setstoreProduceInfo({...storeProduceInfo, landType: item});
             }}
             val={storeProduceInfo.landType.label}
           />
@@ -900,16 +900,20 @@ const ProduceInfoUpdate = () => {
             color="black"
             data={soilTypeData}
             onChange={item => {
-              setstoreProduceInfo({ ...storeProduceInfo, soilType: item });
+              setstoreProduceInfo({...storeProduceInfo, soilType: item});
             }}
             val={storeProduceInfo.soilType.label}
           />
           <InputTextForm
             label={t('addland_landsize')}
             onChangeText={item =>
-              setstoreProduceInfo({ ...storeProduceInfo, plotSize: item, ConvertedreportedLandsize: Number(storeProduceInfo?.sizevalue) * Number(item)
+              setstoreProduceInfo({
+                ...storeProduceInfo,
+                plotSize: item,
+                ConvertedreportedLandsize:
+                  Number(storeProduceInfo?.sizevalue) * Number(item),
                 // , cycleEnds: ""
-               })
+              })
             }
             value={storeProduceInfo.plotSize}
           />
@@ -926,9 +930,10 @@ const ProduceInfoUpdate = () => {
               <InputTextForm
                 label={
                   t('Converted reported Land size ') +
-                  `${landAreaUnit?.[0]?.defined_unit_value
-                    ? `(${landAreaUnit?.[0]?.unit_name})`
-                    : '(Square meter)'
+                  `${
+                    landAreaUnit?.[0]?.defined_unit_value
+                      ? `(${landAreaUnit?.[0]?.unit_name})`
+                      : '(Square meter)'
                   }`
                 }
                 value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
@@ -965,11 +970,11 @@ const ProduceInfoUpdate = () => {
             handleDocumentSelectionRemove={handleDocumentSelectionRemove}
           /> */}
 
-          <View style={{ marginTop: 10 }}>
+          <View style={{marginTop: 10}}>
             <InputTextForm
               label={t('Enter IOT Device Id')}
               onChangeText={item =>
-                setstoreProduceInfo({ ...storeProduceInfo, IOTId: item })
+                setstoreProduceInfo({...storeProduceInfo, IOTId: item})
               }
               value={storeProduceInfo.IOTId}
             />
@@ -983,7 +988,7 @@ const ProduceInfoUpdate = () => {
               <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
               <Image
                 source={require('./Common/images/map.png')}
-                style={{ width: 50, height: 50 }}
+                style={{width: 50, height: 50}}
               />
             </View>
           </TouchableOpacity>
@@ -995,9 +1000,9 @@ const ProduceInfoUpdate = () => {
             stateValue={landProof}
             disable={true}
             InputTextFormEdit={true}
-          // photoDeletedValue={photoDeletedValue}
-          // setPhotoDeletedValue={setPhotoDeletedValue}
-          // loginUser_data={loginUser_data}
+            // photoDeletedValue={photoDeletedValue}
+            // setPhotoDeletedValue={setPhotoDeletedValue}
+            // loginUser_data={loginUser_data}
           />
           {/* basudev  */}
           {area != 0 && (
@@ -1005,9 +1010,10 @@ const ProduceInfoUpdate = () => {
               label={
                 t('Calculated Map Area ') +
                 '(' +
-                `${landAreaUnit?.[0]?.defined_unit_value
-                  ? landAreaUnit?.[0]?.unit_name
-                  : 'Square meter'
+                `${
+                  landAreaUnit?.[0]?.defined_unit_value
+                    ? landAreaUnit?.[0]?.unit_name
+                    : 'Square meter'
                 }` +
                 ')'
               }
@@ -1045,7 +1051,7 @@ const ProduceInfoUpdate = () => {
                     </Text>
                     <Image
                       source={require('./Common/images/map.png')}
-                      style={{ width: 50, height: 50 }}
+                      style={{width: 50, height: 50}}
                     />
                   </View>
                 </TouchableOpacity>
@@ -1085,7 +1091,7 @@ const ProduceInfoUpdate = () => {
             color="black"
             data={produceVarietyData}
             onChange={item => {
-              setstoreProduceInfo({ ...storeProduceInfo, produceVariety: item });
+              setstoreProduceInfo({...storeProduceInfo, produceVariety: item});
             }}
             val={storeProduceInfo.produceVariety.label}
           />
@@ -1126,7 +1132,7 @@ const ProduceInfoUpdate = () => {
           />
 
           <View>
-            <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
+            <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
               Cycle Starts
             </Text>
             <View style={styles.passwordMainContainer}>
@@ -1162,7 +1168,7 @@ const ProduceInfoUpdate = () => {
           </View>
 
           <View>
-            <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
+            <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
               Cycle Ends
             </Text>
             <View style={styles.passwordMainContainer}>
@@ -1188,23 +1194,27 @@ const ProduceInfoUpdate = () => {
                     storeProduceInfo.cycleEnds == ''
                       ? newdate
                       : new Date(
-                        `${new Date(
-                          storeProduceInfo.cycleEnds,
-                        ).getFullYear()}-${new Date(storeProduceInfo.cycleEnds).getMonth() + 1
-                        }-${new Date(storeProduceInfo.cycleEnds).getDate() + 1
-                        }`,
-                      )
+                          `${new Date(
+                            storeProduceInfo.cycleEnds,
+                          ).getFullYear()}-${
+                            new Date(storeProduceInfo.cycleEnds).getMonth() + 1
+                          }-${
+                            new Date(storeProduceInfo.cycleEnds).getDate() + 1
+                          }`,
+                        )
                   }
                   minimumDate={
                     storeProduceInfo.cycleEnds == ''
                       ? ''
                       : new Date(
-                        `${new Date(
-                          storeProduceInfo.cycleEnds,
-                        ).getFullYear()}-${new Date(storeProduceInfo.cycleEnds).getMonth() + 1
-                        }-${new Date(storeProduceInfo.cycleEnds).getDate() + 1
-                        }`,
-                      )
+                          `${new Date(
+                            storeProduceInfo.cycleEnds,
+                          ).getFullYear()}-${
+                            new Date(storeProduceInfo.cycleEnds).getMonth() + 1
+                          }-${
+                            new Date(storeProduceInfo.cycleEnds).getDate() + 1
+                          }`,
+                        )
                   }
                   onConfirm={item => {
                     handlecycleEnd(item);
@@ -1227,13 +1237,13 @@ const ProduceInfoUpdate = () => {
         </Text>
       </TouchableOpacity> */}
       <TouchableOpacity
-        style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+        style={[styles.locationAddMoreContainer, {bottom: 250}]}
         onPress={() => setShowModal(!showModal)}>
-        <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+        <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
           {t('MapView')}
         </Text>
       </TouchableOpacity>
-      <View style={{ marginTop: 10 }}>
+      <View style={{marginTop: 10}}>
         <ButtonForm
           label={t('save')}
           onPress={() => handleSave('SignUpViwer')}

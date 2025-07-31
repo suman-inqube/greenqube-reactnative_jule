@@ -31,6 +31,8 @@ import {farmerActivityListAPI} from '../../config/apiHere';
 import {farmerUsefulInfoListAPI, cropListApi} from '../../config/apiHere';
 import {Colors, Fonts} from '../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
+import {axiosGet} from '../utils/api';
+import {ROUTES} from '../utils/Routes';
 
 // import DeviceInfo from 'react-native-device-info';
 const FarmerDashboard = ({navigation}) => {
@@ -194,17 +196,17 @@ const FarmerDashboard = ({navigation}) => {
 
   const fetchLatestActivities = async () => {
     try {
-      const response = await farmerActivityListAPI(
-        dbname,
-        lan_id,
+      const response = await axiosGet(
+        ROUTES.GET.LIST_USER_ACTIVITY({
+          pageNO: 1,
+          carbonType: '',
+          userID: '',
+          searchItem: '',
+          from_date: '',
+          to_date: '',
+        }),
         token,
-        user_id,
-        1, // pageNo
-        '', // searchItem
-        '', // from_date
-        '', // to_date
-        '', // carbonType
-        3, // limit to 3 activities
+        {information: `${dbname},${lan_id},${user_id}`},
       );
       // console.log('data', response.data.data);
       if (response?.data?.data?.rows) {

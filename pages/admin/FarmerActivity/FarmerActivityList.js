@@ -9,10 +9,15 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {SPSheet} from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const OPTIONS = [
   {id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD'},
-  {id: 'Conventional', title: 'Non-Carbon', navigation: 'FarmerActivityReport'},
+  {
+    id: 'Conventional',
+    title: 'Non-Carbon',
+    navigation: 'FarmerActivityReport',
+  },
 ];
 const FarmerActivityList = ({navigation}) => {
   //GQR-67
@@ -102,7 +107,7 @@ const FarmerActivityList = ({navigation}) => {
       );
       if (response) {
         setactivityAll(response.data.data.rows);
-        setItem('activity_Data', response.data.data.rows);
+        await setItem('activity_Data', response.data.data.rows);
       }
     }
   };
@@ -139,12 +144,6 @@ const FarmerActivityList = ({navigation}) => {
       });
     }
   };
-  const navigateToPages = async (pageName, uact_id, item) => {
-    setItem('uact_id_data', uact_id);
-    navigation.navigate(pageName, item);
-    setIsLoading(true);
-  };
-
   const fatchActivityListAPI = async (
     dbName,
     languageId,
@@ -157,16 +156,17 @@ const FarmerActivityList = ({navigation}) => {
     carbonType = '',
   ) => {
     if (netConnection) {
-      var response = await farmerActivityListAPI(
-        dbName,
-        languageId,
+      var response = await axiosGet(
+        ROUTES.GET.LIST_USER_ACTIVITY({
+          pageNO: pageNo,
+          carbonType: carbonType,
+          userID: '',
+          searchItem: searchItem,
+          from_date: from_date,
+          to_date: to_date,
+        }),
         token,
-        supervisorId,
-        pageNo,
-        searchItem,
-        from_date,
-        to_date,
-        carbonType,
+        {information: `${dbName},${languageId},${supervisorId}`},
       );
       await setItem('farmerActivityList' + supervisorId, response);
     } else {
@@ -326,7 +326,7 @@ const FarmerActivityList = ({navigation}) => {
                         </Text>
                         <Text style={styles.title}>
                           {t('reg_plot_name')} :{' '}
-                          {item.land_info.plot_no.substring(0, 5) + '...'}
+                          {item.land_info?.plot_no?.substring(0, 5) + '...'}
                         </Text>
                         <Text style={styles.title}>
                           {t('perf_date')} :{' '}

@@ -21,6 +21,8 @@ import {
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {PipeListDetails} from '../../../config/apiHere';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const FarmerActivityDetail = () => {
   const route = useRoute();
   const {
@@ -54,7 +56,6 @@ const FarmerActivityDetail = () => {
   const [carbonActivity, setCarbonActivity] = useState([]);
 
   const onPageLoad = async () => {
-    console.log(route.params.activity);
     // const [activityData, uact_id_data] = await Promise.all([
     //   getItem('activity_Data'),
     //   getItem('uact_id_data'),
@@ -63,14 +64,14 @@ const FarmerActivityDetail = () => {
       const farmerFound = route.params.activity;
 
       if (farmerFound?.type == 'carbon_activity') {
-        const PipeListDetailsRes = await PipeListDetails(
-          dbname,
-          lan_id,
+        const PipeListDetailsRes = await axiosGet(
+          ROUTES.GET.PIPE_LIST_DETAILS({
+            plot_id: farmerFound.plot_id,
+            act_master_id: farmerFound?.act_master_id,
+            cu_rel_id: farmerFound?.cu_rel_fid,
+          }),
           token,
-          user_id,
-          farmerFound.plot_id,
-          farmerFound?.act_master_id,
-          farmerFound?.cu_rel_fid,
+          {information: `${dbname},${lan_id},${user_id}`},
         );
         if (PipeListDetailsRes?.status == 200) {
           setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);

@@ -563,8 +563,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
       const fileStat = await RNFS.stat(path);
       const fileSizeInMB = fileStat.size / (1024 * 1024); // File size in MB
 
-      console.log(`PDF Size: ${fileSizeInMB} MB`);
-
       // Define size limit (e.g., 5 MB)
       const sizeLimitMB = 5;
 
@@ -682,7 +680,6 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
               const address_proofArr =
                 getPlotDoc?.data?.data?.rows[0]?.plot_img;
 
-              console.log(address_proofArr);
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
                   addressProof_value[index1] = {

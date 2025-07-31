@@ -84,9 +84,8 @@ const ProofAndIdentityPropfComp = ({
           resizedUri = await resizeImage(uri, width, height, 90);
           const fileStat = await RNFS.stat(resizedUri);
           const fileSizeInMB = fileStat.size / (1024 * 1024); // File size in MB
-          console.log(`PDF Size: ${fileSizeInMB} MB`);
           // Log or use width and height as needed
-          console.log(`Width: ${width}, Height: ${height}`);
+          // console.log(`Width: ${width}, Height: ${height}`);
         }
         const values = [...stateValue];
         const photoId = values[index]?.id;
@@ -185,7 +184,6 @@ const ProofAndIdentityPropfComp = ({
         });
         const fileStat = await RNFS.stat(path);
         const fileSizeInMB = fileStat.size / (1024 * 1024);
-        console.log(`PDF Size: ${fileSizeInMB} MB`);
         const sizeLimitMB = 3;
         if (fileSizeInMB > sizeLimitMB) {
           Alert.alert(
