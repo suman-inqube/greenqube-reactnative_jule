@@ -48,9 +48,9 @@ const ListItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
         <Text style={styles.listTitle} numberOfLines={1}>
           {item.post_name || 'No Title'}
         </Text>
-        <Text style={styles.listDate}>
+        {/* <Text style={styles.listDate}>
           {moment(item.updated_at).utc().format('YYYY-MM-DD')}
-        </Text>
+        </Text> */}
         {/* <Text style={styles.readMoreText}>Read More</Text> */}
       </View>
     </AnimatedTouchableOpacity>

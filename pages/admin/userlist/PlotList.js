@@ -90,9 +90,10 @@ const PlotList = () => {
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
       ])
+       
       if (plotListApprovalRes?.status == 200) {
-        const { data } = plotListApprovalRes?.data;
-        setplotList(data);
+        // const { data } = plotListApprovalRes?.data;
+        setplotList(plotListApprovalRes?.data);
       }
       if (LandUnitArea_res?.status == 200) {
         const { count, rows } = LandUnitArea_res?.data?.data || {};

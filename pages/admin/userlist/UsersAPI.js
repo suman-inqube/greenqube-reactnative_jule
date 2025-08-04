@@ -1,6 +1,8 @@
 import axios from 'axios';
 import config from '../../../config';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import instance from './../../../config/commonAxios';
+import {getAxiosInstance} from './../../../config/axiosInstance';
 const timeoutConfig = {timeout: 5000};
 const headersWithCompanyDBlanID = (dbName, languageId) => {
     return {
@@ -8,30 +10,58 @@ const headersWithCompanyDBlanID = (dbName, languageId) => {
         'Accept': 'application/json'
     };
 };
-export const userDataListAPI = async (dbName, languageId, token, user_id, page, phoneNumber) => {
-    const axiosHeaders = {
+export const userDataListAPI = async (
+  dbName,
+  languageId,
+  token,
+  user_id,
+  page,
+  phoneNumber,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${languageId},${user_id}`,
+    },
+  };
+  // console.log(
+  //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+  // );
+  //         console.log(axiosHeaders)
+  try {
+    // let response = await instance.get(
+    //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,{
+    //   headers: {
+    //     'authorization': `${token}`,
+    //     'information': `${dbName},${languageId},${user_id}`,
+    // }}
+    // );
+
+    const instance = await getAxiosInstance();
+    // const response = await instance.get('hostRoute/databaseList');
+
+    const response = await instance.get(
+      `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+      {
         headers: {
             'authorization': `${token}`,
             'information': `${dbName},${languageId},${user_id}`,
         },
+      },
+    );
+    // console.log('check12', response);
+    const resultJson = {
+      
+      data: response,
+      status: 200,
     };
-    console.log(config.BASE_URL +
-            `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`)
-            console.log(axiosHeaders)
-    try {
-
-        let response = await axios.get(
-          config.BASE_URL +
-            `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`,
-          {...axiosHeaders, ...timeoutConfig},
-        );
-        return response;
-    } catch (error) {
-        CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
-        return error.response;
-    }
-
-}
+    return resultJson;
+  } catch (error) {
+    console.log('r1', error);
+    // CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
+    return error.response;
+  }
+};
 
 export const fetchBlockAPI = async (dbName, languageID, districtID) => {
     try {

@@ -48,9 +48,9 @@ const GridItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
         <Text style={styles.gridTitle} numberOfLines={1}>
           {item.post_name || 'No Title'}
         </Text>
-        <Text style={styles.gridDate}>
+        {/* <Text style={styles.gridDate}>
           {moment(item.updated_at).utc().format('DD/MM/YYYY')}
-        </Text>
+        </Text> */}
       </View>
     </AnimatedTouchableOpacity>
   );
