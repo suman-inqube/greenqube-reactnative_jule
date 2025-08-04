@@ -1,6 +1,7 @@
 import config from "../../../config";
 import axios from 'axios';
 import { CrashlyticsRecordError } from "../../Crashlytics/CrashlyticsRecordError";
+import {getAxiosInstance} from '../../../config/axiosInstance';
 export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) => {
     const axiosHeaders = {
         headers: {
@@ -61,8 +62,18 @@ export const loanRouteListAPI = async (dbName,
         },
     };
     try {
-        let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
-        return response;
+        // let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
+        // return response;
+         const instance = await getAxiosInstance();
+            let response = await instance.get(
+              `loanRoute/list_e/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`,
+              axiosHeaders,
+            );
+            const resultJson = {
+              data: response,
+              status: 200,
+            };
+            return resultJson;
     } catch (error) {
         CrashlyticsRecordError(error.response)
         return error.response;

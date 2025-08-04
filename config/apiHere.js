@@ -737,11 +737,22 @@ export const problemListAPI = async (
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}questionRoute/list/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
-      axiosHeaders,
-    );
-    return response;
+    // let response = await axios.get(
+    //   `${config.BASE_URL}questionRoute/list/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
+    //   axiosHeaders,
+    // );
+    // return response;
+const instance = await getAxiosInstance();
+     let response = await instance.get(
+       `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
+       axiosHeaders,
+     );
+     console.log('chech 11=', response);
+      const resultJson = {
+        data: response,
+        status: 200,
+      };
+       return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return error.response;
@@ -1352,12 +1363,22 @@ export const loanRouteListAPI = async (
   };
 
   try {
-    let response = await axios.get(
-      config.BASE_URL +
-      `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`,
+    // let response = await axios.get(
+    //   config.BASE_URL +
+    //   `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`,
+    //   axiosHeaders,
+    // );
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `loanRoute/list_e/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`,
       axiosHeaders,
     );
-    return response;
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return console.log('error in loanRouteListAPI api' + error.response.data);
@@ -2467,11 +2488,21 @@ export const PackageOfPracticesList = async (dbName, lan_id) => {
     },
   };
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`,
+    // let response = await axios.get(
+    //   `${config.BASE_URL}cropRoute/list/1/0/1?type=crop_name&search_key=`,
+    //   axiosHeaders,
+    // );
+    // return response;
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `cropRoute/list_e/1/0/1?type=crop_name&search_key=`,
       axiosHeaders,
     );
-    return response;
+     const resultJson = {
+       data: response,
+       status: 200,
+     };
+     return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return error.response;

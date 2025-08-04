@@ -152,8 +152,18 @@ export const loanRouteListAPI = async (dbName,
     };
 
     try {
-        let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`, axiosHeaders);
-        return response;
+        // let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`, axiosHeaders);
+        // return response;
+         const instance = await getAxiosInstance();
+         let response = await instance.get(
+           `loanRoute/list_e/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`,
+           axiosHeaders,
+         );
+         const resultJson = {
+           data: response,
+           status: 200,
+         };
+         return resultJson;
     } catch (error) {
         CrashlyticsRecordError(error.response)
         return error.response;
