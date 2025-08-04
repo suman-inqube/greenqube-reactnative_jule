@@ -115,6 +115,7 @@ export const axiosPost = async (
   const controller = abortController || new AbortController();
 
   let contentType = 'application/json';
+
   if (isFormData(body)) {
     contentType = 'multipart/form-data';
   } else if (isUrlEncoded) {
@@ -149,6 +150,7 @@ export const axiosPut = async (
   extraHeaders = {},
   abortController = null,
 ) => {
+  console.log('URL', url);
   if (!(await isInternetAvailable())) {
     return Promise.reject({status: 0, data: {message: 'No internet'}});
   }
@@ -184,6 +186,7 @@ export const axiosPut = async (
 // ====== DELETE ======
 export const axiosDelete = async (
   url,
+
   token = null,
   extraHeaders = {},
   abortController = null,

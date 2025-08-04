@@ -62,8 +62,7 @@ const FarmerDrawer = props => {
   const [calculatorExpanded, setCalculatorExpanded] = useState(
     isSubRouteActive(calculatorRoutes),
   );
-  console.log('Active Route:', activeRouteName);
-  console.log('Is FarmerDashboard active:', isActive('FarmerDashboard'));
+
   // Helper functions
 
   const handleMenuExpand = menuName => {
@@ -154,7 +153,7 @@ const FarmerDrawer = props => {
   };
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.drawer} />
+      {/* <StatusBar barStyle="light-content" backgroundColor={Colors.drawer} /> */}
       <View style={styles.mainView}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={{marginBottom: 80}}>

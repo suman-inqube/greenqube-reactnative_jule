@@ -1552,7 +1552,13 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
             </View>
           </View>
         </ScrollView>
-        <ButtonForm label={t('submit')} onPress={handleSave} />
+        <ButtonForm
+          label={t('submit')}
+          onPress={handleSave}
+          iconName="check-circle"
+          iconColor="#fff"
+          iconSize={30}
+        />
       </Root>
     </>
   );
@@ -1680,7 +1686,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
   },
-  /////////////
+  ///////////////////////////
 
   card: {
     backgroundColor: 'white',

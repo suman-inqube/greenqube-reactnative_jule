@@ -273,7 +273,13 @@ const RequestForInsurance = ({setActiveBtn}) => {
           </View>
         </ScrollView>
 
-        <ButtonForm label={t('submit')} onPress={handleSave} />
+        <ButtonForm
+          label={t('submit')}
+          onPress={handleSave}
+          iconName="check-circle"
+          iconColor="#fff"
+          iconSize={30}
+        />
       </Root>
     </>
   );

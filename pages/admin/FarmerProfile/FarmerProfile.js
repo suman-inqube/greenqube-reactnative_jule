@@ -10,6 +10,8 @@ import {
 import React, {useState, useEffect, useContext} from 'react';
 import ImageForm from '../../Common/ImageForm';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 import {
   fetchBlockAPI,
@@ -159,7 +161,11 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
   };
   let languageDataList = async dbname => {
     try {
-      let language_res = await firstLanguageListAPI(dbname);
+      // let language_res = await firstLanguageListAPI(dbname);
+      let language_res = await axiosGet(ROUTES.GET.FIRST_LAN_LIST(), null, {
+        information: `${dbname}`,
+      });
+
       if (language_res?.status == 200) {
         let languageArray = language_res?.data?.data.map(data => ({
           value: data.id,
@@ -286,9 +292,23 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
       block: block,
     });
     const [res, farmarDoc] = await Promise.all([
-      farmerProfileInformation(dbname, lan_id, token, user_id),
-      farmerDocAPI(dbname, lan_id, token, user_id),
+      axiosGet(
+        ROUTES.GET.FARMER_PROFILE_INFO({
+          user_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ), //dbname, lan_id, token, user_id
+
+      axiosGet(
+        ROUTES.GET.FARMER_DOC({
+          user_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ), //dbname, lan_id, token, user_id  //dbname, lan_id, token, user_id
     ]);
+
     if (farmarDoc?.status === 200) {
       if (farmarDoc?.data?.data?.[0]?.agri_files) {
         const agriFiles = farmarDoc.data.data[0].agri_files;
@@ -391,6 +411,7 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
     setmyPhoto({uri: '', type: '', name: ''});
     setSelectedImage(null);
     onPageLoad();
+    console.log('ROUTES.PUT', ROUTES.PUT.USER_PROFILE_UPDATE);
   }, []);
   const handleUserListUpdate = async () => {
     setIsLoading(true);
@@ -516,14 +537,44 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
       formDataDoc.append('user_id', loginUserId);
       const [userDataUpdate, deletePlotImageAPIRes, addPlotImageAPIRes] =
         await Promise.all([
-          UserProfileUpdate(
-            dbName,
-            languageID,
-            loginUserId,
-            loginUserToken,
+          axiosPut(
+            ROUTES.PUT.USER_PROFILE_UPDATE({
+              user_id: loginUserId,
+            }),
             formData,
+            loginUserToken,
+            false,
+            {information: `${dbName},${languageID}`},
+          ), //dbname, lan_id, token, user_id
+          // UserProfileUpdate(
+          //   dbName,
+          //   languageID,
+          //   loginUserId,
+          //   loginUserToken,
+          //   formData,
+          // ),
+
+          // addIdAddressImgs(dbName, lan_id, loginUserId, token, formDataDoc),
+
+          axiosPost(
+            ROUTES.POST.ADD_ID_ADDRESS_IMGS(),
+            formDataDoc,
+            token,
+            false,
+            {
+              information: `${dbName},${lan_id},${loginUserId}`,
+            },
           ),
-          addIdAddressImgs(dbName, lan_id, loginUserId, token, formDataDoc),
+
+          // axiosDelete(
+          //   ROUTES.DELETE.DEL_PLOT_IMG(),
+          //   formDataDelete,
+          //   token,
+          //   false,
+          //   {
+          //     information: `${dbName},${lan_id}`,
+          //   },
+          // ),
           deletePlotImageAPI(dbName, lan_id, token, formDataDelete),
         ]);
       if (userDataUpdate.status === 200) {

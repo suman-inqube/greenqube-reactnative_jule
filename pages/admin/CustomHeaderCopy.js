@@ -53,7 +53,7 @@ const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
     <View style={styles.mainContainer}>
       <StatusBar
         barStyle={drawerStatus === 'open' ? 'light-content' : 'light-content'}
-        backgroundColor={drawerStatus === 'open' ? Colors.drawer : '#00451c'}
+        backgroundColor={drawerStatus === 'open' ? Colors.drawer : '#478541'}
       />
       <View
         style={
@@ -66,14 +66,21 @@ const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{width: 30, height: 30, tintColor: 'white'}}
+              style={{width: 30, height: 25, tintColor: 'white'}}
             />
           </TouchableOpacity>
-          <Image
-            source={require('../Common/images/greenqube_logo.png')}
-            style={{width: 100, height: 45}}
-            resizeMode="contain"
-          />
+          <View
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 10,
+              marginLeft: 10,
+            }}>
+            <Image
+              source={require('../Common/images/greenqube_logo.png')}
+              style={{width: 80, height: 40}}
+              resizeMode="contain"
+            />
+          </View>
         </View>
         <TouchableOpacity onPress={openDrawer}>
           <View
@@ -81,6 +88,7 @@ const CustomHeaderCopy = ({path, HandlerGoBack, banner}) => {
               flexDirection: 'row',
               marginRight: 10,
               alignItems: 'center',
+              overflow: 'hidden',
             }}>
             {logoImage ? (
               <ImageForm
@@ -139,7 +147,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     position: 'relative',
     overflow: 'hidden',
-    backgroundColor: '#00451c',
+    backgroundColor: '#478541',
   },
 
   androidContainer: {

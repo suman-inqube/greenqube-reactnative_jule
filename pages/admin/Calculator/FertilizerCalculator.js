@@ -4,6 +4,7 @@ import DropdownForm from '../../Common/DropdownForm';
 import {useTranslation} from 'react-i18next';
 import ButtonForm from '../../Common/ButtonForm';
 import CalculatorController from '../../ViewController/CalculatorController';
+import {Colors, Fonts} from '../../utils/Constants';
 const FertilizerCalculator = () => {
   const {t} = useTranslation();
   const {
@@ -21,28 +22,30 @@ const FertilizerCalculator = () => {
   } = CalculatorController();
   return (
     <>
-      <View style={styles.comtainer}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <DropdownForm
-            label={t('select_crop_type')}
-            color={'red'}
-            data={livelihoodType}
-            onChange={onChangeLivelihoodType}
-            val={livelihoodData.name}
-          />
-          <DropdownForm
-            label={t('select_crop_name')}
-            color={'red'}
-            data={produceName}
-            onChange={onChangeProduceName}
-          />
-          <DropdownForm
-            label={t('select_growth_stage')}
-            color={'red'}
-            data={growthStage}
-            onChange={onChangeGrowthStage}
-            val={growthStageData.name}
-          />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <DropdownForm
+              label={t('select_crop_type')}
+              required={true}
+              data={livelihoodType}
+              onChange={onChangeLivelihoodType}
+              val={livelihoodData.name}
+            />
+            <DropdownForm
+              label={t('select_crop_name')}
+              required={true}
+              data={produceName}
+              onChange={onChangeProduceName}
+            />
+            <DropdownForm
+              label={t('select_growth_stage')}
+              required={true}
+              data={growthStage}
+              onChange={onChangeGrowthStage}
+              val={growthStageData.name}
+            />
+          </View>
           {fertilizerResult.length > 0 &&
             fertilizerResult.map((data, index) => (
               <View key={index} style={styles.resultViewContainer}>
@@ -94,15 +97,15 @@ const FertilizerCalculator = () => {
                 </View>
               </View>
             ))}
-          <View style={styles.btnWrapper}>
-            <View style={styles.btnContainer}>
-              <ButtonForm
-                label={t('view_result')}
-                onPress={() => ViewResult('FertilizerCalculator')}
-              />
-            </View>
-            <View style={styles.btnBorder}></View>
-          </View>
+
+          <ButtonForm
+            label={t('view_result')}
+            onPress={() => ViewResult('FertilizerCalculator')}
+            iconName="calculate"
+            iconColor="#fff"
+            iconSize={30}
+          />
+
           {fertilizerResult.length > 0 &&
             fertilizerResult.map((data, index) =>
               data.result.map((resultData, e) => (
@@ -132,49 +135,72 @@ const FertilizerCalculator = () => {
                 </View>
               )),
             )}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </>
   );
 };
 
 export default FertilizerCalculator;
 const styles = StyleSheet.create({
-  comtainer: {
+  container: {
     flex: 1,
+    backgroundColor: Colors.containerGreen,
+    marginHorizontal: '3%',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+    marginBottom: 20,
+  },
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 10,
+    marginVertical: '5%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     marginHorizontal: '2.5%',
-    marginTop: 30,
   },
-  btnWrapper: {
-    marginTop: 100,
-  },
-  btnContainer: {
-    paddingHorizontal: '30%',
-    zIndex: 999,
-  },
-  btnBorder: {
-    width: '100%',
-    borderWidth: 0.8,
-    borderColor: '#003c04',
-    backgroundColor: '#003c04',
-    position: 'absolute',
-    top: -30,
-    zIndex: 111,
-  },
-  title: {
-    color: '#000',
-    fontFamily: 'Poppins-Regular',
-    textAlign: 'center',
-  },
-  resultViewContainer: {
-    flexDirection: 'row',
-  },
-  combinationContaion: {
-    borderWidth: 1,
-    marginVertical: 10,
-  },
-  combinationContaionHeader: {
-    paddingVertical: 10,
-    backgroundColor: '#C8C8C8',
-  },
+
+  //////////////////////////////////////////////////////
+  // comtainer: {
+  //   flex: 1,
+  //   marginHorizontal: '2.5%',
+  //   marginTop: 30,
+  // },
+  // btnWrapper: {
+  //   marginTop: 100,
+  // },
+  // btnContainer: {
+  //   paddingHorizontal: '30%',
+  //   zIndex: 999,
+  // },
+  // btnBorder: {
+  //   width: '100%',
+  //   borderWidth: 0.8,
+  //   borderColor: '#003c04',
+  //   backgroundColor: '#003c04',
+  //   position: 'absolute',
+  //   top: -30,
+  //   zIndex: 111,
+  // },
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   textAlign: 'center',
+  // },
+  // resultViewContainer: {
+  //   flexDirection: 'row',
+  // },
+  // combinationContaion: {
+  //   borderWidth: 1,
+  //   marginVertical: 10,
+  // },
+  // combinationContaionHeader: {
+  //   paddingVertical: 10,
+  //   backgroundColor: '#C8C8C8',
+  // },
 });

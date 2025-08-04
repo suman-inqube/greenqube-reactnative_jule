@@ -33,6 +33,7 @@ import {Colors, Fonts} from '../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
 import {axiosGet} from '../utils/api';
 import {ROUTES} from '../utils/Routes';
+import TrackingInformationTabs from './TrackingInformationTabs';
 
 // import DeviceInfo from 'react-native-device-info';
 const FarmerDashboard = ({navigation}) => {
@@ -222,7 +223,19 @@ const FarmerDashboard = ({navigation}) => {
 
   const fetchUsefulInformation = async () => {
     try {
-      const response = await cropListApi(dbname, lan_id, user_id);
+      const response = await axiosGet(
+        ROUTES.GET.CROP_LIST({
+          pageNO: 1,
+          carbonType: '',
+          userID: '',
+          searchItem: '',
+          from_date: '',
+          to_date: '',
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ); //dbname, lan_id, user_id
+
       if (response?.status == 200) {
         let cropId = '';
         const datam = response?.data?.data?.rows;
@@ -231,16 +244,32 @@ const FarmerDashboard = ({navigation}) => {
         });
         const newCropId = cropId.substring(0, cropId.length - 1);
 
-        const infoResponse = await farmerUsefulInfoListAPI(
-          dbname,
-          lan_id,
-          user_id,
-          loginUser_data.agri_user_addresses[0].agri_state.fid,
-          loginUser_data.agri_user_addresses[0].agri_district.fid,
-          loginUser_data.agri_user_addresses[0].agri_subdivision.fid,
-          newCropId,
-          'farmer',
-          'general_info',
+        // const infoResponse = await farmerUsefulInfoListAPI(
+        //   dbname,
+        //   lan_id,
+        //   user_id,
+        //   loginUser_data.agri_user_addresses[0].agri_state.fid,
+        //   loginUser_data.agri_user_addresses[0].agri_district.fid,
+        //   loginUser_data.agri_user_addresses[0].agri_subdivision.fid,
+        //   newCropId,
+        //   'farmer',
+        //   'general_info',
+        // );
+
+        const infoResponse = await axiosGet(
+          ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+            userId: user_id,
+            userType: 'farmer',
+            post: 'general_info',
+            state_id: loginUser_data.agri_user_addresses[0].agri_state.fid,
+            district_id:
+              loginUser_data.agri_user_addresses[0].agri_district.fid,
+            subdiv_id:
+              loginUser_data.agri_user_addresses[0].agri_subdivision.fid,
+            newCropId: newCropId,
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
         );
 
         if (infoResponse?.status == 200) {
@@ -341,6 +370,7 @@ const FarmerDashboard = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <>
+        {/* <StatusBar barStyle="light-content" backgroundColor={'#478541'} /> */}
         <BackGroundLocation />
         <ForegroundLocationService />
         <ForegroundHandler />
@@ -482,190 +512,14 @@ const FarmerDashboard = ({navigation}) => {
             </View>
 
             {/*---------------heading---------- */}
-            <View
-              style={{
-                backgroundColor: '#d5e0ed',
-                marginBottom: 30,
-                marginHorizontal: 15,
-                borderRadius: 15,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  // paddingHorizontal: 10,
-                  // marginVertical: 10,
-                  paddingTop: 10,
-                  // height: 70,
-                }}>
-                <TouchableOpacity
-                  style={[
-                    styles.tabButton,
-                    activeTab === 'tracking' && styles.activeTab,
-                  ]}
-                  onPress={() => setActiveTab('tracking')}>
-                  <Text
-                    style={[
-                      styles.tabText,
-                      activeTab === 'tracking' && styles.activeTabText,
-                    ]}>
-                    {t('Tracking')}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.tabButton,
-                    activeTab === 'information' && styles.activeTab,
-                  ]}
-                  onPress={() => setActiveTab('information')}>
-                  <Text
-                    style={[
-                      styles.tabText,
-                      activeTab === 'information' && styles.activeTabText,
-                    ]}>
-                    {t('information')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/*---------------------------------------------Tracking----------------------------------------- */}
-              <View style={[styles.tabContentContainer, {minHeight: 260}]}>
-                {activeTab === 'tracking' && (
-                  <>
-                    <View style={styles.seeAllButton}>
-                      <TouchableOpacity
-                        onPress={() => navigateToPages('FarmerActivityList')}>
-                        <Text style={styles.seeAllText}>See All</Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={{}}>
-                      {latestActivities.length > 0 && (
-                        <View style={{}}>
-                          <FlatList
-                            data={latestActivities.slice(0, 3)}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({item}) => (
-                              <TouchableOpacity
-                                // key={index}
-                                style={styles.dataItem}
-                                onPress={() => {
-                                  navigation.navigate('FarmerActivityDetail', {
-                                    activity: item,
-                                  });
-                                }}>
-                                <View
-                                  style={{
-                                    width: '8%',
-                                    marginBottom: 5,
-                                  }}>
-                                  <MaterialIcons
-                                    name="south-east"
-                                    size={20}
-                                    color="#266c0d"
-                                  />
-                                </View>
-                                <View style={{}}>
-                                  <View style={styles.itemView}>
-                                    {/* <Text style={styles.title}>
-                                    {' '}
-                                    Activity Name{':  '}
-                                  </Text> */}
-
-                                    <Marquee
-                                      speed={0.5}
-                                      spacing={150}
-                                      fade={true}>
-                                      <Text style={styles.titleResult}>
-                                        {item?.typeActivity
-                                          ? item?.typeActivity?.categoryName
-                                          : 'Activity Name: Nill'}
-                                      </Text>
-                                    </Marquee>
-                                  </View>
-                                  <View style={{flexDirection: 'row'}}>
-                                    <Text style={styles.dateTitle}>
-                                      {' '}
-                                      {t('perf_date')}
-                                      {':  '}{' '}
-                                    </Text>
-                                    <Text style={styles.dateResult}>
-                                      {item.act_perform_date}
-                                    </Text>
-                                  </View>
-                                </View>
-                              </TouchableOpacity>
-                            )}
-                          />
-                        </View>
-                      )}
-                    </View>
-                  </>
-                )}
-                {/*------------information------------------ */}
-                {activeTab === 'information' && (
-                  <>
-                    <View style={styles.seeAllButton}>
-                      <TouchableOpacity
-                        onPress={() =>
-                          navigateToPages('FarmerUsefulInformationList')
-                        }>
-                        <Text style={styles.seeAllText}>See All</Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <View>
-                      {/* {usefulInfoList.length > 0 && ( */}
-                      <View>
-                        <FlatList
-                          data={usefulInfoList}
-                          keyExtractor={item => item.fid.toString()}
-                          renderItem={({item}) => (
-                            <TouchableOpacity
-                              style={styles.dataItem}
-                              onPress={() => handleInfoPress(item.fid)}>
-                              <View
-                                style={{
-                                  width: '8%',
-                                  marginRight: 20,
-                                  marginBottom: 5,
-                                }}>
-                                <MaterialIcons
-                                  name="article"
-                                  size={20}
-                                  color="#266c0d"
-                                />
-                              </View>
-                              <View style={styles.itemView}>
-                                <Marquee speed={0.5} spacing={150} fade={true}>
-                                  <Text
-                                    style={styles.titleResult}
-                                    numberOfLines={1}
-                                    ellipsizeMode="tail">
-                                    {item.post_name}
-                                  </Text>
-                                </Marquee>
-                              </View>
-                              <View style={{flexDirection: 'row'}}>
-                                <Text style={styles.dateTitle}>
-                                  {' '}
-                                  {t('Date')} {':  '}{' '}
-                                </Text>
-                                <Text style={styles.dateResult}>
-                                  {moment(item.updated_at)
-                                    .utc()
-                                    .format('YYYY-MM-DD')}
-                                </Text>
-                              </View>
-                            </TouchableOpacity>
-                          )}
-                        />
-                      </View>
-                      {/* )} */}
-                    </View>
-                  </>
-                )}
-              </View>
-            </View>
+            <TrackingInformationTabs
+              navigation={navigation}
+              latestActivities={latestActivities}
+              usefulInfoList={usefulInfoList}
+              t={t}
+              navigateToPages={navigateToPages}
+              handleInfoPress={handleInfoPress}
+            />
             {/*------------------bottom------------------ */}
 
             <View

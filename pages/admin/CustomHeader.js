@@ -37,7 +37,7 @@ const CustomHeader = ({
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{width: 30, height: 30, tintColor: 'white'}}
+              style={{width: 30, height: 25, tintColor: 'white'}}
             />
           </TouchableOpacity>
           <View
@@ -48,7 +48,7 @@ const CustomHeader = ({
             }}>
             <Image
               source={require('../Common/images/logo.png')}
-              style={{width: 100, height: 50}}
+              style={{width: 80, height: 40}}
               resizeMode="contain"
             />
           </View>
@@ -59,8 +59,8 @@ const CustomHeader = ({
               flexDirection: 'row',
               marginRight: 10,
               alignItems: 'center',
-              flex: 1,
-              paddingVertical: 35,
+              // flex: 1,
+              // paddingVertical: 30,
               overflow: 'hidden',
             }}>
             {logoImage ? (
