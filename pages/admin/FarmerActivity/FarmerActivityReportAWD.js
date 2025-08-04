@@ -946,7 +946,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
         return false;
       }
       if (
-        selectedImagePipe?.firstItem == '' &&
+        selectedImagePipe?.firstItem == '' ||
         selectedImagePipe?.secondItem == ''
       ) {
         Toast.show({

@@ -341,7 +341,7 @@ const PostNew = (props) => {
                                 <Text style={{ color: "#000" }}>{t('approximate_date')}</Text>
                                 <TouchableOpacity style={styles.appromimateContainer} onPress={() => setOpenDatePicker(!openDatePicker)}>
                                     <Text style={{ color: "#000" }}>{approximateDate}</Text>
-                                    <Image source={require('../../Common/images/calendar.png')} style={{ width: 30, height: 30 }} />
+                                    {/* <Image source={require('../../Common/images/calendar.png')} style={{ width: 30, height: 30 }} /> */}
                                 </TouchableOpacity>
                             </View>
                             <View  >

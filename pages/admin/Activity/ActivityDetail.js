@@ -156,7 +156,7 @@ const ActivityDetail = () => {
                 }
                 setCarbonActivity([]);
             }
-            // console.log(JSON.stringify(farmerFound));
+             console.log('farmerFound=', JSON.stringify(farmerFound));
 
             setfarmerActivity({
                 ...farmerActivity,
