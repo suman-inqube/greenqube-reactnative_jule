@@ -131,32 +131,32 @@ const CrateProblemUser = ({ navigation }) => {
         if (response) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
-                name: response.data.data.rows[0].crop_name.name,
-                varity: response.data.data.rows[0].crop_variety.name,
-                cycleStarts: response.data.data.rows[0].sowing_date,
-                cycleEnd: response.data.data.rows[0].harvesting_date,
-                production_process: response.data.data.rows[0].farmer_production_system.name,
+                name: response?.data?.data?.crop_name.name,
+                varity: response?.data?.data?.crop_variety.name,
+                cycleStarts: response?.data?.data?.sowing_date,
+                cycleEnd: response?.data?.data?.harvesting_date,
+                production_process: response?.data?.data?.farmer_production_system.name,
             })
-            const dateString = response.data.data.rows[0].harvesting_date;
+            const dateString = response?.data?.data?.harvesting_date;
             const harvesting_date = new Date(dateString);
             const currentDate = new Date();
             if (harvesting_date > currentDate) {
                 setShowingMenu(true)
                 setSaveData({
                     ...saveData,
-                    crop_season_id: response.data.data.rows[0].crop_season_id,
-                    crop_type_id: response.data.data.rows[0].crop_type_id,
-                    crop_variety_id: response.data.data.rows[0].crop_variety_id,
-                    crop_name_id: response.data.data.rows[0].crop_name_id,
-                    plot_id: relId.value,
-                    harvesting_date: response.data.data.rows[0].harvesting_date,
-                    sowing_date: response.data.data.rows[0].sowing_date,
-                    production_system: response.data.data.rows[0].farmer_production_system.fa_id,
+                    crop_season_id: response?.data?.data?.crop_season_id,
+                    crop_type_id: response?.data?.data?.crop_type_id,
+                    crop_variety_id: response?.data?.data?.crop_variety_id,
+                    crop_name_id: response.data.data?.crop_name_id,
+                    plot_id: relId?.value,
+                    harvesting_date: response?.data.data?.harvesting_date,
+                    sowing_date: response?.data?.data?.sowing_date,
+                    production_system: response?.data?.data?.farmer_production_system.fa_id,
                     agent_id: user_id,
                 })
-                setCropType(response.data.data.rows[0].crop_type.fid)
-                setCropName(response.data.data.rows[0].crop_name.fid)
-                const productionStage_res = await problemProductionStageAPI(dbname, lan_id, response.data.data.rows[0].crop_type_id, response.data.data.rows[0].crop_name_id)
+                setCropType(response?.data?.data?.crop_type.fid)
+                setCropName(response?.data?.data?.crop_name.fid)
+                const productionStage_res = await problemProductionStageAPI(dbname, lan_id, response?.data?.data?.crop_type_id, response?.data?.data?.crop_name_id)
                 if (productionStage_res) {
                     const dataArray = [];
                     productionStage_res.data.data.growth_stage.forEach(element => {

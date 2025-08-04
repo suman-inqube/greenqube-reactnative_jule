@@ -806,8 +806,10 @@ export const problemProduceAgainstPlotAPI = async (
       `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`,
       axiosHeaders,
     );
+    console.log('es111=', response);
     return response;
   } catch (error) {
+    console.log('error=', error);
     CrashlyticsRecordError(error.response);
     return console.log('error in produceAgainstPlotAPI ' + error.response);
   }
