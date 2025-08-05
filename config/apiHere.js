@@ -440,14 +440,9 @@ export const farmerActivityListAPI = async (
     },
   };
   try {
-    // let response = await axios.get(
-    //   `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-    //   axiosHeaders,
-    // );
-    // return response;
      const instance = await getAxiosInstance();
     let response = await instance.get(
-      `${config.BASE_URL}settingsRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `${config.BASE_URL}settingsRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       {
         headers: {
           authorization: `${token}`,
