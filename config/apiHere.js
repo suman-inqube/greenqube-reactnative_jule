@@ -724,7 +724,7 @@ export const problemListAPI = async (
   dbName,
   languageID,
   token,
-  userID,
+  AgentID,
   pageNo,
   user_id = '',
   from_date = '',
@@ -736,6 +736,10 @@ export const problemListAPI = async (
       information: `${dbName},${languageID}`,
     },
   };
+  // console.log(
+  //   axiosHeaders,
+  //   `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${AgentID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
+  // );
   try {
     // let response = await axios.get(
     //   `${config.BASE_URL}questionRoute/list/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
@@ -744,7 +748,7 @@ export const problemListAPI = async (
     // return response;
 const instance = await getAxiosInstance();
      let response = await instance.get(
-       `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
+       `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${AgentID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
        axiosHeaders,
      );
      console.log('chech 11=', response);

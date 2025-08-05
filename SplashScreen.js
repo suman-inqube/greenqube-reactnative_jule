@@ -134,7 +134,7 @@ const SplashScreen = ({ navigation }) => {
             //  console.log('Base URL:', baseUrl);
             //  console.log('Encrypted Key:', encryptedKey);
             const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
-            if (shouldContinue == false) return;
+            // if (shouldContinue == false) return;
             const [companyLanguage_data, loginUser_data] = await Promise.all([
                 getItem('companyLanguage_data'),
                 getItem('loginUser_data'),

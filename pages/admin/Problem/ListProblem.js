@@ -89,6 +89,7 @@ const ListProblem = ({ navigation }) => {
         } else {
             response = await getItem('problemTypeName');
         }
+        console.log('prob = ', response);
         if (response?.status == 200) {
             setIsLoading(false);
             const totalPage = Math.ceil(response?.data?.data.count / 20)
