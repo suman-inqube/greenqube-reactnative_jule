@@ -806,7 +806,6 @@ export const problemProduceAgainstPlotAPI = async (
       `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relID}`,
       axiosHeaders,
     );
-    console.log('es111=', response);
     return response;
   } catch (error) {
     console.log('error=', error);
@@ -1884,7 +1883,7 @@ export const farmIncomeExpenceSaveAPI = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('farmIncomeExpenceSaveAPI:', error.response.data);
+    // return console.log('farmIncomeExpenceSaveAPI:', error.response.data);
   }
 };
 

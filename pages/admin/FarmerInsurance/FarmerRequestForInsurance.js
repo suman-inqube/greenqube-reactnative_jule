@@ -49,15 +49,15 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             setPickPlot(plotArray)
             setIsChecked({ ...isChecked, [index]: value });
             const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value);
-            if (response) {
+            if (response?.status==200) {
                 setNameVarityStartEnd([...nameVarityStartEnd, {
-                    plot_no: response?.data?.data?.rows[0]?.land_info.plot_no,
-                    plot_id: response?.data?.data?.rows[0]?.land_rel_id,
-                    name: response?.data?.data?.rows[0]?.crop_name.name,
-                    varity: response?.data?.data?.rows[0]?.crop_variety.name,
-                    cycleStarts: response?.data?.data?.rows[0]?.sowing_date,
-                    cycleEnd: response?.data?.data?.rows[0]?.harvesting_date,
-                    production_process: response?.data?.data?.rows[0]?.farmer_production_system.name
+                    plot_no: response?.data?.data?.land_info.plot_no,
+                    plot_id: response?.data?.data?.land_rel_id,
+                    name: response?.data?.data?.crop_name.name,
+                    varity: response?.data?.data?.crop_variety.name,
+                    cycleStarts: response?.data?.data?.sowing_date,
+                    cycleEnd: response?.data?.data?.harvesting_date,
+                    production_process: response?.data?.data?.farmer_production_system.name
                 }])
             }
         }
@@ -88,10 +88,10 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             <Root>
                 <ScrollView>
                     <View style={styles.container}>
-                        <InputTextForm label={t('farmer_name')} value={userName} />
-                        <InputTextForm label={t('farmer_number')} value={contactNumber} />
-                        <InputTextForm label={t('adhar_no')} value={aadhar_number} />
-                        <InputTextForm label={t('kcc_no')} value={kcc_number} />
+                        <InputTextForm label={t('farmer_name')} value={userName} editable={false} />
+                        <InputTextForm label={t('farmer_number')} value={contactNumber} editable={false}/>
+                        <InputTextForm label={t('adhar_no')} value={aadhar_number} editable={false} />
+                        <InputTextForm label={t('kcc_no')} value={kcc_number} editable={false}/>
                         <Text style={styles.plotTitle}>{t('plot')}</Text>
                         <View style={styles.PlotSiteList}>
                             {

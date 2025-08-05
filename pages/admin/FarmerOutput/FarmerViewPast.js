@@ -130,7 +130,7 @@ const FarmerViewPast = () => {
             setOutputListAll(outputList?.data?.data?.rows);
             setOutputListRaw(outputList?.data?.data?.rows);
             setItem("output_data", outputList?.data?.data?.rows);
-            if (route.params != undefined) {
+            if (route.params?.data != "remove") {
                 navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id)
             }
         }
@@ -163,7 +163,7 @@ const FarmerViewPast = () => {
                     <View>
                         <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />
                         <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />
-                        <ViewModalPast setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle={outputSingle} pastEnquiryView={pastEnquiryView} qty={result} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} />
+                        {modalVisible&&<ViewModalPast setModalVisible={setModalVisible} modalVisible={modalVisible} outputSingle={outputSingle} pastEnquiryView={pastEnquiryView} qty={result} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }} />}
                         <Filter
                             filterItem={filterItem}
                             filterOption={filterOption}

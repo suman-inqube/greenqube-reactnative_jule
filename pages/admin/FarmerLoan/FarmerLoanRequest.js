@@ -1255,14 +1255,15 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         ) : null}
         <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
           <View style={styles.container}>
-            <InputTextForm label={t('farmer_name')} value={userName} />
+            <InputTextForm label={t('farmer_name')} value={userName} editable={false}/>
             <InputTextForm
               label={t('farmer_number')}
               value={contactNumber}
               keyboardType={'numeric'}
+              editable={false}
             />
-            <InputTextForm label={t('adhar_no')} value={aadhar_number} />
-            <InputTextForm label={t('kcc_no')} value={kcc_number} />
+            <InputTextForm label={t('adhar_no')} value={aadhar_number} editable={false} />
+            <InputTextForm label={t('kcc_no')} value={kcc_number} editable={false}/>
 
             <View style={styles.idcontainer}>
               <Text style={{ color: '#000' }}>{t('identity_proof')}</Text>

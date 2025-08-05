@@ -133,8 +133,8 @@ const SplashScreen = ({ navigation }) => {
             //  const encryptedKey = await ConfigModule.getEncryptedKey();
             //  console.log('Base URL:', baseUrl);
             //  console.log('Encrypted Key:', encryptedKey);
-            const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
-            if (shouldContinue == false) return;
+            // const shouldContinue = await handleAppStateChange(); // ⬅ check immediately on load
+            // if (shouldContinue == false) return;
             const [companyLanguage_data, loginUser_data] = await Promise.all([
                 getItem('companyLanguage_data'),
                 getItem('loginUser_data'),

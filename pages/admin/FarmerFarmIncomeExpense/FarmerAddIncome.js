@@ -118,28 +118,29 @@ const FarmerAddIncome = ({ navigation }) => {
     }
     const handleSave = async () => {
         // return console.log(data);
+        console.log(saveData?.land_rel_id=="");
         let grand_total = 0
         data.forEach(element => {
             grand_total += parseInt(element.amount)
         });
         // return console.log("grand_total", grand_total);
-        const qs = require('qs');
-        let save_data = qs.stringify({
-            'land_rel_id': saveData.land_rel_id,
-            'crop_name_id': saveData.crop_name_id,
-            'harvesting_date': saveData.harvesting_date.substring(0, 10),
-            'sowing_date': saveData.sowing_date,
-            'createdBy': saveData.createdBy,
-            'type': 'cost_production',
-            'plot_size': saveData.plot_size,
-            'grand_total': grand_total,
-            'expense_total': '0',
-            'cost_head': JSON.stringify(data)
-        });
-        const response = await farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
-        if (response?.status == 200) {
-            navigation.navigate('FarmerFarmIncomeExpenseList');
-        }
+        // const qs = require('qs');
+        // let save_data = qs.stringify({
+        //     'land_rel_id': saveData.land_rel_id,
+        //     'crop_name_id': saveData.crop_name_id,
+        //     'harvesting_date': saveData.harvesting_date.substring(0, 10),
+        //     'sowing_date': saveData.sowing_date,
+        //     'createdBy': saveData.createdBy,
+        //     'type': 'cost_production',
+        //     'plot_size': saveData.plot_size,
+        //     'grand_total': grand_total,
+        //     'expense_total': '0',
+        //     'cost_head': JSON.stringify(data)
+        // });
+        // const response = await farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
+        // if (response?.status == 200) {
+        //     navigation.navigate('FarmerFarmIncomeExpenseList');
+        // }
     }
     const HandlerGoBack = () => navigation.navigate('FarmerFarmIncomeExpenseList');
     return (

@@ -6,7 +6,6 @@ const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpaci
 
 const GridItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => {
   const animVal = getAnimationValue(item.fid);
-
   useEffect(() => {
     animVal.setValue(0);
     Animated.timing(animVal, {

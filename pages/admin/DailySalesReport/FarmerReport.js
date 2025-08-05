@@ -129,10 +129,10 @@ const FarmerReport = () => {
         if (response?.status == 200) {
             setNameVarityStartEnd({
                 ...nameVarityStartEnd,
-                name: response?.data?.data?.rows[0].crop_name.name,
-                name_fid: response?.data?.data?.rows[0].crop_name.fid,
-                varity: response?.data?.data?.rows[0].crop_variety.name,
-                varity_fid: response?.data?.data?.rows[0].crop_variety.fid,
+                name: response?.data?.data?.crop_name.name,
+                name_fid: response?.data?.data?.crop_name.fid,
+                varity: response?.data?.data?.crop_variety.name,
+                varity_fid: response?.data?.data?.crop_variety.fid,
             })
         }
     }
