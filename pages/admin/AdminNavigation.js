@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {StyleSheet} from 'react-native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
 
 import Dashboard from './Dashboard';
@@ -46,17 +46,25 @@ import PlotSiteProduceInformation from './UserRegistation/PlotSiteProduceInforma
 import RegistationSignUpViwer from './UserRegistation/RegistationSignUpViwer';
 import ChangePassword from './ChangePassword/ChangePassword';
 import Business from './Business/Business';
+import {Colors} from '../utils/Constants';
 
 const Stack = createNativeStackNavigator();
 
 function AdminStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {backgroundColor: 'transparent'},
+      }}>
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="Training" component={Training} />
       <Stack.Screen name="TraingList" component={TrainingList} />
       <Stack.Screen name="UsefulInformation" component={UsefulInformation} />
-      <Stack.Screen name="UsefulInformationList" component={UsefulInformationList} />
+      <Stack.Screen
+        name="UsefulInformationList"
+        component={UsefulInformationList}
+      />
       <Stack.Screen name="ProblemCreate" component={CreateProblem} />
       <Stack.Screen name="ProblemList" component={ListProblem} />
       <Stack.Screen name="ProblemView" component={ViewProblem} />
@@ -83,14 +91,32 @@ function AdminStack() {
       <Stack.Screen name="SalesDetail" component={SalesDetail} />
       <Stack.Screen name="DealerReport" component={DealerReport} />
       <Stack.Screen name="FarmerReport" component={FarmerReport} />
-      <Stack.Screen name="FarmIncomeExpenseList" component={FarmIncomeExpenseList} />
-      <Stack.Screen name="FarmIncomeExpenseView" component={FarmIncomeExpenseView} />
+      <Stack.Screen
+        name="FarmIncomeExpenseList"
+        component={FarmIncomeExpenseList}
+      />
+      <Stack.Screen
+        name="FarmIncomeExpenseView"
+        component={FarmIncomeExpenseView}
+      />
       <Stack.Screen name="AddIcome" component={AddIcome} />
       <Stack.Screen name="AddExpense" component={AddExpense} />
-      <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
-      <Stack.Screen name="FinancialInformation" component={FinancialInformation} />
-      <Stack.Screen name="PlotSiteProduceInformation" component={PlotSiteProduceInformation} />
-      <Stack.Screen name="RegistationSignUpViwer" component={RegistationSignUpViwer} />
+      <Stack.Screen
+        name="PersonalInformation"
+        component={PersonalInformation}
+      />
+      <Stack.Screen
+        name="FinancialInformation"
+        component={FinancialInformation}
+      />
+      <Stack.Screen
+        name="PlotSiteProduceInformation"
+        component={PlotSiteProduceInformation}
+      />
+      <Stack.Screen
+        name="RegistationSignUpViwer"
+        component={RegistationSignUpViwer}
+      />
       <Stack.Screen name="ChangePassword" component={ChangePassword} />
       <Stack.Screen name="Business" component={Business} />
     </Stack.Navigator>
@@ -104,9 +130,13 @@ const AdminNavigation = () => {
       drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: false,
+        // header: () => <CustomHeader />,
+
+        drawerType: 'slide',
         drawerPosition: 'right',
         drawerActiveTintColor: '#f8f8f8',
-        drawerActiveBackgroundColor: '#093514',
+        drawerActiveBackgroundColor: Colors.drawer,
+        overlayColor: 'transparent',
         drawerInactiveTintColor: '#FFF',
         drawerStatusBarAnimation: 'fade',
         drawerItemStyle: {
@@ -118,13 +148,18 @@ const AdminNavigation = () => {
           marginLeft: -20,
         },
         drawerStyle: {
-          backgroundColor: '#093514',
-          width: '80%',
-          marginTop: 50,
+          backgroundColor: Colors.drawer, //dark brown //'#0f1e47',dark blue //'#1a5f3c dark green'//'#093514',green
+          width: '65%', // pre-80%
+          // marginTop: 50,
+          marginLeft: -0.2,
         },
-      }}
-    >
-      <Drawer.Screen name="AdminStack" component={AdminStack} options={{ title: 'Admin Dashboard' }} />
+        sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
+      }}>
+      <Drawer.Screen
+        name="AdminStack"
+        component={AdminStack}
+        options={{title: 'Admin Dashboard'}}
+      />
     </Drawer.Navigator>
   );
 };

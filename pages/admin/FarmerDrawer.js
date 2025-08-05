@@ -505,7 +505,11 @@ const FarmerDrawer = props => {
               onPress={() => handleMenuExpand('farmAcc')}>
               <View style={styles.menuItem}>
                 <View style={styles.iconView}>
-                  <MaterialIcons name="man" size={22} color="#030730" />
+                  <MaterialIcons
+                    name="account-balance"
+                    size={22}
+                    color="#030730"
+                  />
 
                   {/* <Image
                   source={require('../Common/images/insurance_menu.png')}
@@ -551,7 +555,7 @@ const FarmerDrawer = props => {
                     }>
                     <View style={styles.subMenuItem}>
                       <MaterialIcons
-                        name="man"
+                        name="currency-rupee"
                         size={20}
                         color={
                           isActive('FarmerFarmIncomeExpenseList')
