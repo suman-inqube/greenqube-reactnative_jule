@@ -1804,7 +1804,7 @@ export const farmaccountsListAPI = async (
       information: `${dbName},${languageId},${userId}`,
     },
   };
-  // console.log(`${config.BASE_URL}cropRoute/listUserCropRelsNew/1/${pageNo}/2/?search_key=&user_id=${farmerId}&from_date=${fromDate}&to_date=${toDate}`, axiosHeaders);
+   console.log(`${config.BASE_URL}cropRoute/listUserCropRelsNew/1/${pageNo}/2/?search_key=&user_id=${farmerId}&from_date=${fromDate}&to_date=${toDate}`, axiosHeaders);
   try {
     const response = await axios.get(
       `${config.BASE_URL}cropRoute/listUserCropRelsNew/1/${pageNo}/2/?search_key=&user_id=${farmerId}&from_date=${fromDate}&to_date=${toDate}`,
