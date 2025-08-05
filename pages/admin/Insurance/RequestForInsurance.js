@@ -95,7 +95,7 @@ const RequestForInsurance = ({ setActiveBtn }) => {
             isCheckedValue[index] = { isCheck: value }
             setIsChecked(isCheckedValue);
             if (response.status === 200) {
-                const { land_rel_id, crop_name, crop_variety, sowing_date, harvesting_date, farmer_production_system } = response.data.data.rows[0];
+                const { land_rel_id, crop_name, crop_variety, sowing_date, harvesting_date, farmer_production_system } = response.data.data;
                 const inputdata = [...nameVarityStartEnd];
                 inputdata[index] = {
                     plot_id: value,

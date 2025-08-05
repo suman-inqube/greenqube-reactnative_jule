@@ -129,7 +129,6 @@ const ActivityList = ({ navigation }) => {
             setIsLoading(true);
             if (isOnline) {
                 var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo, searchItem, from_date, to_date, carbonType);
-                console.log('check11', response);
                 if (response?.status == 200) { await setItem('activityList', response); }
             } else {
                 var response = await getItem('activityList');

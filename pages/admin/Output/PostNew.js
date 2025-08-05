@@ -312,7 +312,7 @@ const PostNew = (props) => {
                     {nextpage == 1 ?
                         <>
                             <InputTextForm label={t('farmer_name')} color="black" value={searchFarmerName} onChangeText={(farmerName) => handleSearch(farmerName)} />
-                            <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} />
+                            <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} editable={false}  />
                             <DropdownForm label={t('addland_select_plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId, 'plot')} val={saveData.plot_name} />
                             {
                                 isOther ?

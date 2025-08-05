@@ -673,7 +673,7 @@ const CreateProblem = ({ navigation }) => {
                 <View style={styles.fromContainer}>
                     <InputTextForm label={t('farmer_name')} value={searchFarmerName}
                         onChangeText={(farmerName) => handleSearch(farmerName)} />
-                    <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} />
+                    <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} editable={false} />
                     <DropdownForm label={t('plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} />
                     {
                         showingMenu
