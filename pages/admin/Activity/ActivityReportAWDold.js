@@ -1373,6 +1373,7 @@ const ActivityReportAWD = ({ navigation }) => {
                   label={t('farmer_number')}
                   color="red"
                   value={searchFarmerPhone}
+                  
                 />
                 <DropdownForm
                   label={t('select_plot')}

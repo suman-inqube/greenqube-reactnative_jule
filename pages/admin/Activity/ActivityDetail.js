@@ -216,10 +216,12 @@ const ActivityDetail = () => {
                   <InputTextForm
                     label={t('farmer_name')}
                     value={farmerActivity?.userName}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('farmer_number')}
                     value={farmerActivity?.contactNumber}
+                    editable={false}
                   />
                   {farmerActivity?.cropActivitycategoryName != '' &&
                   farmerActivity?.cropActivitycategoryName != null ? (
@@ -229,6 +231,7 @@ const ActivityDetail = () => {
                         value={
                           farmerActivity?.activitycategoryName?.categoryName
                         }
+                        editable={false}
                       />
                       {farmerActivity?.cropActivitycategoryName != null ? (
                         <InputTextForm
@@ -241,6 +244,7 @@ const ActivityDetail = () => {
                           )} - ${formatDateToDateName(
                             farmerActivity?.act_to_date,
                           )}`}
+                          editable={false}
                         />
                       ) : null}
                       <View style={styles.activityContainer}>
@@ -304,20 +308,24 @@ const ActivityDetail = () => {
                   <InputTextForm
                     label={t('reg_plot_name')}
                     value={farmerActivity?.plot_no}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('crop_name')}
                     value={farmerActivity?.cropName}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('growth_stage')}
                     value={farmerActivity?.growthStage}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('act_per_date')}
                     value={formatDateToDateName(
                       farmerActivity?.act_perform_date,
                     )}
+                    editable={false}
                   />
                   {carbonActivity.length != 0 && (
                     <FlatList
@@ -402,18 +410,22 @@ const ActivityDetail = () => {
                   <InputTextForm
                     label={t('your_comm_')}
                     value={farmerActivity.act_desc}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('material_used')}
                     value={farmerActivity.material_used}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('water_used')}
                     value={farmerActivity.water_used}
+                    editable={false}
                   />
                   <InputTextForm
                     label={t('power_used')}
                     value={farmerActivity.power_used}
+                    editable={false}
                   />
                   {carbonActivity.length == 0 && (
                     <>

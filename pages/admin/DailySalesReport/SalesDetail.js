@@ -14,62 +14,109 @@ const SalesDetail = () => {
     useFocusEffect(useCallback(() => { onBackPress(handleBackPress) }, []));
     const HandlerGoBack = () => navigation.navigate('DailySalesReport');
     return (
-        <View style={{ flex: 1 }}>
-            <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-            <FormsTitle title={t('sales_detail')} />
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.formContainer}>
-                    <InputTextForm label={t('dealer_name')} value={salesUser.userName} />
-                    <InputTextForm label={t('date')} value={createdAt.toString().substring(-1, 10)} />
-                    {srProducts[0] !== undefined ?
-                        srProducts[0].salesProduceName != null ?
-                            <View style={styles.srProducts}>
-                                <Text style={styles.srProductsTitle}>{t('produce_name')}:  {srProducts[0].salesProduceName.name}</Text>
-                                <Text style={styles.srProductsTitle}>{t('prodece_vareity')}:  {srProducts[0].salesProduceVariety.name}</Text>
-                            </View> : null
-                        : null
-                    }
-                    {ord_rcv != null ? <InputTextForm label={t('order_received')} value={ord_rcv} /> : null}
-                    <View>
-                        {srProducts && srProducts.map((data, index) => {
-                            if (data.salesProductCategory != null) {
-                                return (
-                                    <View style={styles.srProducts} key={index}>
-                                        <Text style={styles.srProductsTitle}>{data.salesProductCategory.name}</Text>
-                                        <Text style={styles.srProductsTitle}>{data.salesProductSubCategory.name}</Text>
-                                        <Text style={styles.srProductsTitle}>{data.salesProduct.product_name}</Text>
-                                        <Text style={styles.srProductsTitle}>{data.qty} {data.unit}</Text>
-                                    </View>
-                                )
-                            }
-                        })
-                        }
-                    </View>
-                    {ord_rcv != null ? <InputTextForm label={t('payment_mode')} value={pay_rcv} /> : null}
-                    <InputTextForm label={t('comments')} value={comment} />
-                    <Text style={{ color: '#000', marginVertical: 10 }}>{t('view_phote')}</Text>
-                    <View style={styles.photoContainer}>
-                        {
-                            images.map((data, index) => {
-                                if (typeof srFiles[index] !== 'undefined') {
-                                    return (<Image key={index}
-                                        source={{ uri: `${srFiles[index].file_path}` }}
-                                        style={{ width: 100, height: 100 }}
-                                    />)
-                                } else {
-                                    return (<Image key={index}
-                                        source={require('../../Common/images/camera.jpeg')}
-                                        style={{ width: 100, height: 100 }}
-                                    />
-                                    )
-                                }
-                            })
-                        }
-                    </View>
+      <View style={{flex: 1}}>
+        <CustomHeader
+          path="DailySalesReport"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <FormsTitle title={t('sales_detail')} />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.formContainer}>
+            <InputTextForm
+              label={t('dealer_name')}
+              value={salesUser.userName}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('date')}
+              value={createdAt.toString().substring(-1, 10)}
+              editable={false}
+            />
+            {srProducts[0] !== undefined ? (
+              srProducts[0].salesProduceName != null ? (
+                <View style={styles.srProducts}>
+                  <Text style={styles.srProductsTitle}>
+                    {t('produce_name')}: {srProducts[0].salesProduceName.name}
+                  </Text>
+                  <Text style={styles.srProductsTitle}>
+                    {t('prodece_vareity')}:{' '}
+                    {srProducts[0].salesProduceVariety.name}
+                  </Text>
                 </View>
-            </ScrollView>
-        </View>
-    )
+              ) : null
+            ) : null}
+            {ord_rcv != null ? (
+              <InputTextForm
+                label={t('order_received')}
+                value={ord_rcv}
+                editable={false}
+              />
+            ) : null}
+            <View>
+              {srProducts &&
+                srProducts.map((data, index) => {
+                  if (data.salesProductCategory != null) {
+                    return (
+                      <View style={styles.srProducts} key={index}>
+                        <Text style={styles.srProductsTitle}>
+                          {data.salesProductCategory.name}
+                        </Text>
+                        <Text style={styles.srProductsTitle}>
+                          {data.salesProductSubCategory.name}
+                        </Text>
+                        <Text style={styles.srProductsTitle}>
+                          {data.salesProduct.product_name}
+                        </Text>
+                        <Text style={styles.srProductsTitle}>
+                          {data.qty} {data.unit}
+                        </Text>
+                      </View>
+                    );
+                  }
+                })}
+            </View>
+            {ord_rcv != null ? (
+              <InputTextForm
+                label={t('payment_mode')}
+                value={pay_rcv}
+                editable={false}
+              />
+            ) : null}
+            <InputTextForm
+              label={t('comments')}
+              value={comment}
+              editable={false}
+            />
+            <Text style={{color: '#000', marginVertical: 10}}>
+              {t('view_phote')}
+            </Text>
+            <View style={styles.photoContainer}>
+              {images.map((data, index) => {
+                if (typeof srFiles[index] !== 'undefined') {
+                  return (
+                    <Image
+                      key={index}
+                      source={{uri: `${srFiles[index].file_path}`}}
+                      style={{width: 100, height: 100}}
+                    />
+                  );
+                } else {
+                  return (
+                    <Image
+                      key={index}
+                      source={require('../../Common/images/camera.jpeg')}
+                      style={{width: 100, height: 100}}
+                    />
+                  );
+                }
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
 }
 export default SalesDetail
 const styles = StyleSheet.create({
