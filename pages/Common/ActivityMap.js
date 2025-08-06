@@ -48,7 +48,7 @@ const ActivityMap = ({
 
   // Update camera heading
   useEffect(() => {
-    // console.log('photo', pipeLatLong);
+     console.log('photo', pipeLatLong);
     const listener = animatedHeading.addListener(({value}) => {
       if (mapRef.current && location) {
         mapRef.current.setCamera(
@@ -67,8 +67,8 @@ const ActivityMap = ({
 
   // Check if location is in polygon
   useEffect(() => {
-    // console.log('err', location);
-    // console.log('err22', plotPolygon);
+     console.log('err', location);
+     console.log('err22', plotPolygon);
     if (location && plotPolygon?.length) {
       const inside = isPointInPolygon(location, plotPolygon);
       console.log('inside22', inside);

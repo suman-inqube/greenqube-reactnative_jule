@@ -1283,7 +1283,7 @@ const ActivityReportAWD = ({navigation}) => {
       watchId.current = Geolocation.watchPosition(
         async position => {
           const {latitude, longitude} = position.coords;
-        
+         console.log('errrr', latitude);
           setLocation(prev => {
             if (prev?.latitude !== latitude || prev?.longitude !== longitude) {
               return {latitude, longitude};
@@ -1296,7 +1296,7 @@ const ActivityReportAWD = ({navigation}) => {
         {
           enableHighAccuracy: true,
           distanceFilter: 0,
-          timeout: 30000,
+          timeout: 3000,
           maximumAge: 0,
         },
       );
@@ -1534,6 +1534,8 @@ const ActivityReportAWD = ({navigation}) => {
   const openImagePickerPipe = async item => {
     setCameraItem(item);
     setModalVisibleMap(true);
+     console.log('errerttt', location);
+    console.log("h1");
   };
   const handleRemovedpipeDetails = _inde => {
     try {
@@ -1550,6 +1552,7 @@ const ActivityReportAWD = ({navigation}) => {
   const TakePhoto = useCallback(() => {
     //    const hasPermission = requestCameraPermission();
     // if (!hasPermission) return;
+    console.log('h2');
     const options = {
       mediaType: 'photo',
       includeBase64: true,
@@ -1558,6 +1561,7 @@ const ActivityReportAWD = ({navigation}) => {
     };
 
     launchCamera(options, async response => {
+      console.log('h');
       try {
         if (!response) {
           // Response is null, handle it safely
