@@ -615,137 +615,239 @@ const CrateProblemUser = ({ navigation }) => {
         navigation.navigate('userList');
     }
     return (
-        <View style={styles.container}>
-            <CustomHeader path='userList' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-            <DatePickerComp
-                openDate={addAffectedDate}
-                newDate={newFromDate}
-                setOpenDate={setaddAffectedDate}
-                handleDatePicker={handleDatePicker}
-            />
-            <FormsTitle title={t('add_crop_problem')} />
-            {modalVisibleRecordFirstItem ? <SoundRecord modalVisibleRecord={modalVisibleRecordFirstItem}
-                setModalVisibleRecord={setModalVisibleRecordFirstItem}
-                onStartRecordFirstItem={onStartRecordFirstItem}
-                onStopRecordFirstItem={onStopRecordFirstItem}
-                soundRecord={soundRecordFirstItem}
-            /> : null}
-            {modalVisibleRecordSecoundItem ? <SoundRecord modalVisibleRecord={modalVisibleRecordSecoundItem}
-                setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-                onStartRecordFirstItem={onStartRecordSecoundItem}
-                onStopRecordFirstItem={onStopRecordSecoundItem}
-                soundRecord={soundRecordSecoundItem}
-            /> : null}
-            {modalVisibleRecordThirdItem ? <SoundRecord modalVisibleRecord={modalVisibleRecordThirdItem}
-                setModalVisibleRecord={setModalVisibleRecordThirdItem}
-                onStartRecordFirstItem={onStartRecordThirdItem}
-                onStopRecordFirstItem={onStopRecordThirdItem}
-                soundRecord={soundRecordThirdItem}
-            /> : null}
-            <SafeAreaView>
-                {
-                    searchResultsList && searchResultsList ?
-                        <View style={styles.flatContainer}>
-                            <FlatList
-                                style={searchResults.length > 8 ? styles.flatlistHeight : ""}
-                                data={searchResults}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity onPress={() => handleResultSelect(item.label, item.value, item.phone)} style={styles.flatlistitem}>
-                                        <Text style={styles.flatlisttitle}>{item.label}</Text>
-                                    </TouchableOpacity>
-                                )}
-                                keyExtractor={(item, index) => index}
-                            />
-                        </View> : ""
-                }
-            </SafeAreaView>
-            <ScrollView>
-                {
-                    isLoading ?
-                        <View style={styles.loadingScreen}><LoadingScreen /></View>
-                        :
-                        <View style={styles.fromContainer}>
-                            <InputTextForm label={t('farmer_name')} value={searchFarmerName}
-                                onChangeText={(farmerName) => handleSearch(farmerName)} editable={false} />
-                            <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} editable={false} />
-                            <DropdownForm label={t('plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} />
-                            {
-                                showingMenu
-                                    ?
-                                    <View style={styles.plotSiteContainer}>
-                                        <View style={styles.plotSiteContainerCell}>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{t('crop_name')}</Text>
-                                            </View>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{nameVarityStartEnd.name}</Text>
-                                            </View>
-                                        </View>
-                                        <View style={styles.plotSiteContainerCell}>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{t('crop_veriety')}</Text>
-                                            </View>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{nameVarityStartEnd.varity}</Text>
-                                            </View>
-                                        </View>
-                                        <View style={styles.plotSiteContainerCell}>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{t('showing_date')}</Text>
-                                            </View>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}</Text>
-                                            </View>
-                                        </View>
-                                        <View style={styles.plotSiteContainerCell}>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{t('harvesting_date_auto_calculated')}</Text>
-                                            </View>
-                                            <View style={styles.plotSiteContainerItem}>
-                                                <Text style={styles.plotSiteItemText}>{formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                    :
-                                    ''
-                            }
-                            <DropdownForm label={t('growth_stage')} color="red" data={productionStageAll} onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value })} />
-                            <DropdownForm label={t('problem_type')} color="red" data={problemTypeAll} onChange={item => handleProblemType(item)} />
-                            <DropdownForm label={t('select_problem')} color="red" data={problemNameAll} onChange={item => handleProblemName(item)} />
-                            {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
-                            <DropdownForm label={t('select_severity')} color="red" data={severityAll} onChange={item => setSaveData({ ...saveData, severity_id: item.value })} />
-                            <InputTextForm label={t('production_system')} value={nameVarityStartEnd.production_process} />
-                            <View>
-                                <Text style={{ color: 'red' }}>{t('agent_crop_problem_affected_date')}</Text>
-                                <TouchableOpacity style={styles.activityPerFromDate} onPress={() => setaddAffectedDate(true)}>
-                                    <Text style={{ color: '#000' }}>{affectedDate}</Text>
-                                    <Image
-                                        source={require('../../Common/images/calendar.png')}
-                                        style={{ width: 20, height: 20 }}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <InputTextForm label={t('enter_problem_title')} onChangeText={(item) => setSaveData({ ...saveData, question_title: item })} value={saveData.question_title} />
-                            <InputTextForm label={t('enter_problem_description')} onChangeText={(item) => setSaveData({ ...saveData, question_desc: item })} value={saveData.question_desc} />
-                            <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} />
-                            <RecordComp selectedRecord={selectedRecord}
-                                title={t('record_your_comment_optional')}
-                                // onPress={handleRecord}
-                                setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-                                setModalVisibleRecordSecoundItem={setModalVisibleRecordSecoundItem}
-                                setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
-                                soundRecordFirstItem={soundRecordFirstItem}
-                                soundRecordSecoundItem={soundRecordSecoundItem}
-                                soundRecordThirdItem={soundRecordThirdItem} />
-                        </View>
-                }
-            </ScrollView>
-            <View style={{ marginTop: 10 }}>
-                <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+      <View style={styles.container}>
+        <CustomHeader
+          path="userList"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <DatePickerComp
+          openDate={addAffectedDate}
+          newDate={newFromDate}
+          setOpenDate={setaddAffectedDate}
+          handleDatePicker={handleDatePicker}
+        />
+        <FormsTitle title={t('add_crop_problem')} />
+        {modalVisibleRecordFirstItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordFirstItem}
+            setModalVisibleRecord={setModalVisibleRecordFirstItem}
+            onStartRecordFirstItem={onStartRecordFirstItem}
+            onStopRecordFirstItem={onStopRecordFirstItem}
+            soundRecord={soundRecordFirstItem}
+          />
+        ) : null}
+        {modalVisibleRecordSecoundItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordSecoundItem}
+            setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+            onStartRecordFirstItem={onStartRecordSecoundItem}
+            onStopRecordFirstItem={onStopRecordSecoundItem}
+            soundRecord={soundRecordSecoundItem}
+          />
+        ) : null}
+        {modalVisibleRecordThirdItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordThirdItem}
+            setModalVisibleRecord={setModalVisibleRecordThirdItem}
+            onStartRecordFirstItem={onStartRecordThirdItem}
+            onStopRecordFirstItem={onStopRecordThirdItem}
+            soundRecord={soundRecordThirdItem}
+          />
+        ) : null}
+        <SafeAreaView>
+          {searchResultsList && searchResultsList ? (
+            <View style={styles.flatContainer}>
+              <FlatList
+                style={searchResults.length > 8 ? styles.flatlistHeight : ''}
+                data={searchResults}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleResultSelect(item.label, item.value, item.phone)
+                    }
+                    style={styles.flatlistitem}>
+                    <Text style={styles.flatlisttitle}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index}
+              />
             </View>
-            <Root></Root>
+          ) : (
+            ''
+          )}
+        </SafeAreaView>
+        <ScrollView>
+          {isLoading ? (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          ) : (
+            <View style={styles.fromContainer}>
+              <InputTextForm
+                label={t('farmer_name')}
+                value={searchFarmerName}
+                onChangeText={farmerName => handleSearch(farmerName)}
+                editable={false}
+              />
+              <InputTextForm
+                label={t('farmer_number')}
+                value={searchFarmerPhone}
+                editable={false}
+              />
+              <DropdownForm
+                label={t('plot')}
+                data={plotAll}
+                color="red"
+                onChange={relId => handlePlot(relId)}
+              />
+              {showingMenu ? (
+                <View style={styles.plotSiteContainer}>
+                  <View style={styles.plotSiteContainerCell}>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {t('crop_name')}
+                      </Text>
+                    </View>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {nameVarityStartEnd.name}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.plotSiteContainerCell}>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {t('crop_veriety')}
+                      </Text>
+                    </View>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {nameVarityStartEnd.varity}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.plotSiteContainerCell}>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {t('showing_date')}
+                      </Text>
+                    </View>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.plotSiteContainerCell}>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {t('harvesting_date_auto_calculated')}
+                      </Text>
+                    </View>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.plotSiteItemText}>
+                        {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ) : (
+                ''
+              )}
+              <DropdownForm
+                label={t('growth_stage')}
+                color="red"
+                data={productionStageAll}
+                onChange={production_stage =>
+                  setSaveData({
+                    ...saveData,
+                    growth_stage: production_stage.value,
+                  })
+                }
+              />
+              <DropdownForm
+                label={t('problem_type')}
+                color="red"
+                data={problemTypeAll}
+                onChange={item => handleProblemType(item)}
+              />
+              <DropdownForm
+                label={t('select_problem')}
+                color="red"
+                data={problemNameAll}
+                onChange={item => handleProblemName(item)}
+              />
+              {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
+              <DropdownForm
+                label={t('select_severity')}
+                color="red"
+                data={severityAll}
+                onChange={item =>
+                  setSaveData({...saveData, severity_id: item.value})
+                }
+              />
+              <InputTextForm
+                label={t('production_system')}
+                value={nameVarityStartEnd.production_process}
+                editable={false}
+              />
+              <View>
+                <Text style={{color: 'red'}}>
+                  {t('agent_crop_problem_affected_date')}
+                </Text>
+                <TouchableOpacity
+                  style={styles.activityPerFromDate}
+                  onPress={() => setaddAffectedDate(true)}>
+                  <Text style={{color: '#000'}}>{affectedDate}</Text>
+                  <Image
+                    source={require('../../Common/images/calendar.png')}
+                    style={{width: 20, height: 20}}
+                  />
+                </TouchableOpacity>
+              </View>
+              <InputTextForm
+                label={t('enter_problem_title')}
+                onChangeText={item =>
+                  setSaveData({...saveData, question_title: item})
+                }
+                value={saveData.question_title}
+              />
+              <InputTextForm
+                label={t('enter_problem_description')}
+                onChangeText={item =>
+                  setSaveData({...saveData, question_desc: item})
+                }
+                value={saveData.question_desc}
+              />
+              <TakePhoto
+                openImagePicker={openImagePicker}
+                selectedImage={selectedImage}
+                title={t('take_a_photo_optional')}
+              />
+              <RecordComp
+                selectedRecord={selectedRecord}
+                title={t('record_your_comment_optional')}
+                // onPress={handleRecord}
+                setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
+                setModalVisibleRecordSecoundItem={
+                  setModalVisibleRecordSecoundItem
+                }
+                setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
+                soundRecordFirstItem={soundRecordFirstItem}
+                soundRecordSecoundItem={soundRecordSecoundItem}
+                soundRecordThirdItem={soundRecordThirdItem}
+              />
+            </View>
+          )}
+        </ScrollView>
+        <View style={{marginTop: 10}}>
+          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
-    )
+        <Root></Root>
+      </View>
+    );
 }
 
 export default CrateProblemUser

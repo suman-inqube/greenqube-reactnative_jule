@@ -609,8 +609,18 @@ const FarmerCreateProblem = ({ navigation }) => {
   }
   return (
     <View style={styles.container}>
-      <CustomHeader path="FarmerListProblem" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-      <DatePickerComp openDate={addAffectedDate} newDate={newFromDate} setOpenDate={setaddAffectedDate} handleDatePicker={handleDatePicker} />
+      <CustomHeader
+        path="FarmerListProblem"
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+      <DatePickerComp
+        openDate={addAffectedDate}
+        newDate={newFromDate}
+        setOpenDate={setaddAffectedDate}
+        handleDatePicker={handleDatePicker}
+      />
       <FormsTitle title={t('add_crop_problem')} />
       {modalVisibleRecordFirstItem ? (
         <SoundRecord
@@ -640,25 +650,42 @@ const FarmerCreateProblem = ({ navigation }) => {
         />
       ) : null}
       <ScrollView>
-        {isLoading && <View style={styles.loadingScreen}>
-          <LoadingScreen />
-        </View>}
+        {isLoading && (
+          <View style={styles.loadingScreen}>
+            <LoadingScreen />
+          </View>
+        )}
         <View style={styles.fromContainer}>
-          <DropdownForm label={t('plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId)} />
+          <DropdownForm
+            label={t('plot')}
+            data={plotAll}
+            color="red"
+            onChange={relId => handlePlot(relId)}
+          />
           {showingMenu ? (
             <View style={styles.plotSiteContainer}>
               <View style={styles.plotSiteContainerCell}>
                 <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('crop_name')}
-                  </Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}><Text style={styles.plotSiteItemText}>{nameVarityStartEnd.name}</Text></View></View>
-              <View style={styles.plotSiteContainerCell}>
-                <View style={styles.plotSiteContainerItem}><Text style={styles.plotSiteItemText}> {t('crop_veriety')} </Text>
+                  <Text style={styles.plotSiteItemText}>{t('crop_name')}</Text>
                 </View>
                 <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}> {nameVarityStartEnd.varity} </Text>
+                  <Text style={styles.plotSiteItemText}>
+                    {nameVarityStartEnd.name}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.plotSiteContainerCell}>
+                <View style={styles.plotSiteContainerItem}>
+                  <Text style={styles.plotSiteItemText}>
+                    {' '}
+                    {t('crop_veriety')}{' '}
+                  </Text>
+                </View>
+                <View style={styles.plotSiteContainerItem}>
+                  <Text style={styles.plotSiteItemText}>
+                    {' '}
+                    {nameVarityStartEnd.varity}{' '}
+                  </Text>
                 </View>
               </View>
               <View style={styles.plotSiteContainerCell}>
@@ -689,28 +716,72 @@ const FarmerCreateProblem = ({ navigation }) => {
           ) : (
             ''
           )}
-          <DropdownForm label={t('growth_stage')} color="red" data={productionStageAll} onChange={production_stage => setSaveData({ ...saveData, growth_stage: production_stage.value })} />
-          <DropdownForm label={t('problem_type')} color="red" data={problemTypeAll} onChange={item => handleProblemType(item)} />
-          <DropdownForm label={t('select_problem')} color="red" data={problemNameAll} onChange={item => handleProblemName(item)} />
-          <DropdownForm label={t('select_severity')} color="red" data={severityAll} onChange={item => setSaveData({ ...saveData, severity_id: item.value })} />
-          <InputTextForm label={t('production_system')} value={nameVarityStartEnd.production_process} />
+          <DropdownForm
+            label={t('growth_stage')}
+            color="red"
+            data={productionStageAll}
+            onChange={production_stage =>
+              setSaveData({...saveData, growth_stage: production_stage.value})
+            }
+          />
+          <DropdownForm
+            label={t('problem_type')}
+            color="red"
+            data={problemTypeAll}
+            onChange={item => handleProblemType(item)}
+          />
+          <DropdownForm
+            label={t('select_problem')}
+            color="red"
+            data={problemNameAll}
+            onChange={item => handleProblemName(item)}
+          />
+          <DropdownForm
+            label={t('select_severity')}
+            color="red"
+            data={severityAll}
+            onChange={item =>
+              setSaveData({...saveData, severity_id: item.value})
+            }
+          />
+          <InputTextForm
+            label={t('production_system')}
+            value={nameVarityStartEnd.production_process}
+            editable={false}
+          />
           <View>
-            <Text style={{ color: 'red' }}>
+            <Text style={{color: 'red'}}>
               {t('agent_crop_problem_affected_date')}
             </Text>
             <TouchableOpacity
               style={styles.activityPerFromDate}
               onPress={() => setaddAffectedDate(true)}>
-              <Text style={{ color: '#000' }}>{affectedDate}</Text>
+              <Text style={{color: '#000'}}>{affectedDate}</Text>
               <Image
                 source={require('../../Common/images/calendar.png')}
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
               />
             </TouchableOpacity>
           </View>
-          <InputTextForm label={t('enter_problem_title')} onChangeText={item => setSaveData({ ...saveData, question_title: item })} value={saveData.question_title} />
-          <InputTextForm label={t('enter_problem_description')} onChangeText={item => setSaveData({ ...saveData, question_desc: item })} value={saveData.question_desc} />
-          <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} />
+          <InputTextForm
+            label={t('enter_problem_title')}
+            onChangeText={item =>
+              setSaveData({...saveData, question_title: item})
+            }
+            value={saveData.question_title}
+          />
+          <InputTextForm
+            label={t('enter_problem_description')}
+            onChangeText={item =>
+              setSaveData({...saveData, question_desc: item})
+            }
+            value={saveData.question_desc}
+          />
+          <TakePhoto
+            openImagePicker={openImagePicker}
+            selectedImage={selectedImage}
+            title={t('take_a_photo_optional')}
+          />
           <RecordComp
             selectedRecord={selectedRecord}
             title={t('record_your_comment_optional')}
@@ -726,7 +797,7 @@ const FarmerCreateProblem = ({ navigation }) => {
           />
         </View>
       </ScrollView>
-      <View style={{ marginTop: 10 }}>
+      <View style={{marginTop: 10}}>
         <ButtonForm label={t('submit')} onPress={() => handleSave()} />
       </View>
       <Root></Root>
