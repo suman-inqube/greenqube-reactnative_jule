@@ -312,7 +312,7 @@ const PostNew = (props) => {
                     {nextpage == 1 ?
                         <>
                             <InputTextForm label={t('farmer_name')} color="black" value={searchFarmerName} onChangeText={(farmerName) => handleSearch(farmerName)} />
-                            <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} />
+                            <InputTextForm label={t('farmer_number')} value={searchFarmerPhone} editable={false}  />
                             <DropdownForm label={t('addland_select_plot')} data={plotAll} color="red" onChange={relId => handlePlot(relId, 'plot')} val={saveData.plot_name} />
                             {
                                 isOther ?
@@ -341,7 +341,7 @@ const PostNew = (props) => {
                                 <Text style={{ color: "#000" }}>{t('approximate_date')}</Text>
                                 <TouchableOpacity style={styles.appromimateContainer} onPress={() => setOpenDatePicker(!openDatePicker)}>
                                     <Text style={{ color: "#000" }}>{approximateDate}</Text>
-                                    <Image source={require('../../Common/images/calendar.png')} style={{ width: 30, height: 30 }} />
+                                    {/* <Image source={require('../../Common/images/calendar.png')} style={{ width: 30, height: 30 }} /> */}
                                 </TouchableOpacity>
                             </View>
                             <View  >

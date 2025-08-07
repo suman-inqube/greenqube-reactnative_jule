@@ -169,7 +169,7 @@ const ListProblem = ({ navigation }) => {
         ** [10] select result data set value.
         ** [8] set all list value.
         */
-        handleResultSelect(label, '', phone, problemAll, problemListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)
+        handleResultSelect(label, value, phone, problemAll, problemListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setProblemAll)
     }
     return (
         <Root>

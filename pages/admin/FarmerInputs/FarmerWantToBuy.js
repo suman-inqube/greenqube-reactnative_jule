@@ -246,7 +246,7 @@ const FarmerWantToBuy = ({ navigation }) => {
             inputSingleData?.agri_product_prices.forEach(element => {
                 dataArray.push({
                     value: element.prod_price_id,
-                    label: `${element.quantity} ${element.agri_unit.unit_name}`,
+                    label: `${element.quantity} ${element?.agri_unit?.unit_name}`,
                     pp_qty: element.quantity,
                     fid: element?.agri_unit?.fid,
                     unit_sname: element?.agri_unit?.unit_sname,

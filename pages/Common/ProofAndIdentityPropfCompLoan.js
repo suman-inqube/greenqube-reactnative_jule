@@ -23,6 +23,7 @@ const ProofAndIdentityPropfCompLoan = ({
   title,
   parent,
   handleScanAndCreatePdf,
+  InputTextFormEdit
 }) => {
   const {t} = useTranslation();
   // Memoize the handleDocumentSelection function
@@ -141,7 +142,7 @@ const ProofAndIdentityPropfCompLoan = ({
             Attach Document
           </Text>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            <TouchableOpacity
+           {InputTextFormEdit!=false? <TouchableOpacity
               style={{
                 backgroundColor: '#DFE8EF',
                 width: 80,
@@ -174,8 +175,8 @@ const ProofAndIdentityPropfCompLoan = ({
                 style={{width: 30, height: 30}}
               /> */}
               <Text style={styles.title}>Scanner</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </TouchableOpacity>:null}
+            {InputTextFormEdit!=false?<TouchableOpacity
               style={{
                 backgroundColor: '#DFE8EF',
                 width: 80,
@@ -207,7 +208,7 @@ const ProofAndIdentityPropfCompLoan = ({
                 style={{width: 30, height: 30}}
               /> */}
               <Text style={styles.title}>Gallery</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>:null}
             <TouchableOpacity
               onPress={() => openURL(props)}
               style={{
@@ -279,7 +280,7 @@ const ProofAndIdentityPropfCompLoan = ({
                   // />
                 )}
                 {data?.url ||
-                  (data?.uri && (
+                  (data?.uri && InputTextFormEdit!=false && (
                     <TouchableOpacity
                       onPress={() =>
                         onHandleDocumentSelectionRemove(

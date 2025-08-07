@@ -4,6 +4,7 @@ export const checkAppVersion = async () => {
     try {
         const latestVersion = await VersionCheck.getLatestVersion({ provider: 'playStore', packageName: 'com.inqube.greenqube', ignoreErrors: true });
         const currentVersion = VersionCheck.getCurrentVersion();
+        if(!__DEV__) {
         if (latestVersion > currentVersion) {
             Alert.alert(
                 'Update Required', 'A new version of the app is available. Please update to continue using the app.',
@@ -11,6 +12,7 @@ export const checkAppVersion = async () => {
                 { cancelable: false },
             );
         }
+    }
     } catch (error) {
         console.error('Error checking app version:', error);
     }

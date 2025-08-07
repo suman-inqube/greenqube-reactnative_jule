@@ -428,7 +428,7 @@ const FarmerCreateProblem = ({navigation}) => {
     }
     setProblemAll(problemName_res.data.data);
     if (problemName_res?.status == 200) {
-      const dataArray = problemName_res.data.data.map(data => ({
+      const dataArray = problemName_res?.data?.data?.map(data => ({
         value: data.fid,
         label: data.name,
       }));
@@ -892,6 +892,7 @@ const FarmerCreateProblem = ({navigation}) => {
           <InputTextForm
             label={t('production_system')}
             value={nameVarityStartEnd.production_process}
+            editable={false}
           />
           <View>
             <Text style={{color: 'red'}}>

@@ -18,6 +18,7 @@ const PlotList = () => {
   const { farmeruserID, agri_land_user_rels, } = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
+  const [addPlot, setAddPlot] = useState(false);
   const [plotList, setplotList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const scrollRef = useRef(null);
@@ -66,10 +67,20 @@ const PlotList = () => {
   const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-65
   const HandlerGoBack = () => navigation.navigate('userList');
+  const handleBackPress = () => {
+    if (activeTab == 1) {
+      setActiveTab(0)
+      onTabPress(0)
+      return true;
+    }
+    navigation.navigate('userList');
+    return true;
+  };
   useEffect(() => {
     if (activeTab == 0) {
       onPageLoad();
     }
+    onBackPress(handleBackPress);
   }, [activeTab])
   const onPageLoad = async () => {
     try {
@@ -79,9 +90,10 @@ const PlotList = () => {
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
       ])
+       
       if (plotListApprovalRes?.status == 200) {
-        const { data } = plotListApprovalRes?.data;
-        setplotList(data);
+        // const { data } = plotListApprovalRes?.data;
+        setplotList(plotListApprovalRes?.data);
       }
       if (LandUnitArea_res?.status == 200) {
         const { count, rows } = LandUnitArea_res?.data?.data || {};
@@ -99,6 +111,7 @@ const PlotList = () => {
           setLandUnitsquareMetre([]);
         }
       }
+      setAddPlot(false);
       setIsLoading(false);
       setDataProps({});
     } catch (error) {
@@ -224,17 +237,33 @@ const PlotList = () => {
                               <View>
                                 <Text style={styles.text}>Plot Name</Text>
                                 {/* <Text style={styles.text}>Plot Size</Text> */}
-                                <Text style={styles.text}>  Reported Land Area  </Text>
-                                <Text style={styles.text}> Converted Land Area </Text>
+                                <Text style={styles.text}>
+                                  Reported Land Area{' '}
+                                </Text>
+                                <Text style={styles.text}>
+                                  Converted Land Area{' '}
+                                </Text>
+                                {/* <Text style={styles.text}>
+                                  Approved Land Area{' '}
+                                </Text> */}
                                 <Text style={styles.text}>Crop Name</Text>
                                 <Text style={styles.text}>Crop Variety</Text>
-                                <Text style={styles.text}>  Cycle Start Date </Text>
+                                <Text style={styles.text}>
+                                  {' '}
+                                  Cycle Start Date{' '}
+                                </Text>
                                 <Text style={styles.text}>Cycle End Date</Text>
                               </View>
                               <View style={{ marginLeft: 10 }}>
-                                <Text style={styles.text}> : {item?.plot_no} </Text>
+                                <Text style={styles.text}>
+                                  {' '}
+                                  : {item?.plot_no}{' '}
+                                </Text>
                                 {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
-                                <Text style={styles.text}> : {item?.land_size} {item?.land_unit?.name}  </Text>
+                                <Text style={styles.text}>
+                                  {' '}
+                                  : {item?.land_size} {item?.land_unit?.name}{' '}
+                                </Text>
                                 <Text style={styles.text}>
                                   :{' '}
                                   {parseFloat(item?.land_convert_size).toFixed(
@@ -242,6 +271,25 @@ const PlotList = () => {
                                   )}{' '}
                                   {landAreaUnit?.[0]?.name}
                                 </Text>
+                                {/* <Text style={styles.text}>
+                                  :{' '}
+                                  {parseFloat(item?.land_convert_size) >
+                                  Number(
+                                    landUnitsquareMetre?.[0]
+                                      ?.defined_unit_value || 0,
+                                  ) *
+                                    Number(item?.google_area || 0)
+                                    ? parseFloat(
+                                        item?.land_convert_size,
+                                      ).toFixed(2)
+                                    : (Number(
+                                        landUnitsquareMetre?.[0]
+                                          ?.defined_unit_value || 0,
+                                      ) * Number(item?.google_area || 0)).toFixed(
+                                    2,
+                                  )}{' '}
+                                  {landAreaUnit?.[0]?.name || ''}
+                                </Text> */}
                                 <Text style={styles.text}>
                                   : {item?.plot_crops[0]?.crop_name?.name}
                                 </Text>
@@ -478,14 +526,22 @@ const PlotList = () => {
               />
             </View>
 
+
             {/* Tab 2 */}
             <View style={styles.page}>
               {
-                activeTab == 1 && <LiveHood dataProps={dataProps} activeTab={activeTab} setActiveTab={setActiveTab} onTabPress={onTabPress} />
+                activeTab == 1 && <LiveHood dataProps={dataProps} activeTab={activeTab} setActiveTab={setActiveTab} onTabPress={onTabPress} setAddPlot={setAddPlot} addPlot={addPlot} />
               }
-
             </View>
           </ScrollView>
+          {activeTab == 0 ? <TouchableOpacity
+            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+            onPress={() => { onTabPress(1); setDataProps({}); setAddPlot(true) }}>
+            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+              {t('Add Plot')}
+            </Text>
+          </TouchableOpacity> : null}
+
         </View>
       </Root>
     </>
@@ -724,5 +780,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-
+  locationAddMoreContainer: {
+    position: 'absolute',
+    bottom: 100,
+    right: 0,
+    backgroundColor: '#025502',
+    paddingVertical: 10,
+    paddingLeft: 20,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+  },
 });

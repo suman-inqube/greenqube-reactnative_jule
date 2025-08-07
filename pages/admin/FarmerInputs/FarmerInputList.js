@@ -89,193 +89,194 @@ const FarmerInputList = ({navigation}) => {
     if (inputList.status == 200) {
       setInputListAll(inputList.data.data.rows);
     }
-  };
-  const onPageLoad = async () => {
-    const currency_res = await getItem('currency');
-    setCurrencyt(currency_res);
-    const [inputList, inputCategoryList] = await Promise.all([
-      inputListAPI(dbname, lan_id, token, user_id, ''),
-      inputCategoryAPI(dbname, lan_id, token, user_id),
-    ]);
-    if (inputList.status == 200) {
-      console.log('unite==', JSON.stringify(inputList.data.data.rows));
-      setInputListAll(inputList.data.data.rows);
-      setInputListAllRaw(inputList.data.data.rows);
-      setItem('input_data', inputList.data.data.rows);
-      setIsLoading(false);
-    }
-    if (inputCategoryList) {
-      const dataArray1 = [
-        {
-          value: '0',
-          label: t('All'),
-        },
-      ];
-      inputCategoryList.data.data.rows.forEach(element => {
-        dataArray1.push({
-          value: element.fid,
-          label: element.name,
-        });
-      });
-      setInputCategory(dataArray1);
-      setInputSubCategory([]);
-      setIsLoading(false);
-    }
-  };
-
-  function handleBackPress() {
-    navigation.navigate('FarmerDashboard');
-    return true;
-  }
-  useEffect(() => {
-    onBackPress(handleBackPress);
-  }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      if (isFocused) {
-        setIsLoading(true);
-        setModalVisible(false);
-      } else {
-        setIsLoading(true);
-        setModalVisible(false);
+    const onPageLoad = async () => {
+      const currency_res = await getItem('currency');
+      setCurrencyt(currency_res);
+      const [inputList, inputCategoryList] = await Promise.all([
+        inputListAPI(dbname, lan_id, token, user_id, ''),
+        inputCategoryAPI(dbname, lan_id, token, user_id),
+      ]);
+      if (inputList.status == 200) {
+        setInputListAll(inputList.data.data.rows);
+        setInputListAllRaw(inputList.data.data.rows);
+        setItem('input_data', inputList.data.data.rows);
+        setIsLoading(false);
       }
-      onPageLoad();
-    }, []),
-  );
-  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
-  return (
-    <View style={{flex: 1}}>
-      <CustomHeader
-        path="FarmerDashboard"
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <View style={styles.container}>
-        <FormsTitle title={t('products')} />
-        <View style={styles.searchByCategoryContainer}>
-          <View style={styles.searchByCategoryItem}>
-            <FarmerSearchBy
-              label={t('search_by_category')}
-              data={inputCategory}
-              onChange={item => handleCategory(item)}
-              val={category}
-            />
-          </View>
-          <View style={styles.searchByCategoryItem}>
-            <FarmerSearchSubBy
-              label={t('search_by_sub_category')}
-              data={inputSubCategory}
-              onChange={item => handleSubCategory(item)}
-              val={subCategory}
-            />
-          </View>
-        </View>
-        <FarmerModalCompProduct
-          setModalVisible={setModalVisible}
-          modalVisible={modalVisible}
-          inputSigle={inputSingle}
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-          }}
+      if (inputCategoryList) {
+        const dataArray1 = [
+          {
+            value: '0',
+            label: t('All'),
+          },
+        ];
+        inputCategoryList.data.data.rows.forEach(element => {
+          dataArray1.push({
+            value: element.fid,
+            label: element.name,
+          });
+        });
+        setInputCategory(dataArray1);
+        setInputSubCategory([]);
+        setIsLoading(false);
+      }
+    };
+
+    function handleBackPress() {
+      navigation.navigate('FarmerDashboard');
+      return true;
+    }
+    useEffect(() => {
+      onBackPress(handleBackPress);
+    }, []);
+
+    useFocusEffect(
+      React.useCallback(() => {
+        if (isFocused) {
+          setIsLoading(true);
+          setModalVisible(false);
+        } else {
+          setIsLoading(true);
+          setModalVisible(false);
+        }
+        onPageLoad();
+      }, []),
+    );
+    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+    return (
+      <View style={{flex: 1}}>
+        <CustomHeader
+          path="FarmerDashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
         />
-        {isLoading ? (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
+        <View style={styles.container}>
+          <FormsTitle title={t('products')} />
+          <View style={styles.searchByCategoryContainer}>
+            <View style={styles.searchByCategoryItem}>
+              <FarmerSearchBy
+                label={t('search_by_category')}
+                data={inputCategory}
+                onChange={item => handleCategory(item)}
+                val={category}
+              />
+            </View>
+            <View style={styles.searchByCategoryItem}>
+              <FarmerSearchSubBy
+                label={t('search_by_sub_category')}
+                data={inputSubCategory}
+                onChange={item => handleSubCategory(item)}
+                val={subCategory}
+              />
+            </View>
           </View>
-        ) : (
-          <FlatList
-            data={inputListAll}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            renderItem={({item, index}) => {
-              return (
-                <TouchableOpacity
-                  onPress={() => navigateToPages(index)}
-                  key={index}>
-                  <View style={styles.flatlistContainer}>
-                    <View style={styles.flatlistItem}>
-                      {item.agri_files && item.agri_files.length > 0 ? (
-                        <Image
-                          source={{uri: item.agri_files[0].file_path}}
-                          style={{
-                            width: 100,
-                            height: 100,
-                            resizeMode: 'contain',
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          source={require('../../Common/images/logo.png')}
-                          style={{
-                            width: 100,
-                            height: 100,
-                            resizeMode: 'contain',
-                          }}
-                        />
-                      )}
-                      <View
-                        style={{
-                          justifyContent: 'flex-end',
-                          paddingHorizontal: 10,
-                          width: '100%',
-                        }}>
-                        <Text
-                          style={[
-                            styles.title,
-                            {fontFamily: 'Poppins-SemiBold', color: '#013715'},
-                          ]}>
-                          {item.product_name}
-                        </Text>
-                        <Text style={styles.title}>
-                          {item.productCategories[0].productCategory.name}
-                        </Text>
-                        <Text style={styles.title}>{item.product_code}</Text>
-                        <Text style={styles.title}>
-                          {item.description.substring(0, 60) + '..'}
-                        </Text>
+          <FarmerModalCompProduct
+            setModalVisible={setModalVisible}
+            modalVisible={modalVisible}
+            inputSigle={inputSingle}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+          />
+          {isLoading ? (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          ) : (
+            <FlatList
+              data={inputListAll}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              renderItem={({item, index}) => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => navigateToPages(index)}
+                    key={index}>
+                    <View style={styles.flatlistContainer}>
+                      <View style={styles.flatlistItem}>
+                        {item.agri_files && item.agri_files.length > 0 ? (
+                          <Image
+                            source={{uri: item.agri_files[0].file_path}}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              resizeMode: 'contain',
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            source={require('../../Common/images/logo.png')}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              resizeMode: 'contain',
+                            }}
+                          />
+                        )}
                         <View
                           style={{
-                            width: 220,
-                            marginBottom: 20,
-                            paddingLeft: 10,
+                            justifyContent: 'flex-end',
+                            paddingHorizontal: 10,
+                            width: '100%',
                           }}>
-                          <ProductOptionDropDown
-                            rate={item.agri_product_prices}
-                            onChange={item =>
-                              console.log(item.value && item.value)
-                            }
-                            key={index}
-                            currency={currency}
-                          />
+                          <Text
+                            style={[
+                              styles.title,
+                              {
+                                fontFamily: 'Poppins-SemiBold',
+                                color: '#013715',
+                              },
+                            ]}>
+                            {item.product_name}
+                          </Text>
+                          <Text style={styles.title}>
+                            {item.productCategories[0].productCategory.name}
+                          </Text>
+                          <Text style={styles.title}>{item.product_code}</Text>
+                          <Text style={styles.title}>
+                            {item.description.substring(0, 60) + '..'}
+                          </Text>
+                          <View
+                            style={{
+                              width: 220,
+                              marginBottom: 20,
+                              paddingLeft: 10,
+                            }}>
+                            <ProductOptionDropDown
+                              rate={item.agri_product_prices}
+                              onChange={item =>
+                                console.log(item.value && item.value)
+                              }
+                              key={index}
+                              currency={currency}
+                            />
+                          </View>
                         </View>
                       </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-            keyExtractor={(item, index) => index}
-          />
-        )}
+                  </TouchableOpacity>
+                );
+              }}
+              keyExtractor={(item, index) => index}
+            />
+          )}
 
-        <View style={styles.viewPastBtn}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('FarmerPastEnquiry')}>
-            <Text style={styles.viewPastBtnText}>
-              {t('view_input_requested')}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.viewPastBtn}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('FarmerPastEnquiry')}>
+              <Text style={styles.viewPastBtnText}>
+                {t('view_input_requested')}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 };
-
 export default FarmerInputList;
 
 const styles = StyleSheet.create({

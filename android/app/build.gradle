@@ -80,7 +80,10 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 99
-        versionName "9.8"
+        versionName "9.7"
+        buildConfigField "String", "baseUrl", "\"http://34.87.10.106:4003/\""
+        //  buildConfigField "String", "baseUrl", "\"https://mygreenqube.com:4003/\""
+          buildConfigField "String", "encryptedKey", "\"greenQube_96740_64428\""
     }
     signingConfigs {
         debug {

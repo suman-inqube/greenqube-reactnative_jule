@@ -22,10 +22,6 @@ import MessageDialog from '../../Common/MessageDialog';
 import axios from 'axios';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
-import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 const FarmerAddIncome = ({navigation}) => {
   //GQR-67
   const {
@@ -200,10 +196,19 @@ const FarmerAddIncome = ({navigation}) => {
     }
   };
   const handleSave = async () => {
+    // return console.log(data);
     let grand_total = 0;
     data.forEach(element => {
       grand_total += parseInt(element.amount);
     });
+    const allFieldsFilled = data.every(
+      item =>
+        item.type.trim() !== '' &&
+        item.cat_id.trim() !== '' &&
+        item.amount.trim() !== '' &&
+        item.date.trim() !== '',
+    );
+    // return console.log("grand_total", grand_total);
     const qs = require('qs');
     let save_data = qs.stringify({
       land_rel_id: saveData.land_rel_id,
@@ -217,151 +222,139 @@ const FarmerAddIncome = ({navigation}) => {
       expense_total: '0',
       cost_head: JSON.stringify(data),
     });
-    const response = await farmIncomeExpenceSaveAPI(
-      dbname,
-      lan_id,
-      token,
-      farmerID,
-      save_data,
-    );
-    if (response?.status == 200) {
-      navigation.navigate('FarmerFarmIncomeExpenseList');
+    if (allFieldsFilled) {
+      const response = await farmIncomeExpenceSaveAPI(
+        dbname,
+        lan_id,
+        token,
+        farmerID,
+        save_data,
+      );
+      if (response?.status == 200) {
+        navigation.navigate('FarmerFarmIncomeExpenseList');
+      }
+    } else {
+      Toast.show({
+        time: 2,
+        text: `Please indent data properly`,
+        ...AlertMesg[0],
+      });
     }
   };
   const HandlerGoBack = () =>
     navigation.navigate('FarmerFarmIncomeExpenseList');
   return (
-    <FarmerDrawerScreenWrapper1>
-      <Root>
-        <View style={{flex: 1, backgroundColor: Colors.pageBackground}}>
-          <DatePickerComp
-            openDate={openFromDate}
-            newDate={newFromDate}
-            setOpenDate={setOpenFromDate}
-            handleDatePicker={handleDatePicker}
-          />
-          <CustomHeader
-            path="FarmerFarmIncomeExpenseList"
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          <FormsTitle title={t('add_income')} />
-          <View style={styles.formContainer}>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}>
-              <View style={styles.iconView}>
-                <MaterialIcons
-                  name={'currency-rupee'}
-                  color="green"
-                  size={40}
-                />
-              </View>
+    <Root>
+      <View style={{flex: 1}}>
+        <DatePickerComp
+          openDate={openFromDate}
+          newDate={newFromDate}
+          setOpenDate={setOpenFromDate}
+          handleDatePicker={handleDatePicker}
+        />
 
-              <View style={styles.mainView}>
-                <View style={styles.card}>
-                  <DropdownForm
-                    label={t('plot')}
-                    data={plotAll}
-                    onChange={relId => handlePlot(relId)}
-                    required={true}
-                  />
-                  {showingMenu ? (
-                    <View style={styles.plotContainer}>
-                      <View style={styles.plotItem}>
-                        <Text style={styles.plotItemText}>
-                          {t('produce_name')} {':'}
-                        </Text>
-                        <Text style={styles.plotItemText}>
-                          {t('prodece_vareity')} {':'}
-                        </Text>
-                      </View>
-                      <View style={styles.plotItem}>
-                        <Text style={styles.plotItemValText}>
-                          {nameVarityStartEnd.name}
-                        </Text>
-                        <Text style={styles.plotItemValText}>
-                          {nameVarityStartEnd.varity}
-                        </Text>
-                      </View>
-                    </View>
-                  ) : (
-                    ''
-                  )}
+        <CustomHeader
+          path="FarmerFarmIncomeExpenseList"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
 
-                  {data.map((data, index) => {
-                    return (
-                      <View style={styles.AddExpenseContainer} key={index}>
-                        <View style={styles.inputContainer}>
-                          <TextInput
-                            style={styles.AddExpenseInput}
-                            onChangeText={text =>
-                              handleChangeAddExpense(index, text, 'amount')
-                            }
-                            name="amount"
-                            placeholder={t('amount') + '(' + currency + ')'}
-                            value={data.amount}
-                            keyboardType="numeric"
-                            placeholderTextColor={'#000'}
-                          />
-                          <View style={styles.iconContainer}>
-                            <MaterialIcons
-                              name="currency-rupee" // or any other icon
-                              size={25}
-                              color="#107808ff"
-                            />
-                          </View>
-                        </View>
-                        <View style={styles.AddExpenseItemContainer}>
-                          <View style={styles.AddExpenseItem}>
-                            <HeadDropDown
-                              label={t('add_income_head')}
-                              data={InComeAll}
-                              name="cat_id"
-                              onChange={text =>
-                                handleChangeAddCatID(index, text, 'cat_id')
-                              }
-                              color={'#000'}
-                            />
-                          </View>
-                          <TouchableOpacity
-                            onPress={() => setOpenFromDate(true)}
-                            style={styles.AddExpenseItemDate}>
-                            <Text style={styles.title}>
-                              {data.date == '' ? `${t('date')}` : data.date}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity
-                          onPress={addMoreExpense}
-                          style={styles.addMore}>
-                          <MaterialIcons
-                            name={'add-circle'}
-                            color="white"
-                            size={25}
-                          />
-                          <Text style={styles.addMoreText}>
-                            {t('add_more')}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
+        <FormsTitle title={t('add_income')} />
+
+        <View style={styles.formContainer}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <DropdownForm
+              label={t('plot')}
+              data={plotAll}
+              color="red"
+              onChange={relId => handlePlot(relId)}
+            />
+
+            {showingMenu && (
+              <View style={styles.plotContainer}>
+                <View style={styles.plotItem}>
+                  <Text style={styles.plotItemText}>{t('produce_name')}</Text>
+                  <Text style={styles.plotItemText}>
+                    {t('prodece_vareity')}
+                  </Text>
+                </View>
+                <View style={styles.plotItem}>
+                  <Text style={styles.plotItemText}>
+                    {nameVarityStartEnd.name}
+                  </Text>
+                  <Text style={styles.plotItemText}>
+                    {nameVarityStartEnd.varity}
+                  </Text>
                 </View>
               </View>
-            </ScrollView>
-          </View>
-          <ButtonForm
-            label={t('submit')}
-            onPress={() => handleSave()}
-            iconName="check-circle"
-            iconColor="#fff"
-            iconSize={30}
-          />
+            )}
+
+            {data.map((dataItem, index) => (
+              <View style={styles.AddExpenseContainer} key={index}>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.AddExpenseInput}
+                    onChangeText={text =>
+                      handleChangeAddExpense(index, text, 'amount')
+                    }
+                    name="amount"
+                    placeholder={`${t('amount')} (${currency})`}
+                    value={dataItem.amount}
+                    keyboardType="numeric"
+                    placeholderTextColor="#000"
+                  />
+                  <View style={styles.iconContainer}>
+                    <MaterialIcons
+                      name="currency-rupee"
+                      size={25}
+                      color="#107808ff"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.AddExpenseItemContainer}>
+                  <View style={styles.AddExpenseItem}>
+                    <HeadDropDown
+                      label={t('add_income_head')}
+                      data={InComeAll}
+                      name="cat_id"
+                      onChange={text =>
+                        handleChangeAddCatID(index, text, 'cat_id')
+                      }
+                      color="#000"
+                    />
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => setOpenFromDate(true)}
+                    style={styles.AddExpenseItemDate}>
+                    <Text style={styles.title}>
+                      {dataItem.date === '' ? t('date') : dataItem.date}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  onPress={addMoreExpense}
+                  style={styles.addMore}>
+                  <MaterialIcons name="add-circle" color="white" size={25} />
+                  <Text style={styles.addMoreText}>{t('add_more')}</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
         </View>
-      </Root>
-    </FarmerDrawerScreenWrapper1>
+
+        <ButtonForm
+          label={t('submit')}
+          onPress={handleSave}
+          iconName="check-circle"
+          iconColor="#fff"
+          iconSize={30}
+        />
+      </View>
+    </Root>
   );
 };
 export default FarmerAddIncome;

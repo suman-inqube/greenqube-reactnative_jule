@@ -276,6 +276,22 @@ const FarmerViewProblem = ({navigation}) => {
                     </Text>
                   </View>
                   <View style={styles.item}>
+                    <Text style={styles.itemTitle}>{t('problem_type')}</Text>
+                    <Text style={styles.itemTitle}>
+                      :{' '}
+                      {farmerProblem?.problem_type &&
+                        farmerProblem?.problem_type?.name}
+                    </Text>
+                  </View>
+                  <View style={styles.item}>
+                    <Text style={styles.itemTitle}>{t('select_problem')}</Text>
+                    <Text style={styles.itemTitle}>
+                      :{' '}
+                      {farmerProblem?.problem_name &&
+                        farmerProblem?.problem_name?.name}
+                    </Text>
+                  </View>
+                  <View style={styles.item}>
                     <Text style={styles.itemTitle}>
                       {t('addcrop_croptype')}
                     </Text>

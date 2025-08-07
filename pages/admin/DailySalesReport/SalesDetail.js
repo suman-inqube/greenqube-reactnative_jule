@@ -44,10 +44,15 @@ const SalesDetail = () => {
       <FormsTitle title={t('sales_detail')} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.formContainer}>
-          <InputTextForm label={t('dealer_name')} value={salesUser.userName} />
+          <InputTextForm
+            label={t('dealer_name')}
+            value={salesUser.userName}
+            editable={false}
+          />
           <InputTextForm
             label={t('date')}
             value={createdAt.toString().substring(-1, 10)}
+            editable={false}
           />
           {srProducts[0] !== undefined ? (
             srProducts[0].salesProduceName != null ? (
@@ -63,7 +68,11 @@ const SalesDetail = () => {
             ) : null
           ) : null}
           {ord_rcv != null ? (
-            <InputTextForm label={t('order_received')} value={ord_rcv} />
+            <InputTextForm
+              label={t('order_received')}
+              value={ord_rcv}
+              editable={false}
+            />
           ) : null}
           <View>
             {srProducts &&
@@ -89,9 +98,17 @@ const SalesDetail = () => {
               })}
           </View>
           {ord_rcv != null ? (
-            <InputTextForm label={t('payment_mode')} value={pay_rcv} />
+            <InputTextForm
+              label={t('payment_mode')}
+              value={pay_rcv}
+              editable={false}
+            />
           ) : null}
-          <InputTextForm label={t('comments')} value={comment} />
+          <InputTextForm
+            label={t('comments')}
+            value={comment}
+            editable={false}
+          />
           <Text style={{color: '#000', marginVertical: 10}}>
             {t('view_phote')}
           </Text>

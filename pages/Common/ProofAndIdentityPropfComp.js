@@ -89,7 +89,7 @@ const ProofAndIdentityPropfComp = ({
         }
         const values = [...stateValue];
         const photoId = values[index]?.id;
-        if (photoId && !photoDeletedValue.includes(photoId)) {
+        if (photoId && !photoDeletedValue?.includes(photoId)) {
           setPhotoDeletedValue(prev => [...prev, photoId]);
         }
         values[index] = {
@@ -98,6 +98,7 @@ const ProofAndIdentityPropfComp = ({
           name: response[0].name,
           type: response[0].type,
           fileName: response[0].name,
+          imageType: imageType,
           value: '1',
           id: '',
         };
@@ -161,7 +162,7 @@ const ProofAndIdentityPropfComp = ({
     [stateValue, setStateValue, setPhotoDeletedValue],
   );
   const handleScanAndCreatePdf = useCallback(
-    async (data, index) => {
+    async (imageType, index) => {
       setLoading(true);
       try {
         // const { scannedImages } = await DocumentScanner.scanDocument({
@@ -184,6 +185,7 @@ const ProofAndIdentityPropfComp = ({
         });
         const fileStat = await RNFS.stat(path);
         const fileSizeInMB = fileStat.size / (1024 * 1024);
+        // console.log(`PDF Size: ${fileSizeInMB} MB`);
         const sizeLimitMB = 3;
         if (fileSizeInMB > sizeLimitMB) {
           Alert.alert(
@@ -203,6 +205,7 @@ const ProofAndIdentityPropfComp = ({
           name: fileName,
           type: 'application/pdf',
           fileName: fileName,
+          imageType: imageType,
           value: '1',
           id: '',
         };
@@ -304,29 +307,22 @@ const ProofAndIdentityPropfComp = ({
             {InputTextFormEdit == true ? (
               <TouchableOpacity
                 onPress={() => {
-                  handleScanAndCreatePdf(data?.ImageType, index);
+                  handleScanAndCreatePdf(data?.imageType, index);
                   spSheet.hide();
                 }}
                 style={{
                   backgroundColor: '#DFE8EF',
-                  width: 80,
+                  width: 70,
                   height: 70,
                   borderRadius: 10,
                   elevation: 1,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingBottom: 10,
-                  borderWidth: 0.5,
                 }}>
-                <MaterialIcons
-                  name="document-scanner"
-                  size={28}
-                  color="#1d3122"
-                />
-                {/* <Image
+                <Image
                   source={require('../Common/images/scan.png')}
                   style={{width: 30, height: 30}}
-                /> */}
+                />
                 <Text style={styles.title}>Scanner</Text>
               </TouchableOpacity>
             ) : (
@@ -335,29 +331,22 @@ const ProofAndIdentityPropfComp = ({
             {InputTextFormEdit == true ? (
               <TouchableOpacity
                 onPress={() => {
-                  onHandleDocumentSelection(data?.ImageType, index);
+                  onHandleDocumentSelection(data?.imageType, index);
                   spSheet.hide();
                 }}
                 style={{
                   backgroundColor: '#DFE8EF',
-                  width: 80,
+                  width: 70,
                   height: 70,
                   borderRadius: 10,
                   elevation: 1,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingBottom: 10,
-                  borderWidth: 0.5,
                 }}>
-                <MaterialIcons
-                  name="add-photo-alternate"
-                  size={30}
-                  color="#1d3122"
-                />
-                {/* <Image
+                <Image
                   source={require('../Common/images/gallery.png')}
                   style={{width: 30, height: 30}}
-                /> */}
+                />
                 <Text style={styles.title}>Gallery</Text>
               </TouchableOpacity>
             ) : (
@@ -369,20 +358,17 @@ const ProofAndIdentityPropfComp = ({
               onPress={() => openURL(data, index, spSheet)}
               style={{
                 backgroundColor: '#DFE8EF',
-                width: 80,
+                width: 70,
                 height: 70,
                 borderRadius: 10,
                 elevation: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingBottom: 10,
-                borderWidth: 0.5,
               }}>
-              <MaterialIcons name="visibility" size={30} color="#1d3122" />
-              {/* <Image
+              <Image
                 source={require('../Common/images/view.png')}
                 style={{width: 30, height: 30}}
-              /> */}
+              />
               <Text style={styles.title}>View</Text>
             </TouchableOpacity>
             {/* )} */}
@@ -415,72 +401,85 @@ const ProofAndIdentityPropfComp = ({
       )}
       <View style={styles.idItemContainer}>
         {stateValue &&
-          stateValue.map((data, index) => (
-            <TouchableOpacity
-              style={styles.idItem}
-              key={index}
-              onPress={() => {
-                // basudev
-                // status_level != 'APPROVED' &&
-                SPSheet.show({
-                  component: () => component({data, index, spSheet: SPSheet}),
-                  height: 220 + marginBottom,
-                });
-              }}>
-              <View style={{marginTop: 30}}>
-                {data?.uri ? (
-                  data?.type == 'application/pdf' ? (
-                    <MaterialIcons
-                      name="edit-document"
-                      size={45}
-                      color="#0d8320"
-                    />
-                  ) : (
-                    // <Image
-                    //   source={require('./images/pdf.png')}
-                    //   style={styles.idImage}
-                    // />
-                    <Image source={{uri: data.uri}} style={styles.idImage} />
-                  )
-                ) : (
-                  <MaterialIcons name="upload-file" size={45} color="#0d8320" />
-                  // <Image
-                  //   source={require('./images/document.png')}
-                  //   style={styles.idImage}
-                  // />
-                )}
-                {data?.url ||
-                  (data?.uri &&
-                    (status_level != 'APPROVED' ? (
-                      <TouchableOpacity
-                        onPress={() =>
-                          onHandleDocumentSelectionRemove(index, status_level)
-                        }
-                        style={{position: 'absolute', top: -15, right: -15}}>
-                        <MaterialIcons name="cancel" size={25} color="red" />
-                        {/* <Image
-                          source={require('./images/cross50.png')}
-                          style={{width: 20, height: 20}}
-                        /> */}
-                      </TouchableOpacity>
+          stateValue.map((data, index) => {
+            return (
+              <TouchableOpacity
+                style={styles.idItem}
+                key={index}
+                onPress={() => {
+                  // basudev
+                  // status_level != 'APPROVED' &&
+                  SPSheet.show({
+                    component: () => component({data, index, spSheet: SPSheet}),
+                    height: 220 + marginBottom,
+                  });
+                }}>
+                <View>
+                  <Text
+                    style={[styles.title, {fontSize: 12}]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {data?.imageType == undefined ? null : data?.imageType ==
+                      'address' ? (
+                      <Text>Address Proof</Text>
                     ) : (
-                      <TouchableOpacity
-                        style={{position: 'absolute', top: -20, right: -5}}>
-                        <MaterialIcons name="cancel" size={25} color="red" />
-                        {/* <Image
-                          source={require('./images/cross50.png')}
-                          style={{width: 20, height: 20}}
-                        /> */}
-                      </TouchableOpacity>
-                    )))}
-              </View>
-              <Text style={styles.text}>
-                {data?.name?.substring(data?.name?.length - 9) ||
-                  data.file_name?.substring(data.file_name?.length - 9) ||
-                  ''}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                      <Text>Identity Proof</Text>
+                    )}
+                  </Text>
+
+                  {data?.uri ? (
+                    data?.type == 'application/pdf' ? (
+                      <Image
+                        source={require('./images/pdf.png')}
+                        style={styles.idImage}
+                      />
+                    ) : (
+                      <Image source={{uri: data.uri}} style={styles.idImage} />
+                    )
+                  ) : (
+                    <Image
+                      source={require('./images/document.png')}
+                      style={styles.idImage}
+                    />
+                  )}
+                  {data?.url ||
+                    (data?.uri &&
+                      (data?.imageType != 'address' &&
+                      data?.imageType != 'identity' ? (
+                        status_level != 'APPROVED' ? (
+                          <TouchableOpacity
+                            onPress={() =>
+                              onHandleDocumentSelectionRemove(
+                                index,
+                                status_level,
+                              )
+                            }
+                            style={{position: 'absolute', top: -10, right: -5}}>
+                            <Image
+                              source={require('./images/cross50.png')}
+                              style={{width: 20, height: 20}}
+                            />
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            style={{position: 'absolute', top: -10, right: -5}}>
+                            {/* <Image
+                            source={require('./images/cross50.png')}
+                            style={{ width: 20, height: 20 }}
+                          /> */}
+                          </TouchableOpacity>
+                        )
+                      ) : null))}
+                </View>
+                <Text
+                  style={[styles.title, {fontSize: 12}]}
+                  numberOfLines={1}
+                  ellipsizeMode="head">
+                  {data?.name || data.file_name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
       </View>
     </View>
   );
@@ -490,13 +489,11 @@ const styles = StyleSheet.create({
   idContainer: {
     flex: 1,
     elevation: 1,
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 5,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: Colors.borderGreen,
+    marginBottom: 7,
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -536,7 +533,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginHorizontal: 5,
-    color: '#1d3122',
+    color: '#000',
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
   },

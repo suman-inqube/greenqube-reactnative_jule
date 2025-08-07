@@ -1,6 +1,8 @@
 import axios from 'axios';
 import config from '../../../config';
 import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import instance from './../../../config/commonAxios';
+import {getAxiosInstance} from './../../../config/axiosInstance';
 const timeoutConfig = {timeout: 5000};
 const headersWithCompanyDBlanID = (dbName, languageId) => {
   return {
@@ -22,20 +24,40 @@ export const userDataListAPI = async (
       information: `${dbName},${languageId},${user_id}`,
     },
   };
-  console.log(
-    config.BASE_URL +
-      `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`,
-  );
-  console.log(axiosHeaders);
+  // console.log(
+  //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+  // );
+  //         console.log(axiosHeaders)
   try {
-    let response = await axios.get(
-      config.BASE_URL +
-        `agentRoute/listFarmer/1/${page}/2?search_key=${phoneNumber}`,
-      {...axiosHeaders, ...timeoutConfig},
+    // let response = await instance.get(
+    //     `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,{
+    //   headers: {
+    //     'authorization': `${token}`,
+    //     'information': `${dbName},${languageId},${user_id}`,
+    // }}
+    // );
+
+    const instance = await getAxiosInstance();
+    // const response = await instance.get('hostRoute/databaseList');
+
+    const response = await instance.get(
+      `agentRoute/listFarmer_e/1/${page}/2?search_key=${phoneNumber}`,
+      {
+        headers: {
+          authorization: `${token}`,
+          information: `${dbName},${languageId},${user_id}`,
+        },
+      },
     );
-    return response;
+    // console.log('check12', response);
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+    return resultJson;
   } catch (error) {
-    CrashlyticsRecordError(error.response);
+    console.log('r1', error);
+    // CrashlyticsRecordError(error.response, 'UserList', 'userDataListAPI');
     return error.response;
   }
 };
@@ -96,8 +118,8 @@ export const UserInformationUpdate = async (
     );
     return response;
   } catch (error) {
-    console.log(error);
-    // CrashlyticsRecordError(error.response);
+    // console.log(error)
+    CrashlyticsRecordError(error.response);
     return error;
   }
 };
@@ -115,6 +137,11 @@ export const farmerProfileInformation = async (
   };
   try {
     const response = await axios.get(
+      `${config.BASE_URL}loginSignupRoute/details/${farmerID}`,
+      axiosHeaders,
+    );
+
+    console.log(
       `${config.BASE_URL}loginSignupRoute/details/${farmerID}`,
       axiosHeaders,
     );
@@ -150,7 +177,6 @@ export const UserProfileUpdate = async (
     return error.response;
   }
 };
-
 export const firstLanguageListAPI = async dbName => {
   const axiosHeaders = {
     headers: {

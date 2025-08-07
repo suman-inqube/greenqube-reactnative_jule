@@ -20,9 +20,6 @@ import {
 import MessageDialog from '../../Common/MessageDialog';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
-import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const FarmerAddExpense = ({navigation}) => {
   //GQR-67
   const {
@@ -204,6 +201,13 @@ const FarmerAddExpense = ({navigation}) => {
     data.forEach(element => {
       expense_total += parseInt(element.amount);
     });
+    const allFieldsFilled = data.every(
+      item =>
+        item.type.trim() !== '' &&
+        item.cat_id.trim() !== '' &&
+        item.amount.trim() !== '' &&
+        item.date.trim() !== '',
+    );
 
     const qs = require('qs');
 
@@ -219,148 +223,119 @@ const FarmerAddExpense = ({navigation}) => {
       expense_total: expense_total,
       cost_head: JSON.stringify(data),
     });
-    const response = await farmIncomeExpenceSaveAPI(
-      dbname,
-      lan_id,
-      token,
-      farmerID,
-      save_data,
-    );
-    if (response?.status == 200) {
-      navigation.navigate('FarmerFarmIncomeExpenseList');
+    if (allFieldsFilled) {
+      const response = await farmIncomeExpenceSaveAPI(
+        dbname,
+        lan_id,
+        token,
+        farmerID,
+        save_data,
+      );
+      if (response?.status == 200) {
+        navigation.navigate('FarmerFarmIncomeExpenseList');
+      }
+    } else {
+      Toast.show({
+        time: 2,
+        text: `Please indent data properly`,
+        ...AlertMesg[0],
+      });
     }
   };
   const HandlerGoBack = () =>
     navigation.navigate('FarmerFarmIncomeExpenseList');
   return (
-    <FarmerDrawerScreenWrapper1>
-      <Root>
-        <View style={{flex: 1, backgroundColor: Colors.pageBackground}}>
-          <DatePickerComp
-            openDate={openFromDate}
-            newDate={newFromDate}
-            setOpenDate={setOpenFromDate}
-            handleDatePicker={handleDatePicker}
-          />
-          <CustomHeader
-            path="FarmerFarmIncomeExpenseList"
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          <FormsTitle title={t('add_expense')} />
-          <View style={styles.formContainer}>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}>
-              <View style={styles.iconView}>
-                <MaterialIcons
-                  name={'currency-rupee'}
-                  color="green"
-                  size={40}
-                />
-              </View>
-              <View style={styles.mainView}>
-                <View style={styles.card}>
-                  <DropdownForm
-                    label={t('plot')}
-                    data={plotAll}
-                    required={true}
-                    onChange={relId => handlePlot(relId)}
-                  />
-                  {showingMenu ? (
-                    <View style={styles.plotContainer}>
-                      <View style={styles.plotItem}>
-                        <Text style={styles.plotItemText}>
-                          {t('produce_name')}
-                        </Text>
-                        <Text style={styles.plotItemText}>
-                          {t('prodece_vareity')}
-                        </Text>
-                      </View>
-                      <View style={styles.plotItem}>
-                        <Text style={styles.plotItemText}>
-                          {nameVarityStartEnd?.name}
-                        </Text>
-                        <Text style={styles.plotItemText}>
-                          {nameVarityStartEnd?.varity}
-                        </Text>
-                      </View>
-                    </View>
-                  ) : (
-                    ''
-                  )}
-                  {data.map((data, index) => {
-                    return (
-                      <View style={styles.AddExpenseContainer} key={index}>
-                        <View style={styles.inputContainer}>
-                          <TextInput
-                            style={styles.AddExpenseInput}
-                            onChangeText={text =>
-                              handleChangeAddExpense(index, text, 'amount')
-                            }
-                            name="amount"
-                            placeholder={t('amount') + '(' + currency + ')'}
-                            keyboardType="numeric"
-                            placeholderTextColor={'#000'}
-                            value={data.amount}
-                          />
-                          <View style={styles.iconContainer}>
-                            <MaterialIcons
-                              name="currency-rupee" // or any other icon
-                              size={25}
-                              color="#107808ff"
-                            />
-                          </View>
-                        </View>
-                        <View style={styles.AddExpenseItemContainer}>
-                          <View style={styles.AddExpenseItem}>
-                            <HeadDropDown
-                              label={t('add_expense_head')}
-                              data={InComeAll}
-                              name="cat_id"
-                              onChange={text =>
-                                handleChangeAddCatID(index, text, 'cat_id')
-                              }
-                            />
-                          </View>
-                          <TouchableOpacity
-                            onPress={() => setOpenFromDate(true)}
-                            style={styles.AddExpenseItemDate}>
-                            <Text style={styles.title}>
-                              {data.date == '' ? `${t('date')}` : data.date}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity
-                          onPress={addMoreExpense}
-                          style={styles.addMore}>
-                          <MaterialIcons
-                            name={'add-circle'}
-                            color="white"
-                            size={25}
-                          />
-                          <Text style={styles.addMoreText}>
-                            {t('add_more')}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })}
+    <Root>
+      <View style={{flex: 1}}>
+        <DatePickerComp
+          openDate={openFromDate}
+          newDate={newFromDate}
+          setOpenDate={setOpenFromDate}
+          handleDatePicker={handleDatePicker}
+        />
+        <CustomHeader
+          path="FarmerFarmIncomeExpenseList"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <FormsTitle title={t('add_expense')} />
+        <View style={styles.formContainer}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <DropdownForm
+              label={t('plot')}
+              data={plotAll}
+              color="red"
+              onChange={relId => handlePlot(relId)}
+            />
+            {showingMenu ? (
+              <View style={styles.plotContainer}>
+                <View style={styles.plotItem}>
+                  <Text style={styles.plotItemText}>{t('produce_name')}</Text>
+                  <Text style={styles.plotItemText}>
+                    {t('prodece_vareity')}
+                  </Text>
+                </View>
+                <View style={styles.plotItem}>
+                  <Text style={styles.plotItemText}>
+                    {nameVarityStartEnd?.name}
+                  </Text>
+                  <Text style={styles.plotItemText}>
+                    {nameVarityStartEnd?.varity}
+                  </Text>
                 </View>
               </View>
-            </ScrollView>
-          </View>
-          <ButtonForm
-            label={t('submit')}
-            onPress={() => handleSave()}
-            iconName="check-circle"
-            iconColor="#fff"
-            iconSize={30}
-          />
+            ) : (
+              ''
+            )}
+            <View style={{marginBottom: 400}}>
+              {data.map((data, index) => {
+                return (
+                  <View style={styles.AddExpenseContainer} key={index}>
+                    <View>
+                      <TextInput
+                        style={styles.AddExpenseInput}
+                        onChangeText={text =>
+                          handleChangeAddExpense(index, text, 'amount')
+                        }
+                        name="amount"
+                        placeholder={t('amount') + '(' + currency + ')'}
+                        keyboardType="numeric"
+                        placeholderTextColor={'#000'}
+                        value={data.amount}
+                      />
+                    </View>
+                    <View style={styles.AddExpenseItemContainer}>
+                      <View style={styles.AddExpenseItem}>
+                        <HeadDropDown
+                          label={t('add_expense_head')}
+                          data={InComeAll}
+                          name="cat_id"
+                          onChange={text =>
+                            handleChangeAddCatID(index, text, 'cat_id')
+                          }
+                        />
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => setOpenFromDate(true)}
+                        style={styles.AddExpenseItemDate}>
+                        <Text style={styles.title}>
+                          {data.date == '' ? `${t('date')}` : data.date}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
         </View>
-      </Root>
-    </FarmerDrawerScreenWrapper1>
+        <TouchableOpacity onPress={addMoreExpense} style={styles.addMore}>
+          <Text style={styles.addMoreText}>{t('add_more')}</Text>
+        </TouchableOpacity>
+      </View>
+      <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+    </Root>
   );
 };
 
@@ -368,68 +343,26 @@ export default FarmerAddExpense;
 
 const styles = StyleSheet.create({
   formContainer: {
-    flex: 1,
-    marginTop: 20,
-  },
-  iconView: {
-    alignSelf: 'center',
-    marginBottom: 15,
-    //   backgroundColor: 'white',
-    width: 60,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 100,
-    borderWidth: 4,
-    borderColor: Colors.secondary,
-  },
-  scrollContent: {
-    paddingBottom: 30, // Extra padding at bottom
-  },
-  mainView: {
-    //   width: '90%',
+    width: '90%',
     marginHorizontal: '5%',
-    backgroundColor: 'white',
-    elevation: 5,
-    borderRadius: 20,
-    backgroundColor: Colors.containerGreen,
   },
   AddExpenseContainer: {
-    flex: 1,
-    marginVertical: 30,
+    borderWidth: 1,
+    marginVertical: 10,
     padding: 10,
     borderRadius: 10,
-    backgroundColor: '#F7FCFF',
-    elevation: 5,
-    marginBottom: 10,
-  },
-  card: {
-    width: '100%',
-    // alignItems: 'center',
-    marginBottom: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
-  },
-  inputContainer: {
-    position: 'relative', // Needed for absolute positioning of icon
-  },
-  iconContainer: {
-    position: 'absolute',
-    left: 10,
-    top: '42%',
-    transform: [{translateY: -10}], // Vertically center the icon
+    borderColor: '#000',
+    backgroundColor: '#FFF',
   },
   AddExpenseInput: {
-    paddingLeft: 40,
     borderWidth: 1,
-    borderColor: Colors.borderGreen,
-    borderRadius: 20,
+    borderColor: '#000',
+    borderRadius: 10,
     marginVertical: 10,
-    fontSize: 18,
-    color: Colors.borderGreen,
+    fontSize: 15,
+    color: 'green',
+    color: '#000',
     fontFamily: 'Poppins-Regular',
-    backgroundColor: 'white',
   },
   AddExpenseItemContainer: {
     flexDirection: 'row',
@@ -442,67 +375,54 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   AddExpenseItemDate: {
-    width: '35%',
+    width: '30%',
     borderWidth: 1,
-    borderColor: Colors.borderGreen,
     padding: 8,
-    borderRadius: 8,
-    marginTop: 30,
-    height: 45,
-    backgroundColor: 'white',
+    borderRadius: 10,
   },
   addMore: {
-    // position: 'absolute',
-    // right: '-4%',
-    // // bottom: 0,
-    // top: '75%',
+    position: 'absolute',
+    right: '-4%',
+    // bottom: 0,
+    top: '75%',
     zIndex: 999,
-    backgroundColor: Colors.secondary,
-    width: '60%',
-    alignSelf: 'center',
-    padding: 8,
-    borderRadius: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-
-    // borderTopLeftRadius: 30,
-    // borderBottomLeftRadius: 30,
+    backgroundColor: 'green',
+    width: 100,
+    padding: 10,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
   },
   addMoreText: {
     color: '#FFF',
-    fontFamily: 'Poppins-SemiBold',
+    fontWeight: 'bold',
     textAlign: 'center',
-    paddingLeft: 10,
   },
   plotContainer: {
     flexDirection: 'row',
+    borderWidth: 1,
     borderColor: '#000',
     padding: 10,
     borderRadius: 10,
-    backgroundColor: '#F7FCFF',
-
-    elevation: 5,
-    marginBottom: 20,
-    marginHorizontal: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#FFF',
   },
   plotItem: {
     width: '50%',
   },
   plotItemText: {
-    color: Colors.text,
+    color: '#000',
     marginVertical: 5,
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 14,
   },
-  plotItemValText: {
-    color: Colors.text,
-    marginVertical: 5,
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
+  flatContainer: {
+    backgroundColor: '#ffffff',
+    position: 'absolute',
+    zIndex: 999,
+    bottom: '100%',
+    left: 0,
+    marginHorizontal: '5%',
+    width: '90%',
+    elevation: 10,
+    borderRadius: 10,
+    padding: 10,
   },
 
   flatlisttitle: {
@@ -514,11 +434,6 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height / 2.5,
   },
   title: {
-    color: Colors.text,
-    fontFamily: 'Poppins-Regular',
-    fontSize: 15,
+    color: '#000',
   },
-
-  ///////////////////////////////////////
-  //
 });

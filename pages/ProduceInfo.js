@@ -9,7 +9,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import ButtonForm from './Common/ButtonForm';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
@@ -993,7 +993,10 @@ const ProduceInfo = () => {
         const existingGeo = turf.polygon([
           [...poly, poly[0]].map(p => [p.longitude, p.latitude]),
         ]);
-        if (turf.booleanOverlap(existingGeo, newGeo)) {
+        if (
+          turf.booleanOverlap(existingGeo, newGeo) ||
+          turf.booleanWithin(newGeo, existingGeo)
+        ) {
           overlapFound = true;
         }
       });
@@ -1085,6 +1088,47 @@ const ProduceInfo = () => {
       IOTLatlat: latitude,
       IOTLatLong: longitude,
     });
+  };
+  const regionRef = useRef(null);
+  const timeoutRef = useRef(null);
+  const handleRegionChangeComplete = async newRegion => {
+    const {latitude, longitude} = newRegion;
+    regionRef.current = newRegion;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(async () => {
+      const latestRegion = regionRef.current;
+      setIsLoading(true);
+      const isSameLat =
+        Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
+      const isSameLng =
+        Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
+      if (isSameLat && isSameLng) {
+        try {
+          const nearestLatLong_res = await nearestLatLong(
+            dbName,
+            lanID,
+            '',
+            latitude,
+            longitude,
+          );
+          if (nearestLatLong_res?.status === 200) {
+            const data = nearestLatLong_res?.data?.data;
+            // setnearPolData(data);
+            const groupedData = groupByRelId(data);
+            setnearPolSet(groupedData);
+            setPolygons(groupedData);
+          }
+        } catch (error) {
+          console.error('Error fetching nearest polygon data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    }, 3000);
   };
   return (
     <>
@@ -1557,6 +1601,8 @@ const ProduceInfo = () => {
             baselatLong={referencelatLong}
             statuslevel={''}
             type="livehoood"
+            handleRegionChangeComplete={handleRegionChangeComplete}
+            isLoading={isLoading}
           />
         </Modal>
       )}

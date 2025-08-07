@@ -1,13 +1,33 @@
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
-import moment from 'moment';
-import {useNavigation} from '@react-navigation/native';
+import {
+  Keyboard,
+  TextInput,
+  Image,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Animated,
+  ActivityIndicator,
+} from 'react-native';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from 'react';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import {
   faremerTrainingListAPI,
   cropListApi,
   addModuleForView,
 } from '../../../config/apiHere';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import ImageForm from '../../Common/ImageForm';
+import ListItemComponent from '../../Common/ListItemComponent';
+import GridItemComponent from '../../Common/GridItemComponent';
+import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
 const FarmerTrainingList = () => {
   //GQR-67
   const {
@@ -20,42 +40,57 @@ const FarmerTrainingList = () => {
     onBackPress,
     setItem,
     CustomHeader,
+    Root,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
   //GQR-67
+  const {currentRoute, previousRoute} = useCurrentAndPreviousRoute();
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
   const [noticeList, setTrainingList] = useState([]);
+  const [isGridView, setIsGridView] = useState(true);
+  const [titleSearch, setTitleSearch] = useState('');
+  const [loading, setLoading] = useState(false);
+  const toggleView = () => {
+    setIsGridView(!isGridView);
+  };
   const detailItem = async itemId => {
     await setItem('userNoticeId', itemId);
     const userNoticeListData = await getItem('userNoticeId');
-    console.log(userNoticeListData);
     navigation.navigate('FarmerTraining', {
       pagename: 'FarmerTraining',
       noticeId: itemId,
     });
   };
-  function handleBackPress() {
-    navigation.navigate('FarmerDashboard');
-    return true;
-  }
-  useEffect(() => {
-    onBackPress(handleBackPress);
-  }, []);
-  function UserBoxDisplay({item, item2, item3, item4}) {
-    return (
-      <View style={styles.box1}>
-        <View style={styles.box1_1}>
-          <View style={{width: '70%'}}>
-            <Text style={styles.textOne}>{item}</Text>
-            <Text>{item2}</Text>
-          </View>
-          <View style={{width: '30%'}}>
-            <Text style={styles.readMore}>{item4}</Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
+
+  const animationValues = useRef({}).current;
+  const numColumns = isGridView ? 1 : 2;
+  const getAnimationValue = id => {
+    if (!animationValues[id]) {
+      animationValues[id] = new Animated.Value(0);
+    }
+    return animationValues[id];
+  };
+  const renderItem = useCallback(
+    ({item}) =>
+      isGridView ? (
+        <GridItemComponent
+          item={item}
+          onPress={detailItem}
+          getAnimationValue={getAnimationValue}
+          noticeList={noticeList}
+        />
+      ) : (
+        <ListItemComponent
+          item={item}
+          onPress={detailItem}
+          getAnimationValue={getAnimationValue}
+          noticeList={noticeList}
+        />
+      ),
+    [isGridView, noticeList, detailItem],
+  );
+  const keyExtractor = useCallback(item => item.fid.toString(), []);
   const trainingList = async (
     dbName,
     languageID,
@@ -65,6 +100,7 @@ const FarmerTrainingList = () => {
     subdiv_id,
     cropId,
   ) => {
+    setLoading(true);
     let response = await faremerTrainingListAPI(
       dbName,
       languageID,
@@ -75,13 +111,16 @@ const FarmerTrainingList = () => {
       cropId,
       'farmer',
       'training',
+      titleSearch,
     );
     if (response?.status == 200) {
       setTrainingList(response.data.data);
       setItem('userTrainingList', response.data.data);
     }
+    setLoading(false);
   };
   const onPageLoad = async () => {
+    setLoading(true);
     const response = await cropListApi(dbname, lan_id, user_id);
     if (response?.status == 200) {
       let cropId = '';
@@ -100,105 +139,291 @@ const FarmerTrainingList = () => {
         newCropId,
       );
     }
+    setLoading(false);
   };
   useEffect(() => {
-    onPageLoad();
-  }, []);
-  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+    if (isFocused) {
+      if (currentRoute.params != undefined) {
+        onPageLoad();
+      }
+      onBackPress(() => {
+        setTrainingList([]);
+        setTitleSearch('');
+        navigation.navigate('FarmerDashboard');
+        return true;
+      });
+    }
+  }, [isFocused]);
+  const HandlerGoBack = () => {
+    setTrainingList([]);
+    setTitleSearch('');
+    navigation.navigate('FarmerDashboard');
+  };
+  const searchByTitle = async () => {
+    Keyboard.dismiss();
+    trainingList(
+      dbname,
+      lan_id,
+      user_id,
+      agri_user_addresses[0].agri_state.fid,
+      agri_user_addresses[0].agri_district.fid,
+      agri_user_addresses[0].agri_subdivision.fid,
+      '',
+    );
+  };
   return (
-    <>
-      <View style={{flex: 2}}>
+    <Root>
+      <View style={styles.container}>
         <CustomHeader
-          path="FarmerDashboard"
+          path="Dashboard"
           HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <FormsTitle title={t('training_support')} />
-        <View style={{flex: 1}}>
-          {noticeList ? (
+
+        {/* Header with Title and Toggle Button */}
+        <View style={styles.headerContainer}>
+          <View style={styles.titleContainer}>
+            <FormsTitle title={t('training_support')} />
+          </View>
+          <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
+            {isGridView ? (
+              <Image
+                source={require('../../Common/images/view_list.png')}
+                style={styles.toggleIcon}
+              />
+            ) : (
+              <Image
+                source={require('../../Common/images/view_grid.png')}
+                style={styles.toggleIcon}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Search Container */}
+        <View style={styles.searchContainer}>
+          <View style={styles.textInputContainer}>
+            <TextInput
+              placeholder={'Search...'}
+              placeholderTextColor={'#999'}
+              style={styles.textInput}
+              value={titleSearch}
+              onChangeText={setTitleSearch}
+              onSubmitEditing={searchByTitle}
+              returnKeyType="search"
+              clearButtonMode="while-editing"
+              autoCorrect={false}
+            />
+          </View>
+          <TouchableOpacity onPress={searchByTitle} style={styles.searchIcon}>
+            <ImageForm
+              source={require('../../Common/images/search.png')}
+              resizeMode="cover"
+              height={24}
+              width={24}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* FlatList Container */}
+        <View style={styles.flatListContainer}>
+          {loading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#156106ff" />
+            </View>
+          ) : noticeList && noticeList.rows && noticeList.rows.length > 0 ? (
             <FlatList
-              style={{marginHorizontal: '2.5%'}}
+              key={isGridView ? 'grid' : 'list'} // Force re-render on view change
               data={noticeList.rows}
-              keyExtractor={item => item.fid}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              numColumns={isGridView ? 2 : 1}
               showsVerticalScrollIndicator={false}
-              renderItem={({item, index}) => (
-                <View>
-                  <TouchableOpacity onPress={() => detailItem(item.fid)}>
-                    <UserBoxDisplay
-                      item={item.post_name}
-                      item2={moment(item.updated_at).utc().format('YYYY-MM-DD')}
-                      item4={t('read_more')}
-                    />
-                  </TouchableOpacity>
-                </View>
-              )}
+              contentContainerStyle={styles.flatListContent}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              // columnWrapperStyle={isGridView ? { ...styles.gridRow, gap: 4 } : null}
+              removeClippedSubviews={true} // performance optimization
+              initialNumToRender={10}
+              maxToRenderPerBatch={10}
+              windowSize={10}
             />
           ) : (
-            ''
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>{t('no_data_found')}</Text>
+            </View>
           )}
         </View>
       </View>
-    </>
+    </Root>
   );
 };
-
-export default FarmerTrainingList;
-
 const styles = StyleSheet.create({
-  header: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
   },
   titleContainer: {
-    width: '95%',
-    alignItems: 'flex-end',
-    paddingVertical: 10,
-  },
-  box1: {
-    marginBottom: 10,
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 70,
-    backgroundColor: 'white',
-    shadowColor: 'rgba(0, 0, 0, 0.2)',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
-  },
-
-  box1_1: {
     flex: 1,
+  },
+  toggleButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  toggleIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#333',
+  },
+  searchContainer: {
+    marginHorizontal: '3%',
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    // marginVertical: 12,
+    marginTop: 15,
+    marginBottom: 7,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  textInputContainer: {
+    flex: 1,
+  },
+  textInput: {
+    height: 48,
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+  },
+  searchIcon: {
+    padding: 8,
+  },
+  flatListContainer: {
+    flex: 1,
+  },
+  flatListContent: {
+    padding: '2.3%',
+  },
+  separator: {
+    height: 12,
+  },
+  gridRow: {
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 20,
   },
-  boxMenu: {
-    borderRadius: 10,
+  // List Item Styles
+  listItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    height: 50,
-    backgroundColor: 'white',
-    shadowColor: 'rgba(0, 0, 0, 0.2)',
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.8,
-    shadowRadius: 20,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  readMore: {
-    color: 'lightblue',
-    fontFamily: 'Arial',
-    textAlign: 'right',
-    fontWeight: 'bold',
+  listImageContainer: {
+    marginRight: 16,
+  },
+  listImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  listContent: {
+    flex: 1,
+  },
+  listTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    // marginBottom: 4,
+  },
+  listDate: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+    marginBottom: 8,
+  },
+  readMoreText: {
+    fontSize: 14,
+    color: '#18a7d7',
+    fontFamily: 'Poppins-Regular',
     fontStyle: 'italic',
     textDecorationLine: 'underline',
-    marginTop: 20,
   },
-  textOne: {
-    color: 'black',
-    fontFamily: 'Arial',
-    fontWeight: 'bold',
+  // Grid Item Styles
+  gridItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    flex: 1,
+    marginHorizontal: 6,
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+  },
+  gridImageContainer: {
+    width: '100%',
+    height: 100,
+  },
+  gridImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#f0f0f0',
+  },
+  gridContent: {
+    padding: 8,
+  },
+  gridTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    fontFamily: 'Poppins-Regular',
+    // marginBottom: 4,
+    // minHeight: 40,
+  },
+  gridDate: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+  },
+  // Empty State
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+  },
+  loaderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 40,
   },
 });
+export default FarmerTrainingList;

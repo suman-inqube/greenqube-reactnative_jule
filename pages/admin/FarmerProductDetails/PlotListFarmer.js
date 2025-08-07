@@ -36,6 +36,7 @@ const PlotListFarmer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
+  const [addPlot, setAddPlot] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const onTabPress = (index, data) => {
     setActiveTab(index);
@@ -78,10 +79,20 @@ const PlotListFarmer = () => {
   const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-65
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+  const handleBackPress = () => {
+    if (activeTab == 1) {
+      setActiveTab(0);
+      onTabPress(0);
+      return true;
+    }
+    navigation.navigate('FarmerDashboard');
+    return true;
+  };
   useEffect(() => {
     if (activeTab == 0) {
       onPageLoad();
     }
+    onBackPress(handleBackPress);
   }, [activeTab]);
   const onPageLoad = async () => {
     try {
@@ -93,8 +104,8 @@ const PlotListFarmer = () => {
           LandUnitsquare_metre(dbname, lan_id, token),
         ]);
       if (plotListApprovalRes?.status == 200) {
-        const {data} = plotListApprovalRes?.data;
-        setplotList(data);
+        // const { data } = plotListApprovalRes?.data;
+        setplotList(plotListApprovalRes?.data);
       }
       if (LandUnitArea_res?.status == 200) {
         const {count, rows} = LandUnitArea_res?.data?.data || {};
@@ -112,6 +123,7 @@ const PlotListFarmer = () => {
           setLandUnitsquareMetre([]);
         }
       }
+      setAddPlot(false);
       setIsLoading(false);
       setDataProps({});
     } catch (error) {
@@ -126,417 +138,418 @@ const PlotListFarmer = () => {
     }, 2000);
   };
   return (
-    <FarmerDrawerScreenWrapper1>
-      <>
-        <Root>
-          <View style={styles.container}>
-            <View style={{width: '100%'}}>
-              <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
-            </View>
-            {/* Tab Bar */}
-            <View style={styles.tabBar}>
-              <TouchableOpacity
-                style={styles.tab}
-                onPress={() => onTabPress(0)}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === 0 && styles.activeTabText,
-                  ]}>
-                  Plot Status
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.tab}
-                onPress={() => onTabPress(1)}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === 1 && styles.activeTabText,
-                  ]}>
-                  Plot Add and Edit
-                </Text>
-              </TouchableOpacity>
-
-              {/* Animated Tab Indicator */}
-              <Animated.View
+    <>
+      <Root>
+        <View style={styles.container}>
+          <View style={{width: '100%'}}>
+            <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
+          </View>
+          {/* Tab Bar */}
+          <View style={styles.tabBar}>
+            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>
+              <Text
                 style={[
-                  styles.indicator,
-                  {transform: [{translateX: indicatorPosition}]},
-                ]}
-              />
-            </View>
+                  styles.tabText,
+                  activeTab === 0 && styles.activeTabText,
+                ]}>
+                Plot Status
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(1)}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 1 && styles.activeTabText,
+                ]}>
+                Plot Add and Edit
+              </Text>
+            </TouchableOpacity>
 
-            {/* Swipeable Content */}
-            <ScrollView
-              ref={scrollRef}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onScroll={onScroll}
-              onMomentumScrollEnd={event => {
-                const index = Math.round(
-                  event.nativeEvent.contentOffset.x / width,
-                );
-                setActiveTab(index);
-              }}
-              //basudev
-              scrollEnabled={false}
-              scrollEventThrottle={16}>
-              {/* Tab 1 */}
-              <View style={styles.page}>
-                {isLoading ? (
-                  <View style={styles.LoadingScreen}>
-                    <LoadingScreen />
-                  </View>
-                ) : null}
-                <FlatList
-                  data={plotList}
-                  keyExtractor={(item, index) =>
-                    item?.id?.toString() || index.toString()
-                  }
-                  refreshing={refreshing} // Enable pull-to-refresh
-                  onRefresh={onRefresh}
-                  showsVerticalScrollIndicator={false} // Hides vertical scrollbar
-                  showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-                  style={{padding: 10}}
-                  renderItem={({_index, item}) => {
-                    return (
-                      <TouchableOpacity
-                        style={
-                          {
-                            // backgroundColor: 'white',
-                            // borderRadius: 8,
-                            // marginBottom: 12,
-                            // shadowColor: '#000',
-                            // shadowOffset: { width: 0, height: 2 },
-                            // shadowOpacity: 0.1,
-                            // shadowRadius: 4,
-                            // // elevation: 3,
-                            // borderWidth: 0.6,
-                            // borderColor: '#d0d4dc',
-                            // padding: 15,
-                            // flexDirection: 'row'
-                          }
+            {/* Animated Tab Indicator */}
+            <Animated.View
+              style={[
+                styles.indicator,
+                {transform: [{translateX: indicatorPosition}]},
+              ]}
+            />
+          </View>
+
+          {/* Swipeable Content */}
+          <ScrollView
+            ref={scrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={onScroll}
+            onMomentumScrollEnd={event => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x / width,
+              );
+              setActiveTab(index);
+            }}
+            //basudev
+            scrollEnabled={false}
+            scrollEventThrottle={16}>
+            {/* Tab 1 */}
+            <View style={styles.page}>
+              {isLoading ? (
+                <View style={styles.LoadingScreen}>
+                  <LoadingScreen />
+                </View>
+              ) : null}
+              <FlatList
+                data={plotList}
+                keyExtractor={(item, index) =>
+                  item?.id?.toString() || index.toString()
+                }
+                refreshing={refreshing} // Enable pull-to-refresh
+                onRefresh={onRefresh}
+                showsVerticalScrollIndicator={false} // Hides vertical scrollbar
+                showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
+                style={{padding: 10}}
+                renderItem={({_index, item}) => {
+                  return (
+                    <TouchableOpacity
+                      style={
+                        {
+                          // backgroundColor: 'white',
+                          // borderRadius: 8,
+                          // marginBottom: 12,
+                          // shadowColor: '#000',
+                          // shadowOffset: { width: 0, height: 2 },
+                          // shadowOpacity: 0.1,
+                          // shadowRadius: 4,
+                          // // elevation: 3,
+                          // borderWidth: 0.6,
+                          // borderColor: '#d0d4dc',
+                          // padding: 15,
+                          // flexDirection: 'row'
                         }
-                        onPress={() => onTabPress(1, item)}>
-                        <CollapsibleCard
-                          width="100%"
-                          header={
-                            <View style={{height: 30}}>
-                              <Text style={[styles.text, {fontSize: 15}]}>
-                                {item?.plot_no}
-                              </Text>
-                              {/* <Text>3 items in cart</Text> */}
+                      }
+                      onPress={() => onTabPress(1, item)}>
+                      <CollapsibleCard
+                        width="100%"
+                        header={
+                          <View style={{height: 30}}>
+                            <Text style={[styles.text, {fontSize: 15}]}>
+                              {item?.plot_no}
+                            </Text>
+                            {/* <Text>3 items in cart</Text> */}
+                          </View>
+                        }
+                        content={
+                          <>
+                            <View
+                              style={{
+                                backgroundColor: 'white',
+                                borderRadius: 8,
+                                // marginBottom: 12,
+                                marginVertical: 10,
+                                shadowColor: '#000',
+                                // shadowOffset: { width: 0, height: 2 },
+                                // shadowOpacity: 0.1,
+                                // shadowRadius: 4,
+                                // elevation: 3,
+                                // borderWidth: 0.6,
+                                // borderColor: '#d0d4dc',
+                                flexDirection: 'row',
+                              }}>
+                              <View>
+                                <Text style={styles.text}>Plot Name</Text>
+                                {/* <Text style={styles.text}>Plot Size</Text> */}
+                                <Text style={styles.text}>
+                                  Reported Land Area
+                                </Text>
+                                <Text style={styles.text}>
+                                  Converted Land Area
+                                </Text>
+                                <Text style={styles.text}>Crop Name</Text>
+                                <Text style={styles.text}>Crop Variety</Text>
+                                <Text style={styles.text}>
+                                  Cycle Start Date
+                                </Text>
+                                <Text style={styles.text}>Cycle End Date</Text>
+                              </View>
+                              <View style={{marginLeft: 10}}>
+                                <Text style={styles.text}>
+                                  : {item?.plot_no}
+                                </Text>
+                                {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
+                                <Text style={styles.text}>
+                                  : {item?.land_size} {item?.land_unit?.name}
+                                </Text>
+                                <Text style={styles.text}>
+                                  :{' '}
+                                  {parseFloat(item?.land_convert_size).toFixed(
+                                    2,
+                                  )}{' '}
+                                  {landAreaUnit?.[0]?.name}
+                                </Text>
+                                <Text style={styles.text}>
+                                  : {item?.plot_crops[0]?.crop_name?.name}
+                                </Text>
+                                <Text style={styles.text}>
+                                  : {item?.plot_crops[0]?.crop_variety?.name}
+                                </Text>
+                                <Text style={styles.text}>
+                                  : {item?.plot_crops[0]?.sowing_date}
+                                </Text>
+                                <Text style={styles.text}>
+                                  :{' '}
+                                  {item?.plot_crops[0]?.harvesting_date.substring(
+                                    0,
+                                    10,
+                                  )}
+                                </Text>
+                              </View>
                             </View>
-                          }
-                          content={
-                            <>
+                            {/* basu */}
+                            {item?.status_level == 'REJECTED' && (
                               <View
                                 style={{
-                                  backgroundColor: 'white',
-                                  borderRadius: 8,
-                                  // marginBottom: 12,
+                                  backgroundColor: '#F8D7DA',
+                                  borderRadius: 5,
+                                  borderColor: '#F8D7DA',
+                                  elevation: 1,
                                   marginVertical: 10,
-                                  shadowColor: '#000',
-                                  // shadowOffset: { width: 0, height: 2 },
-                                  // shadowOpacity: 0.1,
-                                  // shadowRadius: 4,
-                                  // elevation: 3,
-                                  // borderWidth: 0.6,
-                                  // borderColor: '#d0d4dc',
-                                  flexDirection: 'row',
                                 }}>
-                                <View>
-                                  <Text style={styles.text}>Plot Name</Text>
-                                  {/* <Text style={styles.text}>Plot Size</Text> */}
-                                  <Text style={styles.text}>
-                                    Reported Land Area
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    Converted Land Area
-                                  </Text>
-                                  <Text style={styles.text}>Crop Name</Text>
-                                  <Text style={styles.text}>Crop Variety</Text>
-                                  <Text style={styles.text}>
-                                    Cycle Start Date
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    Cycle End Date
-                                  </Text>
-                                </View>
-                                <View style={{marginLeft: 10}}>
-                                  <Text style={styles.text}>
-                                    : {item?.plot_no}
-                                  </Text>
-                                  {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
-                                  <Text style={styles.text}>
-                                    : {item?.land_size} {item?.land_unit?.name}
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    :{' '}
-                                    {parseFloat(
-                                      item?.land_convert_size,
-                                    ).toFixed(2)}{' '}
-                                    {landAreaUnit?.[0]?.name}
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    : {item?.plot_crops[0]?.crop_name?.name}
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    : {item?.plot_crops[0]?.crop_variety?.name}
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    : {item?.plot_crops[0]?.sowing_date}
-                                  </Text>
-                                  <Text style={styles.text}>
-                                    :{' '}
-                                    {item?.plot_crops[0]?.harvesting_date.substring(
-                                      0,
-                                      10,
-                                    )}
-                                  </Text>
-                                </View>
-                              </View>
-                              {/* basu */}
-                              {item?.status_level == 'REJECTED' && (
-                                <View
+                                <Text
                                   style={{
-                                    backgroundColor: '#F8D7DA',
-                                    borderRadius: 5,
-                                    borderColor: '#F8D7DA',
-                                    elevation: 1,
-                                    marginVertical: 10,
+                                    paddingHorizontal: 10,
+                                    color: '#721C24',
+                                    fontFamily: 'Poppins-Regular',
+                                    fontSize: 14,
                                   }}>
-                                  <Text
-                                    style={{
-                                      paddingHorizontal: 10,
-                                      color: '#721C24',
-                                      fontFamily: 'Poppins-Regular',
-                                      fontSize: 14,
-                                    }}>
-                                    {item?.comment}{' '}
-                                  </Text>
-                                </View>
-                              )}
-                            </>
-                          }
-                          footer={
+                                  {item?.comment}{' '}
+                                </Text>
+                              </View>
+                            )}
+                          </>
+                        }
+                        footer={
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                            }}>
                             <View
                               style={{
                                 flexDirection: 'row',
-                                justifyContent: 'space-between',
+                                alignItems: 'center',
                               }}>
+                              <Image
+                                source={require('../../Common/images/area-with-pins.png')}
+                                style={{
+                                  width: 25,
+                                  height: 25,
+                                  tintColor: '#0d8320',
+                                }}
+                              />
+                              <Text style={styles.text}>
+                                {' '}
+                                {parseFloat(
+                                  Number(
+                                    landUnitsquareMetre?.[0]
+                                      ?.defined_unit_value,
+                                  ) * Number(item?.google_area),
+                                ).toFixed(2)}{' '}
+                                {landAreaUnit?.[0]?.name}
+                              </Text>
+                              {/* basu */}
+                            </View>
+                            {item.status_level == 'APPROVED' && (
                               <View
                                 style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
                                   flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
                                   alignItems: 'center',
+                                  width: 100,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
                                 }}>
-                                <Image
-                                  source={require('../../Common/images/area-with-pins.png')}
-                                  style={{
-                                    width: 25,
-                                    height: 25,
-                                    tintColor: '#0d8320',
-                                  }}
-                                />
-                                <Text style={styles.text}>
-                                  {' '}
-                                  {parseFloat(
-                                    Number(
-                                      landUnitsquareMetre?.[0]
-                                        ?.defined_unit_value,
-                                    ) * Number(item?.google_area),
-                                  ).toFixed(2)}{' '}
-                                  {landAreaUnit?.[0]?.name}
+                                {/* <Icon
+                                                      name="check"
+                                                      size={20}
+                                                      color="green"
+                                                      iconFamily="Feather"
+                                                    /> */}
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  {item.status_level}
                                 </Text>
-                                {/* basu */}
                               </View>
-                              {item.status_level == 'APPROVED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                            )}
+                            {item.status_level ==
+                              'CARBON_DOCUMENTS_SUBMITTED' && (
+                              <View
+                                style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 120,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                                       name="check"
                                                       size={20}
                                                       color="green"
                                                       iconFamily="Feather"
                                                     /> */}
-                                  <Text
-                                    style={{color: '#155724', fontSize: 14}}>
-                                    {item.status_level}
-                                  </Text>
-                                </View>
-                              )}
-                              {item.status_level ==
-                                'CARBON_DOCUMENTS_SUBMITTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 120,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
-                                                      name="check"
-                                                      size={20}
-                                                      color="green"
-                                                      iconFamily="Feather"
-                                                    /> */}
-                                  <Text
-                                    style={{color: '#155724', fontSize: 14}}>
-                                    SUBMITTED
-                                  </Text>
-                                </View>
-                              )}
-                              {item.status_level ==
-                                'CARBON_DOCUMENTS_REJECTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#F8D7DA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 180,
-                                    borderWidth: 1,
-                                    borderColor: '#F8D7DA',
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  SUBMITTED
+                                </Text>
+                              </View>
+                            )}
+                            {item.status_level ==
+                              'CARBON_DOCUMENTS_REJECTED' && (
+                              <View
+                                style={{
+                                  backgroundColor: '#F8D7DA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 180,
+                                  borderWidth: 1,
+                                  borderColor: '#F8D7DA',
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                                   name="close"
                                                   size={16}
                                                   color="#FF5252"
                                                   iconFamily="AntDesign"
                                                 /> */}
-                                  <Text
-                                    style={{color: '#721C24', fontSize: 14}}>
-                                    CARBON REJECTED
-                                  </Text>
-                                </View>
-                              )}
+                                <Text style={{color: '#721C24', fontSize: 14}}>
+                                  CARBON REJECTED
+                                </Text>
+                              </View>
+                            )}
 
-                              {item.status_level ==
-                                'CARBON_DOCUMENTS_APPROVED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  <Text
-                                    style={{color: '#155724', fontSize: 14}}>
-                                    VERIFIED
-                                  </Text>
-                                </View>
-                              )}
-                              {item.status_level == 'PENDING' && (
-                                <View
-                                  style={{
-                                    // backgroundColor:'#ffe69b',
-                                    backgroundColor: '#FFF3CD',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#ffc107",
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                            {item.status_level ==
+                              'CARBON_DOCUMENTS_APPROVED' && (
+                              <View
+                                style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 100,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
+                                }}>
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  VERIFIED
+                                </Text>
+                              </View>
+                            )}
+                            {item.status_level == 'PENDING' && (
+                              <View
+                                style={{
+                                  // backgroundColor:'#ffe69b',
+                                  backgroundColor: '#FFF3CD',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 100,
+                                  // borderWidth: 1,
+                                  // borderColor: "#ffc107",
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                                   name="av-timer"
                                                   size={20}
                                                   color="#ffc107"
                                                   iconFamily="MaterialCommunityIcons"
                                                 /> */}
-                                  <Text
-                                    style={{color: '#856404', fontSize: 14}}>
-                                    {item.status_level}
-                                  </Text>
-                                </View>
-                              )}
-                              {item.status_level == 'REJECTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#F8D7DA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    borderWidth: 1,
-                                    borderColor: '#F8D7DA',
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                                <Text style={{color: '#856404', fontSize: 14}}>
+                                  {item.status_level}
+                                </Text>
+                              </View>
+                            )}
+                            {item.status_level == 'REJECTED' && (
+                              <View
+                                style={{
+                                  backgroundColor: '#F8D7DA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 100,
+                                  borderWidth: 1,
+                                  borderColor: '#F8D7DA',
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                                   name="close"
                                                   size={16}
                                                   color="#FF5252"
                                                   iconFamily="AntDesign"
                                                 /> */}
-                                  <Text
-                                    style={{color: '#721C24', fontSize: 14}}>
-                                    {item.status_level}
-                                  </Text>
-                                </View>
-                              )}
-                            </View>
-                          }
-                        />
-                      </TouchableOpacity>
-                    );
-                  }}
-                />
-              </View>
+                                <Text style={{color: '#721C24', fontSize: 14}}>
+                                  {item.status_level}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        }
+                      />
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            </View>
 
-              {/* Tab 2 */}
-              <View style={styles.page}>
-                {activeTab == 1 && (
-                  <FarmerLiveHood
-                    dataProps={dataProps}
-                    activeTab={activeTab}
-                    onTabPress={onTabPress}
-                  />
-                )}
-              </View>
-            </ScrollView>
-          </View>
-        </Root>
-      </>
-    </FarmerDrawerScreenWrapper1>
+            {/* Tab 2 */}
+            <View style={styles.page}>
+              {activeTab == 1 && (
+                <FarmerLiveHood
+                  dataProps={dataProps}
+                  activeTab={activeTab}
+                  onTabPress={onTabPress}
+                  setAddPlot={setAddPlot}
+                  addPlot={addPlot}
+                />
+              )}
+            </View>
+          </ScrollView>
+          {activeTab == 0 ? (
+            <TouchableOpacity
+              style={[styles.locationAddMoreContainer, {bottom: 250}]}
+              onPress={() => {
+                onTabPress(1);
+                setDataProps({});
+                setAddPlot(true);
+              }}>
+              <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+                {t('Add Plot')}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+      </Root>
+    </>
   );
 };
 
@@ -771,5 +784,15 @@ const styles = StyleSheet.create({
   idImage: {
     width: 60,
     height: 60,
+  },
+  locationAddMoreContainer: {
+    position: 'absolute',
+    bottom: 100,
+    right: 0,
+    backgroundColor: '#025502',
+    paddingVertical: 10,
+    paddingLeft: 20,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
   },
 });

@@ -18,11 +18,6 @@ import {
 import {LoanUpdate} from './FarmerLoanAPI';
 import {farmerDocAPI} from '../Loan/LoanAPI';
 import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fronts} from '../../utils/Constants';
-import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 const FarmerLoanEnquiryDetail = () => {
   //GQR-67
   const {
@@ -363,315 +358,183 @@ const FarmerLoanEnquiryDetail = () => {
     }
   };
   return (
-    <FarmerDrawerScreenWrapper1>
-      <Root>
-        {isLoading ? (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: Colors.pageBackground,
-          }}>
-          <CustomHeader
-            path={'FarmerLoan'}
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          <FormsTitle title={'Loan Enquiry Detail'} />
-          <ScrollView>
-            {/* <View style={styles.container}> */}
+    <Root>
+      {isLoading ? (
+        <View style={styles.loadingScreen}>
+          <LoadingScreen />
+        </View>
+      ) : null}
+      <View style={{flex: 1}}>
+        <CustomHeader
+          path={'FarmerLoan'}
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <FormsTitle title={'Loan Enquiry Detail'} />
+        <ScrollView>
+          <View style={styles.container}>
             {status == 3 && (
               <View style={styles.commentContainer}>
                 <Text style={styles.title}>{comment}</Text>
               </View>
             )}
+            <InputTextForm
+              label={t('farmer_name')}
+              value={agri_user.userName}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('farmer_number')}
+              value={agri_user.contactNumber}
+              editable={false}
+            />
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('personal_information')}</Text>
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="person" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('farmer_name')}</Text>
-                  <Text style={styles.infoValue}> {agri_user.userName}</Text>
-                </View>
-              </View>
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="phone" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('farmer_number')}</Text>
-                  <Text style={styles.infoValue}>
-                    {' '}
-                    {agri_user.contactNumber}
-                  </Text>
-                </View>
+            <View style={styles.idcontainer}>
+              {identityProof[0].name.length > 5 ? (
+                <Text style={styles.title}>{t('identity_proof')}</Text>
+              ) : (
+                ''
+              )}
+              <View style={styles.idItemContainer}>
+                {identityProof &&
+                  identityProof.map((data, index) => {
+                    if (data.name.length > 5) {
+                      return (
+                        <TouchableOpacity
+                          style={styles.idItem}
+                          key={index}
+                          onPress={() => openURL(data.uri)}>
+                          <Image
+                            source={require('../../Common/images/document.png')}
+                            style={styles.idImage}
+                          />
+                          <Text>
+                            {data.name == '' ? '' : data.name.substring(1, 20)}
+                            {/* {data.name.substring(7, 12)} */}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }
+                  })}
               </View>
             </View>
-
-            {/* 
-              <View style={{alignItems: 'center'}}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    marginBottom: 8,
-                    marginTop: 10,
-                  }}>
-                  <MaterialIcons
-                    name="person"
-                    color="#107808ff"
-                    size={35}
-                    style={{marginRight: 10}}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 22,
-                      alignSelf: 'center',
-                      color: Colors.drawer,
-                      fontFamily: 'Poppins-SemiBold',
-                    }}>
-                    {agri_user.userName}
-                  </Text>
-                </View> */}
+            <InputTextForm
+              label={t('loan_required_in_rupees') + ` (${currency})`}
+              value={saveData.loan_amount}
+              onChangeText={text => handledataAdd('loan_amount', text)}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('annual_income') + ` (${currency})`}
+              value={saveData.apx_annual_income}
+              onChangeText={text => handledataAdd('apx_annual_income', text)}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('loan_purpose')}
+              value={saveData.loan_purpose}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('existing_loan_amount') + ` (${currency})`}
+              value={existing_loan_amount}
+              editable={false}
+            />
             {/* <InputTextForm
-                  label={t('farmer_name')}
-                  value={agri_user.userName}
-                  editable={false}
-                /> */}
-
-            {/* <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                  <MaterialIcons
-                    name="phone"
-                    color="#107808ff"
-                    size={20}
-                    style={{marginRight: 10}}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      alignSelf: 'center',
-                      color: Colors.drawer,
-                      fontFamily: 'Poppins-Regular',
-                    }}>
-                    {agri_user.contactNumber}
-                  </Text>
-                </View>
-              </View> */}
-
-            {/* <InputTextForm
-                label={t('farmer_number')}
-                value={agri_user.contactNumber}
-                editable={false}
-              /> */}
-
-            {identityProof[0].name.length > 5 ? (
-              <Text style={styles.title}>{t('identity_proof')}</Text>
-            ) : (
-              ''
-            )}
-            <View style={styles.idItemContainer}>
-              {identityProof &&
-                identityProof.map((data, index) => {
-                  if (data.name.length > 5) {
-                    return (
-                      <TouchableOpacity
-                        style={styles.idItem}
-                        key={index}
-                        onPress={() => openURL(data.uri)}>
-                        <Image
-                          source={require('../../Common/images/document.png')}
-                          style={styles.idImage}
-                        />
-                        <Text>
-                          {data.name == '' ? '' : data.name.substring(1, 20)}
-                          {/* {data.name.substring(7, 12)} */}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  }
-                })}
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('loan_information')}</Text>
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="payments" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>
-                    {t('loan_required_in_rupees')} ({currency})
-                  </Text>
-                  <Text style={styles.infoValue}>{saveData.loan_amount}</Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm
-                  label={t('loan_required_in_rupees') + ` (${currency})`}
-                  value={saveData.loan_amount}
-                  onChangeText={text => handledataAdd('loan_amount', text)}
-                  editable={false}
-                /> */}
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="attach-money" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>
-                    {t('annual_income')} ({currency})
-                  </Text>
-                  <Text style={styles.infoValue}>
-                    {saveData.apx_annual_income}
-                  </Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm
-                  label={t('annual_income') + ` (${currency})`}
-                  value={saveData.apx_annual_income}
-                  onChangeText={text =>
-                    handledataAdd('apx_annual_income', text)
-                  }
-                  editable={false}
-                /> */}
-              <View style={styles.infoRow}>
-                <MaterialIcons name="quiz" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('loan_purpose')}</Text>
-                  <Text style={styles.infoValue}>{saveData.loan_purpose}</Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm
-                  label={t('loan_purpose')}
-                  value={saveData.loan_purpose}
-                  editable={false}
-                /> */}
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="money-off" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>
-                    {t('existing_loan_amount')} ({currency})
-                  </Text>
-                  <Text style={styles.infoValue}>{existing_loan_amount}</Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm
-                  label={t('existing_loan_amount') + ` (${currency})`}
-                  value={existing_loan_amount}
-                  editable={false}
-                /> */}
-
-              {/* <InputTextForm
                 label={t('plot')}
                 value={plotArr.join()}
                 editable={false}
               /> */}
-              <Text style={styles.title}>{t('plot')}</Text>
-              <View style={styles.plotContainer}>
-                {loan_plots.map((data, index) => {
-                  return (
-                    <View key={index}>
-                      <View style={styles.plotContainerItem}>
-                        <View>
-                          <Text style={styles.plotText}>
-                            {t('select_plot')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropname')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropvariety')}
-                          </Text>
-                        </View>
-                        <View>
-                          <Text style={styles.plotText}>
-                            :{data.agri_land_user_rel.plot_no.substring(-1, 15)}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :
-                            {data.agri_land_user_rel.plot_crops[0].crop_name.name.substring(
-                              -1,
-                              15,
-                            )}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :
-                            {data.agri_land_user_rel.plot_crops[0].crop_variety.name.substring(
-                              -1,
-                              15,
-                            )}
-                          </Text>
-                        </View>
+            <Text style={styles.title}>{t('plot')}</Text>
+            <View style={styles.plotContainer}>
+              {loan_plots.map((data, index) => {
+                return (
+                  <View key={index}>
+                    <View style={styles.plotContainerItem}>
+                      <View>
+                        <Text style={styles.plotText}>{t('select_plot')}</Text>
+                        <Text style={styles.plotText}>
+                          {t('addcrop_cropname')}
+                        </Text>
+                        <Text style={styles.plotText}>
+                          {t('addcrop_cropvariety')}
+                        </Text>
                       </View>
-
-                      <View
-                        style={[styles.idcontainer2, {marginHorizontal: 10}]}>
-                        {data.agri_land_user_rel?.plot_img[0]?.file_name
-                          .length > 5 ? (
-                          <Text style={styles.title}>{t('address_proof')}</Text>
-                        ) : (
-                          ''
-                        )}
-                        <View style={styles.idItemContainer}>
-                          {data.agri_land_user_rel.plot_img.map(
-                            (data, index) => {
-                              return (
-                                <TouchableOpacity
-                                  style={styles.idItem}
-                                  key={index}
-                                  onPress={() => openURL(data.file_path)}>
-                                  <MaterialIcons
-                                    name="description"
-                                    size={40}
-                                    color="#0d8320"
-                                  />
-                                  {/* <Image
-                                      source={require('../../Common/images/document.png')}
-                                      style={styles.idImage}
-                                    /> */}
-                                  <Text
-                                    style={styles.titleImg}
-                                    numberOfLines={1}
-                                    ellipsizeMode="tail">
-                                    {data.file_name == '' ? '' : data.file_name}
-                                  </Text>
-                                </TouchableOpacity>
-                              );
-                            },
+                      <View>
+                        <Text style={styles.plotText}>
+                          :{data.agri_land_user_rel.plot_no.substring(-1, 15)}
+                        </Text>
+                        <Text style={styles.plotText}>
+                          :
+                          {data.agri_land_user_rel.plot_crops[0].crop_name.name.substring(
+                            -1,
+                            15,
                           )}
-                        </View>
+                        </Text>
+                        <Text style={styles.plotText}>
+                          :
+                          {data.agri_land_user_rel.plot_crops[0].crop_variety.name.substring(
+                            -1,
+                            15,
+                          )}
+                        </Text>
                       </View>
                     </View>
-                  );
-                })}
-              </View>
-              {status == 2 && (
-                <>
-                  <InputTextForm
-                    label={t('LoanOrderID')}
-                    value={loan_ord_id}
-                    editable={false}
-                  />
-                  <InputTextForm
-                    label={t('LoanSanctioned') + `(${currency})`}
-                    value={loan_sanctioned}
-                    editable={false}
-                  />
-                  <InputTextForm
-                    label={t('SanctionedDate')}
-                    value={sanctioned_date}
-                    editable={false}
-                  />
-                </>
-              )}
 
-              {/* <View style={styles.idcontainer}>
+                    <View style={[styles.idcontainer, {marginHorizontal: 10}]}>
+                      {data.agri_land_user_rel?.plot_img[0]?.file_name.length >
+                      5 ? (
+                        <Text style={styles.title}>{t('address_proof')}</Text>
+                      ) : (
+                        ''
+                      )}
+                      <View style={styles.idItemContainer}>
+                        {data.agri_land_user_rel.plot_img
+                          ?.filter(item => item?.term_type == 'plot_image')
+                          .map((data, index) => {
+                            return (
+                              <TouchableOpacity
+                                style={styles.idItem}
+                                key={index}
+                                onPress={() => openURL(data.file_path)}>
+                                <Image
+                                  source={require('../../Common/images/document.png')}
+                                  style={styles.idImage}
+                                />
+                                <Text>
+                                  {data.file_name ? data.file_name : 'Unnamed'}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+            {status == 2 && (
+              <>
+                <InputTextForm
+                  label={t('LoanOrderID')}
+                  value={loan_ord_id}
+                  editable={false}
+                />
+                <InputTextForm
+                  label={t('LoanSanctioned') + `(${currency})`}
+                  value={loan_sanctioned}
+                  editable={false}
+                />
+                <InputTextForm
+                  label={t('SanctionedDate')}
+                  value={sanctioned_date}
+                  editable={false}
+                />
+              </>
+            )}
+
+            {/* <View style={styles.idcontainer}>
                 <Text style={styles.title}>{t('address_proof')}</Text>
                 <View style={styles.idItemContainer}>
                   {addressProof.map((data, index) => {
@@ -690,41 +553,30 @@ const FarmerLoanEnquiryDetail = () => {
                   })}
                 </View>
               </View> */}
-            </View>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('documents')}</Text>
-              <View style={styles.documentSection}>
-                <Text style={styles.documentTitle}>{t('land_records')}</Text>
-
-                <View style={styles.documentContainer}>
-                  {landProof.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        style={styles.documentItem}
-                        onPress={() => openURL(data.uri)}
-                        key={index}>
-                        <MaterialIcons
-                          name="description"
-                          size={28}
-                          color="#4a8c29"
-                        />
-                        {/* <Image
-                          source={require('../../Common/images/document.png')}
-                          style={styles.idImage}
-                        /> */}
-                        <Text style={styles.documentName}>{data.name}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
+            <View style={styles.idcontainer}>
+              <Text style={styles.title}>{t('land_records')}</Text>
+              <View style={styles.idItemContainer}>
+                {landProof.map((data, index) => {
+                  return (
+                    <TouchableOpacity
+                      style={styles.idItem}
+                      onPress={() => openURL(data.uri)}
+                      key={index}>
+                      <Image
+                        source={require('../../Common/images/document.png')}
+                        style={styles.idImage}
+                      />
+                      <Text style={styles.imageTitle}>{data.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
-            {/* </View> */}
-          </ScrollView>
-          {/* {status != 2 && <ButtonForm label={t('submit')} onPress={() => handleSave()} />} */}
-        </View>
-      </Root>
-    </FarmerDrawerScreenWrapper1>
+          </View>
+        </ScrollView>
+        {/* {status != 2 && <ButtonForm label={t('submit')} onPress={() => handleSave()} />} */}
+      </View>
+    </Root>
   );
 };
 

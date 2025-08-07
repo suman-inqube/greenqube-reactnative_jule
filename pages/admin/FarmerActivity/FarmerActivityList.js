@@ -245,148 +245,139 @@ const FarmerActivityList = ({navigation}) => {
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
   };
   return (
-    <FarmerDrawerScreenWrapper1>
-      <Root>
-        <CustomHeader
-          path="FarmerDashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
+    <Root>
+      <CustomHeader
+        path="FarmerDashboard"
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+      <View style={{flex: 1}}>
+        <DatePickerComp
+          openDate={openFromDate}
+          newDate={newFromDate}
+          setOpenDate={setOpenFromDate}
+          handleDatePicker={handleDatePicker}
         />
-        <View style={{flex: 1}}>
-          <DatePickerComp
-            openDate={openFromDate}
-            newDate={newFromDate}
-            setOpenDate={setOpenFromDate}
-            handleDatePicker={handleDatePicker}
-          />
-          <DatePickerComp
-            openDate={openToDate}
-            newDate={newToDate}
-            setOpenDate={setOpenToDate}
-            handleDatePicker={handleDatePicker2}
-            minimumDate={
-              fromDate == ''
-                ? ''
-                : new Date(
-                    `${new Date(fromDate).getFullYear()}-${
-                      new Date(fromDate).getMonth() + 1
-                    }-${new Date(fromDate).getDate() + 1}`,
-                  )
-            }
-          />
-          <WidgetsSide
-            location={'FarmerActivityReport'}
-            title={t('add_recent_incident')}
-            onPress={() => handleSPSheetShow()}
-          />
+        <DatePickerComp
+          openDate={openToDate}
+          newDate={newToDate}
+          setOpenDate={setOpenToDate}
+          handleDatePicker={handleDatePicker2}
+          minimumDate={
+            fromDate == ''
+              ? ''
+              : new Date(
+                  `${new Date(fromDate).getFullYear()}-${
+                    new Date(fromDate).getMonth() + 1
+                  }-${new Date(fromDate).getDate() + 1}`,
+                )
+          }
+        />
+        <WidgetsSide
+          location={'FarmerActivityReport'}
+          title={t('add_recent_incident')}
+          onPress={() => handleSPSheetShow()}
+        />
 
-          <FarmerFilter
-            filterItem={filterItem}
-            filterOption={filterOption}
-            setOpenToDate={setOpenToDate}
-            fromDate={fromDate}
-            newToDate={toDate}
-            setOpenFromDate={setOpenFromDate}
-            filterOptionShow={filterOptionShow}
-            onchangeFilterItem={onchangeFilterItem}
-            onChangeText={item => handleFilter(item)}
-            title={t('my_activities')}
-            // filterItem={'Date'}
-            onlyDate={true}
-            filterDataRemove={filterDataRemove}
-            carbonFlag={carbonFlag}
-            onChangeCarbonType={onChangeCarbonType}
-            carbonTypeVal={carbonType}
-            dataActivity={[
-              {label: 'Carbon ', value: 'carbon_activity'},
-              {label: 'Non-Carbon ', value: 'user_activity'},
-            ]}
-          />
+        <FarmerFilter
+          filterItem={filterItem}
+          filterOption={filterOption}
+          setOpenToDate={setOpenToDate}
+          fromDate={fromDate}
+          newToDate={toDate}
+          setOpenFromDate={setOpenFromDate}
+          filterOptionShow={filterOptionShow}
+          onchangeFilterItem={onchangeFilterItem}
+          onChangeText={item => handleFilter(item)}
+          title={t('my_activities')}
+          // filterItem={'Date'}
+          onlyDate={true}
+          filterDataRemove={filterDataRemove}
+          carbonFlag={carbonFlag}
+          onChangeCarbonType={onChangeCarbonType}
+          carbonTypeVal={carbonType}
+          dataActivity={[
+            {label: 'Carbon ', value: 'carbon_activity'},
+            {label: 'Non-Carbon ', value: 'user_activity'},
+          ]}
+        />
 
-          {isLoading ? (
-            <LoadingScreen />
-          ) : activityAll ? (
-            <>
-              <FlatList
-                data={activityAll}
-                renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={styles.wrapper}
-                    // key={index}
-                    onPress={() => {
-                      navigation.navigate('FarmerActivityDetail', {
-                        activity: item,
-                      });
-                    }}>
-                    <View style={styles.activityListContainer}>
-                      <View style={styles.activityListItem}>
-                        <Text style={styles.title}>
-                          {t('pro_reg_name')} : {item.agri_user.userName}
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('reg_plot_name')} :{' '}
-                          {item.land_info?.plot_no?.substring(0, 5) + '...'}
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('perf_date')} :{' '}
-                          {item.act_perform_date?.substring(0, 4) + '...'}
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('Sowing')} :{' '}
-                          {item?.actCurel?.sowing_date?.substring(0, 10)}
-                        </Text>
-                      </View>
-                      <View style={styles.activityListItem}>
-                        <Text style={styles.title}>
-                          {t('farmer_reg_mb')} :{' '}
-                          {item?.agri_user?.contactNumber?.substring(0, 7) +
-                            '..'}
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('far_list_crop')} :{' '}
-                          {item?.cropName?.name?.substring(0, 7) + '..'}
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('deviation')} : {item?.deviation} Day
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('Harvesting')} :{' '}
-                          {item?.actCurel?.harvesting_date?.substring(0, 10)}
-                        </Text>
-                      </View>
+        {isLoading ? (
+          <LoadingScreen />
+        ) : activityAll ? (
+          <>
+            <FlatList
+              data={activityAll}
+              renderItem={({item, index}) => (
+                <TouchableOpacity
+                  style={styles.wrapper}
+                  onPress={() =>
+                    navigateToPages('FarmerActivityDetail', item.uact_id, item)
+                  }>
+                  <View style={styles.activityListContainer}>
+                    <View style={styles.activityListItem}>
+                      <Text style={styles.title}>
+                        {t('pro_reg_name')} : {item.agri_user.userName}
+                      </Text>
+                      <Text style={styles.title}>
+                        {t('reg_plot_name')} :{' '}
+                        {item.land_info.plot_no.substring(0, 5) + '...'}
+                      </Text>
+                      <Text style={styles.title}>
+                        {t('perf_date')} :{' '}
+                        {item.act_perform_date?.substring(0, 4) + '...'}
+                      </Text>
+                      <Text style={styles.title}>
+                        {t('Sowing')} :{' '}
+                        {item?.actCurel?.sowing_date?.substring(0, 10)}
+                      </Text>
                     </View>
-                    <Text style={styles.title}>
-                      {t('pick_crop_cycle_start_date')} :{' '}
-                      {item?.cycle_start_date}
-                    </Text>
-                    <Text style={styles.title}>
-                      {t('act_name')} :
-                      {item?.typeActivity
-                        ? item?.typeActivity?.categoryName
-                        : ''}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-                showsVerticalScrollIndicator={false}
-              />
+                    <View style={styles.activityListItem}>
+                      <Text style={styles.title}>
+                        {t('farmer_reg_mb')} :{' '}
+                        {item?.agri_user?.contactNumber?.substring(0, 7) + '..'}
+                      </Text>
+                      <Text style={styles.title}>
+                        {t('far_list_crop')} :{' '}
+                        {item?.cropName?.name?.substring(0, 7) + '..'}
+                      </Text>
+                      <Text style={styles.title}>
+                        {t('deviation')} : {item?.deviation} Day
+                      </Text>
+                      <Text style={styles.title}>
+                        {t('Harvesting')} :{' '}
+                        {item?.actCurel?.harvesting_date?.substring(0, 10)}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.title}>
+                    {t('pick_crop_cycle_start_date')} : {item?.cycle_start_date}
+                  </Text>
+                  <Text style={styles.title}>
+                    {t('activity_type')} :
+                    {item?.typeActivity ? item?.typeActivity?.categoryName : ''}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) => index}
+              showsVerticalScrollIndicator={false}
+            />
 
-              <View style={styles.prevNextPage}>
-                <TouchableOpacity onPress={() => handlePage('previous')}>
-                  <Text style={styles.title}>{t('prev_page')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handlePage('next')}>
-                  <Text style={styles.title}>{t('next_page')}</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
-            ''
-          )}
-        </View>
-      </Root>
-    </FarmerDrawerScreenWrapper1>
+            <View style={styles.prevNextPage}>
+              <TouchableOpacity onPress={() => handlePage('previous')}>
+                <Text style={styles.title}>{t('prev_page')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handlePage('next')}>
+                <Text style={styles.title}>{t('next_page')}</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          ''
+        )}
+      </View>
+    </Root>
   );
 };
 

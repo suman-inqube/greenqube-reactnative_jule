@@ -1,6 +1,8 @@
 import config from "../../../config";
 import axios from 'axios';
 import { CrashlyticsRecordError } from "../../Crashlytics/CrashlyticsRecordError";
+import instance from "../../../config/commonAxios";
+import {getAxiosInstance} from '../../../config/axiosInstance';
 const timeoutConfig = {timeout: 5000};
 
 export const problemPlotAgainstFarmerAPI = async (dbName, languageID, token, farmerID) => {
@@ -53,14 +55,26 @@ export const getPlotDocAPI = async (dbName, languageId, token, farmerID, plotId)
   };
 
   try {
-    let response = await axios.get(
-      `${config.BASE_URL}landRoute/getPlotImgs/${plotId}`,
-      {...axiosHeaders, ...timeoutConfig},
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `${config.BASE_URL}landRoute/getPlotImgs_e/${plotId}`,
+      {
+        headers: {
+          authorization: `${token}`,
+          information: `${dbName},${languageId},${farmerID}`,
+        },
+      },
     );
-    return response;
+    
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
+
+    return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in updateUserInfoAPI api' + error.response);
+    return console.log('error in getPlotDocAPI api' + error.response);
   }
 };
 
@@ -106,7 +120,7 @@ export const loanPurposeAPI = async (dbName, languageId, token) => {
         return response;
     } catch (error) {
         CrashlyticsRecordError(error.response)
-        return console.log("error in updateUserInfoAPI api" + error.response);
+        return console.log('error in loanPurposeAPI api' + error.response);
     }
 }
 
@@ -138,8 +152,18 @@ export const loanRouteListAPI = async (dbName,
     };
 
     try {
-        let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`, axiosHeaders);
-        return response;
+        // let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`, axiosHeaders);
+        // return response;
+         const instance = await getAxiosInstance();
+         let response = await instance.get(
+           `loanRoute/list_e/1/0/2?&user_id=&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=${userID}&farmer_mobile=${farmer_mobile}`,
+           axiosHeaders,
+         );
+         const resultJson = {
+           data: response,
+           status: 200,
+         };
+         return resultJson;
     } catch (error) {
         CrashlyticsRecordError(error.response)
         return error.response;

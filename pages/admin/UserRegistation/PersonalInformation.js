@@ -46,7 +46,7 @@ const PersonalInformation = () => {
     });
     const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
         { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
-        { uri: '', name: '', type: '', fileName: '', ImageType: 'identity' },
+        { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
     ]);
     const [path, setPath] = useState("");
     const [regionaldatas, setregionaldatas] = useState({

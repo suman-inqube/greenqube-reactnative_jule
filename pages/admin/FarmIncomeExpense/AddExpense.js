@@ -185,6 +185,13 @@ const AddExpense = ({ navigation }) => {
             data.forEach(element => {
                 expense_total += parseInt(element.amount)
             });
+            const allFieldsFilled = data.every(
+              item =>
+                item.type.trim() !== '' &&
+                item.cat_id.trim() !== '' &&
+                item.amount.trim() !== '' &&
+                item.date.trim() !== '',
+            );
             const qs = require('qs');
             let save_data = qs.stringify({
                 'land_rel_id': saveData.land_rel_id,
@@ -198,9 +205,23 @@ const AddExpense = ({ navigation }) => {
                 'expense_total': expense_total,
                 'cost_head': JSON.stringify(data)
             });
-            const response = await farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
-            if (response?.status == 200) {
+            if (allFieldsFilled) {
+              const response = await farmIncomeExpenceSaveAPI(
+                dbname,
+                lan_id,
+                token,
+                farmerID,
+                save_data,
+              );
+              if (response?.status == 200) {
                 navigation.navigate('FarmIncomeExpenseList');
+              }
+            } else {
+              Toast.show({
+                time: 2,
+                text: `Please indent data properly`,
+                ...AlertMesg[0],
+              });
             }
         }
     }

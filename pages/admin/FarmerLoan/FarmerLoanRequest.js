@@ -38,9 +38,6 @@ import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {createPdf} from 'react-native-images-to-pdf';
-import {Colors, Fonts} from '../../utils/Constants';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 const qs = require('qs');
 const FarmerLoanRequest = ({setActiveBtn}) => {
   const scrollViewRef = useRef(null);
@@ -81,8 +78,22 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
   const [identityProof, setIdentityProof] = useState([
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      imageType: 'address',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      imageType: 'identity',
+    },
   ]);
 
   const [addressProof, setAddressProof] = useState([
@@ -843,69 +854,37 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
       getPlotDocAPI(dbname, lan_id, token, user_id, value),
     ]);
 
-    const addressProof_value = [
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-    ];
-
-    if (getPlotDoc.status === 200) {
+    const addressProof_value = [...addressProof];
+    if (getPlotDoc?.status === 200) {
       if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-        const address_proofArr = getPlotDoc.data.data.rows[0].plot_img;
-
+        const {plot_img} = getPlotDoc?.data?.data?.rows[0] || {};
+        const address_proofArr = plot_img?.filter(
+          item => item.term_type === 'plot_image',
+        );
         addressProof.map((data, index) => {
           if (address_proofArr[index] != undefined) {
             addressProof_value[index] = {
               uri: address_proofArr[index].file_path,
               id: address_proofArr[index].file_id,
               name: address_proofArr[index].file_name,
-              type: address_proofArr[index].file_ext,
+              type: '',
               fileName: address_proofArr[index].file_name,
+              type: address_proofArr[index].file_ext,
               value: '',
               imageType: 'AddressProof',
               plotId: value,
+            };
+          } else {
+            addressProof_value[index] = {
+              uri: '',
+              id: '',
+              name: '',
+              type: '',
+              fileName: '',
+              type: '',
+              value: '',
+              imageType: 'AddressProof',
+              plotId: '',
             };
           }
         });
@@ -987,6 +966,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
+          imageType: 'identity',
           fileName: farmerIdentityDoc[0].file_name,
         };
         farmerDocValue[1] = {
@@ -994,6 +974,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
+          imageType: 'address',
           fileName: farmerAddressDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -1007,6 +988,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
+          imageType: 'identity',
           fileName: farmerIdentityDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -1020,6 +1002,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
+          imageType: 'address',
           fileName: farmerAddressDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -1052,8 +1035,22 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   useEffect(() => {
     onPageLoad();
     setIdentityProof([
-      {uri: '', name: '', type: '', fileName: '', value: ''},
-      {uri: '', name: '', type: '', fileName: '', value: ''},
+      {
+        uri: '',
+        name: '',
+        type: '',
+        fileName: '',
+        value: '',
+        imageType: 'address',
+      },
+      {
+        uri: '',
+        name: '',
+        type: '',
+        fileName: '',
+        value: '',
+        imageType: 'identity',
+      },
     ]);
     setAddressProof([
       {
@@ -1281,80 +1278,30 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
         ) : null}
         <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
           <View style={styles.container}>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('personal_information')}</Text>
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="person" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('farmer_name')}</Text>
-                  <Text style={styles.infoValue}>{userName}</Text>
-                  {/* <InputTextForm label={t('farmer_name')} value={userName} /> */}
-                </View>
-              </View>
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="phone" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('farmer_number')}</Text>
-                  <Text style={styles.infoValue}>{contactNumber}</Text>
-                </View>
-              </View>
-              {/* <InputTextForm
-                label={t('farmer_number')}
-                value={contactNumber}
-                keyboardType={'numeric'}
-              /> */}
-              <View style={styles.infoRow}>
-                <MaterialIcons name="credit-card" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('adhar_no')}</Text>
-                  {aadhar_number ? (
-                    <Text style={styles.infoValue}>{aadhar_number}</Text>
-                  ) : (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.emptyText}>N/A</Text>
-                    </View>
-                  )}
-                  <Text style={styles.infoValue}>{aadhar_number}</Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm label={t('adhar_no')} value={aadhar_number} /> */}
-
-              <View style={styles.infoRow}>
-                <MaterialIcons
-                  name="card-membership"
-                  size={20}
-                  color="#4a8c29"
-                />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('kcc_no')}</Text>
-                  {kcc_number ? (
-                    <Text style={styles.infoValue}>{kcc_number}</Text>
-                  ) : (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.emptyText}>N/A</Text>
-                    </View>
-                  )}
-                  <Text style={styles.infoValue}>{kcc_number}</Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm label={t('kcc_no')} value={kcc_number} /> */}
-            </View>
+            <InputTextForm
+              label={t('farmer_name')}
+              value={userName}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('farmer_number')}
+              value={contactNumber}
+              keyboardType={'numeric'}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('adhar_no')}
+              value={aadhar_number}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('kcc_no')}
+              value={kcc_number}
+              editable={false}
+            />
 
             <View style={styles.idcontainer}>
-              <Text
-                style={{
-                  fontSize: 16,
-
-                  color: Colors.borderGreen,
-                  marginBottom: 12,
-                  fontFamily: 'Poppins-SemiBold',
-                }}>
-                {t('identity_proof')}
-              </Text>
+              <Text style={{color: '#000'}}>{t('identity_proof')}</Text>
               <View style={styles.idItemContainer}>
                 {identityProof &&
                   identityProof.map((data, index) => {
@@ -1363,18 +1310,26 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                         style={styles.idItem}
                         key={index}
                         onPress={() => openIdentity(data.uri)}>
-                        <MaterialIcons
-                          name="description"
-                          size={35}
-                          color="#4a8c29"
-                        />
-                        {/* <Image
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={[styles.plotText, {fontSize: 12}]}>
+                          {data.imageType ==
+                          undefined ? null : data?.imageType == 'address' ? (
+                            <Text>Identity Proof</Text>
+                          ) : (
+                            <Text>Address Proof</Text>
+                          )}
+                        </Text>
+                        <Image
                           source={require('../../Common/images/document.png')}
                           style={styles.idImage}
-                        /> */}
-                        <Text>
-                          {data.name == '' ? '' : data.name.substring(1, 20)}
-                          {/* {data.name.substring(7, 12)} */}
+                        />
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="head"
+                          style={styles.plotText}>
+                          {data.name == '' ? '' : data.name}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -1522,6 +1477,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                             }
                             handleScanAndCreatePdf={handleScanAndCreatePdf}
                             parent={data}
+                            InputTextFormEdit={false}
                           />
                         </View>
                       </View>
@@ -1579,9 +1535,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     backgroundColor: '#FFF',
     elevation: 2,
-    borderRadius: 12,
+    borderRadius: 5,
     padding: 10,
-    marginHorizontal: '3%',
   },
   idItemContainer: {
     flexDirection: 'row',

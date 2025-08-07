@@ -17,14 +17,14 @@ import React, {
   memo,
   useContext,
 } from 'react';
-import DocumentPicker, {types} from 'react-native-document-picker';
+import DocumentPicker, { types } from 'react-native-document-picker';
 import {
   useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {LoanUpdate, farmerDocAPI} from './LoanAPI';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { LoanUpdate, farmerDocAPI } from './LoanAPI';
+import { userCreateContext } from '../../Context/usersCreateContext';
 const LoanEnquiryDetail = () => {
   //GQR-67
   const {
@@ -42,7 +42,7 @@ const LoanEnquiryDetail = () => {
     logoImage,
     topBanner,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token} = loginUser_data;
+  const { dbname, lan_id, token } = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const route = useRoute();
@@ -69,18 +69,18 @@ const LoanEnquiryDetail = () => {
     },
   ]);
   const [addressProof, setAddressProof] = useState([
-    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+    { uri: '', id: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', id: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', id: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', id: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', id: '', name: '', type: '', fileName: '', value: '' },
   ]);
   const [landProof, setLandProof] = useState([
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
+    { uri: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', name: '', type: '', fileName: '', value: '' },
+    { uri: '', name: '', type: '', fileName: '', value: '' },
   ]);
   const [plotArr, setplotArr] = useState([]);
   const {
@@ -114,7 +114,7 @@ const LoanEnquiryDetail = () => {
   const [propsIndex, setPropsIndex] = useState('');
   const [propsObjData, setPropsObjData] = useState({});
   const urlOpen = useCallback((data, index, objData) => {
-    const {uri} = objData;
+    const { uri } = objData;
     setPropsData(data);
     setPropsIndex(index);
     setPropsObjData(objData);
@@ -313,7 +313,7 @@ const LoanEnquiryDetail = () => {
   const handleSave = async () => {
     setIsLoading(true);
     const deleted_id_arr = photo_to_be_deleted.filter(item => item != '');
-    const {dbName, languageID, token, userID} = dbLanTokUsr;
+    const { dbName, languageID, token, userID } = dbLanTokUsr;
     let updateStatus = null;
     const formData = new FormData();
     // formData.append("lan_id", saveData.user_id);
@@ -355,7 +355,7 @@ const LoanEnquiryDetail = () => {
         id,
       );
       if (responseUpdate?.status == 200) {
-        Toast.show({text: 'Successfull Data Submited', ...AlertMesg[0]});
+        Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
         setTimeout(() => {
           navigation.navigate('Loan', 2);
         }, 1200);
@@ -384,7 +384,7 @@ const LoanEnquiryDetail = () => {
           <LoadingScreen />
         </View>
       ) : null}
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <CustomHeader
           path={'Loan'}
           HandlerGoBack={HandlerGoBack}
@@ -519,31 +519,34 @@ const LoanEnquiryDetail = () => {
                       </View>
                     </View>
 
-                    <View style={[styles.idcontainer, {marginHorizontal: 10}]}>
+                    <View style={[styles.idcontainer, { marginHorizontal: 10 }]}>
                       {data.agri_land_user_rel?.plot_img[0]?.file_name.length >
-                      5 ? (
+                        5 ? (
                         <Text style={styles.title}>{t('address_proof')}</Text>
                       ) : (
                         ''
                       )}
                       <View style={styles.idItemContainer}>
-                        {data.agri_land_user_rel.plot_img.map((data, index) => {
-                          return (
-                            <TouchableOpacity
-                              style={styles.idItem}
-                              key={index}
-                              onPress={() => openURL(data.file_path)}>
-                              <Image
-                                source={require('../../Common/images/document.png')}
-                                style={styles.idImage}
-                              />
-                              <Text>
-                                {data.file_name == '' ? '' : data.file_name}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
+                        {data.agri_land_user_rel.plot_img
+                          ?.filter(item => item?.term_type=='plot_image')
+                          .map((data, index) => {
+                            return (
+                              <TouchableOpacity
+                                style={styles.idItem}
+                                key={index}
+                                onPress={() => openURL(data.file_path)}>
+                                <Image
+                                  source={require('../../Common/images/document.png')}
+                                  style={styles.idImage}
+                                />
+                                <Text>
+                                  {data.file_name ? data.file_name : 'Unnamed'}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
                       </View>
+
                     </View>
                   </View>
                 );

@@ -15,20 +15,10 @@ import {
 } from '../../../config/apiHere';
 import CheckBoxComp from '../../Common/CheckBoxComp';
 import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const RequestForInsurance = ({setActiveBtn}) => {
   //GQR-67
-  const {
-    loginUser_data,
-    ButtonForm,
-    InputTextForm,
-    Root,
-    Toast,
-    AlertMesg,
-    t,
-    LoadingScreen,
-  } = useContext(userCreateContext);
+  const {loginUser_data, ButtonForm, InputTextForm, Root, Toast, AlertMesg, t} =
+    useContext(userCreateContext);
   const {
     dbname,
     lan_id,
@@ -92,18 +82,18 @@ const RequestForInsurance = ({setActiveBtn}) => {
         farmerID,
         value,
       );
-      if (response) {
+      if (response?.status == 200) {
         setNameVarityStartEnd([
           ...nameVarityStartEnd,
           {
-            plot_no: response?.data?.data?.rows[0]?.land_info.plot_no,
-            plot_id: response?.data?.data?.rows[0]?.land_rel_id,
-            name: response?.data?.data?.rows[0]?.crop_name.name,
-            varity: response?.data?.data?.rows[0]?.crop_variety.name,
-            cycleStarts: response?.data?.data?.rows[0]?.sowing_date,
-            cycleEnd: response?.data?.data?.rows[0]?.harvesting_date,
+            plot_no: response?.data?.data?.land_info.plot_no,
+            plot_id: response?.data?.data?.land_rel_id,
+            name: response?.data?.data?.crop_name.name,
+            varity: response?.data?.data?.crop_variety.name,
+            cycleStarts: response?.data?.data?.sowing_date,
+            cycleEnd: response?.data?.data?.harvesting_date,
             production_process:
-              response?.data?.data?.rows[0]?.farmer_production_system.name,
+              response?.data?.data?.farmer_production_system.name,
           },
         ]);
       }
@@ -148,93 +138,45 @@ const RequestForInsurance = ({setActiveBtn}) => {
   return (
     <>
       <Root>
-        {/* {isLoading ? (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null} */}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView>
           <View style={styles.container}>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('personal_information')}</Text>
-              <View style={styles.infoRow}>
-                <MaterialIcons name="person" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('farmer_name')}</Text>
-                  <Text style={styles.infoValue}>{userName}</Text>
-                  {/* <InputTextForm label={t('farmer_name')} value={userName} /> */}
-                </View>
-              </View>
-
-              <View style={styles.infoRow}>
-                <MaterialIcons name="phone" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('farmer_number')}</Text>
-                  <Text style={styles.infoValue}>{contactNumber}</Text>
-                </View>
-              </View>
-              {/* <InputTextForm label={t('farmer_number')} value={contactNumber} /> */}
-              <View style={styles.infoRow}>
-                <MaterialIcons name="credit-card" size={20} color="#4a8c29" />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('adhar_no')}</Text>
-                  {aadhar_number ? (
-                    <Text style={styles.infoValue}>{aadhar_number}</Text>
-                  ) : (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.emptyText}>N/A</Text>
-                    </View>
-                  )}
-                  <Text style={styles.infoValue}>{aadhar_number}</Text>
-                </View>
-              </View>
-
-              {/* <InputTextForm label={t('adhar_no')} value={aadhar_number} />
-
-            
-            <InputTextForm label={t('kcc_no')} value={kcc_number} /> */}
-
-              <View style={styles.infoRow}>
-                <MaterialIcons
-                  name="card-membership"
-                  size={20}
-                  color="#4a8c29"
-                />
-                <View style={styles.infoTextContainer}>
-                  <Text style={styles.infoLabel}>{t('kcc_no')}</Text>
-                  {kcc_number ? (
-                    <Text style={styles.infoValue}>{kcc_number}</Text>
-                  ) : (
-                    <View style={styles.emptyContainer}>
-                      <Text style={styles.emptyText}>N/A</Text>
-                    </View>
-                  )}
-                  <Text style={styles.infoValue}>{kcc_number}</Text>
-                </View>
-              </View>
-            </View>
+            <InputTextForm
+              label={t('farmer_name')}
+              value={userName}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('farmer_number')}
+              value={contactNumber}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('adhar_no')}
+              value={aadhar_number}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('kcc_no')}
+              value={kcc_number}
+              editable={false}
+            />
+            <Text style={styles.plotTitle}>{t('plot')}</Text>
             <View style={styles.PlotSiteList}>
-              <Text style={styles.cardTitlePlot}>
-                {t('select_plot')}
-                <Text style={styles.requiredStar}> *</Text>
-              </Text>
-              <View style={styles.plotsContainer}>
-                {plotSite &&
-                  plotSite.map((data, index) => {
-                    return (
-                      <View key={index} style={styles.plotItem}>
-                        <CheckBoxComp
-                          arrayKey={index}
-                          isChecked={isChecked[index]}
-                          title={data.plot_no}
-                          onCheckBox={() =>
-                            handlePlot(data.rel_id, data.plot_no, index)
-                          }
-                        />
-                      </View>
-                    );
-                  })}
-              </View>
+              {plotSite &&
+                plotSite.map((data, index) => {
+                  return (
+                    <View key={index}>
+                      <CheckBoxComp
+                        arrayKey={index}
+                        isChecked={isChecked[index]}
+                        title={data.plot_no}
+                        onCheckBox={() =>
+                          handlePlot(data.rel_id, data.plot_no, index)
+                        }
+                      />
+                    </View>
+                  );
+                })}
             </View>
             <View style={styles.plotContainer}>
               {pickPlot.length != 0

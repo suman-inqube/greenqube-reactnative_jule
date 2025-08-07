@@ -142,6 +142,7 @@ const ViewProblem = ({navigation}) => {
           question_id,
           agri_files,
         } = response?.data?.data[0];
+
         setFarmerProblem(response.data.data[0]);
         setdbLanTokUsr({
           ...dbLanTokUsr,
@@ -292,15 +293,24 @@ const ViewProblem = ({navigation}) => {
             <View style={styles.item}>
               <Text style={styles.itemTitle}>{t('plot')}</Text>
               <Text style={styles.itemTitle}>
-                : {farmerProblem?.agri_user?.userName}
+                : {farmerProblem?.agri_land_user_rel?.plot_no}
+              </Text>
+            </View>
+
+            <View style={styles.item}>
+              <Text style={styles.itemTitle}>{t('problem_type')}</Text>
+              <Text style={styles.itemTitle}>
+                :{' '}
+                {farmerProblem?.problem_type &&
+                  farmerProblem?.problem_type?.name}
               </Text>
             </View>
             <View style={styles.item}>
-              <Text style={styles.itemTitle}>{t('addcrop_croptype')}</Text>
+              <Text style={styles.itemTitle}>{t('select_problem')}</Text>
               <Text style={styles.itemTitle}>
                 :{' '}
-                {farmerProblem?.agri_land_user_rel &&
-                  farmerProblem?.agri_land_user_rel?.plot_no}
+                {farmerProblem?.problem_name &&
+                  farmerProblem?.problem_name?.name}
               </Text>
             </View>
             <View style={styles.item}>
@@ -471,10 +481,8 @@ const ViewProblem = ({navigation}) => {
                                         imageurl={{uri: value1.file_path}}
                                       />
                                     ) : (
-                                      <Image
-                                        source={{uri: value1.file_path}}
-                                        resizeMode="cover"
-                                        style={{width: 50, height: 50}}
+                                      <ImagePlaceHolderCircleWithoutAddButton
+                                        imageurl={require('../../Common/images/avatar.png')}
                                       />
                                     )}
                                   </View>

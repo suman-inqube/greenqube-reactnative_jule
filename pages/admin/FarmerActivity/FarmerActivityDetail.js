@@ -21,8 +21,7 @@ import {
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {PipeListDetails} from '../../../config/apiHere';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import {formatDateToDateName} from '../../Common/DateChanger';
 const FarmerActivityDetail = () => {
   const route = useRoute();
   const {
@@ -56,22 +55,21 @@ const FarmerActivityDetail = () => {
   const [carbonActivity, setCarbonActivity] = useState([]);
 
   const onPageLoad = async () => {
-    // const [activityData, uact_id_data] = await Promise.all([
-    //   getItem('activity_Data'),
-    //   getItem('uact_id_data'),
-    // ]);
-    if (route.params.activity) {
-      const farmerFound = route.params.activity;
-
+    const [activityData, uact_id_data] = await Promise.all([
+      getItem('activity_Data'),
+      getItem('uact_id_data'),
+    ]);
+    if (activityData) {
+      const farmerFound = route.params;
       if (farmerFound?.type == 'carbon_activity') {
-        const PipeListDetailsRes = await axiosGet(
-          ROUTES.GET.PIPE_LIST_DETAILS({
-            plot_id: farmerFound.plot_id,
-            act_master_id: farmerFound?.act_master_id,
-            cu_rel_id: farmerFound?.cu_rel_fid,
-          }),
+        const PipeListDetailsRes = await PipeListDetails(
+          dbname,
+          lan_id,
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
+          user_id,
+          farmerFound.plot_id,
+          farmerFound?.act_master_id,
+          farmerFound?.cu_rel_fid,
         );
         if (PipeListDetailsRes?.status == 200) {
           setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
@@ -120,6 +118,7 @@ const FarmerActivityDetail = () => {
           thirdItemRecord: audio3,
         });
       }
+      console.log(farmerFound);
       setfarmerActivity(farmerFound);
     }
   };
@@ -185,17 +184,23 @@ const FarmerActivityDetail = () => {
                   <>
                     <InputTextForm
                       label={t('activity_type')}
-                      value={
-                        farmerActivity?.cropActivity &&
-                        farmerActivity?.cropActivity.activity.categoryName
-                      }
+                      value={farmerActivity?.typeActivity?.categoryName}
+                      editable={false}
                     />
                     <InputTextForm
                       label={t('act_name')}
-                      value={
-                        farmerActivity?.cropActivity &&
-                        farmerActivity?.cropActivity.activity.categoryName
-                      }
+                      // value={
+                      //   farmerActivity?.cropActivity &&
+                      //   farmerActivity?.cropActivity?.activity?.categoryName
+                      // }
+                      value={`${
+                        farmerActivity?.cropActivity?.activity?.categoryName
+                      } ${formatDateToDateName(
+                        farmerActivity?.act_start_date,
+                      )} - ${formatDateToDateName(
+                        farmerActivity?.act_to_date,
+                      )}`}
+                      editable={false}
                     />
 
                     <View
@@ -216,10 +221,12 @@ const FarmerActivityDetail = () => {
                           flexDirection: 'column',
                           justifyContent: 'space-between',
                         }}>
-                        <Text style={styles.title}>
-                          {t('activity_description')}
+                        <Text style={[styles.title, {fontWeight: 'bold'}]}>
+                          {t('activity_description1')}
                         </Text>
-                        <Text style={[styles.title]}>{t('activity_date')}</Text>
+                        <Text style={[styles.title, {fontWeight: 'bold'}]}>
+                          {t('activity_date')}
+                        </Text>
                       </View>
                       <View
                         style={{
@@ -228,6 +235,7 @@ const FarmerActivityDetail = () => {
                           width: '45%',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
+                          marginLeft: 10,
                         }}>
                         <Text style={[styles.title, {width: 150}]}>
                           {farmerActivity?.cropActivity &&
@@ -236,13 +244,27 @@ const FarmerActivityDetail = () => {
                               100,
                             )}
                         </Text>
-                        <Text style={[styles.title]}>
-                          {farmerActivity?.act_start_date}
-                        </Text>
+                        {/* <Text style={[styles.title]}>
+                            {farmerActivity?.act_start_date}
+                          </Text> */}
+                        <View style={[styles.title, {flexDirection: 'column'}]}>
+                          <Text style={{color: '#000'}}>
+                            {formatDateToDateName(
+                              farmerActivity?.act_start_date,
+                            )}
+                          </Text>
+                          <Text style={{color: '#000'}}>
+                            -{formatDateToDateName(farmerActivity?.act_to_date)}
+                          </Text>
+                        </View>
                       </View>
                       <Image
                         source={require('../../Common/images/logo.png')}
-                        style={{width: 100, height: 80, resizeMode: 'contain'}}
+                        style={{
+                          width: 100,
+                          height: 80,
+                          resizeMode: 'contain',
+                        }}
                       />
                     </View>
                   </>
@@ -256,26 +278,30 @@ const FarmerActivityDetail = () => {
                     farmerActivity?.land_info &&
                     farmerActivity?.land_info.plot_no
                   }
+                  editable={false}
                 />
 
                 <InputTextForm
                   label={t('produce_name')}
                   value={
-                    farmerActivity?.cropName && farmerActivity?.cropName.name
+                    farmerActivity?.cropName && farmerActivity?.cropName?.name
                   }
+                  editable={false}
                 />
 
                 <InputTextForm
                   label={t('growth_stage')}
                   value={
                     farmerActivity?.growthStage &&
-                    farmerActivity?.growthStage.name
+                    farmerActivity?.growthStage?.name
                   }
+                  editable={false}
                 />
 
                 <InputTextForm
                   label={t('act_per_date')}
                   value={farmerActivity?.act_perform_date}
+                  editable={false}
                 />
                 {carbonActivity.length != 0 && (
                   <FlatList
@@ -309,22 +335,22 @@ const FarmerActivityDetail = () => {
                                   paddingVertical: 0,
                                 },
                               ]}>
-                              {_item.item.pipe_name}
+                              {_item.item?.pipe_name}
                             </Text>
                           </View>
                           <View>
                             {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
-                            {_item.item.pipeFiles.length != 0 && (
+                            {_item.item?.pipeFiles.length != 0 && (
                               <View
                                 style={{
                                   flexDirection: 'row',
                                   gap: 20,
                                 }}>
-                                {_item.item.pipeFiles?.[0]?.file_path !=
+                                {_item.item?.pipeFiles?.[0]?.file_path !=
                                   undefined && (
                                   <Image
                                     source={{
-                                      uri: `${_item.item.pipeFiles?.[0]?.file_path}`,
+                                      uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
                                     }}
                                     style={{
                                       width: 70,
@@ -359,18 +385,22 @@ const FarmerActivityDetail = () => {
                 <InputTextForm
                   label={t('your_comm_')}
                   value={farmerActivity?.act_desc}
+                  editable={false}
                 />
                 <InputTextForm
                   label={t('material_used')}
                   value={farmerActivity?.material_used}
+                  editable={false}
                 />
                 <InputTextForm
                   label={t('water_used')}
                   value={farmerActivity?.water_used}
+                  editable={false}
                 />
                 <InputTextForm
                   label={t('power_used')}
                   value={farmerActivity?.power_used}
+                  editable={false}
                 />
 
                 {carbonActivity.length == 0 && (

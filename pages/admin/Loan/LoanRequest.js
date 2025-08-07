@@ -19,7 +19,7 @@ import React, {
   useRef,
 } from 'react';
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import DocumentPicker, {types} from 'react-native-document-picker';
+import DocumentPicker, { types } from 'react-native-document-picker';
 import {
   farmerDocAPI,
   problemPlotAgainstFarmerAPI,
@@ -30,15 +30,15 @@ import {
   deletePlotImageAPI,
   Addloan,
 } from './LoanAPI';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import ProofAndIdentityPropfCompLoan from '../../Common/ProofAndIdentityPropfCompLoan';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
-import {createPdf} from 'react-native-images-to-pdf'; 
+import { createPdf } from 'react-native-images-to-pdf';
 const qs = require('qs');
-const LoanRequest = ({setActiveBtn}) => {
+const LoanRequest = ({ setActiveBtn }) => {
   const scrollViewRef = useRef(null);
 
   //GQR-67
@@ -56,8 +56,8 @@ const LoanRequest = ({setActiveBtn}) => {
     // handleResultSelect,
     farmerData,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
-  const [blank, setBlank] = useState({label: '', value: 'dacsfddsd'});
+  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const [blank, setBlank] = useState({ label: '', value: 'dacsfddsd' });
   //GQR-67
   const [isLoading, setIsLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -76,8 +76,8 @@ const LoanRequest = ({setActiveBtn}) => {
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
   const [photoDeleted, setPhotoDeleted] = useState([]);
   const [identityProof, setIdentityProof] = useState([
-    {uri: '', name: '', type: '', fileName: '', value: ''},
-    {uri: '', name: '', type: '', fileName: '', value: ''},
+    { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'address', },
+    { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'identity', },
   ]);
   const [addressProof, setAddressProof] = useState([
     {
@@ -356,7 +356,7 @@ const LoanRequest = ({setActiveBtn}) => {
         presentationStyle: 'fullScreen',
         type: [types.pdf, types.images],
       });
-      const {uri, name, type} = response?.[0] || {};
+      const { uri, name, type } = response?.[0] || {};
       let resizedUri = uri;
       let width = 0;
       let height = 0;
@@ -491,7 +491,7 @@ const LoanRequest = ({setActiveBtn}) => {
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -526,18 +526,18 @@ const LoanRequest = ({setActiveBtn}) => {
   };
   const handleScanAndCreatePdf = async (data, index, objData, p1, par) => {
     try {
-      const {scannedImages} = await DocumentScanner.scanDocument({
+      const { scannedImages } = await DocumentScanner.scanDocument({
         croppedImageQuality: 100,
       });
       if (!scannedImages?.length) {
         throw new Error('No images scanned');
       }
       // Resize images to reduce size
-      const {width, height} = await new Promise((resolve, reject) => {
+      const { width, height } = await new Promise((resolve, reject) => {
         Image.getSize(
           scannedImages[0],
           (imgWidth, imgHeight) => {
-            resolve({width: imgWidth, height: imgHeight});
+            resolve({ width: imgWidth, height: imgHeight });
           },
           reject,
         );
@@ -552,7 +552,7 @@ const LoanRequest = ({setActiveBtn}) => {
 
       // Create PDF from resized images
       const path = await createPdf({
-        pages: resizedImages.map(imagePath => ({imagePath})),
+        pages: resizedImages.map(imagePath => ({ imagePath })),
         outputPath,
       });
 
@@ -687,7 +687,7 @@ const LoanRequest = ({setActiveBtn}) => {
                     name: address_proofArr[index1].file_name,
                     type: '',
                     fileName: address_proofArr[index1].file_name,
-                    type:address_proofArr[index1].file_ext,
+                    type: address_proofArr[index1].file_ext,
                     value: '',
                     imageType: 'AddressProof',
                     plotId: par.plot_id,
@@ -774,6 +774,7 @@ const LoanRequest = ({setActiveBtn}) => {
           id: farmerIdentityDoc[0].file_id,
           name: farmerIdentityDoc[0].file_name,
           type: '',
+          imageType: 'identity',
           fileName: farmerIdentityDoc[0].file_name,
         };
         farmerDocValue[1] = {
@@ -781,6 +782,7 @@ const LoanRequest = ({setActiveBtn}) => {
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
+          imageType: 'address',
           fileName: farmerAddressDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -792,6 +794,7 @@ const LoanRequest = ({setActiveBtn}) => {
           name: farmerIdentityDoc[0].file_name,
           type: '',
           fileName: farmerIdentityDoc[0].file_name,
+          imageType: 'identity',
         };
         setIdentityProof(farmerDocValue);
       } else if (farmerAddressDoc.length > 0 && farmerIdentityDoc.length == 0) {
@@ -801,6 +804,7 @@ const LoanRequest = ({setActiveBtn}) => {
           id: farmerAddressDoc[0].file_id,
           name: farmerAddressDoc[0].file_name,
           type: '',
+          imageType: 'address',
           fileName: farmerAddressDoc[0].file_name,
         };
         setIdentityProof(farmerDocValue);
@@ -839,7 +843,7 @@ const LoanRequest = ({setActiveBtn}) => {
 
   const handle_button = () => {
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({y: 600, animated: true});
+      scrollViewRef.current.scrollTo({ y: 600, animated: true });
     }
   };
   const handlePlotCheck = async (value, label) => {
@@ -865,111 +869,15 @@ const LoanRequest = ({setActiveBtn}) => {
       setIsPlotChecked(0);
       setIsPlotCheckedId('');
     }
-
-    setAddressProof([
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-    ]);
-
     const [response, getPlotDoc] = await Promise.all([
       problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value),
       getPlotDocAPI(dbname, lan_id, token, farmerID, value),
     ]);
-
-    const addressProof_value = [
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-      {
-        uri: '',
-        name: '',
-        type: '',
-        fileName: '',
-        value: '',
-        id: '',
-        imageType: 'AddressProof',
-      },
-    ];
-
+    const addressProof_value = [...addressProof];
     if (getPlotDoc?.status === 200) {
       if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-        const address_proofArr = getPlotDoc?.data?.data?.rows[0]?.plot_img;
+        const { plot_img } = getPlotDoc?.data?.data?.rows[0] || {};
+        const address_proofArr = plot_img?.filter(item => item.term_type === 'plot_image');
         addressProof.map((data, index) => {
           if (address_proofArr[index] != undefined) {
             addressProof_value[index] = {
@@ -978,10 +886,22 @@ const LoanRequest = ({setActiveBtn}) => {
               name: address_proofArr[index].file_name,
               type: '',
               fileName: address_proofArr[index].file_name,
-              type:address_proofArr[index].file_ext,
+              type: address_proofArr[index].file_ext,
               value: '',
               imageType: 'AddressProof',
               plotId: value,
+            };
+          } else {
+            addressProof_value[index] = {
+              uri: "",
+              id: "",
+              name: "",
+              type: "",
+              fileName: "",
+              type: "",
+              value: '',
+              imageType: 'AddressProof',
+              plotId: '',
             };
           }
         });
@@ -1025,7 +945,7 @@ const LoanRequest = ({setActiveBtn}) => {
     }
 
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({y: 1400, animated: true});
+      scrollViewRef.current.scrollTo({ y: 1400, animated: true });
     }
   };
 
@@ -1051,8 +971,8 @@ const LoanRequest = ({setActiveBtn}) => {
       loan_amount: '',
     });
     setIdentityProof([
-      {uri: '', name: '', type: '', fileName: '', value: ''},
-      {uri: '', name: '', type: '', fileName: '', value: ''},
+      { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'address', },
+      { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'identity', },
     ]);
     setAddressProof([
       {
@@ -1150,7 +1070,7 @@ const LoanRequest = ({setActiveBtn}) => {
     ]);
   }, []);
   const handledataAdd = (name, text) => {
-    setSaveData({...saveData, [name]: text});
+    setSaveData({ ...saveData, [name]: text });
   };
   const handleSave = async () => {
     if (isPlotChecked == 1 && isPlotCheckedId != '') {
@@ -1207,17 +1127,17 @@ const LoanRequest = ({setActiveBtn}) => {
       }
     });
     if (searchFarmerName == '') {
-      Toast.show({text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_farmer_name')}`, ...AlertMesg[0] });
     } else if (saveData.existing_loan_amount == '') {
-      Toast.show({text: t('existing_loan_amount_enter'), ...AlertMesg[0]});
+      Toast.show({ text: t('existing_loan_amount_enter'), ...AlertMesg[0] });
     } else if (saveData.loan_amount == '') {
-      Toast.show({text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0] });
     } else if (saveData.apx_annual_income == '') {
-      Toast.show({text: `${t('pls_enter_income')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('pls_enter_income')}`, ...AlertMesg[0] });
     } else if (saveData.loan_purpose == '') {
-      Toast.show({text: `${t('please_enter_pur')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_pur')}`, ...AlertMesg[0] });
     } else if (checkValue.length < 1) {
-      Toast.show({text: `${t('please_select_plot_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_plot_first')}`, ...AlertMesg[0] });
     } else {
       setIsLoading(true);
       formData.append('user_id', farmerID);
@@ -1230,7 +1150,7 @@ const LoanRequest = ({setActiveBtn}) => {
 
       const response = await Addloan(dbname, lan_id, token, user_id, formData);
       if (response?.status === 200) {
-        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
         setTimeout(() => {
           setActiveBtn(2);
         }, 2000);
@@ -1259,7 +1179,7 @@ const LoanRequest = ({setActiveBtn}) => {
               <FlatList
                 style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                 data={searchResults}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() =>
                       handleResultSelect(
@@ -1317,13 +1237,15 @@ const LoanRequest = ({setActiveBtn}) => {
                         style={styles.idItem}
                         key={index}
                         onPress={() => openIdentity(data.uri)}>
+                        <Text numberOfLines={1}
+                          ellipsizeMode="tail" style={[styles.plotText, { fontSize: 12 }]}>{data.imageType == undefined ? null : data?.imageType == "address" ? <Text >Address Proof</Text> : <Text>Identity Proof</Text>}</Text>
                         <Image
                           source={require('../../Common/images/document.png')}
                           style={styles.idImage}
                         />
-                        <Text style={{color: '#000'}}>
-                          {data.name == '' ? '' : data.name.substring(1, 20)}
-                          {/* {data.name.substring(7, 12)} */}
+                        <Text numberOfLines={1}
+                          ellipsizeMode="head" style={styles.plotText}>
+                          {data.name == '' ? '' : data.name}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -1423,6 +1345,7 @@ const LoanRequest = ({setActiveBtn}) => {
                           }
                           handleScanAndCreatePdf={handleScanAndCreatePdf}
                           parent={data}
+                          InputTextFormEdit={false}
                         />
                       </View>
                     </View>
@@ -1511,10 +1434,10 @@ const styles = StyleSheet.create({
   },
   idcontainer: {
     marginVertical: 10,
-    backgroundColor:'#FFF',
-    elevation:2,
-    borderRadius:5,
-    padding:10
+    backgroundColor: '#FFF',
+    elevation: 2,
+    borderRadius: 5,
+    padding: 10
   },
   idItemContainer: {
     flexDirection: 'row',

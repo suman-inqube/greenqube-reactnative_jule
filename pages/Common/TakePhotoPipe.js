@@ -1,5 +1,5 @@
 import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native'
-import React from 'react'
+import React ,{memo}from 'react'
 
 
 const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
@@ -61,7 +61,7 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
   );
 };
 
-export default TakePhotoPipe
+export default memo(TakePhotoPipe)
 
 const styles = StyleSheet.create({
     container: {
