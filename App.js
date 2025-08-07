@@ -26,8 +26,8 @@ import ProduceInfo from './pages/ProduceInfo';
 import SignUpViwer from './pages/SignUpViwer';
 import SplashScreen from './SplashScreen';
 import ProduceInfoUpdate from './pages/ProduceInfoUpdate';
-// import AdminNavigation from './pages/admin/AdminNavigation';
-// import FarmerNavigation from './pages/admin/FarmerNavigation';
+import AdminNavigation from './pages/admin/AdminNavigation';
+import FarmerNavigation from './pages/admin/FarmerNavigation';
 
 import {userCreateContext} from './pages/Context/usersCreateContext';
 import {addModuleForView} from './config/apiHere';
@@ -224,7 +224,7 @@ const App = withSecurityCheck(() => {
               component={ProduceInfoUpdate}
               options={{headerShown: false}}
             />
-            {/* <Stack.Screen
+            <Stack.Screen
               name="AdminNavigation"
               component={AdminNavigation}
               options={{headerShown: false}}
@@ -233,7 +233,7 @@ const App = withSecurityCheck(() => {
               name="FarmerNavigation"
               component={FarmerNavigation}
               options={{headerShown: false}}
-            /> */}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>
