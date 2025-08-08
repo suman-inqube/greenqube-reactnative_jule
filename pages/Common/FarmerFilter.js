@@ -344,6 +344,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     height: 45,
     color: '#000',
+    fontFamily: 'Poppins-Regular',
   },
   filterIcon: {
     // width: 23,

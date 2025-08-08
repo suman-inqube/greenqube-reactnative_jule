@@ -712,7 +712,12 @@ const FarmerLoanEnquiryDetail = () => {
                           source={require('../../Common/images/document.png')}
                           style={styles.idImage}
                         /> */}
-                        <Text style={styles.documentName}>{data.name}</Text>
+                        <Text
+                          style={styles.documentName}
+                          numberOfLines={1}
+                          ellipsizeMode="tail">
+                          {data.name}
+                        </Text>
                       </TouchableOpacity>
                     );
                   })}

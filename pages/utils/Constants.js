@@ -10,7 +10,7 @@ export const Colors = {
   Lcolor: '#d5dbd7',
   useGreen: '#478541',
   containerGreen: '#d7edd5',
-  pageBackground: '#F7FCFF',
+  pageBackground: '#c6d8e225',
   borderGreen: '#107808ff',
   subBtn: '#21374A',
 };

@@ -25,6 +25,10 @@ import {
 } from '@react-navigation/native';
 import {LoanUpdate, farmerDocAPI} from './LoanAPI';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const LoanEnquiryDetail = () => {
   //GQR-67
   const {
@@ -378,203 +382,336 @@ const LoanEnquiryDetail = () => {
     }
   };
   return (
-    <Root>
-      {isLoading ? (
-        <View style={styles.loadingScreen}>
-          <LoadingScreen />
-        </View>
-      ) : null}
-      <View style={{flex: 1}}>
-        <CustomHeader
-          path={'Loan'}
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <FormsTitle title={t('loan_enquiry_detail')} />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.container}>
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        {isLoading ? (
+          <View style={styles.loadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : null}
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: Colors.pageBackground,
+          }}>
+          <CustomHeader
+            path={'Loan'}
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          <FormsTitle title={t('loan_enquiry_detail')} />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* <View style={styles.container}> */}
             {status == 3 && (
               <View style={styles.commentContainer}>
                 <Text style={styles.title}>{comment}</Text>
               </View>
             )}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('personal_information')}</Text>
 
-            <InputTextForm
+              <View style={styles.infoRow}>
+                <MaterialIcons name="person" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('farmer_name')}</Text>
+                  <Text style={styles.infoValue}> {agri_user.userName}</Text>
+                </View>
+              </View>
+
+              {/* <InputTextForm
               label={t('farmer_name')}
               value={agri_user.userName}
               editable={false}
-            />
-            <InputTextForm
+            /> */}
+              <View style={styles.infoRow}>
+                <MaterialIcons name="phone" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('farmer_number')}</Text>
+                  <Text style={styles.infoValue}>
+                    {' '}
+                    {agri_user.contactNumber}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            {/* <InputTextForm
               label={t('farmer_number')}
               value={agri_user.contactNumber}
               editable={false}
-            />
-            <View style={styles.idcontainer}>
-              {identityProof[0].name.length > 5 ? (
-                <Text style={styles.title}>{t('identity_proof')}</Text>
-              ) : (
-                ''
-              )}
-              <View style={styles.idItemContainer}>
-                {identityProof &&
-                  identityProof.map((data, index) => {
-                    if (data.name.length > 5) {
-                      return (
-                        <TouchableOpacity
-                          style={styles.idItem}
-                          key={index}
-                          onPress={() => openURL(data.uri)}>
-                          <Image
-                            source={require('../../Common/images/document.png')}
-                            style={styles.idImage}
-                          />
-                          <Text>
-                            {data.name == '' ? '' : data.name.substring(1, 20)}
-                            {/* {data.name.substring(7, 12)} */}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    }
-                  })}
-              </View>
+            /> */}
+            {identityProof[0].name.length > 5 ? (
+              <Text style={styles.title}>{t('identity_proof')}</Text>
+            ) : (
+              ''
+            )}
+            <View style={styles.idItemContainer}>
+              {identityProof &&
+                identityProof.map((data, index) => {
+                  if (data.name.length > 5) {
+                    return (
+                      <TouchableOpacity
+                        style={styles.idItem}
+                        key={index}
+                        onPress={() => openURL(data.uri)}>
+                        <Image
+                          source={require('../../Common/images/document.png')}
+                          style={styles.idImage}
+                        />
+                        <Text>
+                          {data.name == '' ? '' : data.name.substring(1, 20)}
+                          {/* {data.name.substring(7, 12)} */}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                })}
             </View>
-            <InputTextForm
+
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('loan_information')}</Text>
+
+              <View style={styles.infoRow}>
+                <MaterialIcons name="payments" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>
+                    {t('loan_required_in_rupees') + ` (${currency})`}
+                  </Text>
+                  <Text style={styles.infoValue}>{saveData.loan_amount}</Text>
+                  {/* <InputTextForm
               label={t('loan_required_in_rupees') + ` (${currency})`}
               value={saveData.loan_amount}
               onChangeText={text => handledataAdd('loan_amount', text)}
               editable={false}
-            />
-            <InputTextForm
+            /> */}
+                </View>
+              </View>
+
+              <View style={styles.infoRow}>
+                <MaterialIcons
+                  name="currency-rupee"
+                  size={20}
+                  color="#4a8c29"
+                />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>
+                    {t('annual_income') + ` (${currency})`}
+                  </Text>
+
+                  <Text style={styles.infoValue}>
+                    {saveData.apx_annual_income}
+                  </Text>
+                </View>
+              </View>
+              {/* <InputTextForm
               label={t('annual_income') + ` (${currency})`}
               value={saveData.apx_annual_income}
               onChangeText={text => handledataAdd('apx_annual_income', text)}
               editable={false}
-            />
-            <InputTextForm
+            /> */}
+
+              <View style={styles.infoRow}>
+                <MaterialIcons name="quiz" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>{t('loan_purpose')}</Text>
+                  <Text style={styles.infoValue}>{saveData.loan_purpose}</Text>
+                </View>
+              </View>
+              {/* <InputTextForm
               label={t('loan_purpose')}
               value={saveData.loan_purpose}
               editable={false}
-            />
-            <InputTextForm
+            /> */}
+
+              <View style={styles.infoRow}>
+                <MaterialIcons name="money-off" size={20} color="#4a8c29" />
+                <View style={styles.infoTextContainer}>
+                  <Text style={styles.infoLabel}>
+                    {t('existing_loan_amount') + ` (${currency})`} ({currency})
+                  </Text>
+                  <Text style={styles.infoValue}>{existing_loan_amount}</Text>
+                </View>
+              </View>
+              {/* <InputTextForm
               label={t('existing_loan_amount') + ` (${currency})`}
               value={existing_loan_amount}
               editable={false}
-            />
+            /> */}
 
-            {status == 2 && (
-              <>
-                <InputTextForm
+              {status == 2 && (
+                <>
+                  <View style={styles.infoRow}>
+                    <MaterialIcons
+                      name="confirmation-number"
+                      size={20}
+                      color="#4a8c29"
+                    />
+                    <View style={styles.infoTextContainer}>
+                      <Text style={styles.infoLabel}>
+                        {t('LoanOrderID')} ({currency})
+                      </Text>
+                      <Text style={styles.infoValue}>{loan_ord_id}</Text>
+                    </View>
+                  </View>
+                  {/* <InputTextForm
                   label={t('LoanOrderID')}
                   value={loan_ord_id}
                   editable={false}
-                />
-                <InputTextForm
+                /> */}
+                  <View style={styles.infoRow}>
+                    <MaterialIcons name="beenhere" size={20} color="#4a8c29" />
+                    <View style={styles.infoTextContainer}>
+                      <Text style={styles.infoLabel}>
+                        {t('LoanSanctioned') + `(${currency})`}
+                      </Text>
+                      <Text style={styles.infoValue}>{loan_sanctioned}</Text>
+                    </View>
+                  </View>
+
+                  {/* <InputTextForm
                   label={t('LoanSanctioned') + `(${currency})`}
                   value={loan_sanctioned}
                   editable={false}
-                />
-                <InputTextForm
+                /> */}
+                  <View style={styles.infoRow}>
+                    <MaterialIcons
+                      name="event-available"
+                      size={20}
+                      color="#4a8c29"
+                    />
+                    <View style={styles.infoTextContainer}>
+                      <Text style={styles.infoLabel}>
+                        {t('SanctionedDate')}
+                      </Text>
+                      <Text style={styles.infoValue}>{sanctioned_date}</Text>
+                    </View>
+                  </View>
+
+                  {/* <InputTextForm
                   label={t('SanctionedDate')}
                   value={sanctioned_date}
                   editable={false}
-                />
-              </>
-            )}
+                /> */}
+                </>
+              )}
 
-            <Text style={styles.title}>{t('plot')}</Text>
+              <Text style={styles.title}>{t('plot')}</Text>
 
-            <View style={styles.plotContainer}>
-              {loan_plots.map((data, index) => {
-                return (
-                  <View key={index}>
-                    <View style={styles.plotContainerItem}>
-                      <View>
-                        <Text style={styles.plotText}>{t('select_plot')}</Text>
-                        <Text style={styles.plotText}>
-                          {t('addcrop_cropname')}
-                        </Text>
-                        <Text style={styles.plotText}>
-                          {t('addcrop_cropvariety')}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.plotText}>
-                          :{data.agri_land_user_rel.plot_no.substring(-1, 15)}
-                        </Text>
-                        <Text style={styles.plotText}>
-                          :
-                          {data.agri_land_user_rel.plot_crops[0].crop_name.name.substring(
-                            -1,
-                            15,
-                          )}
-                        </Text>
-                        <Text style={styles.plotText}>
-                          :
-                          {data.agri_land_user_rel.plot_crops[0].crop_variety.name.substring(
-                            -1,
-                            15,
-                          )}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={[styles.idcontainer, {marginHorizontal: 10}]}>
-                      {data.agri_land_user_rel?.plot_img[0]?.file_name.length >
-                      5 ? (
-                        <Text style={styles.title}>{t('address_proof')}</Text>
-                      ) : (
-                        ''
-                      )}
-                      <View style={styles.idItemContainer}>
-                        {data.agri_land_user_rel.plot_img.map((data, index) => {
-                          return (
-                            <TouchableOpacity
-                              style={styles.idItem}
-                              key={index}
-                              onPress={() => openURL(data.file_path)}>
-                              <Image
-                                source={require('../../Common/images/document.png')}
-                                style={styles.idImage}
-                              />
-                              <Text>
-                                {data.file_name == '' ? '' : data.file_name}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-            <View style={styles.idcontainer}>
-              <Text style={styles.title}>{t('land_records')}</Text>
-              <View style={styles.idItemContainer}>
-                {landProof.map((data, index) => {
+              <View style={styles.plotContainer}>
+                {loan_plots.map((data, index) => {
                   return (
-                    <TouchableOpacity
-                      style={styles.idItem}
-                      onPress={() => openURL(data.uri)}
-                      key={index}>
-                      <Image
-                        source={require('../../Common/images/document.png')}
-                        style={styles.idImage}
-                      />
-                      <Text style={styles.imageTitle}>{data.name}</Text>
-                    </TouchableOpacity>
+                    <View key={index}>
+                      <View style={styles.plotContainerItem}>
+                        <View>
+                          <Text style={styles.plotText}>
+                            {t('select_plot')}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            {t('addcrop_cropname')}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            {t('addcrop_cropvariety')}
+                          </Text>
+                        </View>
+                        <View>
+                          {/* Add Text components here */}
+                          <Text style={styles.plotText}>
+                            :{data.agri_land_user_rel.plot_no.substring(-1, 15)}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            :
+                            {data.agri_land_user_rel.plot_crops[0].crop_name.name.substring(
+                              -1,
+                              15,
+                            )}
+                          </Text>
+                          <Text style={styles.plotText}>
+                            :
+                            {data.agri_land_user_rel.plot_crops[0].crop_variety.name.substring(
+                              -1,
+                              15,
+                            )}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View
+                        style={[styles.idcontainer2, {marginHorizontal: 10}]}>
+                        {data.agri_land_user_rel?.plot_img[0]?.file_name
+                          .length > 5 ? (
+                          <Text style={styles.title}>{t('address_proof')}</Text>
+                        ) : (
+                          ''
+                        )}
+                        <View style={styles.idItemContainer}>
+                          {data.agri_land_user_rel.plot_img
+                            ?.filter(item => item?.term_type == 'plot_image')
+                            .map((data, index) => {
+                              return (
+                                <TouchableOpacity
+                                  style={styles.idItem}
+                                  key={index}
+                                  onPress={() => openURL(data.file_path)}>
+                                  <MaterialIcons
+                                    name="description"
+                                    size={40}
+                                    color="#0d8320"
+                                  />
+                                  <Text
+                                    style={styles.titleImg}
+                                    numberOfLines={1}
+                                    ellipsizeMode="tail">
+                                    {data.file_name
+                                      ? data.file_name
+                                      : 'Unnamed'}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            })}
+                        </View>
+                      </View>
+                    </View>
                   );
                 })}
               </View>
             </View>
-          </View>
-        </ScrollView>
-        {/* {status != 2 && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('documents')}</Text>
+              <View style={styles.documentSection}>
+                <Text style={styles.documentTitle}>{t('land_records')}</Text>
+                <View style={styles.documentContainer}>
+                  {landProof.map((data, index) => {
+                    return (
+                      <TouchableOpacity
+                        style={styles.documentItem}
+                        onPress={() => openURL(data.uri)}
+                        key={index}>
+                        <MaterialIcons
+                          name="description"
+                          size={28}
+                          color="#4a8c29"
+                        />
+                        {/* Make sure data.name is wrapped in Text */}
+                        <Text
+                          style={styles.imageTitle}
+                          numberOfLines={1}
+                          ellipsizeMode="tail">
+                          {data.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+            {/* </View> */}
+          </ScrollView>
+          {/* {status != 2 && (
           <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         )} */}
-      </View>
-    </Root>
+        </View>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -582,11 +719,27 @@ export default memo(LoanEnquiryDetail);
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: '5%',
+    marginHorizontal: '4%',
     marginBottom: 50,
+    backgroundColor: Colors.containerGreen,
+    marginTop: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
   },
   idcontainer: {
+    marginVertical: 30,
+    marginHorizontal: 20,
+  },
+  idcontainer2: {
     marginVertical: 10,
+    marginHorizontal: 30,
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+
+    borderRadius: 20,
+    padding: 10,
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -594,7 +747,7 @@ const styles = StyleSheet.create({
   },
   idItem: {
     padding: 10,
-    width: '30%',
+    width: '50%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -608,9 +761,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   title: {
-    color: '#000',
+    color: Colors.text,
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
+    marginLeft: 10,
+  },
+  titleImg: {
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    marginLeft: 10,
   },
   centeredView: {
     // backgroundColor: '#FFF',
@@ -647,25 +807,192 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   plotContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
+    backgroundColor: '#F7FCFF',
+    borderRadius: 20,
     elevation: 5,
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
   },
   plotContainerItem: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#000',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
     margin: 15,
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 10,
   },
   plotText: {
-    color: '#000',
+    color: Colors.text,
     marginVertical: 2,
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
   },
+
+  ///////////////////
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '5%',
+    marginTop: 20,
+    // borderWidth: 1,
+    // borderColor: Colors.borderGreen,
+  },
+  cardTitle: {
+    fontSize: 16,
+
+    color: Colors.borderGreen,
+    marginBottom: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+    marginVertical: 10,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  documentSection: {
+    marginBottom: 16,
+  },
+  documentTitle: {
+    fontSize: 14,
+    color: Colors.text,
+    marginBottom: 8,
+    fontFamily: 'Poppins-Medium',
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  documentItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  documentName: {
+    fontSize: 12,
+    color: '#2c3e50',
+    marginLeft: 8,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
+  },
+
+  ///////////////////////////////////////////
+  // container: {
+  //   marginHorizontal: '5%',
+  //   marginBottom: 50,
+  // },
+  // idcontainer: {
+  //   marginVertical: 10,
+  // },
+  // idItemContainer: {
+  //   flexDirection: 'row',
+  //   flexWrap: 'wrap',
+  // },
+  // idItem: {
+  //   padding: 10,
+  //   width: '30%',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // idImage: {
+  //   width: 60,
+  //   height: 60,
+  // },
+  // imageTitle: {
+  //   fontSize: 10,
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  // },
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  // centeredView: {
+  //   // backgroundColor: '#FFF',
+  //   // width: '90%',
+  //   // left: '5%',
+  //   // // justifyContent: 'center',
+  //   // alignItems: 'center',
+  //   // position: "absolute",
+  //   // top: '50%'
+  //   flex: 1,
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   backgroundColor: 'rgba(0,0,0,0.5)',
+  // },
+  // modalView: {
+  //   width: '90%',
+  //   backgroundColor: '#FFF',
+  //   borderRadius: 4,
+  //   padding: '2.5%',
+  // },
+  // loadingScreen: {
+  //   position: 'absolute',
+  //   top: '60%',
+  //   zIndex: 999,
+  //   left: '45%',
+  // },
+  // commentContainer: {
+  //   padding: 12,
+  //   // borderWidth: 1,
+  //   elevation: 1,
+  //   marginBottom: 10,
+  //   borderColor: '#CA8586',
+  //   backgroundColor: '#ECC8C5',
+  //   borderRadius: 10,
+  // },
+  // plotContainer: {
+  //   backgroundColor: '#FFF',
+  //   borderRadius: 10,
+  //   elevation: 5,
+  // },
+  // plotContainerItem: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-around',
+  //   alignItems: 'center',
+  //   backgroundColor: '#FFF',
+  //   borderWidth: 1,
+  //   borderColor: '#000',
+  //   margin: 15,
+  //   borderRadius: 10,
+  //   padding: 10,
+  // },
+  // plotText: {
+  //   color: '#000',
+  //   marginVertical: 2,
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
 });

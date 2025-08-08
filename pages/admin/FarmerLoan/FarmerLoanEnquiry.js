@@ -111,14 +111,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
   },
   btnRequst: {
-    backgroundColor: '#E1EBE1',
+    // backgroundColor: '#E1EBE1',
     width: '50%',
     alignItems: 'center',
     paddingVertical: 5,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    elevation: 5,
-    borderWidth: 0.5,
+    // elevation: 5,
+    // borderWidth: 0.5,
   },
   btnRequstText: {
     // fontWeight: 'bold',

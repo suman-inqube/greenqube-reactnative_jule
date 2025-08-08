@@ -13,6 +13,11 @@ import DatePickerComp from '../../Common/DatePickerComp';
 import {farmaccountsListAPI} from '../../../config/apiHere';
 import {formatDateToDateName} from '../../Common/DateChanger';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Marquee} from '@animatereactnative/marquee';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Colors, Fronts} from '../../utils/Constants';
+
 const FarmIncomeExpenseList = ({navigation}) => {
   //GQR-67
   const {
@@ -37,6 +42,7 @@ const FarmIncomeExpenseList = ({navigation}) => {
     farmerData,
     handleFilter,
     Filter,
+    FormsTitle,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const {pageNo} = dbLanTokUsr;
@@ -237,167 +243,255 @@ const FarmIncomeExpenseList = ({navigation}) => {
   }, []);
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
-    <Root>
-      <View style={{flex: 1}}>
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        {openFromDate && (
-          <DatePickerComp
-            openDate={openFromDate}
-            newDate={newFromDate}
-            setOpenDate={setOpenFromDate}
-            handleDatePicker={handleDatePicker}
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <View style={styles.mainContainer}>
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
           />
-        )}
-        {openToDate && (
-          <DatePickerComp
-            openDate={openToDate}
-            newDate={newToDate}
-            setOpenDate={setOpenToDate}
-            handleDatePicker={handleDatePicker2}
-            minimumDate={
-              fromDate == ''
-                ? ''
-                : new Date(
-                    `${new Date(fromDate).getFullYear()}-${
-                      new Date(fromDate).getMonth() + 1
-                    }-${new Date(fromDate).getDate() + 1}`,
-                  )
-            }
-          />
-        )}
-        <Filter
-          filterItem={filterItem}
-          filterOption={filterOption}
-          setOpenToDate={setOpenToDate}
-          fromDate={fromDate}
-          newToDate={toDate}
-          setOpenFromDate={setOpenFromDate}
-          filterOptionShow={filterOptionShow}
-          onchangeFilterItem={onchangeFilterItem}
-          onChangeText={item => handleFilterList(item)}
-          FarmerProductNameValue={searchFarmerName}
-          FarmerProductPhoneValue={searchFarmerPhone}
-          title={t('income_expense_list')}
-          filterDataRemove={filterDataRemove}
-        />
-        <SafeAreaView>
-          {searchResultsList && searchResultsList ? (
-            <View style={styles.flatContainer}>
-              <FlatList
-                style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                data={searchResults}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleResultSelect(item.label, item.value, item.phone)
-                    }
-                    style={styles.flatlistitem}>
-                    <Text style={styles.flatlisttitle}>
-                      {filterName == 'PhoneNumber' ? item.phone : item.label}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-              />
-            </View>
-          ) : (
-            ''
+          <FormsTitle title={t('income_expense_list')} />
+          {openFromDate && (
+            <DatePickerComp
+              openDate={openFromDate}
+              newDate={newFromDate}
+              setOpenDate={setOpenFromDate}
+              handleDatePicker={handleDatePicker}
+            />
           )}
-        </SafeAreaView>
-        {isLoading && (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        )}
-        <FlatList
-          data={farmAccount}
-          renderItem={({item, index}) => (
+          {openToDate && (
+            <DatePickerComp
+              openDate={openToDate}
+              newDate={newToDate}
+              setOpenDate={setOpenToDate}
+              handleDatePicker={handleDatePicker2}
+              minimumDate={
+                fromDate == ''
+                  ? ''
+                  : new Date(
+                      `${new Date(fromDate).getFullYear()}-${
+                        new Date(fromDate).getMonth() + 1
+                      }-${new Date(fromDate).getDate() + 1}`,
+                    )
+              }
+            />
+          )}
+          <Filter
+            filterItem={filterItem}
+            filterOption={filterOption}
+            setOpenToDate={setOpenToDate}
+            fromDate={fromDate}
+            newToDate={toDate}
+            setOpenFromDate={setOpenFromDate}
+            filterOptionShow={filterOptionShow}
+            onchangeFilterItem={onchangeFilterItem}
+            onChangeText={item => handleFilterList(item)}
+            FarmerProductNameValue={searchFarmerName}
+            FarmerProductPhoneValue={searchFarmerPhone}
+            // title={t('income_expense_list')}
+            filterDataRemove={filterDataRemove}
+          />
+          <SafeAreaView>
+            {searchResultsList && searchResultsList ? (
+              <View style={styles.flatContainer}>
+                <FlatList
+                  style={searchResults.length > 8 ? styles.flatlistHeight : ''}
+                  data={searchResults}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleResultSelect(item.label, item.value, item.phone)
+                      }
+                      style={styles.flatlistitem}>
+                      <Text style={styles.flatlisttitle}>
+                        {filterName == 'PhoneNumber' ? item.phone : item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item, index) => index}
+                />
+              </View>
+            ) : (
+              ''
+            )}
+          </SafeAreaView>
+          {isLoading && (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          )}
+          <FlatList
+            data={farmAccount}
+            renderItem={({item, index}) => (
+              <TouchableOpacity
+                style={styles.wrapper}
+                key={index}
+                onPress={() => navigateToPages('FarmIncomeExpenseView', index)}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.marqueeContainer}>
+                    <Text style={styles.cardTitleRe}>
+                      {t('name')} :{' '}
+                      <Text
+                        style={styles.cardTitle}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {item.agri_user && item.agri_user.userName}
+                      </Text>
+                    </Text>
+                  </View>
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.viewDetailsText}>
+                      {t('view_details')}
+                    </Text>
+                    <MaterialIcons
+                      name="chevron-right"
+                      size={20}
+                      color="#2e7d32"
+                    />
+                  </View>
+                </View>
+                <View style={styles.activityListContainer}>
+                  <View style={styles.activityListItem}>
+                    <Text style={styles.titleRe}>
+                      {t('addcrop_plot')} :{'                   '}
+                      <Text
+                        style={styles.title}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {item.land_info && item.land_info.plot_no}
+                      </Text>
+                    </Text>
+                    <Text style={styles.titleRe}>
+                      {t('showing_date')} :{'            '}
+                      <Text style={styles.title}>
+                        {formatDateToDateName(item.sowing_date)}
+                      </Text>
+                    </Text>
+                    <Text style={styles.titleRe}>
+                      {t('total_income_sum') + '(' + currency + ')'}:
+                      {'               '}
+                      <Text
+                        style={styles.title}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {<ShowIncome income={item.income_expense} />}
+                      </Text>
+                    </Text>
+
+                    <Text style={styles.titleRe}>
+                      {t('farmer_number')} :{'      '}
+                      <Text
+                        style={styles.title}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {item.agri_user && item.agri_user.contactNumber}
+                      </Text>
+                    </Text>
+                    <Text style={styles.titleRe}>
+                      {t('knowyourplot_cropinfo_cropname').substring(0, 13)} :
+                      {'     '}
+                      <Text
+                        style={styles.title}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {item.crop_name && item.crop_name.name}
+                      </Text>
+                    </Text>
+                    <Text style={styles.titleRe}>
+                      {t('harvesting_date_auto_calculated')} :{'             '}
+                      <Text
+                        style={styles.title}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {formatDateToDateName(item.harvesting_date)}
+                      </Text>
+                    </Text>
+                    <Text style={styles.titleRe}>
+                      {t('total_exp_sum') + '(' + currency + ')'}:
+                      {'             '}
+                      <Text style={styles.title}>
+                        {<ShowExpense expense={item.income_expense} />}
+                      </Text>
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index}
+            showsVerticalScrollIndicator={false}
+          />
+          <View
+            style={{
+              backgroundColor: Colors.useGreen,
+              justifyContent: 'space-between', // This will distribute space evenly
+              alignItems: 'center',
+              flexDirection: 'row',
+              height: '8%',
+              paddingHorizontal: 16,
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+            }}>
             <TouchableOpacity
-              style={styles.wrapper}
-              key={index}
-              onPress={() => navigateToPages('FarmIncomeExpenseView', index)}>
-              <View style={styles.activityListContainer}>
-                <View style={styles.activityListItem}>
-                  <Text style={styles.title}>
-                    {t('name')} :{' '}
-                    {item.agri_user &&
-                      item.agri_user.userName.substring(0, 14) + '..'}{' '}
-                  </Text>
-                  <Text style={styles.title}>
-                    {t('addcrop_plot')} :{' '}
-                    {item.land_info &&
-                      item.land_info.plot_no.substring(0, 17) + '..'}
-                  </Text>
-                  <Text style={styles.title}>
-                    {t('showing_date')} :{' '}
-                    {formatDateToDateName(item.sowing_date).substring(0, 7) +
-                      '..'}
-                  </Text>
-                  <Text style={styles.title}>
-                    {t('total_income_sum') + '(' + currency + ')'}:{' '}
-                    {<ShowIncome income={item.income_expense} />}
-                  </Text>
-                </View>
-                <View style={styles.activityListItem}>
-                  <Text style={styles.title}>
-                    {t('farmer_number')} :{' '}
-                    {item.agri_user &&
-                      item.agri_user.contactNumber.substring(0, 5) + '..'}
-                  </Text>
-                  <Text style={styles.title}>
-                    {t('knowyourplot_cropinfo_cropname').substring(0, 13)} :{' '}
-                    {item.crop_name &&
-                      item.crop_name.name.substring(0, 4) + '..'}
-                  </Text>
-                  <Text style={styles.title}>
-                    {t('harvesting_date_auto_calculated')} :{' '}
-                    {formatDateToDateName(item.harvesting_date).substring(
-                      0,
-                      6,
-                    ) + '..'}
-                  </Text>
-                  <Text style={styles.title}>
-                    {t('total_exp_sum') + '(' + currency + ')'}:{' '}
-                    {<ShowExpense expense={item.income_expense} />}
-                  </Text>
-                </View>
+              onPress={() => handlePage('previous')}
+              style={{
+                flex: 1,
+                alignItems: 'flex-start',
+              }}>
+              <View style={{}}>
+                <MaterialIcons name="chevron-left" size={25} color="white" />
+                <Text style={styles.titleBottomPre}>{t('prev_page')}</Text>
               </View>
             </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index}
-          showsVerticalScrollIndicator={false}
-        />
-        <TouchableOpacity
-          style={styles.addExpense}
-          onPress={() => navigation.navigate('AddExpense')}>
-          <Text style={styles.addExpenseTitle}>{t('add_expense')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.addIncome}
-          onPress={() => navigation.navigate('AddIcome')}>
-          <Text style={styles.addIncomTitle}>{t('add_income')}</Text>
-        </TouchableOpacity>
-        <View style={styles.prevNextPage}>
-          <TouchableOpacity onPress={() => handlePage('previous')}>
-            <Text style={styles.title}>{t('prev_page')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handlePage('next')}>
-            <Text style={styles.title}>{t('next_page')}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddExpense')}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                paddingRight: 20,
+              }}>
+              <View style={{width: '110%', alignItems: 'center'}}>
+                <MaterialIcons
+                  name="add-circle-outline"
+                  size={25}
+                  color="white"
+                />
+                <Text style={styles.titleBottomMid1}>{t('add_expense')}</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddIcome')}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                paddingLeft: 20,
+              }}>
+              <View style={{alignItems: 'center', width: '110%'}}>
+                <MaterialIcons name="currency-rupee" size={24} color="white" />
+                <Text style={styles.titleBottomMid2}>{t('add_income')}</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handlePage('next')}
+              style={{flex: 1, alignItems: 'flex-end'}}>
+              <View style={{alignItems: 'center'}}>
+                <MaterialIcons name="chevron-right" size={25} color="white" />
+                <Text style={styles.titleBottomNet}>{t('next_page')}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Root>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
 export default FarmIncomeExpenseList;
 
 const styles = StyleSheet.create({
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
+
   prevNextPage: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -406,16 +500,63 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   wrapper: {
-    marginHorizontal: '2.5%',
-    backgroundColor: '#FFF',
+    width: '90%',
+    marginHorizontal: '5%',
+    backgroundColor: 'white',
     elevation: 5,
-    marginBottom: 15,
-    borderRadius: 10,
+    marginVertical: 10,
+    borderRadius: 20,
+    borderLeftWidth: 5,
+    borderColor: Colors.borderGreen,
+    // padding: 10,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+    paddingBottom: 5,
+    marginLeft: 15,
+  },
+  cardTitle: {
+    fontSize: 14,
+    // fontWeight: '600',
+    color: Colors.useGreen,
+    // marginLeft: 5,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  cardTitleRe: {
+    fontSize: 14,
+    // fontWeight: '600',
+    color: Colors.useGreen,
+    // marginLeft: 5,
+    fontFamily: 'Poppins-Regular',
+  },
+  marqueeContainer: {
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 10,
+    overflow: 'hidden',
+    marginTop: 10,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    // borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    // paddingTop: 8,
+    marginLeft: 5,
+  },
+  viewDetailsText: {
+    fontSize: 12,
+    color: Colors.useGreen,
+    // marginRight: 4,
+    fontFamily: 'Poppins-Regular',
   },
   activityListContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10,
+    marginBottom: 10,
   },
   addExpense: {
     position: 'absolute',
@@ -440,20 +581,17 @@ const styles = StyleSheet.create({
     color: '#FFF',
     textAlign: 'center',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 14,
   },
   addIncomTitle: {
     color: '#FFF',
     textAlign: 'center',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 14,
   },
   flatContainer: {
     backgroundColor: '#ffffff',
     position: 'absolute',
     zIndex: 999,
-    // bottom: 60,
-    top: '15%',
+    bottom: '100%',
     left: 0,
     marginHorizontal: '5%',
     width: '90%',
@@ -462,27 +600,151 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   flatlistHeight: {
-    height: Dimensions.get('window').height / 3.6,
+    height: Dimensions.get('window').height / 2.5,
   },
 
   flatlisttitle: {
     color: '#000',
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    marginVertical: 5,
+    marginVertical: 6,
   },
   flatlistitem: {},
+
   title: {
-    color: '#000',
+    fontSize: 13,
+    color: Colors.text,
+    marginLeft: 5,
+    fontFamily: 'Poppins-SemiBold',
+    paddingBottom: 5,
+  },
+  titleRe: {
+    fontSize: 13,
+    color: Colors.text,
+    marginLeft: 5,
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    paddingBottom: 5,
+  },
+  titleBottomPre: {
+    fontSize: 12,
+    color: 'white',
+    marginLeft: 5,
+    fontFamily: 'Poppins-SemiBold',
+    // paddingBottom: 5,
+  },
+  titleBottomMid1: {
+    fontSize: 12,
+    color: 'white',
+    // marginRight: 8,
+    fontFamily: 'Poppins-SemiBold',
+    // paddingBottom: 5,
+  },
+  titleBottomMid2: {
+    fontSize: 12,
+    color: 'white',
+    marginLeft: 10,
+    fontFamily: 'Poppins-SemiBold',
+    // paddingBottom: 5,
+  },
+  titleBottomNet: {
+    fontSize: 12,
+    color: 'white',
+    marginLeft: 5,
+    fontFamily: 'Poppins-SemiBold',
+    // paddingBottom: 5,
   },
   activityListItem: {
-    width: '50%',
+    width: '100%',
+    // alignItems: 'center',
+    marginBottom: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
-  loadingScreen: {
-    position: 'relative',
-    top: 100,
-    zIndex: 999,
-  },
+
+  ///////////////////////////////////////////////////
+  // prevNextPage: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   padding: 15,
+  //   position: 'relative',
+  //   bottom: 0,
+  // },
+  // wrapper: {
+  //   marginHorizontal: '2.5%',
+  //   backgroundColor: '#FFF',
+  //   elevation: 5,
+  //   marginBottom: 15,
+  //   borderRadius: 10,
+  // },
+  // activityListContainer: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   padding: 10,
+  // },
+  // addExpense: {
+  //   position: 'absolute',
+  //   bottom: 80,
+  //   backgroundColor: 'green',
+  //   width: 110,
+  //   paddingVertical: 10,
+  //   borderTopRightRadius: 20,
+  //   borderBottomRightRadius: 20,
+  // },
+  // addIncome: {
+  //   position: 'absolute',
+  //   right: 0,
+  //   bottom: 80,
+  //   backgroundColor: 'green',
+  //   width: 110,
+  //   paddingVertical: 10,
+  //   borderTopLeftRadius: 20,
+  //   borderBottomLeftRadius: 20,
+  // },
+  // addExpenseTitle: {
+  //   color: '#FFF',
+  //   textAlign: 'center',
+  //   fontFamily: 'Poppins-SemiBold',
+  //   fontSize: 14,
+  // },
+  // addIncomTitle: {
+  //   color: '#FFF',
+  //   textAlign: 'center',
+  //   fontFamily: 'Poppins-SemiBold',
+  //   fontSize: 14,
+  // },
+  // flatContainer: {
+  //   backgroundColor: '#ffffff',
+  //   position: 'absolute',
+  //   zIndex: 999,
+  //   // bottom: 60,
+  //   top: '15%',
+  //   left: 0,
+  //   marginHorizontal: '5%',
+  //   width: '90%',
+  //   elevation: 10,
+  //   borderRadius: 10,
+  //   padding: 10,
+  // },
+  // flatlistHeight: {
+  //   height: Dimensions.get('window').height / 3.6,
+  // },
+
+  // flatlisttitle: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  //   marginVertical: 5,
+  // },
+  // flatlistitem: {},
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  // activityListItem: {
+  //   width: '50%',
+  // },
+  // loadingScreen: {
+  //   position: 'relative',
+  //   top: 100,
+  //   zIndex: 999,
+  // },
 });
