@@ -19,7 +19,7 @@ const ForegroundLocationService = () => {
                 const sub = FusedLocation.on('fusedLocation', async (location) => {
                     const now = Date.now();
                     const lastSaved = lastSavedTimeRef.current;
-                    if (now - lastSaved > 10_000) {
+                    if (now - lastSaved > 10000) {
                         lastSavedTimeRef.current = now;
                         await setItem('fusedLocation', location);
                     }

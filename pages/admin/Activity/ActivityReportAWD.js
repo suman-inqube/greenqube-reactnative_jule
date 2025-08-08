@@ -1532,8 +1532,13 @@ const ActivityReportAWD = ({navigation}) => {
   };
 
   const openImagePickerPipe = async item => {
-    setCameraItem(item);
-    setModalVisibleMap(true);
+    if (location!= null) {
+      setCameraItem(item);
+      setModalVisibleMap(true);
+    }else{
+      CustomAlert('Camera Error:', 'Device Camera permission is not given properly.', true, 'OK');
+    }
+    
      console.log('errerttt', location);
     console.log("h1");
   };
