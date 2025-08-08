@@ -23,9 +23,7 @@ const UsefulInformation = () => {
     const isFocused = useIsFocused();
 
     const detailItem = (path, file_ext) => {
-        if (file_ext !== "video/mp4") {
-            Linking.openURL(path);
-        }
+        Linking.openURL(path);
     };
 
     const DocumentDisplay = ({ item, file_ext }) => {
@@ -37,7 +35,7 @@ const UsefulInformation = () => {
                     source={require("../../Common/images/icons8-pdf-50.png")}
                 />
             );
-        } else if (file_ext === "image/jpeg") {
+        } else if (file_ext === "image/jpeg" || file_ext == "image/png") {
             return (
                 <Image
                     style={{ width: '100%', height: 200 }}
@@ -46,11 +44,10 @@ const UsefulInformation = () => {
             );
         } else if (file_ext === "video/mp4") {
             return (
-                <WebView
-                    source={{ uri: item }}
-                    style={{ height: 300 }}
-                    javaScriptEnabled={true}
-                    mediaPlaybackRequiresUserAction={false}
+                <Image
+                    resizeMode="contain"
+                    style={{ width: '100%', height: 100 }}
+                    source={require('../../Common/images/icons8-play-100.png')}
                 />
             );
         }
@@ -109,7 +106,7 @@ const UsefulInformation = () => {
                         }}
                             onPress={() => detailItem(item.file_path, item.file_ext)}
                         >
-                            <TouchableOpacity >
+                            <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
                                 <DocumentDisplay item={item.file_path} file_ext={item.file_ext} />
                             </TouchableOpacity>
                         </TouchableOpacity>

@@ -48,12 +48,12 @@ const Training = () => {
                         source={require('../../Common/images/icons8-pdf-50.png')}
                     />
                 )}
-                {file_ext === 'image/jpeg' && (
+                {file_ext === 'image/jpeg' || file_ext == "image/png" ? (
                     <Image
                         style={{ width: '100%', height: 200 }}
                         source={{ uri: item }}
                     />
-                )}
+                ):null}
                 {file_ext === 'video/mp4' && (
                     <Image
                         resizeMode="contain"
@@ -102,7 +102,7 @@ const Training = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ paddingVertical: 10 }}
                     renderItem={({ item }) => (
-                        <View
+                        <TouchableOpacity
                             style={{
                                 width: 200,
                                 margin: 10,
@@ -112,11 +112,11 @@ const Training = () => {
                                 borderRadius: 10,
                                 justifyContent: 'center'
                             }}
-                        >
+                       onPress={() => detailItem(item.file_path)}>
                             <TouchableOpacity onPress={() => detailItem(item.file_path)}>
                                 <DocumentDisplay item={item.file_path} file_ext={item.file_ext} />
                             </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
                     )}
                 />
             </View>

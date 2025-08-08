@@ -41,9 +41,7 @@ const FarmerUsefulInformation = () => {
   const { width, height } = Dimensions.get('window');
 
   const detailItem = (path, file_ext) => {
-    if (file_ext !== 'video/mp4') {
-      Linking.openURL(path);
-    }
+    Linking.openURL(path);
   };
 
   const DocumentDisplay = (props) => {
@@ -56,18 +54,17 @@ const FarmerUsefulInformation = () => {
             source={require('../../Common/images/icons8-pdf-50.png')}
           />
         )}
-        {props.file_ext === 'image/jpeg' && (
+        {props.file_ext === 'image/jpeg'|| props.file_ext == "image/png" ? (
           <Image
             style={{ width: '100%', height: 200 }}
             source={{ uri: props.item }}
           />
-        )}
+        ):null}
         {props.file_ext === 'video/mp4' && (
-          <WebView
-            source={{ uri: props.item }}
-            style={{ height: 300 }}
-            javaScriptEnabled
-            mediaPlaybackRequiresUserAction={false}
+          <Image
+            resizeMode="contain"
+            style={{ width: '100%', height: 100 }}
+            source={require('../../Common/images/icons8-play-100.png')}
           />
         )}
       </View>
@@ -133,11 +130,11 @@ const FarmerUsefulInformation = () => {
                   padding: 10,
                   elevation: 3,
                   borderRadius: 10,
-                     justifyContent:'center'
+                  justifyContent: 'center'
                 }}
                 onPress={() => detailItem(item.file_path, item.file_ext)}
               >
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
                   <DocumentDisplay
                     item={item.file_path}
                     file_ext={item.file_ext}

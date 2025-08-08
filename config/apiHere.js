@@ -1439,7 +1439,6 @@ export const usefulInfoListAPI = async (
       `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    console.log('generalInfoRoute==', response);
     const resultJson = {
       data: response,
       status: 200,
