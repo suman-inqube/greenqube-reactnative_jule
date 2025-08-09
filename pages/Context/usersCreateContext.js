@@ -71,7 +71,7 @@ const UserCreateContextProvider = props => {
         getItem('topBannerData'),
         getItem('companyLanguage_data'),
       ]);
-      i18next.changeLanguage(loginUser_data?.lan_id.toString());
+      // i18next.changeLanguage(loginUser_data?.lan_id.toString());
       if (netConnection && loginUser_data?.token) {
         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
           farmerByNameAPI(

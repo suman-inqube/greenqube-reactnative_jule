@@ -58,12 +58,12 @@ const FarmerTraining = () => {
             source={require('../../Common/images/icons8-pdf-50.png')}
           />
         )}
-        {props.file_ext === 'image/jpeg' && (
+        {props.file_ext === 'image/jpeg'|| props.file_ext == "image/png" ?(
           <Image
             style={{width: '100%', height: 200}}
             source={{uri: props.item}}
           />
-        )}
+        ):null}
         {props.file_ext === 'video/mp4' && (
           <Image
             resizeMode="contain"

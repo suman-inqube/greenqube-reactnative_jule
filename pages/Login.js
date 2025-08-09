@@ -734,9 +734,9 @@ const Login = ({route}) => {
                 data={companyData}
                 label={t('select_company')}
                 onChange={company => onChangeConpany(company)}
-                val={companyLanguage.company_id}
-                diffLabel={companyLanguage.company_name}
-                selectedValue={storeLoginUser.company}
+                val={companyLanguage?.company_id}
+                diffLabel={companyLanguage?.company_name}
+                selectedValue={storeLoginUser?.company}
                 dropdownStyle={{
                   width: '100%',
                   borderWidth: 0.5,

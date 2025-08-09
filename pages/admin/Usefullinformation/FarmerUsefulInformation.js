@@ -36,9 +36,7 @@ const FarmerUsefulInformation = () => {
   const {width, height} = Dimensions.get('window');
 
   const detailItem = (path, file_ext) => {
-    if (file_ext !== 'video/mp4') {
-      Linking.openURL(path);
-    }
+    Linking.openURL(path);
   };
 
   const DocumentDisplay = props => {
@@ -51,12 +49,12 @@ const FarmerUsefulInformation = () => {
             source={require('../../Common/images/icons8-pdf-50.png')}
           />
         )}
-        {props.file_ext === 'image/jpeg' && (
+        {props.file_ext === 'image/jpeg'|| props.file_ext == "image/png" ? (
           <Image
             style={{width: '100%', height: 200}}
             source={{uri: props.item}}
           />
-        )}
+        ):null}
         {props.file_ext === 'video/mp4' && (
           <WebView
             source={{uri: props.item}}
