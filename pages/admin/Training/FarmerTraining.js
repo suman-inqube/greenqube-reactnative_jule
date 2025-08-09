@@ -6,16 +6,16 @@ import {
   View,
   Image,
   Linking,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import React, { useState, useEffect, useContext } from 'react';
-import { noticeDetailsAPI } from '../../../config/apiHere';
-import { WebView } from 'react-native-webview';
-import { getItem } from '../../../config/getDataFromStorage';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect, useContext} from 'react';
+import {noticeDetailsAPI} from '../../../config/apiHere';
+import {WebView} from 'react-native-webview';
+import {getItem} from '../../../config/getDataFromStorage';
+import {useNavigation} from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
-import { ScrollView } from 'react-native-gesture-handler';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {ScrollView} from 'react-native-gesture-handler';
+import {userCreateContext} from '../../Context/usersCreateContext';
 
 const head = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -36,38 +36,38 @@ const FarmerTraining = () => {
     setItem,
     CustomHeader,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token } = loginUser_data;
+  const {dbname, lan_id, token} = loginUser_data;
   const navigation = useNavigation();
 
   const [noticeDetails, setNoticeDetails] = useState([]);
   const [noticeFiles, setNoticeFiles] = useState([]);
 
-  const { width, height } = Dimensions.get('window');
+  const {width, height} = Dimensions.get('window');
 
-  const detailItem = (path) => {
+  const detailItem = path => {
     Linking.openURL(path);
   };
 
-  const DocumentDisplay = (props) => {
+  const DocumentDisplay = props => {
     return (
       <View>
         {props.file_ext === 'application/pdf' && (
           <Image
-            style={{ width: '100%', height: 100 }}
+            style={{width: '100%', height: 100}}
             resizeMode="contain"
             source={require('../../Common/images/icons8-pdf-50.png')}
           />
         )}
         {props.file_ext === 'image/jpeg'|| props.file_ext == "image/png" ?(
           <Image
-            style={{ width: '100%', height: 200 }}
-            source={{ uri: props.item }}
+            style={{width: '100%', height: 200}}
+            source={{uri: props.item}}
           />
         ):null}
         {props.file_ext === 'video/mp4' && (
           <Image
             resizeMode="contain"
-            style={{ width: '100%', height: 100 }}
+            style={{width: '100%', height: 100}}
             source={require('../../Common/images/icons8-play-100.png')}
           />
         )}
@@ -99,7 +99,7 @@ const FarmerTraining = () => {
   const HandlerGoBack = () => navigation.navigate('FarmerTrainingList');
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <CustomHeader
         HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
@@ -108,13 +108,16 @@ const FarmerTraining = () => {
       <FormsTitle title={noticeDetails.post_name} />
 
       {/* Horizontal scroll file list */}
-      <View style={{ width: '100%', alignItems: 'center' }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ width: '100%' }}>
+      <View style={{width: '100%', alignItems: 'center'}}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{width: '100%'}}>
           <FlatList
             data={noticeFiles}
-            keyExtractor={(item) => item.file_id}
+            keyExtractor={item => item.file_id}
             horizontal
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <TouchableOpacity
                 style={{
                   width: 200,
@@ -123,11 +126,10 @@ const FarmerTraining = () => {
                   padding: 10,
                   elevation: 5,
                   borderRadius: 10,
-                  justifyContent:'center'
+                  justifyContent: 'center',
                 }}
-                onPress={() => detailItem(item.file_path)}
-              >
-                <TouchableOpacity onPress={() => detailItem(item.file_path)}>
+                onPress={() => detailItem(item.file_path)}>
+                <TouchableOpacity>
                   <DocumentDisplay
                     item={item.file_path}
                     file_ext={item.file_ext}
@@ -141,7 +143,7 @@ const FarmerTraining = () => {
 
       {/* WebView content */}
       <WebView
-        style={{ flex: 1, marginBottom: 10 }}
+        style={{flex: 1, marginBottom: 10}}
         originWhitelist={['*']}
         source={{
           html: `

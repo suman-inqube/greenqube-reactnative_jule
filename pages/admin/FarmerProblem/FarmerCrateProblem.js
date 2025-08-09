@@ -1,33 +1,75 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
-import { problemPlotAgainstFarmerAPI, problemProduceAgainstPlotAPI, problemProductionStageAPI, problemSaveAPI, problemSeverityAPI, problemTypeNameAPI, addModuleForView } from '../../../config/apiHere';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
+import {
+  problemPlotAgainstFarmerAPI,
+  problemProduceAgainstPlotAPI,
+  problemProductionStageAPI,
+  problemSaveAPI,
+  problemSeverityAPI,
+  problemTypeNameAPI,
+  addModuleForView,
+} from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useIsFocused } from '@react-navigation/native';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { plotHook } from '../../hooks/plotHook';
-const FarmerCreateProblem = ({ navigation }) => {
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {plotHook} from '../../hooks/plotHook';
+const FarmerCreateProblem = ({navigation}) => {
   //GQR-67
-  const { FormsTitle, dbLanTokUsr, loginUser_data, LoadingScreen,
-    CustomHeader, t, onBackPress, getItem, setItem, logoImage, topBanner,
-    DeviceInfo, DropdownForm, AlertMesg, Root, Toast, SPSheet,
-    InputTextForm, DatePickerComp, ButtonForm, effective_dates, isOnline } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, owner, FcmUserToken } = loginUser_data;
-  const { farmerId, supervisorId } = dbLanTokUsr;
+  const {
+    FormsTitle,
+    dbLanTokUsr,
+    loginUser_data,
+    LoadingScreen,
+    CustomHeader,
+    t,
+    onBackPress,
+    getItem,
+    setItem,
+    logoImage,
+    topBanner,
+    DeviceInfo,
+    DropdownForm,
+    AlertMesg,
+    Root,
+    Toast,
+    SPSheet,
+    InputTextForm,
+    DatePickerComp,
+    ButtonForm,
+    effective_dates,
+    isOnline,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token, user_id, owner, FcmUserToken} = loginUser_data;
+  const {farmerId, supervisorId} = dbLanTokUsr;
   //GQR-67
-  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(dbname, lan_id, token, user_id, isOnline);
-  const { netConnection } = DeviceInfo();
+  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
+    dbname,
+    lan_id,
+    token,
+    user_id,
+    isOnline,
+  );
+  const {netConnection} = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [farmerID, setfarmerID] = useState();
@@ -103,9 +145,21 @@ const FarmerCreateProblem = ({ navigation }) => {
   });
   const handlePlot = async relId => {
     setShowingMenu(false);
-    setNameVarityStartEnd({ ...nameVarityStartEnd, name: '', varity: '', cycleStarts: '', cycleEnd: '', production_process: '', });
+    setNameVarityStartEnd({
+      ...nameVarityStartEnd,
+      name: '',
+      varity: '',
+      cycleStarts: '',
+      cycleEnd: '',
+      production_process: '',
+    });
     if (netConnection) {
-      var response = await problemProduceAgainstPlotAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, relId.value);
+      var response = await problemProduceAgainstPlotAPI(
+        dbLanTokUsr.dbName,
+        dbLanTokUsr.languageId,
+        farmerID,
+        relId.value,
+      );
       await setItem('problemProduceAgainstPlot' + relId.value, response);
     } else {
       var response = await getItem('problemProduceAgainstPlot' + relId.value);
@@ -130,22 +184,46 @@ const FarmerCreateProblem = ({ navigation }) => {
           plot_id: relId.value,
           harvesting_date: response?.data?.data?.harvesting_date,
           sowing_date: response?.data?.data?.sowing_date,
-          production_system: response?.data?.data?.farmer_production_system.fa_id,
+          production_system:
+            response?.data?.data?.farmer_production_system.fa_id,
           agent_id: supervisorId,
         });
         if (netConnection) {
-          var productionStage_res = await problemProductionStageAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, response?.data?.data?.crop_type_id, response?.data?.data?.crop_name_id);
-          await setItem('problemProductionStage' + response?.data?.data?.crop_type_id + response?.data?.data?.crop_name_id, productionStage_res);
+          var productionStage_res = await problemProductionStageAPI(
+            dbLanTokUsr.dbName,
+            dbLanTokUsr.languageId,
+            response?.data?.data?.crop_type_id,
+            response?.data?.data?.crop_name_id,
+          );
+          await setItem(
+            'problemProductionStage' +
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
+            productionStage_res,
+          );
         } else {
-          var productionStage_res = await getItem('problemProductionStage' + response?.data?.data?.crop_type_id + response?.data?.data?.crop_name_id);
+          var productionStage_res = await getItem(
+            'problemProductionStage' +
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
+          );
         }
         if (productionStage_res?.status == 200) {
-          const dataArray = productionStage_res?.data?.data?.growth_stage.map(data => ({ value: data.growth_stage.fid, label: data.growth_stage.name }));
+          const dataArray = productionStage_res?.data?.data?.growth_stage.map(
+            data => ({
+              value: data.growth_stage.fid,
+              label: data.growth_stage.name,
+            }),
+          );
           setproductionStageAll(dataArray);
         }
       } else {
         // MessageDialog({ title: 'Important', message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` });
-        Toast.show({ time: 3, text: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}`, ...AlertMesg[0] })
+        Toast.show({
+          time: 3,
+          text: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}`,
+          ...AlertMesg[0],
+        });
         setplotAll([]);
         setTimeout(() => {
           navigation.navigate('FarmerDashboard');
@@ -173,8 +251,10 @@ const FarmerCreateProblem = ({ navigation }) => {
             src: imageUri,
             scale: 1,
           },
-          watermarkTexts: [{
-            text: `${saveData.latitude},${saveData.longitude
+          watermarkTexts: [
+            {
+              text: `${saveData.latitude},${
+                saveData.longitude
               },${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: '2-digit',
@@ -183,14 +263,15 @@ const FarmerCreateProblem = ({ navigation }) => {
                 minute: '2-digit',
                 second: '2-digit',
               }).format(timestamp)}`,
-            positionOptions: { position: Position.bottomLeft },
-            style: {
-              color: '#df2020',
-              fontSize: 2,
-              fontName: 'Arial',
-              textBackgroundStyle: { padding: '10% 10%', color: '#00000000', },
+              positionOptions: {position: Position.bottomLeft},
+              style: {
+                color: '#df2020',
+                fontSize: 2,
+                fontName: 'Arial',
+                textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
+              },
             },
-          }],
+          ],
           scale: 1,
           quality: 100,
           filename: `${response?.assets[0].fileName}`,
@@ -198,8 +279,12 @@ const FarmerCreateProblem = ({ navigation }) => {
           maxSize: 1000,
         };
         let path = await Marker.markText(options);
-        setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
-        const newPhoto = { uri: `file://${path}`, type: 'image/jpeg', name: `file://${path}`, };
+        setSelectedImage({...selectedImage, [item]: `file://${path}`});
+        const newPhoto = {
+          uri: `file://${path}`,
+          type: 'image/jpeg',
+          name: `file://${path}`,
+        };
         addPhoto(newPhoto);
         const newTitle = {};
         addTitle(newTitle);
@@ -215,20 +300,35 @@ const FarmerCreateProblem = ({ navigation }) => {
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData({ ...saveData, affected_date: effective_date });
+    setSaveData({...saveData, affected_date: effective_date});
   };
   const handleProblemType = problem_type => {
-    setSaveData({ ...saveData, problem_type_id: problem_type.value });
-    setNameVarityStartEnd({ ...nameVarityStartEnd, question_title1: problem_type.label });
-    const problemNameFound = problemAll.find(user => user.fid === problem_type.value);
+    setSaveData({...saveData, problem_type_id: problem_type.value});
+    setNameVarityStartEnd({
+      ...nameVarityStartEnd,
+      question_title1: problem_type.label,
+    });
+    const problemNameFound = problemAll.find(
+      user => user.fid === problem_type.value,
+    );
     if (problemNameFound) {
-      const dataArray = problemNameFound.problem_type.map(data => ({ value: data.problem_name.fid, label: data.problem_name.name }))
+      const dataArray = problemNameFound.problem_type.map(data => ({
+        value: data.problem_name.fid,
+        label: data.problem_name.name,
+      }));
       setProblemNameAll(dataArray);
     }
   };
   const handleProblemName = problem_name => {
     setSaveData({
-      ...saveData, problem_name_id: problem_name.value, question_title: nameVarityStartEnd.name + ',' + nameVarityStartEnd.question_title1 + ',' + problem_name.label,
+      ...saveData,
+      problem_name_id: problem_name.value,
+      question_title:
+        nameVarityStartEnd.name +
+        ',' +
+        nameVarityStartEnd.question_title1 +
+        ',' +
+        problem_name.label,
     });
   };
   const requestLivePermission = async () => {
@@ -239,7 +339,9 @@ const FarmerCreateProblem = ({ navigation }) => {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         Geolocation.getCurrentPosition(data =>
           setSaveData({
-            ...saveData, latitude: data.coords.latitude, longitude: data.coords.longitude,
+            ...saveData,
+            latitude: data.coords.latitude,
+            longitude: data.coords.longitude,
           }),
         );
       } else {
@@ -326,42 +428,60 @@ const FarmerCreateProblem = ({ navigation }) => {
     }
     setProblemAll(problemName_res.data.data);
     if (problemName_res?.status == 200) {
-      const dataArray = problemName_res?.data?.data?.map(data => ({ value: data.fid, label: data.name }));
+      const dataArray = problemName_res?.data?.data?.map(data => ({
+        value: data.fid,
+        label: data.name,
+      }));
       setProblemTypeAll(dataArray);
       setIsLoading(false);
     }
     if (severity_res?.status == 200) {
-      const dataArray = severity_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.name }));
+      const dataArray = severity_res?.data?.data?.rows.map(data => ({
+        value: data.fid,
+        label: data.name,
+      }));
       setSeverityAll(dataArray);
     }
   };
   const validateForm = () => {
     if (!saveData.plot_id) {
-      Toast.show({ time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0], });
+      Toast.show({time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.growth_stage) {
-      Toast.show({ time: 2, text: t('please_select_growth_stage'), ...AlertMesg[0], });
+      Toast.show({
+        time: 2,
+        text: t('please_select_growth_stage'),
+        ...AlertMesg[0],
+      });
       return false;
     }
     if (!saveData.problem_type_id) {
-      Toast.show({ time: 2, text: t('please_select_problem_type'), ...AlertMesg[0], });
+      Toast.show({
+        time: 2,
+        text: t('please_select_problem_type'),
+        ...AlertMesg[0],
+      });
       return false;
     }
     if (!saveData.problem_name_id) {
-      Toast.show({ time: 2, text: t('please_select_problem'), ...AlertMesg[0], });
+      Toast.show({time: 2, text: t('please_select_problem'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.severity_id) {
-      Toast.show({ time: 2, text: t('please_select_severity'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('please_select_severity'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.affected_date) {
-      Toast.show({ time: 2, text: t('pick_activity_perform_date'), ...AlertMesg[0], });
+      Toast.show({
+        time: 2,
+        text: t('pick_activity_perform_date'),
+        ...AlertMesg[0],
+      });
       return false;
     }
     if (!saveData.latitude) {
-      Toast.show({ time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0], });
+      Toast.show({time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]});
       return false;
     }
     return true;
@@ -370,7 +490,9 @@ const FarmerCreateProblem = ({ navigation }) => {
     if (validateForm()) {
       let array = [];
       const formData = new FormData();
-      myphotoAll.forEach(photo => { formData.append('photo', photo); });
+      myphotoAll.forEach(photo => {
+        formData.append('photo', photo);
+      });
       formData.append('file_title', JSON.stringify(myTitleAll));
       if (soundRecordFirstItem.result != '') {
         formData.append('audio', {
@@ -419,10 +541,25 @@ const FarmerCreateProblem = ({ navigation }) => {
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
       if (netConnection) {
-        const database_res = await problemSaveAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, farmerID, formData,);
+        const database_res = await problemSaveAPI(
+          dbLanTokUsr.dbName,
+          dbLanTokUsr.languageId,
+          dbLanTokUsr.token,
+          farmerID,
+          formData,
+        );
         if (database_res.status === 200) {
-          addModuleForView(dbLanTokUsr.dbName, dbLanTokUsr.languageId, farmerID, dbLanTokUsr.token, "Problem User", "module_hit", "problem_user", 1);
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          addModuleForView(
+            dbLanTokUsr.dbName,
+            dbLanTokUsr.languageId,
+            farmerID,
+            dbLanTokUsr.token,
+            'Problem User',
+            'module_hit',
+            'problem_user',
+            1,
+          );
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             handleClear();
             navigation.navigate('FarmerListProblem');
@@ -433,7 +570,10 @@ const FarmerCreateProblem = ({ navigation }) => {
         await setItem('off' + timeStamp, formData);
         let offlineDataArr = await getItem('offlineFarmerProblemData');
         if (offlineDataArr) {
-          await setItem('offlineFarmerProblemData', offlineDataArr + ',' + 'off' + timeStamp,);
+          await setItem(
+            'offlineFarmerProblemData',
+            offlineDataArr + ',' + 'off' + timeStamp,
+          );
         } else {
           await setItem('offlineFarmerProblemData', '00,off' + timeStamp);
         }
@@ -454,7 +594,9 @@ const FarmerCreateProblem = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+      if (
+        audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
+      ) {
         onStopRecordFirstItem();
         setModalVisibleRecordFirstItem(false);
       }
@@ -471,7 +613,9 @@ const FarmerCreateProblem = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+      if (
+        audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
+      ) {
         onStopRecordSecoundItem();
         setModalVisibleRecordSecoundItem(false);
       }
@@ -488,7 +632,9 @@ const FarmerCreateProblem = ({ navigation }) => {
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      if (audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= "00:59:80") {
+      if (
+        audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
+      ) {
         onStopRecordThirdItem();
         setModalVisibleRecordThirdItem(false);
       }
@@ -512,7 +658,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -521,7 +667,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -561,52 +707,51 @@ const FarmerCreateProblem = ({ navigation }) => {
   const HandlerGoBack = () => {
     navigation.navigate('FarmerListProblem');
   };
-  const cancelRecord = async (item) => {
+  const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
-    if (item == "firstItem") {
+    if (item == 'firstItem') {
       setSoundRecordFirstItem({
         item: '1',
         isLoggingIn: false,
         recordSecs: 0,
         recordTime: '00:00:00',
-        result: ""
+        result: '',
       });
-
-    } else if (item == "secoundItem") {
+    } else if (item == 'secoundItem') {
       setSoundRecordSecoundItem({
         item: '2',
         isLoggingIn: false,
         recordSecs: 0,
         recordTime: '00:00:00',
-        result: ""
+        result: '',
       });
-    } else if (item == "thirdItem") {
+    } else if (item == 'thirdItem') {
       setSoundRecordThirdItem({
         item: '3',
         isLoggingIn: false,
         recordSecs: 0,
         recordTime: '00:00:00',
-        result: ""
+        result: '',
       });
     }
-  }
-  const soundPlay = async (item) => {
+  };
+  const soundPlay = async item => {
     let path;
-    if (item == "firstItem") {
+    if (item == 'firstItem') {
       path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
-    } else if (item == "secoundItem") {
+    } else if (item == 'secoundItem') {
       path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
-    } else if (item == "thirdItem") {
+    } else if (item == 'thirdItem') {
       path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
     }
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
       dragFromTopOnly: true,
-      onCloseComplete: () => { },
-      onOpenComplete: () => { },
-      height: 260
+      onCloseComplete: () => {},
+      onOpenComplete: () => {},
+      height: 260,
     });
-  }
+  };
   return (
     <View style={styles.container}>
       <CustomHeader

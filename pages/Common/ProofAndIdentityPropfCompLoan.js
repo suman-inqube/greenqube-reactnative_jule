@@ -14,6 +14,8 @@ import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
+import {Colors, Fonts} from '../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const ProofAndIdentityPropfCompLoan = ({
   identityProofIdentityPropf,
   handleDocumentSelection,
@@ -143,12 +145,15 @@ const ProofAndIdentityPropfCompLoan = ({
            {InputTextFormEdit!=false? <TouchableOpacity
               style={{
                 backgroundColor: '#DFE8EF',
-                width: 70,
+                width: 80,
                 height: 70,
                 borderRadius: 10,
                 elevation: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingBottom: 10,
+                borderWidth: 0.5,
+                alignSelf: 'center',
               }}
               onPress={() => {
                 handleScanAndCreatePdf(
@@ -156,25 +161,33 @@ const ProofAndIdentityPropfCompLoan = ({
                   props?.index,
                   props?.identityProofIdentityPropf,
                   identityProofIdentityPropf,
-                  parent
+                  parent,
                 );
                 props.spSheet.hide();
               }}>
-              <Image
+              <MaterialIcons
+                name="document-scanner"
+                size={28}
+                color="#1d3122"
+              />
+              {/* <Image
                 source={require('../Common/images/scan.png')}
                 style={{width: 30, height: 30}}
-              />
+              /> */}
               <Text style={styles.title}>Scanner</Text>
             </TouchableOpacity>:null}
             {InputTextFormEdit!=false?<TouchableOpacity
               style={{
                 backgroundColor: '#DFE8EF',
-                width: 70,
+                width: 80,
                 height: 70,
                 borderRadius: 10,
                 elevation: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingBottom: 10,
+                borderWidth: 0.5,
+                alignSelf: 'center',
               }}
               onPress={() => {
                 onHandleDocumentSelection(
@@ -185,27 +198,36 @@ const ProofAndIdentityPropfCompLoan = ({
                 );
                 props.spSheet.hide();
               }}>
-              <Image
+              <MaterialIcons
+                name="add-photo-alternate"
+                size={30}
+                color="#1d3122"
+              />
+              {/* <Image
                 source={require('../Common/images/gallery.png')}
                 style={{width: 30, height: 30}}
-              />
+              /> */}
               <Text style={styles.title}>Gallery</Text>
             </TouchableOpacity>:null}
             <TouchableOpacity
               onPress={() => openURL(props)}
               style={{
                 backgroundColor: '#DFE8EF',
-                width: 70,
+                width: 80,
                 height: 70,
                 borderRadius: 10,
                 elevation: 1,
                 alignItems: 'center',
                 justifyContent: 'center',
+                paddingBottom: 10,
+                borderWidth: 0.5,
+                alignSelf: 'center',
               }}>
-              <Image
+              <MaterialIcons name="visibility" size={30} color="#1d3122" />
+              {/* <Image
                 source={require('../Common/images/view.png')}
                 style={{width: 30, height: 30}}
-              />
+              /> */}
               <Text style={styles.title}>View</Text>
             </TouchableOpacity>
           </View>
@@ -242,27 +264,36 @@ const ProofAndIdentityPropfCompLoan = ({
               <View>
                 {data?.uri ? (
                   data?.type == 'application/pdf' ? (
-                    <Image
-                      source={require('./images/pdf.png')}
-                      style={styles.idImage}
+                    <MaterialIcons
+                      name="edit-document"
+                      size={45}
+                      color="#0d8320"
                     />
                   ) : (
                     <Image source={{uri: data.uri}} style={styles.idImage} />
                   )
                 ) : (
-                  <Image
-                    source={require('./images/document.png')}
-                    style={styles.idImage}
-                  />
+                  <MaterialIcons name="upload-file" size={45} color="#0d8320" />
+                  // <Image
+                  //   source={require('./images/document.png')}
+                  //   style={styles.idImage}
+                  // />
                 )}
                 {data?.url ||
                   (data?.uri && InputTextFormEdit!=false && (
                     <TouchableOpacity
-                      onPress={() => onHandleDocumentSelectionRemove(index,identityProofIdentityPropf)}>
-                      <Image
+                      onPress={() =>
+                        onHandleDocumentSelectionRemove(
+                          index,
+                          identityProofIdentityPropf,
+                        )
+                      }
+                      style={{position: 'absolute', top: -15, right: -15}}>
+                      <MaterialIcons name="cancel" size={25} color="red" />
+                      {/* <Image
                         source={require('./images/cross50.png')}
                         style={styles.closeIcon}
-                      />
+                      /> */}
                     </TouchableOpacity>
                   ))}
               </View>

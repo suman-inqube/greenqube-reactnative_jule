@@ -7,8 +7,8 @@ import {
   Image,
   BackHandler,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { userDetailAPI } from '../../../config/apiHere';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
+import {userDetailAPI} from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import {
   updateUserInfoAPI,
@@ -23,7 +23,7 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import CustomAlert from '../../Common/CustomAlert';
 const Profile = () => {
@@ -42,8 +42,9 @@ const Profile = () => {
     InputTextForm,
     DropdownForm,
     ButtonForm,
+    FormsTitle,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
@@ -81,12 +82,21 @@ const Profile = () => {
         subdivision: storePersnolInfo.block,
       },
     ];
-    if (storePersnolInfo.stateName == ''|| storePersnolInfo.stateName==undefined) {
-      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
-    } else if (storePersnolInfo.districtName == ''|| storePersnolInfo.districtName==undefined) {
-      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
-    } else if (storePersnolInfo.blockName == ''|| storePersnolInfo.blockName==undefined) {
-      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
+    if (
+      storePersnolInfo.stateName == '' ||
+      storePersnolInfo.stateName == undefined
+    ) {
+      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
+    } else if (
+      storePersnolInfo.districtName == '' ||
+      storePersnolInfo.districtName == undefined
+    ) {
+      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
+    } else if (
+      storePersnolInfo.blockName == '' ||
+      storePersnolInfo.blockName == undefined
+    ) {
+      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
     } else {
       const formData = new FormData();
       formData.append('lan_id', storePersnolInfo.langId);
@@ -121,7 +131,7 @@ const Profile = () => {
           ...AlertMesg[0],
         });
         handleLogout();
-        navigation.navigate('Login', { pagename: 'Login' });
+        navigation.navigate('Login', {pagename: 'Login'});
       }
     }
   };
@@ -141,7 +151,7 @@ const Profile = () => {
     }
   };
   const handleLanguage = async language => {
-    const { block, district, state } = storePersnolInfo;
+    const {block, district, state} = storePersnolInfo;
     const locDiffLangRes = await locDiffLang(
       dbname,
       language.value,
@@ -151,15 +161,20 @@ const Profile = () => {
       block || '',
     );
     if (locDiffLangRes?.status == 200) {
-      const { distData, stateData, subdivData } =
+      const {distData, stateData, subdivData} =
         locDiffLangRes?.data?.data || {};
       if (distData == null || stateData == null || subdivData == null) {
-        CustomAlert("Address", "Location data not found in selected language. Please add them from admin.", true, 'OK')
+        CustomAlert(
+          'Address',
+          'Location data not found in selected language. Please add them from admin.',
+          true,
+          'OK',
+        );
       }
       await Promise.all([
         stateInfoDataList(dbname, language?.value, token),
-        districtDataList(dbname, language?.value, stateData?.fid??0),
-        blockDataList(dbname, language?.value, distData?.fid??0),
+        districtDataList(dbname, language?.value, stateData?.fid ?? 0),
+        blockDataList(dbname, language?.value, distData?.fid ?? 0),
       ]);
       setstorePersnolInfo({
         ...storePersnolInfo,
@@ -256,7 +271,8 @@ const Profile = () => {
           langId: response?.data?.data[0]?.agri_language.id,
           langIdName: response?.data?.data[0]?.agri_language.name,
           locale: response?.data?.data[0]?.agri_language.sname,
-          state: response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
+          state:
+            response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
           stateName:
             response?.data?.data[0]?.agri_user_addresses[0]?.agri_state
               ?.state_name,
@@ -287,7 +303,9 @@ const Profile = () => {
             response?.data?.data[0]?.agri_user_addresses[0]?.agri_state?.fid,
           );
         }
-        if (response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid) {
+        if (
+          response?.data?.data[0]?.agri_user_addresses[0]?.agri_district?.fid
+        ) {
           blockDataList(
             dbname,
             response?.data?.data[0]?.agri_language.id,
@@ -297,7 +315,7 @@ const Profile = () => {
       }
       setIsLoading(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
   const onPageLoad = async () => {
@@ -316,7 +334,7 @@ const Profile = () => {
           district: district,
           block: block,
         });
-        const { dbname, lan_id, token, user_id } = loginUser_data;
+        const {dbname, lan_id, token, user_id} = loginUser_data;
         userDetails(dbname, lan_id, token, user_id);
       }
       setIsLoading(false);
@@ -341,10 +359,10 @@ const Profile = () => {
       CommonActions.reset({
         index: 4,
         routes: [
-          { name: 'Login' },
+          {name: 'Login'},
           {
             name: 'Login',
-            params: { pagename: 'Login', locale: storePersnolInfo.langId },
+            params: {pagename: 'Login', locale: storePersnolInfo.langId},
           },
         ],
       }),
@@ -418,12 +436,12 @@ const Profile = () => {
                   {t('date_of_birth')}
                 </Text>
                 <TouchableOpacity style={styles.DateofBirth}>
-                  <Text style={{ color: '#000', fontFamily: 'Poppins-Regular' }}>
+                  <Text style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
                     {storePersnolInfo.date_of_birth}{' '}
                   </Text>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{ width: 20, height: 20 }}
+                    style={{width: 20, height: 20}}
                   />
                 </TouchableOpacity>
               </View>
@@ -489,34 +507,110 @@ const Profile = () => {
 };
 export default Profile;
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
+  firatFormContainer: {
+    backgroundColor: Colors.containerGreen,
+    marginTop: 50,
+    borderRadius: 30,
+    elevation: 3,
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    // paddingTop: 10,
+    // marginBottom: 30,
+  },
+  formContainer: {
+    backgroundColor: Colors.containerGreen,
+    // marginTop: 30,
+    borderRadius: 25,
+    elevation: 3,
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    // paddingTop: 10,
+    marginBottom: 30,
+  },
+  inputContainer: {marginTop: '12%', marginHorizontal: 15},
+  inputContainer2: {marginHorizontal: 15},
+  profileImg: {
+    position: 'absolute',
+    top: -40, // Half outside (adjust based on your image size)
+    alignSelf: 'center', // Center horizontally
+    // zIndex: 2,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // For iOS shadow
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  passwordMainContainer: {
     flex: 1,
-    marginBottom: 50,
+    alignItems: 'center',
   },
-  titleContainer: {
-    width: '95%',
-    alignItems: 'flex-end',
-    paddingVertical: 10,
+  userName: {
+    fontSize: 25,
+    fontFamily: 'Poppins-SemiBold',
+    color: Colors.drawer,
+    paddingTop: 3,
+    // fontStyle: 'italic',
   },
-  title: {
-    color: '#000',
+  radioTitle: {
+    fontSize: 15,
+    color: '#4e4e4e',
+    fontFamily: 'Poppins-Regular',
+    paddingLeft: 10,
   },
-  fromContainer: {
-    width: '90%',
-    marginHorizontal: '5%',
-  },
-  DateofBirth: {
+  passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 15,
+    height: 50,
+    borderColor: Colors.secondary, // Make sure this color is visible
+    borderWidth: 1,
     borderRadius: 8,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     width: '100%',
+    elevation: 1,
     paddingHorizontal: 10,
+    color: '#000000',
+  },
+  inputTextStyle: {
+    marginHorizontal: 10,
+    borderColor: 'gray',
+    color: '#000',
+  },
+  formHeader: {
+    backgroundColor: Colors.useGreen,
+    height: 60,
+    width: '100%',
+    justifyContent: 'center',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  title: {
+    color: 'rgba(255, 255, 255, 1)',
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  idItemContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  idItem: {
+    padding: 10,
+    width: '30%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  idImage: {
+    width: 60,
+    height: 60,
   },
   LoadingScreen: {
     position: 'absolute',
@@ -524,4 +618,48 @@ const styles = StyleSheet.create({
     left: '45%',
     zIndex: 9999,
   },
+  dateText: {
+    marginBottom: 5,
+    marginLeft: 5,
+    color: '#4e4e4e',
+  },
+
+  //////////////////////////////////////
+  // container: {
+  //   flex: 1,
+  //   marginBottom: 50,
+  // },
+  // titleContainer: {
+  //   width: '95%',
+  //   alignItems: 'flex-end',
+  //   paddingVertical: 10,
+  // },
+  // title: {
+  //   color: '#000',
+  // },
+  // fromContainer: {
+  //   width: '90%',
+  //   marginHorizontal: '5%',
+  // },
+  DateofBirth: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 50,
+    borderColor: Colors.secondary, // Make sure this color is visible
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    width: '100%',
+    elevation: 1,
+    paddingHorizontal: 10,
+    color: '#000000',
+    marginBottom: 15,
+  },
+  // LoadingScreen: {
+  //   position: 'absolute',
+  //   top: '52%',
+  //   left: '45%',
+  //   zIndex: 9999,
+  // },
 });

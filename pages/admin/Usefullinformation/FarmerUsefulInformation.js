@@ -6,16 +6,16 @@ import {
   View,
   Linking,
   Image,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import React, { useState, useCallback, useContext } from 'react';
-import { WebView } from 'react-native-webview';
-import { noticeDetailsAPI } from '../../../config/apiHere';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, {useState, useCallback, useContext} from 'react';
+import {WebView} from 'react-native-webview';
+import {noticeDetailsAPI} from '../../../config/apiHere';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import FormsTitle from '../../Common/FormsTitle';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { ScrollView } from 'react-native-gesture-handler';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const head = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -26,45 +26,41 @@ const head = `
 `;
 
 const FarmerUsefulInformation = () => {
-  const {
-    loginUser_data,
-    getItem,
-    logoImage,
-    topBanner,
-    onBackPress
-  } = useContext(userCreateContext);
+  const {loginUser_data, getItem, logoImage, topBanner, onBackPress} =
+    useContext(userCreateContext);
 
-  const { dbname, lan_id, token } = loginUser_data;
+  const {dbname, lan_id, token} = loginUser_data;
   const navigation = useNavigation();
   const [noticeDetails, setNoticeDetails] = useState([]);
   const [noticeFiles, setNoticeFiles] = useState([]);
-  const { width, height } = Dimensions.get('window');
+  const {width, height} = Dimensions.get('window');
 
   const detailItem = (path, file_ext) => {
     Linking.openURL(path);
   };
 
-  const DocumentDisplay = (props) => {
+  const DocumentDisplay = props => {
     return (
       <View>
         {props.file_ext === 'application/pdf' && (
           <Image
-            style={{ width: '100%', height: 100 }}
+            style={{width: '100%', height: 100}}
             resizeMode="contain"
             source={require('../../Common/images/icons8-pdf-50.png')}
           />
         )}
         {props.file_ext === 'image/jpeg'|| props.file_ext == "image/png" ? (
           <Image
-            style={{ width: '100%', height: 200 }}
-            source={{ uri: props.item }}
+            style={{width: '100%', height: 200}}
+            source={{uri: props.item}}
           />
         ):null}
         {props.file_ext === 'video/mp4' && (
-          <Image
-            resizeMode="contain"
-            style={{ width: '100%', height: 100 }}
-            source={require('../../Common/images/icons8-play-100.png')}
+          <WebView
+            source={{uri: props.item}}
+            style={{height: 300}}
+            javaScriptEnabled
+            mediaPlaybackRequiresUserAction={false}
           />
         )}
       </View>
@@ -91,7 +87,7 @@ const FarmerUsefulInformation = () => {
     useCallback(() => {
       onPageLoad();
       onBackPress(handleBackPress);
-    }, [])
+    }, []),
   );
 
   const HandlerGoBack = () => {
@@ -99,7 +95,7 @@ const FarmerUsefulInformation = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <CustomHeader
         path="FarmerUsefulInformationList"
         HandlerGoBack={HandlerGoBack}
@@ -110,17 +106,16 @@ const FarmerUsefulInformation = () => {
       <FormsTitle title={noticeDetails.post_name} />
 
       {/* Attachments (Horizontal scroll) */}
-      <View style={{ width: '100%', alignItems: 'center', marginTop: 10 }}>
+      <View style={{width: '100%', alignItems: 'center', marginTop: 10}}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ width: '100%' }}
-        >
+          style={{width: '100%'}}>
           <FlatList
             data={noticeFiles}
-            keyExtractor={(item) => item.file_id}
+            keyExtractor={item => item.file_id}
             horizontal
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <TouchableOpacity
                 style={{
                   width: 220,
@@ -130,11 +125,10 @@ const FarmerUsefulInformation = () => {
                   padding: 10,
                   elevation: 3,
                   borderRadius: 10,
-                  justifyContent: 'center'
+                  justifyContent: 'center',
                 }}
-                onPress={() => detailItem(item.file_path, item.file_ext)}
-              >
-                <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
+                onPress={() => detailItem(item.file_path, item.file_ext)}>
+                <TouchableOpacity>
                   <DocumentDisplay
                     item={item.file_path}
                     file_ext={item.file_ext}
@@ -148,7 +142,7 @@ const FarmerUsefulInformation = () => {
 
       {/* WebView content */}
       <WebView
-        style={{ flex: 1, marginBottom: 10 }}
+        style={{flex: 1, marginBottom: 10}}
         originWhitelist={['*']}
         source={{
           html: `
@@ -170,4 +164,3 @@ const FarmerUsefulInformation = () => {
 };
 
 export default FarmerUsefulInformation;
-

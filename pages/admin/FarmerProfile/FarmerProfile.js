@@ -7,8 +7,12 @@ import {
   Keyboard,
   Image,
 } from 'react-native';
-import React, { useState, useEffect, useContext } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import ImageForm from '../../Common/ImageForm';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
+
 import {
   fetchBlockAPI,
   fetchDistrictAPI,
@@ -17,8 +21,8 @@ import {
   firstLanguageListAPI,
   UserProfileUpdate,
 } from '../userlist/UsersAPI';
-import { locDiffLang } from '../../../config/apiHere';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {locDiffLang} from '../../../config/apiHere';
+import {launchImageLibrary} from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import config from '../../../config';
 import {
@@ -26,19 +30,21 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import {
   farmerDocAPI,
   deletePlotImageAPI,
   addPlotImageAPI,
 } from '../Loan/LoanAPI';
-import { addIdAddressImgs,onlyUpdateIdAddrFile } from '../../../config/apiHere';
+import {addIdAddressImgs, onlyUpdateIdAddrFile} from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors, Fronts} from '../../utils/Constants';
 const qs = require('qs');
 import CustomAlert from '../../Common/CustomAlert';
-const FarmerProfile = ({ sendDataToParent, farmerID }) => {
+const FarmerProfile = ({sendDataToParent, farmerID}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -58,9 +64,9 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     setItem,
     CustomHeader,
     effective_dates,
-    Popup
+    Popup,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const isFocused = useIsFocused();
@@ -77,7 +83,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
   const [districtAll, setdistrictAll] = useState([]);
   const [blockAll, setblockAll] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [myphoto, setmyPhoto] = useState({ uri: '', type: '', name: '' });
+  const [myphoto, setmyPhoto] = useState({uri: '', type: '', name: ''});
   const [farmerData, setfarmerData] = useState({
     userName: '',
     contactNumber: '',
@@ -87,7 +93,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     state: '',
     district: '',
     block: '',
-    blockName:'',
+    blockName: '',
     aadhar_number: '',
     pan_number: '',
     voter_card_number: '',
@@ -157,7 +163,11 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
   };
   let languageDataList = async dbname => {
     try {
-      let language_res = await firstLanguageListAPI(dbname);
+      // let language_res = await firstLanguageListAPI(dbname);
+      let language_res = await axiosGet(ROUTES.GET.FIRST_LAN_LIST(), null, {
+        information: `${dbname}`,
+      });
+
       if (language_res?.status == 200) {
         let languageArray = language_res?.data?.data.map(data => ({
           value: data.id,
@@ -173,7 +183,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
   const handleLanguage = async data => {
     setlanguageID(data.value);
     setIsLoading(true);
-    const { block, district, state } = farmerData;
+    const {block, district, state} = farmerData;
     const locDiffLangRes = await locDiffLang(
       dbname,
       data?.value,
@@ -184,9 +194,15 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     );
 
     if (locDiffLangRes?.status == 200) {
-      const { distData, stateData, subdivData } = locDiffLangRes?.data?.data || {};
+      const {distData, stateData, subdivData} =
+        locDiffLangRes?.data?.data || {};
       if (distData == null || stateData == null || subdivData == null) {
-        CustomAlert("Address", "Location data not found in selected language. Please add them from admin.", true, 'OK')
+        CustomAlert(
+          'Address',
+          'Location data not found in selected language. Please add them from admin.',
+          true,
+          'OK',
+        );
       }
       await Promise.all([
         getState(dbname, data?.value, token),
@@ -278,7 +294,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
   };
   const handleEffectFrom = async item => {
     const cycleEnds = effective_dates(item);
-    setfarmerData({ ...farmerData, effective_from: cycleEnds });
+    setfarmerData({...farmerData, effective_from: cycleEnds});
   };
   const onPageLoad = async () => {
     setIsLoading(true);
@@ -294,9 +310,23 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
       block: block,
     });
     const [res, farmarDoc] = await Promise.all([
-      farmerProfileInformation(dbname, lan_id, token, user_id),
-      farmerDocAPI(dbname, lan_id, token, user_id),
+      axiosGet(
+        ROUTES.GET.FARMER_PROFILE_INFO({
+          user_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ), //dbname, lan_id, token, user_id
+
+      axiosGet(
+        ROUTES.GET.FARMER_DOC({
+          user_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ), //dbname, lan_id, token, user_id  //dbname, lan_id, token, user_id
     ]);
+
     if (farmarDoc?.status === 200) {
       if (farmarDoc?.data?.data?.[0]?.agri_files) {
         const agriFiles = farmarDoc.data.data[0].agri_files;
@@ -338,8 +368,16 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
       const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
       // if (farmerFound?.agri_user_addresses[0].agri_district) {
       await Promise.all([
-        getDistrict(dbname, lan_id, agri_user_addresses?.[0]?.agri_state?.fid ?? 0),
-        getBlock(dbname, lan_id, agri_user_addresses?.[0]?.agri_district?.fid ?? 0),
+        getDistrict(
+          dbname,
+          lan_id,
+          agri_user_addresses?.[0]?.agri_state?.fid ?? 0,
+        ),
+        getBlock(
+          dbname,
+          lan_id,
+          agri_user_addresses?.[0]?.agri_district?.fid ?? 0,
+        ),
         setLoginUserId(user_id),
         setLoginUserToken(token),
         languageDataList(dbname),
@@ -396,13 +434,10 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     }
     setIsLoading(false);
   };
-  const handleBackPress = () => {
-    navigation.navigate('FarmerDashboard');
-    return true;
-  };
+
   useEffect(() => {
     if (isFocused) {
-      setmyPhoto({ uri: '', type: '', name: '' });
+      setmyPhoto({uri: '', type: '', name: ''});
       setSelectedImage(null);
       onPageLoad();
       onBackPress(handleBackPress);
@@ -511,7 +546,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         identityProofIdentityPropf[0]?.fileName != '' &&
         identityProofIdentityPropf[0]?.fileName != ''
       ) {
-        const { uri, type, name } = identityProofIdentityPropf[0];
+        const {uri, type, name} = identityProofIdentityPropf[0];
         formDataDoc.append('farmer_address', {
           uri: uri,
           type: type,
@@ -522,7 +557,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
         identityProofIdentityPropf[1]?.fileName != '' &&
         identityProofIdentityPropf[1]?.fileName != ''
       ) {
-        const { uri, type, name } = identityProofIdentityPropf[1];
+        const {uri, type, name} = identityProofIdentityPropf[1];
         formDataDoc.append('farmer_identity', {
           uri: uri,
           type: type,
@@ -532,28 +567,27 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
       formDataDoc.append('user_id', loginUserId);
       const [userDataUpdate, deletePlotImageAPIRes, addPlotImageAPIRes] =
         await Promise.all([
-          UserProfileUpdate(
-            dbName,
-            languageID,
-            loginUserId,
-            loginUserToken,
+          axiosPut(
+            ROUTES.PUT.USER_PROFILE_UPDATE({
+              user_id: loginUserId,
+            }),
             formData,
           ),
           onlyUpdateIdAddrFile(dbName, lan_id, loginUserId, token, formDataDoc),
           deletePlotImageAPI(dbName, lan_id, token, formDataDelete),
         ]);
       if (userDataUpdate.status === 200) {
-        Toast.show({ text: t('info_updated_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('info_updated_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           // RemoveFarmerData();
           navigation.dispatch(
             CommonActions.reset({
               index: 4,
               routes: [
-                { name: 'Login' },
+                {name: 'Login'},
                 {
                   name: 'Login',
-                  params: { pagename: 'Login', locale: languageID },
+                  params: {pagename: 'Login', locale: languageID},
                 },
               ],
             }),
@@ -566,26 +600,26 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
   const validateForm = () => {
     Keyboard.dismiss();
     if (farmerData.userName.length < 1) {
-      Toast.show({ text: t('please_enter_valid_name'), ...AlertMesg[0] });
+      Toast.show({text: t('please_enter_valid_name'), ...AlertMesg[0]});
       return false;
     } else if (farmerData.age == '') {
-      Toast.show({ text: t('please_enter_birth_date'), ...AlertMesg[0] });
+      Toast.show({text: t('please_enter_birth_date'), ...AlertMesg[0]});
       return false;
     } else if (farmerData.age < 18) {
-      Toast.show({ text: t('please_eligible_birth_date'), ...AlertMesg[0] });
+      Toast.show({text: t('please_eligible_birth_date'), ...AlertMesg[0]});
       return false;
     } else if (farmerData.state == '' || farmerData.state == undefined) {
-      Toast.show({ text: t('select_state_first'), ...AlertMesg[0] });
-      console.log(t('select_state_first'))
+      Toast.show({text: t('select_state_first'), ...AlertMesg[0]});
+      console.log(t('select_state_first'));
       return false;
     } else if (farmerData.district == '' || farmerData.district == undefined) {
-      Toast.show({ text: t('select_district_first'), ...AlertMesg[0] });
-      console.log(t('select_district_first'))
+      Toast.show({text: t('select_district_first'), ...AlertMesg[0]});
+      console.log(t('select_district_first'));
 
       return false;
     } else if (farmerData.block == '' || farmerData.block == undefined) {
-      Toast.show({ text: t('select_block_first'), ...AlertMesg[0] });
-      console.log(t('select_block_first'))
+      Toast.show({text: t('select_block_first'), ...AlertMesg[0]});
+      console.log(t('select_block_first'));
 
       return false;
     }
@@ -608,7 +642,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
           </View>
         ) : null}
         <ScrollView>
-          <View style={{ marginHorizontal: 20, backgroundColor: '#FFFFF' }}>
+          <View style={{marginHorizontal: 20, backgroundColor: '#FFFFF'}}>
             <View
               style={{
                 backgroundColor: '#E9FCC5',
@@ -616,8 +650,8 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <View style={{ alignItems: 'Left' }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
+                <View style={{alignItems: 'Left'}}>
                   <ImagePlaceHolderCircle
                     openImagePicker={openImagePicker}
                     selectedImage={selectedImage}
@@ -628,7 +662,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                   color="red"
                   value={farmerData.userName}
                   onChangeText={userName => {
-                    setfarmerData({ ...farmerData, userName: userName });
+                    setfarmerData({...farmerData, userName: userName});
                   }}
                 />
                 <InputTextForm
@@ -638,43 +672,43 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                   editable={false}
                 />
                 <View>
-                  <Text style={{ fontSize: 16, color: '#000' }}>
+                  <Text style={{fontSize: 16, color: '#000'}}>
                     {t('farmer_reg_gnd')}
                   </Text>
                   <RadioForm
                     label={t('farmer_reg_male')}
                     selected={farmerData.gender == '1'}
-                    onSelect={() => setfarmerData({ ...farmerData, gender: '1' })}
+                    onSelect={() => setfarmerData({...farmerData, gender: '1'})}
                   />
                   <RadioForm
                     label={t('farmer_reg_female')}
                     selected={farmerData.gender == '2'}
-                    onSelect={() => setfarmerData({ ...farmerData, gender: '2' })}
+                    onSelect={() => setfarmerData({...farmerData, gender: '2'})}
                   />
                 </View>
-                <View style={{ marginBottom: 15 }}>
-                  <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>
+                <View style={{marginBottom: 15}}>
+                  <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
                     {t('far_reg_far_type')}
                   </Text>
                   <RadioForm
                     label={t('grower')}
                     selected={farmerData.farmer_type == '1'}
                     onSelect={() =>
-                      setfarmerData({ ...farmerData, farmer_type: '1' })
+                      setfarmerData({...farmerData, farmer_type: '1'})
                     }
                   />
                   <RadioForm
                     label={t('small_holder')}
                     selected={farmerData.farmer_type == '2'}
                     onSelect={() =>
-                      setfarmerData({ ...farmerData, farmer_type: '2' })
+                      setfarmerData({...farmerData, farmer_type: '2'})
                     }
                   />
                   <RadioForm
                     label={t('farm_worker')}
                     selected={farmerData.farmer_type == '3'}
                     onSelect={() =>
-                      setfarmerData({ ...farmerData, farmer_type: '3' })
+                      setfarmerData({...farmerData, farmer_type: '3'})
                     }
                   />
                 </View>
@@ -683,7 +717,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                   value={farmerData.age ?? farmerData.age}
                   keyboardType="numeric"
                   onChangeText={age => {
-                    setfarmerData({ ...farmerData, age: age });
+                    setfarmerData({...farmerData, age: age});
                   }}
                 />
                 <DropdownForm
@@ -727,7 +761,11 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                   }
                   data={blockAll}
                   onChange={item => {
-                    setfarmerData({ ...farmerData, block: item.value, blockName: item.value });
+                    setfarmerData({
+                      ...farmerData,
+                      block: item.value,
+                      blockName: item.value,
+                    });
                   }}
                   val={farmerData.blockName}
                 />
@@ -751,12 +789,12 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>
                     {t('different_identity_number')}
                   </Text>
-                  <View style={{ marginTop: 10 }}>
+                  <View style={{marginTop: 10}}>
                     <InputTextForm
                       label={t('adhar_no')}
                       onChangeText={aadhar_number => {
@@ -773,7 +811,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                     label={t('pan_no')}
                     value={farmerData.pan_number}
                     onChangeText={pan_number => {
-                      setfarmerData({ ...farmerData, pan_number: pan_number });
+                      setfarmerData({...farmerData, pan_number: pan_number});
                     }}
                   />
                   <InputTextForm
@@ -789,7 +827,7 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                   <InputTextForm
                     label={t('kcc_no')}
                     onChangeText={kcc_number => {
-                      setfarmerData({ ...farmerData, kcc_number: kcc_number });
+                      setfarmerData({...farmerData, kcc_number: kcc_number});
                     }}
                     value={farmerData.kcc_number}
                   />
@@ -804,10 +842,10 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>{t('bank_account_details')}</Text>
-                  <View style={{ marginTop: 10 }}>
+                  <View style={{marginTop: 10}}>
                     <InputTextForm
                       label={t('account_holder_name')}
                       onChangeText={user_bank_account_holder =>
@@ -873,139 +911,158 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                 borderRadius: 20,
                 elevation: 3,
               }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>{t('pension_details')}</Text>
-                  <View style={{ marginTop: 10 }}>
+                </>
+                <View style={styles.inputContainer2}>
+                  <>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('pension_providing_authority')}
+                        onChangeText={pension_authority =>
+                          setfarmerData({
+                            ...farmerData,
+                            pension_authority: pension_authority,
+                          })
+                        }
+                        value={farmerData.pension_authority}
+                      />
+                    </View>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('pension_providing_authority')}
+                        onChangeText={pension_authority =>
+                          setfarmerData({
+                            ...farmerData,
+                            pension_authority: pension_authority,
+                          })
+                        }
+                        value={farmerData.pension_authority}
+                      />
+                    </View>
+
                     <InputTextForm
-                      label={t('pension_providing_authority')}
-                      onChangeText={pension_authority =>
+                      label={t('pension_account_number')}
+                      onChangeText={pension_account_no =>
                         setfarmerData({
                           ...farmerData,
-                          pension_authority: pension_authority,
+                          pension_account_no: pension_account_no,
                         })
                       }
-                      value={farmerData.pension_authority}
+                      value={farmerData.pension_account_no}
+                      keyboardType="numeric"
                     />
-                  </View>
 
-                  <InputTextForm
-                    label={t('pension_account_number')}
-                    onChangeText={pension_account_no =>
-                      setfarmerData({
-                        ...farmerData,
-                        pension_account_no: pension_account_no,
-                      })
-                    }
-                    value={farmerData.pension_account_no}
-                    keyboardType="numeric"
-                  />
-
-                  <View>
-                    <Text
-                      style={{ marginBottom: 5, marginLeft: 5, color: '#000' }}>
-                      {t('effective_from')}
-                    </Text>
-                    <View style={styles.passwordMainContainer}>
-                      <TouchableOpacity
-                        style={styles.passwordContainer}
-                        onPress={() => setOpen(true)}
-                        activeOpacity={0.7}>
-                        <Text style={styles.inputTextStyle}>
-                          {farmerData.effective_from}
-                        </Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
-                          <ImageForm
-                            source={require('../../Common/images/calendar.png')}
-                            resizeMode="cover"
-                            height={30}
-                            width={30}
+                    <View>
+                      <Text
+                        style={{marginBottom: 5, marginLeft: 5, color: '#000'}}>
+                        {t('effective_from')}
+                      </Text>
+                      <View style={styles.passwordMainContainer}>
+                        <TouchableOpacity
+                          style={styles.passwordContainer}
+                          onPress={() => setOpen(true)}
+                          activeOpacity={0.7}>
+                          <Text style={styles.inputTextStyle}>
+                            {farmerData.effective_from}
+                          </Text>
+                          <TouchableOpacity onPress={() => setOpen(true)}>
+                            <ImageForm
+                              source={require('../../Common/images/calendar.png')}
+                              resizeMode="cover"
+                              height={30}
+                              width={30}
+                            />
+                          </TouchableOpacity>
+                          <DatePicker
+                            modal
+                            mode="date"
+                            open={open}
+                            date={newdate}
+                            onConfirm={item => {
+                              handleEffectFrom(item);
+                              setOpen(false);
+                            }}
+                            onCancel={() => {
+                              setOpen(false);
+                            }}
                           />
                         </TouchableOpacity>
-                        <DatePicker
-                          modal
-                          mode="date"
-                          open={open}
-                          date={newdate}
-                          onConfirm={item => {
-                            handleEffectFrom(item);
-                            setOpen(false);
-                          }}
-                          onCancel={() => {
-                            setOpen(false);
-                          }}
-                        />
-                      </TouchableOpacity>
+                      </View>
                     </View>
-                  </View>
 
-                  <InputTextForm
-                    label={t('pension_amount_currency')}
-                    onChangeText={pension_amount =>
-                      setfarmerData({
-                        ...farmerData,
-                        pension_amount: pension_amount,
-                      })
-                    }
-                    value={farmerData.pension_amount}
-                    keyboardType="numeric"
-                  />
-                  <DropdownForm
-                    label={t('per_month_quarter_year')}
-                    data={config.pensionParMonthData}
-                    onChange={frequency =>
-                      setfarmerData({ ...farmerData, frequency: frequency.value })
-                    }
-                    val={farmerData.frequency}
-                  />
-                </>
-              </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                marginBottom: 80,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <>
-                  <Text style={styles.title}>
-                    {t('life_insurance_details')}
-                  </Text>
-                  <View style={{ marginTop: 10 }}>
                     <InputTextForm
-                      label={t('lic_name_of_company')}
-                      onChangeText={company_name =>
+                      label={t('pension_amount_currency')}
+                      onChangeText={pension_amount =>
                         setfarmerData({
                           ...farmerData,
-                          company_name: company_name,
+                          pension_amount: pension_amount,
                         })
                       }
-                      value={farmerData.company_name}
+                      value={farmerData.pension_amount}
+                      keyboardType="numeric"
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('policy_number')}
-                    onChangeText={policy_no =>
-                      setfarmerData({ ...farmerData, policy_no: policy_no })
-                    }
-                    value={farmerData.policy_no}
-                    keyboardType="numeric"
-                  />
-                  <InputTextForm
-                    label={t('sum_insured_currency')}
-                    onChangeText={sum_insured =>
-                      setfarmerData({ ...farmerData, sum_insured: sum_insured })
-                    }
-                    value={farmerData.sum_insured}
-                    keyboardType="numeric"
-                  />
-                </>
+                    <DropdownForm
+                      label={t('per_month_quarter_year')}
+                      data={config.pensionParMonthData}
+                      onChange={frequency =>
+                        setfarmerData({
+                          ...farmerData,
+                          frequency: frequency.value,
+                        })
+                      }
+                      val={farmerData.frequency}
+                    />
+                  </>
+                </View>
               </View>
+              <View
+                style={{
+                  backgroundColor: '#E9FCC5',
+                  marginTop: 20,
+                  marginBottom: 80,
+                  borderRadius: 20,
+                  elevation: 3,
+                }}>
+                <View style={{marginTop: 20, marginHorizontal: 15}}>
+                  <>
+                    <Text style={styles.title}>
+                      {t('life_insurance_details')}
+                    </Text>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('lic_name_of_company')}
+                        onChangeText={company_name =>
+                          setfarmerData({
+                            ...farmerData,
+                            company_name: company_name,
+                          })
+                        }
+                        value={farmerData.company_name}
+                      />
+                    </View>
+                    <InputTextForm
+                      label={t('policy_number')}
+                      onChangeText={policy_no =>
+                        setfarmerData({...farmerData, policy_no: policy_no})
+                      }
+                      value={farmerData.policy_no}
+                      keyboardType="numeric"
+                    />
+                    <InputTextForm
+                      label={t('sum_insured_currency')}
+                      onChangeText={sum_insured =>
+                        setfarmerData({...farmerData, sum_insured: sum_insured})
+                      }
+                      value={farmerData.sum_insured}
+                      keyboardType="numeric"
+                    />
+                  </>
+                </View>
+              </View>
+              <View style={{backgroundColor: '#E9FCC5'}}></View>
             </View>
-            <View style={{ backgroundColor: '#E9FCC5' }}></View>
           </View>
         </ScrollView>
         <ButtonForm
@@ -1020,31 +1077,95 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
 export default FarmerProfile;
 
 const styles = StyleSheet.create({
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
+  firatFormContainer: {
+    backgroundColor: Colors.containerGreen,
+    marginTop: 50,
+    borderRadius: 30,
+    elevation: 3,
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    // paddingTop: 10,
+    // marginBottom: 30,
+  },
+  formContainer: {
+    backgroundColor: Colors.containerGreen,
+    // marginTop: 30,
+    borderRadius: 25,
+    elevation: 3,
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    // paddingTop: 10,
+    marginBottom: 30,
+  },
+  inputContainer: {marginTop: '30%', marginHorizontal: 15},
+  inputContainer2: {marginHorizontal: 15},
+  profileImg: {
+    position: 'absolute',
+    top: -40, // Half outside (adjust based on your image size)
+    alignSelf: 'center', // Center horizontally
+    zIndex: 2,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // For iOS shadow
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   passwordMainContainer: {
     flex: 1,
     alignItems: 'center',
+  },
+  userName: {
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
+    color: Colors.drawer,
+    paddingTop: 5,
+  },
+  radioTitle: {
+    fontSize: 15,
+    color: '#4e4e4e',
+    fontFamily: 'Poppins-Regular',
+    paddingLeft: 10,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    borderRadius: 8,
-    width: '100%',
-    paddingEnd: 8,
-    backgroundColor: 'white',
-    height: 40,
     marginBottom: 15,
+    height: 50,
+    borderColor: Colors.secondary, // Make sure this color is visible
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    width: '100%',
+    elevation: 1,
+    paddingHorizontal: 10,
+    color: '#000000',
   },
   inputTextStyle: {
     marginHorizontal: 10,
     borderColor: 'gray',
     color: '#000',
   },
+  formHeader: {
+    backgroundColor: Colors.useGreen,
+    height: 60,
+    width: '100%',
+    justifyContent: 'center',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   title: {
-    color: '#454545',
+    color: 'rgba(255, 255, 255, 1)',
     fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -1065,5 +1186,10 @@ const styles = StyleSheet.create({
     top: '52%',
     left: '45%',
     zIndex: 9999,
+  },
+  dateText: {
+    marginBottom: 5,
+    marginLeft: 5,
+    color: '#4e4e4e',
   },
 });

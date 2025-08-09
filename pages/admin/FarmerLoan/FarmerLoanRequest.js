@@ -17,7 +17,7 @@ import React, {
   useRef,
 } from 'react';
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import {
   problemPlotAgainstFarmerAPI,
   loanPurposeAPI,
@@ -30,16 +30,16 @@ import {
   getPlotDocAPI,
   deletePlotImageAPI,
 } from '../Loan/LoanAPI';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { addModuleForView } from '../../../config/apiHere';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {addModuleForView} from '../../../config/apiHere';
 import ProofAndIdentityPropfCompLoan from '../../Common/ProofAndIdentityPropfCompLoan';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
-import { createPdf } from 'react-native-images-to-pdf';
+import {createPdf} from 'react-native-images-to-pdf';
 const qs = require('qs');
-const FarmerLoanRequest = ({ setActiveBtn }) => {
+const FarmerLoanRequest = ({setActiveBtn}) => {
   const scrollViewRef = useRef(null);
   //GQR-67
   const {
@@ -78,8 +78,22 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState([]);
   const [identityProof, setIdentityProof] = useState([
-    { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'address', },
-    { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'identity', },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      imageType: 'address',
+    },
+    {
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      value: '',
+      imageType: 'identity',
+    },
   ]);
 
   const [addressProof, setAddressProof] = useState([
@@ -356,7 +370,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         presentationStyle: 'fullScreen',
         type: [types.pdf, types.images],
       });
-      const { uri, name, type } = response?.[0] || {};
+      const {uri, name, type} = response?.[0] || {};
       let resizedUri = uri;
       let width = 0;
       let height = 0;
@@ -526,18 +540,18 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
   };
   const handleScanAndCreatePdf = async (data, index, objData, p1, par) => {
     try {
-      const { scannedImages } = await DocumentScanner.scanDocument({
+      const {scannedImages} = await DocumentScanner.scanDocument({
         croppedImageQuality: 100,
       });
       if (!scannedImages?.length) {
         throw new Error('No images scanned');
       }
       // Resize images to reduce size
-      const { width, height } = await new Promise((resolve, reject) => {
+      const {width, height} = await new Promise((resolve, reject) => {
         Image.getSize(
           scannedImages[0],
           (imgWidth, imgHeight) => {
-            resolve({ width: imgWidth, height: imgHeight });
+            resolve({width: imgWidth, height: imgHeight});
           },
           reject,
         );
@@ -552,15 +566,13 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
 
       // Create PDF from resized images
       const path = await createPdf({
-        pages: resizedImages.map(imagePath => ({ imagePath })),
+        pages: resizedImages.map(imagePath => ({imagePath})),
         outputPath,
       });
 
       // Check file size
       const fileStat = await RNFS.stat(path);
       const fileSizeInMB = fileStat.size / (1024 * 1024); // File size in MB
-
-      console.log(`PDF Size: ${fileSizeInMB} MB`);
 
       // Define size limit (e.g., 5 MB)
       const sizeLimitMB = 5;
@@ -676,9 +688,9 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
 
           if (getPlotDoc?.status === 200) {
             if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-              const address_proofArr = getPlotDoc?.data?.data?.rows[0]?.plot_img;
+              const address_proofArr =
+                getPlotDoc?.data?.data?.rows[0]?.plot_img;
 
-              console.log(address_proofArr)
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
                   addressProof_value[index1] = {
@@ -763,10 +775,9 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
 
   const handle_button = () => {
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ y: 600, animated: true });
+      scrollViewRef.current.scrollTo({y: 600, animated: true});
     }
   };
-
 
   const handlePlotCheck = async (value, label) => {
     if (isPlotChecked == 1 && isPlotCheckedId != '') {
@@ -777,7 +788,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
           formData.append('plot_image', data);
         }
       });
-
 
       const addPlotImage = addPlotImageAPI(
         dbname,
@@ -847,8 +857,10 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
     const addressProof_value = [...addressProof];
     if (getPlotDoc?.status === 200) {
       if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-        const { plot_img } = getPlotDoc?.data?.data?.rows[0] || {};
-        const address_proofArr = plot_img?.filter(item => item.term_type === 'plot_image');
+        const {plot_img} = getPlotDoc?.data?.data?.rows[0] || {};
+        const address_proofArr = plot_img?.filter(
+          item => item.term_type === 'plot_image',
+        );
         addressProof.map((data, index) => {
           if (address_proofArr[index] != undefined) {
             addressProof_value[index] = {
@@ -864,12 +876,12 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             };
           } else {
             addressProof_value[index] = {
-              uri: "",
-              id: "",
-              name: "",
-              type: "",
-              fileName: "",
-              type: "",
+              uri: '',
+              id: '',
+              name: '',
+              type: '',
+              fileName: '',
+              type: '',
               value: '',
               imageType: 'AddressProof',
               plotId: '',
@@ -917,7 +929,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
     }
 
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ y: 1400, animated: true });
+      scrollViewRef.current.scrollTo({y: 1400, animated: true});
     }
   };
 
@@ -940,7 +952,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
     setfarmerID(loginUser_data.user_id);
 
     if (farmarDoc.status === 200) {
-
       const farmerIdentityDoc = farmarDoc.data.data[0].agri_files.filter(
         item => item.term_type === 'farmer_identity',
       );
@@ -1024,8 +1035,22 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
   useEffect(() => {
     onPageLoad();
     setIdentityProof([
-      { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'address', },
-      { uri: '', name: '', type: '', fileName: '', value: '', imageType: 'identity', },
+      {
+        uri: '',
+        name: '',
+        type: '',
+        fileName: '',
+        value: '',
+        imageType: 'address',
+      },
+      {
+        uri: '',
+        name: '',
+        type: '',
+        fileName: '',
+        value: '',
+        imageType: 'identity',
+      },
     ]);
     setAddressProof([
       {
@@ -1123,7 +1148,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
     ]);
   }, []);
   const handledataAdd = (name, text) => {
-    setSaveData({ ...saveData, [name]: text });
+    setSaveData({...saveData, [name]: text});
   };
   const handleSave = async () => {
     if (isPlotChecked == 1 && isPlotCheckedId != '') {
@@ -1134,7 +1159,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
           formDataPlotImg.append('plot_image', data);
         }
       });
-
 
       const addPlotImage = await addPlotImageAPI(
         dbname,
@@ -1165,7 +1189,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         token,
         formDataDelete,
       );
-
     }
     setIsLoading(true);
     Keyboard.dismiss();
@@ -1185,13 +1208,13 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
     });
 
     if (saveData.loan_amount == '') {
-      Toast.show({ text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_loan_amt')}`, ...AlertMesg[0]});
     } else if (saveData.apx_annual_income == '') {
-      Toast.show({ text: `${t('pls_enter_income')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('pls_enter_income')}`, ...AlertMesg[0]});
     } else if (saveData.existing_loan_amount == '') {
-      Toast.show({ text: t('existing_loan_amount_enter'), ...AlertMesg[0] });
+      Toast.show({text: t('existing_loan_amount_enter'), ...AlertMesg[0]});
     } else if (saveData.loan_purpose == '') {
-      Toast.show({ text: `${t('please_enter_pur')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_pur')}`, ...AlertMesg[0]});
     } else if (checkValue.length < 1) {
       Toast.show({
         text: `${t('please_select_plot_first')}`,
@@ -1255,18 +1278,30 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
         ) : null}
         <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
           <View style={styles.container}>
-            <InputTextForm label={t('farmer_name')} value={userName} editable={false}/>
+            <InputTextForm
+              label={t('farmer_name')}
+              value={userName}
+              editable={false}
+            />
             <InputTextForm
               label={t('farmer_number')}
               value={contactNumber}
               keyboardType={'numeric'}
               editable={false}
             />
-            <InputTextForm label={t('adhar_no')} value={aadhar_number} editable={false} />
-            <InputTextForm label={t('kcc_no')} value={kcc_number} editable={false}/>
+            <InputTextForm
+              label={t('adhar_no')}
+              value={aadhar_number}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('kcc_no')}
+              value={kcc_number}
+              editable={false}
+            />
 
             <View style={styles.idcontainer}>
-              <Text style={{ color: '#000' }}>{t('identity_proof')}</Text>
+              <Text style={{color: '#000'}}>{t('identity_proof')}</Text>
               <View style={styles.idItemContainer}>
                 {identityProof &&
                   identityProof.map((data, index) => {
@@ -1275,15 +1310,25 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                         style={styles.idItem}
                         key={index}
                         onPress={() => openIdentity(data.uri)}>
-                        <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.plotText, { fontSize: 12 }]}>
-                          {data.imageType == undefined ? null : data?.imageType == "address" ? <Text>Identity   Proof</Text> : <Text >Address Proof</Text>}
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={[styles.plotText, {fontSize: 12}]}>
+                          {data.imageType ==
+                          undefined ? null : data?.imageType == 'address' ? (
+                            <Text>Identity Proof</Text>
+                          ) : (
+                            <Text>Address Proof</Text>
+                          )}
                         </Text>
                         <Image
                           source={require('../../Common/images/document.png')}
                           style={styles.idImage}
                         />
-                        <Text numberOfLines={1}
-                          ellipsizeMode="head" style={styles.plotText}>
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="head"
+                          style={styles.plotText}>
                           {data.name == '' ? '' : data.name}
                         </Text>
                       </TouchableOpacity>
@@ -1291,34 +1336,39 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                   })}
               </View>
             </View>
-            <InputTextForm
-              label={t('existing_loan_amount') + '(' + currency + ')'}
-              keyboardType={'numeric'}
-              color={'#FF0000'}
-              onChangeText={text => handledataAdd('existing_loan_amount', text)}
-              value={saveData.existing_loan_amount}
-            />
-            <InputTextForm
-              label={t('loan_required_in_rupees') + '(' + currency + ')'}
-              keyboardType={'numeric'}
-              color={'#FF0000'}
-              onChangeText={text => handledataAdd('loan_amount', text)}
-              value={saveData.loan_amount}
-            />
-            <InputTextForm
-              label={t('annual_income') + '(' + currency + ')'}
-              keyboardType={'numeric'}
-              color={'#FF0000'}
-              onChangeText={text => handledataAdd('apx_annual_income', text)}
-              value={saveData.apx_annual_income}
-            />
-            <DropdownForm
-              label={t('loan_purpose')}
-              data={loanPurpose}
-              onChange={text => handledataAdd('loan_purpose', text.value)}
-              color={'#FF0000'}
-            />
-            {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
+
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('loan_information')}</Text>
+              <InputTextForm
+                label={t('existing_loan_amount') + '(' + currency + ')'}
+                keyboardType={'numeric'}
+                required={true}
+                onChangeText={text =>
+                  handledataAdd('existing_loan_amount', text)
+                }
+                value={saveData.existing_loan_amount}
+              />
+              <InputTextForm
+                label={t('loan_required_in_rupees') + '(' + currency + ')'}
+                keyboardType={'numeric'}
+                required={true}
+                onChangeText={text => handledataAdd('loan_amount', text)}
+                value={saveData.loan_amount}
+              />
+              <InputTextForm
+                label={t('annual_income') + '(' + currency + ')'}
+                keyboardType={'numeric'}
+                required={true}
+                onChangeText={text => handledataAdd('apx_annual_income', text)}
+                value={saveData.apx_annual_income}
+              />
+              <DropdownForm
+                label={t('loan_purpose')}
+                data={loanPurpose}
+                onChange={text => handledataAdd('loan_purpose', text.value)}
+                required={true}
+              />
+              {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
                         <View style={styles.PlotSiteList}>
                             {
                                 plotSite && plotSite.map((data, index) => {
@@ -1336,7 +1386,7 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                                 })
                             }
                         </View> */}
-            {/* <View style={styles.plotContainer}>
+              {/* <View style={styles.plotContainer}>
                             {
                                 nameVarityStartEnd.map((data, index) => {
                                     return (
@@ -1359,12 +1409,13 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                             }
                         </View> */}
 
-            <DropdownForm
-              label={t('select_plot')}
-              data={plotSite}
-              onChange={item => handlePlotCheck(item.value, item.label)}
-              color={'#FF0000'}
-            />
+              <DropdownForm
+                label={t('select_plot')}
+                data={plotSite}
+                onChange={item => handlePlotCheck(item.value, item.label)}
+                required={true}
+              />
+            </View>
             <View style={styles.plotContainer}>
               {nameVarityStartEnd.map((data, index) => {
                 if (data.isChecked == '1') {
@@ -1415,7 +1466,6 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
                       </View>
 
                       <View style={styles.idcontainer}>
-
                         <View style={styles.idItemContainer}>
                           <ProofAndIdentityPropfCompLoan
                             identityProofIdentityPropf={data.addressProof}
@@ -1446,10 +1496,11 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             </TouchableOpacity>
 
             <View style={styles.idcontainer}>
+              <Text style={styles.cardTitle}>{t('land_records')}</Text>
               <ProofAndIdentityPropfCompLoan
                 identityProofIdentityPropf={landProof}
                 t={t}
-                title={t('land_records')}
+                // title={t('land_records')}
                 handleDocumentSelection={handleDocumentSelection}
                 handleDocumentSelectionRemove={handleDocumentSelectionRemove}
                 handleScanAndCreatePdf={handleScanAndCreatePdf}
@@ -1457,7 +1508,13 @@ const FarmerLoanRequest = ({ setActiveBtn }) => {
             </View>
           </View>
         </ScrollView>
-        <ButtonForm label={t('submit')} onPress={handleSave} />
+        <ButtonForm
+          label={t('submit')}
+          onPress={handleSave}
+          iconName="check-circle"
+          iconColor="#fff"
+          iconSize={30}
+        />
       </Root>
     </>
   );
@@ -1467,16 +1524,19 @@ export default FarmerLoanRequest;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: Colors.containerGreen,
     marginHorizontal: '3%',
-    paddingVertical: 10,
-    marginBottom: 250,
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+    marginBottom: 20,
   },
   idcontainer: {
     marginVertical: 10,
     backgroundColor: '#FFF',
     elevation: 2,
     borderRadius: 5,
-    padding: 10
+    padding: 10,
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -1569,7 +1629,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   clickAddMorePlots: {
-    backgroundColor: '#045004',
+    backgroundColor: Colors.subBtn,
     marginHorizontal: 35,
     paddingVertical: 15,
     marginVertical: 20,
@@ -1580,5 +1640,57 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
+  },
+  ///////////////////////////
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    marginVertical: '5%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '3%',
+  },
+  cardTitle: {
+    fontSize: 16,
+    // fontWeight: '600',
+    color: Colors.borderGreen,
+    marginBottom: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  emptyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginTop: 2,
+  },
+  emptyText: {
+    color: '#ff0000',
+    marginLeft: 6,
+    fontSize: 13,
+    fontFamily: Fonts.SemiBold,
   },
 });

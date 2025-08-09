@@ -1,55 +1,95 @@
-import { ScrollView, Modal, StyleSheet, Text, View, TouchableOpacity, Image, Linking } from 'react-native'
-import React, { useCallback, useEffect, useState, useContext } from 'react'
-import DocumentPicker, { types } from 'react-native-document-picker';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { LoanUpdate } from './FarmerLoanAPI';
-import { farmerDocAPI } from '../Loan/LoanAPI';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {
+  ScrollView,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Linking,
+} from 'react-native';
+import React, {useCallback, useEffect, useState, useContext} from 'react';
+import DocumentPicker, {types} from 'react-native-document-picker';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+import {LoanUpdate} from './FarmerLoanAPI';
+import {farmerDocAPI} from '../Loan/LoanAPI';
+import {userCreateContext} from '../../Context/usersCreateContext';
 const FarmerLoanEnquiryDetail = () => {
   //GQR-67
-  const { loginUser_data, FormsTitle, ButtonForm, CustomHeader, t, AlertMesg,
-    LoadingScreen, getItem, InputTextForm, Root, Toast, onBackPress, logoImage, topBanner } = useContext(userCreateContext);
-  const { dbname, lan_id, token, owner, farmerId } = loginUser_data;
+  const {
+    loginUser_data,
+    FormsTitle,
+    ButtonForm,
+    CustomHeader,
+    t,
+    AlertMesg,
+    LoadingScreen,
+    getItem,
+    InputTextForm,
+    Root,
+    Toast,
+    onBackPress,
+    logoImage,
+    topBanner,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token, owner, farmerId} = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(false);
-  const [currency, setcurrency] = useState("");
+  const [currency, setcurrency] = useState('');
   const [photo_to_be_deleted, set_photo_to_be_deleted] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [identityProof, setIdentityProof] = useState([{ uri: "", id: "", name: "", type: "", fileName: "", value: "" },
-  { uri: "", id: "", name: "", type: "", fileName: "", value: "" }]
-  );
+  const [identityProof, setIdentityProof] = useState([
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+  ]);
   const [addressProof, setAddressProof] = useState([
-    { uri: "", id: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", id: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", id: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", id: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", id: "", name: "", type: "", fileName: "", value: "" }
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', id: '', name: '', type: '', fileName: '', value: ''},
   ]);
   const [landProof, setLandProof] = useState([
-    { uri: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", name: "", type: "", fileName: "", value: "" },
-    { uri: "", name: "", type: "", fileName: "", value: "" },
+    {uri: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', name: '', type: '', fileName: '', value: ''},
+    {uri: '', name: '', type: '', fileName: '', value: ''},
   ]);
   const [saveData, setSaveData] = useState({
-    user_id: "",
-    loan_amount: "",
-    loan_purpose: "",
-    existing_loan_amount: "",
-    apx_annual_income: "",
-    farming_type: "crop",
-    plot_id: "",
-    farmerProducer: "",
-    identityNo: "",
+    user_id: '',
+    loan_amount: '',
+    loan_purpose: '',
+    existing_loan_amount: '',
+    apx_annual_income: '',
+    farming_type: 'crop',
+    plot_id: '',
+    farmerProducer: '',
+    identityNo: '',
   });
   let plotArr = [];
-  const { user_id, id,
+  const {
+    user_id,
+    id,
     status,
-    agri_files, agri_user, apx_annual_income,
-    loan_amount, agri_loan_entity, existing_loan_amount, loan_plots, sanctioned_date, loan_ord_id, loan_sanctioned, comment } = route.params;
+    agri_files,
+    agri_user,
+    apx_annual_income,
+    loan_amount,
+    agri_loan_entity,
+    existing_loan_amount,
+    loan_plots,
+    sanctioned_date,
+    loan_ord_id,
+    loan_sanctioned,
+    comment,
+  } = route.params;
   const onPageLoad = async () => {
     setIsLoading(true);
     // const address_proofArr = agri_files.filter(item => item.term_type === "loan_address");
@@ -62,19 +102,14 @@ const FarmerLoanEnquiryDetail = () => {
     ]);
 
     if (farmarDoc.status === 200) {
-      const farmerIdentityDoc =
-        farmarDoc.data.data[0].agri_files.filter(
-          item => item.term_type === 'farmer_identity',
-        );
-      const farmerAddressDoc =
-        farmarDoc.data.data[0].agri_files.filter(
-          item => item.term_type === 'farmer_address',
-        );
+      const farmerIdentityDoc = farmarDoc.data.data[0].agri_files.filter(
+        item => item.term_type === 'farmer_identity',
+      );
+      const farmerAddressDoc = farmarDoc.data.data[0].agri_files.filter(
+        item => item.term_type === 'farmer_address',
+      );
 
-      if (
-        farmerIdentityDoc.length > 0 &&
-        farmerAddressDoc.length > 0
-      ) {
+      if (farmerIdentityDoc.length > 0 && farmerAddressDoc.length > 0) {
         const farmerDocValue = [...identityProof];
         farmerDocValue[0] = {
           uri: farmerIdentityDoc[0].file_path,
@@ -123,17 +158,18 @@ const FarmerLoanEnquiryDetail = () => {
     setcurrency(currency_res);
     let loanLandArr = [];
     setSaveData({
-      ...saveData, ...{
+      ...saveData,
+      ...{
         user_id: user_id,
         loan_amount: loan_amount,
         loan_purpose: agri_loan_entity?.entity_name,
         existing_loan_amount: existing_loan_amount,
         apx_annual_income: apx_annual_income,
-        farming_type: "crop",
-        plot_id: "",
-        farmerProducer: "",
-        identityNo: "",
-      }
+        farming_type: 'crop',
+        plot_id: '',
+        farmerProducer: '',
+        identityNo: '',
+      },
     });
     // const addressProof_value = [...addressProof];
     // addressProof.map((data, index) => {
@@ -143,15 +179,21 @@ const FarmerLoanEnquiryDetail = () => {
     // });
     const landProofValue = [...landProof];
     landProof.map((data, index) => {
-      if (loan_landArr[index] != undefined && data.uri == "") {
-        landProofValue[index] = { uri: loan_landArr[index].file_path, id: loan_landArr[index].file_id, name: loan_landArr[index].file_name, type: "", fileName: loan_landArr[index].file_name };
+      if (loan_landArr[index] != undefined && data.uri == '') {
+        landProofValue[index] = {
+          uri: loan_landArr[index].file_path,
+          id: loan_landArr[index].file_id,
+          name: loan_landArr[index].file_name,
+          type: '',
+          fileName: loan_landArr[index].file_name,
+        };
       }
     });
     // store.dispatch(updateLoan({ landProofValue: landProofValue, addressProof_value: addressProof_value }));
     setLandProof(landProofValue);
     // setAddressProof(addressProof_value);
     setIsLoading(false);
-  }
+  };
   useEffect(() => {
     onPageLoad();
   }, []);
@@ -171,12 +213,15 @@ const FarmerLoanEnquiryDetail = () => {
   // }, [])
   useFocusEffect(
     useCallback(() => {
-      onBackPress(() => { navigation.navigate('FarmerLoan'); return true; });
-    }, [])
+      onBackPress(() => {
+        navigation.navigate('FarmerLoan');
+        return true;
+      });
+    }, []),
   );
   loan_plots.map((data, index) => {
-    plotArr.push(data.agri_land_user_rel.plot_no)
-  })
+    plotArr.push(data.agri_land_user_rel.plot_no);
+  });
   const HandlerGoBack = () => navigation.navigate('FarmerLoan');
   // const loan_identityArr = agri_files.filter(item => item.term_type === "loan_identity");
   // const address_proofArr = agri_files.filter(item => item.term_type === "loan_address");
@@ -185,11 +230,11 @@ const FarmerLoanEnquiryDetail = () => {
   const [propsIndex, setPropsIndex] = useState('');
   const [propsObjData, setPropsObjData] = useState({});
   const urlOpen = useCallback((data, index, objData) => {
-    const { uri } = objData;
+    const {uri} = objData;
     setPropsData(data);
     setPropsIndex(index);
     setPropsObjData(objData);
-    if (uri != "") {
+    if (uri != '') {
       setModalVisible(!modalVisible);
     } else {
       handleDocumentSelection(data, index, objData);
@@ -259,7 +304,7 @@ const FarmerLoanEnquiryDetail = () => {
   // }, []);
   const handleSave = async () => {
     setIsLoading(true);
-    const deleted_id_arr = photo_to_be_deleted.filter(item => item != "");
+    const deleted_id_arr = photo_to_be_deleted.filter(item => item != '');
     let updateStatus = null;
     const formData = new FormData();
     // formData.append("lan_id", saveData.user_id);
@@ -268,38 +313,45 @@ const FarmerLoanEnquiryDetail = () => {
     // formData.append("farming_type", saveData.farming_type);
     if (deleted_id_arr.length > 0) {
       updateStatus = true;
-      formData.append("photo_to_be_deleted", deleted_id_arr.toString());
+      formData.append('photo_to_be_deleted', deleted_id_arr.toString());
     }
-    if (identityProof.value === "1") {
+    if (identityProof.value === '1') {
       updateStatus = true;
-      formData.append("loan_identity", identityProof);
+      formData.append('loan_identity', identityProof);
     } else {
-      formData.append("loan_identity", "");
+      formData.append('loan_identity', '');
     }
     addressProof.map((data, index) => {
-      if (data.value === "1") {
+      if (data.value === '1') {
         updateStatus = true;
-        formData.append("loan_address", data);
+        formData.append('loan_address', data);
       }
-    })
+    });
     landProof.map((data, index) => {
-      if (data.value === "1") {
+      if (data.value === '1') {
         updateStatus = true;
-        formData.append("loan_land", data);
+        formData.append('loan_land', data);
       }
     });
     if (updateStatus == true) {
-      formData.append("status", 1);
+      formData.append('status', 1);
     }
-    const responseUpdate = await LoanUpdate(dbname, lan_id, token, saveData.user_id, formData, id);
+    const responseUpdate = await LoanUpdate(
+      dbname,
+      lan_id,
+      token,
+      saveData.user_id,
+      formData,
+      id,
+    );
     if (responseUpdate?.status == 200) {
-      Toast.show({ text: 'Successfull Data Submited', ...AlertMesg[0] });
+      Toast.show({text: 'Successfull Data Submited', ...AlertMesg[0]});
       setTimeout(() => {
-        navigation.navigate('FarmerLoan', 2)
+        navigation.navigate('FarmerLoan', 2);
       }, 1200);
     }
     setIsLoading(false);
-  }
+  };
   const openURL = async propsData => {
     if (propsData) {
       await Linking.openURL(propsData);
@@ -312,8 +364,7 @@ const FarmerLoanEnquiryDetail = () => {
           <LoadingScreen />
         </View>
       ) : null}
-      <View style={{ flex: 1 }}>
-
+      <View style={{flex: 1}}>
         <CustomHeader
           path={'FarmerLoan'}
           HandlerGoBack={HandlerGoBack}
@@ -359,9 +410,7 @@ const FarmerLoanEnquiryDetail = () => {
                             style={styles.idImage}
                           />
                           <Text>
-                            {data.name == ''
-                              ? ''
-                              : data.name.substring(1, 20)}
+                            {data.name == '' ? '' : data.name.substring(1, 20)}
                             {/* {data.name.substring(7, 12)} */}
                           </Text>
                         </TouchableOpacity>
@@ -404,9 +453,7 @@ const FarmerLoanEnquiryDetail = () => {
                   <View key={index}>
                     <View style={styles.plotContainerItem}>
                       <View>
-                        <Text style={styles.plotText}>
-                          {t('select_plot')}
-                        </Text>
+                        <Text style={styles.plotText}>{t('select_plot')}</Text>
                         <Text style={styles.plotText}>
                           {t('addcrop_cropname')}
                         </Text>
@@ -435,10 +482,9 @@ const FarmerLoanEnquiryDetail = () => {
                       </View>
                     </View>
 
-                    <View
-                      style={[styles.idcontainer, { marginHorizontal: 10 }]}>
-                      {data.agri_land_user_rel?.plot_img[0]?.file_name
-                        .length > 5 ? (
+                    <View style={[styles.idcontainer, {marginHorizontal: 10}]}>
+                      {data.agri_land_user_rel?.plot_img[0]?.file_name.length >
+                      5 ? (
                         <Text style={styles.title}>{t('address_proof')}</Text>
                       ) : (
                         ''
@@ -532,17 +578,33 @@ const FarmerLoanEnquiryDetail = () => {
       </View>
     </Root>
   );
-}
+};
 
-export default FarmerLoanEnquiryDetail
+export default FarmerLoanEnquiryDetail;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: '5%',
+    marginHorizontal: '4%',
     marginBottom: 50,
+    backgroundColor: Colors.containerGreen,
+    marginTop: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
   },
   idcontainer: {
+    marginVertical: 30,
+    marginHorizontal: 20,
+  },
+  idcontainer2: {
     marginVertical: 10,
+    marginHorizontal: 30,
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+
+    borderRadius: 20,
+    padding: 10,
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -550,7 +612,7 @@ const styles = StyleSheet.create({
   },
   idItem: {
     padding: 10,
-    width: '30%',
+    width: '50%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -564,9 +626,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   title: {
-    color: '#000',
+    color: Colors.text,
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
+    marginLeft: 10,
+  },
+  titleImg: {
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    marginLeft: 10,
   },
   centeredView: {
     // backgroundColor: '#FFF',
@@ -603,25 +672,103 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   plotContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
+    backgroundColor: '#F7FCFF',
+    borderRadius: 20,
     elevation: 5,
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
   },
   plotContainerItem: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#000',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
     margin: 15,
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 10,
   },
   plotText: {
-    color: '#000',
+    color: Colors.text,
     marginVertical: 2,
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
+  },
+
+  ///////////////////
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '5%',
+    marginTop: 20,
+    // borderWidth: 1,
+    // borderColor: Colors.borderGreen,
+  },
+  cardTitle: {
+    fontSize: 16,
+
+    color: Colors.borderGreen,
+    marginBottom: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+    marginVertical: 10,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  documentSection: {
+    marginBottom: 16,
+  },
+  documentTitle: {
+    fontSize: 14,
+    color: Colors.text,
+    marginBottom: 8,
+    fontFamily: 'Poppins-Medium',
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  documentItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  documentName: {
+    fontSize: 12,
+    color: '#2c3e50',
+    marginLeft: 8,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
   },
 });

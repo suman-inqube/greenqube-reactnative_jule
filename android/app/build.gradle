@@ -138,3 +138,4 @@ apply from: file("../../node_modules/@react-native-community/cli-platform-androi
 project.ext.react = [
   enableHermes: true  // <--- Enable this
 ]
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")

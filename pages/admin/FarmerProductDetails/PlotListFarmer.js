@@ -1,10 +1,19 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView, Image, Animated, Dimensions, Modal
-} from 'react-native'
-import React, { useEffect, useState, useRef, useContext } from 'react'
-const { width } = Dimensions.get('window');
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Animated,
+  Dimensions,
+  Modal,
+} from 'react-native';
+import React, {useEffect, useState, useRef, useContext} from 'react';
+const {width} = Dimensions.get('window');
 import CollapsibleCard from '../../Common/CollapsibleCard';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {
   plotListApproval,
   LandUnitArea,
@@ -13,8 +22,9 @@ import {
 const qs = require('qs');
 import FarmerLiveHood from './FarmerLiveHood';
 //GQR-65
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AlertMesg } from '../../Common/ToastAlert';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {AlertMesg} from '../../Common/ToastAlert';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const PlotListFarmer = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -31,16 +41,16 @@ const PlotListFarmer = () => {
   const onTabPress = (index, data) => {
     setActiveTab(index);
     if (data) {
-      setDataProps(data)
+      setDataProps(data);
     } else {
-      setDataProps({})
+      setDataProps({});
     }
-    scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
+    scrollRef.current?.scrollTo({x: Number(index) * width, animated: true});
   };
 
   const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
-    { useNativeDriver: false },
+    [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+    {useNativeDriver: false},
   );
 
   const indicatorPosition = animatedValue.interpolate({
@@ -66,13 +76,13 @@ const PlotListFarmer = () => {
     DropdownForm,
     effective_dates,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-65
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
-    const handleBackPress = () => {
+  const handleBackPress = () => {
     if (activeTab == 1) {
-      setActiveTab(0)
-      onTabPress(0)
+      setActiveTab(0);
+      onTabPress(0);
       return true;
     }
     navigation.navigate('FarmerDashboard');
@@ -82,7 +92,7 @@ const PlotListFarmer = () => {
     if (activeTab == 0) {
       onPageLoad();
     }
-     onBackPress(handleBackPress);
+    onBackPress(handleBackPress);
   }, [activeTab]);
   const onPageLoad = async () => {
     try {
@@ -98,7 +108,7 @@ const PlotListFarmer = () => {
         setplotList(plotListApprovalRes?.data);
       }
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -106,14 +116,14 @@ const PlotListFarmer = () => {
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
           setLandUnitsquareMetre([]);
         }
       }
-            setAddPlot(false);
+      setAddPlot(false);
       setIsLoading(false);
       setDataProps({});
     } catch (error) {
@@ -131,7 +141,7 @@ const PlotListFarmer = () => {
     <>
       <Root>
         <View style={styles.container}>
-          <View style={{ width: '100%' }}>
+          <View style={{width: '100%'}}>
             <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
           </View>
           {/* Tab Bar */}
@@ -159,7 +169,7 @@ const PlotListFarmer = () => {
             <Animated.View
               style={[
                 styles.indicator,
-                { transform: [{ translateX: indicatorPosition }] },
+                {transform: [{translateX: indicatorPosition}]},
               ]}
             />
           </View>
@@ -196,8 +206,8 @@ const PlotListFarmer = () => {
                 onRefresh={onRefresh}
                 showsVerticalScrollIndicator={false} // Hides vertical scrollbar
                 showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-                style={{ padding: 10 }}
-                renderItem={({ _index, item }) => {
+                style={{padding: 10}}
+                renderItem={({_index, item}) => {
                   return (
                     <TouchableOpacity
                       style={
@@ -220,8 +230,8 @@ const PlotListFarmer = () => {
                       <CollapsibleCard
                         width="100%"
                         header={
-                          <View style={{ height: 30 }}>
-                            <Text style={[styles.text, { fontSize: 15 }]}>
+                          <View style={{height: 30}}>
+                            <Text style={[styles.text, {fontSize: 15}]}>
                               {item?.plot_no}
                             </Text>
                             {/* <Text>3 items in cart</Text> */}
@@ -260,7 +270,7 @@ const PlotListFarmer = () => {
                                 </Text>
                                 <Text style={styles.text}>Cycle End Date</Text>
                               </View>
-                              <View style={{ marginLeft: 10 }}>
+                              <View style={{marginLeft: 10}}>
                                 <Text style={styles.text}>
                                   : {item?.plot_no}
                                 </Text>
@@ -269,7 +279,11 @@ const PlotListFarmer = () => {
                                   : {item?.land_size} {item?.land_unit?.name}
                                 </Text>
                                 <Text style={styles.text}>
-                                  : {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}
+                                  :{' '}
+                                  {parseFloat(item?.land_convert_size).toFixed(
+                                    2,
+                                  )}{' '}
+                                  {landAreaUnit?.[0]?.name}
                                 </Text>
                                 <Text style={styles.text}>
                                   : {item?.plot_crops[0]?.crop_name?.name}
@@ -333,12 +347,12 @@ const PlotListFarmer = () => {
                               />
                               <Text style={styles.text}>
                                 {' '}
-                                {
-                                  parseFloat(Number(
+                                {parseFloat(
+                                  Number(
                                     landUnitsquareMetre?.[0]
                                       ?.defined_unit_value,
-                                  ) * Number(item?.google_area))
-                                    .toFixed(2)}{' '}
+                                  ) * Number(item?.google_area),
+                                ).toFixed(2)}{' '}
                                 {landAreaUnit?.[0]?.name}
                               </Text>
                               {/* basu */}
@@ -364,87 +378,87 @@ const PlotListFarmer = () => {
                                                       color="green"
                                                       iconFamily="Feather"
                                                     /> */}
-                                <Text style={{ color: '#155724', fontSize: 14 }}>
+                                <Text style={{color: '#155724', fontSize: 14}}>
                                   {item.status_level}
                                 </Text>
                               </View>
                             )}
                             {item.status_level ==
                               'CARBON_DOCUMENTS_SUBMITTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 120,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                              <View
+                                style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 120,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                                       name="check"
                                                       size={20}
                                                       color="green"
                                                       iconFamily="Feather"
                                                     /> */}
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
-                                    SUBMITTED
-                                  </Text>
-                                </View>
-                              )}
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  SUBMITTED
+                                </Text>
+                              </View>
+                            )}
                             {item.status_level ==
                               'CARBON_DOCUMENTS_REJECTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#F8D7DA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 180,
-                                    borderWidth: 1,
-                                    borderColor: '#F8D7DA',
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
+                              <View
+                                style={{
+                                  backgroundColor: '#F8D7DA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 180,
+                                  borderWidth: 1,
+                                  borderColor: '#F8D7DA',
+                                  height: 38,
+                                }}>
+                                {/* <Icon
                                                   name="close"
                                                   size={16}
                                                   color="#FF5252"
                                                   iconFamily="AntDesign"
                                                 /> */}
-                                  <Text style={{ color: '#721C24', fontSize: 14 }}>
-                                    CARBON REJECTED
-                                  </Text>
-                                </View>
-                              )}
+                                <Text style={{color: '#721C24', fontSize: 14}}>
+                                  CARBON REJECTED
+                                </Text>
+                              </View>
+                            )}
 
                             {item.status_level ==
                               'CARBON_DOCUMENTS_APPROVED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
-                                    VERIFIED
-                                  </Text>
-                                </View>
-                              )}
+                              <View
+                                style={{
+                                  backgroundColor: '#D4EDDA',
+                                  padding: 8,
+                                  borderRadius: 5,
+                                  // marginRight: 15,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  alignItems: 'center',
+                                  width: 100,
+                                  // borderWidth: 1,
+                                  // borderColor: "#b8f8a9",
+                                  height: 38,
+                                }}>
+                                <Text style={{color: '#155724', fontSize: 14}}>
+                                  VERIFIED
+                                </Text>
+                              </View>
+                            )}
                             {item.status_level == 'PENDING' && (
                               <View
                                 style={{
@@ -467,7 +481,7 @@ const PlotListFarmer = () => {
                                                   color="#ffc107"
                                                   iconFamily="MaterialCommunityIcons"
                                                 /> */}
-                                <Text style={{ color: '#856404', fontSize: 14 }}>
+                                <Text style={{color: '#856404', fontSize: 14}}>
                                   {item.status_level}
                                 </Text>
                               </View>
@@ -493,7 +507,7 @@ const PlotListFarmer = () => {
                                                   color="#FF5252"
                                                   iconFamily="AntDesign"
                                                 /> */}
-                                <Text style={{ color: '#721C24', fontSize: 14 }}>
+                                <Text style={{color: '#721C24', fontSize: 14}}>
                                   {item.status_level}
                                 </Text>
                               </View>
@@ -514,29 +528,35 @@ const PlotListFarmer = () => {
                   dataProps={dataProps}
                   activeTab={activeTab}
                   onTabPress={onTabPress}
-                  setAddPlot={setAddPlot} 
+                  setAddPlot={setAddPlot}
                   addPlot={addPlot}
                 />
               )}
             </View>
           </ScrollView>
-          {activeTab == 0 ? <TouchableOpacity
-            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
-            onPress={() => { onTabPress(1); setDataProps({}); setAddPlot(true) }}>
-            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
-              {t('Add Plot')}
-            </Text>
-          </TouchableOpacity> : null}
+          {activeTab == 0 ? (
+            <TouchableOpacity
+              style={[styles.locationAddMoreContainer, {bottom: 250}]}
+              onPress={() => {
+                onTabPress(1);
+                setDataProps({});
+                setAddPlot(true);
+              }}>
+              <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+                {t('Add Plot')}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </Root>
     </>
   );
-}
+};
 
-export default PlotListFarmer
+export default PlotListFarmer;
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -544,7 +564,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // elevation: 3,
@@ -556,8 +576,8 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
   },
-  tabText: { fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold', },
-  activeTabText: { fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold', },
+  tabText: {fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold'},
+  activeTabText: {fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold'},
   indicator: {
     position: 'absolute',
     bottom: 0,
@@ -599,7 +619,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     borderWidth: 0.6,
-    borderColor: '#d0d4dc'
+    borderColor: '#d0d4dc',
   },
   skeletonCard: {
     flex: 1, // Ensure it fills the parent wrapper
@@ -657,14 +677,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     elevation: 1,
     marginVertical: 7,
-    borderRadius: 10
+    borderRadius: 10,
   },
   latlongContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 5,
-    padding: 3
+    padding: 3,
   },
   calenderContainer: {
     backgroundColor: '#FFF',

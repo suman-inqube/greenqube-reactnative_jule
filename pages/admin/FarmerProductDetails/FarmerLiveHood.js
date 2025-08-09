@@ -9,7 +9,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, {useState, useEffect, useContext, useRef} from 'react';
 import {
   problemPlotAgainstFarmerAPI,
   ProductionSeasonAndApi,
@@ -22,20 +22,20 @@ import {
   UnitConversonToDefault,
   nearestLatLong,
   uploadCarbonAgrDocs,
-  uploadFarmerIdAdd
+  uploadFarmerIdAdd,
 } from '../../../config/apiHere';
-import { LandUnitArea, LandUnitsquare_metre } from '../../../config/apiHere';
+import {LandUnitArea, LandUnitsquare_metre} from '../../../config/apiHere';
 import config from '../../../config';
 import axios from 'axios';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 const qs = require('qs');
 import HarvestedModel from './HarvestedModel';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import Map from '../Map';
 import * as geolib from 'geolib';
-import { getDistance } from 'geolib';
-import { APP_MAP_RANGE_POLYGON } from '@env';
+import {getDistance} from 'geolib';
+import {APP_MAP_RANGE_POLYGON} from '@env';
 import * as turf from '@turf/turf';
 import {
   calculateAreaFun,
@@ -43,7 +43,7 @@ import {
   calculatePolygonArea,
   isWithin20Meters,
 } from '../../Common/calculateAreaFun';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import {
   getPlotDocAPI,
   deletePlotImageAPI,
@@ -82,12 +82,12 @@ const FarmerLiveHood = ({
     AlertMesg,
     ButtonFormBottom,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, owner, carbonFlag } = loginUser_data;
+  const {dbname, lan_id, token, user_id, owner, carbonFlag} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [plotAll, setplotAll] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [statuslevel, setstatuslevel] = useState({ label: '', value: '' });
+  const [statuslevel, setstatuslevel] = useState({label: '', value: ''});
   const [farmerData, setfarmerData] = useState({
     createdBy: '',
     plot_no: '',
@@ -136,12 +136,12 @@ const FarmerLiveHood = ({
   const [landTypeAll, setlandTypeAll] = useState([]);
   const [unitAll, setUnitAll] = useState([]);
   const [location, setLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
   ]);
   const [mainLocation, setmainLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
   ]);
   const [newDate, setnewDate] = useState(new Date());
   const [locationType, setLocationType] = useState('location_tap');
@@ -161,11 +161,11 @@ const FarmerLiveHood = ({
   const [edit, setEdit] = useState('');
   const [plotEdit, setPlotEdit] = useState(false);
   const [addressProof, setAddressProof] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
   ]);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
@@ -190,7 +190,9 @@ const FarmerLiveHood = ({
       id: '',
     },
   ]);
-  const [identityPhotoDeletedValue, setIdentityPhotoDeletedValue] = useState([]);
+  const [identityPhotoDeletedValue, setIdentityPhotoDeletedValue] = useState(
+    [],
+  );
   const [plotId, setPlotId] = useState('');
   const [defaultLand, setDefaultLand] = useState(false);
   const [convertionLUState, setConvertionLUState] = useState(false);
@@ -207,7 +209,7 @@ const FarmerLiveHood = ({
   const [outofRange, setOutofRange] = useState(false);
   const [previousPlotLatlong, setPreviousPlotLatlong] = useState([]);
   const [carboncertificate, setCarboncertificate] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: ''},
   ]);
   const [signature, setSignature] = useState({
     uri: '',
@@ -223,7 +225,7 @@ const FarmerLiveHood = ({
       if (isNaN(latitude) || isNaN(longitude)) {
         return result;
       }
-      const newItem = { latitude, longitude };
+      const newItem = {latitude, longitude};
       if (!result[item.rel_id]) {
         result[item.rel_id] = [];
       }
@@ -238,7 +240,7 @@ const FarmerLiveHood = ({
     try {
       setIsLoading(true);
       const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
+      const {latitude, longitude} = fusedLocation;
       let groupedData;
       const axiosConfig = {
         headers: {
@@ -279,7 +281,7 @@ const FarmerLiveHood = ({
         produceVarietyAPI(dbname, lan_id),
         productionProcessAPI(dbname, lan_id),
       ]);
-      setreferencelatLong({ latitude, longitude });
+      setreferencelatLong({latitude, longitude});
       if (nearestLatLong_res.status == 200) {
         if (nearestLatLong_res.data.data.length > 0) {
           setnearPolData(nearestLatLong_res.data.data);
@@ -319,7 +321,7 @@ const FarmerLiveHood = ({
         }
       }
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -327,7 +329,7 @@ const FarmerLiveHood = ({
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -354,16 +356,16 @@ const FarmerLiveHood = ({
       onPageLoad();
       onBackPress(handleBackPress);
       setLocation([
-        { latitude: '', longitude: '' },
+        {latitude: '', longitude: ''},
         // {latitude: '', longitude: ''},
         // {latitude: '', longitude: ''},
       ]);
       setAddressProof([
-        { uri: '', name: '', type: '', fileName: '', id: '' },
-        { uri: '', name: '', type: '', fileName: '', id: '' },
-        { uri: '', name: '', type: '', fileName: '', id: '' },
-        { uri: '', name: '', type: '', fileName: '', id: '' },
-        { uri: '', name: '', type: '', fileName: '', id: '' },
+        {uri: '', name: '', type: '', fileName: '', id: ''},
+        {uri: '', name: '', type: '', fileName: '', id: ''},
+        {uri: '', name: '', type: '', fileName: '', id: ''},
+        {uri: '', name: '', type: '', fileName: '', id: ''},
+        {uri: '', name: '', type: '', fileName: '', id: ''},
       ]);
       setPhotoDeletedValue([]);
     }
@@ -414,18 +416,18 @@ const FarmerLiveHood = ({
       crop_cycl_start_date: '',
     });
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
     ]);
   };
   const handleHarvested = async data => {
     setHarvested(data);
     setEdit('');
     if (data === 'same produce') {
-      setfarmerData({ ...farmerData, cycleStartDate: '', cycleEndDate: '' });
+      setfarmerData({...farmerData, cycleStartDate: '', cycleEndDate: ''});
     } else {
       setfarmerData({
         ...farmerData,
@@ -454,16 +456,16 @@ const FarmerLiveHood = ({
   };
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
-    setfarmerData({ ...farmerData, cycleStartDate: effective_date });
+    setfarmerData({...farmerData, cycleStartDate: effective_date});
   };
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
-    setfarmerData({ ...farmerData, cycleEndDate: effective_date });
+    setfarmerData({...farmerData, cycleEndDate: effective_date});
   };
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({ latitude: '', longitude: '' }),
+        (val, idx) => ({latitude: '', longitude: ''}),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -471,12 +473,12 @@ const FarmerLiveHood = ({
       setPolygons([]);
     } else {
       setPolygons([]);
-      setLocation([...location, { latitude: '', longitude: '' }]);
+      setLocation([...location, {latitude: '', longitude: ''}]);
     }
   };
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     const values = [...location];
     if (
       fusedLocation != null &&
@@ -485,7 +487,7 @@ const FarmerLiveHood = ({
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = { latitude: latitude, longitude: longitude };
+      values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(
         item => item?.latitude !== '' && item?.latitude != 0,
@@ -500,7 +502,7 @@ const FarmerLiveHood = ({
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(filteredDatalatLong),
+              geolib.getAreaOfPolygon(filteredDatalatLong),
           );
         } else {
           setArea(geolib.getAreaOfPolygon(filteredDatalatLong));
@@ -534,7 +536,7 @@ const FarmerLiveHood = ({
           Number(selectUnitValue) * Number(farmerData.land_size),
       });
     } else {
-      setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value });
+      setfarmerData({...farmerData, [name]: item.label, [value]: item.value});
       if (name === 'terrainType') {
         livelihoodTypeAPI(dbname, lan_id, item.value, '');
       }
@@ -719,7 +721,7 @@ const FarmerLiveHood = ({
     const productionProcessRes = await ProductionProcessAPI(dbName, languageID);
     if (productionProcessRes?.status == 200) {
       productionProcessRes.data.data.rows.map((data, index) => {
-        productionProcessArr.push({ value: data.fid, label: data.name });
+        productionProcessArr.push({value: data.fid, label: data.name});
       });
       setProductionProcess(productionProcessArr);
     }
@@ -742,9 +744,9 @@ const FarmerLiveHood = ({
       const latlongArr = [];
       if (location?.[0]?.editing == true && statuslevel.label != '') {
         const fusedLocation = await getItem('fusedLocation');
-        const { latitude, longitude } = fusedLocation;
+        const {latitude, longitude} = fusedLocation;
         const distances = previousPlotLatlong.map(p =>
-          getDistance(p, { latitude, longitude }),
+          getDistance(p, {latitude, longitude}),
         );
         const minDistance = Math.min(...distances);
       }
@@ -766,8 +768,8 @@ const FarmerLiveHood = ({
             Alert.alert(
               'Deviation',
               'The deviation between reported area and google area is not within 5%',
-              [{ text: 'OK', onPress: () => console.log(area) }],
-              { cancelable: false },
+              [{text: 'OK', onPress: () => console.log(area)}],
+              {cancelable: false},
             );
             setIsLoading(false);
             return;
@@ -778,11 +780,17 @@ const FarmerLiveHood = ({
       location.map((data, index) => {
         if (data?.latitude != '' && data?.latitude != undefined) {
           locationArry.push('latitude');
-          latlongArr.push({ latitude: data?.latitude, longitude: data?.longitude });
+          latlongArr.push({
+            latitude: data?.latitude,
+            longitude: data?.longitude,
+          });
         }
       });
       if (farmerData.plot_Site_Name == '') {
-        Toast.show({ text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0] });
+        Toast.show({
+          text: `${t('please_add_plot_name_first')}`,
+          ...AlertMesg[0],
+        });
       } else if (farmerData.terrainTypeValue == '') {
         Toast.show({
           text: `${t('please_select_terrain_type_first')}`,
@@ -799,9 +807,9 @@ const FarmerLiveHood = ({
           ...AlertMesg[0],
         });
       } else if (farmerData.unitValue == '') {
-        Toast.show({ text: `${t('please_select_unit_first')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('please_select_unit_first')}`, ...AlertMesg[0]});
       } else if (farmerData.land_size == '') {
-        Toast.show({ text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
       } else if (locationArry.length == 0) {
         Toast.show({
           text: `${t('please_submit_location_first')}`,
@@ -833,15 +841,15 @@ const FarmerLiveHood = ({
           ...AlertMesg[0],
         });
       } else if (farmerData.expectedProduction == '') {
-        Toast.show({ text: `${t('please_give_yeild_size')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('please_give_yeild_size')}`, ...AlertMesg[0]});
       } else if (farmerData.unitProductValue == '') {
-        Toast.show({ text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0]});
       } else if (farmerData.cycleStartDate == '') {
-        Toast.show({ text: 'Please Select Planting Date', ...AlertMesg[0] });
+        Toast.show({text: 'Please Select Planting Date', ...AlertMesg[0]});
       } else if (farmerData.cycleEndDate == '') {
-        Toast.show({ text: `${t('select_enddate_first')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('select_enddate_first')}`, ...AlertMesg[0]});
       } else if (defaultLand == false) {
-        Toast.show({ text: 'Please set default unit', ...AlertMesg[0] });
+        Toast.show({text: 'Please set default unit', ...AlertMesg[0]});
       } else if (convertionLUState == true) {
         Toast.show({
           text: 'Please add the unit equivalent factor to default unit',
@@ -856,7 +864,8 @@ const FarmerLiveHood = ({
         ) {
           land_convert_size_value = farmerData.land_size * 1;
         } else {
-          land_convert_size_value = farmerData.land_size * farmerData.unit_value;
+          land_convert_size_value =
+            farmerData.land_size * farmerData.unit_value;
         }
         const latlongArrString = JSON.stringify(latlongArr);
         const formDataPlotImg = new FormData();
@@ -897,7 +906,9 @@ const FarmerLiveHood = ({
         } else {
           formdata.append('google_area', 0);
         }
-        const filterAddressImage = addressProof.filter(item => item.name !== '');
+        const filterAddressImage = addressProof.filter(
+          item => item.name !== '',
+        );
         const photoDeletedvalidValues = photoDeletedValue.filter(
           value => value !== undefined && value !== '',
         );
@@ -920,7 +931,7 @@ const FarmerLiveHood = ({
             '',
           );
           if (AddLandCropDetails_res?.status === 200) {
-            Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
+            Toast.show({text: t('l_c_add_succ'), ...AlertMesg[0]});
             onTabPress(0);
             // setTimeout(() => {
             //   navigation.navigate('FarmerDashboard');
@@ -1004,37 +1015,44 @@ const FarmerLiveHood = ({
             }
           });
           formDataPlotImg.append('rel_id', farmerData.land_rel_id);
-          const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all([
-            deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
-            addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
-          ]);
+          const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
+            [
+              deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
+              addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
+            ],
+          );
           if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
             Alert.alert(
               'File',
               addPlotImageAPIRes.data?.error?.errorMessage,
-              [{ text: 'OK', onPress: () => console.log(area) }],
-              { cancelable: false },
+              [{text: 'OK', onPress: () => console.log(area)}],
+              {cancelable: false},
             );
             setIsLoading(false);
             return;
           }
-          console.log(statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING')
-          if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
+          console.log(
+            statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING',
+          );
+          if (
+            statuslevel.label == 'REJECTED' ||
+            statuslevel.label == 'PENDING'
+          ) {
             const formdatauploadFarmerIdAdd = new FormData();
-            if (identityProofIdentityPropf[0]?.id == "") {
-              const { uri, type, name } = identityProofIdentityPropf[0];
+            if (identityProofIdentityPropf[0]?.id == '') {
+              const {uri, type, name} = identityProofIdentityPropf[0];
               formdatauploadFarmerIdAdd.append('farmer_address', {
                 uri,
                 type,
-                name
+                name,
               });
             }
-            if (identityProofIdentityPropf[1]?.id == "") {
-              const { uri, type, name } = identityProofIdentityPropf[1];
+            if (identityProofIdentityPropf[1]?.id == '') {
+              const {uri, type, name} = identityProofIdentityPropf[1];
               formdatauploadFarmerIdAdd.append('farmer_identity', {
                 uri,
                 type,
-                name
+                name,
               });
             }
             formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
@@ -1044,10 +1062,13 @@ const FarmerLiveHood = ({
               lan_id,
               user_id,
               token,
-              formdatauploadFarmerIdAdd
+              formdatauploadFarmerIdAdd,
             );
             if (resOocUpdate?.status != 200) {
-              Toast.show({ text: resOocUpdate?.data?.error?.errorMessage, ...AlertMesg[0] });
+              Toast.show({
+                text: resOocUpdate?.data?.error?.errorMessage,
+                ...AlertMesg[0],
+              });
             }
           }
           if (
@@ -1081,7 +1102,7 @@ const FarmerLiveHood = ({
             );
           }
           if (updateLandCropdetails_res?.status === 200) {
-            Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
+            Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
             onTabPress(0);
             // setTimeout(() => {
             //   navigation.navigate('FarmerDashboard');
@@ -1142,8 +1163,8 @@ const FarmerLiveHood = ({
     setPlotId(findData.value);
     if (getPlotDoc?.status == 200) {
       //basudev
-      const { count } = getPlotDoc?.data?.data;
-      const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
+      const {count} = getPlotDoc?.data?.data;
+      const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
       const values = [...addressProof];
       const carbonCertificateValues = [...carboncertificate];
       const filteredPlotImages = plot_img.filter(
@@ -1175,7 +1196,7 @@ const FarmerLiveHood = ({
             id: filteredPlotImages[_index]?.file_id,
           };
         } else {
-          values[_index] = { uri: '', name: '', type: '', fileName: '', id: '' };
+          values[_index] = {uri: '', name: '', type: '', fileName: '', id: ''};
         }
       });
       carboncertificate.map((_data, _index) => {
@@ -1205,8 +1226,12 @@ const FarmerLiveHood = ({
       });
       setCarboncertificate(carbonCertificateValues);
       setAddressProof(values);
-      const filterLandUserImgsAddress = landUserImgs.filter(item => item.term_type === 'farmer_address');
-      const filterLandUserImgsIdentity = landUserImgs.filter(item => item.term_type === 'farmer_identity');
+      const filterLandUserImgsAddress = landUserImgs.filter(
+        item => item.term_type === 'farmer_address',
+      );
+      const filterLandUserImgsIdentity = landUserImgs.filter(
+        item => item.term_type === 'farmer_identity',
+      );
       setIdentityProofIdentityPropf([
         {
           uri: filterLandUserImgsAddress?.[0]?.file_path || '',
@@ -1244,8 +1269,8 @@ const FarmerLiveHood = ({
             Alert.alert(
               'Note',
               'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-              [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-              { cancelable: false },
+              [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+              {cancelable: false},
             );
           }
           setstatuslevel({
@@ -1266,7 +1291,7 @@ const FarmerLiveHood = ({
           if (landUnitsquareMetre?.[0]?.defined_unit_value) {
             setArea(
               Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-              Number(data.land_info?.google_area),
+                Number(data.land_info?.google_area),
             );
           } else {
             setArea(data.land_info?.google_area);
@@ -1378,9 +1403,9 @@ const FarmerLiveHood = ({
             };
           } else {
             if (agri_land_user_latlongs[0] == undefined) {
-              values[index + 1] = { latitude: '', longitude: '' };
+              values[index + 1] = {latitude: '', longitude: ''};
             } else {
-              values[index] = { latitude: '', longitude: '' };
+              values[index] = {latitude: '', longitude: ''};
             }
           }
         });
@@ -1417,9 +1442,9 @@ const FarmerLiveHood = ({
       }
       //basudev out of range
       if (agri_land_user_latlongs.length > 1) {
-        const { latitude, longitude } = fusedLocation;
+        const {latitude, longitude} = fusedLocation;
         const is20Meters = isWithin20Meters(
-          { latitude, longitude },
+          {latitude, longitude},
           agri_land_user_latlongs,
           40,
         );
@@ -1442,10 +1467,10 @@ const FarmerLiveHood = ({
       const productSeasonresResArr = [];
       const livelihoodTypeArr = [];
       productSeasonresRes.data.data?.crop_season?.map((data, index) => {
-        productSeasonresResArr.push({ value: data.fid, label: data.name });
+        productSeasonresResArr.push({value: data.fid, label: data.name});
       });
       productSeasonresRes.data.data?.crop_type?.map((data, index) => {
-        livelihoodTypeArr.push({ value: data.fid, label: data.name });
+        livelihoodTypeArr.push({value: data.fid, label: data.name});
       });
       setProductionSeason(productSeasonresResArr);
       setLivelihoodType(livelihoodTypeArr);
@@ -1463,10 +1488,10 @@ const FarmerLiveHood = ({
     setPreviousPlotLatlong([]);
     setArea(0);
     setPlotEdit(true);
-    setstatuslevel({ label: '', value: '' });
+    setstatuslevel({label: '', value: ''});
   };
   const handleAddUserData = (name, data) => {
-    setfarmerData({ ...farmerData, [`${name}`]: data });
+    setfarmerData({...farmerData, [`${name}`]: data});
   };
   const handleAddUserDataland_size = (name, data) => {
     setfarmerData({
@@ -1494,9 +1519,9 @@ const FarmerLiveHood = ({
         'CARBON_DOCUMENTS_REJECTED',
       ].includes(statuslevel.label)
     ) {
-      const { latitude, longitude } = event.nativeEvent.coordinate;
+      const {latitude, longitude} = event.nativeEvent.coordinate;
       groupedData = groupByRelId(nearPolData);
-      setNewPolygon([...newPolygon, { latitude, longitude, editing: true }]);
+      setNewPolygon([...newPolygon, {latitude, longitude, editing: true}]);
     }
   };
   // GRQ-1132
@@ -1520,7 +1545,10 @@ const FarmerLiveHood = ({
         const existingGeo = turf.polygon([
           [...poly, poly[0]].map(p => [p.longitude, p.latitude]),
         ]);
-        if (turf.booleanOverlap(existingGeo, newGeo)||turf.booleanWithin(newGeo, existingGeo)) {
+        if (
+          turf.booleanOverlap(existingGeo, newGeo) ||
+          turf.booleanWithin(newGeo, existingGeo)
+        ) {
           overlapFound = true;
         }
       });
@@ -1540,7 +1568,7 @@ const FarmerLiveHood = ({
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+            geolib.getAreaOfPolygon(newPolygon),
         );
       } else {
         setArea(geolib.getAreaOfPolygon(newPolygon));
@@ -1559,7 +1587,7 @@ const FarmerLiveHood = ({
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+            geolib.getAreaOfPolygon(newPolygon),
         );
       } else {
         setArea(geolib.getAreaOfPolygon(newPolygon));
@@ -1591,7 +1619,7 @@ const FarmerLiveHood = ({
     }
   };
   const clearNewPolygon = () => {
-    setfarmerData({ ...farmerData, google_area: 0 });
+    setfarmerData({...farmerData, google_area: 0});
     if (userData == 'addUserData' || addPlot == true) {
       setNewPolygon([]);
       // setPolygons([]);
@@ -1642,16 +1670,16 @@ const FarmerLiveHood = ({
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
     ]);
     setPhotoDeletedValue([]);
   };
@@ -1706,7 +1734,7 @@ const FarmerLiveHood = ({
   };
   const handleIOTId = async (itemName, text) => {
     try {
-      setfarmerData({ ...farmerData, IOTId: text });
+      setfarmerData({...farmerData, IOTId: text});
     } catch (error) {
       console.log('Error in handleIOTId', error);
     }
@@ -1714,7 +1742,7 @@ const FarmerLiveHood = ({
   const handleCurrentLatLongIOT = async () => {
     try {
       const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
+      const {latitude, longitude} = fusedLocation;
       setfarmerData({
         ...farmerData,
         IOTLatlat: latitude,
@@ -1728,7 +1756,7 @@ const FarmerLiveHood = ({
   const timeoutRef = useRef(null); // timeout controller
 
   const handleRegionChangeComplete = async newRegion => {
-    const { latitude, longitude } = newRegion;
+    const {latitude, longitude} = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1832,17 +1860,19 @@ const FarmerLiveHood = ({
           farmerData.cycleStartDate == ''
             ? issuenewDate
             : new Date(
-              `${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1
-              }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-            )
+                `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                  new Date(farmerData.cycleStartDate).getMonth() + 1
+                }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+              )
         }
         minimumDate={
           farmerData.cycleStartDate == ''
             ? ''
             : new Date(
-              `${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1
-              }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-            )
+                `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                  new Date(farmerData.cycleStartDate).getMonth() + 1
+                }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+              )
         }
         setOpenDate={setopenCycleEnd}
         handleDatePicker={handleDatePicker2}
@@ -1865,9 +1895,9 @@ const FarmerLiveHood = ({
         handleHarvested={handleHarvested}
       />
       <ScrollView
-        style={{ marginHorizontal: 30, marginVertical: 10 }}
+        style={{marginHorizontal: 30, marginVertical: 10}}
         showsVerticalScrollIndicator={false}>
-        <View style={{ marginBottom: 40 }}>
+        <View style={{marginBottom: 40}}>
           {statuslevel.label == 'REJECTED' && (
             <View
               style={{
@@ -1962,7 +1992,7 @@ const FarmerLiveHood = ({
             val={farmerData.soilType}
           />
           <View style={styles.plotSiteUnit}>
-            <View style={{ width: '45%' }}>
+            <View style={{width: '45%'}}>
               <InputTextForm
                 label={t('pre_land_size')}
                 color="red"
@@ -1972,15 +2002,15 @@ const FarmerLiveHood = ({
                 }
                 editable={
                   statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? false
                     : true
                 }
               />
             </View>
-            <View style={{ width: '45%' }}>
+            <View style={{width: '45%'}}>
               <DropdownForm
                 label={t('select_unit')}
                 color="red"
@@ -1991,9 +2021,9 @@ const FarmerLiveHood = ({
                 val={farmerData.unit}
                 disable={
                   statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? true
                     : false
                 }
@@ -2004,9 +2034,10 @@ const FarmerLiveHood = ({
             <InputTextForm
               label={
                 t('Converted reported Land size ') +
-                `${landAreaUnit?.[0]?.defined_unit_value
-                  ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                  : '(Square meter)'
+                `${
+                  landAreaUnit?.[0]?.defined_unit_value
+                    ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                    : '(Square meter)'
                 }`
               }
               value={farmerData?.ConvertedreportedLandsize.toString()}
@@ -2014,7 +2045,7 @@ const FarmerLiveHood = ({
               editable={false}
             />
           )}
-          <View style={{ marginTop: 10 }}>
+          <View style={{marginTop: 10}}>
             <InputTextForm
               label={t('Enter IOT Device Id')}
               onChangeText={text => handleIOTId('IOTId', text)}
@@ -2030,7 +2061,7 @@ const FarmerLiveHood = ({
               <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
               <Image
                 source={require('../../Common/images/location.png')}
-                style={{ width: 40, height: 40 }}
+                style={{width: 40, height: 40}}
                 resizeMode="contain"
               />
             </View>
@@ -2046,19 +2077,19 @@ const FarmerLiveHood = ({
             loginUser_data={loginUser_data}
             disable={
               statuslevel.label == 'APPROVED' ||
-                statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+              statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+              statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+              statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                 ? false
                 : statuslevel.label == 'PENDING' ||
                   statuslevel.label == 'REJECTED'
-                  ? false
-                  : true
+                ? false
+                : true
             }
             InputTextFormEdit={InputTextFormEdit}
           />
 
-          <View style={{ marginTop: 15 }}>
+          <View style={{marginTop: 15}}>
             <ProofAndIdentityPropfComp
               identityProofIdentityPropf={identityProofIdentityPropf}
               t={t}
@@ -2069,31 +2100,33 @@ const FarmerLiveHood = ({
               setPhotoDeletedValue={setIdentityPhotoDeletedValue}
               loginUser_data={loginUser_data}
               status_level={statuslevel.label}
-              InputTextFormEdit={statuslevel.label == 'PENDING' ||
+              InputTextFormEdit={
+                statuslevel.label == 'PENDING' ||
                 statuslevel.label == 'REJECTED'
-                ? true
-                : false}
+                  ? true
+                  : false
+              }
               disable={
                 statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                   ? false
                   : statuslevel.label == 'PENDING' ||
                     statuslevel.label == 'REJECTED'
-                    ? false
-                    : true
+                  ? false
+                  : true
               }
-
             />
           </View>
           {area != 0 && area != null && (
             <InputTextForm
               label={
                 t('Calculated Map Area ') +
-                `${landAreaUnit?.[0]?.defined_unit_value
-                  ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                  : '(Square meter)'
+                `${
+                  landAreaUnit?.[0]?.defined_unit_value
+                    ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                    : '(Square meter)'
                 }`
               }
               value={area.toString()}
@@ -2129,12 +2162,12 @@ const FarmerLiveHood = ({
                           data?.latitude != 10 && data?.latitude.length != ''
                             ? ''
                             : statuslevel.label != 'APPROVED'
-                              ? handleCurrentLatLong(index)
-                              : ''
+                            ? handleCurrentLatLong(index)
+                            : ''
                         }>
                         <Image
                           source={require('../../Common/images/location.png')}
-                          style={{ width: 35, height: 35 }}
+                          style={{width: 35, height: 35}}
                           resizeMode="contain"
                         />
                       </TouchableOpacity>
@@ -2217,7 +2250,7 @@ const FarmerLiveHood = ({
             disable={edit}
           />
           <View style={styles.plotSiteUnit}>
-            <View style={{ width: '45%' }}>
+            <View style={{width: '45%'}}>
               <InputTextForm
                 label={`${t('expected_yield')}`}
                 color="red"
@@ -2225,16 +2258,16 @@ const FarmerLiveHood = ({
                 onChangeText={text =>
                   handleAddUserData('expectedProduction', text)
                 }
-              // editable={
-              //   edit == ''
-              //     ? harvested == 'same produce'
-              //       ? false
-              //       : true
-              //     : !edit
-              // }
+                // editable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? false
+                //       : true
+                //     : !edit
+                // }
               />
             </View>
-            <View style={{ width: '45%' }}>
+            <View style={{width: '45%'}}>
               <DropdownForm
                 label={`${t('select_unit_input')}`}
                 color="red"
@@ -2243,13 +2276,13 @@ const FarmerLiveHood = ({
                   handleAddData(item, 'unitProduct', 'unitProductValue');
                 }}
                 val={farmerData.unitProduct}
-              // disable={
-              //   edit == ''
-              //     ? harvested == 'same produce'
-              //       ? true
-              //       : false
-              //     : edit
-              // }
+                // disable={
+                //   edit == ''
+                //     ? harvested == 'same produce'
+                //       ? true
+                //       : false
+                //     : edit
+                // }
               />
             </View>
           </View>
@@ -2261,14 +2294,14 @@ const FarmerLiveHood = ({
                 : null
             }
             activeOpacity={9}>
-            <Text style={{ marginBottom: 5, color: '#f40000' }}>
+            <Text style={{marginBottom: 5, color: '#f40000'}}>
               {t('showing_date')}
             </Text>
             <View style={styles.calenderContainer}>
-              <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
+              <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
               <Image
                 source={require('../../Common/images/calendar.png')}
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
               />
             </View>
           </TouchableOpacity>
@@ -2279,14 +2312,14 @@ const FarmerLiveHood = ({
                 : null
             }
             activeOpacity={9}>
-            <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>
+            <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
               {t('harvesting_date_auto_calculated')}
             </Text>
             <View style={styles.calenderContainer}>
-              <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
+              <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
               <Image
                 source={require('../../Common/images/calendar.png')}
-                style={{ width: 20, height: 20 }}
+                style={{width: 20, height: 20}}
               />
             </View>
           </TouchableOpacity>
@@ -2295,8 +2328,8 @@ const FarmerLiveHood = ({
             statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
             statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
             statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-            carbonFlag == true ? (
-            <View style={{ marginTop: 15 }}>
+          carbonFlag == true ? (
+            <View style={{marginTop: 15}}>
               <CarbonCertificate
                 identityProofIdentityPropf={carboncertificate}
                 t={t}
@@ -2314,8 +2347,8 @@ const FarmerLiveHood = ({
                     : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                       statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                       statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : true
+                    ? false
+                    : true
                 }
                 InputTextFormEdit={
                   statuslevel.label == 'APPROVED' ? true : false
@@ -2352,9 +2385,9 @@ const FarmerLiveHood = ({
         </TouchableOpacity> */}
       {plotEdit || addPlot == true ? (
         <TouchableOpacity
-          style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+          style={[styles.locationAddMoreContainer, {bottom: 250}]}
           onPress={() => setShowModal(!showModal)}>
-          <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
             {t('MapView')}
           </Text>
         </TouchableOpacity>

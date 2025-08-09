@@ -1,9 +1,23 @@
-import { BackHandler, FlatList, StyleSheet, TouchableOpacity, useWindowDimensions, View, Linking, Image, ScrollView } from 'react-native'
-import React, { useState, useEffect, useCallback, useContext } from 'react'
-import { WebView } from 'react-native-webview';
-import { noticeDetailsAPI } from '../../../config/apiHere';
-import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {
+  BackHandler,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+  Linking,
+  Image,
+  ScrollView,
+} from 'react-native';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
+import {WebView} from 'react-native-webview';
+import {noticeDetailsAPI} from '../../../config/apiHere';
+import {
+  useFocusEffect,
+  useNavigation,
+  useIsFocused,
+} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
 
 const head = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -14,113 +28,129 @@ const head = `
 `;
 
 const UsefulInformation = () => {
-    const { loginUser_data, CustomHeader, onBackPress, getItem, logoImage, topBanner, FormsTitle } = useContext(userCreateContext);
-    const { dbname, lan_id, token } = loginUser_data;
-    const [noticeDetails, setNoticeDetails] = useState([]);
-    const [noticeFiles, setNoticeFiles] = useState([]);
-    const { width, height } = useWindowDimensions();
-    const navigation = useNavigation();
-    const isFocused = useIsFocused();
+  const {
+    loginUser_data,
+    CustomHeader,
+    onBackPress,
+    getItem,
+    logoImage,
+    topBanner,
+    FormsTitle,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token} = loginUser_data;
+  const [noticeDetails, setNoticeDetails] = useState([]);
+  const [noticeFiles, setNoticeFiles] = useState([]);
+  const {width, height} = useWindowDimensions();
+  const navigation = useNavigation();
+  const isFocused = useIsFocused();
 
-    const detailItem = (path, file_ext) => {
-        Linking.openURL(path);
-    };
+  const detailItem = (path, file_ext) => {
+    if (file_ext !== 'video/mp4') {
+      Linking.openURL(path);
+    }
+  };
 
-    const DocumentDisplay = ({ item, file_ext }) => {
-        if (file_ext === "application/pdf") {
-            return (
-                <Image
-                    style={{ width: '100%', height: 100 }}
-                    resizeMode="contain"
-                    source={require("../../Common/images/icons8-pdf-50.png")}
+  const DocumentDisplay = ({item, file_ext}) => {
+    if (file_ext === 'application/pdf') {
+      return (
+        <Image
+          style={{width: '100%', height: 100}}
+          resizeMode="contain"
+          source={require('../../Common/images/icons8-pdf-50.png')}
+        />
+      );
+    } else if (file_ext === 'image/jpeg') {
+      return (
+        <Image style={{width: '100%', height: 200}} source={{uri: item}} />
+      );
+    } else if (file_ext === 'video/mp4') {
+      return (
+        <WebView
+          source={{uri: item}}
+          style={{height: 300}}
+          javaScriptEnabled={true}
+          mediaPlaybackRequiresUserAction={false}
+        />
+      );
+    }
+    return null;
+  };
+
+  const onPageLoad = async () => {
+    const noticeId = await getItem('userNoticeId');
+    if (noticeId) {
+      const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
+      if (response?.status === 200 && response.data.data.length > 0) {
+        const notice = response.data.data[0];
+        setNoticeDetails(notice);
+        setNoticeFiles(notice.agri_files || []);
+      }
+    }
+  };
+
+  const handleBackPress = () => {
+    navigation.navigate('UsefulInformationList');
+    return true;
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      onPageLoad();
+    }
+    onBackPress(handleBackPress);
+  }, [isFocused]);
+
+  const HandlerGoBack = () => {
+    navigation.navigate('UsefulInformationList');
+  };
+
+  return (
+    <View style={{flex: 1}}>
+      <CustomHeader
+        path={'UsefulInformationList'}
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+      <FormsTitle title={noticeDetails && noticeDetails.post_name} />
+
+      {/* Horizontal Scroll for Attachments */}
+      <View style={{marginHorizontal: 7, marginBottom: 10}}>
+        <FlatList
+          horizontal
+          data={noticeFiles}
+          keyExtractor={item => item.file_id}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={{
+                width: 200,
+                margin: 10,
+                backgroundColor: '#FFF',
+                padding: 10,
+                elevation: 5,
+                borderRadius: 10,
+                justifyContent: 'center',
+              }}
+              onPress={() => detailItem(item.file_path, item.file_ext)}>
+              <TouchableOpacity>
+                <DocumentDisplay
+                  item={item.file_path}
+                  file_ext={item.file_ext}
                 />
-            );
-        } else if (file_ext === "image/jpeg" || file_ext == "image/png") {
-            return (
-                <Image
-                    style={{ width: '100%', height: 200 }}
-                    source={{ uri: item }}
-                />
-            );
-        } else if (file_ext === "video/mp4") {
-            return (
-                <Image
-                    resizeMode="contain"
-                    style={{ width: '100%', height: 100 }}
-                    source={require('../../Common/images/icons8-play-100.png')}
-                />
-            );
-        }
-        return null;
-    };
+              </TouchableOpacity>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
 
-    const onPageLoad = async () => {
-        const noticeId = await getItem('userNoticeId');
-        if (noticeId) {
-            const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
-            if (response?.status === 200 && response.data.data.length > 0) {
-                const notice = response.data.data[0];
-                setNoticeDetails(notice);
-                setNoticeFiles(notice.agri_files || []);
-            }
-        }
-    };
-
-    const handleBackPress = () => {
-        navigation.navigate('UsefulInformationList');
-        return true;
-    };
-
-    useEffect(() => {
-        if (isFocused) {
-            onPageLoad();
-        }
-        onBackPress(handleBackPress);
-    }, [isFocused]);
-
-    const HandlerGoBack = () => {
-        navigation.navigate('UsefulInformationList');
-    };
-
-    return (
-        <View style={{ flex: 1 }}>
-            <CustomHeader path={'UsefulInformationList'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-            <FormsTitle title={noticeDetails && noticeDetails.post_name} />
-
-            {/* Horizontal Scroll for Attachments */}
-            <View style={{ marginHorizontal: 7, marginBottom: 10 }}>
-                <FlatList
-                    horizontal
-                    data={noticeFiles}
-                    keyExtractor={(item) => item.file_id}
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={{
-                            width: 200,
-                            margin: 10,
-                            backgroundColor: '#FFF',
-                            padding: 10,
-                            elevation: 5,
-                            borderRadius: 10,
-                            justifyContent: 'center'
-                        }}
-                            onPress={() => detailItem(item.file_path, item.file_ext)}
-                        >
-                            <TouchableOpacity onPress={() => detailItem(item.file_path, item.file_ext)}>
-                                <DocumentDisplay item={item.file_path} file_ext={item.file_ext} />
-                            </TouchableOpacity>
-                        </TouchableOpacity>
-                    )}
-                />
-            </View>
-
-            {/* WebView Content */}
-            <View style={{ flex: 1 }}>
-                <WebView
-                    style={{ flex: 1 }}
-                    originWhitelist={['*']}
-                    source={{
-                        html: `
+      {/* WebView Content */}
+      <View style={{flex: 1}}>
+        <WebView
+          style={{flex: 1}}
+          originWhitelist={['*']}
+          source={{
+            html: `
               <!DOCTYPE html>
               <html>
                 <head>${head}</head>
@@ -128,17 +158,17 @@ const UsefulInformation = () => {
                   ${noticeDetails.post_desc || ''}
                 </body>
               </html>
-            `
-                    }}
-                    automaticallyAdjustContentInsets={false}
-                    allowsFullscreenVideo={true}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                    startInLoadingState={true}
-                />
-            </View>
-        </View>
-    );
+            `,
+          }}
+          automaticallyAdjustContentInsets={false}
+          allowsFullscreenVideo={true}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={true}
+        />
+      </View>
+    </View>
+  );
 };
 
 export default UsefulInformation;

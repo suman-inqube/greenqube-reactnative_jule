@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, {memo, useCallback, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,14 +8,16 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import { SPSheet } from 'react-native-popup-confirm-toast';
-import DocumentPicker, { types } from 'react-native-document-picker';
-import { createPdf } from 'react-native-images-to-pdf'; // Assuming you need to import this
+import {SPSheet} from 'react-native-popup-confirm-toast';
+import DocumentPicker, {types} from 'react-native-document-picker';
+import {createPdf} from 'react-native-images-to-pdf'; // Assuming you need to import this
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import LoadingScreen from './LoadingScreen';
+import {Colors, Fonts} from '../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const MAX_DIMENSION = 800;
 const PDF_SIZE_LIMIT = 3;
 const qs = require('qs');
@@ -30,9 +32,9 @@ const ProofAndIdentityPropfComp = ({
   status_level,
   disable,
   file,
-  InputTextFormEdit
+  InputTextFormEdit,
 }) => {
-  const { dbname, lan_id, token, user_id } = loginUser_data || {};
+  const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
     uri,
@@ -63,7 +65,7 @@ const ProofAndIdentityPropfComp = ({
           presentationStyle: 'fullScreen',
           type: [types.pdf, types.images],
         });
-        const { uri, name, type } = response?.[0] || {};
+        const {uri, name, type} = response?.[0] || {};
         let resizedUri = uri;
         let width = 0;
         let height = 0;
@@ -82,7 +84,6 @@ const ProofAndIdentityPropfComp = ({
           resizedUri = await resizeImage(uri, width, height, 90);
           const fileStat = await RNFS.stat(resizedUri);
           const fileSizeInMB = fileStat.size / (1024 * 1024); // File size in MB
-          console.log(`PDF Size: ${fileSizeInMB} MB`);
           // Log or use width and height as needed
           // console.log(`Width: ${width}, Height: ${height}`);
         }
@@ -167,7 +168,7 @@ const ProofAndIdentityPropfComp = ({
         // const { scannedImages } = await DocumentScanner.scanDocument({
         //   croppedImageQuality: 100,
         // });
-        const { scannedImages, status } = await DocumentScanner.scanDocument();
+        const {scannedImages, status} = await DocumentScanner.scanDocument();
         if (status !== 'success' || !scannedImages?.length) {
           Alert.alert('Error', 'Scanning failed or no image captured');
           return;
@@ -179,15 +180,18 @@ const ProofAndIdentityPropfComp = ({
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
         const path = await createPdf({
-          pages: resizedUris.map(uri => ({ imagePath: uri })),
-          outputPath
+          pages: resizedUris.map(uri => ({imagePath: uri})),
+          outputPath,
         });
         const fileStat = await RNFS.stat(path);
         const fileSizeInMB = fileStat.size / (1024 * 1024);
         // console.log(`PDF Size: ${fileSizeInMB} MB`);
         const sizeLimitMB = 3;
         if (fileSizeInMB > sizeLimitMB) {
-          Alert.alert('File Too Large', `PDF size (${fileSizeInMB.toFixed(1)}MB) exceeds limit`);
+          Alert.alert(
+            'File Too Large',
+            `PDF size (${fileSizeInMB.toFixed(1)}MB) exceeds limit`,
+          );
           await RNFS.unlink(path);
           return;
         }
@@ -201,7 +205,7 @@ const ProofAndIdentityPropfComp = ({
           name: fileName,
           type: 'application/pdf',
           fileName: fileName,
-          imageType:imageType,
+          imageType: imageType,
           value: '1',
           id: '',
         };
@@ -224,10 +228,10 @@ const ProofAndIdentityPropfComp = ({
   };
   const containsHttpOrHttps = url => /^(https?:\/\/)/i.test(url);
   const component = useCallback(
-    ({ data, index, spSheet }) => {
+    ({data, index, spSheet}) => {
       const openURL = async (data, index, spSheet) => {
         try {
-          const { file_path, uri } = data || {};
+          const {file_path, uri} = data || {};
           if (file_path) {
             const http = containsHttpOrHttps(file_path);
             // openFile(file_path);
@@ -299,8 +303,8 @@ const ProofAndIdentityPropfComp = ({
             }}>
             Attach Document
           </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-            {InputTextFormEdit == true ?
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+            {InputTextFormEdit == true ? (
               <TouchableOpacity
                 onPress={() => {
                   handleScanAndCreatePdf(data?.imageType, index);
@@ -317,30 +321,37 @@ const ProofAndIdentityPropfComp = ({
                 }}>
                 <Image
                   source={require('../Common/images/scan.png')}
-                  style={{ width: 30, height: 30 }}
+                  style={{width: 30, height: 30}}
                 />
                 <Text style={styles.title}>Scanner</Text>
-              </TouchableOpacity> : <></>}
-            {InputTextFormEdit == true ? <TouchableOpacity
-              onPress={() => {
-                onHandleDocumentSelection(data?.imageType, index);
-                spSheet.hide();
-              }}
-              style={{
-                backgroundColor: '#DFE8EF',
-                width: 70,
-                height: 70,
-                borderRadius: 10,
-                elevation: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Image
-                source={require('../Common/images/gallery.png')}
-                style={{ width: 30, height: 30 }}
-              />
-              <Text style={styles.title}>Gallery</Text>
-            </TouchableOpacity> : <></>}
+              </TouchableOpacity>
+            ) : (
+              <></>
+            )}
+            {InputTextFormEdit == true ? (
+              <TouchableOpacity
+                onPress={() => {
+                  onHandleDocumentSelection(data?.imageType, index);
+                  spSheet.hide();
+                }}
+                style={{
+                  backgroundColor: '#DFE8EF',
+                  width: 70,
+                  height: 70,
+                  borderRadius: 10,
+                  elevation: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Image
+                  source={require('../Common/images/gallery.png')}
+                  style={{width: 30, height: 30}}
+                />
+                <Text style={styles.title}>Gallery</Text>
+              </TouchableOpacity>
+            ) : (
+              <></>
+            )}
             {/* {(containsHttpOrHttps(data?.file_path) ||
               containsHttpOrHttps(data?.uri)) && ( */}
             <TouchableOpacity
@@ -356,15 +367,14 @@ const ProofAndIdentityPropfComp = ({
               }}>
               <Image
                 source={require('../Common/images/view.png')}
-                style={{ width: 30, height: 30 }}
+                style={{width: 30, height: 30}}
               />
               <Text style={styles.title}>View</Text>
             </TouchableOpacity>
             {/* )} */}
           </View>
         </>
-      )
-
+      );
     },
     [onHandleDocumentSelection, status_level, InputTextFormEdit],
     //basudev
@@ -372,14 +382,20 @@ const ProofAndIdentityPropfComp = ({
   return (
     <View style={styles.idContainer}>
       <Text
-        style={[styles.title, { fontSize: 14, color: '#000', marginBottom: 10 }]}>
+        style={[styles.title, {fontSize: 14, color: '#000', marginBottom: 10}]}>
         {title}
       </Text>
       {loading && (
         <View style={styles.loaderBackdrop}>
           <View style={styles.loaderContainer}>
             <LoadingScreen />
-            <Text style={[styles.title, { fontSize: 14, color: '#000', marginBottom: 10 }]}>Processing document...</Text>
+            <Text
+              style={[
+                styles.title,
+                {fontSize: 14, color: '#000', marginBottom: 10},
+              ]}>
+              Processing document...
+            </Text>
           </View>
         </View>
       )}
@@ -391,19 +407,25 @@ const ProofAndIdentityPropfComp = ({
                 style={styles.idItem}
                 key={index}
                 onPress={() => {
-                  // basudev 
+                  // basudev
                   // status_level != 'APPROVED' &&
                   SPSheet.show({
-                    component: () => component({ data, index, spSheet: SPSheet }),
+                    component: () => component({data, index, spSheet: SPSheet}),
                     height: 220 + marginBottom,
                   });
                 }}>
                 <View>
                   <Text
-                    style={[styles.title, { fontSize: 12 }]}
+                    style={[styles.title, {fontSize: 12}]}
                     numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >{data?.imageType == undefined ? null : data?.imageType == "address" ? <Text>Address Proof</Text> : <Text>Identity Proof</Text>}</Text>
+                    ellipsizeMode="tail">
+                    {data?.imageType == undefined ? null : data?.imageType ==
+                      'address' ? (
+                      <Text>Address Proof</Text>
+                    ) : (
+                      <Text>Identity Proof</Text>
+                    )}
+                  </Text>
 
                   {data?.uri ? (
                     data?.type == 'application/pdf' ? (
@@ -412,7 +434,7 @@ const ProofAndIdentityPropfComp = ({
                         style={styles.idImage}
                       />
                     ) : (
-                      <Image source={{ uri: data.uri }} style={styles.idImage} />
+                      <Image source={{uri: data.uri}} style={styles.idImage} />
                     )
                   ) : (
                     <Image
@@ -421,37 +443,42 @@ const ProofAndIdentityPropfComp = ({
                     />
                   )}
                   {data?.url ||
-                    (data?.uri && (
-                      data?.imageType != "address"&& data?.imageType != "identity"?
-                      status_level != "APPROVED" ?
-                        <TouchableOpacity
-                          onPress={() => onHandleDocumentSelectionRemove(index, status_level)} style={{ position: 'absolute', top: -10, right: -5 }}
-                        >
-                          <Image
-                            source={require('./images/cross50.png')}
-                            style={{ width: 20, height: 20 }}
-                          />
-                        </TouchableOpacity>
-                        : <TouchableOpacity style={{ position: 'absolute', top: -10, right: -5 }}>
-                          {/* <Image
+                    (data?.uri &&
+                      (data?.imageType != 'address' &&
+                      data?.imageType != 'identity' ? (
+                        status_level != 'APPROVED' ? (
+                          <TouchableOpacity
+                            onPress={() =>
+                              onHandleDocumentSelectionRemove(
+                                index,
+                                status_level,
+                              )
+                            }
+                            style={{position: 'absolute', top: -10, right: -5}}>
+                            <Image
+                              source={require('./images/cross50.png')}
+                              style={{width: 20, height: 20}}
+                            />
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            style={{position: 'absolute', top: -10, right: -5}}>
+                            {/* <Image
                             source={require('./images/cross50.png')}
                             style={{ width: 20, height: 20 }}
                           /> */}
-                        </TouchableOpacity>
-
-                    :null))}
+                          </TouchableOpacity>
+                        )
+                      ) : null))}
                 </View>
                 <Text
-                  style={[styles.title, { fontSize: 12 }]}
+                  style={[styles.title, {fontSize: 12}]}
                   numberOfLines={1}
-                  ellipsizeMode="head"
-                >
-                  {data?.name ||
-                    data.file_name
-                  }
+                  ellipsizeMode="head">
+                  {data?.name || data.file_name}
                 </Text>
               </TouchableOpacity>
-            )
+            );
           })}
       </View>
     </View>
@@ -487,8 +514,8 @@ const styles = StyleSheet.create({
     // marginVertical:5,
     // borderRadius:10
   },
-  idImage: { width: 60, height: 60, resizeMode: 'cover', borderRadius: 5 },
-  text: { height: 20, color: '#000', textAlign: 'center' },
+  idImage: {width: 60, height: 60, resizeMode: 'cover', borderRadius: 5},
+  text: {height: 20, color: '#000', textAlign: 'center'},
   button: {
     padding: 10,
     alignItems: 'center',

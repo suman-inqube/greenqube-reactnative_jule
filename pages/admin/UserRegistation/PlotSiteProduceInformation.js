@@ -9,7 +9,13 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+  useRef,
+} from 'react';
 import {
   useNavigation,
   useRoute,
@@ -34,7 +40,7 @@ import {
   LandUnitArea,
   nearestLatLong,
 } from '../../../config/apiHere';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import Map from '../Map';
 import * as geolib from 'geolib';
 import {
@@ -42,7 +48,7 @@ import {
   convertedArrayLatLong,
   calculatePolygonArea,
 } from '../../Common/calculateAreaFun';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import * as turf from '@turf/turf';
 const PlotSiteProduceInformation = () => {
@@ -69,7 +75,7 @@ const PlotSiteProduceInformation = () => {
     effective_dates,
   } = useContext(userCreateContext);
   //GQR-65
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const route = useRoute();
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -100,17 +106,17 @@ const PlotSiteProduceInformation = () => {
     lat: '',
     long: '',
     google_area: 0,
-    IOTId: "",
-    IOTLatLong: "",
-    IOTLatlat: "",
+    IOTId: '',
+    IOTLatLong: '',
+    IOTLatlat: '',
     ConvertedreportedLandsize: 0,
   });
   const [landProof, setLandProof] = useState([
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
   ]);
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -128,7 +134,7 @@ const PlotSiteProduceInformation = () => {
     [],
   );
   const [produceAddDetails, setProduceAddDetails] = useState([]);
-  const [currentlatlong, setCurrentlatlong] = useState({ lat: '', long: '' });
+  const [currentlatlong, setCurrentlatlong] = useState({lat: '', long: ''});
   const [locationType, setLocationType] = useState('location_tap');
   const [remove, setRemove] = useState('');
   const [path, setPath] = useState('');
@@ -136,7 +142,10 @@ const PlotSiteProduceInformation = () => {
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [defaultLand, setDefaultLand] = useState(true);
   const [nearPolSet, setnearPolSet] = useState([]);
-  const [referencelatLong, setreferencelatLong] = useState({ latitude: 0, longitude: 0 });
+  const [referencelatLong, setreferencelatLong] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
   const groupByRelId = data => {
     const grouped = data.reduce((result, item) => {
       const newItem = {
@@ -153,13 +162,12 @@ const PlotSiteProduceInformation = () => {
     return Object.values(grouped);
   };
   //GQR-65
-  const { dbName, languageId, token, supervisorId, company, country } =
+  const {dbName, languageId, token, supervisorId, company, country} =
     dbLanTokUsr;
   //GQR-65
   const onPageLoad = async () => {
-
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     let groupedData;
     var terraintypeArray = [];
     var landTypeArray = [];
@@ -195,7 +203,7 @@ const PlotSiteProduceInformation = () => {
         LandUnitArea(dbName, languageId, token),
         LandUnitsquare_metre(dbName, languageId, token),
       ]);
-      setreferencelatLong({ latitude, longitude });
+      setreferencelatLong({latitude, longitude});
       if (nearestLatLong_res.status == 200) {
         groupedData = groupByRelId(nearestLatLong_res.data.data);
         setnearPolSet(groupByRelId(nearestLatLong_res.data.data));
@@ -207,9 +215,8 @@ const PlotSiteProduceInformation = () => {
         }
       }
 
-
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -217,7 +224,7 @@ const PlotSiteProduceInformation = () => {
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -259,7 +266,7 @@ const PlotSiteProduceInformation = () => {
       }
       if (livelihoodType_res?.status === 200) {
         livelihoodTypeArray = livelihoodType_res?.data?.data?.crop_type?.map(
-          data => ({ value: data.fid, label: data.name }),
+          data => ({value: data.fid, label: data.name}),
         );
       }
       if (productionProcessData_res?.status === 200) {
@@ -382,7 +389,7 @@ const PlotSiteProduceInformation = () => {
           setPath('');
         }
         if (route.params.editItem == undefined) {
-          setCurrentlatlong({ ...currentlatlong, lat: '', long: '' });
+          setCurrentlatlong({...currentlatlong, lat: '', long: ''});
         }
       } else {
         setPath('');
@@ -424,9 +431,9 @@ const PlotSiteProduceInformation = () => {
       lat: '',
       long: '',
       google_area: 0,
-      IOTId: "",
-      IOTLatLong: "",
-      IOTLatlat: "",
+      IOTId: '',
+      IOTLatLong: '',
+      IOTLatlat: '',
       ConvertedreportedLandsize: 0,
     });
   };
@@ -511,28 +518,28 @@ const PlotSiteProduceInformation = () => {
   };
   const handlecycleStart = item => {
     const cycleStarts = effective_dates(item);
-    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts });
+    setstoreProduceInfo({...storeProduceInfo, cycleStarts: cycleStarts});
   };
   const handlecycleEnd = async item => {
     const cycleEnds = effective_dates(item);
     if (storeProduceInfo.cycleStarts != '') {
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
     }
   };
   const saveInObject = async () => {
     if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation = Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) / ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2) * 100;
+      const deviation =
+        (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
+          ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
+        100;
       if (deviation >= -5 && deviation <= 5) {
-
       } else {
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [
-            { text: 'OK', onPress: () => console.log(area) },
-          ],
-          { cancelable: false }
-        )
+          [{text: 'OK', onPress: () => console.log(area)}],
+          {cancelable: false},
+        );
         setIsLoading(false);
         return;
       }
@@ -541,7 +548,7 @@ const PlotSiteProduceInformation = () => {
       if (route.params.arrayIndex == undefined) {
         const newData = [
           ...storeProduceInfoInArray,
-          { storeProduceInfo: storeProduceInfo, location: location, landProof },
+          {storeProduceInfo: storeProduceInfo, location: location, landProof},
         ];
         setstoreProduceInfoInArray(newData);
         emptyFieldsValue();
@@ -554,11 +561,11 @@ const PlotSiteProduceInformation = () => {
           setPolygons(nearPolSet);
         }
         setLandProof([
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
+          {uri: '', name: '', type: '', fileName: ''},
+          {uri: '', name: '', type: '', fileName: ''},
+          {uri: '', name: '', type: '', fileName: ''},
+          {uri: '', name: '', type: '', fileName: ''},
+          {uri: '', name: '', type: '', fileName: ''},
         ]);
       }
     }
@@ -580,7 +587,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('pl_en_plot_name_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.terrainType) {
@@ -589,7 +596,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_terrain_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.landType) {
@@ -598,7 +605,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_land_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.soilType) {
@@ -607,12 +614,12 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_soil_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.plotSize) {
-      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.landUnit) {
@@ -621,7 +628,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_unit_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.prodctionSeasion) {
@@ -630,7 +637,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_cultiveting_season_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.livelihoodType) {
@@ -639,7 +646,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_crop_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.produceName) {
@@ -648,7 +655,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_crop_name_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.produceVariety) {
@@ -657,7 +664,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_crop_veriety_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.productionProcess) {
@@ -666,7 +673,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_production_system_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.produceProductionUnit) {
@@ -675,7 +682,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_give_yeild_size')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (location[0].latitude == '') {
@@ -684,7 +691,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('tap_to_get_latitude_and_longitude')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
       return false;
     }
     if (!storeProduceInfo.cycleStarts) {
@@ -718,8 +725,9 @@ const PlotSiteProduceInformation = () => {
       landUnit: item.value,
       landUnitSize: landUnitSize,
       landUnitName: item.label,
-      ConvertedreportedLandsize: Number(item?.sizevalue) * Number(storeProduceInfo?.plotSize),
-      cycleEnds: ""
+      ConvertedreportedLandsize:
+        Number(item?.sizevalue) * Number(storeProduceInfo?.plotSize),
+      cycleEnds: '',
     });
   };
   const emptyFieldsValue = () => {
@@ -744,37 +752,34 @@ const PlotSiteProduceInformation = () => {
       cycleEnds: '',
       lat: '',
       long: '',
-      IOTId: "",
-      IOTLatLong: "",
-      IOTLatlat: ""
+      IOTId: '',
+      IOTLatLong: '',
+      IOTLatlat: '',
     });
     setLandProof([
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
+      {uri: '', name: '', type: '', fileName: ''},
     ]);
   };
   const handleSave = async () => {
     Keyboard.dismiss();
     if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation = Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) / ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2) * 100;
+      const deviation =
+        (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
+          ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
+        100;
       if (deviation >= -5 && deviation <= 5) {
-
       } else {
-        setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
+        setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [
-            { text: 'OK', onPress: () => console.log(area) },
-          ],
-          { cancelable: false }
-
-
-
-        )
+          [{text: 'OK', onPress: () => console.log(area)}],
+          {cancelable: false},
+        );
         setIsLoading(false);
         return;
       }
@@ -793,11 +798,11 @@ const PlotSiteProduceInformation = () => {
         };
         await setItem('storeProduceInfo_data', values);
         if (validationData()) {
-          navigation.navigate('RegistationSignUpViwer', { data: remove });
+          navigation.navigate('RegistationSignUpViwer', {data: remove});
         }
       } else if (storeProduceInfoInArray.length !== 0) {
         await setItem('storeProduceInfo_data', storeProduceInfoInArray);
-        navigation.navigate('RegistationSignUpViwer', { data: remove });
+        navigation.navigate('RegistationSignUpViwer', {data: remove});
       } else if (storeProduceInfoInArray.length === 0) {
         if (validationData()) {
           // await setItem('storeProduceInfo_data', storeProduceInfoInArray);
@@ -819,7 +824,7 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const [location, setLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
@@ -827,7 +832,7 @@ const PlotSiteProduceInformation = () => {
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({ latitude: '', longitude: '' }),
+        (val, idx) => ({latitude: '', longitude: ''}),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -835,13 +840,13 @@ const PlotSiteProduceInformation = () => {
       setPolygons([]);
     } else {
       setPolygons([]);
-      setLocation([...location, { latitude: '', longitude: '' }]);
+      setLocation([...location, {latitude: '', longitude: ''}]);
     }
   };
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
     const values = [...location];
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     if (
       fusedLocation != null &&
       longitude.toString().length == 10 &&
@@ -849,13 +854,16 @@ const PlotSiteProduceInformation = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = { latitude: latitude, longitude: longitude };
+      values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       if (filteredDatalatLong.length >= 3) {
         setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-          setArea(Number(landUnitsquareMetre?.[0]?.defined_unit_value) * geolib.getAreaOfPolygon(filteredDatalatLong));
+          setArea(
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(filteredDatalatLong),
+          );
           setstoreProduceInfo({
             ...storeProduceInfo,
             google_area: geolib.getAreaOfPolygon(newPolygon),
@@ -870,7 +878,6 @@ const PlotSiteProduceInformation = () => {
             google_area: geolib.getAreaOfPolygon(filteredDatalatLong),
             google_area_defaul: geolib.getAreaOfPolygon(filteredDatalatLong),
           });
-
         }
       } else {
         setArea(0);
@@ -884,13 +891,13 @@ const PlotSiteProduceInformation = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     setstoreProduceInfo({
       ...storeProduceInfo,
       IOTLatlat: latitude,
       IOTLatLong: longitude,
     });
-  }
+  };
   // GRQ-1130
   const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
@@ -899,8 +906,8 @@ const PlotSiteProduceInformation = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, { latitude, longitude }]);
+    const {latitude, longitude} = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, {latitude, longitude}]);
   };
   // GRQ-1132
   const finalizePolygon = () => {
@@ -916,14 +923,17 @@ const PlotSiteProduceInformation = () => {
         closedPolygon.push(first);
       }
       const newGeo = turf.polygon([
-        closedPolygon.map((p) => [p.longitude, p.latitude]),
+        closedPolygon.map(p => [p.longitude, p.latitude]),
       ]);
       const newFilterPoligon = polygons.filter(_item => _item.length > 2);
-      newFilterPoligon.forEach((poly) => {
+      newFilterPoligon.forEach(poly => {
         const existingGeo = turf.polygon([
-          [...poly, poly[0]].map((p) => [p.longitude, p.latitude]),
+          [...poly, poly[0]].map(p => [p.longitude, p.latitude]),
         ]);
-        if (turf.booleanOverlap(existingGeo, newGeo)||turf.booleanWithin(newGeo, existingGeo)) {
+        if (
+          turf.booleanOverlap(existingGeo, newGeo) ||
+          turf.booleanWithin(newGeo, existingGeo)
+        ) {
           overlapFound = true;
         }
       });
@@ -932,11 +942,9 @@ const PlotSiteProduceInformation = () => {
         Alert.alert(
           'Overlap Detected',
           'Coordinates are overlapping',
-          [
-            { text: 'OK', onPress: () => console.log('OK Pressed') },
-          ],
-          { cancelable: false }
-        )
+          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          {cancelable: false},
+        );
         return;
       }
       // setPolygons([newPolygon]);
@@ -954,22 +962,18 @@ const PlotSiteProduceInformation = () => {
       setShowModal(false);
       // setArea(calculateAreaFun(newPolygon).toFixed(3));
 
-
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
-          Number(
-            landUnitsquareMetre?.[0]?.defined_unit_value,
-          ) * geolib.getAreaOfPolygon(newPolygon),
+          Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+            geolib.getAreaOfPolygon(newPolygon),
         );
         setstoreProduceInfo({
           ...storeProduceInfo,
           google_area: geolib.getAreaOfPolygon(newPolygon),
           google_area_defaul:
-            Number(
-              landUnitsquareMetre?.[0]?.defined_unit_value,
-            ) * geolib.getAreaOfPolygon(newPolygon),
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+            geolib.getAreaOfPolygon(newPolygon),
         });
-
       } else {
         setArea(geolib.getAreaOfPolygon(filteredDatalatLong));
         setstoreProduceInfo({
@@ -977,7 +981,6 @@ const PlotSiteProduceInformation = () => {
           google_area: geolib.getAreaOfPolygon(newPolygon),
           google_area_defaul: geolib.getAreaOfPolygon(newPolygon),
         });
-
       }
     } else {
       //  removesetLocation();
@@ -997,7 +1000,7 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const clearNewPolygon = () => {
-    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
+    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
     setNewPolygon([]);
     setPolygons(nearPolSet);
     removesetLocation();
@@ -1005,8 +1008,8 @@ const PlotSiteProduceInformation = () => {
   };
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
-  const handleRegionChangeComplete = async (newRegion) => {
-    const { latitude, longitude } = newRegion;
+  const handleRegionChangeComplete = async newRegion => {
+    const {latitude, longitude} = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1014,11 +1017,19 @@ const PlotSiteProduceInformation = () => {
     timeoutRef.current = setTimeout(async () => {
       const latestRegion = regionRef.current;
       setIsLoading(true);
-      const isSameLat = Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
-      const isSameLng = Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
+      const isSameLat =
+        Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
+      const isSameLng =
+        Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await nearestLatLong(dbName, languageId, token, latitude, longitude);
+          const nearestLatLong_res = await nearestLatLong(
+            dbName,
+            languageId,
+            token,
+            latitude,
+            longitude,
+          );
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res?.data?.data;
             // setnearPolData(data);
@@ -1027,7 +1038,7 @@ const PlotSiteProduceInformation = () => {
             setPolygons(groupedData);
           }
         } catch (error) {
-          console.error("Error fetching nearest polygon data:", error);
+          console.error('Error fetching nearest polygon data:', error);
         } finally {
           setIsLoading(false);
         }
@@ -1042,7 +1053,7 @@ const PlotSiteProduceInformation = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -1082,33 +1093,33 @@ const PlotSiteProduceInformation = () => {
         )}
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{paddingHorizontal: 20}}>
               <InputTextForm
                 label={t('add_plot')}
                 color="red"
                 onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, plotSiteName: item })
+                  setstoreProduceInfo({...storeProduceInfo, plotSiteName: item})
                 }
                 value={storeProduceInfo.plotSiteName}
               />
               <InputTextForm
                 label={t('daag_no')}
                 onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
+                  setstoreProduceInfo({...storeProduceInfo, daagNo: item})
                 }
                 value={storeProduceInfo.daagNo}
               />
               <InputTextForm
                 label={t('khatian_no')}
                 onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
+                  setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
                 }
                 value={storeProduceInfo.khatianNo}
               />
               <InputTextForm
                 label={t('no_of_plants')}
                 onChangeText={item =>
-                  setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
+                  setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
                 }
                 value={storeProduceInfo.noOfPlants}
               />
@@ -1152,19 +1163,25 @@ const PlotSiteProduceInformation = () => {
                 val={storeProduceInfo.soilType}
               />
               <View
-                style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ width: '45%' }}>
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <View style={{width: '45%'}}>
                   <InputTextForm
                     label={t('plot_size')}
                     color="red"
                     onChangeText={item =>
-                      setstoreProduceInfo({ ...storeProduceInfo, plotSize: item, ConvertedreportedLandsize: Number(storeProduceInfo?.sizevalue) * Number(item), cycleEnds: "" })
+                      setstoreProduceInfo({
+                        ...storeProduceInfo,
+                        plotSize: item,
+                        ConvertedreportedLandsize:
+                          Number(storeProduceInfo?.sizevalue) * Number(item),
+                        cycleEnds: '',
+                      })
                     }
                     value={storeProduceInfo.plotSize}
                     keyboardType="numeric"
                   />
                 </View>
-                <View style={{ width: '45%' }}>
+                <View style={{width: '45%'}}>
                   <DropdownForm
                     label={t('select_unit')}
                     color="red"
@@ -1180,9 +1197,10 @@ const PlotSiteProduceInformation = () => {
                   <InputTextForm
                     label={
                       t('Converted reported Land size ') +
-                      `${landAreaUnit?.[0]?.defined_unit_value
-                        ? `(${landAreaUnit?.[0]?.unit_name})`
-                        : '(Square meter)'
+                      `${
+                        landAreaUnit?.[0]?.defined_unit_value
+                          ? `(${landAreaUnit?.[0]?.unit_name})`
+                          : '(Square meter)'
                       }`
                     }
                     value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
@@ -1190,11 +1208,11 @@ const PlotSiteProduceInformation = () => {
                   />
                 )}
 
-              <View style={{ marginTop: 10 }}>
+              <View style={{marginTop: 10}}>
                 <InputTextForm
                   label={t('Enter IOT Device Id')}
                   onChangeText={item =>
-                    setstoreProduceInfo({ ...storeProduceInfo, IOTId: item })
+                    setstoreProduceInfo({...storeProduceInfo, IOTId: item})
                   }
                   value={storeProduceInfo.IOTId}
                 />
@@ -1210,7 +1228,7 @@ const PlotSiteProduceInformation = () => {
                   <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
                   <Image
                     source={require('../../Common/images/map.png')}
-                    style={{ width: 50, height: 50 }}
+                    style={{width: 50, height: 50}}
                   />
                 </View>
               </TouchableOpacity>
@@ -1227,9 +1245,10 @@ const PlotSiteProduceInformation = () => {
                 <InputTextForm
                   label={
                     t('Calculated Map Area ') +
-                    `${landAreaUnit?.[0]?.defined_unit_value
-                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                      : '(Square meter)'
+                    `${
+                      landAreaUnit?.[0]?.defined_unit_value
+                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                        : '(Square meter)'
                     }`
                   }
                   value={area.toString()}
@@ -1267,7 +1286,7 @@ const PlotSiteProduceInformation = () => {
                         </Text>
                         <Image
                           source={require('../../Common/images/map.png')}
-                          style={{ width: 50, height: 50 }}
+                          style={{width: 50, height: 50}}
                         />
                       </View>
                     </TouchableOpacity>
@@ -1358,14 +1377,14 @@ const PlotSiteProduceInformation = () => {
                 val={storeProduceInfo.produceProductionUnit}
               />
               <View>
-                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
+                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
                   {t('showing_date')}
                 </Text>
                 <View style={styles.passwordMainContainer}>
                   <TouchableOpacity
                     style={styles.passwordContainer}
                     onPress={() => setOpencycleStarts(true)}>
-                    <View style={{ width: '90%' }}>
+                    <View style={{width: '90%'}}>
                       <Text style={styles.text}>
                         {storeProduceInfo.cycleStarts}
                       </Text>
@@ -1393,14 +1412,14 @@ const PlotSiteProduceInformation = () => {
                 </View>
               </View>
               <View>
-                <Text style={{ marginBottom: 5, marginLeft: 5, color: 'red' }}>
+                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
                   {t('harvesting_date_auto_calculated')}
                 </Text>
                 <View style={styles.passwordMainContainer}>
                   <TouchableOpacity
                     style={styles.passwordContainer}
                     onPress={() => setOpencycleEnds(true)}>
-                    <View style={{ width: '90%' }}>
+                    <View style={{width: '90%'}}>
                       <Text style={styles.text}>
                         {storeProduceInfo.cycleEnds}
                       </Text>
@@ -1420,31 +1439,35 @@ const PlotSiteProduceInformation = () => {
                         storeProduceInfo.cycleStarts == ''
                           ? newdate
                           : new Date(
-                            `${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getFullYear()}-${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getMonth() + 1
-                            }-${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getDate() + 1
-                            }`,
-                          )
+                              `${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getFullYear()}-${
+                                new Date(
+                                  storeProduceInfo.cycleStarts,
+                                ).getMonth() + 1
+                              }-${
+                                new Date(
+                                  storeProduceInfo.cycleStarts,
+                                ).getDate() + 1
+                              }`,
+                            )
                       }
                       minimumDate={
                         storeProduceInfo.cycleStarts == ''
                           ? ''
                           : new Date(
-                            `${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getFullYear()}-${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getMonth() + 1
-                            }-${new Date(
-                              storeProduceInfo.cycleStarts,
-                            ).getDate() + 1
-                            }`,
-                          )
+                              `${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getFullYear()}-${
+                                new Date(
+                                  storeProduceInfo.cycleStarts,
+                                ).getMonth() + 1
+                              }-${
+                                new Date(
+                                  storeProduceInfo.cycleStarts,
+                                ).getDate() + 1
+                              }`,
+                            )
                       }
                       onConfirm={item => {
                         handlecycleEnd(item);
@@ -1460,7 +1483,7 @@ const PlotSiteProduceInformation = () => {
               {route.params.arrayIndex == undefined ? (
                 <TouchableOpacity
                   onPress={saveInObject}
-                  style={{ alignItems: 'center' }}
+                  style={{alignItems: 'center'}}
                   activeOpacity={0.7}>
                   <Text style={styles.addBtn}>
                     {t('click_to_add_more_plot')}
@@ -1469,32 +1492,32 @@ const PlotSiteProduceInformation = () => {
               ) : (
                 ''
               )}
-              <View style={{ marginBottom: 10 }}>
+              <View style={{marginBottom: 10}}>
                 {route.params.arrayIndex == undefined
                   ? storeProduceInfoInArray.map((data, index) => {
-                    return (
-                      <View style={styles.moreContainer} key={index}>
-                        <View style={styles.moreTextContainer}>
-                          <Text style={styles.moreText}>
-                            {data.storeProduceInfo.plotSiteName}
-                          </Text>
-                          <Text style={styles.moreText}>
-                            {data.storeProduceInfo.produceName}
-                          </Text>
-                          <Text style={styles.moreText}>
-                            {data.storeProduceInfo.produceVariety}
-                          </Text>
+                      return (
+                        <View style={styles.moreContainer} key={index}>
+                          <View style={styles.moreTextContainer}>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.plotSiteName}
+                            </Text>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.produceName}
+                            </Text>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.produceVariety}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            onPress={() => produceRemoveDetails(index)}>
+                            <Image
+                              source={require('../../Common/images/x-mark.png')}
+                              style={styles.xMarkImage}
+                            />
+                          </TouchableOpacity>
                         </View>
-                        <TouchableOpacity
-                          onPress={() => produceRemoveDetails(index)}>
-                          <Image
-                            source={require('../../Common/images/x-mark.png')}
-                            style={styles.xMarkImage}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    );
-                  })
+                      );
+                    })
                   : null}
               </View>
             </View>
@@ -1508,9 +1531,9 @@ const PlotSiteProduceInformation = () => {
           </Text>
         </TouchableOpacity> */}
         <TouchableOpacity
-          style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+          style={[styles.locationAddMoreContainer, {bottom: 250}]}
           onPress={() => setShowModal(!showModal)}>
-          <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
             {t('MapView')}
           </Text>
         </TouchableOpacity>
@@ -1553,7 +1576,7 @@ const PlotSiteProduceInformation = () => {
             //basudev
             location={location}
             baselatLong={referencelatLong}
-            statuslevel={""}
+            statuslevel={''}
             type="livehoood"
             handleRegionChangeComplete={handleRegionChangeComplete}
             isLoading={isLoading}

@@ -1,31 +1,29 @@
-import { StyleSheet, Image, View } from 'react-native'
-import React from 'react'
+import {StyleSheet, Image, View} from 'react-native';
+import React from 'react';
 
-const ImagePlaceHolderCircleWithoutAddButton = ({ imageurl }) => {
-    return (
-        <View style={styles.container}>
-            {/* Placeholder Image */}
-            <Image
-                source={imageurl} 
-                style={styles.image}
-            />
-        </View>
-    )
-}
+const ImagePlaceHolderCircleWithoutAddButton = ({imageurl, style}) => {
+  return (
+    <View style={[styles.container, style]}>
+      {/* Placeholder Image */}
+      <Image source={imageurl} style={styles.image} />
+    </View>
+  );
+};
 
-export default ImagePlaceHolderCircleWithoutAddButton
+export default ImagePlaceHolderCircleWithoutAddButton;
 
 const styles = StyleSheet.create({
-    container: {
-        width: 100, // Adjust the container size as needed
-        height: 100,
-        position: 'relative', // Required for absolute positioning
-        // borderWidth: 2,
-    },
-    image: {
-        width: '70%',
-        height: '70%',
-        borderRadius: 75, // Half of the width or height to create a circle
-    },
-
-})
+  container: {
+    width: 100, // Adjust the container size as needed
+    height: 100,
+    position: 'relative', // Required for absolute positioning
+    // borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: '90%',
+    height: '90%',
+    borderRadius: 75, // Half of the width or height to create a circle
+  },
+});

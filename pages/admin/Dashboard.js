@@ -1,24 +1,33 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Linking, TouchableOpacity, View, Text, StyleSheet, ScrollView, BackHandler, Alert } from 'react-native';
+import React, {useEffect, useState, useContext} from 'react';
+import {
+  Linking,
+  TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  BackHandler,
+  Alert,
+} from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { BoxDisplay } from './dashboardComp';
+import {BoxDisplay} from './dashboardComp';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-import { useIsFocused } from '@react-navigation/native';
-import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
+import {useIsFocused} from '@react-navigation/native';
+import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import BackGroundLocation from '../BackgroundService/BackGroundLocation';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
 import FusedLocation from 'react-native-fused-location';
 // import NotificationServices from '../PushNotification/NotificationServices';
 // import messaging from '@react-native-firebase/messaging';
 import ForegroundHandler from '../PushNotification/ForegroundHandler';
-import { userCreateContext } from '../Context/usersCreateContext';
+import {userCreateContext} from '../Context/usersCreateContext';
 import MessageDialog from '../Common/MessageDialog';
-import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
+import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
 import CustomAlert from '../Common/CustomAlert';
-import { CrashlyticsRecordError } from '../Crashlytics/CrashlyticsRecordError';
+import {CrashlyticsRecordError} from '../Crashlytics/CrashlyticsRecordError';
 import {NativeModules} from 'react-native';
 
-const Dashboard = ({ navigation }) => {
+const Dashboard = ({navigation}) => {
   const {ConfigModule} = NativeModules;
   //GQR-65
   const {
@@ -32,24 +41,24 @@ const Dashboard = ({ navigation }) => {
     Root,
     Toast,
     AlertMesg,
-    loginUser_data
+    loginUser_data,
   } = useContext(userCreateContext);
-  const { agri_user_addresses } = loginUser_data || {};
+  const {agri_user_addresses} = loginUser_data || {};
   const isFocused = useIsFocused();
   const [bottomBanner, setbottomBanner] = useState();
   const [userName, setuserName] = useState();
   const [profileImg, setprofileImg] = useState();
-  const [company_website, setcompany_website] = useState("");
+  const [company_website, setcompany_website] = useState('');
   const [logoImg, setlogoImage] = useState(logoImage);
   const [topBannerImg, settopBanner] = useState(topBanner);
   const [defaultLand, setDefaultLand] = useState(false);
   const [convertionLUState, setConvertionLUState] = useState(false);
-  const navigateToPages = (pageName) => {
+  const navigateToPages = pageName => {
     if (isOnline) {
-      if (pageName == "PersonalInformation") {
+      if (pageName == 'PersonalInformation') {
         //  if (defaultLand == true) {
         if (convertionLUState == false) {
-          navigation.navigate(pageName, { data: 'remove' });
+          navigation.navigate(pageName, {data: 'remove'});
         } else {
           Toast.show({
             text: 'Please add the unit equivalent factor to default unit',
@@ -64,25 +73,28 @@ const Dashboard = ({ navigation }) => {
         //   });
         // }
       } else {
-        navigation.navigate(pageName, { data: 'remove' });
+        navigation.navigate(pageName, {data: 'remove'});
       }
-
     } else {
-      if (pageName == "ProblemList" || pageName == "activityList" || pageName == "PersonalInformation") {
-        navigation.navigate(pageName, { data: 'remove' });
+      if (
+        pageName == 'ProblemList' ||
+        pageName == 'activityList' ||
+        pageName == 'PersonalInformation'
+      ) {
+        navigation.navigate(pageName, {data: 'remove'});
       }
     }
   };
-  
+
   const onPageLoad = async () => {
     try {
-// ConfigModule.getGradleValue()
-//   .then(value => {
-//     console.log('Gradle value:', value);
-//   })
-//   .catch(error => {
-//     console.error('Error fetching Gradle value:', error);
-//   });
+      // ConfigModule.getGradleValue()
+      //   .then(value => {
+      //     console.log('Gradle value:', value);
+      //   })
+      //   .catch(error => {
+      //     console.error('Error fetching Gradle value:', error);
+      //   });
 
       const [
         bottomBannerData,
@@ -142,8 +154,6 @@ const Dashboard = ({ navigation }) => {
         ),
       ]);
 
-
-
       let i = 0;
 
       if (UnitConversonToDefault_res.status == 200) {
@@ -171,17 +181,26 @@ const Dashboard = ({ navigation }) => {
         }
       }
     } catch (error) {
-      CrashlyticsRecordError(error, "Dashboard", "onPageLoad");
-
+      CrashlyticsRecordError(error, 'Dashboard', 'onPageLoad');
     }
   };
-  const HandlerGoBack = () => exit()
+  const HandlerGoBack = () => exit();
   useEffect(() => {
     try {
       if (agri_user_addresses?.length > 0) {
-        const { agri_district, agri_state, agri_subdivision } = agri_user_addresses[0];
-        if (agri_district == null || agri_state == null || agri_subdivision == null) {
-          CustomAlert("Address", "Location data not found Please add from admin.", true, 'OK')
+        const {agri_district, agri_state, agri_subdivision} =
+          agri_user_addresses[0];
+        if (
+          agri_district == null ||
+          agri_state == null ||
+          agri_subdivision == null
+        ) {
+          CustomAlert(
+            'Address',
+            'Location data not found Please add from admin.',
+            true,
+            'OK',
+          );
         }
       }
       if (isFocused) {
@@ -189,70 +208,141 @@ const Dashboard = ({ navigation }) => {
         onBackPress(exit);
       }
     } catch (error) {
-      CrashlyticsRecordError(error, "Dashboard", "useEffect");
-      console.log(error)
+      CrashlyticsRecordError(error, 'Dashboard', 'useEffect');
+      console.log(error);
     }
   }, [isFocused, topBanner]);
   const exit = () => {
-    Alert.alert(`${t('app_name')}`, `${t('close_app')}`,
-      [{ text: `${t('cancle')}`, onPress: () => console.log('Cancel Pressed'), style: 'cancel' }, { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() }],
-      { cancelable: false });
+    Alert.alert(
+      `${t('app_name')}`,
+      `${t('close_app')}`,
+      [
+        {
+          text: `${t('cancle')}`,
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
+      ],
+      {cancelable: false},
+    );
     return true;
-  }
+  };
   const CompanyWebsiteOpen = () => {
-    if (company_website != "") { Linking.openURL(company_website) } else { Alert.alert("Company website not found") }
-  }
+    if (company_website != '') {
+      Linking.openURL(company_website);
+    } else {
+      Alert.alert('Company website not found');
+    }
+  };
   return (
     <>
       {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
-      <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
+      <View style={{flex: 1, backgroundColor: '#f9f9f9'}}>
+        <CustomHeader
+          path="exit"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+          show={true}
+        />
         <View name="name">
           <View style={styles.containerimg}>
-            {profileImg ?
-              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
-            }
+            {profileImg ? (
+              <ImagePlaceHolderCircleWithoutAddButton
+                imageurl={{uri: profileImg}}
+              />
+            ) : (
+              <ImagePlaceHolderCircleWithoutAddButton
+                imageurl={require('../Common/images/avatar.png')}
+              />
+            )}
           </View>
-          <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
+          <Text style={styles.userTitle}>
+            {t('farmerdashboard_welcome_text')} {userName}
+          </Text>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View >
+          <View>
             <View style={styles.container}>
-              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigateToPages('PersonalInformation')} />
-              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigateToPages('userList')} />
+              <BoxDisplay
+                text={t('register_nfarmer')}
+                imageurl={require('../Common/images/register_farmer.png')}
+                onpress={() => navigateToPages('PersonalInformation')}
+              />
+              <BoxDisplay
+                text={t('farmer_list')}
+                imageurl={require('../Common/images/farmer_list.png')}
+                onpress={() => navigateToPages('userList')}
+              />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigateToPages('ProblemList')} />
-              <BoxDisplay text={t('acti_report_far_dash')} imageurl={require('../Common/images/activity_report_only.png')} onpress={() => navigateToPages('activityList')} />
+              <BoxDisplay
+                text={t('crop_prob_far_dash')}
+                imageurl={require('../Common/images/raise_problem_only.png')}
+                onpress={() => navigateToPages('ProblemList')}
+              />
+              <BoxDisplay
+                text={t('acti_report_far_dash')}
+                imageurl={require('../Common/images/activity_report_only.png')}
+                onpress={() => navigateToPages('activityList')}
+              />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('agri_inputs_ninquiry_far_dash')} imageurl={require('../Common/images/input_inqu_only.png')} onpress={() => navigateToPages('InputList')} />
-              <BoxDisplay text={t('agri_output_far_dash')} imageurl={require('../Common/images/dash_sale_your_product.png')} onpress={() => navigateToPages('OutPutList')} />
+              <BoxDisplay
+                text={t('agri_inputs_ninquiry_far_dash')}
+                imageurl={require('../Common/images/input_inqu_only.png')}
+                onpress={() => navigateToPages('InputList')}
+              />
+              <BoxDisplay
+                text={t('agri_output_far_dash')}
+                imageurl={require('../Common/images/dash_sale_your_product.png')}
+                onpress={() => navigateToPages('OutPutList')}
+              />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('market_information')} imageurl={require('../Common/images/market_information_only.png')} />
-              <BoxDisplay text={t('useful_ninformation_dash')} imageurl={require('../Common/images/dash_useful_information.png')} onpress={() => navigateToPages('UsefulInformationList')} />
+              <BoxDisplay
+                text={t('market_information')}
+                imageurl={require('../Common/images/market_information_only.png')}
+              />
+              <BoxDisplay
+                text={t('useful_ninformation_dash')}
+                imageurl={require('../Common/images/dash_useful_information.png')}
+                onpress={() => navigateToPages('UsefulInformationList')}
+              />
             </View>
-            <View style={{ marginTop: 16, elevation: 5 }}>
-              {bottomBanner ?
+            <View style={{marginTop: 16, elevation: 5}}>
+              {bottomBanner ? (
                 <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm source={{ uri: bottomBanner }} resizeMode="cover" height={200} width={'100%'} />
+                  <ImageForm
+                    source={{uri: bottomBanner}}
+                    resizeMode="cover"
+                    height={200}
+                    width={'100%'}
+                  />
                 </TouchableOpacity>
-                : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm source={require('../Common/images/ad_banner_space.jpg')} resizeMode="cover" height={200} width={'100%'} />
-                </TouchableOpacity>}
+              ) : (
+                <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                  <ImageForm
+                    source={require('../Common/images/ad_banner_space.jpg')}
+                    resizeMode="cover"
+                    height={200}
+                    width={'100%'}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </ScrollView>
       </View>
       <Root></Root>
     </>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
 
 const styles = StyleSheet.create({
   container: {
@@ -276,7 +366,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'right',
     // marginTop: 15,
-    color: "#000",
+    color: '#000',
     zIndex: 1000,
     fontFamily: 'Poppins-SemiBold',
     marginRight: 20,
@@ -286,6 +376,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     zIndex: 999,
-    left: '45%'
+    left: '45%',
   },
-})
+});

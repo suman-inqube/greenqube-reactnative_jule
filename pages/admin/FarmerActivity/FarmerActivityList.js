@@ -1,25 +1,50 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import React, { useState, useContext } from 'react';
+import {StyleSheet, Text, View, FlatList, TouchableOpacity} from 'react-native';
+import React, {useState, useContext} from 'react';
 import WidgetsSide from '../../Common/WidgetsSide';
-import { farmerActivityListAPI } from '../../../config/apiHere';
-import { useFocusEffect } from '@react-navigation/native';
+import {farmerActivityListAPI} from '../../../config/apiHere';
+import {useFocusEffect} from '@react-navigation/native';
 import MessageDialog from '../../Common/MessageDialog';
 import FarmerFilter from '../../Common/FarmerFilter';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { SPSheet } from 'react-native-popup-confirm-toast';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {SPSheet} from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
-
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const OPTIONS = [
-  { id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD' },
-  { id: 'Conventional', title: 'Non-Carbon', navigation: 'FarmerActivityReport' },
+  {id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD'},
+  {
+    id: 'Conventional',
+    title: 'Non-Carbon',
+    navigation: 'FarmerActivityReport',
+  },
 ];
-const FarmerActivityList = ({ navigation }) => {
+const FarmerActivityList = ({navigation}) => {
   //GQR-67
-  const { handlePageList, dbLanTokUsr, setdbLanTokUsr, loginUser_data, effective_dates, LoadingScreen, CustomHeader, t, DatePickerComp, onBackPress, getItem, setItem, logoImage, topBanner, DeviceInfo, Root, Toast, AlertMesg } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
-  const { farmerId, pageNo } = dbLanTokUsr;
+  const {
+    handlePageList,
+    dbLanTokUsr,
+    setdbLanTokUsr,
+    loginUser_data,
+    effective_dates,
+    LoadingScreen,
+    CustomHeader,
+    t,
+    DatePickerComp,
+    onBackPress,
+    getItem,
+    setItem,
+    logoImage,
+    topBanner,
+    DeviceInfo,
+    Root,
+    Toast,
+    AlertMesg,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
+  const {farmerId, pageNo} = dbLanTokUsr;
   //GQR-67
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const [isLoading, setIsLoading] = useState(true);
   const [activityAll, setactivityAll] = useState([]);
   const [filterOption, setFilterOption] = useState(false);
@@ -44,21 +69,45 @@ const FarmerActivityList = ({ navigation }) => {
     setFilterName(value);
     setFilterItem(value);
     setFilterOption(false);
-    setCarbonType("");
+    setCarbonType('');
   };
-  const handlePage = async (value) => {
-    handlePageList(value, setIsLoading, token, pageNo, farmerActivityListAPI, setactivityAll, dbname, lan_id, user_id, '', fromDate, toDate, carbonType);
-  }
+  const handlePage = async value => {
+    handlePageList(
+      value,
+      setIsLoading,
+      token,
+      pageNo,
+      farmerActivityListAPI,
+      setactivityAll,
+      dbname,
+      lan_id,
+      user_id,
+      '',
+      fromDate,
+      toDate,
+      carbonType,
+    );
+  };
   const handleFilter = async item => {
     if (filterName === 'date') {
       return;
     } else {
       const from_date = '';
       const to_date = '';
-      const response = await farmerActivityListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, dbLanTokUsr.pageNo, item, from_date, to_date, carbonType);
+      const response = await farmerActivityListAPI(
+        dbLanTokUsr.dbName,
+        dbLanTokUsr.languageId,
+        dbLanTokUsr.token,
+        dbLanTokUsr.supervisorId,
+        dbLanTokUsr.pageNo,
+        item,
+        from_date,
+        to_date,
+        carbonType,
+      );
       if (response) {
         setactivityAll(response.data.data.rows);
-        setItem('activity_Data', response.data.data.rows);
+        await setItem('activity_Data', response.data.data.rows);
       }
     }
   };
@@ -72,7 +121,16 @@ const FarmerActivityList = ({ navigation }) => {
     setToDate(effective_date);
     if (fromDateFilter) {
       const item = '';
-      const response = await farmerActivityListAPI(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date,);
+      const response = await farmerActivityListAPI(
+        dbname,
+        lan_id,
+        token,
+        user_id,
+        pageNo,
+        item,
+        fromDateFilter,
+        effective_date,
+      );
       if (response) {
         setactivityAll(response.data.data.rows);
         setItem('activity_Data', response.data.data.rows);
@@ -80,26 +138,43 @@ const FarmerActivityList = ({ navigation }) => {
     } else {
       // MessageDialog({ title: 'Require', message: 'Please Select First data.' });
       Toast.show({
-        time: 3, text: 'Please Select First data.', ...AlertMesg[0]
-      })
+        time: 3,
+        text: 'Please Select First data.',
+        ...AlertMesg[0],
+      });
     }
   };
-  const navigateToPages = async (pageName, uact_id, item) => {
-    setItem('uact_id_data', uact_id);
-    navigation.navigate(pageName, item);
-    setIsLoading(true);
-  };
-
-  const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo, searchItem = '', from_date = '', to_date = '', carbonType = '') => {
+  const fatchActivityListAPI = async (
+    dbName,
+    languageId,
+    token,
+    supervisorId,
+    pageNo,
+    searchItem = '',
+    from_date = '',
+    to_date = '',
+    carbonType = '',
+  ) => {
     if (netConnection) {
-      var response = await farmerActivityListAPI(dbName, languageId, token, supervisorId, pageNo, searchItem, from_date, to_date, carbonType);
+      var response = await axiosGet(
+        ROUTES.GET.LIST_USER_ACTIVITY({
+          pageNO: pageNo,
+          carbonType: carbonType,
+          userID: '',
+          searchItem: searchItem,
+          from_date: from_date,
+          to_date: to_date,
+        }),
+        token,
+        {information: `${dbName},${languageId},${supervisorId}`},
+      );
       await setItem('farmerActivityList' + supervisorId, response);
     } else {
       var response = await getItem('farmerActivityList' + supervisorId);
     }
     if (response?.data) {
       const totalPage = Math.ceil(response.data.data.count / 20);
-      setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
+      setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage});
       setactivityAll(response.data.data.rows);
       setItem('activity_Data', response.data.data.rows);
       setIsLoading(false);
@@ -109,14 +184,18 @@ const FarmerActivityList = ({ navigation }) => {
   const onPageLoad = async () => {
     setfromDate('');
     setToDate('');
-    setFilterItem(''); setFilterOption(false);
+    setFilterItem('');
+    setFilterOption(false);
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1);
   };
 
   useFocusEffect(
     React.useCallback(() => {
       onPageLoad();
-      onBackPress(() => { navigation.navigate('FarmerDashboard'); return true; })
+      onBackPress(() => {
+        navigation.navigate('FarmerDashboard');
+        return true;
+      });
     }, [netConnection]),
   );
   const HandlerGoBack = () => {
@@ -127,12 +206,18 @@ const FarmerActivityList = ({ navigation }) => {
     setFilterOption(false);
     setToDate('');
     setfromDate('');
-    const response = await farmerActivityListAPI(dbname, lan_id, token, user_id, 1);
+    const response = await farmerActivityListAPI(
+      dbname,
+      lan_id,
+      token,
+      user_id,
+      1,
+    );
     if (response?.data) {
       setactivityAll(response.data.data.rows);
       setItem('activity_Data', response.data.data.rows);
       setIsLoading(false);
-      setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
+      setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
     }
   };
 
@@ -140,7 +225,12 @@ const FarmerActivityList = ({ navigation }) => {
     if (carbonFlag == true) {
       SPSheet.show({
         component: () => (
-          <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS} />
+          <CarbonActivityBottomSheet
+            index={0}
+            spSheet={SPSheet}
+            navigation={navigation}
+            options={OPTIONS}
+          />
         ),
         height: 210,
         zIndex: 1000,
@@ -148,12 +238,12 @@ const FarmerActivityList = ({ navigation }) => {
     } else {
       navigation.navigate('FarmerActivityReport');
     }
-  }
-  const onChangeCarbonType = (_item) => {
-    const { label, value } = _item
-    setCarbonType(value)
+  };
+  const onChangeCarbonType = _item => {
+    const {label, value} = _item;
+    setCarbonType(value);
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
-  }
+  };
   return (
     <Root>
       <CustomHeader
@@ -297,7 +387,7 @@ const styles = StyleSheet.create({
   wrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,
@@ -332,7 +422,7 @@ const styles = StyleSheet.create({
   OptionWrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,

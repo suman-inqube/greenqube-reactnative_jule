@@ -1,35 +1,30 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import React from 'react';
+import {StyleSheet} from 'react-native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import CustomDrawer from './CustomDrawer';
+
 import Dashboard from './Dashboard';
-import CustomHeader from './CustomHeader';
-import { getItem, setItem } from '../../config/getDataFromStorage';
-import { fpodetailsDataListAPI } from '../../config/apiHere';
 import UserList from './userlist/UserList';
 import ActivityList from './Activity/ActivityList';
 import ActivityDetail from './Activity/ActivityDetail';
 import ActivityReport from './Activity/ActivityReport';
 import ActivityReportAWD from './Activity/ActivityReportAWD';
-
 import ForgotPassword from './userlist/ForgetPassword';
 import Information from './userlist/Information';
 import LiveHood from './userlist/LiveHood';
 import PlotList from './userlist/PlotList';
 import CrateProblemUser from './userlist/CrateProblemUser';
-
 import InputList from './Inputs/InputList';
 import PastEnquiries from './Inputs/PastEnquiries';
 import Profile from './Menu/Profile';
 import ListProblem from './Problem/ListProblem';
 import CreateProblem from './Problem/CrateProblem';
 import ViewProblem from './Problem/ViewProblem';
-import CustomDrawer from './CustomDrawer';
 import WantToBuy from './Inputs/WantToBuy';
-
 import OutPut from './Output/OutPut';
 import PostNew from './Output/PostNew';
 import ViewPast from './Output/ViewPast';
-
 import LoanEnquiry from './Loan/LoanEnquiry';
 import LoanEnquiryDetail from './Loan/LoanEnquiryDetail';
 import Training from './Training/Training';
@@ -41,32 +36,107 @@ import DailySalesReport from './DailySalesReport/DailySalesReport';
 import SalesDetail from './DailySalesReport/SalesDetail';
 import DealerReport from './DailySalesReport/DealerReport';
 import FarmerReport from './DailySalesReport/FarmerReport';
-
 import FarmIncomeExpenseList from './FarmIncomeExpense/FarmIncomeExpenseList';
 import FarmIncomeExpenseView from './FarmIncomeExpense/FarmIncomeExpenseView';
 import AddIcome from './FarmIncomeExpense/AddIcome';
 import AddExpense from './FarmIncomeExpense/AddExpense';
-
 import PersonalInformation from './UserRegistation/PersonalInformation';
 import FinancialInformation from './UserRegistation/FinancialInformation';
 import PlotSiteProduceInformation from './UserRegistation/PlotSiteProduceInformation';
 import RegistationSignUpViwer from './UserRegistation/RegistationSignUpViwer';
 import ChangePassword from './ChangePassword/ChangePassword';
 import Business from './Business/Business';
-import InstrumentWiseActivityView from './Activity/InstrumentWiseActivityView';
-import InstrumentWiseActivityDetails from './Activity/InstrumentWiseActivityDetails';
+import {Colors} from '../utils/Constants';
+
+const Stack = createNativeStackNavigator();
+
+function AdminStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {backgroundColor: 'transparent'},
+      }}>
+      <Stack.Screen name="Dashboard" component={Dashboard} />
+      <Stack.Screen name="Training" component={Training} />
+      <Stack.Screen name="TraingList" component={TrainingList} />
+      <Stack.Screen name="UsefulInformation" component={UsefulInformation} />
+      <Stack.Screen
+        name="UsefulInformationList"
+        component={UsefulInformationList}
+      />
+      <Stack.Screen name="ProblemCreate" component={CreateProblem} />
+      <Stack.Screen name="ProblemList" component={ListProblem} />
+      <Stack.Screen name="ProblemView" component={ViewProblem} />
+      <Stack.Screen name="OutPutList" component={OutPut} />
+      <Stack.Screen name="PostNew" component={PostNew} />
+      <Stack.Screen name="ViewPast" component={ViewPast} />
+      <Stack.Screen name="Loan" component={LoanEnquiry} />
+      <Stack.Screen name="LoanEnquiryDetail" component={LoanEnquiryDetail} />
+      <Stack.Screen name="InputList" component={InputList} />
+      <Stack.Screen name="WantToBuy" component={WantToBuy} />
+      <Stack.Screen name="PastEnquiry" component={PastEnquiries} />
+      <Stack.Screen name="activityList" component={ActivityList} />
+      <Stack.Screen name="activityReport" component={ActivityReport} />
+      <Stack.Screen name="ActivityReportAWD" component={ActivityReportAWD} />
+      <Stack.Screen name="activityDetail" component={ActivityDetail} />
+      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="userList" component={UserList} />
+      <Stack.Screen name="password" component={ForgotPassword} />
+      <Stack.Screen name="information" component={Information} />
+      <Stack.Screen name="livehood" component={PlotList} />
+      <Stack.Screen name="CrateProblemUser" component={CrateProblemUser} />
+      <Stack.Screen name="InsuranceEnquiry" component={InsuranceEnquiry} />
+      <Stack.Screen name="DailySalesReport" component={DailySalesReport} />
+      <Stack.Screen name="SalesDetail" component={SalesDetail} />
+      <Stack.Screen name="DealerReport" component={DealerReport} />
+      <Stack.Screen name="FarmerReport" component={FarmerReport} />
+      <Stack.Screen
+        name="FarmIncomeExpenseList"
+        component={FarmIncomeExpenseList}
+      />
+      <Stack.Screen
+        name="FarmIncomeExpenseView"
+        component={FarmIncomeExpenseView}
+      />
+      <Stack.Screen name="AddIcome" component={AddIcome} />
+      <Stack.Screen name="AddExpense" component={AddExpense} />
+      <Stack.Screen
+        name="PersonalInformation"
+        component={PersonalInformation}
+      />
+      <Stack.Screen
+        name="FinancialInformation"
+        component={FinancialInformation}
+      />
+      <Stack.Screen
+        name="PlotSiteProduceInformation"
+        component={PlotSiteProduceInformation}
+      />
+      <Stack.Screen
+        name="RegistationSignUpViwer"
+        component={RegistationSignUpViwer}
+      />
+      <Stack.Screen name="ChangePassword" component={ChangePassword} />
+      <Stack.Screen name="Business" component={Business} />
+    </Stack.Navigator>
+  );
+}
 
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
   return (
     <Drawer.Navigator
-      drawerContent={props => <CustomDrawer />}
+      drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: false,
-        // header: () => <CustomHeader options={{unmountOnBlur:true}} />,
+        // header: () => <CustomHeader />,
+
+        drawerType: 'slide',
         drawerPosition: 'right',
         drawerActiveTintColor: '#f8f8f8',
-        drawerActiveBackgroundColor: '#093514',
+        drawerActiveBackgroundColor: Colors.drawer,
+        overlayColor: 'transparent',
         drawerInactiveTintColor: '#FFF',
         drawerStatusBarAnimation: 'fade',
         drawerItemStyle: {
@@ -77,243 +147,23 @@ const AdminNavigation = () => {
         drawerLabelStyle: {
           marginLeft: -20,
         },
-        // overlayColor: 'transparent',
         drawerStyle: {
-          backgroundColor: '#093514',
-          width: '80%',
-          marginTop: 50,
-          // position: 'absolute',
-          // top: 40,
+          backgroundColor: Colors.drawer, //dark brown //'#0f1e47',dark blue //'#1a5f3c dark green'//'#093514',green
+          width: '65%', // pre-80%
+          // marginTop: 50,
+          marginLeft: -0.2,
         },
-        // style: { backgroundColor: "transparent", opacity: 0, shadowOpacity: 0, shadowColor: "transparent" }
+        sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
       }}>
-      <Drawer.Screen name="Dashboard" component={Dashboard} />
-
       <Drawer.Screen
-        name="Training"
-        component={Training}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        name="AdminStack"
+        component={AdminStack}
+        options={{title: 'Admin Dashboard'}}
       />
-      <Drawer.Screen name="TraingList" component={TrainingList} />
-
-      <Drawer.Screen
-        name="UsefulInformation"
-        component={UsefulInformation}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="UsefulInformationList"
-        component={UsefulInformationList}
-        // options={{ gestureEnabled: false ,unmountOnBlur: true,}}
-      />
-
-      <Drawer.Screen
-        name="ProblemCreate"
-        component={CreateProblem}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="ProblemList"
-        component={ListProblem}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="ProblemView"
-        component={ViewProblem}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="OutPutList"
-        component={OutPut}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="PostNew"
-        component={PostNew}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="ViewPast"
-        component={ViewPast}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="Loan"
-        component={LoanEnquiry}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="LoanEnquiryDetail"
-        component={LoanEnquiryDetail}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="InputList"
-        component={InputList}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="WantToBuy"
-        component={WantToBuy}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="PastEnquiry"
-        component={PastEnquiries}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="activityList"
-        component={ActivityList}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="activityReport"
-        component={ActivityReport}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="ActivityReportAWD"
-        component={ActivityReportAWD}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="activityDetail"
-        component={ActivityDetail}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="Profile"
-        component={Profile}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="userList"
-        component={UserList}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="password"
-        component={ForgotPassword}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="information"
-        component={Information}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="livehood"
-        component={PlotList}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="CrateProblemUser"
-        component={CrateProblemUser}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="InsuranceEnquiry"
-        component={InsuranceEnquiry}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="DailySalesReport"
-        component={DailySalesReport}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="SalesDetail"
-        component={SalesDetail}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="DealerReport"
-        component={DealerReport}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="FarmerReport"
-        component={FarmerReport}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="FarmIncomeExpenseList"
-        component={FarmIncomeExpenseList}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="FarmIncomeExpenseView"
-        component={FarmIncomeExpenseView}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="AddIcome"
-        component={AddIcome}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="AddExpense"
-        component={AddExpense}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="PersonalInformation"
-        component={PersonalInformation}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="FinancialInformation"
-        component={FinancialInformation}
-        options={{ gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="PlotSiteProduceInformation"
-        component={PlotSiteProduceInformation}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="RegistationSignUpViwer"
-        component={RegistationSignUpViwer}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
-      <Drawer.Screen
-        name="ChangePassword"
-        component={ChangePassword}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="Business"
-        component={Business}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-      <Drawer.Screen
-        name="InstrumentWiseActivityView"
-        component={InstrumentWiseActivityView}
-      // options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-      <Drawer.Screen
-        name="InstrumentWiseActivityDetails"
-        component={InstrumentWiseActivityDetails}
-      options={{unmountOnBlur: true, gestureEnabled: false}}
-      />
-
     </Drawer.Navigator>
   );
-}
+};
 
-export default AdminNavigation
+export default AdminNavigation;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
