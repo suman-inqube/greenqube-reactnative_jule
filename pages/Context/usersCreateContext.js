@@ -1,5 +1,6 @@
-import React, {createContext, useEffect, useState, lazy} from 'react';
-import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
+import React, { createContext, useEffect, useState, lazy } from 'react';
+import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
+import { InteractionManager } from 'react-native';
 // const { netConnection } = DeviceInfo();
 const userCreateContext = createContext();
 import {
@@ -7,10 +8,10 @@ import {
   problemPlotAgainstFarmerAPI,
   showCarbonFlag,
 } from '../../config/apiHere';
-import {useTranslation} from 'react-i18next';
-import {AlertMesg} from '../Common/ToastAlert';
-import {Root, Toast, Popup, SPSheet} from 'react-native-popup-confirm-toast';
-import {onBackPress} from '../Common/BackPressHandler';
+import { useTranslation } from 'react-i18next';
+import { AlertMesg } from '../Common/ToastAlert';
+import { Root, Toast, Popup, SPSheet } from 'react-native-popup-confirm-toast';
+import { onBackPress } from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
 import i18next from 'i18next';
 const ImagePlaceHolderCircle = lazy(() =>
@@ -32,8 +33,8 @@ const DatePicker = lazy(() => import('react-native-date-picker'));
 const config = lazy(() => import('../../config'));
 const axios = lazy(() => import('axios'));
 const UserCreateContextProvider = props => {
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const [dbLanTokUsr, setdbLanTokUsr] = useState({
     pageNo: 1,
     dbName: '',
@@ -71,7 +72,7 @@ const UserCreateContextProvider = props => {
         getItem('topBannerData'),
         getItem('companyLanguage_data'),
       ]);
-      // i18next.changeLanguage(loginUser_data?.lan_id.toString());
+      i18next.changeLanguage(loginUser_data?.lan_id.toString());
       if (netConnection && loginUser_data?.token) {
         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
           farmerByNameAPI(
@@ -117,13 +118,13 @@ const UserCreateContextProvider = props => {
         } else if (loginUser_data?.userType == 3) {
           supervisorId = loginUser_data?.user_id;
         }
-        const {company, country_id, language} = companyLanguage_data;
-        const {option_value} = resCarbonFlag?.data?.data || {};
+        const { company, country_id, language } = companyLanguage_data;
+        const { option_value } = resCarbonFlag?.data?.data || {};
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({
           ...loginUser_data,
-          ...{carbonFlag: option_value},
+          ...{ carbonFlag: option_value },
         });
         setdbLanTokUsr({
           ...dbLanTokUsr,
@@ -148,7 +149,21 @@ const UserCreateContextProvider = props => {
           aadharNumber: data?.aadhar_number,
           kccNumber: data?.kcc_number,
         }));
-        setFarmerData(dataArray);
+        const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
+          value: data.user_id,
+          label: data.userName,
+          phone: data.contactNumber,
+          aadharNumber: data?.aadhar_number,
+          kccNumber: data?.kcc_number,
+        }));
+        const dataArrayPhone = farmer_response?.data?.data?.rows.map(data => ({
+          value: data.user_id,
+          label: data.contactNumber,
+          phone: data.contactNumber,
+          aadharNumber: data?.aadhar_number,
+          kccNumber: data?.kcc_number,
+        }));
+        setFarmerData([dataArrayName, dataArrayPhone]);
         const PlotArray = responsePlot?.data?.data.map(data => ({
           value: data.rel_id,
           label: data.plot_no,
@@ -159,8 +174,13 @@ const UserCreateContextProvider = props => {
       console.error(error);
     }
   };
+
   useEffect(() => {
-    AllFarmerList();
+    const task = InteractionManager.runAfterInteractions(() => {
+      AllFarmerList();
+    });
+
+    return () => task.cancel(); // cleanup
   }, [netConnection]);
   const effective_dates = item => {
     const dt = new Date(item);
@@ -281,7 +301,7 @@ const UserCreateContextProvider = props => {
     if (value === 'next') {
       if (totalPage === currentPageNo) {
         setDataAll([]);
-        Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
+        Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
         setIsLoading(false);
         return;
       } else {
@@ -306,7 +326,7 @@ const UserCreateContextProvider = props => {
               ...AlertMesg[0],
             });
           } else {
-            setdbLanTokUsr({...dbLanTokUsr, pageNo: nextPage});
+            setdbLanTokUsr({ ...dbLanTokUsr, pageNo: nextPage });
           }
           setDataAll(response.data.data.rows);
           await setItem('problem_Data', response.data.data);
@@ -338,7 +358,7 @@ const UserCreateContextProvider = props => {
                 ...AlertMesg[0],
               });
             } else {
-              setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
+              setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
             }
             setDataAll(response.data.data.rows);
             setItem('problem_Data', response.data.data);
@@ -346,7 +366,7 @@ const UserCreateContextProvider = props => {
           }
         } else {
           const prePage = currentPageNo - 1;
-          setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
+          setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
           const response = await Api(
             dbname,
             lan_id,
@@ -367,7 +387,7 @@ const UserCreateContextProvider = props => {
                 ...AlertMesg[0],
               });
             } else {
-              setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
+              setdbLanTokUsr({ ...dbLanTokUsr, pageNo: prePage });
             }
             setDataAll(response.data.data.rows);
             setItem('problem_Data', response.data.data);
@@ -429,4 +449,4 @@ const UserCreateContextProvider = props => {
   );
 };
 const userListContext = createContext('adduser');
-export {userListContext, UserCreateContextProvider, userCreateContext};
+export { userListContext, UserCreateContextProvider, userCreateContext };

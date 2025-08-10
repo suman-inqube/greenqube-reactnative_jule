@@ -18,6 +18,7 @@ import {
 import {LoanUpdate} from './FarmerLoanAPI';
 import {farmerDocAPI} from '../Loan/LoanAPI';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import { Colors,Fonts } from '../../utils/Constants';
 const FarmerLoanEnquiryDetail = () => {
   //GQR-67
   const {

@@ -2,9 +2,9 @@ export const Colors = {
   primary: '#f7ca49',
   primary_light: '#ffe141',
   secondary: '#0d8320',
-  text: '#4e4e4e',
+  text: '#585858',
   disabled: '#9197a6',
-  border: '#d0d4dc',
+  // border: '#d0d4dc',
   backgroundSecondary: '#f5f6fb',
   drawer: '#1d3122',
   Lcolor: '#d5dbd7',
@@ -12,7 +12,10 @@ export const Colors = {
   containerGreen: '#d7edd5',
   pageBackground: '#F7FCFF',
   borderGreen: '#107808ff',
-  subBtn: '#21374A',
+  border: '#E5E9EF',
+  lightText: '#9197A6',
+  background: '#fff',
+  background_light: '#F4F6FC',
 };
 export const Fonts = {
   Regular: 'Poppins-Regular',

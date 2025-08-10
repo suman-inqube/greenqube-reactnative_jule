@@ -47,8 +47,6 @@ import ForegroundLocationService from './BackgroundService/ForegroundLocationSer
 import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
 import {userCreateContext} from './Context/usersCreateContext';
-import MyErrorBoundary from './Common/MyErrorBoundary';
-import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
 import {axiosPost} from './utils/api';
@@ -258,7 +256,6 @@ const Login = ({route}) => {
             password: '',
             role: '',
             company_lable: '',
-            company_lable: '',
           });
           const [fpoDetailsList_res, reginalRes, defaultCurrRes] =
             await Promise.all([
@@ -279,8 +276,6 @@ const Login = ({route}) => {
                 loginUserdata.lan_id,
                 loginUserdata.token,
               ),
-              await setItem('loginUser_data', loginUserdata),
-              await setItem('companyFirstEntry', 0),
             ]);
           if (defaultCurrRes?.status === 200) {
             if (defaultCurrRes.data.data.rows.length > 0) {
@@ -316,10 +311,6 @@ const Login = ({route}) => {
               } else if (item.static_cid === 3) {
                 await setItem('block', item.categoryName);
               }
-              //   else if (item.static_cid === 4) {
-              //     await setItem('currency', item.categoryName);
-              //   }
-
               //   else if (item.static_cid === 4) {
               //     await setItem('currency', item.categoryName);
               //   }
@@ -402,7 +393,7 @@ const Login = ({route}) => {
           }
         }
       } catch (error) {
-        CrashlyticsRecordError(error, 'Login', 'saveHandle');
+        console.log(error)
         Toast.show({
           text: `${error.response?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
@@ -412,13 +403,8 @@ const Login = ({route}) => {
     }
   };
   const onPageLoad = async () => {
-    try {
-      const [
-        companyFirstEntry,
-        rememberData,
-        companyLanguage_data,
-        company_res,
-      ] = await Promise.all([
+    const [companyFirstEntry, rememberData, companyLanguage_data, company_res] =
+      await Promise.all([
         getItem('companyFirstEntry'),
         getItem('rememberData'),
         getItem('companyLanguage_data'),
@@ -437,150 +423,58 @@ const Login = ({route}) => {
         removeItem('side_menu_option'),
       ]);
 
-      // else {
-      //   setcompanyLanguage({
-      //     ...companyLanguage,
-      //     company: '',
-      //     language: '',
-      //     company_id: '',
-      //     company_name: '',
-      //   });
-      // }
-      if (companyLanguage_data != '' && companyLanguage_data != null) {
-        setcompanyLanguage(companyLanguage_data);
-        const {country_id, company, language} = companyLanguage_data;
-        checkPhoneNumber(country_id, company, language);
-        const [
-          companyFirstEntry,
-          rememberData,
-          companyLanguage_data,
-          company_res,
-        ] = await Promise.all([
-          getItem('companyFirstEntry'),
-          getItem('rememberData'),
-          getItem('companyLanguage_data'),
-          databaseListAPI(),
-          removeItem('storeSignup_data'),
-          removeItem('storePersnolInfo_data'),
-          removeItem('storeFinancial_data'),
-          removeItem('storeProduceInfo_data'),
-          requestUserPermission(),
-          notificationListener(),
-          Permission.requestMultiple([
-            PERMISSIONS_TYPE.microphone,
-            PERMISSIONS_TYPE.fineLocation,
-            PERMISSIONS_TYPE.notifications,
-          ]),
-          removeItem('side_menu_option'),
-        ]);
+    // else {
+    //   setcompanyLanguage({
+    //     ...companyLanguage,
+    //     company: '',
+    //     language: '',
+    //     company_id: '',
+    //     company_name: '',
+    //   });
+    // }
+    if (companyLanguage_data != '' && companyLanguage_data != null) {
+      setcompanyLanguage(companyLanguage_data);
+      const {country_id, company, language} = companyLanguage_data;
+      checkPhoneNumber(country_id, company, language);
 
-        // else {
-        //   setcompanyLanguage({
-        //     ...companyLanguage,
-        //     company: '',
-        //     language: '',
-        //     company_id: '',
-        //     company_name: '',
-        //   });
-        // }
-        if (companyLanguage_data != '' && companyLanguage_data != null) {
-          setcompanyLanguage(companyLanguage_data);
-          const {country_id, company, language} = companyLanguage_data;
-          checkPhoneNumber(country_id, company, language);
-
-          if (companyFirstEntry == 1) {
-            setstoreLoginUser({
-              ...storeLoginUser,
-              phone: '',
-              password: '',
-              role: '',
-              company: companyLanguage_data.company_id,
-              // FcmUserToken: fcmToken_res,
-            });
-          } else {
-            if (rememberData?.contactNumber.length > 4) {
-              setstoreLoginUser({
-                ...storeLoginUser,
-                phone: rememberData.contactNumber,
-                password: rememberData.password,
-                role: rememberData.type,
-                company: rememberData.company,
-                // FcmUserToken: fcmToken_res,
-              });
-              setcompanyLanguage({
-                ...companyLanguage,
-                company_name: rememberData.company_name,
-              });
-            } else {
-              setstoreLoginUser({
-                ...storeLoginUser,
-                phone: '',
-                password: '',
-                role: '',
-                company: '',
-              });
-              setcompanyLanguage({
-                ...companyLanguage,
-                company_name: '',
-              });
-            }
-          }
-        }
-        if (company_res.status == 200) {
-          let companyArray = [];
-          company_res?.data?.data?.map((data, index) => {
-            const {company_id, agri_company, db_name} = data;
-            companyArray.push({
-              value: company_id,
-              label: agri_company.company_name,
-              dbname: db_name,
-              country_id: agri_company.country_id,
-            });
-          });
-          setCompanyData(companyArray);
-        }
-      }
-    } catch (error) {
-      CrashlyticsRecordError(error, 'Login', 'onPageLoad');
-    }
-    if (companyFirstEntry == 1) {
-      setstoreLoginUser({
-        ...storeLoginUser,
-        phone: '',
-        password: '',
-        role: '',
-        company: companyLanguage_data.company_id,
-        // FcmUserToken: fcmToken_res,
-      });
-    } else {
-      if (rememberData?.contactNumber.length > 4) {
-        setstoreLoginUser({
-          ...storeLoginUser,
-          phone: rememberData.contactNumber,
-          password: rememberData.password,
-          role: rememberData.type,
-          company: rememberData.company,
-          // FcmUserToken: fcmToken_res,
-        });
-        setcompanyLanguage({
-          ...companyLanguage,
-          company_name: rememberData.company_name,
-        });
-      } else {
+      if (companyFirstEntry == 1) {
         setstoreLoginUser({
           ...storeLoginUser,
           phone: '',
           password: '',
           role: '',
-          company: '',
+          company: companyLanguage_data.company_id,
+          // FcmUserToken: fcmToken_res,
         });
-        setcompanyLanguage({
-          ...companyLanguage,
-          company_name: '',
-        });
+      } else {
+        if (rememberData?.contactNumber.length > 4) {
+          setstoreLoginUser({
+            ...storeLoginUser,
+            phone: rememberData.contactNumber,
+            password: rememberData.password,
+            role: rememberData.type,
+            company: rememberData.company,
+            // FcmUserToken: fcmToken_res,
+          });
+          setcompanyLanguage({
+            ...companyLanguage,
+            company_name: rememberData.company_name,
+          });
+        } else {
+          setstoreLoginUser({
+            ...storeLoginUser,
+            phone: '',
+            password: '',
+            role: '',
+            company: '',
+          });
+          setcompanyLanguage({
+            ...companyLanguage,
+            company_name: '',
+          });
+        }
       }
     }
-
     if (company_res.status == 200) {
       let companyArray = [];
       company_res?.data?.data?.map((data, index) => {
@@ -600,45 +494,36 @@ const Login = ({route}) => {
       if (isFocused) {
         onPageLoad();
         // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-        if (route.params === undefined) {
-          i18next.changeLanguage('1');
-        } else {
-          i18next.changeLanguage(`${route.params.locale}`);
-        }
+      }
+      if (route.params === undefined) {
+        i18next.changeLanguage('1');
+      } else {
+        i18next.changeLanguage(`${route.params.locale}`);
       }
     } catch (err) {
-      CrashlyticsRecordError(err, 'Login', 'useEffect');
+      console.error(err);
     }
   }, [isFocused, netConnection]);
-
   const onChangeConpany = async item => {
-    try {
-      // db_name:dbname, company_id:value, agri_company.country_id:country_id
-      const {country_id, dbname, value, label} = item;
-      const {language} = companyLanguage;
-      setstoreLoginUser({
-        ...storeLoginUser,
-        company: value,
-        company_lable: label,
-      });
-      checkPhoneNumber(country_id, dbname, language);
-    } catch (error) {
-      CrashlyticsRecordError(error, 'Login', 'onChangeConpany');
-    }
+    // db_name:dbname, company_id:value, agri_company.country_id:country_id
+    const {country_id, dbname, value, label} = item;
+    const {language} = companyLanguage;
+    setstoreLoginUser({
+      ...storeLoginUser,
+      company: value,
+      company_lable: label,
+    });
+    checkPhoneNumber(country_id, dbname, language);
   };
   const checkPhoneNumber = async (country_id, company, language) => {
-    try {
-      const checkPhoneNumber = await checkPhoneDigitAPI(
-        country_id,
-        company,
-        language,
-      );
-      if (checkPhoneNumber.status == 200) {
-        const {contact_no_digits} = checkPhoneNumber.data?.data;
-        setcontact_no_digits(contact_no_digits);
-      }
-    } catch (error) {
-      CrashlyticsRecordError(error, 'Login', 'checkPhoneNumber');
+    const checkPhoneNumber = await checkPhoneDigitAPI(
+      country_id,
+      company,
+      language,
+    );
+    if (checkPhoneNumber.status == 200) {
+      const {contact_no_digits} = checkPhoneNumber.data?.data;
+      setcontact_no_digits(contact_no_digits);
     }
   };
   return (
@@ -734,9 +619,9 @@ const Login = ({route}) => {
                 data={companyData}
                 label={t('select_company')}
                 onChange={company => onChangeConpany(company)}
-                val={companyLanguage?.company_id}
-                diffLabel={companyLanguage?.company_name}
-                selectedValue={storeLoginUser?.company}
+                val={companyLanguage.company_id}
+                diffLabel={companyLanguage.company_name}
+                selectedValue={storeLoginUser.company}
                 dropdownStyle={{
                   width: '100%',
                   borderWidth: 0.5,
@@ -830,20 +715,6 @@ const styles = StyleSheet.create({
   signInSubText: {
     fontSize: 12,
     marginTop: 8,
-  },
-  alert: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    padding: 20,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '200',
-    color: '#000',
     fontFamily: 'Poppins-Regular',
     color: 'black',
   },
@@ -954,79 +825,5 @@ const styles = StyleSheet.create({
     top: 200,
     zIndex: 999,
     left: '45%',
-  },
-
-  ///////////////////////////////////////////////////////////
-  // container: {
-  //   margin: 10,
-  // },
-  // simpleInputTextStyle: {
-  //   marginTop: 20,
-  //   height: 40,
-  //   borderBottomWidth: 1,
-  //   width: '100%',
-  //   color: '#000',
-  // },
-  // alert: {
-  //   backgroundColor: 'white',
-  //   borderRadius: 10,
-  //   shadowColor: '#000',
-  //   shadowOffset: {width: 0, height: 2},
-  //   shadowOpacity: 0.2,
-  //   shadowRadius: 4,
-  //   padding: 20,
-  // },
-  // title: {
-  //   fontSize: 16,
-  //   fontWeight: '200',
-  //   color: '#000',
-  //   fontFamily: 'Poppins-Regular',
-  // },
-  // message: {
-  //   fontSize: 16,
-  // },
-  // buttonContainer: {
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-around',
-  //   marginTop: 10,
-  // },
-  // button: {
-  //   borderRadius: 5,
-  // },
-  // logo: {
-  //   width: 250,
-  //   height: 100,
-  //   resizeMode: 'contain',
-  //   alignItems: 'center',
-  //   // marginTop: 30,
-  //   // marginBottom: 20,
-  //   // marginLeft: 40,
-  // },
-  // loadingScreen: {
-  //   position: 'absolute',
-  //   top: 200,
-  //   zIndex: 999,
-  //   left: '45%',
-  // },
-
-  // modalContainer: {
-  //   flex: 1,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   backgroundColor: 'rgba(0,0,0,0.5)',
-  // },
-  // modalContent: {
-  //   width: 300,
-  //   backgroundColor: '#fff',
-  //   padding: 20,
-  //   borderRadius: 10,
-  //   alignItems: 'center',
-  // },
-  // title: {fontSize: 18, fontWeight: 'bold', marginBottom: 10},
-  // buttonRow: {
-  //   flexDirection: 'row',
-  //   justifyContent: 'space-between',
-  //   marginTop: 10,
-  //   width: '100%',
-  // },
+  }
 });

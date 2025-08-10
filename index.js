@@ -12,9 +12,10 @@ import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 export default function Main() {
     const [fatalError, setFatalError] = useState(null);
     const jsExceptionHandler = (error, isFatal) => {
+        console.log(error,"******")
         if (isFatal) {
             CrashlyticsRecordError(isFatal);
-            setFatalError(error);
+            // setFatalError(error);
         } else {
             console.warn('[Non-Fatal Error]', error);
         }

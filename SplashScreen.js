@@ -61,11 +61,11 @@ const SplashScreen = ({navigation}) => {
       if (company_res?.status == 200) {
         if (company_res?.data?.data) {
           const delay = 1000;
-          const timeout = setTimeout(() => {
+          // const timeout = setTimeout(() => {
             // setCompanyData(company_res.data.data);
             setCompanyDataRaw(company_res.data.data);
             setModalVisible(true);
-          }, delay);
+          // }, delay);
         }
         // console.log('company APi called');
       }
@@ -159,14 +159,14 @@ const SplashScreen = ({navigation}) => {
       ]);
       if (loginUser_data) {
         i18next.changeLanguage(`${loginUser_data.lan_id}`);
-        setTimeout(async () => {
+        // setTimeout(async () => {
           const userType = await getItem('userType');
           if (userType === 3) {
             navigation.navigate('AdminNavigation');
           } else if (userType === 2) {
             navigation.navigate('FarmerNavigation');
           }
-        }, 2000);
+        // }, 2000);
       } else {
         if (companyLanguage_data) {
           navigation.replace('Login');

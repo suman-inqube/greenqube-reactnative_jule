@@ -1,7 +1,7 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import { StyleSheet } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
 
 import Dashboard from './Dashboard';
@@ -46,7 +46,7 @@ import PlotSiteProduceInformation from './UserRegistation/PlotSiteProduceInforma
 import RegistationSignUpViwer from './UserRegistation/RegistationSignUpViwer';
 import ChangePassword from './ChangePassword/ChangePassword';
 import Business from './Business/Business';
-import {Colors} from '../utils/Constants';
+import { Colors } from '../utils/Constants';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,7 +55,7 @@ function AdminStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: {backgroundColor: 'transparent'},
+        contentStyle: { backgroundColor: 'transparent' },
       }}>
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="Training" component={Training} />
@@ -153,12 +153,12 @@ const AdminNavigation = () => {
           // marginTop: 50,
           marginLeft: -0.2,
         },
-        sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
+        sceneContainerStyle: { backgroundColor: Colors.drawer, zIndex: 100 },
       }}>
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}
-        options={{title: 'Admin Dashboard'}}
+        options={{ title: 'Admin Dashboard' }}
       />
     </Drawer.Navigator>
   );

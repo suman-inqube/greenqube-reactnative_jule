@@ -1,8 +1,8 @@
-import {StyleSheet, Text, View, TextInput, useColorScheme} from 'react-native';
-import React, {memo} from 'react';
+import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native';
+import React, { memo } from 'react';
 const sanitizeInput = text => text.replace(/<\/?[^>]+(>|$)/g, '');
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 
 const InputTextForm = ({
   value,
@@ -22,7 +22,6 @@ const InputTextForm = ({
 }) => {
   const scheme = useColorScheme();
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
-  // console.log("c11")
   return (
     <>
       <View>
@@ -35,7 +34,7 @@ const InputTextForm = ({
               style={styles.labelIcon}
             />
           )}
-          <Text style={[styles.title, {color: color ?? 'black'}]}>
+          <Text style={[styles.title, { color: color ?? 'black' }]}>
             {labelString}
           </Text>
           {required && <Text style={styles.requiredStar}> *</Text>}
@@ -72,13 +71,12 @@ const styles = StyleSheet.create({
   },
   simpleInputTextStyle: {
     borderRadius: 8,
-    height: 50,
-    borderColor: Colors.secondary,
-    borderWidth: 1.3,
+    height: 48,
+    borderColor: Colors.borderGreen,
+    borderWidth: 0.5,
     borderRadius: 8,
     backgroundColor: '#FFFF',
     width: '100%',
-    elevation: 1,
     paddingHorizontal: 10,
     color: 'white',
   },
@@ -102,13 +100,13 @@ const styles = StyleSheet.create({
     marginRight: 8, // Space between icon and label
   },
   inputField: {
-    height: 50,
-    borderColor: Colors.secondary, // Make sure this color is visible
-    borderWidth: 1,
-    borderRadius: 8,
+ height: 48,
+    borderColor: Colors.borderGreen, // Make sure this color is visible
+    borderWidth: 0.5,
+    borderRadius: 5,
     backgroundColor: '#FFFFFF',
     width: '100%',
-    elevation: 1,
+    // elevation: 1,
     paddingHorizontal: 10,
     color: '#000000', // Changed from 'white' to 'black' for better visibility
   },

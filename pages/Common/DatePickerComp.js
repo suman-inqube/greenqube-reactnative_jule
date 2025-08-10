@@ -1,34 +1,37 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { memo } from 'react'
-import DatePicker from 'react-native-date-picker'
+import { StyleSheet, Text, View } from 'react-native';
+import React, { memo } from 'react';
+import DatePicker from 'react-native-date-picker';
+
 const DatePickerComp = ({
-    openDate,
-    newDate,
-    setOpenDate,
-    handleDatePicker,
-    minimumDate
+  openDate,
+  newDate,
+  setOpenDate,
+  handleDatePicker,
+  minimumDate,
+  title
 }) => {
-    return (
-        <DatePicker
-            modal
-            mode="date"
-            open={openDate}
-            date={newDate}
-            minimumDate={minimumDate}
-            onConfirm={(item) => {
-                handleDatePicker(item)
-                setOpenDate(false)
-            }}
-            onCancel={() => {
-                setOpenDate(false)
-            }}
-            // fadeToColor='red'
-            // androidVariant='iosClone'
-            textColor='#000'
-            theme='light'
-            androidVariant='nativeAndroid'
-        />
-    )
-}
-export default memo(DatePickerComp)
-const styles = StyleSheet.create({})
+  return (
+    <DatePicker
+      modal
+      mode="date"
+      open={openDate}
+      date={newDate || new Date()} // Default to today if no date passed
+      minimumDate={minimumDate || null} // If no minimumDate, allow all
+      onConfirm={(item) => {
+        handleDatePicker(item);
+        setOpenDate(false);
+      }}
+      onCancel={() => {
+        setOpenDate(false);
+      }}
+      textColor="green"
+      buttonColor="green"
+      dividerColor="green"
+      title={title || 'Select Date'}
+      theme="light"
+      androidVariant="nativeAndroid"
+    />
+  );
+};
+
+export default memo(DatePickerComp);
