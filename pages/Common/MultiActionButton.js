@@ -1,35 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef,memo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native";
+
 const MultiActionButton = ({ actions, statuslevel }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [animation] = useState(new Animated.Value(0));
+  const animation = useRef(new Animated.Value(0)).current;
 
-console.log(statuslevel)
-  const toggleMenu = () => {
-    const toValue = isOpen ? 0 : 1;
+  const toggleMenu = useCallback(() => {
     Animated.timing(animation, {
-      toValue,
+      toValue: isOpen ? 0 : 1,
       duration: 300,
       useNativeDriver: true,
     }).start();
-    setIsOpen(!isOpen);
-  };
+    setIsOpen(prev => !prev);
+  }, [isOpen]);
 
-
-  const handleActionPress = (action) => {
-    // toggleMenu(); // Collapse the menu
+  const handleActionPress = useCallback((action) => {
     action.onPress();
-  };
+    // toggleMenu(); // If you want to close after press
+  }, []);
 
-
-  const renderActions = () => {
-    return actions.map((action, index) => {
-      const inputRange = [0, 1];
-      const outputRange = [0, -70 * (index + 1)];
-
+  const renderActions = () =>
+    actions.map((action, index) => {
       const translateY = animation.interpolate({
-        inputRange,
-        outputRange,
+        inputRange: [0, 1],
+        outputRange: [0, -70 * (index + 1)],
       });
 
       return (
@@ -46,38 +40,31 @@ console.log(statuslevel)
         </Animated.View>
       );
     });
-  };
 
   return (
     <View style={styles.container}>
-      {statuslevel == '' ||
-      statuslevel == 'PENDING' ||
-      statuslevel == 'REJECTED' ? (
+      {(!statuslevel || statuslevel === "PENDING" || statuslevel === "REJECTED") && (
         <>
           {renderActions()}
           <TouchableOpacity style={styles.mainButton} onPress={toggleMenu}>
-            <Text style={styles.mainButtonText}>{isOpen ? '×' : '+'}</Text>
+            <Text style={styles.mainButtonText}>{isOpen ? "×" : "+"}</Text>
           </TouchableOpacity>
         </>
-      ) : null}
+      )}
     </View>
   );
-}
+};
 
-export default MultiActionButton
+export default memo(MultiActionButton);
 
 const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-  },
   container: {
     position: "absolute",
     bottom: 50,
     right: 30,
     alignItems: "center",
+    zIndex: 999, // stays above other components
+    elevation: 10, // Android stacking fix
   },
   mainButton: {
     width: 60,

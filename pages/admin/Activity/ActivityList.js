@@ -19,13 +19,27 @@ import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError
 import { Colors, Fonts } from '../../utils/Constants';
 // const openFilterSheet = lazy(() => import('../../Components/FilterSheet'));
 import { openFilterSheet } from '../../Components/FilterSheet';
+import { FloatingAction } from 'react-native-floating-action';
 const ActivityList = ({ navigation }) => {
+
   //GQR-67
   const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
     setItem, logoImage, topBanner, Root, Toast, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   const { pageNo } = dbLanTokUsr;
   //GQR-67
+  const actions = [
+    {
+      text: t('report_activity'),
+      name: 'bt_add',
+      position: 1,
+      color: Colors.useGreen, // visible button color
+      textStyle: styles.actionText,
+      textBackground: '#ffffff',
+      icon: { uri: 'https://example.com/icon.png' },
+      onPress: () => handleSPSheetShow()
+    }
+  ];
   const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
@@ -254,11 +268,11 @@ const ActivityList = ({ navigation }) => {
           filterOptionShow={filterOptionShow}
         />
         <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
-          <WidgetsSide
+          {/* <WidgetsSide
             location={'ActivityReport'}
             title={t('report_activity')}
             onPress={() => handleSPSheetShow()}
-          />
+          /> */}
           {openFromDate && (
             <DatePickerComp
               openDate={openFromDate}
@@ -464,6 +478,7 @@ const ActivityList = ({ navigation }) => {
             keyExtractor={(item, index) => index}
             showsVerticalScrollIndicator={false}
           />
+
           <View style={styles.prevNextPage}>
             <TouchableOpacity disabled={page === 1} onPress={() => setPage((p) => Math.max(1, p - 1))}>
               <Text style={styles.title}>{t('prev_page')}</Text>
@@ -475,13 +490,29 @@ const ActivityList = ({ navigation }) => {
               <Text style={styles.title}>{t('next_page')}</Text>
             </TouchableOpacity>
           </View>
+
         </View>
+        <FloatingAction
+          position="right"
+          actions={actions}
+          color={Colors.useGreen}
+          onPressItem={(name) => {
+            handleSPSheetShow();
+          }}
+          showBackground={true}       // show the overlay
+          overlayColor="rgba(22, 17, 17, 0.14)" // red overlay with transparency
+          // style={{ bottom: 500, right: 1600 }}
+          distanceToEdge={{ vertical: 80, horizontal: 25 }}
+        />
       </Root>
     </MyErrorBoundary>
   );
 }
 export default ActivityList;
 const styles = StyleSheet.create({
+  fab: {
+    backgroundColor: Colors.useGreen,
+  },
   wrapper: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
