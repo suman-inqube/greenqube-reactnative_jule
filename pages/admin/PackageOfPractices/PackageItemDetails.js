@@ -28,22 +28,27 @@ const PackageItemDetails = () => {
         selectable: true
     };
     return (
-        <View style={styles.container}>
-            <CustomHeader HandlerGoBack={() => HandlerGoBack("PackageOfPracticesDetails")} logoImage={logoImage} topBanner={topBanner} />
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{menu_name}</Text>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View >
-                    <WebView
-                        style={{
-                            height: height / 0.05,
-                            // height: height / 1.5,
-                            width: width,
-                            marginBottom: 50
-                        }}
-                        source={{
-                            html: `
+      <View style={styles.container}>
+        <CustomHeader
+          HandlerGoBack={() => HandlerGoBack('PackageOfPracticesDetails')}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>{menu_name}</Text>
+        </View>
+       
+          <View style={{flex: 1}}>
+            <WebView
+              style={{
+                flex: 1 ,
+                height: height / 0.05,
+                // height: height / 1.5,
+                width: width,
+                marginBottom: 50,
+              }}
+              source={{
+                html: `
                             <!DOCTYPE html>
                             <html>
                                 <head>${head}</head> 
@@ -51,13 +56,13 @@ const PackageItemDetails = () => {
                                 ${package_of_practice_list} 
                                 </body>
                             </html>`,
-                        }}
-                        automaticallyAdjustContentInsets={false}
-                    />
-                </View>
-            </ScrollView>
-        </View>
-    )
+              }}
+              automaticallyAdjustContentInsets={false}
+            />
+          </View>
+       
+      </View>
+    );
 }
 
 export default PackageItemDetails

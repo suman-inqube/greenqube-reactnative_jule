@@ -180,57 +180,106 @@ const FarmerReport = () => {
     );
     const HandlerGoBack = () => navigation.navigate('DailySalesReport');
     return (
-        <>
-            <Root>
-                {openNewDate && <DatePickerComp
-                    openDate={openNewDate}
-                    newDate={newDate}
-                    setOpenDate={setopenNewDate}
-                    handleDatePicker={handleDatePicker} />
+      <>
+        <Root>
+          {openNewDate && (
+            <DatePickerComp
+              openDate={openNewDate}
+              newDate={newDate}
+              setOpenDate={setopenNewDate}
+              handleDatePicker={handleDatePicker}
+            />
+          )}
+          <CustomHeader
+            path="DailySalesReport"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          <FormsTitle title={t('farmer_report')} />
+          {searchResultsList && searchResultsList ? (
+            <View
+              style={
+                isKeyboardVisible
+                  ? styles.flatContainerLengthUp
+                  : styles.flatContainer
+              }>
+              <FlatList
+                style={
+                  searchResults.length > 8
+                    ? styles.flatlistHeight
+                    : searchResults.length > 5
+                    ? {height: Dimensions.get('window').height / 5}
+                    : ''
                 }
-                <CustomHeader path='DailySalesReport' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-                <FormsTitle title={t('farmer_report')} />
-                {
-                    searchResultsList && searchResultsList ?
-                        <View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
-                            <FlatList
-                                style={searchResults.length > 8 ? styles.flatlistHeight : searchResults.length > 5 ? { height: Dimensions.get('window').height / 5, } : ""}
-                                data={searchResults}
-                                renderItem={({ item }) => (
-                                    <TouchableOpacity onPress={() => handleResultSelect(item)} style={styles.flatlistitem}>
-                                        <Text style={styles.flatlisttitle}>{item.userName}</Text>
-                                    </TouchableOpacity>
-                                )}
-                                keyExtractor={(item, index) => index}
-                            />
-                        </View> : ""
+                data={searchResults}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    onPress={() => handleResultSelect(item)}
+                    style={styles.flatlistitem}>
+                    <Text style={styles.flatlisttitle}>{item.userName}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item, index) => index}
+              />
+            </View>
+          ) : (
+            ''
+          )}
+          <ScrollView>
+            <View style={styles.formComtainer}>
+              <InputTextForm
+                label={t('choose_farmer')}
+                value={searchFarmerName}
+                onChangeText={farmerName => handleSearch(farmerName)}
+              />
+              <TouchableOpacity
+                onPress={() => setopenNewDate(true)}
+                activeOpacity={9}>
+                <Text style={{marginBottom: 5, color: '#000'}}>
+                  {t('date')}
+                </Text>
+                <View style={styles.calenderContainer}>
+                  <Text style={{color: '#000'}}>{date}</Text>
+                  <Image
+                    source={require('../../Common/images/calendar.png')}
+                    style={{width: 20, height: 20}}
+                  />
+                </View>
+              </TouchableOpacity>
+              <DropdownForm
+                label={t('please_select_plot')}
+                data={plotAll}
+                onChange={relId => handlePlot(relId)}
+                val={saveData.plot_id}
+              />
+              <InputTextForm
+                label={t('produce_name')}
+                value={nameVarityStartEnd.name}
+                editable={false}
+              />
+              <InputTextForm
+                label={t('prodece_vareity')}
+                value={nameVarityStartEnd.varity}
+                editable={false}
+              />
+              <InputTextForm
+                label={t('comments')}
+                onChangeText={text =>
+                  setSaveData({...saveData, ['comment']: text})
                 }
-                <ScrollView>
-                    <View style={styles.formComtainer} >
-                        <InputTextForm label={t('choose_farmer')} value={searchFarmerName} onChangeText={(farmerName) => handleSearch(farmerName)} />
-                        <TouchableOpacity onPress={() => setopenNewDate(true)} activeOpacity={9}>
-                            <Text style={{ marginBottom: 5, color: '#000' }}>{t('date')}</Text>
-                            <View style={styles.calenderContainer} >
-                                <Text style={{ color: '#000' }}>{date}</Text>
-                                <Image
-                                    source={require('../../Common/images/calendar.png')}
-                                    style={{ width: 20, height: 20 }}
-                                />
-                            </View>
-                        </TouchableOpacity>
-                        <DropdownForm label={t('please_select_plot')} data={plotAll}
-                            onChange={relId => handlePlot(relId)} val={saveData.plot_id}
-                        />
-                        <InputTextForm label={t('produce_name')} value={nameVarityStartEnd.name} />
-                        <InputTextForm label={t('prodece_vareity')} value={nameVarityStartEnd.varity} />
-                        <InputTextForm label={t('comments')} onChangeText={(text) => setSaveData({ ...saveData, ['comment']: text })} />
-                        <TakePhoto title={t('take_a_photo_optional')} openImagePicker={openImagePicker} selectedImage={selectedImage} />
-                    </View>
-                </ScrollView>
-                <ButtonForm label={t('submit')} onPress={() => handleSave()} />
-            </Root>
-        </>
-    )
+              />
+              <TakePhoto
+                title={t('take_a_photo_optional')}
+                openImagePicker={openImagePicker}
+                selectedImage={selectedImage}
+              />
+            </View>
+          </ScrollView>
+          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+        </Root>
+      </>
+    );
 }
 
 export default FarmerReport;

@@ -25,7 +25,7 @@ const SalesDetail = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
             <InputTextForm
-              label={t('dealer_name')}
+              label={t('name')}
               value={salesUser.userName}
               editable={false}
             />
