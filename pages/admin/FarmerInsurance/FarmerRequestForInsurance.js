@@ -15,6 +15,8 @@ import {
 } from '../../../config/apiHere';
 import CheckBoxComp from '../../Common/CheckBoxComp';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fonts} from '../../utils/Constants';
+
 const RequestForInsurance = ({setActiveBtn}) => {
   //GQR-67
   const {loginUser_data, ButtonForm, InputTextForm, Root, Toast, AlertMesg, t} =

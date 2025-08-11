@@ -10,6 +10,7 @@ import {
 import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {userDetailAPI} from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
+import {Colors} from '../../utils/Constants';
 import {
   updateUserInfoAPI,
   districtDataListAPI1,

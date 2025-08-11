@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import React, {useCallback, useEffect, useState, useContext} from 'react';
 import DocumentPicker, {types} from 'react-native-document-picker';
+import {Colors, Fonts} from '../../utils/Constants';
+
 import {
   useFocusEffect,
   useNavigation,

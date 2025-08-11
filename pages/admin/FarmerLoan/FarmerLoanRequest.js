@@ -38,6 +38,7 @@ import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {createPdf} from 'react-native-images-to-pdf';
+import {Colors, Fonts} from '../../utils/Constants';
 const qs = require('qs');
 const FarmerLoanRequest = ({setActiveBtn}) => {
   const scrollViewRef = useRef(null);

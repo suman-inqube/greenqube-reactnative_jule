@@ -22,6 +22,8 @@ import MessageDialog from '../../Common/MessageDialog';
 import axios from 'axios';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
+import {Colors, Fonts} from '../../utils/Constants';
+
 const FarmerAddIncome = ({navigation}) => {
   //GQR-67
   const {

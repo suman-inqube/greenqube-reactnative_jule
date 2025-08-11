@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import {NativeModules} from 'react-native';
@@ -21,7 +20,7 @@ const findField = (obj, keyToFind) => {
 };
 
 export const getAxiosInstance = async () => {
-    const {ConfigModule} = NativeModules;
+  const {ConfigModule} = NativeModules;
   if (axiosInstance) {
     return axiosInstance;
   }
@@ -63,11 +62,11 @@ export const getAxiosInstance = async () => {
               status: 200,
             };
           }
-
+          console.log('response111', response);
           return response;
         } catch (err) {
           console.error('Decryption failed:', err);
-          return response; 
+          return response;
         }
       },
       error => Promise.reject(error),

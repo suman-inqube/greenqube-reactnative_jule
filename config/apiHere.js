@@ -1263,7 +1263,7 @@ export const livelihoodNameVarietyLandrelAPI = async (
       `${config.BASE_URL}cropRoute/currentCropStatus?land_rel_id=${relId}`,
       axiosHeaders,
     );
-    console.log(response);
+    // console.log(response);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -1554,9 +1554,9 @@ export const signupSaveAPI = async (
     return response;
   } catch (error) {
     // CrashlyticsRecordError(error.response);
-    console.log(error.response);
-    console.log(error);
-    console.log(error?.response?.data);
+    // console.log(error.response);
+    // console.log(error);
+    // console.log(error?.response?.data);
     return error.response;
   }
 };
