@@ -322,7 +322,7 @@ const CreateProblem = ({ navigation }) => {
             return false;
         }
         if (!saveData.affected_date) {
-            Toast.show({ time: 2, text: t('Please_enter_perform_date'), ...AlertMesg[0] });
+            Toast.show({ time: 2, text: t('Please enter affected date'), ...AlertMesg[0] });
             return false;
         }
         if (!saveData.latitude) {

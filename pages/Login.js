@@ -215,6 +215,7 @@ const Login = ({ route }) => {
             loginUserdata?.db_company_id,
           );
           if (details_company_res?.status == 200) {
+            // console.log('details_company_res==', details_company_res?.data);
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
               agri_calculator:

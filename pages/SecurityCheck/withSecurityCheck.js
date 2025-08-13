@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, BackHandler, AppState, View, Text } from 'react-native';
-import JailMonkey from 'jail-monkey';
+// import JailMonkey from 'jail-monkey';
 const withSecurityCheck = (WrappedComponent) => {
   return (props) => {
     const [isSecure, setIsSecure] = useState(true);

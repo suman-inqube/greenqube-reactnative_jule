@@ -13,7 +13,6 @@ import { Root, Toast } from 'react-native-popup-confirm-toast';
 import { AlertMesg } from './pages/Common/ToastAlert';
 import CustomAlert from './pages/Common/CustomAlert';
 import NotificationServices from './pages/PushNotification/NotificationServices';
-import JailMonkey from 'jail-monkey';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
 import {NativeModules} from 'react-native';
@@ -98,34 +97,34 @@ const SplashScreen = ({ navigation }) => {
             console.log("Error in language API", error.response);
         }
     }
-    const handleAppStateChange = async (nextAppState = 'active') => {
-        const isRooted = JailMonkey.isJailBroken();
-        const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-        if (!__DEV__) {
-            if (isRooted || isDevMode) {
-                Alert.alert(
-                    'Security Alert',
-                    isRooted
-                        ? 'This device is rooted. The app will now exit.'
-                        : 'Developer mode is enabled. The app will now exit.',
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => {
-                                setTimeout(() => {
-                                    BackHandler.exitApp();
-                                }, 800);
-                            },
-                        },
-                    ],
-                    { cancelable: false },
-                );
-                return false; // Stop execution of further logic
-            }
+    // const handleAppStateChange = async (nextAppState = 'active') => {
+    //     const isRooted = JailMonkey.isJailBroken();
+    //     const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
+    //     if (!__DEV__) {
+    //         if (isRooted || isDevMode) {
+    //             Alert.alert(
+    //                 'Security Alert',
+    //                 isRooted
+    //                     ? 'This device is rooted. The app will now exit.'
+    //                     : 'Developer mode is enabled. The app will now exit.',
+    //                 [
+    //                     {
+    //                         text: 'OK',
+    //                         onPress: () => {
+    //                             setTimeout(() => {
+    //                                 BackHandler.exitApp();
+    //                             }, 800);
+    //                         },
+    //                     },
+    //                 ],
+    //                 { cancelable: false },
+    //             );
+    //             return false; // Stop execution of further logic
+    //         }
 
-            return true;
-        }
-    };
+    //         return true;
+    //     }
+    // };
     const onPageLoad = async () => {
         try {
 

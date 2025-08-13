@@ -3,7 +3,6 @@ import { NavigationContainer, createNavigationContainerRef } from '@react-naviga
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider } from 'react-redux';
 import { AppState, Alert, BackHandler, View, ImageBackground, StyleSheet } from 'react-native';
-import JailMonkey from 'jail-monkey';
 import analytics from '@react-native-firebase/analytics';
 
 import Login from './pages/Login';
@@ -29,7 +28,7 @@ import withSecurityCheck from './pages/SecurityCheck/withSecurityCheck';
 const Stack = createNativeStackNavigator();
 export const navigationRef = createNavigationContainerRef();
 
-const App = withSecurityCheck(() => {
+const App = () => {
   const routeNameRef = useRef();
   const { loginUser_data,setItem } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id } = loginUser_data || {};
@@ -108,7 +107,7 @@ const App = withSecurityCheck(() => {
       </Provider>
     </ErrorBoundary>
   );
-});
+};
 
 export default App;
 

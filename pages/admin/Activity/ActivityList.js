@@ -133,6 +133,7 @@ const ActivityList = ({ navigation }) => {
             } else {
                 var response = await getItem('activityList');
             }
+            console.log('act=', response?.data?.data?.rows);
             if (response?.status == 200) {
                 if (response.data.data.count != 0) {
                     const totalPage = Math.ceil(response.data.data.count / 20)
@@ -384,8 +385,11 @@ const ActivityList = ({ navigation }) => {
                     {t('cycle_start_date')} : {item?.cycle_start_date}
                   </Text>
                   <Text style={styles.title}>
-                    {t('activity_type')} :
-                    {item?.typeActivity ? item?.typeActivity?.categoryName : ''}
+                    {item?.typeActivity
+                      ? `${t('activity_type')} : ${
+                          item.typeActivity.categoryName
+                        }`
+                      : ''}
                   </Text>
                 </TouchableOpacity>
               )}
