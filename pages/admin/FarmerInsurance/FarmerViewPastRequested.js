@@ -17,7 +17,7 @@ import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-const ViewPastRequested = () => {
+const FarmerInsuViewPastRequested = () => {
   //GQR-67
   const {
     loginUser_data,
@@ -29,6 +29,9 @@ const ViewPastRequested = () => {
     DatePickerComp,
     t,
     getItem,
+    Root,
+    logoImage,
+    topBanner,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, owner, user_id} = loginUser_data;
   //GQR-67
@@ -213,10 +216,19 @@ const ViewPastRequested = () => {
     setModalVisible(true);
     setModalVisibleData(item);
   };
+  const HandlerGoBack = () => navigation.navigate('Dashboard');
+
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={{flex: 1}}>
-        <View style={styles.main}>
+      <Root>
+        <CustomHeader
+          path="Dashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <SafeAreaView
+          style={{flex: 1, backgroundColor: Colors.background_light}}>
           <View style={{}}>
             <DatePickerComp
               openDate={openFromDate}
@@ -333,13 +345,13 @@ const ViewPastRequested = () => {
             }}
             keyExtractor={(item, index) => index}
           />
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </Root>
     </FarmerDrawerScreenWrapper1>
   );
 };
 
-export default ViewPastRequested;
+export default FarmerInsuViewPastRequested;
 
 const styles = StyleSheet.create({
   main: {

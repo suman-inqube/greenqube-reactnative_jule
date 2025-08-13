@@ -1,5 +1,6 @@
 import React, {createContext, useEffect, useState, lazy} from 'react';
 import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
+import {InteractionManager} from 'react-native';
 // const { netConnection } = DeviceInfo();
 const userCreateContext = createContext();
 import {
@@ -71,7 +72,7 @@ const UserCreateContextProvider = props => {
         getItem('topBannerData'),
         getItem('companyLanguage_data'),
       ]);
-      // i18next.changeLanguage(loginUser_data?.lan_id.toString());
+      i18next.changeLanguage(loginUser_data?.lan_id.toString());
       if (netConnection && loginUser_data?.token) {
         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
           farmerByNameAPI(
@@ -148,7 +149,21 @@ const UserCreateContextProvider = props => {
           aadharNumber: data?.aadhar_number,
           kccNumber: data?.kcc_number,
         }));
-        setFarmerData(dataArray);
+        const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
+          value: data.user_id,
+          label: data.userName,
+          phone: data.contactNumber,
+          aadharNumber: data?.aadhar_number,
+          kccNumber: data?.kcc_number,
+        }));
+        const dataArrayPhone = farmer_response?.data?.data?.rows.map(data => ({
+          value: data.user_id,
+          label: data.contactNumber,
+          phone: data.contactNumber,
+          aadharNumber: data?.aadhar_number,
+          kccNumber: data?.kcc_number,
+        }));
+        setFarmerData([dataArrayName, dataArrayPhone]);
         const PlotArray = responsePlot?.data?.data.map(data => ({
           value: data.rel_id,
           label: data.plot_no,
@@ -159,8 +174,13 @@ const UserCreateContextProvider = props => {
       console.error(error);
     }
   };
+
   useEffect(() => {
-    AllFarmerList();
+    const task = InteractionManager.runAfterInteractions(() => {
+      AllFarmerList();
+    });
+
+    return () => task.cancel(); // cleanup
   }, [netConnection]);
   const effective_dates = item => {
     const dt = new Date(item);

@@ -116,7 +116,7 @@ const ChangePassword = ({sendDataToParent}) => {
               logoImage={logoImage}
               topBanner={topBanner}
             />
-            <FormsTitle title={t('change_password')} />
+            {/* <FormsTitle title={t('change_password')} /> */}
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
               <Image
                 source={require('../../Common/images/changepass.png')}
@@ -219,24 +219,35 @@ export default ChangePassword;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.pageBackground,
+    backgroundColor: Colors.background_light,
     // height: '100%',
     flex: 1,
   },
   forgotContainer: {
-    backgroundColor: Colors.containerGreen,
     // marginTop: 30,
-    borderRadius: 25,
-    elevation: 3,
+
     marginHorizontal: '4%',
-    borderWidth: 1,
-    borderColor: Colors.borderGreen,
     // paddingTop: 10,
     // marginBottom: 30,
-    height: '30%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    // marginTop: 20,
+
+    flex: 1,
+    backgroundColor: Colors.background,
+    // padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    // elevation:1,
+    marginVertical: 50,
+    // marginHorizontal: '2.5%',
+    backgroundColor: Colors.background,
+    // padding: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 80,
+    // elevation:1,
   },
   passwordContainer: {
     marginHorizontal: 15,

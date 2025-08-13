@@ -248,7 +248,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
             logoImage={logoImage}
             topBanner={topBanner}
           />
-          <FormsTitle title={t('income_expense_list')} />
+          {/* <FormsTitle title={t('income_expense_list')} /> */}
           <View style={{marginVertical: 10}}>
             <DatePickerComp
               openDate={openFromDate}
@@ -302,10 +302,10 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                     }>
                     <View style={styles.cardHeader}>
                       <View style={styles.marqueeContainer}>
-                        <Text style={styles.cardTitleRe}>
+                        <Text style={styles.cardTitle}>
                           {t('addcrop_plot')} :{'  '}
                           <Text
-                            style={styles.cardTitle}
+                            style={styles.cardTitleRe}
                             numberOfLines={1}
                             ellipsizeMode="tail">
                             {item.land_info && item.land_info.plot_no}
@@ -325,44 +325,46 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                     </View>
                     <View style={styles.activityListContainer}>
                       <View style={styles.activityListItem}>
-                        <Text style={styles.titleRe}>
-                          {t('showing_date')} :{'   '}
+                        <Text style={styles.title}>
+                          {t('showing_date')} :{'                      '}
                           <Text
-                            style={styles.title}
+                            style={styles.titleRe}
                             numberOfLines={1}
                             ellipsizeMode="tail">
                             {formatDateToDateName(item.sowing_date)}
                           </Text>
                         </Text>
-                        <Text style={styles.titleRe}>
+                        <Text style={styles.title}>
                           {t('total_income_sum') + '(' + currency + ')'} :
-                          {'   '}
-                          <Text style={styles.title}>
+                          {'                         '}
+                          <Text style={styles.titleRe}>
                             {<ShowIncome income={item.income_expense} />}
                           </Text>
                         </Text>
-                        <Text style={styles.titleRe}>
+                        <Text style={styles.title}>
                           {t('knowyourplot_cropinfo_cropname')} :{'   '}
                           <Text
-                            style={styles.title}
+                            style={styles.titleRe}
                             numberOfLines={1}
                             ellipsizeMode="tail">
                             {item.crop_name && item.crop_name.name}
                           </Text>
                         </Text>
 
-                        <Text style={styles.titleRe}>
-                          {t('harvesting_date_auto_calculated')} :{'   '}
+                        <Text style={styles.title}>
+                          {t('harvesting_date_auto_calculated')} :
+                          {'                         '}
                           <Text
-                            style={styles.title}
+                            style={styles.titleRe}
                             numberOfLines={1}
                             ellipsizeMode="tail">
                             {formatDateToDateName(item.harvesting_date)}
                           </Text>
                         </Text>
-                        <Text style={styles.titleRe}>
-                          {t('total_exp_sum') + '(' + currency + ')'} :{'   '}
-                          <Text style={styles.title}>
+                        <Text style={styles.title}>
+                          {t('total_exp_sum') + '(' + currency + ')'} :
+                          {'                        '}
+                          <Text style={styles.titleRe}>
                             {<ShowExpense expense={item.income_expense} />}
                           </Text>
                         </Text>
@@ -375,7 +377,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
               />
               <View
                 style={{
-                  backgroundColor: Colors.useGreen,
+                  backgroundColor: '#003c04',
                   justifyContent: 'space-between', // This will distribute space evenly
                   alignItems: 'center',
                   flexDirection: 'row',
@@ -396,7 +398,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                       size={25}
                       color="white"
                     />
-                    <Text style={styles.titleBottomPre}>{t('prev_page')}</Text>
+                    <Text style={styles.titleBottomPre}>{t('Pre')}</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -446,7 +448,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                       size={25}
                       color="white"
                     />
-                    <Text style={styles.titleBottomNet}>{t('next_page')}</Text>
+                    <Text style={styles.titleBottomNet}>{t('Next')}</Text>
                   </View>
                 </TouchableOpacity>
                 {/* </View> */}

@@ -19,6 +19,8 @@ import FarmerPostNew from './FarmerOutput/FarmerPostNew';
 import FarmerViewPast from './FarmerOutput/FarmerViewPast';
 import FarmerLoanEnquiry from './FarmerLoan/FarmerLoanEnquiry';
 import FarmerLoanEnquiryDetail from './FarmerLoan/FarmerLoanEnquiryDetail';
+import FarmerLoanViewPastRequested from './FarmerLoan/FarmerViewPastRequested';
+import FarmerLoanRequest from './FarmerLoan/FarmerLoanRequest';
 import FarmerInputList from './FarmerInputs/FarmerInputList';
 import FarmerWantToBuy from './FarmerInputs/FarmerWantToBuy';
 import FarmerPastEnquiries from './FarmerInputs/FarmerPastEnquiries';
@@ -28,6 +30,8 @@ import FarmerActivityReportAWD from './FarmerActivity/FarmerActivityReportAWD';
 import FarmerActivityDetail from './FarmerActivity/FarmerActivityDetail';
 import FarmerProfile from './FarmerProfile/FarmerProfile';
 import FarmerInsuranceEnquiry from './FarmerInsurance/FarmerInsuranceEnquiry';
+import FarmerInsuViewPastRequested from './FarmerInsurance/FarmerViewPastRequested';
+import FarmerRequestForInsurance from './FarmerInsurance/FarmerRequestForInsurance';
 import DailySalesReport from './DailySalesReport/DailySalesReport';
 import SalesDetail from './DailySalesReport/SalesDetail';
 import DealerReport from './DailySalesReport/DealerReport';
@@ -39,6 +43,8 @@ import FarmerAddExpense from './FarmerFarmIncomeExpense/FarmerAddExpense';
 import FarmerChangePassword from './FarmerProfile/FarmerChangePassword';
 import Weather from './Weather/Weather';
 import Calculator from './Calculator';
+import PestisideCalculator from './Calculator/PestisideCalculator';
+import FertilizerCalculator from './Calculator/FertilizerCalculator';
 import PackageOfPractices from './PackageOfPractices';
 import PackageOfPracticesDetails from './PackageOfPractices/PackageOfPracticesDetails';
 import PackageItemDetails from './PackageOfPractices/PackageItemDetails';
@@ -49,6 +55,7 @@ import SampleRequested from './SoilHealth/SampleRequested';
 import SampleReport from './SoilHealth/SampleReport';
 import AudioPlayerView from '../Common/AudioPlayerView';
 import {Colors} from '../utils/Constants';
+import FarmerInstrumentWiseActivityView from './FarmerActivity/FarmerInstrumentWiseActivityView';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -82,6 +89,11 @@ const FarmerMainStack = () => (
       name="FarmerLoanEnquiryDetail"
       component={FarmerLoanEnquiryDetail}
     />
+    <Stack.Screen
+      name="FarmerLoanViewPastRequested"
+      component={FarmerLoanViewPastRequested}
+    />
+    <Stack.Screen name="FarmerLoanRequest" component={FarmerLoanRequest} />
     <Stack.Screen name="FarmerInputList" component={FarmerInputList} />
     <Stack.Screen name="FarmerWantToBuy" component={FarmerWantToBuy} />
     <Stack.Screen name="FarmerPastEnquiry" component={FarmerPastEnquiries} />
@@ -103,6 +115,14 @@ const FarmerMainStack = () => (
       name="FarmerInsuranceEnquiry"
       component={FarmerInsuranceEnquiry}
     />
+    <Stack.Screen
+      name="FarmerInsuViewPastRequested"
+      component={FarmerInsuViewPastRequested}
+    />
+    <Stack.Screen
+      name="FarmerRequestForInsurance"
+      component={FarmerRequestForInsurance}
+    />
     <Stack.Screen name="DailySalesReport" component={DailySalesReport} />
     <Stack.Screen name="SalesDetail" component={SalesDetail} />
     <Stack.Screen name="DealerReport" component={DealerReport} />
@@ -123,6 +143,17 @@ const FarmerMainStack = () => (
     />
     <Stack.Screen name="Weather" component={Weather} />
     <Stack.Screen name="Calculator" component={Calculator} />
+    <Stack.Screen name="PestisideCalculator" component={PestisideCalculator} />
+
+    <Stack.Screen
+      name="FertilizerCalculator"
+      component={FertilizerCalculator}
+    />
+    <Stack.Screen
+      name="FarmerInstrumentWiseActivityView"
+      component={FarmerInstrumentWiseActivityView}
+    />
+
     <Stack.Screen name="PackageOfPractices" component={PackageOfPractices} />
     <Stack.Screen
       name="PackageOfPracticesDetails"

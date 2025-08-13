@@ -93,7 +93,7 @@ const FarmerDashboard = ({navigation}) => {
   });
   const [company_website, setcompany_website] = useState('');
   const navigateToPages = pageName => {
-    console.log(pageName);
+    // console.log(pageName);
     if (netConnection) {
       if (pageName == 'Weather') {
         navigation.navigate(pageName, {latLong});
@@ -209,7 +209,6 @@ const FarmerDashboard = ({navigation}) => {
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-      // console.log('data', response.data.data);
       if (response?.data?.data?.rows) {
         setLatestActivities(response.data.data.rows);
       }
@@ -285,6 +284,13 @@ const FarmerDashboard = ({navigation}) => {
   // useEffect(() => {
   //   fetchUsefulInformation();
   // }, []);
+
+  useEffect(() => {
+    if (loginUser_data) {
+      fetchLatestActivities();
+      fetchUsefulInformation();
+    }
+  }, [isFocused, loginUser_data]);
   const onPageLoad = async () => {
     const [
       userNameData,
@@ -321,7 +327,6 @@ const FarmerDashboard = ({navigation}) => {
     // requestUserPermission();
     // notificationListener();
     onPageLoad();
-    console.log(topBanner);
   }, []);
 
   const HandlerGoBack = () => exit();

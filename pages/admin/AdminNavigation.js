@@ -26,12 +26,16 @@ import OutPut from './Output/OutPut';
 import PostNew from './Output/PostNew';
 import ViewPast from './Output/ViewPast';
 import LoanEnquiry from './Loan/LoanEnquiry';
+import LoanViewPastRequested from './Loan/ViewPastRequested';
 import LoanEnquiryDetail from './Loan/LoanEnquiryDetail';
+import LoanRequest from './Loan/LoanRequest';
 import Training from './Training/Training';
 import TrainingList from './Training/TrainingList';
 import UsefulInformation from './Usefullinformation/UsefulInformation';
 import UsefulInformationList from './Usefullinformation/UsefulInformationList';
 import InsuranceEnquiry from './Insurance/InsuranceEnquiry';
+import InsuranceViewPastRequested from './Insurance/ViewPastRequested';
+import RequestForInsurance from './Insurance/RequestForInsurance';
 import DailySalesReport from './DailySalesReport/DailySalesReport';
 import SalesDetail from './DailySalesReport/SalesDetail';
 import DealerReport from './DailySalesReport/DealerReport';
@@ -45,6 +49,7 @@ import FinancialInformation from './UserRegistation/FinancialInformation';
 import PlotSiteProduceInformation from './UserRegistation/PlotSiteProduceInformation';
 import RegistationSignUpViwer from './UserRegistation/RegistationSignUpViwer';
 import ChangePassword from './ChangePassword/ChangePassword';
+import InstrumentWiseActivityView from './Activity/InstrumentWiseActivityView';
 import Business from './Business/Business';
 import {Colors} from '../utils/Constants';
 
@@ -73,6 +78,12 @@ function AdminStack() {
       <Stack.Screen name="ViewPast" component={ViewPast} />
       <Stack.Screen name="Loan" component={LoanEnquiry} />
       <Stack.Screen name="LoanEnquiryDetail" component={LoanEnquiryDetail} />
+      <Stack.Screen
+        name="LoanViewPastRequested"
+        component={LoanViewPastRequested}
+      />
+      <Stack.Screen name="LoanRequest" component={LoanRequest} />
+
       <Stack.Screen name="InputList" component={InputList} />
       <Stack.Screen name="WantToBuy" component={WantToBuy} />
       <Stack.Screen name="PastEnquiry" component={PastEnquiries} />
@@ -87,6 +98,15 @@ function AdminStack() {
       <Stack.Screen name="livehood" component={PlotList} />
       <Stack.Screen name="CrateProblemUser" component={CrateProblemUser} />
       <Stack.Screen name="InsuranceEnquiry" component={InsuranceEnquiry} />
+      <Stack.Screen
+        name="InsuranceViewPastRequested"
+        component={InsuranceViewPastRequested}
+      />
+      <Stack.Screen
+        name="RequestForInsurance"
+        component={RequestForInsurance}
+      />
+
       <Stack.Screen name="DailySalesReport" component={DailySalesReport} />
       <Stack.Screen name="SalesDetail" component={SalesDetail} />
       <Stack.Screen name="DealerReport" component={DealerReport} />
@@ -119,6 +139,10 @@ function AdminStack() {
       />
       <Stack.Screen name="ChangePassword" component={ChangePassword} />
       <Stack.Screen name="Business" component={Business} />
+      <Stack.Screen
+        name="InstrumentWiseActivityView"
+        component={InstrumentWiseActivityView}
+      />
     </Stack.Navigator>
   );
 }

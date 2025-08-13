@@ -8,6 +8,7 @@ import {
   Dimensions,
   Keyboard,
   Linking,
+  SafeAreaView,
 } from 'react-native';
 import React, {
   useCallback,
@@ -39,8 +40,17 @@ import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {createPdf} from 'react-native-images-to-pdf';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+
 const qs = require('qs');
-const FarmerLoanRequest = ({setActiveBtn}) => {
+const FarmerLoanRequest = ({}) => {
+  const navigation = useNavigation();
   const scrollViewRef = useRef(null);
   //GQR-67
   const {
@@ -54,6 +64,9 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
     InputTextForm,
     Root,
     Toast,
+    CustomHeader,
+    logoImage,
+    topBanner,
   } = useContext(userCreateContext);
   const {
     dbname,
@@ -1245,9 +1258,8 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
           text: t('Data_submitted_successfully'),
           ...AlertMesg[0],
         });
-        setTimeout(() => {
-          setActiveBtn(2);
-        }, 2000);
+        setTimeout(() => {}, 2000);
+        navigation.navigate('FarmerLoanViewPastRequested');
       }
     }
     setIsLoading(false);
@@ -1269,107 +1281,139 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
   //           propsData.spSheet.hide();
   //         }
   //       };
+  const HandlerGoBack = () => navigation.navigate('Dashboard');
+
   return (
-    <>
-      <Root>
-        {isLoading ? (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
-          <View style={styles.container}>
-            <InputTextForm
-              label={t('farmer_name')}
-              value={userName}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('farmer_number')}
-              value={contactNumber}
-              keyboardType={'numeric'}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('adhar_no')}
-              value={aadhar_number}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('kcc_no')}
-              value={kcc_number}
-              editable={false}
-            />
-
-            <View style={styles.idcontainer}>
-              <Text style={{color: '#000'}}>{t('identity_proof')}</Text>
-              <View style={styles.idItemContainer}>
-                {identityProof &&
-                  identityProof.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        style={styles.idItem}
-                        key={index}
-                        onPress={() => openIdentity(data.uri)}>
-                        <Text
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                          style={[styles.plotText, {fontSize: 12}]}>
-                          {data.imageType ==
-                          undefined ? null : data?.imageType == 'address' ? (
-                            <Text>Identity Proof</Text>
-                          ) : (
-                            <Text>Address Proof</Text>
-                          )}
-                        </Text>
-                        <Image
-                          source={require('../../Common/images/document.png')}
-                          style={styles.idImage}
-                        />
-                        <Text
-                          numberOfLines={1}
-                          ellipsizeMode="head"
-                          style={styles.plotText}>
-                          {data.name == '' ? '' : data.name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-              </View>
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <Root>
+          {isLoading ? (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
             </View>
+          ) : null}
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          <SafeAreaView
+            style={{
+              flex: 1,
+              backgroundColor: Colors.background_light,
+              // marginBottom: 50,
+            }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              ref={scrollViewRef}>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>
+                  {t('personal_information')}
+                </Text>
+                <InputTextForm
+                  label={t('farmer_name')}
+                  value={userName}
+                  editable={false}
+                />
+                <InputTextForm
+                  label={t('farmer_number')}
+                  value={contactNumber}
+                  keyboardType={'numeric'}
+                  editable={false}
+                />
+                <InputTextForm
+                  label={t('adhar_no')}
+                  value={aadhar_number}
+                  editable={false}
+                />
+                <InputTextForm
+                  label={t('kcc_no')}
+                  value={kcc_number}
+                  editable={false}
+                />
+              </View>
+              <View style={styles.idcontainer}>
+                <Text
+                  style={{
+                    fontSize: 16,
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{t('loan_information')}</Text>
-              <InputTextForm
-                label={t('existing_loan_amount') + '(' + currency + ')'}
-                keyboardType={'numeric'}
-                required={true}
-                onChangeText={text =>
-                  handledataAdd('existing_loan_amount', text)
-                }
-                value={saveData.existing_loan_amount}
-              />
-              <InputTextForm
-                label={t('loan_required_in_rupees') + '(' + currency + ')'}
-                keyboardType={'numeric'}
-                required={true}
-                onChangeText={text => handledataAdd('loan_amount', text)}
-                value={saveData.loan_amount}
-              />
-              <InputTextForm
-                label={t('annual_income') + '(' + currency + ')'}
-                keyboardType={'numeric'}
-                required={true}
-                onChangeText={text => handledataAdd('apx_annual_income', text)}
-                value={saveData.apx_annual_income}
-              />
-              <DropdownForm
-                label={t('loan_purpose')}
-                data={loanPurpose}
-                onChange={text => handledataAdd('loan_purpose', text.value)}
-                required={true}
-              />
-              {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
+                    color: Colors.borderGreen,
+                    marginBottom: 12,
+                    fontFamily: 'Poppins-SemiBold',
+                  }}>
+                  {t('identity_proof')}
+                </Text>
+                <View style={styles.idItemContainer}>
+                  {identityProof &&
+                    identityProof.map((data, index) => {
+                      return (
+                        <TouchableOpacity
+                          style={styles.idItem}
+                          key={index}
+                          onPress={() => openIdentity(data.uri)}>
+                          <Text
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                            style={[styles.plotText, {fontSize: 12}]}>
+                            {data.imageType ==
+                            undefined ? null : data?.imageType == 'address' ? (
+                              <Text>Identity Proof</Text>
+                            ) : (
+                              <Text>Address Proof</Text>
+                            )}
+                          </Text>
+                          <MaterialIcons
+                            name="description"
+                            size={35}
+                            color="#4a8c29"
+                          />
+                          <Text
+                            numberOfLines={1}
+                            ellipsizeMode="head"
+                            style={styles.plotText}>
+                            {data.name == '' ? '' : data.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                </View>
+              </View>
+
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>{t('loan_information')}</Text>
+                <InputTextForm
+                  label={t('existing_loan_amount') + '(' + currency + ')'}
+                  keyboardType={'numeric'}
+                  required={true}
+                  onChangeText={text =>
+                    handledataAdd('existing_loan_amount', text)
+                  }
+                  value={saveData.existing_loan_amount}
+                />
+                <InputTextForm
+                  label={t('loan_required_in_rupees') + '(' + currency + ')'}
+                  keyboardType={'numeric'}
+                  required={true}
+                  onChangeText={text => handledataAdd('loan_amount', text)}
+                  value={saveData.loan_amount}
+                />
+                <InputTextForm
+                  label={t('annual_income') + '(' + currency + ')'}
+                  keyboardType={'numeric'}
+                  required={true}
+                  onChangeText={text =>
+                    handledataAdd('apx_annual_income', text)
+                  }
+                  value={saveData.apx_annual_income}
+                />
+                <DropdownForm
+                  label={t('loan_purpose')}
+                  data={loanPurpose}
+                  onChange={text => handledataAdd('loan_purpose', text.value)}
+                  required={true}
+                />
+                {/* <Text style={styles.plotTitle}>{t('plot')}</Text>
                         <View style={styles.PlotSiteList}>
                             {
                                 plotSite && plotSite.map((data, index) => {
@@ -1387,7 +1431,7 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                                 })
                             }
                         </View> */}
-              {/* <View style={styles.plotContainer}>
+                {/* <View style={styles.plotContainer}>
                             {
                                 nameVarityStartEnd.map((data, index) => {
                                     return (
@@ -1410,134 +1454,126 @@ const FarmerLoanRequest = ({setActiveBtn}) => {
                             }
                         </View> */}
 
-              <DropdownForm
-                label={t('select_plot')}
-                data={plotSite}
-                onChange={item => handlePlotCheck(item.value, item.label)}
-                required={true}
-              />
-            </View>
-            <View style={styles.plotContainer}>
-              {nameVarityStartEnd.map((data, index) => {
-                if (data.isChecked == '1') {
-                  return (
-                    <View key={index}>
-                      <TouchableOpacity
-                        onPress={() => produceRemoveDetails(index)}>
-                        <Image
-                          source={require('../../Common/images/x-mark.png')}
-                          style={styles.xMarkImage}
-                        />
-                      </TouchableOpacity>
-                      <View style={styles.plotContainerItem}>
-                        <View>
-                          <Text style={styles.plotText}>
-                            {t('select_plot')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropname')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropvariety')}
-                          </Text>
-                          {/* <Text style={styles.plotText}>
+                <DropdownForm
+                  label={t('select_plot')}
+                  data={plotSite}
+                  onChange={item => handlePlotCheck(item.value, item.label)}
+                  required={true}
+                />
+              </View>
+              <View style={styles.card}>
+                {nameVarityStartEnd.map((data, index) => {
+                  if (data.isChecked == '1') {
+                    return (
+                      <View key={index}>
+                        <TouchableOpacity
+                          onPress={() => produceRemoveDetails(index)}>
+                          <MaterialIcons name="cancel" color="red" size={22} />
+                        </TouchableOpacity>
+                        <View style={styles.plotContainerItem}>
+                          <View>
+                            <Text style={styles.plotTextRe}>
+                              {t('select_plot')}
+                            </Text>
+                            <Text style={styles.plotTextRe}>
+                              {t('addcrop_cropname')}
+                            </Text>
+                            <Text style={styles.plotTextRe}>
+                              {t('addcrop_cropvariety')}
+                            </Text>
+                            {/* <Text style={styles.plotText}>
                                                      {t('showing_date')}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      {t('harvesting_date_auto_calculated')}
                                                    </Text> */}
-                        </View>
-                        <View>
-                          <Text style={styles.plotText}>
-                            :{data.plot_no.substring(-1, 15)}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :{data.name.substring(-1, 15)}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :{data.varity.substring(-1, 15)}
-                          </Text>
-                          {/* <Text style={styles.plotText}>
+                          </View>
+                          <View>
+                            <Text style={styles.plotText}>
+                              :{data.plot_no.substring(-1, 15)}
+                            </Text>
+                            <Text style={styles.plotText}>
+                              :{data.name.substring(-1, 15)}
+                            </Text>
+                            <Text style={styles.plotText}>
+                              :{data.varity.substring(-1, 15)}
+                            </Text>
+                            {/* <Text style={styles.plotText}>
                                                      :{data.cycleStarts}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      :{data.cycleEnd.substring(0, 10)}
                                                    </Text> */}
+                          </View>
+                        </View>
+
+                        <View style={styles.idcontainer}>
+                          <View style={styles.idItemContainer}>
+                            <ProofAndIdentityPropfCompLoan
+                              identityProofIdentityPropf={data.addressProof}
+                              t={t}
+                              title={t('address_proof')}
+                              handleDocumentSelection={handleDocumentSelection}
+                              handleDocumentSelectionRemove={
+                                handleDocumentSelectionRemove
+                              }
+                              handleScanAndCreatePdf={handleScanAndCreatePdf}
+                              parent={data}
+                              InputTextFormEdit={false}
+                            />
+                          </View>
                         </View>
                       </View>
+                    );
+                  }
+                })}
+              </View>
 
-                      <View style={styles.idcontainer}>
-                        <View style={styles.idItemContainer}>
-                          <ProofAndIdentityPropfCompLoan
-                            identityProofIdentityPropf={data.addressProof}
-                            t={t}
-                            title={t('address_proof')}
-                            handleDocumentSelection={handleDocumentSelection}
-                            handleDocumentSelectionRemove={
-                              handleDocumentSelectionRemove
-                            }
-                            handleScanAndCreatePdf={handleScanAndCreatePdf}
-                            parent={data}
-                            InputTextFormEdit={false}
-                          />
-                        </View>
-                      </View>
-                    </View>
-                  );
-                }
-              })}
-            </View>
+              <TouchableOpacity
+                style={styles.clickAddMorePlots}
+                onPress={() => handle_button()}>
+                <Text style={styles.clickAddMorePlotsTitle}>
+                  {t('click_to_add_more_plot')}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.clickAddMorePlots}
-              onPress={() => handle_button()}>
-              <Text style={styles.clickAddMorePlotsTitle}>
-                {t('click_to_add_more_plot')}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={styles.idcontainer}>
-              <Text style={styles.cardTitle}>{t('land_records')}</Text>
-              <ProofAndIdentityPropfCompLoan
-                identityProofIdentityPropf={landProof}
-                t={t}
-                // title={t('land_records')}
-                handleDocumentSelection={handleDocumentSelection}
-                handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-                handleScanAndCreatePdf={handleScanAndCreatePdf}
-              />
-            </View>
-          </View>
-        </ScrollView>
-        <ButtonForm
-          label={t('submit')}
-          onPress={handleSave}
-          iconName="check-circle"
-          iconColor="#fff"
-          iconSize={30}
-        />
-      </Root>
-    </>
+              <View style={styles.idcontainer}>
+                <Text style={styles.cardTitle}>{t('land_records')}</Text>
+                <ProofAndIdentityPropfCompLoan
+                  identityProofIdentityPropf={landProof}
+                  t={t}
+                  // title={t('land_records')}
+                  handleDocumentSelection={handleDocumentSelection}
+                  handleDocumentSelectionRemove={handleDocumentSelectionRemove}
+                  handleScanAndCreatePdf={handleScanAndCreatePdf}
+                />
+              </View>
+            </ScrollView>
+          </SafeAreaView>
+          <ButtonForm
+            label={t('submit')}
+            onPress={handleSave}
+            iconName="check-circle"
+            iconColor="#fff"
+            iconSize={30}
+          />
+        </Root>
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
 export default FarmerLoanRequest;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.containerGreen,
-    marginHorizontal: '3%',
-    borderWidth: 0.5,
-    borderColor: Colors.borderGreen,
-    marginBottom: 20,
-  },
   idcontainer: {
-    marginVertical: 10,
+    marginBottom: 50,
+
     backgroundColor: '#FFF',
-    elevation: 2,
-    borderRadius: 5,
+    elevation: 5,
+    borderRadius: 8,
     padding: 10,
+
+    marginHorizontal: '4%',
   },
   idItemContainer: {
     flexDirection: 'row',
@@ -1553,15 +1589,15 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-  flatContainer: {
-    backgroundColor: '#FFF',
-    width: '100%',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-    elevation: 5,
-    zIndex: -999,
-  },
+  // flatContainer: {
+  //   backgroundColor: '#FFF',
+  //   width: '100%',
+  //   borderRadius: 10,
+  //   padding: 10,
+  //   marginBottom: 10,
+  //   elevation: 5,
+  //   zIndex: -999,
+  // },
   flatlisttitle: {
     color: '#000',
     marginVertical: 8,
@@ -1570,23 +1606,32 @@ const styles = StyleSheet.create({
   flatlistitem: {},
   plotContainer: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
+    borderRadius: 8,
     elevation: 5,
   },
   plotContainerItem: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#000',
-    margin: 10,
+    backgroundColor: '#eef7faff',
+
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+    // margin: 10,
     borderRadius: 10,
+    marginBottom: 5,
     padding: 10,
   },
   plotText: {
+    marginVertical: 4,
+    color: Colors.text,
+
+    fontFamily: 'Poppins-Regular',
+  },
+  plotTextRe: {
     color: '#000',
     marginVertical: 4,
+    fontFamily: 'Poppins-Regular',
   },
   PlotSiteList: {
     backgroundColor: '#FFF',
@@ -1595,16 +1640,21 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   flatContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f2f8eeff',
     position: 'absolute',
     zIndex: 999,
-    bottom: '100%',
+    top: '100%',
     left: 0,
     marginHorizontal: '5%',
-    width: '90%',
+    width: '50%',
     elevation: 10,
-    borderRadius: 10,
+    borderRadius: 8,
     padding: 10,
+    marginTop: 120,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    // alignItems: 'center',
+    marginLeft: 100,
   },
   flatlistHeight: {
     height: Dimensions.get('window').height / 2.5,
@@ -1630,7 +1680,7 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   clickAddMorePlots: {
-    backgroundColor: Colors.subBtn,
+    backgroundColor: Colors.drawer,
     marginHorizontal: 35,
     paddingVertical: 15,
     marginVertical: 20,
@@ -1654,7 +1704,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: '3%',
+    marginHorizontal: '4%',
   },
   cardTitle: {
     fontSize: 16,
@@ -1694,4 +1744,133 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: Fonts.SemiBold,
   },
+  searchResultsContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginTop: 5,
+    maxHeight: 200,
+    elevation: 3,
+    zIndex: 1000, // Ensure it appears above other elements
+  },
+  /////////////////////////////////////////////
+  // container: {
+  //   marginHorizontal: '3%',
+  //   paddingVertical: 10,
+  //   marginBottom: 50,
+  // },
+  // idcontainer: {
+  //   marginVertical: 10,
+  //   backgroundColor: '#FFF',
+  //   elevation: 2,
+  //   borderRadius: 5,
+  //   padding: 10
+  // },
+  // idItemContainer: {
+  //   flexDirection: 'row',
+  //   flexWrap: 'wrap',
+  // },
+  // idItem: {
+  //   padding: 10,
+  //   width: '30%',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // idImage: {
+  //   width: 60,
+  //   height: 60,
+  // },
+  // flatContainer: {
+  //   backgroundColor: '#FFF',
+  //   width: '100%',
+  //   borderRadius: 10,
+  //   padding: 10,
+  //   marginBottom: 10,
+  //   elevation: 5,
+  //   zIndex: -999,
+  // },
+  // flatlisttitle: {
+  //   color: '#000',
+  //   marginVertical: 8,
+  //   fontSize: 16,
+  // },
+  // flatlistitem: {},
+  // plotContainer: {
+  //   backgroundColor: '#FFF',
+  //   borderRadius: 10,
+  //   elevation: 5,
+  // },
+  // plotContainerItem: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-around',
+  //   alignItems: 'center',
+  //   backgroundColor: '#FFF',
+  //   borderWidth: 1,
+  //   borderColor: '#000',
+  //   margin: 15,
+  //   borderRadius: 10,
+  //   padding: 10,
+  // },
+  // plotText: {
+  //   color: '#000',
+  //   marginVertical: 2,
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  // PlotSiteList: {
+  //   backgroundColor: '#FFF',
+  //   borderRadius: 10,
+  //   marginBottom: 18,
+  //   elevation: 1,
+  // },
+  // flatContainer: {
+  //   backgroundColor: '#ffffff',
+  //   position: 'absolute',
+  //   zIndex: 999,
+  //   // bottom: '100%',
+  //   top: 90,
+  //   left: 0,
+  //   marginHorizontal: '5%',
+  //   width: '90%',
+  //   elevation: 10,
+  //   borderRadius: 10,
+  //   padding: 10,
+  // },
+  // flatlistHeight: {
+  //   height: Dimensions.get('window').height / 2.5,
+  // },
+  // plotTitle: {
+  //   color: '#FF0000',
+  //   marginBottom: 10,
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  // loadingScreen: {
+  //   position: 'absolute',
+  //   top: '60%',
+  //   zIndex: 999,
+  //   left: '45%',
+  // },
+  // xMarkImage: {
+  //   width: 20,
+  //   height: 20,
+  //   margin: 5,
+  // },
+  // clickAddMorePlots: {
+  //   backgroundColor: '#045004',
+  //   marginHorizontal: 35,
+  //   paddingVertical: 15,
+  //   marginVertical: 20,
+  //   borderRadius: 20,
+  // },
+  // clickAddMorePlotsTitle: {
+  //   textAlign: 'center',
+  //   color: '#FFF',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
 });

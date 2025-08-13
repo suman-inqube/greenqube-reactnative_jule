@@ -30,7 +30,7 @@ const Calculator = () => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <FormsTitle title={t('agri_calculator')} />
+        {/* <FormsTitle title={t('agri_calculator')} /> */}
         <View style={styles.container}>
           <View style={styles.btnRequstContainer}>
             <TouchableOpacity

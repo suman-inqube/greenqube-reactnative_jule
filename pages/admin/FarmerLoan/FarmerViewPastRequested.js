@@ -19,10 +19,18 @@ import {Colors, Fonts} from '../../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const FarmerViewPastRequested = ({setActiveBtn}) => {
+const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
-  const {loginUser_data, DatePickerComp, t, getItem, effective_dates} =
-    useContext(userCreateContext);
+  const {
+    loginUser_data,
+    DatePickerComp,
+    t,
+    getItem,
+    effective_dates,
+    CustomHeader,
+    logoImage,
+    topBanner,
+  } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner} = loginUser_data;
   //GQR-67
   const [currency, setcurrency] = useState('');
@@ -182,189 +190,193 @@ const FarmerViewPastRequested = ({setActiveBtn}) => {
       setLoanList(tempData);
     }
   };
+  const HandlerGoBack = () => navigation.navigate('Dashboard');
+
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={{flex: 1}}>
-        <View style={styles.main}>
-          <View style={{}}>
-            <DatePickerComp
-              openDate={openFromDate}
-              newDate={newFromDate}
-              setOpenDate={setOpenFromDate}
-              handleDatePicker={handleDatePicker}
-            />
-            <DatePickerComp
-              openDate={openToDate}
-              newDate={newToDate}
-              setOpenDate={setOpenToDate}
-              handleDatePicker={handleDatePicker2}
-              minimumDate={
-                fromDate == ''
-                  ? ''
-                  : new Date(
-                      `${new Date(fromDate).getFullYear()}-${
-                        new Date(fromDate).getMonth() + 1
-                      }-${new Date(fromDate).getDate() + 1}`,
-                    )
-              }
-            />
-          </View>
-          {searchResultsList && searchResultsList ? (
-            <View style={styles.flatContainer}>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                data={searchResults}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleResultSelect(item.label, item.value, item.phone)
-                    }
-                    style={styles.flatlistitem}>
-                    <Text style={styles.flatlisttitle}>
-                      {filterName == 'PhoneNumber' ? item.phone : item.label}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-              />
-            </View>
-          ) : (
-            ''
-          )}
-          <TouchableOpacity
-            style={styles.plusIcon}
-            onPress={() => setActiveBtn(1)}>
-            <Image
-              source={require('../../Common/images/plus.png')}
-              style={{width: 50, height: 50}}
-            />
-          </TouchableOpacity>
-          {isLoading ? (
-            ''
-          ) : (
-            <View style={{marginVertical: 10}}>
-              <Filter
-                filterItem={filterItem}
-                filterOption={filterOption}
-                setOpenToDate={setOpenToDate}
-                fromDate={fromDate}
-                newToDate={toDate}
-                setOpenFromDate={setOpenFromDate}
-                filterOptionShow={filterOptionShow}
-                onchangeFilterItem={onchangeFilterItem}
-                onChangeText={item => handleFilter(item)}
-                FarmerProductNameValue={searchFarmerName}
-                FarmerProductPhoneValue={searchFarmerPhone}
-                statusNameValue={statusName}
-                onlyDate={true}
-                filterDataRemove={filterDataRemove}
-                statusFilter={true}
-              />
-            </View>
-          )}
-          <View>
-            {isLoading ? (
-              <View style={styles.loadingScreen}>
-                <LoadingScreen />
-              </View>
-            ) : (
-              ''
-            )}
+      <CustomHeader
+        path="Dashboard"
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
+        {/* <View style={styles.main}> */}
+        <View style={{}}>
+          <DatePickerComp
+            openDate={openFromDate}
+            newDate={newFromDate}
+            setOpenDate={setOpenFromDate}
+            handleDatePicker={handleDatePicker}
+          />
+          <DatePickerComp
+            openDate={openToDate}
+            newDate={newToDate}
+            setOpenDate={setOpenToDate}
+            handleDatePicker={handleDatePicker2}
+            minimumDate={
+              fromDate == ''
+                ? ''
+                : new Date(
+                    `${new Date(fromDate).getFullYear()}-${
+                      new Date(fromDate).getMonth() + 1
+                    }-${new Date(fromDate).getDate() + 1}`,
+                  )
+            }
+          />
+        </View>
+        {searchResultsList && searchResultsList ? (
+          <View style={styles.flatContainer}>
             <FlatList
               showsVerticalScrollIndicator={false}
-              data={loanList}
-              style={
-                filterName !== '' ? {marginBottom: 40} : {marginBottom: 40}
-              }
-              renderItem={({item, index}) => {
-                var date = new Date(item.created_at.split('T')[0]);
-                var sanctioned_date = new Date(item.sanctioned_date);
-                return (
-                  <TouchableOpacity
-                    style={styles.flatListContainer}
-                    onPress={() => navigate('LoanEnquiryDetail', item)}>
-                    <View style={styles.flatListItem}>
-                      <View style={styles.cardHeader}>
-                        <View style={styles.marqueeContainer}>
-                          <Text style={styles.cardTitleRe}>
-                            {t('loan_amt') + `(${currency})`}: {'  '}
-                            <Text style={styles.cardTitle}>
-                              {item.loan_amount}
-                            </Text>
-                          </Text>
-                        </View>
-                        <View style={styles.cardFooter}>
-                          <Text style={styles.viewDetailsText}>
-                            {t('view_details')}
-                          </Text>
-                          <MaterialIcons
-                            name="chevron-right"
-                            size={20}
-                            color="#2e7d32"
-                          />
-                        </View>
-                      </View>
-                      {/* <Text style={styles.title}>
-                        {t('name')}:{item.agri_user.userName}
-                      </Text> */}
-
-                      <Text style={styles.titleRe}>
-                        {t('sta_')} : {'     '}
-                        <Text style={styles.titlePen}>
-                          {item.status == 1 && t('pending')}
-                        </Text>
-                        <Text style={styles.titleApp}>
-                          {item.status == 2 && t('Approved')}
-                        </Text>
-                        <Text style={styles.titleRej}>
-                          {item.status == 3 && t('Rejected')}{' '}
-                        </Text>
-                      </Text>
-                      {item?.loan_sanctioned && (
-                        <Text style={styles.titleRe}>
-                          {t('LoanSanctioned') + `(${currency})`}: {'   '}
-                          <Text style={styles.title}>
-                            {item.loan_sanctioned}
-                          </Text>
-                        </Text>
-                      )}
-                      <Text style={styles.titleRe}>
-                        {t('number_caps')}: {'   '}
-                        <Text style={styles.title}>
-                          {item.agri_user.contactNumber}
-                        </Text>
-                      </Text>
-                      <Text style={styles.titleRe}>
-                        {t('date')}:{'         '}
-                        <Text style={styles.title}>
-                          {date.toString().substring(4, 15)}
-                        </Text>
-                      </Text>
-                      {item?.sanctioned_date && (
-                        <Text style={styles.title}>
-                          {t('SanctionedDate')}:
-                          {'\n' + sanctioned_date.toString().substring(3, 15)}
-                        </Text>
-                      )}
-                      {item?.loan_ord_id && (
-                        <Text style={styles.title}>
-                          {t('LoanOrderID')}:{item.loan_ord_id}
-                        </Text>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
+              style={searchResults.length > 8 ? styles.flatlistHeight : ''}
+              data={searchResults}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  onPress={() =>
+                    handleResultSelect(item.label, item.value, item.phone)
+                  }
+                  style={styles.flatlistitem}>
+                  <Text style={styles.flatlisttitle}>
+                    {filterName == 'PhoneNumber' ? item.phone : item.label}
+                  </Text>
+                </TouchableOpacity>
+              )}
               keyExtractor={(item, index) => index}
             />
           </View>
+        ) : (
+          ''
+        )}
+        {/* <TouchableOpacity
+          style={styles.plusIcon}
+          onPress={() => setActiveBtn(1)}>
+          <Image
+            source={require('../../Common/images/plus.png')}
+            style={{width: 50, height: 50}}
+          />
+        </TouchableOpacity> */}
+        {isLoading ? (
+          ''
+        ) : (
+          <View style={{marginVertical: 10}}>
+            <Filter
+              filterItem={filterItem}
+              filterOption={filterOption}
+              setOpenToDate={setOpenToDate}
+              fromDate={fromDate}
+              newToDate={toDate}
+              setOpenFromDate={setOpenFromDate}
+              filterOptionShow={filterOptionShow}
+              onchangeFilterItem={onchangeFilterItem}
+              onChangeText={item => handleFilter(item)}
+              FarmerProductNameValue={searchFarmerName}
+              FarmerProductPhoneValue={searchFarmerPhone}
+              statusNameValue={statusName}
+              onlyDate={true}
+              filterDataRemove={filterDataRemove}
+              statusFilter={true}
+            />
+          </View>
+        )}
+        <View>
+          {isLoading ? (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          ) : (
+            ''
+          )}
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={loanList}
+            style={filterName !== '' ? {marginBottom: 40} : {marginBottom: 40}}
+            renderItem={({item, index}) => {
+              var date = new Date(item.created_at.split('T')[0]);
+              var sanctioned_date = new Date(item.sanctioned_date);
+              return (
+                <TouchableOpacity
+                  style={styles.flatListContainer}
+                  onPress={() => navigate('LoanEnquiryDetail', item)}>
+                  <View style={styles.flatListItem}>
+                    <View style={styles.cardHeader}>
+                      <View style={styles.marqueeContainer}>
+                        <Text style={styles.cardTitleRe}>
+                          {t('loan_amt') + `(${currency})`}: {'  '}
+                          <Text style={styles.cardTitle}>
+                            {item.loan_amount}
+                          </Text>
+                        </Text>
+                      </View>
+                      <View style={styles.cardFooter}>
+                        <Text style={styles.viewDetailsText}>
+                          {t('view_details')}
+                        </Text>
+                        <MaterialIcons
+                          name="chevron-right"
+                          size={20}
+                          color="#2e7d32"
+                        />
+                      </View>
+                    </View>
+                    {/* <Text style={styles.title}>
+                        {t('name')}:{item.agri_user.userName}
+                      </Text> */}
+
+                    <Text style={styles.titleRe}>
+                      {t('sta_')} : {'     '}
+                      <Text style={styles.titlePen}>
+                        {item.status == 1 && t('pending')}
+                      </Text>
+                      <Text style={styles.titleApp}>
+                        {item.status == 2 && t('Approved')}
+                      </Text>
+                      <Text style={styles.titleRej}>
+                        {item.status == 3 && t('Rejected')}{' '}
+                      </Text>
+                    </Text>
+                    {item?.loan_sanctioned && (
+                      <Text style={styles.titleRe}>
+                        {t('LoanSanctioned') + `(${currency})`}: {'   '}
+                        <Text style={styles.title}>{item.loan_sanctioned}</Text>
+                      </Text>
+                    )}
+                    <Text style={styles.titleRe}>
+                      {t('number_caps')}: {'   '}
+                      <Text style={styles.title}>
+                        {item.agri_user.contactNumber}
+                      </Text>
+                    </Text>
+                    <Text style={styles.titleRe}>
+                      {t('date')}:{'         '}
+                      <Text style={styles.title}>
+                        {date.toString().substring(4, 15)}
+                      </Text>
+                    </Text>
+                    {item?.sanctioned_date && (
+                      <Text style={styles.title}>
+                        {t('SanctionedDate')}:
+                        {'\n' + sanctioned_date.toString().substring(3, 15)}
+                      </Text>
+                    )}
+                    {item?.loan_ord_id && (
+                      <Text style={styles.title}>
+                        {t('LoanOrderID')}:{item.loan_ord_id}
+                      </Text>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={(item, index) => index}
+          />
         </View>
+        {/* </View> */}
       </SafeAreaView>
     </FarmerDrawerScreenWrapper1>
   );
 };
-export default FarmerViewPastRequested;
+export default FarmerLoanViewPastRequested;
 
 const styles = StyleSheet.create({
   main: {
@@ -390,11 +402,12 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 20,
     borderLeftWidth: 5,
-    borderColor: Colors.borderGreen,
+    borderLeftColor: Colors.borderGreen,
     // flexDirection: 'row',
     // alignItems: 'center',
     // marginBottom: 8,
     paddingHorizontal: 15,
+    marginHorizontal: '2.5%',
   },
   cardHeader: {
     flexDirection: 'row',

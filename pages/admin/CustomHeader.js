@@ -1,13 +1,20 @@
-import React, {useEffect, lazy} from 'react';
+import React, {lazy, useEffect, memo} from 'react';
 import {
   TouchableOpacity,
   Image,
   View,
   StyleSheet,
+  Text,
   StatusBar,
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {goBack} from '../utils/NavigationUtils';
+import {Colors, Fonts} from '../utils/Constants';
+import {useTranslation} from 'react-i18next';
+import {useDrawerStatus} from '@react-navigation/drawer';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const CustomHeader = ({
   path,
   HandlerGoBack,
@@ -15,8 +22,46 @@ const CustomHeader = ({
   logoImage,
   topBanner,
   show,
+  filterOptionShow,
 }) => {
+  const drawerStatus = useDrawerStatus();
+  const {t} = useTranslation();
+  const titleMap = {
+    Dashboard: 'Dashboard',
+    Profile: 'User Profile',
+    Settings: 'App Settings',
+    activityList: 'Activity List',
+    Profile: t('profile'),
+    ProblemList: t('problem_reporting'),
+    FarmerFarmIncomeExpenseList: t('income_expense_list'),
+    FarmIncomeExpenseList: t('income_expense_list'),
+    FarmIncomeExpenseView: t('income_expense_list'),
+    AddExpense: t('add_expense'),
+    AddIcome: t('add_income'),
+    ChangePassword: t('change_password'),
+    LoanEnquiryDetail: t('loan_enquiry_detail'),
+    LoanRequest: t('loan_request_n'),
+    LoanViewPastRequested: t('view_loan_nrequested'),
+    InsuranceViewPastRequested: t('Insu_enquiry_detail'),
+    RequestForInsurance: t('request_for_ninsurance'),
+    FarmerLoanViewPastRequested: t('view_loan_nrequested'),
+    FarmerLoanEnquiryDetail: t('Loan Enquiry Detail'),
+    FarmerLoanRequest: t('loan_request_n'),
+    FarmerInsuViewPastRequested: t('Insu_enquiry_detail'),
+    FarmerRequestForInsurance: t('request_for_ninsurance'),
+    PestisideCalculator: t('pestiside_calculator'),
+    FertilizerCalculator: t('fertilizer_calculator'),
+    FarmerInstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
+    FarmerChangePassword: t('change_password'),
+    FarmerAddExpense: t('add_expense'),
+    FarmerAddIncome: t('add_income'),
+    FarmerFarmIncomeExpenseView: t('income_expense_View'),
+    InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
+  };
   const navigation = useNavigation();
+  const route = useRoute();
+  const title = titleMap[route.name] ?? route.name;
+  console.log(title);
   const openDrawer = () => {
     navigation.openDrawer();
   };
@@ -25,7 +70,10 @@ const CustomHeader = ({
   }, []);
   return (
     <View style={styles.mainContainer}>
-      <StatusBar barStyle="light-content" backgroundColor={'#478541'} />
+      <StatusBar
+        barStyle={drawerStatus === 'open' ? 'light-content' : 'light-content'}
+        backgroundColor={drawerStatus === 'open' ? Colors.drawer : '#003c04'}
+      />
       <View
         style={
           Platform.OS === 'android'
@@ -33,25 +81,31 @@ const CustomHeader = ({
             : styles.iosContainer
         }>
         <View style={styles.rightContainer}>
-          <TouchableOpacity onPress={() => HandlerGoBack()}>
+          <TouchableOpacity onPress={() => goBack()}>
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{width: 30, height: 25, tintColor: 'white'}}
+              style={{width: 24, height: 24, tintColor: '#fff'}}
             />
           </TouchableOpacity>
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 10,
-              marginLeft: 10,
-            }}>
+          {title == 'Dashboard' ? (
             <Image
               source={require('../Common/images/logo.png')}
-              style={{width: 80, height: 40}}
+              style={{width: 100, height: 43}}
               resizeMode="contain"
             />
-          </View>
+          ) : (
+            <Image
+              source={require('../Common/images/logoIcon.png')}
+              style={{width: 50, height: 40}}
+              resizeMode="contain"
+            />
+          )}
+          {title != 'Dashboard' ? (
+            <View>
+              <Text style={styles.titleText}>{title}</Text>
+            </View>
+          ) : null}
         </View>
         <TouchableOpacity onPress={openDrawer}>
           <View
@@ -59,22 +113,40 @@ const CustomHeader = ({
               flexDirection: 'row',
               marginRight: 10,
               alignItems: 'center',
-              // flex: 1,
-              // paddingVertical: 30,
+              flex: 1,
+              paddingVertical: 35,
               overflow: 'hidden',
             }}>
-            {logoImage ? (
+            {logoImage && title == 'Dashboard' ? (
               <ImageForm
                 source={{uri: logoImage}}
                 resizeMode="contain"
                 // resizeMode='cover'
                 height={50}
                 width={50}
-                borderRadius={50}
               />
-            ) : (
-              ''
-            )}
+            ) : null}
+
+            {title != 'Dashboard' ? (
+              <TouchableOpacity
+                style={{
+                  width: 32,
+                  // backgroundColor: 'white',
+                  height: 32,
+                  borderRadius: 12,
+                  marginLeft: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: 10,
+                }}
+                onPress={() => filterOptionShow()}>
+                {/* <Image
+                  source={require('../Common/images/setting.png')}
+                  style={{width: 25, height: 25}}
+                /> */}
+                <MaterialIcons name="tune" size={28} color={'white'} />
+              </TouchableOpacity>
+            ) : null}
             <View
               style={{
                 width: 32,
@@ -117,13 +189,16 @@ const CustomHeader = ({
   );
 };
 
-export default CustomHeader;
+export default memo(CustomHeader);
 const styles = StyleSheet.create({
   mainContainer: {
     // borderBottomWidth: 2,
     // marginTop:StatusBar.currentHeight,
-    backgroundColor: '#478541',
-    // marginTop: 30,
+    backgroundColor: '#003c04',
+    // flex: 1,
+    width: '100%',
+    height: 70,
+    justifyContent: 'center',
   },
   androidContainer: {
     justifyContent: 'space-between',
@@ -148,5 +223,10 @@ const styles = StyleSheet.create({
     width: 200,
     // width: width * 100,
     height: 200,
+  },
+  titleText: {
+    color: Colors.background,
+    fontSize: 16,
+    fontFamily: Fonts.Regular,
   },
 });

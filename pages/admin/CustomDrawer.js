@@ -246,7 +246,7 @@ const CustomDrawer = props => {
 
               <TouchableOpacity
                 style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('Loan')}>
+                onPress={() => navigateToPages('LoanViewPastRequested')}>
                 <View style={styles.subMenuItem}>
                   <MaterialIcons
                     name="real-estate-agent"
@@ -254,17 +254,39 @@ const CustomDrawer = props => {
                     color="#eaf3ee"
                   />
                   <Text style={styles.subText}>
-                    {t('loan_ninquiry_far_dash')}
+                    {t('L_view_loan_nrequested')}
                   </Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.subMenu, {paddingLeft: 30}]}
+                onPress={() => navigateToPages('LoanRequest')}>
+                <View style={styles.subMenuItem}>
+                  <MaterialIcons
+                    name="assignment-add"
+                    size={22}
+                    color="#eaf3ee"
+                  />
+                  <Text style={styles.subText}>{t('loan_request_n')}</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('InsuranceEnquiry')}>
+                onPress={() => navigateToPages('InsuranceViewPastRequested')}>
                 <View style={styles.subMenuItem}>
                   <MaterialIcons name="security" size={22} color="#eaf3ee" />
-                  <Text style={styles.subText}>{t('ins_inq_far_dash')}</Text>
+                  <Text style={styles.subText}>{t('Insu_enquiry_detail')}</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.subMenu, {paddingLeft: 30}]}
+                onPress={() => navigateToPages('RequestForInsurance')}>
+                <View style={styles.subMenuItem}>
+                  <MaterialIcons name="maps-ugc" size={22} color="#eaf3ee" />
+                  <Text style={styles.subText}>
+                    {t('request_for_ninsurance')}
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -279,6 +301,25 @@ const CustomDrawer = props => {
                 <MaterialIcons name="school" size={22} color="#030730" />
               </View>
               <Text style={styles.menuText}>{t('training_support')}</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* InstrumentWiseActivityView - Single Menu */}
+
+          <TouchableOpacity
+            style={styles.memuContainer}
+            onPress={() => navigateToPages('InstrumentWiseActivityView')}>
+            <View style={styles.menuItemCal}>
+              <View style={styles.iconView}>
+                <MaterialIcons
+                  name="local-activity"
+                  size={22}
+                  color="#030730"
+                />
+              </View>
+              <Text style={styles.menuText}>
+                {t('instrument_Wise_Activity_View')}
+              </Text>
             </View>
           </TouchableOpacity>
 

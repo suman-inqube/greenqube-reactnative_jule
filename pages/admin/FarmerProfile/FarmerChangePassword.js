@@ -101,7 +101,7 @@ const FarmerChangePassword = ({navigation}) => {
               logoImage={logoImage}
               topBanner={topBanner}
             />
-            <FormsTitle title={t('change_password')} />
+            {/* <FormsTitle title={t('change_password')} /> */}
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
               <Image
                 source={require('../../Common/images/changepass.png')}
@@ -187,16 +187,14 @@ const FarmerChangePassword = ({navigation}) => {
                 </View>
               </View>
             </View>
-            <View style={styles.buttonForm}>
-              <ButtonForm
-                label={t('save')}
-                onPress={() => handleSave()}
-                iconName="check-circle"
-                iconColor="#fff"
-                iconSize={30}
-              />
-            </View>
           </View>
+          <ButtonForm
+            label={t('save')}
+            onPress={() => handleSave()}
+            iconName="check-circle"
+            iconColor="#fff"
+            iconSize={30}
+          />
         </Root>
       </>
     </FarmerDrawerScreenWrapper1>
@@ -212,12 +210,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   forgotContainer: {
-    backgroundColor: Colors.containerGreen,
     // marginTop: 30,
-    borderRadius: 25,
-    elevation: 3,
+    borderRadius: 8,
+    backgroundColor: 'white',
     marginHorizontal: '4%',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: Colors.borderGreen,
     // paddingTop: 10,
     // marginBottom: 30,
@@ -255,7 +252,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   buttonForm: {
-    marginTop: 30,
+    marginTop: 250,
   },
   titleForgot: {
     textAlign: 'center',

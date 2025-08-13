@@ -22,7 +22,9 @@ import MessageDialog from '../../Common/MessageDialog';
 import axios from 'axios';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
-import {Colors, Fonts} from '../../utils/Constants';
+import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const FarmerAddIncome = ({navigation}) => {
   //GQR-67
@@ -246,117 +248,137 @@ const FarmerAddIncome = ({navigation}) => {
   const HandlerGoBack = () =>
     navigation.navigate('FarmerFarmIncomeExpenseList');
   return (
-    <Root>
-      <View style={{flex: 1}}>
-        <DatePickerComp
-          openDate={openFromDate}
-          newDate={newFromDate}
-          setOpenDate={setOpenFromDate}
-          handleDatePicker={handleDatePicker}
-        />
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <View style={{flex: 1, backgroundColor: Colors.pageBackground}}>
+          <DatePickerComp
+            openDate={openFromDate}
+            newDate={newFromDate}
+            setOpenDate={setOpenFromDate}
+            handleDatePicker={handleDatePicker}
+          />
 
-        <CustomHeader
-          path="FarmerFarmIncomeExpenseList"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
+          <CustomHeader
+            path="FarmerFarmIncomeExpenseList"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
 
-        <FormsTitle title={t('add_income')} />
+          {/* <FormsTitle title={t('add_income')} /> */}
 
-        <View style={styles.formContainer}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <DropdownForm
-              label={t('plot')}
-              data={plotAll}
-              color="red"
-              onChange={relId => handlePlot(relId)}
-            />
-
-            {showingMenu && (
-              <View style={styles.plotContainer}>
-                <View style={styles.plotItem}>
-                  <Text style={styles.plotItemText}>{t('produce_name')}</Text>
-                  <Text style={styles.plotItemText}>
-                    {t('prodece_vareity')}
-                  </Text>
-                </View>
-                <View style={styles.plotItem}>
-                  <Text style={styles.plotItemText}>
-                    {nameVarityStartEnd.name}
-                  </Text>
-                  <Text style={styles.plotItemText}>
-                    {nameVarityStartEnd.varity}
-                  </Text>
-                </View>
+          <View style={styles.formContainer}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={styles.iconView}>
+                <MaterialIcons
+                  name={'currency-rupee'}
+                  color="green"
+                  size={40}
+                />
               </View>
-            )}
 
-            {data.map((dataItem, index) => (
-              <View style={styles.AddExpenseContainer} key={index}>
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    style={styles.AddExpenseInput}
-                    onChangeText={text =>
-                      handleChangeAddExpense(index, text, 'amount')
-                    }
-                    name="amount"
-                    placeholder={`${t('amount')} (${currency})`}
-                    value={dataItem.amount}
-                    keyboardType="numeric"
-                    placeholderTextColor="#000"
+              <View style={styles.mainView}>
+                <View style={styles.card}>
+                  <DropdownForm
+                    label={t('plot')}
+                    data={plotAll}
+                    required={true}
+                    onChange={relId => handlePlot(relId)}
                   />
-                  <View style={styles.iconContainer}>
-                    <MaterialIcons
-                      name="currency-rupee"
-                      size={25}
-                      color="#107808ff"
-                    />
-                  </View>
+
+                  {showingMenu && (
+                    <View style={styles.plotContainer}>
+                      <View style={styles.plotItem}>
+                        <Text style={styles.plotItemText}>
+                          {t('produce_name')}
+                        </Text>
+                        <Text style={styles.plotItemText}>
+                          {t('prodece_vareity')}
+                        </Text>
+                      </View>
+                      <View style={styles.plotItem}>
+                        <Text style={styles.plotItemText}>
+                          {nameVarityStartEnd.name}
+                        </Text>
+                        <Text style={styles.plotItemText}>
+                          {nameVarityStartEnd.varity}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {data.map((dataItem, index) => (
+                    <View style={styles.AddExpenseContainer} key={index}>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={styles.AddExpenseInput}
+                          onChangeText={text =>
+                            handleChangeAddExpense(index, text, 'amount')
+                          }
+                          name="amount"
+                          placeholder={`${t('amount')} (${currency})`}
+                          value={dataItem.amount}
+                          keyboardType="numeric"
+                          placeholderTextColor="#000"
+                        />
+                        <View style={styles.iconContainer}>
+                          <MaterialIcons
+                            name="currency-rupee"
+                            size={25}
+                            color="#107808ff"
+                          />
+                        </View>
+                      </View>
+
+                      <View style={styles.AddExpenseItemContainer}>
+                        <View style={styles.AddExpenseItem}>
+                          <HeadDropDown
+                            label={t('add_income_head')}
+                            data={InComeAll}
+                            name="cat_id"
+                            onChange={text =>
+                              handleChangeAddCatID(index, text, 'cat_id')
+                            }
+                            color="#000"
+                          />
+                        </View>
+
+                        <TouchableOpacity
+                          onPress={() => setOpenFromDate(true)}
+                          style={styles.AddExpenseItemDate}>
+                          <Text style={styles.title}>
+                            {dataItem.date === '' ? t('date') : dataItem.date}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      <TouchableOpacity
+                        onPress={addMoreExpense}
+                        style={styles.addMore}>
+                        <MaterialIcons
+                          name="add-circle"
+                          color="white"
+                          size={25}
+                        />
+                        <Text style={styles.addMoreText}>{t('add_more')}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
                 </View>
-
-                <View style={styles.AddExpenseItemContainer}>
-                  <View style={styles.AddExpenseItem}>
-                    <HeadDropDown
-                      label={t('add_income_head')}
-                      data={InComeAll}
-                      name="cat_id"
-                      onChange={text =>
-                        handleChangeAddCatID(index, text, 'cat_id')
-                      }
-                      color="#000"
-                    />
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={() => setOpenFromDate(true)}
-                    style={styles.AddExpenseItemDate}>
-                    <Text style={styles.title}>
-                      {dataItem.date === '' ? t('date') : dataItem.date}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity
-                  onPress={addMoreExpense}
-                  style={styles.addMore}>
-                  <MaterialIcons name="add-circle" color="white" size={25} />
-                  <Text style={styles.addMoreText}>{t('add_more')}</Text>
-                </TouchableOpacity>
               </View>
-            ))}
-          </ScrollView>
-        </View>
+            </ScrollView>
+          </View>
 
-        <ButtonForm
-          label={t('submit')}
-          onPress={handleSave}
-          iconName="check-circle"
-          iconColor="#fff"
-          iconSize={30}
-        />
-      </View>
-    </Root>
+          <ButtonForm
+            label={t('submit')}
+            onPress={handleSave}
+            iconName="check-circle"
+            iconColor="#fff"
+            iconSize={30}
+          />
+        </View>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 export default FarmerAddIncome;
@@ -385,17 +407,18 @@ const styles = StyleSheet.create({
     //   width: '90%',
     marginHorizontal: '5%',
     backgroundColor: 'white',
-    elevation: 5,
-    borderRadius: 20,
-    backgroundColor: Colors.containerGreen,
+    elevation: 3,
+    borderRadius: 8,
+    backgroundColor: 'white',
+    marginBottom: 15,
   },
   AddExpenseContainer: {
     flex: 1,
     marginVertical: 30,
     padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#F7FCFF',
-    elevation: 5,
+    borderRadius: 8,
+    backgroundColor: '#ccdae4f7',
+    // elevation: 5,
     marginBottom: 10,
   },
   card: {
@@ -513,4 +536,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 15,
   },
+
+  ///////////////////////////////////////
+  //
 });

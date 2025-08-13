@@ -105,7 +105,7 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <FormsTitle title={t('income_expense_list')} />
+        {/* <FormsTitle title={t('income_expense_list')} /> */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}>

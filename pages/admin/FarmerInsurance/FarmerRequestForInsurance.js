@@ -15,12 +15,30 @@ import {
 } from '../../../config/apiHere';
 import CheckBoxComp from '../../Common/CheckBoxComp';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+const FarmerRequestForInsurance = ({}) => {
+  const navigation = useNavigation();
 
-const RequestForInsurance = ({setActiveBtn}) => {
   //GQR-67
-  const {loginUser_data, ButtonForm, InputTextForm, Root, Toast, AlertMesg, t} =
-    useContext(userCreateContext);
+  const {
+    loginUser_data,
+    ButtonForm,
+    InputTextForm,
+    Root,
+    Toast,
+    AlertMesg,
+    CustomHeader,
+    logoImage,
+    topBanner,
+    t,
+  } = useContext(userCreateContext);
   const {
     dbname,
     lan_id,
@@ -133,112 +151,195 @@ const RequestForInsurance = ({setActiveBtn}) => {
           'insurance_user',
           1,
         );
-        setActiveBtn(2);
+        navigation.navigate('FarmerInsuViewPastRequested');
       }
     }
   };
-  return (
-    <>
-      <Root>
-        <ScrollView>
-          <View style={styles.container}>
-            <InputTextForm
-              label={t('farmer_name')}
-              value={userName}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('farmer_number')}
-              value={contactNumber}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('adhar_no')}
-              value={aadhar_number}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('kcc_no')}
-              value={kcc_number}
-              editable={false}
-            />
-            <Text style={styles.plotTitle}>{t('plot')}</Text>
-            <View style={styles.PlotSiteList}>
-              {plotSite &&
-                plotSite.map((data, index) => {
-                  return (
-                    <View key={index}>
-                      <CheckBoxComp
-                        arrayKey={index}
-                        isChecked={isChecked[index]}
-                        title={data.plot_no}
-                        onCheckBox={() =>
-                          handlePlot(data.rel_id, data.plot_no, index)
-                        }
-                      />
-                    </View>
-                  );
-                })}
-            </View>
-            <View style={styles.plotContainer}>
-              {pickPlot.length != 0
-                ? nameVarityStartEnd.map((data, index) => {
-                    return (
-                      <View key={index} style={styles.plotContainerItem}>
-                        <View>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropname')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('addcrop_cropvariety')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('showing_date')}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            {t('harvesting_date_auto_calculated')}
-                          </Text>
-                        </View>
-                        <View>
-                          <Text style={styles.plotText}>:{data.name}</Text>
-                          <Text style={styles.plotText}>:{data.varity}</Text>
-                          <Text style={styles.plotText}>
-                            :{data.cycleStarts}
-                          </Text>
-                          <Text style={styles.plotText}>
-                            :{data.cycleEnd.slice(0, 10)}
-                          </Text>
-                        </View>
-                      </View>
-                    );
-                  })
-                : ''}
-            </View>
-          </View>
-        </ScrollView>
+  const HandlerGoBack = () => navigation.navigate('Dashboard');
 
-        <ButtonForm
-          label={t('submit')}
-          onPress={handleSave}
-          iconName="check-circle"
-          iconColor="#fff"
-          iconSize={30}
-        />
-      </Root>
-    </>
+  return (
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <Root>
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.container}>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>{t('farmer_information')}</Text>
+                <View style={styles.infoRow}>
+                  <MaterialIcons name="person" size={20} color="#4a8c29" />
+                  <View style={styles.infoTextContainer}>
+                    <Text style={styles.infoLabel}>{t('farmer_name')}</Text>
+                    <Text style={styles.infoValue}>{userName}</Text>
+                  </View>
+                  {/* <InputTextForm
+                                label={t('farmer_number')}
+                                value={farmerData.contactNumber}
+                                keyboardType={'numeric'}
+                                editable={false}
+                              /> */}
+                </View>
+                {/* <View style={styles.infoRow}>
+                  <View style={styles.infoTextContainer}>
+                    <InputTextForm
+                      label={t('farmer_name')}
+                      value={userName}
+                      editable={false}
+                    />
+                  </View>
+                </View> */}
+
+                <View style={styles.infoRow}>
+                  <MaterialIcons name="phone" size={20} color="#4a8c29" />
+                  <View style={styles.infoTextContainer}>
+                    <Text style={styles.infoLabel}>{t('farmer_number')}</Text>
+                    <Text style={styles.infoValue}>{contactNumber}</Text>
+                  </View>
+                  {/* <InputTextForm
+                                label={t('farmer_number')}
+                                value={farmerData.contactNumber}
+                                keyboardType={'numeric'}
+                                editable={false}
+                              /> */}
+                </View>
+                {/* <InputTextForm
+                  label={t('farmer_number')}
+                  value={contactNumber}
+                  editable={false}
+                /> */}
+                <View style={styles.infoRow}>
+                  <MaterialIcons name="credit-card" size={20} color="#4a8c29" />
+                  <View style={styles.infoTextContainer}>
+                    <Text style={styles.infoLabel}>{t('adhar_no')}</Text>
+                    {aadhar_number ? (
+                      <Text style={styles.infoValue}>{aadhar_number}</Text>
+                    ) : (
+                      <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>N/A</Text>
+                      </View>
+                    )}
+                    <Text style={styles.infoValue}>{aadhar_number}</Text>
+                  </View>
+                </View>
+
+                {/* <InputTextForm
+                  label={t('adhar_no')}
+                  value={aadhar_number}
+                  editable={false}
+                /> */}
+                <View style={styles.infoRow}>
+                  <MaterialIcons
+                    name="card-membership"
+                    size={20}
+                    color="#4a8c29"
+                  />
+                  <View style={styles.infoTextContainer}>
+                    <Text style={styles.infoLabel}>{t('kcc_no')}</Text>
+                    {kcc_number ? (
+                      <Text style={styles.infoValue}>{kcc_number}</Text>
+                    ) : (
+                      <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>N/A</Text>
+                      </View>
+                    )}
+                    <Text style={styles.infoValue}>{kcc_number}</Text>
+                    {/* <InputTextForm
+                                label={t('kcc_no')}
+                                value={farmerData.kcc_number}
+                                editable={false}
+                              /> */}
+                  </View>
+                </View>
+                {/* <InputTextForm
+                  label={t('kcc_no')}
+                  value={kcc_number}
+                  editable={false}
+                /> */}
+              </View>
+              <View style={styles.PlotSiteList}>
+                <Text style={styles.cardTitlePlot}>
+                  {t('select_plot')}
+                  <Text style={styles.requiredStar}> *</Text>
+                </Text>
+                <View style={styles.plotsContainer}>
+                  {plotSite &&
+                    plotSite.map((data, index) => {
+                      return (
+                        <View key={index} style={styles.plotItem}>
+                          <CheckBoxComp
+                            arrayKey={index}
+                            isChecked={isChecked[index]}
+                            title={data.plot_no}
+                            onCheckBox={() =>
+                              handlePlot(data.rel_id, data.plot_no, index)
+                            }
+                          />
+                        </View>
+                      );
+                    })}
+                </View>
+              </View>
+              <View style={styles.plotContainer}>
+                {pickPlot.length != 0
+                  ? nameVarityStartEnd.map((data, index) => {
+                      return (
+                        <View key={index} style={styles.plotContainerItem}>
+                          <View>
+                            <Text style={styles.infoValue}>
+                              {t('addcrop_cropname')}
+                            </Text>
+                            <Text style={styles.infoValue}>
+                              {t('addcrop_cropvariety')}
+                            </Text>
+                            <Text style={styles.infoValue}>
+                              {t('showing_date')}
+                            </Text>
+                            <Text style={styles.infoValue}>
+                              {t('harvesting_date_auto_calculated')}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text style={styles.infoLabel}>:{data.name}</Text>
+                            <Text style={styles.infoLabel}>:{data.varity}</Text>
+                            <Text style={styles.infoLabel}>
+                              :{data.cycleStarts}
+                            </Text>
+                            <Text style={styles.infoLabel}>
+                              :{data.cycleEnd.slice(0, 10)}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    })
+                  : ''}
+              </View>
+            </View>
+          </ScrollView>
+
+          <ButtonForm
+            label={t('submit')}
+            onPress={handleSave}
+            iconName="check-circle"
+            iconColor="#fff"
+            iconSize={30}
+          />
+        </Root>
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
-export default RequestForInsurance;
+export default FarmerRequestForInsurance;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.containerGreen,
-    marginHorizontal: '3%',
-    borderWidth: 0.5,
-    borderColor: Colors.borderGreen,
-    marginBottom: 20,
+    backgroundColor: Colors.background_light,
   },
   idcontainer: {
     marginVertical: 10,
@@ -262,9 +363,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
   },
-  flatContainer: {
+  flatContainer1: {
     backgroundColor: '#FFF',
-    width: '100%',
+    width: '80%',
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
@@ -276,30 +377,38 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     fontSize: 16,
   },
-  flatlistitem: {},
+  flatlistitem: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee'},
   plotContainer: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
+    borderRadius: 8,
     elevation: 5,
+    marginHorizontal: '3%',
+    marginBottom: 20,
   },
   plotContainerItem: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#000',
-    margin: 10,
-    borderRadius: 10,
-    padding: 10,
+
+    borderRadius: 8,
+    padding: 5,
   },
   plotText: {
     color: '#000',
     marginVertical: 4,
   },
+  cardTitle: {
+    fontSize: 18,
+    // fontWeight: '600',
+    color: Colors.borderGreen,
+    // marginLeft: 5,
+    fontFamily: 'Poppins-SemiBold',
+    marginBottom: 10,
+  },
   PlotSiteList: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 20,
     marginVertical: '5%',
     elevation: 5,
@@ -361,9 +470,9 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 20,
-    marginVertical: '5%',
+    marginVertical: '4%',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -422,66 +531,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     fontSize: 16,
   },
-  /////////////////////////////////////////////
-  //   container: {
-  //     marginHorizontal: '3%',
-  //     marginTop: 20,
-  //     marginBottom: 50,
-  //   },
-  //   flatContainer: {
-  //     backgroundColor: '#FFF',
-  //     width: '100%',
-  //     borderRadius: 10,
-  //     padding: 10,
-  //     marginBottom: 10,
-  //     elevation: 5,
-  //     zIndex: -999,
-  //   },
-  //   flatlistitem: {},
-  //   flatlisttitle: {
-  //     color: '#000',
-  //     marginVertical: 8,
-  //     fontSize: 16,
-  //   },
-  //   flatContainer: {
-  //     backgroundColor: '#ffffff',
-  //     position: 'absolute',
-  //     zIndex: 999,
-  //     bottom: '100%',
-  //     left: 0,
-  //     marginHorizontal: '5%',
-  //     width: '90%',
-  //     elevation: 10,
-  //     borderRadius: 10,
-  //     padding: 10,
-  //   },
-  //   flatlistHeight: {
-  //     height: Dimensions.get('window').height / 2.5,
-  //   },
-  //   plotContainer: {
-  //     backgroundColor: '#FFF',
-  //     borderRadius: 10,
-  //     elevation: 5,
-  //   },
-  //   plotContainerItem: {
-  //     flexDirection: 'row',
-  //     justifyContent: 'space-around',
-  //     alignItems: 'center',
-  //     backgroundColor: '#FFF',
-  //     borderWidth: 1,
-  //     borderColor: '#000',
-  //     margin: 10,
-  //     borderRadius: 10,
-  //     padding: 10,
-  //   },
-  //   PlotSiteList: {
-  //     backgroundColor: '#FFF',
-  //     borderRadius: 10,
-  //     marginBottom: 18,
-  //     elevation: 1,
-  //   },
-  //   plotTitle: {
-  //     color: '#FF0000',
-  //     marginBottom: 10,
-  //   },
+  searchResultsContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginTop: 5,
+    maxHeight: 200,
+    elevation: 3,
+    zIndex: 1000, // Ensure it appears above other elements
+  },
 });
