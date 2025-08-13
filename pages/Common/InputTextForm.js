@@ -1,117 +1,100 @@
 import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native';
 import React, { memo } from 'react';
-const sanitizeInput = text => text.replace(/<\/?[^>]+(>|$)/g, '');
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Colors, Fonts } from '../utils/Constants';
+import { Colors } from '../utils/Constants';
+
+const sanitizeInput = text => text.replace(/<\/?[^>]+(>|$)/g, '');
 
 const InputTextForm = ({
   value,
   color = '#4e4e4e',
   label,
   onChangeText,
-  keyboardType,
+  keyboardType = 'default',
   onBlur,
   refname,
   maxLength,
-  editable,
+  editable = true,
   placeholder,
   required = false,
-  iconName = null, // New prop for icon name
-  iconSize = 20, // New prop for icon size
+  iconName = null,
+  iconSize = 20,
   iconColor = null,
 }) => {
   const scheme = useColorScheme();
-  const labelString = label.charAt(0).toUpperCase() + label.slice(1);
+  const labelString = label
+    ? label.charAt(0).toUpperCase() + label.slice(1)
+    : '';
+
   return (
-    <>
-      <View>
-        <View style={styles.labelContainer}>
-          {iconName && (
-            <MaterialIcons
-              name={iconName}
-              size={iconSize}
-              color={iconColor || color} // Falls back to label color
-              style={styles.labelIcon}
-            />
-          )}
-          <Text style={[styles.title, { color: color ?? 'black' }]}>
-            {labelString}
-          </Text>
-          {required && <Text style={styles.requiredStar}> *</Text>}
-        </View>
-        <View style={styles.container}>
-          <TextInput
-            style={[
-              styles.inputField,
-              !editable && styles.disabledInput, // conditional style
-            ]}
-            //  style={[styles.simpleInputTextStyle, { color: 'black' }]}
-            onChangeText={text => onChangeText(sanitizeInput(text))}
-            onBlur={onBlur}
-            value={value}
-            keyboardType={keyboardType ?? 'default'}
-            ref={refname}
-            maxLength={maxLength}
-            editable={editable}
-            placeholder={placeholder}
-            placeholderTextColor="#808080"
+    <View style={{ marginBottom: 15 }}>
+      {/* Label Row */}
+      <View style={styles.labelContainer}>
+        {iconName && (
+          <MaterialIcons
+            name={iconName}
+            size={iconSize}
+            color={iconColor || color}
+            style={styles.labelIcon}
           />
-        </View>
+        )}
+        <Text style={[styles.title, { color }]}>{labelString}</Text>
+        {required && <Text style={styles.requiredStar}> *</Text>}
       </View>
-    </>
+
+      {/* Input Field */}
+      <TextInput
+        style={[
+          styles.inputField,
+          !editable && styles.disabledInput,
+          { borderColor: Colors.borderGreen },
+        ]}
+        onChangeText={text => onChangeText(sanitizeInput(text))}
+        onBlur={onBlur}
+        value={value}
+        keyboardType={keyboardType}
+        ref={refname}
+        maxLength={maxLength}
+        editable={editable}
+        placeholder={placeholder}
+        placeholderTextColor={scheme === 'dark' ? '#9ca3af' : '#808080'}
+      />
+    </View>
   );
 };
 
 export default memo(InputTextForm);
 
 const styles = StyleSheet.create({
-  container: {
+  labelContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 5,
   },
-  simpleInputTextStyle: {
-    borderRadius: 8,
-    height: 48,
-    borderColor: Colors.borderGreen,
-    borderWidth: 0.5,
-    borderRadius: 8,
-    backgroundColor: '#FFFF',
-    width: '100%',
-    paddingHorizontal: 10,
-    color: 'white',
+  labelIcon: {
+    marginRight: 6,
   },
   title: {
     fontFamily: 'Poppins-Regular',
     fontSize: 15,
   },
-  labelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 5,
-    marginBottom: 5,
-  },
-
   requiredStar: {
     color: 'red',
     fontFamily: 'Poppins-Bold',
     fontSize: 16,
   },
-  labelIcon: {
-    marginRight: 8, // Space between icon and label
-  },
   inputField: {
- height: 48,
-    borderColor: Colors.borderGreen, // Make sure this color is visible
+    height: 48,
     borderWidth: 0.5,
-    borderRadius: 5,
+    borderRadius: 6,
     backgroundColor: '#FFFFFF',
-    width: '100%',
-    // elevation: 1,
     paddingHorizontal: 10,
-    color: '#000000', // Changed from 'white' to 'black' for better visibility
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor:Colors.borderGreen
   },
   disabledInput: {
-    backgroundColor: 'white',
+    backgroundColor: '#f3f4f6',
     borderColor: Colors.secondary,
   },
 });

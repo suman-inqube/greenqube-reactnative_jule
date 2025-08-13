@@ -13,17 +13,6 @@ import Skeleton from './index';
 import { MotiView } from 'moti';
 import { Colors } from '../../utils/Constants';
 const SkeletonScreenDashoard = () => {
-    const ActivityItemSkeleton = () => (
-        <View style={styles.activityItem}>
-            <Skeleton height={60} width={60} borderRadius={12} />
-            <View style={styles.activityContent}>
-                <Skeleton height={16} width="75%" borderRadius={4} />
-                <View style={styles.smallSpacing} />
-                <Skeleton height={12} width="35%" borderRadius={4} />
-            </View>
-        </View>
-    );
-
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor="#003c04" barStyle="light-content" />

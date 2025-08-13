@@ -219,7 +219,7 @@ const ActivityReport = ({ navigation }) => {
                 var activityType_res = await getItem('activityType' + currentfarmerId)
             }
             if (activityType_res) {
-                const dataArray = activityType_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data.categoryName }));
+                const dataArray = activityType_res?.data?.data?.rows.map(data => ({ value: data.fid, label: data?.categoryName }));
                 setactivityTypeAll(dataArray)
             }
         }
@@ -336,8 +336,7 @@ const ActivityReport = ({ navigation }) => {
                     'No Last Activity'
                   ) {
                     var lastData =
-                      activitySchedule.data.data.lastActivity.activityName
-                        .categoryName +
+                      activitySchedule.data.data.lastActivity.activityName?.categoryName +
                       ' (' +
                       formatDate(
                         activitySchedule?.data?.data?.lastActivity
@@ -357,7 +356,7 @@ const ActivityReport = ({ navigation }) => {
                         var overdueData;
                         if (element?.days_until_start < 0) {
                           overdueData =
-                            element.activityName.categoryName +
+                            element.activityName?.categoryName +
                             ' (' +
                             formatDate(element?.activity_start_date) +
                             ' - ' +
@@ -539,7 +538,7 @@ const ActivityReport = ({ navigation }) => {
               var overdueData;
               if (element?.days_until_start < 0) {
                 overdueData =
-                  element?.activityName.categoryName +
+                  element?.activityName?.categoryName +
                   ' (' +
                   formatDate(element?.activity_start_date) +
                   ' - ' +

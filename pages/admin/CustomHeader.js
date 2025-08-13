@@ -1,15 +1,16 @@
-import React, { lazy, useEffect,memo } from 'react';
+import React, { lazy, useEffect, memo } from 'react';
 import {
   TouchableOpacity,
   Image,
   View,
-  StyleSheet, Text,StatusBar
+  StyleSheet, Text, StatusBar
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { goBack } from '../utils/NavigationUtils';
 import { Colors, Fonts } from '../utils/Constants';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 const CustomHeader = ({
   path,
   HandlerGoBack,
@@ -17,19 +18,22 @@ const CustomHeader = ({
   logoImage,
   topBanner,
   show,
-  filterOptionShow
+  filterOptionShow,
+  // t
 }) => {
-    const {t} = useTranslation();
+  const{t}=useTranslation();
   const titleMap = {
     Dashboard: 'Dashboard',
     Profile: 'User Profile',
     Settings: 'App Settings',
     activityList: 'Activity List',
-    Profile:t('profile'),
-    ProblemList:t('problem_reporting')
+    Profile: t('profile'),
+    ProblemList: t('problem_reporting'),
+    activityDetail: t('act_detail_')
   };
   const navigation = useNavigation();
   const route = useRoute();
+  console.log(route)
   const title = titleMap[route.name] ?? route.name;
   const openDrawer = () => {
     navigation.openDrawer();
@@ -51,9 +55,12 @@ const CustomHeader = ({
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{ width: 24, height: 24, tintColor: '#fff' }}
+              style={{ width: 24, height: 24, tintColor: '#ffffffff' }}
             />
           </TouchableOpacity>
+          {/* <TouchableOpacity onPress={() => goBack()} style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color="#FFF" />
+          </TouchableOpacity> */}
           {title == "Dashboard" ? <Image
             source={require('../Common/images/logo.png')}
             style={{ width: 100, height: 43 }}
@@ -64,11 +71,11 @@ const CustomHeader = ({
               style={{ width: 50, height: 40 }}
               resizeMode="contain"
             />}
-           {title != "Dashboard"?<View>
+          {title != "Dashboard" ? <View>
             <Text style={styles.titleText}>{title}</Text>
-          </View>:null}
+          </View> : null}
         </View>
-        <TouchableOpacity onPress={openDrawer}>
+        <View>
 
           <View
             style={{
@@ -81,16 +88,28 @@ const CustomHeader = ({
             }}>
 
             {logoImage && title == "Dashboard" ? (
-              <ImageForm
-                source={{ uri: logoImage }}
-                resizeMode="contain"
-                // resizeMode='cover'
-                height={50}
-                width={50}
-              />
+              <View style={{
+                width: 32,
+                backgroundColor: 'white',
+                height: 32,
+                borderRadius: 12,
+                marginLeft: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 10,
+                overflow:'hidden'
+              }}>
+                <ImageForm
+                  source={{ uri: logoImage }}
+                  resizeMode="contain"
+                  // resizeMode='cover'
+                  height={50}
+                  width={50}
+                />
+              </View>
             ) : null}
 
-            {title!="Dashboard"?<TouchableOpacity
+            {title != "Dashboard" ? <TouchableOpacity
               style={{
                 width: 32,
                 backgroundColor: 'white',
@@ -101,12 +120,12 @@ const CustomHeader = ({
                 alignItems: 'center',
                 marginRight: 10,
               }}
-              onPress={()=>filterOptionShow()}
-              >
+              onPress={() => filterOptionShow()}
+            >
 
               <Image source={require('../Common/images/setting.png')} style={{ width: 25, height: 25 }} />
-            </TouchableOpacity>:null}
-                <View
+            </TouchableOpacity> : null}
+            <TouchableOpacity onPress={openDrawer}
               style={{
                 width: 32,
                 backgroundColor: 'white',
@@ -118,9 +137,9 @@ const CustomHeader = ({
                 marginRight: 10,
               }}>
               <Image source={require('../Common/images/4dot.png')} style={{ width: 25, height: 25 }} />
-            </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </View>
       <View>
         {show == true && banner != true && (
@@ -154,7 +173,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     width: '100%',
     height: 70,
-    justifyContent:'center',
+    justifyContent: 'center',
   },
   androidContainer: {
     justifyContent: 'space-between',
@@ -180,9 +199,14 @@ const styles = StyleSheet.create({
     // width: width * 100,
     height: 200,
   },
-    titleText: {
-      color: Colors.background ,
-      fontSize: 16,
-      fontFamily: Fonts.Regular,
-    },
+  titleText: {
+    color: Colors.background,
+    fontSize: 16,
+    fontFamily: Fonts.Regular,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
 });

@@ -374,6 +374,7 @@ const Profile = () => {
             HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
+            t={t}
           />
           <View style={styles.fromContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -390,7 +391,7 @@ const Profile = () => {
                   value={storePersnolInfo.contactNumber}
                   editable={false}
                 />
-                <View>
+                <View style={{marginBottom:5}}>
                   <Text
                     style={{
                       color: 'black',
@@ -487,14 +488,14 @@ const styles = StyleSheet.create({
   // },
   fromContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.background_light,
     // padding: 10,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: Colors.border,
-    // elevation:1,
+    elevation:1,
     marginVertical: 10,
-    marginHorizontal: '2.5%',
+    marginHorizontal: 16,
   },
   DateofBirth: {
     flexDirection: 'row',
@@ -502,9 +503,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 15,
     borderRadius: 8,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 0.5,
+    height: 48,
+    borderColor: Colors.border,
+    borderWidth: 1,
     backgroundColor: 'white',
     width: '100%',
     paddingHorizontal: 10,

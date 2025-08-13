@@ -4,6 +4,7 @@ import { problemListAPI } from '../../../config/apiHere';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors } from '../../utils/Constants';
 const ListProblem = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem,
@@ -74,7 +75,7 @@ const ListProblem = ({ navigation }) => {
         setToDate("");
     }
     const handlePage = async (value) => {
-        handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id,'',fromDate,toDate);
+        handlePageList(value, setIsLoading, token, pageNo, problemListAPI, setProblemAll, dbname, lan_id, user_id, '', fromDate, toDate);
     }
     const navigateToPages = (pageName, fid) => {
         setItem("problem_id_data", fid)
@@ -129,21 +130,8 @@ const ListProblem = ({ navigation }) => {
         return true;
     }
     useEffect(() => {
-        if (isFocused) {
-            if (searchFarmerName == "" && searchFarmerPhone == "" && fromDate == "" && toDate == "") {
-                onPageLoad();
-            }
-            onBackPress(handleBackPress);
-        }
-    }, [isFocused])
-    useFocusEffect(
-        React.useCallback(() => {
-            setFilterOption(false);
-            const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => { setKeyboardVisible(true); });
-            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => { setKeyboardVisible(false); });
-            return () => { keyboardDidHideListener.remove(); keyboardDidShowListener.remove(); };
-        }, [])
-    );
+        onPageLoad();
+    }, [])
     const handleFilterList = (item) => {
         /*
         ** [1] It is use to search by farmer's name and phone number value.
@@ -173,9 +161,8 @@ const ListProblem = ({ navigation }) => {
     }
     return (
         <Root>
-            <SafeAreaView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1,backgroundColor:Colors.background_light }}>
                 <View style={{ flex: 1 }}>
-                    <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                     {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
                     {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
                     <Filter

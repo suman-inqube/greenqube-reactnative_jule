@@ -8239,6 +8239,11 @@ react-native-android-location-enabler@^2.0.1:
   resolved "https://registry.npmjs.org/react-native-android-location-enabler/-/react-native-android-location-enabler-2.0.1.tgz"
   integrity sha512-hDNfQL4gImrmc6K6J44kd2iKrpPHc23V4stujNIg3I1LvYLT+kwWmfTGapeY0hl6EXACfaFdm/wBb4ggtNcnPA==
 
+react-native-android-navbar-height@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.npmjs.org/react-native-android-navbar-height/-/react-native-android-navbar-height-0.3.3.tgz"
+  integrity sha512-NDrG68T3LEHv3SNDAZm0znHycV8ZX0gjlwzR/15c5EoHUsOhGJqIjsgLZVrthjL/O04DIM/OuoMl2UfZIynTfg==
+
 react-native-audio-record@^0.2.2:
   version "0.2.2"
   resolved "https://registry.npmjs.org/react-native-audio-record/-/react-native-audio-record-0.2.2.tgz"
