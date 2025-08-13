@@ -342,7 +342,7 @@ export const activityListAPI = async (
     // );
     const instance = await getAxiosInstance();
     let response = await instance.get(
-      `${config.BASE_URL}settingsRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       {
         headers: {
           authorization: `${token}`,
@@ -745,7 +745,6 @@ export const problemListAPI = async (
       `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${AgentID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
       axiosHeaders,
     );
-    console.log('chech 11=', response);
     const resultJson = {
       data: response,
       status: 200,

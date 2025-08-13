@@ -366,116 +366,115 @@ const Profile = () => {
   }, [isFocused]);
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
-    <FarmerDrawerScreenWrapper1>
-      <>
-        <Root>
-          <View style={styles.container}>
-            {isLoading ? (
-              <View style={styles.LoadingScreen}>
-                <LoadingScreen />
-              </View>
-            ) : null}
-            <CustomHeader
-              path="Dashboard"
-              HandlerGoBack={HandlerGoBack}
-              logoImage={logoImage}
-              topBanner={topBanner}
-            />
-            <View style={styles.fromContainer}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{padding: 10}}>
-                  <InputTextForm
-                    label={t('name')}
-                    color="black"
-                    value={storePersnolInfo.userName}
-                    editable={false}
-                  />
-                  <InputTextForm
-                    label={t('new_reg_phone_number')}
-                    color="black"
-                    value={storePersnolInfo.contactNumber}
-                    editable={false}
-                  />
-                  <View>
-                    <Text
-                      style={{
-                        color: 'black',
-                        marginLeft: 5,
-                        fontFamily: 'Poppins-Regular',
-                      }}>
-                      {t('date_of_birth')}
-                    </Text>
-                    <TouchableOpacity style={styles.DateofBirth}>
-                      <Text
-                        style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
-                        {storePersnolInfo.date_of_birth}{' '}
-                      </Text>
-                      <Image
-                        source={require('../../Common/images/calendar.png')}
-                        style={{width: 20, height: 20}}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  <DropdownForm
-                    label={t('select_language')}
-                    color="black"
-                    data={languageData}
-                    onChange={item => {
-                      handleLanguage(item);
-                    }}
-                    val={storePersnolInfo.langIdName}
-                  />
-                  <DropdownForm
-                    label={
-                      regionaldatas.state == ''
-                        ? t('state_col')
-                        : t(`${regionaldatas.state}`)
-                    }
-                    color="black"
-                    data={stateInfoData}
-                    onChange={item => {
-                      handleStateInfo(item);
-                    }}
-                    val={storePersnolInfo.stateName}
-                  />
-                  <DropdownForm
-                    label={
-                      regionaldatas.district == ''
-                        ? t('select_zila')
-                        : t(`${regionaldatas.district}`)
-                    }
-                    color="black"
-                    data={districtData}
-                    onChange={item => {
-                      handleDistrict(item);
-                    }}
-                    val={storePersnolInfo.districtName}
-                  />
-                  <DropdownForm
-                    label={
-                      regionaldatas.block == ''
-                        ? t('select_block_sub_county_upzila')
-                        : t(`${regionaldatas.block}`)
-                    }
-                    color="black"
-                    data={blockData}
-                    onChange={item => {
-                      setstorePersnolInfo({
-                        ...storePersnolInfo,
-                        block: item.value,
-                        blockName: item.label,
-                      });
-                    }}
-                    val={storePersnolInfo.blockName}
-                  />
-                </View>
-              </ScrollView>
+    <>
+      <Root>
+        <View style={styles.container}>
+          {isLoading ? (
+            <View style={styles.LoadingScreen}>
+              <LoadingScreen />
             </View>
+          ) : null}
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+            t={t}
+          />
+          <View style={styles.fromContainer}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={{padding: 10}}>
+                <InputTextForm
+                  label={t('name')}
+                  color="black"
+                  value={storePersnolInfo.userName}
+                  editable={false}
+                />
+                <InputTextForm
+                  label={t('new_reg_phone_number')}
+                  color="black"
+                  value={storePersnolInfo.contactNumber}
+                  editable={false}
+                />
+                <View style={{marginBottom: 5}}>
+                  <Text
+                    style={{
+                      color: 'black',
+                      marginLeft: 5,
+                      fontFamily: 'Poppins-Regular',
+                    }}>
+                    {t('date_of_birth')}
+                  </Text>
+                  <TouchableOpacity style={styles.DateofBirth}>
+                    <Text
+                      style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
+                      {storePersnolInfo.date_of_birth}{' '}
+                    </Text>
+                    <Image
+                      source={require('../../Common/images/calendar.png')}
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <DropdownForm
+                  label={t('select_language')}
+                  color="black"
+                  data={languageData}
+                  onChange={item => {
+                    handleLanguage(item);
+                  }}
+                  val={storePersnolInfo.langIdName}
+                />
+                <DropdownForm
+                  label={
+                    regionaldatas.state == ''
+                      ? t('state_col')
+                      : t(`${regionaldatas.state}`)
+                  }
+                  color="black"
+                  data={stateInfoData}
+                  onChange={item => {
+                    handleStateInfo(item);
+                  }}
+                  val={storePersnolInfo.stateName}
+                />
+                <DropdownForm
+                  label={
+                    regionaldatas.district == ''
+                      ? t('select_zila')
+                      : t(`${regionaldatas.district}`)
+                  }
+                  color="black"
+                  data={districtData}
+                  onChange={item => {
+                    handleDistrict(item);
+                  }}
+                  val={storePersnolInfo.districtName}
+                />
+                <DropdownForm
+                  label={
+                    regionaldatas.block == ''
+                      ? t('select_block_sub_county_upzila')
+                      : t(`${regionaldatas.block}`)
+                  }
+                  color="black"
+                  data={blockData}
+                  onChange={item => {
+                    setstorePersnolInfo({
+                      ...storePersnolInfo,
+                      block: item.value,
+                      blockName: item.label,
+                    });
+                  }}
+                  val={storePersnolInfo.blockName}
+                />
+              </View>
+            </ScrollView>
           </View>
-          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
-        </Root>
-      </>
-    </FarmerDrawerScreenWrapper1>
+        </View>
+        <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+      </Root>
+    </>
   );
 };
 export default Profile;
@@ -495,15 +494,14 @@ const styles = StyleSheet.create({
   // },
   fromContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.background_light,
     // padding: 10,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Colors.border,
-    // elevation:1,
-    marginTop: 30,
-    marginHorizontal: '2.5%',
-    marginBottom: 10,
+    elevation: 1,
+    marginVertical: 10,
+    marginHorizontal: 16,
   },
   DateofBirth: {
     flexDirection: 'row',
@@ -511,10 +509,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 8,
     height: 48,
-    borderColor: Colors.borderGreen,
-    borderWidth: 0.5,
-    borderRadius: 5,
-    backgroundColor: '#FFFF',
+    borderColor: Colors.border,
+    borderWidth: 1,
+    backgroundColor: 'white',
     width: '100%',
     paddingHorizontal: 10,
     color: 'white',

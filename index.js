@@ -12,7 +12,6 @@ import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 export default function Main() {
     const [fatalError, setFatalError] = useState(null);
     const jsExceptionHandler = (error, isFatal) => {
-        console.log(error,"******")
         if (isFatal) {
             CrashlyticsRecordError(isFatal);
             // setFatalError(error);
@@ -28,9 +27,9 @@ export default function Main() {
         setFatalError(null);
         CrashlyticsRecordError(fatalError?.message);
     };
-    if (fatalError) {
-        return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
-    }
+    // if (fatalError) {
+    //     return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
+    // }
     return (
         <MyErrorBoundary>
             <UserCreateContextProvider>

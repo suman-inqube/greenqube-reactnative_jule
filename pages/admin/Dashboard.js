@@ -380,7 +380,8 @@ const Dashboard = ({navigation}) => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
-      await onPageLoad('refreshing');
+      // await onPageLoad("refreshing");
+      await onPageLoad();
       setRefreshing(false);
     });
   }, []);
@@ -506,6 +507,7 @@ const Dashboard = ({navigation}) => {
                 path="exit"
                 HandlerGoBack={exit}
                 logoImage={uiState.logoImg}
+                t={t}
               />
             </Animated.View>
 
@@ -518,10 +520,9 @@ const Dashboard = ({navigation}) => {
                 style={[styles.animatedHeaderImage, {height: imageHeight}]}>
                 <ImageBackground
                   source={{
-                    uri:
-                      uiState.topBannerImg ||
-                      'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
+                    uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
                   }}
+                  // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
                   imageStyle={{opacity: 0.8}}>

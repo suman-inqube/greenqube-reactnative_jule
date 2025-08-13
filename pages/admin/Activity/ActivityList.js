@@ -1,80 +1,73 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions
+  StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions, SafeAreaView, Animated
 } from 'react-native'
-import React, { useEffect, useState, useContext, useCallback, lazy } from 'react';
-import DatePickerComp from '../../Common/DatePickerComp';
-import WidgetsSide from '../../Common/WidgetsSide';
-import Filter from '../../Common/Filter';
-import { activityListAPI, farmerByNameAPI } from '../../../config/apiHere';
+import React, { useEffect, useState, useContext, useCallback, lazy, useRef, memo } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { SPSheet } from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
-const OPTIONS = [
-  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
-  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
-];
+import { OPTIONS_CARBON, getActionsActivity, CARBON_TYPE } from '../../utils/options';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { Colors, Fonts } from '../../utils/Constants';
-// const openFilterSheet = lazy(() => import('../../Components/FilterSheet'));
-import { openFilterSheet } from '../../Components/FilterSheet';
 import { FloatingAction } from 'react-native-floating-action';
-const ActivityList = ({ navigation }) => {
-
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { getStatusColor, getProduceEmoji, formatDate } from '../../utils/helpers';
+import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
+function ActivityList({ navigation }) {
   //GQR-67
-  const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-    setItem, logoImage, topBanner, Root, Toast, DeviceInfo, handlePageList, handleFilter, effective_dates, handleResultSelect, isOnline, farmerData } = useContext(userCreateContext);
+  const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, CustomHeader, t, getItem, setItem, logoImage, topBanner, Root, effective_dates, isOnline, farmerData, navigationBarHeight } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   const { pageNo } = dbLanTokUsr;
   //GQR-67
-  const actions = [
-    {
-      text: t('report_activity'),
-      name: 'bt_add',
-      position: 1,
-      color: Colors.useGreen, // visible button color
-      textStyle: styles.actionText,
-      textBackground: '#ffffff',
-      icon: { uri: 'https://example.com/icon.png' },
-      onPress: () => handleSPSheetShow()
-    }
-  ];
-  const { netConnection } = DeviceInfo();
-  const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
-  const [searchResultsList, setSearchResultsList] = useState(false);
   const [activityAll, setactivityAll] = useState([]);
-  const [activityAllRow, setactivityAllRow] = useState([]);
-  const [filterOption, setFilterOption] = useState(false);
   const [filterItem, setFilterItem] = useState("");
   const [filterName, setFilterName] = useState("");
-  const [newFromDate, setnewFromDate] = useState(new Date());
-  const [newToDate, setnewToDate] = useState(new Date());
-  const [openFromDate, setOpenFromDate] = useState(false)
+  const [newFromDate, setnewFromDate] = useState("");
+  const [newToDate, setnewToDate] = useState("");
+  const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState("");
+  const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [searchFarmerName, setSearchFarmerName] = useState('');
-  const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+  const [searchFarmerName, setSearchFarmerName] = useState({ label: "", value: "" });
+  const [searchFarmerPhone, setSearchFarmerPhone] = useState({ label: "", value: "" });
   // const [farmerData, setFarmerData] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [fromDateFilter, setFromDateFilter] = useState('');
-  const [carbonType, setCarbonType] = useState('');
+  const [carbonType, setCarbonType] = useState({ label: "", value: "" });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const filterOptionShow = useCallback(() => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const filterOptionShow = async () => {
+    const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['All', 'Active', 'Inactive', 'Pending'],
-      onchangeFilterItem: onchangeFilterItem,
+      // onchangeFilterItem: onchangeFilterItem,
       t: t,
       dropdownData: farmerData,
       filterItem: filterItem,
-      setFilterName: setFilterName,
+      setSearchFarmerName: setSearchFarmerName,
+      setSearchFarmerPhone: setSearchFarmerPhone,
+      searchFarmerName: searchFarmerName,
+      searchFarmerPhone: searchFarmerPhone,
       title: 'Choose Status',
-      handleDatePicker: handleDatePicker,
-      handleDatePicker2: handleDatePicker2,
+      // handleDatePicker: handleDatePicker,
+      // handleDatePicker2: handleDatePicker2,
+      handleFilterResult: handleFilterResult,
+      handleFilterRemove: handleFilterRemove,
+      setFromDate: setFromDate,
+      setToDate: setToDate,
+      fromDate: fromDate,
+      toDate: toDate,
+      effective_dates: effective_dates,
+      carbonFlag: carbonFlag,
+      CARBON_TYPE: CARBON_TYPE,
+      carbonType: carbonType,
+      navigationBarHeight: navigationBarHeight,
       onApply: (values) => {
         console.log('Applied Filter:', values);
         setSelected(values.filterType);
@@ -82,545 +75,494 @@ const ActivityList = ({ navigation }) => {
         // doSomething(values.fromDate, values.toDate);
       },
     });
-  }, []);
-
-
-  const onchangeFilterItem = (value) => {
-    setFilterName(value);
-    setFilterItem(value);
-    setFilterOption(false);
-    setactivityAll(activityAllRow);
-    setfromDate("");
-    setToDate("");
-    setSearchFarmerName("");
-    setSearchFarmerPhone("");
-    setCarbonType("");
-  }
-  const handlePage = async (value) => {
-    handlePageList(value, setIsLoading, token, pageNo, activityListAPI, setactivityAll, dbname, lan_id, user_id, '', fromDate, toDate, carbonType);
-  }
-
-  const handleFilterList = async (item) => {
-    /*
-    *(1) It is use to search by farmer's name and phone number
-    *(2) It is use for filter type ('Farmer/Product Name','PhoneNumber')
-    *(3) it is use for all farmer list
-    *(4) it is use for all item list
-    *(5) item List can't modify data
-    *(6,7) it is use use selected value set 
-    *(8) farmer list show and hide poup
-    *(9) filter data clear all the value set  list data
-    *(10) it is use set the filters search value set
-    */
-    handleFilter(item, filterName, farmerData, activityAllRow, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, setactivityAll, setSearchResults);
-  }
-
-  const handleResultSelectList = async (item) => {
-    const { label, value, phone } = item
-    // handleResultSelect(label, value, phone, activityAll, activityListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setactivityAll)
-    setSearchFarmerName(label);
-    setSearchFarmerPhone(phone);
-    let tempData = activityAllRow.filter(item => { return item.agri_user.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) > -1 });
-    setactivityAll(tempData)
-    setSearchResultsList(false);
-    if (tempData.length == 0) {
-      Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-    }
-  }
-  const handleDatePicker = (item) => {
-    const effective_date = effective_dates(item);
-    setfromDate(effective_date);
-    setFromDateFilter(effective_date);
-  }
-  const handleDatePicker2 = async (item) => {
+  };
+  const handleFilterResult = useCallback(({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
     try {
-
-      const effective_date = effective_dates(item);
-      setToDate(effective_date)
-      if (fromDateFilter) {
-        const item = '';
-        const response = await activityListAPI(dbname, lan_id, token, user_id, pageNo, item, fromDateFilter, effective_date)
-        if (response?.status == 200) {
-          setactivityAll(response?.data?.data?.rows);
-          setItem("activity_Data", response?.data?.data?.rows);
-        }
-      } else {
-        // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-        Toast.show({ time: 3, text: t('please_date_first'), ...AlertMesg[0] })
+      let search_key_val = "";
+      if (filter == "Farmer/Product Name") {
+        search_key_val = farmerName?.label;
+      } else if (filter == "PhoneNumber") {
+        search_key_val = farmerPhone?.label;
       }
-
+      setFilterItem(filter);
+      setFromDate(fromDate);
+      setToDate(toDate);
+      setSearchFarmerName({ label: farmerName?.label, value: farmerName?.value });
+      setSearchFarmerPhone({ label: farmerPhone?.label, value: farmerPhone?.value });
+      setCarbonType({ label: sheetCarbonType?.label, value: sheetCarbonType?.value });
+      setPage(1);
+      fatchActivityListAPI(1, fromDate, toDate, search_key_val, sheetCarbonType?.value, filter);
     } catch (error) {
-      CrashlyticsRecordError(error, "ActivityList", "handleDatePicker2");
-
+      console.log(error, "error")
+    }
+  }, []);
+  const handleFilterRemove = () => {
+    try {
+      setFromDate("");
+      setToDate("");
+      setSearchFarmerName({ label: "", value: "" });
+      setSearchFarmerPhone({ label: "", value: "" });
+      setCarbonType({ label: "", value: "" });
+      setFilterItem("");
+      fatchActivityListAPI(1, "", "", "", "", "");
+      setPage(1);
+    } catch (error) {
+      console.log(error)
     }
   }
-  const navigateToPages = useCallback(async (pageName, uact_id) => {
-    navigation.navigate(pageName, uact_id);
-  }, []);
-  const fatchActivityListAPI = async (dbName, languageId, token, supervisorId, pageNo, searchItem = '', from_date = '', to_date = '', carbonType = '') => {
+  const fatchActivityListAPI = async (pageNo, fromDateParams, toDateParams, search_key_val, carbonTypeParams, search_key_type) => {
     try {
       setIsLoading(true);
       if (isOnline) {
-        var response = await activityListAPI(dbName, languageId, token, supervisorId, pageNo, searchItem, from_date, to_date, carbonType);
+        var response = await axiosGet(ROUTES.GET.LIST_USER_ACITYLIST_E({
+          pageNO: pageNo,
+          carbonType: carbonTypeParams == undefined ? carbonType.value : carbonTypeParams,
+          userID: user_id,
+          search_key: search_key_type && search_key_type !== "carbon" ? search_key_val : filterItem ? filterItem === "Farmer/Product Name" ? searchFarmerName?.label : filterItem === "PhoneNumber" ? searchFarmerPhone?.label : "" : "",
+          from_date: fromDateParams == undefined ? fromDate : fromDateParams,
+          to_date: toDateParams == undefined ? toDate : toDateParams,
+        }), token, { information: `${dbname},${lan_id},${user_id}` })
         if (response?.status == 200) { await setItem('activityList', response); }
       } else {
         var response = await getItem('activityList');
       }
       if (response?.status == 200) {
-        if (response.data.data.count != 0) {
-          const totalPage = Math.ceil(response.data.data.count / 20)
-          setTotalPages(Math.ceil(response.data.data.count / 20));
-          setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
-          setactivityAll(response?.data?.data?.rows);
-          if (carbonType == "") {
-            setactivityAllRow(response?.data?.data?.rows);
-          }
-          await setItem("activity_Data", response?.data?.data?.rows);
-          setIsLoading(false);
-        } else {
-          setIsLoading(false);
-          Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-        }
+        const totalPage = Math.ceil(response.data.count / 20);
+        setTotalPages(Math.ceil(response.data.count / 20));
+        setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
+        setactivityAll(response?.data?.rows);
+        setIsLoading(false);
       }
-
     } catch (error) {
-      CrashlyticsRecordError(error, "ActivityList", "fatchActivityListAPI");
+      console.log(error);
+      // CrashlyticsRecordError(error, "ActivityList", "fatchActivityListAPI");
 
     }
-  }
-  const onPageLoad = async (page) => {
-    // setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
-    fatchActivityListAPI(dbname, lan_id, token, user_id, page);
   };
-  const filterDataRemove = () => {
-    setFilterItem("");
-    setCarbonType("")
-    setFilterOption(false);
-    setactivityAll(activityAllRow);
-    setSearchResultsList(false);
-  }
-  const HandlerGoBack = () => {
-    setFilterItem("");
-    setFilterOption(false);
-    setSearchFarmerName("");
-    setSearchFarmerPhone("");
-    setSearchResultsList(false);
-    setfromDate("");
-    setToDate("");
-    // setactivityAll([]);
-    // setactivityAllRow([]);
-    navigation.navigate('Dashboard');
-  }
-  const handleBackPress = () => {
-    setFilterItem("");
-    setFilterOption(false);
-    setSearchFarmerName("");
-    setSearchFarmerPhone("");
-    setSearchResultsList(false);
-    setfromDate("");
-    setToDate("");
-    // setactivityAll([]);
-    // setactivityAllRow([]);
-    navigation.navigate('Dashboard');
-    return true;
-  }
+  const onPageLoad = async (page) => {
+    fatchActivityListAPI(page);
+  };
   useEffect(() => {
     try {
-      if (isFocused) {
-        onPageLoad(page);
-      }
+      onPageLoad(page);
     } catch (error) {
       CrashlyticsRecordError(error, "ActivityList", "useEffect");
     }
-  }, [isFocused, page]);
+  }, [page]);
   const handleSPSheetShow = () => {
     try {
       if (carbonFlag == true) {
         SPSheet.show({
           component: () => (
-            <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS} />
+            <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS_CARBON} />
           ),
           height: 200,
           zIndex: 1000,
         });
       } else {
-        navigation.navigate('activityReport')
+        navigation.navigate('activityReport');
       }
     } catch (error) {
       CrashlyticsRecordError(error, "ActivityList", "handleSPSheetShow");
 
     }
+  };
 
-  }
-  const onChangeCarbonType = (_item) => {
-    const { label, value } = _item
-    setCarbonType(value)
-    fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
-  }
+  const ActivityCard = useCallback(memo(({ activity, index, navigation }) => {
+    const status = activity?.deviation > 0 ? "active" : "pending";
+    const statusColor = getStatusColor(status);
+    const cardAnimation = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      Animated.timing(cardAnimation, {
+        toValue: 1,
+        duration: 500,
+        delay: index * 150,
+        useNativeDriver: true,
+      }).start();
+    }, [cardAnimation, index]);
+    return (
+      <Animated.View
+        style={[
+          styles.activityCard,
+          {
+            opacity: cardAnimation,
+            transform: [{
+              translateY: cardAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              }),
+            }],
+            borderLeftColor: statusColor,
+          }
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.cardContent}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("activityDetail", activity)}
+        >
+          {/* Header with Produce and Status */}
+          <View style={styles.cardHeader}>
+            <View style={styles.produceSection}>
+              <View style={[styles.produceIcon, { backgroundColor: statusColor + '15' }]}>
+                <Text style={styles.emoji}>{getProduceEmoji(activity?.cropName?.name)}</Text>
+              </View>
+              <View style={styles.produceInfo}>
+                <Text style={styles.produceName}>{activity?.cropName?.name}</Text>
+                <Text style={styles.plotSite}>{activity?.land_info?.plot_no}</Text>
+              </View>
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: statusColor + '15' }]}>
+              <Text style={[styles.statusText, { color: statusColor }]}>
+                {status?.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
+          {/* Farmer Information */}
+          <View style={styles.farmerSection}>
+            <View style={styles.infoRow}>
+              <Text style={styles.label} numberOfLines={1}>{t('farmer_name')}:</Text>
+              <Text style={styles.value}>{activity?.agri_user?.userName}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>{t('farmer_number')}:</Text>
+              <Text style={[styles.value]}>{activity?.agri_user?.contactNumber}</Text>
+            </View>
+          </View>
+
+          {/* Dates Section */}
+          <View style={styles.datesSection}>
+            <View style={styles.dateGrid}>
+              <View style={styles.dateItem}>
+                <Text style={styles.dateLabel}>{t('Sowing')}</Text>
+                <Text style={styles.dateValue}>{formatDate(activity?.actCurel?.sowing_date)}</Text>
+              </View>
+              <View style={styles.dateItem}>
+                <Text style={styles.dateLabel}>{t('perf_date')}</Text>
+                <Text style={styles.dateValue}>{formatDate(activity?.act_perform_date)}</Text>
+              </View>
+            </View>
+            <View style={styles.harvestSection}>
+              <Text style={styles.label}>{t('Harvesting')}:</Text>
+              <Text style={styles.harvestValue}>{effective_dates(activity?.actCurel?.harvesting_date)}</Text>
+            </View>
+          </View>
+
+          {/* Additional Info */}
+          <View style={styles.additionalInfo}>
+            <View style={styles.deviationRow}>
+              <Text style={styles.label}>{t('deviation')}:</Text>
+              <Text style={[
+                styles.deviationValue,
+                { color: activity?.deviation > 0 ? '#EF4444' : '#10B981' }
+              ]}>
+                {activity?.deviation}{t('days')}
+              </Text>
+            </View>
+          </View>
+
+          {/* Activity Type */}
+          <View style={styles.activityTypeRow}>
+            <Text style={styles.label}>{t('activity_type')}:</Text>
+            <Text style={styles.value}>{activity.activityType || 'Not specified'}</Text>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }), []);
   return (
     <MyErrorBoundary>
       <Root>
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-          filterOptionShow={filterOptionShow}
-        />
-        <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
-          {/* <WidgetsSide
-            location={'ActivityReport'}
-            title={t('report_activity')}
-            onPress={() => handleSPSheetShow()}
-          /> */}
-          {openFromDate && (
-            <DatePickerComp
-              openDate={openFromDate}
-              newDate={newFromDate}
-              setOpenDate={setOpenFromDate}
-              handleDatePicker={handleDatePicker}
-            />
-          )}
-          {openToDate && (
-            <DatePickerComp
-              openDate={openToDate}
-              newDate={newToDate}
-              setOpenDate={setOpenToDate}
-              handleDatePicker={handleDatePicker2}
-              minimumDate={
-                fromDate == ''
-                  ? ''
-                  : new Date(
-                    `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
-                    }-${new Date(fromDate).getDate() + 1}`,
-                  )
-              }
-            />
-          )}
-          {/* <Filter
-            filterItem={filterItem}
-            filterOption={filterOption}
-            setOpenToDate={setOpenToDate}
-            fromDate={fromDate}
-            newToDate={toDate}
-            setOpenFromDate={setOpenFromDate}
-            filterOptionShow={filterOptionShow}
-            onchangeFilterItem={onchangeFilterItem}
-            onChangeText={item => handleFilterList(item)}
-            title={t('my_activities')}
-            filterDataRemove={filterDataRemove}
-            FarmerProductNameValue={searchFarmerName}
-            FarmerProductPhoneValue={searchFarmerPhone}
-            carbonFlag={carbonFlag}
-            onChangeCarbonType={onChangeCarbonType}
-            carbonTypeVal={carbonType}
-            dataActivity={[
-              { label: 'Carbon ', value: 'carbon_activity' },
-              { label: 'Non-Carbon ', value: 'user_activity' },
-            ]}
-          /> */}
-          <>
-            {searchResultsList && searchResultsList ? (
-              <View
-                View
-                style={
-                  isKeyboardVisible
-                    ? styles.flatContainerLengthUp
-                    : styles.flatContainer
-                }>
-                <FlatList
-                  style={
-                    searchResults.length > 8 ? styles.flatlistHeight : ''
-                  }
-                  data={searchResults}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      onPress={() => handleResultSelectList(item)}
-                      style={styles.flatlistitem}>
-                      <Text style={[styles.flatlisttitle, { color: 'black' }]}>
-                        {filterName == 'PhoneNumber'
-                          ? item.phone
-                          : item.label}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  keyExtractor={(item, index) => index}
-                />
-              </View>
-            ) : (
-              ''
-            )}
-          </>
-          {isLoading && (
-            <View style={styles.loadingScreen}>
-              <LoadingScreen />
-            </View>
-          )}
+        <SafeAreaView style={styles.container}>
+          <CustomHeader
+            logoImage={logoImage}
+            topBanner={topBanner}
+            filterOptionShow={filterOptionShow} t={t} />
           <FlatList
-            data={activityAll}
-            initialNumToRender={1}
+            data={isLoading ? Array.from({ length: 5 }) : activityAll}
+            keyExtractor={(item, index) => index?.toString()}
+            renderItem={({ item, index }) =>
+              isLoading ? (
+                <SkeletonCardActivityList />
+              ) : (
+                <ActivityCard activity={item} index={index} navigation={navigation} />
+              )
+            }
+            contentContainerStyle={{ padding: 20, paddingBottom: 50 }}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={5}
             windowSize={5}
             removeClippedSubviews={true}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                style={styles.wrapper}
-                onPress={() => navigateToPages('activityDetail', item)}>
-                <View style={styles.activityListContainer}>
-                  <View style={styles.activityListItem}>
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('farmer_name')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {item?.agri_user?.userName}
-                      </Text>
-                    </View>
-
-
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('addcrop_plot')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        :{item?.land_info?.plot_no}
-                      </Text>
-                    </View>
-
-
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('perf_date')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        :{item?.act_perform_date}
-                      </Text>
-                    </View>
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('Sowing')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        :{item?.actCurel?.sowing_date}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.activityListItem}>
-
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('farmer_number')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        :{item?.agri_user?.contactNumber}
-                      </Text>
-                    </View>
-
-
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('crop_name')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        :{item?.cropName?.name}
-                      </Text>
-                    </View>
-
-
-
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('deviation')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        : {item?.deviation}  {t('days')}
-                      </Text>
-                    </View>
-
-
-
-
-                    <View style={{ width: '90%', flexDirection: 'row' }}>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {t('Harvesting')}
-                      </Text>
-                      <Text style={styles.title} numberOfLines={1}
-                        ellipsizeMode="tail">
-                        : {item?.actCurel?.harvesting_date}  {t('days')}
-                      </Text>
-                    </View>
-
-                  </View>
-                </View>
-                <Text style={styles.title}>
-                  {t('cycle_start_date')} : {item?.cycle_start_date}
-                </Text>
-                <Text style={styles.title}>
-                  {t('activity_type')} :
-                  {item?.typeActivity ? item?.typeActivity?.categoryName : ''}
-                </Text>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index}
-            showsVerticalScrollIndicator={false}
           />
 
-          <View style={styles.prevNextPage}>
-            <TouchableOpacity disabled={page === 1} onPress={() => setPage((p) => Math.max(1, p - 1))}>
-              <Text style={styles.title}>{t('prev_page')}</Text>
+          {/* Floating Action Button */}
+          {/* <Animated.View
+            style={[
+              styles.fabContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{
+                  scale: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                  }),
+                }],
+              }
+            ]}
+          >
+            <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
+              <Text style={styles.fabIcon}>+</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>
-              Page {page} / {totalPages}
-            </Text>
-            <TouchableOpacity disabled={page === totalPages} onPress={() => setPage((p) => Math.min(totalPages, p + 1))}>
-              <Text style={styles.title}>{t('next_page')}</Text>
+          </Animated.View> */}
+
+          {/* Bottom Navigation */}
+          <View style={styles.bottomNav}>
+            <TouchableOpacity style={styles.navButton} disabled={page === 1} onPress={() => setPage((p) => Math.max(1, p - 1))}>
+              <Text style={styles.navText}>{t('prev_page')}</Text>
+            </TouchableOpacity>
+            <Text style={styles.pageIndicator}> Page {page} / {totalPages}</Text>
+            <TouchableOpacity style={styles.navButton} disabled={page === totalPages} onPress={() => setPage((p) => Math.min(totalPages, p + 1))}>
+              <Text style={[styles.navText, styles.nextButton]}>{t('next_page')}</Text>
             </TouchableOpacity>
           </View>
-
-        </View>
-        <FloatingAction
-          position="right"
-          actions={actions}
-          color={Colors.useGreen}
-          onPressItem={(name) => {
-            handleSPSheetShow();
-          }}
-          showBackground={true}       // show the overlay
-          overlayColor="rgba(22, 17, 17, 0.14)" // red overlay with transparency
-          // style={{ bottom: 500, right: 1600 }}
-          distanceToEdge={{ vertical: 80, horizontal: 25 }}
-        />
+          <FloatingAction
+            position="right"
+            actions={getActionsActivity(t, styles, Colors)}
+            color={Colors.useGreen}
+            onPressItem={(name) => {
+              handleSPSheetShow();
+            }}
+            showBackground={true}
+            overlayColor="rgba(22, 17, 17, 0.35)"
+            distanceToEdge={{ vertical: 80, horizontal: 25 }} />
+        </SafeAreaView>
       </Root>
     </MyErrorBoundary>
   );
 }
 export default ActivityList;
 const styles = StyleSheet.create({
-  fab: {
-    backgroundColor: Colors.useGreen,
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background_light,
   },
-  wrapper: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    borderRadius: 8,
-    // elevation: 3,
-    backgroundColor: Colors.background,
-    marginHorizontal: '3%',
-    paddingHorizontal: 8,
-    marginVertical: 7,
-    paddingVertical: 10,
-    borderWidth: 0.5,
-    borderColor: Colors.border,
-    width: '94%',
-    overflow: 'hidden'
-    // height: 100,
 
+
+
+  activityCard: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
+    borderLeftWidth: 4,
   },
-  activityListContainer: {
+  cardContent: {
+    padding: 20,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  produceSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '45%',
+    flex: 1,
   },
-  activityListItem: {
-    paddingBottom: 1,
-    //  width: '90%',
+  produceIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
-  title: {
-    color: '#000',
-    lineHeight: 25,
-    fontFamily: Fonts.Light,
-    fontSize: 14
+  emoji: {
+    fontSize: 24,
   },
-  prevNextPage: {
+  produceInfo: {
+    flex: 1,
+  },
+  produceName: {
+    fontSize: 16,
+    // color: '#1F2937',
+    color: Colors.text,
+    // marginBottom: 2,
+    fontFamily: Fonts.Medium,
+  },
+  plotSite: {
+    fontSize: 14,
+    // color: '#6B7280',
+    color: Colors.lightText,
+    fontFamily: Fonts.Medium,
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  statusText: {
+    fontSize: 12,
+    // fontWeight: 'bold',
+    fontFamily: Fonts.SemiBold,
+  },
+  farmerSection: {
+    backgroundColor: '#F9FAFB',
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
+    padding: 16,
+    paddingBottom: 8,
+    // marginBottom: 16,
+  },
+  infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 15,
-    position: 'relative',
-    bottom: 0
+    alignItems: 'center',
+    marginBottom: 8,
   },
-
-  OptionWrapper: {
-    borderColor: '#efe9e9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    borderRadius: 7,
-    elevation: 3,
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 15,
-    marginVertical: 7,
+  label: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
+    flex: 1,
+  },
+  value: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
+    flex: 1,
+    textAlign: 'right',
+  },
+  phoneNumber: {
+    color: '#3B82F6',
+  },
+  datesSection: {
+    backgroundColor: '#F0FDF4',
+    borderBottomRightRadius: 12,
+    borderBottomLeftRadius: 12,
+    padding: 16,
+    paddingTop: 8,
+    marginBottom: 10,
+  },
+  dateGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  dateItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  dateLabel: {
+    fontSize: 12,
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
+    marginBottom: 4,
+  },
+  dateValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
+  },
+  harvestSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  harvestValue: {
+    fontSize: 14,
+    // color: '#F59E0B',
+    color: Colors.pending,
+    fontFamily: Fonts.Medium,
+  },
+  additionalInfo: {
+    // marginBottom: 10,
+  },
+  deviationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    // marginBottom: 8,
+  },
+  deviationValue: {
+    fontSize: 14,
+    // fontWeight: 'bold',
+    fontFamily: Fonts.SemiBold
+  },
+  activityTypeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  fabContainer: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+  },
+  fab: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  fabIcon: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: '300',
+  },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    paddingVertical: 16,
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
   },
-  loadingScreen: {
-    position: 'absolute',
-    top: 200,
-    zIndex: 999,
-    left: '45%'
+  navButton: {
+    padding: 8,
   },
-  flatContainerLengthUp: {
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    zIndex: 999,
-    left: 0,
-    // top: 100,
-    top: '20%',
-    marginHorizontal: '5%',
-    width: '90%',
-    elevation: 10,
-    borderRadius: 10,
-    padding: 10
+  navText: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
   },
-  flatlistHeight: {
-    height: Dimensions.get('window').height / 4
+  nextButton: {
+    color: '#10B981',
   },
-  flatContainer: {
-    // backgroundColor: '#ffffff',
-    // position: 'absolute',
-    // zIndex: 999,
-    // bottom: '100%',
-    // left: 0,
-    // marginHorizontal: '5%',
-    // width: '90%',
-    // elevation: 10,
-    // borderRadius: 10,
-    // padding: 10,
-    // bottom:100
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    zIndex: 999,
-    left: 0,
-    // top:30,
-    // marginTop: 60,
-    top: '13%',
-    marginHorizontal: '5%',
-    width: '90%',
-    elevation: 10,
-    borderRadius: 10,
-    padding: 10
+  pageIndicator: {
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
+    fontSize: 14
   },
-  flatlisttitle: {
-    color: '#000',
-    marginVertical: 6,
-    fontFamily: 'Poppins-Regular'
-  },
-
-})
+});

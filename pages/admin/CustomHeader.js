@@ -11,10 +11,9 @@ const ImageForm = lazy(() => import('../Common/ImageForm'));
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {goBack} from '../utils/NavigationUtils';
 import {Colors, Fonts} from '../utils/Constants';
-import {useTranslation} from 'react-i18next';
 import {useDrawerStatus} from '@react-navigation/drawer';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
+import {useTranslation} from 'react-i18next';
 const CustomHeader = ({
   path,
   HandlerGoBack,
@@ -57,9 +56,11 @@ const CustomHeader = ({
     FarmerAddIncome: t('add_income'),
     FarmerFarmIncomeExpenseView: t('income_expense_View'),
     InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
+    activityDetail: t('act_detail_'),
   };
   const navigation = useNavigation();
   const route = useRoute();
+  console.log(route);
   const title = titleMap[route.name] ?? route.name;
   console.log(title);
   const openDrawer = () => {
@@ -85,9 +86,12 @@ const CustomHeader = ({
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{width: 24, height: 24, tintColor: '#fff'}}
+              style={{width: 24, height: 24, tintColor: '#ffffffff'}}
             />
           </TouchableOpacity>
+          {/* <TouchableOpacity onPress={() => goBack()} style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color="#FFF" />
+          </TouchableOpacity> */}
           {title == 'Dashboard' ? (
             <Image
               source={require('../Common/images/logo.png')}
@@ -107,7 +111,7 @@ const CustomHeader = ({
             </View>
           ) : null}
         </View>
-        <TouchableOpacity onPress={openDrawer}>
+        <View>
           <View
             style={{
               flexDirection: 'row',
@@ -118,20 +122,33 @@ const CustomHeader = ({
               overflow: 'hidden',
             }}>
             {logoImage && title == 'Dashboard' ? (
-              <ImageForm
-                source={{uri: logoImage}}
-                resizeMode="contain"
-                // resizeMode='cover'
-                height={50}
-                width={50}
-              />
+              <View
+                style={{
+                  width: 32,
+                  backgroundColor: 'white',
+                  height: 32,
+                  borderRadius: 12,
+                  marginLeft: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: 10,
+                  overflow: 'hidden',
+                }}>
+                <ImageForm
+                  source={{uri: logoImage}}
+                  resizeMode="contain"
+                  // resizeMode='cover'
+                  height={50}
+                  width={50}
+                />
+              </View>
             ) : null}
 
             {title != 'Dashboard' ? (
               <TouchableOpacity
                 style={{
                   width: 32,
-                  // backgroundColor: 'white',
+                  backgroundColor: 'white',
                   height: 32,
                   borderRadius: 12,
                   marginLeft: 10,
@@ -140,14 +157,14 @@ const CustomHeader = ({
                   marginRight: 10,
                 }}
                 onPress={() => filterOptionShow()}>
-                {/* <Image
+                <Image
                   source={require('../Common/images/setting.png')}
                   style={{width: 25, height: 25}}
-                /> */}
-                <MaterialIcons name="tune" size={28} color={'white'} />
+                />
               </TouchableOpacity>
             ) : null}
-            <View
+            <TouchableOpacity
+              onPress={openDrawer}
               style={{
                 width: 32,
                 backgroundColor: 'white',
@@ -162,9 +179,9 @@ const CustomHeader = ({
                 source={require('../Common/images/4dot.png')}
                 style={{width: 25, height: 25}}
               />
-            </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </View>
       <View>
         {show == true && banner != true && (
@@ -228,5 +245,10 @@ const styles = StyleSheet.create({
     color: Colors.background,
     fontSize: 16,
     fontFamily: Fonts.Regular,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
 });

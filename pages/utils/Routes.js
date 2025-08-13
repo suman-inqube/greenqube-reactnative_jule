@@ -28,13 +28,9 @@ export const ROUTES = {
       to_date = '',
     }) =>
       `inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-
     FARMER_PROFILE_INFO: ({user_id}) => `loginSignupRoute/details/${user_id}`,
-
     FARMER_DOC: ({user_id}) => `loginSignupRoute/onlydetails/${user_id}`,
-
     FIRST_LAN_LIST: () => 'locationRoute/getLang?status=1&search',
-
     FARMER_USEFULL_INFO_LIST: ({
       userId,
       userType,
@@ -45,7 +41,15 @@ export const ROUTES = {
       newCropId,
     }) =>
       `generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
-  },
+  LIST_USER_ACITYLIST_E:({
+      pageNO=1,
+      carbonType="",
+      userID="",
+      search_key="",
+      from_date="",
+      to_date="",
+    })=>`inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`
+    },
 
   PUT: {
     USER_PROFILE_UPDATE: ({user_id}) => `loginSignupRoute/update/${user_id}`,

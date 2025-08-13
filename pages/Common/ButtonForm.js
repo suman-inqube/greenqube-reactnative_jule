@@ -25,7 +25,7 @@ const ButtonForm = ({
     <View>
       <TouchableOpacity
         style={{
-          backgroundColor: '#003c04',
+          backgroundColor: bcolor ?? Colors.green,
           padding: 10,
           // borderRadius: 30,
           // marginBottom: 10,

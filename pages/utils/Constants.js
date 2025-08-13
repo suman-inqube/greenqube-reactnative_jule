@@ -12,10 +12,16 @@ export const Colors = {
   containerGreen: '#d7edd5',
   pageBackground: '#F4F6FC',
   borderGreen: '#107808ff',
-  border: '#E5E9EF',
+  // border: '#E5E9EF',
+  border: '#d1d5db',
   lightText: '#9197A6',
   background: '#fff',
   background_light: '#F4F6FC',
+  active: '#10B981',
+  completed: '#3B82F6',
+  pending: '#F59E0B',
+  green:'#003c04',
+  black:'#000000'
 };
 export const Fonts = {
   Regular: 'Poppins-Regular',

@@ -5,42 +5,83 @@ import DropdownForm from '../Common/DropdownForm';
 import { Colors, Fonts } from '../utils/Constants';
 const RadioForm = lazy(() => import('../Common/RadioForm'));
 const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
-
+import { getNavigationType } from '../utils/helpers';
 export const openFilterSheet = ({
     dropdownData = [],
     t,
-    onchangeFilterItem,
+    // onchangeFilterItem,
     filterItem,
-    setFilterName,
+    setSearchFarmerName,
+    setSearchFarmerPhone,
+    searchFarmerName,
+    searchFarmerPhone,
+    handleFilterResult,
+    setfromDate,
+    setToDate,
     fromDate,
-    newToDate,
+    toDate,
+    effective_dates,
+    handleFilterRemove,
+    carbonFlag,
+    CARBON_TYPE,
+    carbonType,
+    navigationBarHeight
 }) => {
     SPSheet.show({
         component: () => {
+         
             const [selectedValue, setSelectedValue] = useState(filterItem);
             const [openFromDate, setOpenFromDate] = useState(false);
             const [openToDate, setOpenToDate] = useState(false);
-            const [fromDate, setfromDate] = useState("");
-            const [toDate, setToDate] = useState("");
+            const [sheetFromDate, setSheetFromDate] = useState(fromDate);
+            const [sheetToDate, setSheetToDate] = useState(toDate);
+            const [sheetFarmerName, setSheetFarmerName] = useState(searchFarmerName);
+            const [sheetFarmerPhone, setSheetFarmerPhone] = useState(searchFarmerPhone);
+            const [sheetCarbonType, setSheetCarbonType] = useState(carbonType);
             const handleSelect = (value) => {
-                setFilterName(value);
                 setSelectedValue(value);
-                onchangeFilterItem?.(value);
+                setSheetFarmerName({ label: "", value: "" });
+                setSheetFarmerPhone({ label: "", value: "" });
+                setSheetCarbonType({ label: "", value: "" })
+                setSheetFromDate("");
+                setSheetToDate("");
+                if (value == "") {
+                    handleFilterRemove()
+                }
+                // onchangeFilterItem?.(value);
             };
-            const onFromDateChange = () => {
+            const onFromDateChange = (date) => {
+                setSheetFromDate(date); // local for sheet UI
+                setfromDate(date);      // parent state
+            };
 
-            }
-            const onToDateChange = () => {
-
-            }
-            const renderDropdown = (data) => (
+            const onToDateChange = (date) => {
+                setSheetToDate(date);
+                setToDate(date);
+            };
+            // const filterCancel = () => {
+            //     handleFilterRemove();
+            // }
+            const renderDropdown = (data, name) => (
                 <DropdownForm
                     data={data}
-                    label={t('select_option')}
+                    label={t(name)}
                     labelField="label"
                     valueField="value"
-                    placeholder={t('select_option')}
-                    onChange={(item) => console.log('Dropdown selected:', item)}
+                    placeholder={t(name)}
+                    onChange={(item) => {
+                        const { label, value, phone } = item || {}
+                        if (name === "enter_farmer_s_name") {
+                            setSheetFarmerName({ label: label, value: value });
+                            setSearchFarmerName({ label: label, value: value }); // parent update
+                        } else if (name === 'new_reg_phone_number') {
+                            setSheetFarmerPhone({ label: label, value: value });
+                            setSearchFarmerPhone({ label: label, value: value }); // parent update
+                        } else {
+                            setSheetCarbonType({ label: label, value: value })
+                        }
+                    }}
+                    // onchange={(item)=>handleSelect(item)}
                     style={{
                         borderColor: 'transparent',
                         borderRadius: 8,
@@ -53,20 +94,22 @@ export const openFilterSheet = ({
                     selectedTextStyle={{ color: '#000', fontFamily: 'Poppins-Regular', fontSize: 14 }}
                     inputSearchStyle={{ color: '#000', fontFamily: 'Poppins-Regular' }}
                     itemTextStyle={{ color: '#000', fontFamily: 'Poppins-Regular' }}
+                    val={name == "enter_farmer_s_name" ? sheetFarmerName?.label : name == "new_reg_phone_number" ? sheetFarmerPhone?.label : sheetCarbonType?.label}
                 />
             );
 
             return (
                 <View>
-                    {selectedValue != "" ? <TouchableOpacity style={{ position: 'absolute', right: 20, top:-10, width: 30, height: 30, backgroundColor: Colors.backgroundSecondary, justifyContent: 'center', alignItems: 'center', borderRadius: 10,borderWidth:0.5,borderColor:Colors.useGreen }} onPress={() => handleSelect('')}>
-                        <Text style={{ color: Colors.text, fontFamily: Fonts.Medium, fontSize: 18,textAlign:'center' }}>X</Text>
-                    </TouchableOpacity> : null}
+                    {/* {selectedValue != "" ? <TouchableOpacity style={{ position: 'absolute', right: 20, top: -10, width: 30, height: 30, backgroundColor: Colors.backgroundSecondary, justifyContent: 'center', alignItems: 'center', borderRadius: 10, borderWidth: 0.5, borderColor: Colors.useGreen }}
+                        onPress={() => handleSelect('')}>
+                        <Text style={{ color: Colors.text, fontFamily: Fonts.Medium, fontSize: 18, textAlign: 'center' }}>X</Text>
+                    </TouchableOpacity> : null} */}
                     {openFromDate && (
                         <DatePickerComp
                             openDate={openFromDate}
                             newDate={new Date()}
                             setOpenDate={setOpenFromDate}
-                            handleDatePicker={onFromDateChange}
+                            handleDatePicker={(date) => onFromDateChange(effective_dates(date))}
                             title={t('from_date')}
                         />
                     )}
@@ -75,7 +118,7 @@ export const openFilterSheet = ({
                             openDate={openToDate}
                             newDate={new Date()}
                             setOpenDate={setOpenToDate}
-                            handleDatePicker={onToDateChange}
+                            handleDatePicker={(date) => onToDateChange(effective_dates(date))}
                             title={t('to_date')}
 
                         />
@@ -85,31 +128,39 @@ export const openFilterSheet = ({
                             <RadioForm
                                 label={t('farmer_name')}
                                 onSelect={() => handleSelect('Farmer/Product Name')}
-                                selected={selectedValue === 'Farmer/Product Name'}
+                            // selected={selectedValue === 'Farmer/Product Name'}
                             />
                             <RadioForm
                                 label={t('farmer_number')}
                                 onSelect={() => handleSelect('PhoneNumber')}
-                                selected={selectedValue === 'PhoneNumber'}
+                            // selected={selectedValue === 'PhoneNumber'}
                             />
-                            <RadioForm
+                            {/* <RadioForm
                                 label={t('category')}
                                 onSelect={() => handleSelect('Category')}
                                 selected={selectedValue === 'Category'}
-                            />
+                            /> */}
                             <RadioForm
                                 label={t('date')}
-                                selected={selectedValue === 'Date'}
+                                // selected={selectedValue === 'Date'}
                                 onSelect={() => handleSelect('Date')}
 
                             />
-                        </View> : null}
+                            {
+                                carbonFlag == true && <RadioForm label={t('Carbon/NonCarbon')}
+                                    selected={selectedValue === 'Carbon'}
+                                    onSelect={() => handleSelect('Carbon')}
+                                />
+                            }
+                        </View>
+                        : null}
 
 
                     {selectedValue && (
                         <View style={{ width: '90%', marginHorizontal: '5%', height: 150, justifyContent: 'space-evenly' }}>
-                            {selectedValue === 'Farmer/Product Name' && renderDropdown(dropdownData?.[0])}
-                            {selectedValue === 'PhoneNumber' && renderDropdown(dropdownData?.[1])}
+                            {selectedValue === 'Farmer/Product Name' && dropdownData?.[0] && renderDropdown(dropdownData?.[0], "enter_farmer_s_name")}
+                            {selectedValue === 'PhoneNumber' && dropdownData?.[1] && renderDropdown(dropdownData?.[1], "new_reg_phone_number")}
+                            {selectedValue === 'Carbon' && dropdownData?.[1] && renderDropdown(CARBON_TYPE, "Carbon/NonCarbon")}
                             {selectedValue === 'Date' &&
                                 <View style={{
                                     flexDirection: 'row',
@@ -124,12 +175,12 @@ export const openFilterSheet = ({
                                     justifyContent: 'space-between'
                                 }}>
                                     <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setOpenFromDate(true)}>
-                                        <Text style={{ color: Colors.text, fontFamily: Fonts.Medium }}>{fromDate || t('from_date')}</Text>
+                                        <Text style={{ color: Colors.text, fontFamily: Fonts.Medium }}>{sheetFromDate || t('from_date')}</Text>
                                         <Image source={require('../Common/images/calendar.png')} style={{ width: 20, height: 20, marginLeft: 5 }} />
                                     </TouchableOpacity>
 
                                     <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => setOpenToDate(true)}>
-                                        <Text style={{ color: Colors.text, fontFamily: Fonts.Medium }}>{toDate || t('to_date')}</Text>
+                                        <Text style={{ color: Colors.text, fontFamily: Fonts.Medium }}>{sheetToDate || t('to_date')}</Text>
                                         <Image source={require('../Common/images/calendar.png')} style={{ width: 20, height: 20, marginLeft: 5 }} />
                                     </TouchableOpacity>
                                 </View>}
@@ -142,12 +193,15 @@ export const openFilterSheet = ({
                                         width: '45%',
                                         padding: 10,
                                         alignItems: 'center',
-                                        elevation:1,
-                                        backgroundColor:Colors.background
+                                        elevation: 1,
+                                        backgroundColor: Colors.background
                                     }}
-                                    onPress={() => SPSheet.hide()}
+                                    onPress={() => {
+                                        handleSelect("");
+                                        // SPSheet.hide()
+                                    }}
                                 >
-                                    <Text style={{ color: Colors.text, fontFamily: Fonts.Medium }}>{t('cancel')}</Text>
+                                    <Text style={{ color: Colors.text, fontFamily: Fonts.Medium, fontSize: 14 }}>{t('cancel')}</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
@@ -159,14 +213,21 @@ export const openFilterSheet = ({
                                         padding: 10,
                                         alignItems: 'center',
                                         backgroundColor: Colors.useGreen,
-                                        elevation:1,
+                                        elevation: 1,
                                     }}
                                     onPress={() => {
-                                        console.log('Selected Filter:', selectedValue);
+                                        handleFilterResult({
+                                            filter: selectedValue,
+                                            fromDate: sheetFromDate,
+                                            toDate: sheetToDate,
+                                            farmerName: sheetFarmerName,
+                                            farmerPhone: sheetFarmerPhone,
+                                            sheetCarbonType: sheetCarbonType
+                                        });
                                         SPSheet.hide();
                                     }}
                                 >
-                                    <Text style={{ color: Colors.background, fontFamily: Fonts.Medium }}>{t('view_result')}</Text>
+                                    <Text style={{ color: Colors.background, fontFamily: Fonts.Medium, fontSize: 14 }}>{t('view_result')}</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -175,7 +236,7 @@ export const openFilterSheet = ({
                 </View>
             );
         },
-        height: 230,
+        height: 230+navigationBarHeight,
         sheetStyle: {
             backgroundColor: '#fff',
             borderTopLeftRadius: 16,

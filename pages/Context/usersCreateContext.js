@@ -32,6 +32,7 @@ const Filter = lazy(() => import('../Common/Filter'));
 const DatePicker = lazy(() => import('react-native-date-picker'));
 const config = lazy(() => import('../../config'));
 const axios = lazy(() => import('axios'));
+import { getNavigationBarHeight } from "react-native-android-navbar-height";
 const UserCreateContextProvider = props => {
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
@@ -56,6 +57,7 @@ const UserCreateContextProvider = props => {
   const [logoImage, setlogoImage] = useState('');
   const [topBanner, settopBanner] = useState('');
   const [plotAll, setplotAll] = useState([]);
+  const [navigationBarHeight, setNavigationBarHeight] = useState(0);
   const AllFarmerList = async () => {
     try {
       var farmer_response = [];
@@ -66,12 +68,15 @@ const UserCreateContextProvider = props => {
         logoImageData,
         topBannerData,
         companyLanguage_data,
+        getNavigationBar
       ] = await Promise.all([
         getItem('loginUser_data'),
         getItem('logoImageData'),
         getItem('topBannerData'),
         getItem('companyLanguage_data'),
+        getNavigationBarHeight()
       ]);
+      setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id.toString());
       if (netConnection && loginUser_data?.token) {
         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
@@ -142,13 +147,6 @@ const UserCreateContextProvider = props => {
           country_id: country_id,
           carbonFlag: option_value,
         });
-        const dataArray = farmer_response?.data?.data?.rows.map(data => ({
-          value: data.user_id,
-          label: data.userName,
-          phone: data.contactNumber,
-          aadharNumber: data?.aadhar_number,
-          kccNumber: data?.kcc_number,
-        }));
         const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
           label: data.userName,
@@ -183,9 +181,10 @@ const UserCreateContextProvider = props => {
     return () => task.cancel(); // cleanup
   }, [netConnection]);
   const effective_dates = item => {
+    if (!item) return "";
     const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
+    const x = dt?.toISOString()?.split('T');
+    const x1 = x[0]?.split('-');
     return x1[0] + '-' + x1[1] + '-' + x1[2];
   };
   const handleFilter = (
@@ -443,6 +442,7 @@ const UserCreateContextProvider = props => {
         handlePageList: handlePageList,
         plotAll: plotAll,
         setplotAll: setplotAll,
+        navigationBarHeight: navigationBarHeight
       }}>
       {props.children}
     </userCreateContext.Provider>
