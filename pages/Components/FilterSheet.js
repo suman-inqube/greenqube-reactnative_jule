@@ -7,6 +7,7 @@ const RadioForm = lazy(() => import('../Common/RadioForm'));
 const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
 import { getNavigationType } from '../utils/helpers';
 export const openFilterSheet = ({
+    options,
     dropdownData = [],
     t,
     // onchangeFilterItem,
@@ -29,7 +30,6 @@ export const openFilterSheet = ({
 }) => {
     SPSheet.show({
         component: () => {
-         
             const [selectedValue, setSelectedValue] = useState(filterItem);
             const [openFromDate, setOpenFromDate] = useState(false);
             const [openToDate, setOpenToDate] = useState(false);
@@ -70,6 +70,7 @@ export const openFilterSheet = ({
                     valueField="value"
                     placeholder={t(name)}
                     onChange={(item) => {
+                        console.log("dropdown",item)
                         const { label, value, phone } = item || {}
                         if (name === "enter_farmer_s_name") {
                             setSheetFarmerName({ label: label, value: value });
@@ -94,7 +95,7 @@ export const openFilterSheet = ({
                     selectedTextStyle={{ color: '#000', fontFamily: 'Poppins-Regular', fontSize: 14 }}
                     inputSearchStyle={{ color: '#000', fontFamily: 'Poppins-Regular' }}
                     itemTextStyle={{ color: '#000', fontFamily: 'Poppins-Regular' }}
-                    val={name == "enter_farmer_s_name" ? sheetFarmerName?.label : name == "new_reg_phone_number" ? sheetFarmerPhone?.label : sheetCarbonType?.label}
+                    val={name == "enter_farmer_s_name" ? sheetFarmerName?.value : name == "new_reg_phone_number" ? sheetFarmerPhone?.value : sheetCarbonType?.value}
                 />
             );
 
@@ -125,27 +126,27 @@ export const openFilterSheet = ({
                     )}
                     {selectedValue == "" ?
                         <View style={{ padding: 10, height: 140, justifyContent: 'space-between' }}>
-                            <RadioForm
+                            {options[0] == "farmer" ? <RadioForm
                                 label={t('farmer_name')}
                                 onSelect={() => handleSelect('Farmer/Product Name')}
-                            // selected={selectedValue === 'Farmer/Product Name'}
-                            />
-                            <RadioForm
+                                selected={selectedValue === 'Farmer/Product Name'}
+                            /> : null}
+                            {options[1] == "phone" ? <RadioForm
                                 label={t('farmer_number')}
                                 onSelect={() => handleSelect('PhoneNumber')}
-                            // selected={selectedValue === 'PhoneNumber'}
-                            />
+                                selected={selectedValue === 'PhoneNumber'}
+                            /> : null}
                             {/* <RadioForm
                                 label={t('category')}
                                 onSelect={() => handleSelect('Category')}
                                 selected={selectedValue === 'Category'}
                             /> */}
-                            <RadioForm
+                            {options[2] == "date" ? <RadioForm
                                 label={t('date')}
-                                // selected={selectedValue === 'Date'}
+                                selected={selectedValue === 'Date'}
                                 onSelect={() => handleSelect('Date')}
 
-                            />
+                            /> : null}
                             {
                                 carbonFlag == true && <RadioForm label={t('Carbon/NonCarbon')}
                                     selected={selectedValue === 'Carbon'}
@@ -236,7 +237,7 @@ export const openFilterSheet = ({
                 </View>
             );
         },
-        height: 230+navigationBarHeight,
+        height: 230 + navigationBarHeight,
         sheetStyle: {
             backgroundColor: '#fff',
             borderTopLeftRadius: 16,

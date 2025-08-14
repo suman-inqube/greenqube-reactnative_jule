@@ -15,6 +15,7 @@ import { axiosGet } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import { getStatusColor, getProduceEmoji, formatDate } from '../../utils/helpers';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
+import PaginationNav from '../../Components/PaginationNav';
 function ActivityList({ navigation }) {
   //GQR-67
   const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, CustomHeader, t, getItem, setItem, logoImage, topBanner, Root, effective_dates, isOnline, farmerData, navigationBarHeight } = useContext(userCreateContext);
@@ -317,15 +318,14 @@ function ActivityList({ navigation }) {
           </Animated.View> */}
 
           {/* Bottom Navigation */}
-          <View style={styles.bottomNav}>
-            <TouchableOpacity style={styles.navButton} disabled={page === 1} onPress={() => setPage((p) => Math.max(1, p - 1))}>
-              <Text style={styles.navText}>{t('prev_page')}</Text>
-            </TouchableOpacity>
-            <Text style={styles.pageIndicator}> Page {page} / {totalPages}</Text>
-            <TouchableOpacity style={styles.navButton} disabled={page === totalPages} onPress={() => setPage((p) => Math.min(totalPages, p + 1))}>
-              <Text style={[styles.navText, styles.nextButton]}>{t('next_page')}</Text>
-            </TouchableOpacity>
-          </View>
+          <PaginationNav
+            isLoading={isLoading}
+            page={page}
+            totalPages={totalPages}
+            onPrev={() => setPage((p) => Math.max(1, p - 1))}
+            onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+            t={t}
+          />
           <FloatingAction
             position="right"
             actions={getActionsActivity(t, styles, Colors)}
@@ -534,35 +534,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 28,
     fontWeight: '300',
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  navButton: {
-    padding: 8,
-  },
-  navText: {
-    fontSize: 14,
-    color: Colors.text,
-    fontFamily: Fonts.Medium,
-  },
-  nextButton: {
-    color: '#10B981',
-  },
-  pageIndicator: {
-    color: Colors.text,
-    fontFamily: Fonts.Medium,
-    fontSize: 14
-  },
+  }
 });

@@ -61,7 +61,8 @@ function AdminStack() {
       screenOptions={{
         headerShown: false,
         contentStyle: {backgroundColor: 'transparent'},
-      }}>
+      }}
+      >
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="Training" component={Training} />
       <Stack.Screen name="TraingList" component={TrainingList} />

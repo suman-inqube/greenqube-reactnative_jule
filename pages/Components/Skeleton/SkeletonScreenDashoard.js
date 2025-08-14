@@ -16,7 +16,6 @@ const SkeletonScreenDashoard = () => {
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#003c04" barStyle="light-content" />
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <MotiView
@@ -59,7 +58,6 @@ const SkeletonScreenDashoard = () => {
           </View>
         </View>
       </View>
-      {/* Hero Section */}
       <View style={styles.heroSection}>
         <View style={styles.heroOverlay}>
           <View style={styles.heroContent}>
@@ -79,7 +77,6 @@ const SkeletonScreenDashoard = () => {
           </View>
         </View>
       </View>
-      {/* Activity Feed */}
       <ScrollView
         style={styles.activityFeed}
         showsVerticalScrollIndicator={false}>
