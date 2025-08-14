@@ -18,6 +18,7 @@ const SearchBy = lazy(() => import('./SearchBy'));
 const SearchSubBy = lazy(() => import('./SearchSubBy'));
 import {useIsFocused} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const InputList = ({navigation}) => {
   //GQR-67
   const {
@@ -134,117 +135,122 @@ const InputList = ({navigation}) => {
     navigation.navigate('Dashboard');
   };
   return (
-    <View style={{flex: 1}}>
-      <CustomHeader
-        path="Dashboard"
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <View style={styles.container}>
-        <FormsTitle title={t('products')} />
-        <View style={styles.searchByCategoryContainer}>
-          <View style={styles.searchByCategoryItem}>
-            <SearchBy
-              label={t('search_by_category')}
-              data={inputCategory}
-              onChange={item => handleCategory(item)}
-              val={category}
-            />
-          </View>
-          <View style={styles.searchByCategoryItem}>
-            <SearchSubBy
-              label={t('search_by_sub_category')}
-              data={inputSubCategory}
-              onChange={item => handleSubCategory(item)}
-              val={subCategory}
-            />
-          </View>
-        </View>
-        <ModalCompProduct
-          setModalVisible={setModalVisible}
-          modalVisible={modalVisible}
-          inputSigle={inputSingle}
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-          }}
+    <FarmerDrawerScreenWrapper1>
+      <View style={{flex: 1}}>
+        <CustomHeader
+          path="Dashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
         />
-        {isLoading && (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
+        <View style={styles.container}>
+          {/* <FormsTitle title={t('products')} /> */}
+          <View style={styles.searchByCategoryContainer}>
+            <View style={styles.searchByCategoryItem}>
+              <SearchBy
+                label={t('search_by_category')}
+                data={inputCategory}
+                onChange={item => handleCategory(item)}
+                val={category}
+              />
+            </View>
+            <View style={styles.searchByCategoryItem}>
+              <SearchSubBy
+                label={t('search_by_sub_category')}
+                data={inputSubCategory}
+                onChange={item => handleSubCategory(item)}
+                val={subCategory}
+              />
+            </View>
           </View>
-        )}
-        <FlatList
-          data={inputListAll}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              onPress={() => navigateToPages(index)}
-              key={index}>
-              <View style={styles.flatlistContainer}>
-                <View style={styles.flatlistItem}>
-                  {item.agri_files && item.agri_files.length > 0 ? (
-                    <Image
-                      source={{uri: item.agri_files[0].file_path}}
-                      style={{width: 100, height: 100, resizeMode: 'contain'}}
-                    />
-                  ) : (
-                    <Image
-                      source={require('../../Common/images/logo.png')}
-                      style={{width: 100, height: 100, resizeMode: 'contain'}}
-                    />
-                  )}
-                  <View
-                    style={{
-                      justifyContent: 'flex-end',
-                      paddingHorizontal: 10,
-                      width: '100%',
-                    }}>
-                    <Text
-                      style={[
-                        styles.title,
-                        {fontFamily: 'Poppins-SemiBold', color: '#013715'},
-                      ]}>
-                      {item.product_name}
-                    </Text>
-                    <Text style={styles.title}>
-                      {item.productCategories[0].productCategory.name}
-                    </Text>
-                    <Text style={styles.title}>{item.product_code}</Text>
-                    <Text style={styles.title}>
-                      {item.description.length < 70
-                        ? item.description.substring(0, 70)
-                        : item.description.substring(0, 70) + '...'}
-                    </Text>
-                    <View style={{width: 220, paddingLeft: 10}}>
-                      <ProductOptionDropDown
-                        rate={item.agri_product_prices}
-                        onChange={item => console.log(item.value && item.value)}
-                        key={index}
-                        currency={currency}
+          <ModalCompProduct
+            setModalVisible={setModalVisible}
+            modalVisible={modalVisible}
+            inputSigle={inputSingle}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+          />
+          {isLoading && (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          )}
+          <FlatList
+            data={inputListAll}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item, index}) => (
+              <TouchableOpacity
+                onPress={() => navigateToPages(index)}
+                key={index}>
+                <View style={styles.flatlistContainer}>
+                  <View style={styles.flatlistItem}>
+                    {item.agri_files && item.agri_files.length > 0 ? (
+                      <Image
+                        source={{uri: item.agri_files[0].file_path}}
+                        style={{width: 100, height: 100, resizeMode: 'contain'}}
                       />
+                    ) : (
+                      <Image
+                        source={require('../../Common/images/logo.png')}
+                        style={{width: 100, height: 100, resizeMode: 'contain'}}
+                      />
+                    )}
+                    <View
+                      style={{
+                        justifyContent: 'flex-end',
+                        paddingHorizontal: 10,
+                        width: '100%',
+                      }}>
+                      <Text
+                        style={[
+                          styles.title,
+                          {fontFamily: 'Poppins-SemiBold', color: '#013715'},
+                        ]}>
+                        {item.product_name}
+                      </Text>
+                      <Text style={styles.title}>
+                        {item.productCategories[0].productCategory.name}
+                      </Text>
+                      <Text style={styles.title}>{item.product_code}</Text>
+                      <Text style={styles.title}>
+                        {item.description.length < 70
+                          ? item.description.substring(0, 70)
+                          : item.description.substring(0, 70) + '...'}
+                      </Text>
+                      <View style={{width: 220, paddingLeft: 10}}>
+                        <ProductOptionDropDown
+                          rate={item.agri_product_prices}
+                          onChange={item =>
+                            console.log(item.value && item.value)
+                          }
+                          key={index}
+                          currency={currency}
+                        />
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item, index) => index}
-        />
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index}
+          />
 
-        <View style={styles.viewPastBtn}>
-          <TouchableOpacity onPress={() => navigation.navigate('PastEnquiry')}>
-            <Text style={styles.viewPastBtnText}>
-              {t('view_input_requested')}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.viewPastBtn}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('PastEnquiry')}>
+              <Text style={styles.viewPastBtnText}>
+                {t('view_input_requested')}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
