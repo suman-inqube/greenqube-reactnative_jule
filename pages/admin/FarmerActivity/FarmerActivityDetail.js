@@ -22,6 +22,9 @@ import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {PipeListDetails} from '../../../config/apiHere';
 import {formatDateToDateName} from '../../Common/DateChanger';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors, Fonts} from '../../utils/Constants';
+
 const FarmerActivityDetail = () => {
   const route = useRoute();
   const {
@@ -150,331 +153,371 @@ const FarmerActivityDetail = () => {
     });
   };
   return (
-    <Root>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <View style={styles.container}>
-          <CustomHeader
-            path="FarmerActivityList"
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          <View style={styles.titleContainer}>
-            <Text
-              style={[
-                styles.title,
-                {
-                  paddingBottom: 8,
-                  paddingTop: 4,
-                  fontWeight: '700',
-                  fontSize: 18,
-                },
-              ]}>
-              {t('act_detail_')}
-            </Text>
-          </View>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled={true}>
-            {farmerActivity ? (
-              <View style={styles.fromContainer}>
-                {farmerActivity?.cropActivity != null ? (
-                  <>
-                    <InputTextForm
-                      label={t('activity_type')}
-                      value={farmerActivity?.typeActivity?.categoryName}
-                      editable={false}
-                    />
-                    <InputTextForm
-                      label={t('act_name')}
-                      // value={
-                      //   farmerActivity?.cropActivity &&
-                      //   farmerActivity?.cropActivity?.activity?.categoryName
-                      // }
-                      value={`${
-                        farmerActivity?.cropActivity?.activity?.categoryName
-                      } ${formatDateToDateName(
-                        farmerActivity?.act_start_date,
-                      )} - ${formatDateToDateName(
-                        farmerActivity?.act_to_date,
-                      )}`}
-                      editable={false}
-                    />
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        {isLoading ? (
+          <LoadingScreen />
+        ) : (
+          <View style={styles.container}>
+            <CustomHeader
+              path="FarmerActivityList"
+              HandlerGoBack={HandlerGoBack}
+              logoImage={logoImage}
+              topBanner={topBanner}
+            />
 
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        width: '100%',
-                        borderWidth: 0.5,
-                        borderRadius: 5,
-                        padding: 10,
-                        backgroundColor: '#FFF',
-                        // marginVertical: 12,
-                        // alignItems: 'center',
-                        // justifyContent: 'center'
-                      }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}>
+              {farmerActivity ? (
+                <View style={styles.fromContainer}>
+                  {farmerActivity?.cropActivity != null ? (
+                    <View style={styles.inputContainer}>
+                      <InputTextForm
+                        label={t('activity_type')}
+                        value={farmerActivity?.typeActivity?.categoryName}
+                        editable={false}
+                      />
+                      <InputTextForm
+                        label={t('act_name')}
+                        // value={
+                        //   farmerActivity?.cropActivity &&
+                        //   farmerActivity?.cropActivity?.activity?.categoryName
+                        // }
+                        value={`${
+                          farmerActivity?.cropActivity?.activity?.categoryName
+                        } ${formatDateToDateName(
+                          farmerActivity?.act_start_date,
+                        )} - ${formatDateToDateName(
+                          farmerActivity?.act_to_date,
+                        )}`}
+                        editable={false}
+                      />
+
                       <View
                         style={{
-                          width: '25%',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                        }}>
-                        <Text style={[styles.title, {fontWeight: 'bold'}]}>
-                          {t('activity_description1')}
-                        </Text>
-                        <Text style={[styles.title, {fontWeight: 'bold'}]}>
-                          {t('activity_date')}
-                        </Text>
-                      </View>
-                      <View
-                        style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: '#f2faffff',
+
+                          marginVertical: 8,
+                          borderRadius: 20,
+                          borderLeftWidth: 5,
+                          borderLeftColor: Colors.borderGreen,
+                          // flexDirection: 'row',
                           // alignItems: 'center',
-                          flexWrap: 'wrap',
-                          width: '45%',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          marginLeft: 10,
+                          // marginBottom: 8,
+                          // paddingHorizontal: 15,
+                          marginHorizontal: '2.5%',
+                          marginBottom: 10,
+                          shadowColor: '#000',
+                          shadowOffset: {width: 0, height: 4},
+                          shadowOpacity: 0.1,
+                          shadowRadius: 8,
+                          // elevation: 4,
+                          borderRightWidth: 1,
+                          borderTopWidth: 1,
+                          borderBottomWidth: 1,
+                          borderRightColor: Colors.border,
+                          borderTopColor: Colors.border,
+                          borderBottomColor: Colors.border,
                         }}>
-                        <Text style={[styles.title, {width: 150}]}>
-                          {farmerActivity?.cropActivity &&
-                            farmerActivity?.cropActivity?.activity?.description?.substring(
-                              0,
-                              100,
-                            )}
-                        </Text>
-                        {/* <Text style={[styles.title]}>
-                            {farmerActivity?.act_start_date}
-                          </Text> */}
-                        <View style={[styles.title, {flexDirection: 'column'}]}>
-                          <Text style={{color: '#000'}}>
+                        <Image
+                          source={require('../../Common/images/logo.png')}
+                          style={{
+                            width: 100,
+                            height: 80,
+                            resizeMode: 'contain',
+                          }}
+                        />
+                        <View style={styles.detailRow}>
+                          <Text style={[styles.label]}>
+                            {t('activity_description1')}
+                          </Text>
+                          <Text style={[styles.value]}>
+                            {farmerActivity?.cropActivity &&
+                              farmerActivity?.cropActivity?.activity?.description?.substring(
+                                0,
+                                100,
+                              )}
+                          </Text>
+                        </View>
+                        <View style={styles.detailRow}>
+                          <Text style={[styles.label]}>
+                            {t('activity_date')}
+                          </Text>
+                          <Text style={[styles.value]}>
                             {formatDateToDateName(
                               farmerActivity?.act_start_date,
                             )}
-                          </Text>
-                          <Text style={{color: '#000'}}>
-                            -{formatDateToDateName(farmerActivity?.act_to_date)}
+                            {'    -    '}
+                            <Text style={[styles.value]}>
+                              {formatDateToDateName(
+                                farmerActivity?.act_to_date,
+                              )}
+                            </Text>
                           </Text>
                         </View>
-                      </View>
-                      <Image
-                        source={require('../../Common/images/logo.png')}
-                        style={{
-                          width: 100,
-                          height: 80,
-                          resizeMode: 'contain',
-                        }}
-                      />
-                    </View>
-                  </>
-                ) : (
-                  ''
-                )}
-
-                <InputTextForm
-                  label={t('reg_plot_name')}
-                  value={
-                    farmerActivity?.land_info &&
-                    farmerActivity?.land_info.plot_no
-                  }
-                  editable={false}
-                />
-
-                <InputTextForm
-                  label={t('produce_name')}
-                  value={
-                    farmerActivity?.cropName && farmerActivity?.cropName?.name
-                  }
-                  editable={false}
-                />
-
-                <InputTextForm
-                  label={t('growth_stage')}
-                  value={
-                    farmerActivity?.growthStage &&
-                    farmerActivity?.growthStage?.name
-                  }
-                  editable={false}
-                />
-
-                <InputTextForm
-                  label={t('act_per_date')}
-                  value={farmerActivity?.act_perform_date}
-                  editable={false}
-                />
-                {carbonActivity.length != 0 && (
-                  <FlatList
-                    scrollEnabled={false}
-                    data={carbonActivity}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={_item => {
-                      return (
                         <View
                           style={{
-                            backgroundColor: '#FFF',
-                            elevation: 3,
-                            padding: 10,
-                            margin: 2,
-                            marginVertical: 10,
-                            borderRadius: 10,
+                            // alignItems: 'center',
+                            flexWrap: 'wrap',
+                            width: '45%',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            marginLeft: 10,
                           }}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              marginBottom: 7,
-                            }}>
-                            <Text style={[styles.title, {paddingVertical: 0}]}>
-                              Instrument Name :
-                            </Text>
-                            <Text
-                              style={[
-                                styles.title,
-                                {
-                                  marginLeft: 10,
-                                  paddingVertical: 0,
-                                },
-                              ]}>
-                              {_item.item?.pipe_name}
-                            </Text>
-                          </View>
-                          <View>
-                            {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
-                            {_item.item?.pipeFiles.length != 0 && (
+                          {/* <Text style={[styles.title, {width: 150}]}>
+                            {farmerActivity?.cropActivity &&
+                              farmerActivity?.cropActivity?.activity?.description?.substring(
+                                0,
+                                100,
+                              )}
+                          </Text> */}
+                          {/* <Text style={[styles.title]}>
+                            {farmerActivity?.act_start_date}
+                          </Text> */}
+                          {/* <View
+                            style={[
+                              styles.title,
+                              {flexDirection: 'column'},
+                            ]}></View> */}
+                        </View>
+                      </View>
+                    </View>
+                  ) : (
+                    ''
+                  )}
+                  <View style={styles.inputContainer}>
+                    <InputTextForm
+                      label={t('reg_plot_name')}
+                      value={
+                        farmerActivity?.land_info &&
+                        farmerActivity?.land_info.plot_no
+                      }
+                      editable={false}
+                    />
+
+                    <InputTextForm
+                      label={t('produce_name')}
+                      value={
+                        farmerActivity?.cropName &&
+                        farmerActivity?.cropName?.name
+                      }
+                      editable={false}
+                    />
+
+                    <InputTextForm
+                      label={t('growth_stage')}
+                      value={
+                        farmerActivity?.growthStage &&
+                        farmerActivity?.growthStage?.name
+                      }
+                      editable={false}
+                    />
+
+                    <InputTextForm
+                      label={t('act_per_date')}
+                      value={farmerActivity?.act_perform_date}
+                      editable={false}
+                    />
+                    {carbonActivity.length != 0 && (
+                      <FlatList
+                        scrollEnabled={false}
+                        data={carbonActivity}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={_item => {
+                          return (
+                            <View
+                              style={{
+                                backgroundColor: '#e3f4ffcf',
+                                // elevation: 3,
+                                padding: 10,
+                                margin: 2,
+                                marginVertical: 10,
+                                borderRadius: 8,
+                                borderWidth: 1,
+                                borderColor: Colors.border,
+                              }}>
                               <View
                                 style={{
                                   flexDirection: 'row',
-                                  gap: 20,
+                                  marginBottom: 7,
                                 }}>
-                                {_item.item?.pipeFiles?.[0]?.file_path !=
-                                  undefined && (
-                                  <Image
-                                    source={{
-                                      uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
-                                    }}
+                                <Text
+                                  style={[styles.label, {paddingVertical: 0}]}>
+                                  Instrument Name :
+                                </Text>
+                                <Text
+                                  style={[
+                                    styles.value,
+                                    {
+                                      marginLeft: 10,
+                                      paddingVertical: 0,
+                                    },
+                                  ]}>
+                                  {_item.item?.pipe_name}
+                                </Text>
+                              </View>
+                              <View>
+                                {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
+                                {_item.item?.pipeFiles.length != 0 && (
+                                  <View
                                     style={{
-                                      width: 70,
-                                      height: 80,
-                                      borderRadius: 5,
-                                    }}
-                                    resizeMode="contain"
-                                  />
-                                )}
-                                {_item.item.pipeFiles?.[1]?.file_path !=
-                                  undefined && (
-                                  <Image
-                                    source={{
-                                      uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
-                                    }}
-                                    style={{
-                                      width: 70,
-                                      height: 80,
-                                      borderRadius: 5,
-                                    }}
-                                    resizeMode="contain"
-                                  />
+                                      flexDirection: 'row',
+                                      gap: 20,
+                                    }}>
+                                    {_item.item?.pipeFiles?.[0]?.file_path !=
+                                      undefined && (
+                                      <View style={styles.imageContainer}>
+                                        <Image
+                                          source={{
+                                            uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
+                                          }}
+                                          style={{
+                                            width: 70,
+                                            height: 80,
+                                            borderRadius: 8,
+                                          }}
+                                          resizeMode="contain"
+                                        />
+                                      </View>
+                                    )}
+                                    {_item.item.pipeFiles?.[1]?.file_path !=
+                                      undefined && (
+                                      <View style={styles.imageContainer}>
+                                        <Image
+                                          source={{
+                                            uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                          }}
+                                          style={{
+                                            width: 70,
+                                            height: 80,
+                                            borderRadius: 8,
+                                          }}
+                                          resizeMode="contain"
+                                        />
+                                      </View>
+                                    )}
+                                  </View>
                                 )}
                               </View>
-                            )}
-                          </View>
-                        </View>
-                      );
-                    }}
-                  />
-                )}
-                <InputTextForm
-                  label={t('your_comm_')}
-                  value={farmerActivity?.act_desc}
-                  editable={false}
-                />
-                <InputTextForm
-                  label={t('material_used')}
-                  value={farmerActivity?.material_used}
-                  editable={false}
-                />
-                <InputTextForm
-                  label={t('water_used')}
-                  value={farmerActivity?.water_used}
-                  editable={false}
-                />
-                <InputTextForm
-                  label={t('power_used')}
-                  value={farmerActivity?.power_used}
-                  editable={false}
-                />
-
-                {carbonActivity.length == 0 && (
-                  <>
-                    <TakePhoto
-                      openImagePicker={openImagePicker}
-                      selectedImage={selectedImage}
-                      title={t('view_phote')}
+                            </View>
+                          );
+                        }}
+                      />
+                    )}
+                    <InputTextForm
+                      label={t('your_comm_')}
+                      value={farmerActivity?.act_desc}
+                      editable={false}
                     />
+                    <InputTextForm
+                      label={t('material_used')}
+                      value={farmerActivity?.material_used}
+                      editable={false}
+                    />
+                    <InputTextForm
+                      label={t('water_used')}
+                      value={farmerActivity?.water_used}
+                      editable={false}
+                    />
+                    <InputTextForm
+                      label={t('power_used')}
+                      value={farmerActivity?.power_used}
+                      editable={false}
+                    />
+                  </View>
+                  {carbonActivity.length == 0 && (
                     <View style={{marginHorizontal: 20}}>
-                      <Text style={styles.title}>
-                        {t('listen_to_the_problem')}
-                      </Text>
-                      <View style={styles.photoContainer}>
-                        {selectedRecord.firstItemRecord != '' ? (
-                          <TouchableOpacity
-                            onPress={() =>
-                              soundPlay(selectedRecord.firstItemRecord)
-                            }>
+                      <TakePhoto
+                        openImagePicker={openImagePicker}
+                        selectedImage={selectedImage}
+                        title={t('view_phote')}
+                      />
+                      <View style={{}}>
+                        <Text style={styles.label}>
+                          {t('listen_to_the_problem')}
+                        </Text>
+                        <View style={styles.photoContainer}>
+                          {selectedRecord.firstItemRecord != '' ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                soundPlay(selectedRecord.firstItemRecord)
+                              }>
+                              <Image
+                                source={require('../../Common/images/play.png')}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  tintColor: '#3a9015ff',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          ) : (
                             <Image
-                              source={require('../../Common/images/play.png')}
-                              style={{width: 70, height: 70}}
+                              source={require('../../Common/images/microphone.png')}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                opacity: 0.7,
+                                tintColor: '#6e6e6e99',
+                              }}
                             />
-                          </TouchableOpacity>
-                        ) : (
-                          <Image
-                            source={require('../../Common/images/microphone.png')}
-                            style={{width: 70, height: 70, opacity: 0.7}}
-                          />
-                        )}
-                        {selectedRecord.secondItemRecord != '' ? (
-                          <TouchableOpacity
-                            onPress={() =>
-                              soundPlay(selectedRecord.secondItemRecord)
-                            }>
+                          )}
+                          {selectedRecord.secondItemRecord != '' ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                soundPlay(selectedRecord.secondItemRecord)
+                              }>
+                              <Image
+                                source={require('../../Common/images/play.png')}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  tintColor: '#3a9015ff',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          ) : (
                             <Image
-                              source={require('../../Common/images/play.png')}
-                              style={{width: 70, height: 70}}
+                              source={require('../../Common/images/microphone.png')}
+                              style={{width: 40, height: 40, opacity: 0.7}}
                             />
-                          </TouchableOpacity>
-                        ) : (
-                          <Image
-                            source={require('../../Common/images/microphone.png')}
-                            style={{width: 70, height: 70, opacity: 0.7}}
-                          />
-                        )}
-                        {selectedRecord.thirdItemRecord != '' ? (
-                          <TouchableOpacity
-                            onPress={() =>
-                              soundPlay(selectedRecord.thirdItemRecord)
-                            }>
+                          )}
+                          {selectedRecord.thirdItemRecord != '' ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                soundPlay(selectedRecord.thirdItemRecord)
+                              }>
+                              <Image
+                                source={require('../../Common/images/play.png')}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  tintColor: '#3a9015ff',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          ) : (
                             <Image
-                              source={require('../../Common/images/play.png')}
-                              style={{width: 70, height: 70}}
+                              source={require('../../Common/images/microphone.png')}
+                              style={{width: 40, height: 40, opacity: 0.7}}
                             />
-                          </TouchableOpacity>
-                        ) : (
-                          <Image
-                            source={require('../../Common/images/microphone.png')}
-                            style={{width: 70, height: 70, opacity: 0.7}}
-                          />
-                        )}
+                          )}
+                        </View>
                       </View>
                     </View>
-                  </>
-                )}
-              </View>
-            ) : (
-              ''
-            )}
-          </ScrollView>
-        </View>
-      )}
-    </Root>
+                  )}
+                </View>
+              ) : (
+                ''
+              )}
+            </ScrollView>
+          </View>
+        )}
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -483,7 +526,7 @@ export default FarmerActivityDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: Colors.background_light,
   },
   titleContainer: {
     width: '95%',
@@ -497,13 +540,70 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   fromContainer: {
-    width: '90%',
-    marginHorizontal: '5%',
+    marginTop: 50,
+
+    marginHorizontal: '4%',
+    borderWidth: 1,
+    // paddingTop: 10,
+    // marginBottom: 30,
+
+    backgroundColor: 'white',
+    // padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    // elevation:1,
+    marginVertical: 10,
+    marginHorizontal: '4%',
   },
   photoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: '#e3f4ffcf',
+    // elevation: 3,
+    padding: 10,
+    margin: 2,
+    // marginVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 15,
+  },
+  inputContainer: {marginTop: '5%', marginHorizontal: 15},
+  detailRow: {
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    // paddingHorizontal: 10,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 10,
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 10,
+  },
+  label: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+    marginBottom: 5,
+  },
+  value: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+  },
+  imageContainer: {
+    backgroundColor: 'white',
+    padding: 5, // Adjust padding as needed
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // For Android shadow
   },
 });

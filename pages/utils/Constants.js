@@ -21,7 +21,8 @@ export const Colors = {
   completed: '#3B82F6',
   pending: '#F59E0B',
   green:'#003c04',
-  black:'#000000'
+  black:'#000000',
+  lightGreen:'#a4d69f'
 };
 export const Fonts = {
   Regular: 'Poppins-Regular',

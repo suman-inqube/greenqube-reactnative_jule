@@ -329,10 +329,10 @@ const FarmIncomeExpenseList = ({navigation}) => {
                 onPress={() => navigateToPages('FarmIncomeExpenseView', index)}>
                 <View style={styles.cardHeader}>
                   <View style={styles.marqueeContainer}>
-                    <Text style={styles.cardTitleRe}>
+                    <Text style={styles.cardTitle}>
                       {t('name')} :{' '}
                       <Text
-                        style={styles.cardTitle}
+                        style={styles.cardTitleRe}
                         numberOfLines={1}
                         ellipsizeMode="tail">
                         {item.agri_user && item.agri_user.userName}
@@ -340,9 +340,6 @@ const FarmIncomeExpenseList = ({navigation}) => {
                     </Text>
                   </View>
                   <View style={styles.cardFooter}>
-                    <Text style={styles.viewDetailsText}>
-                      {t('view_details')}
-                    </Text>
                     <MaterialIcons
                       name="chevron-right"
                       size={20}
@@ -350,70 +347,73 @@ const FarmIncomeExpenseList = ({navigation}) => {
                     />
                   </View>
                 </View>
-                <View style={styles.activityListContainer}>
-                  <View style={styles.activityListItem}>
-                    <Text style={styles.titleRe}>
-                      {t('addcrop_plot')} :{'                   '}
-                      <Text
-                        style={styles.title}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {item.land_info && item.land_info.plot_no}
-                      </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('showing_date')} :{'            '}
-                      <Text style={styles.title}>
-                        {formatDateToDateName(item.sowing_date)}
-                      </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('total_income_sum') + '(' + currency + ')'}:
-                      {'               '}
-                      <Text
-                        style={styles.title}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {<ShowIncome income={item.income_expense} />}
-                      </Text>
-                    </Text>
 
-                    <Text style={styles.titleRe}>
-                      {t('farmer_number')} :{'      '}
-                      <Text
-                        style={styles.title}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {item.agri_user && item.agri_user.contactNumber}
-                      </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('knowyourplot_cropinfo_cropname').substring(0, 13)} :
-                      {'     '}
-                      <Text
-                        style={styles.title}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {item.crop_name && item.crop_name.name}
-                      </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('harvesting_date_auto_calculated')} :{'             '}
-                      <Text
-                        style={styles.title}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {formatDateToDateName(item.harvesting_date)}
-                      </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('total_exp_sum') + '(' + currency + ')'}:
-                      {'             '}
-                      <Text style={styles.title}>
-                        {<ShowExpense expense={item.income_expense} />}
-                      </Text>
-                    </Text>
-                  </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>{t('addcrop_plot')} :</Text>
+                  <Text
+                    style={styles.value}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {item.land_info && item.land_info.plot_no}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>{t('showing_date')} :</Text>
+                  <Text style={styles.value}>
+                    {formatDateToDateName(item.sowing_date)}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>
+                    {t('total_income_sum') + '(' + currency + ')'}:
+                  </Text>
+                  <Text
+                    style={styles.value}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {<ShowIncome income={item.income_expense} />}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>{t('farmer_number')} : </Text>
+                  <Text
+                    style={styles.value}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {item.agri_user && item.agri_user.contactNumber}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>
+                    {t('knowyourplot_cropinfo_cropname').substring(0, 13)} :
+                  </Text>
+                  <Text
+                    style={styles.value}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {item.crop_name && item.crop_name.name}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>
+                    {t('harvesting_date_auto_calculated')} :{' '}
+                  </Text>
+                  <Text
+                    style={styles.value}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {formatDateToDateName(item.harvesting_date)}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>
+                    {t('total_exp_sum') + '(' + currency + ')'}:
+                  </Text>
+                  <Text style={styles.value}>
+                    {<ShowExpense expense={item.income_expense} />}
+                  </Text>
                 </View>
               </TouchableOpacity>
             )}
@@ -498,14 +498,30 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   wrapper: {
-    width: '90%',
-    marginHorizontal: '5%',
     backgroundColor: 'white',
-    elevation: 5,
-    marginVertical: 10,
+
+    marginVertical: 8,
     borderRadius: 20,
     borderLeftWidth: 5,
-    borderColor: Colors.borderGreen,
+    borderLeftColor: Colors.borderGreen,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    paddingHorizontal: 15,
+    marginHorizontal: '4%',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
+    // padding: 10,
     // padding: 10,
   },
   cardHeader: {
@@ -533,7 +549,7 @@ const styles = StyleSheet.create({
   },
   marqueeContainer: {
     flex: 1,
-    marginLeft: 10,
+    // marginLeft: 10,
     marginRight: 10,
     overflow: 'hidden',
     marginTop: 10,
@@ -655,6 +671,26 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     justifyContent: 'center',
     paddingHorizontal: 20,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 10,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+  },
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+
+    textAlign: 'right',
   },
 
   ///////////////////////////////////////////////////

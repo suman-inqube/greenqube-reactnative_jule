@@ -301,17 +301,14 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
                   <View style={styles.flatListItem}>
                     <View style={styles.cardHeader}>
                       <View style={styles.marqueeContainer}>
-                        <Text style={styles.cardTitleRe}>
+                        <Text style={styles.cardTitle}>
                           {t('loan_amt') + `(${currency})`}: {'  '}
-                          <Text style={styles.cardTitle}>
+                          <Text style={styles.cardTitleRe}>
                             {item.loan_amount}
                           </Text>
                         </Text>
                       </View>
                       <View style={styles.cardFooter}>
-                        <Text style={styles.viewDetailsText}>
-                          {t('view_details')}
-                        </Text>
                         <MaterialIcons
                           name="chevron-right"
                           size={20}
@@ -323,46 +320,57 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
                         {t('name')}:{item.agri_user.userName}
                       </Text> */}
 
-                    <Text style={styles.titleRe}>
-                      {t('sta_')} : {'     '}
-                      <Text style={styles.titlePen}>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('sta_')}:</Text>
+                      <Text
+                        style={[
+                          styles.value,
+                          item.status == 1 && styles.pending,
+                          item.status == 2 && styles.approved,
+                          item.status == 3 && styles.rejected,
+                        ]}>
                         {item.status == 1 && t('pending')}
-                      </Text>
-                      <Text style={styles.titleApp}>
                         {item.status == 2 && t('Approved')}
+                        {item.status == 3 && t('Rejected')}
                       </Text>
-                      <Text style={styles.titleRej}>
-                        {item.status == 3 && t('Rejected')}{' '}
-                      </Text>
-                    </Text>
+                    </View>
                     {item?.loan_sanctioned && (
-                      <Text style={styles.titleRe}>
-                        {t('LoanSanctioned') + `(${currency})`}: {'   '}
-                        <Text style={styles.title}>{item.loan_sanctioned}</Text>
-                      </Text>
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>
+                          {t('LoanSanctioned') + `(${currency})`}:
+                        </Text>
+                        <Text style={styles.value}>{item.loan_sanctioned}</Text>
+                      </View>
                     )}
-                    <Text style={styles.titleRe}>
-                      {t('number_caps')}: {'   '}
-                      <Text style={styles.title}>
+
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('number_caps')}:</Text>
+                      <Text style={styles.value}>
                         {item.agri_user.contactNumber}
                       </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('date')}:{'         '}
-                      <Text style={styles.title}>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('date')}:</Text>
+                      <Text style={styles.value}>
                         {date.toString().substring(4, 15)}
                       </Text>
-                    </Text>
+                    </View>
+
                     {item?.sanctioned_date && (
-                      <Text style={styles.title}>
-                        {t('SanctionedDate')}:
-                        {'\n' + sanctioned_date.toString().substring(3, 15)}
-                      </Text>
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>{t('SanctionedDate')}:</Text>
+                        <Text style={styles.value}>
+                          {sanctioned_date.toString().substring(3, 15)}
+                        </Text>
+                      </View>
                     )}
+
                     {item?.loan_ord_id && (
-                      <Text style={styles.title}>
-                        {t('LoanOrderID')}:{item.loan_ord_id}
-                      </Text>
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>{t('LoanOrderID')}:</Text>
+                        <Text style={styles.value}>{item.loan_ord_id}</Text>
+                      </View>
                     )}
                   </View>
                 </TouchableOpacity>
@@ -408,6 +416,18 @@ const styles = StyleSheet.create({
     // marginBottom: 8,
     paddingHorizontal: 15,
     marginHorizontal: '2.5%',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -428,15 +448,15 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     // fontWeight: '600',
-    color: '#D10000',
+    color: Colors.useGreen,
     // marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
   },
   cardTitleRe: {
     fontSize: 14,
     // fontWeight: '600',
-    color: Colors.useGreen,
     // marginLeft: 5,
+    color: '#D10000',
     fontFamily: 'Poppins-Regular',
   },
 
@@ -521,5 +541,38 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
     paddingBottom: 5,
+  },
+
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 10,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    flex: 1,
+  },
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
+    textAlign: 'right',
+  },
+  pending: {
+    color: '#a66607ff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  approved: {
+    color: '#236432ff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  rejected: {
+    color: '#b83535ff',
+    fontFamily: 'Poppins-SemiBold',
   },
 });

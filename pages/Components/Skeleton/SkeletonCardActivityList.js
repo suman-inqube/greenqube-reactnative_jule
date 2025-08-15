@@ -15,7 +15,6 @@ const SkeletonCardActivityList = () => {
       }}
       style={styles.card}
     >
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.circle} />
         <View style={styles.headerTextContainer}>
@@ -25,12 +24,10 @@ const SkeletonCardActivityList = () => {
         <View style={styles.badge} />
       </View>
 
-      {/* Info rows */}
       <View style={styles.lineFull} />
       <View style={styles.lineFull} />
       <View style={styles.lineShort} />
 
-      {/* Footer */}
       <View style={styles.footer}>
         <View style={styles.lineTiny} />
         <View style={styles.lineTiny} />

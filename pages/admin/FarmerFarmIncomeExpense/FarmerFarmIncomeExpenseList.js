@@ -313,9 +313,6 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                         </Text>
                       </View>
                       <View style={styles.cardFooter}>
-                        <Text style={styles.viewDetailsText}>
-                          {t('view_details')}
-                        </Text>
                         <MaterialIcons
                           name="chevron-right"
                           size={20}
@@ -323,52 +320,53 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                         />
                       </View>
                     </View>
-                    <View style={styles.activityListContainer}>
-                      <View style={styles.activityListItem}>
-                        <Text style={styles.title}>
-                          {t('showing_date')} :{'                      '}
-                          <Text
-                            style={styles.titleRe}
-                            numberOfLines={1}
-                            ellipsizeMode="tail">
-                            {formatDateToDateName(item.sowing_date)}
-                          </Text>
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('total_income_sum') + '(' + currency + ')'} :
-                          {'                         '}
-                          <Text style={styles.titleRe}>
-                            {<ShowIncome income={item.income_expense} />}
-                          </Text>
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('knowyourplot_cropinfo_cropname')} :{'   '}
-                          <Text
-                            style={styles.titleRe}
-                            numberOfLines={1}
-                            ellipsizeMode="tail">
-                            {item.crop_name && item.crop_name.name}
-                          </Text>
-                        </Text>
 
-                        <Text style={styles.title}>
-                          {t('harvesting_date_auto_calculated')} :
-                          {'                         '}
-                          <Text
-                            style={styles.titleRe}
-                            numberOfLines={1}
-                            ellipsizeMode="tail">
-                            {formatDateToDateName(item.harvesting_date)}
-                          </Text>
-                        </Text>
-                        <Text style={styles.title}>
-                          {t('total_exp_sum') + '(' + currency + ')'} :
-                          {'                        '}
-                          <Text style={styles.titleRe}>
-                            {<ShowExpense expense={item.income_expense} />}
-                          </Text>
-                        </Text>
-                      </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('showing_date')} : </Text>
+                      <Text
+                        style={styles.value}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {formatDateToDateName(item.sowing_date)}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>
+                        {t('total_income_sum') + '(' + currency + ')'} :
+                      </Text>
+                      <Text style={styles.value}>
+                        {<ShowIncome income={item.income_expense} />}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>
+                        {t('knowyourplot_cropinfo_cropname')} :
+                      </Text>
+                      <Text
+                        style={styles.value}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {item.crop_name && item.crop_name.name}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>
+                        {t('harvesting_date_auto_calculated')} :
+                      </Text>
+                      <Text
+                        style={styles.value}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {formatDateToDateName(item.harvesting_date)}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>
+                        {t('total_exp_sum') + '(' + currency + ')'} :
+                      </Text>
+                      <Text style={styles.value}>
+                        {<ShowExpense expense={item.income_expense} />}
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 )}
@@ -474,14 +472,29 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   wrapper: {
-    width: '90%',
-    marginHorizontal: '5%',
     backgroundColor: 'white',
-    elevation: 5,
-    marginVertical: 10,
+
+    marginVertical: 8,
     borderRadius: 20,
     borderLeftWidth: 5,
-    borderColor: Colors.borderGreen,
+    borderLeftColor: Colors.borderGreen,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    paddingHorizontal: 15,
+    marginHorizontal: '4%',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
     // padding: 10,
   },
   cardHeader: {
@@ -491,7 +504,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     paddingBottom: 5,
-    marginLeft: 15,
+    marginLeft: 5,
   },
   cardTitle: {
     fontSize: 14,
@@ -631,5 +644,25 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     justifyContent: 'center',
     paddingHorizontal: 20,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 10,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+  },
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+
+    textAlign: 'right',
   },
 });

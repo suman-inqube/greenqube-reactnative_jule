@@ -347,17 +347,14 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
                     <View style={styles.flatListItem}>
                       <View style={styles.cardHeader}>
                         <View style={styles.marqueeContainer}>
-                          <Text style={styles.cardTitleRe}>
+                          <Text style={styles.cardTitle}>
                             {t('name')}:{' '}
-                            <Text style={styles.cardTitle}>
+                            <Text style={styles.cardTitleRe}>
                               {item.agri_user.userName}
                             </Text>
                           </Text>
                         </View>
                         <View style={styles.cardFooter}>
-                          <Text style={styles.viewDetailsText}>
-                            {t('view_details')}
-                          </Text>
                           <MaterialIcons
                             name="chevron-right"
                             size={20}
@@ -365,58 +362,69 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
                           />
                         </View>
                       </View>
-                      <Text style={styles.titleRe}>
-                        {t('loan_amt') + `(${currency})`}:{'                '}
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>
+                          {t('loan_amt') + `(${currency})`}:
+                        </Text>
                         <Text style={styles.titleLone}>{item.loan_amount}</Text>
-                      </Text>
-                      <Text style={styles.titleRe}>
-                        {t('sta_')}:{'                           '}
-                        <Text style={styles.titlePen}>
+                      </View>
+
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>{t('sta_')}:</Text>
+                        <Text
+                          style={[
+                            styles.value,
+                            item.status == 1 && styles.pending,
+                            item.status == 2 && styles.approved,
+                            item.status == 3 && styles.rejected,
+                          ]}>
                           {item.status == 1 && t('pending')}
-                        </Text>
-                        <Text style={styles.titleApp}>
                           {item.status == 2 && t('Approved')}
-                        </Text>
-                        <Text style={styles.titleRej}>
                           {item.status == 3 && t('Rejected')}
                         </Text>
-                      </Text>
+                      </View>
+
                       {item?.loan_sanctioned && (
-                        <Text style={styles.titleRe}>
-                          {t('LoanSanctioned') + `(${currency})`}:{'   '}
-                          <Text style={styles.title}>
+                        <View style={styles.detailRow}>
+                          <Text style={styles.label}>
+                            {t('LoanSanctioned') + `(${currency})`}:
+                          </Text>
+                          <Text style={styles.value}>
                             {item.loan_sanctioned}
                           </Text>
-                        </Text>
+                        </View>
                       )}
 
-                      <Text style={styles.titleRe}>
-                        {t('number_caps')}:{'                        '}
-                        <Text style={styles.title}>
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>{t('number_caps')}:</Text>
+                        <Text style={styles.value}>
                           {item.agri_user.contactNumber}
                         </Text>
-                      </Text>
-                      <Text style={styles.titleRe}>
-                        {t('date')}:{'                             '}
-                        <Text style={styles.title}>
+                      </View>
+                      <View style={styles.detailRow}>
+                        <Text style={styles.label}>{t('date')}: </Text>
+                        <Text style={styles.value}>
                           {date.toString().substring(4, 15)}
                         </Text>
-                      </Text>
+                      </View>
+
                       {item?.sanctioned_date && (
-                        <Text style={styles.titleRe}>
-                          {t('SanctionedDate')}:{'       '}
-                          <Text style={styles.title}>
+                        <View style={styles.detailRow}>
+                          <Text style={styles.label}>
+                            {t('SanctionedDate')}:
+                          </Text>
+                          <Text style={styles.value}>
                             {sanctioned_date.toString().substring(3, 15)}
                           </Text>
-                        </Text>
+                        </View>
                       )}
                       {item?.loan_ord_id && (
-                        <Text style={styles.titleRe}>
-                          {t('LoanOrderID')}:{'              '}
-                          <Text style={styles.title}>
+                        <View style={styles.detailRow}>
+                          <Text style={styles.label}>{t('LoanOrderID')}: </Text>
+                          <Text style={styles.value}>
                             {item.loan_ord_id.substring(-1, 9)}
                           </Text>
-                        </Text>
+                        </View>
                       )}
                     </View>
                   </TouchableOpacity>
@@ -434,20 +442,20 @@ export default LoanViewPastRequested;
 
 const styles = StyleSheet.create({
   main: {
-    // flex: 1,
+    flex: 1,
     backgroundColor: Colors.containerGreen,
     marginHorizontal: '3%',
     borderWidth: 0.5,
     borderColor: Colors.borderGreen,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    // marginBottom: 10,
+    marginBottom: 10,
   },
   container: {
     flex: 1,
   },
   flatListContainer: {
-    marginHorizontal: '4%',
+    marginHorizontal: '2%',
     // marginBottom: 5,
   },
   flatListItem: {
@@ -456,12 +464,24 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 20,
     borderLeftWidth: 5,
-    borderColor: Colors.borderGreen,
+    borderLeftColor: Colors.borderGreen,
     // flexDirection: 'row',
     // alignItems: 'center',
     // marginBottom: 8,
     paddingHorizontal: 15,
-    elevation: 2,
+    marginHorizontal: '2.5%',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -582,6 +602,38 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
     paddingBottom: 5,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 10,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    flex: 1,
+  },
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
+    textAlign: 'right',
+  },
+  pending: {
+    color: '#a66607ff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  approved: {
+    color: '#236432ff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  rejected: {
+    color: '#b83535ff',
+    fontFamily: 'Poppins-SemiBold',
   },
 
   ////////////////////////////////////////////////////////////

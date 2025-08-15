@@ -304,17 +304,14 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
                   <View style={styles.flatListItem}>
                     <View style={styles.cardHeader}>
                       <View style={styles.marqueeContainer}>
-                        <Text style={styles.cardTitleRe}>
+                        <Text style={styles.cardTitle}>
                           {t('name')}:{' '}
-                          <Text style={styles.cardTitle}>
+                          <Text style={styles.cardTitleRe}>
                             {item.agri_user.userName}
                           </Text>
                         </Text>
                       </View>
                       <View style={styles.cardFooter}>
-                        <Text style={styles.viewDetailsText}>
-                          {t('view_details')}
-                        </Text>
                         <MaterialIcons
                           name="chevron-right"
                           size={20}
@@ -322,30 +319,33 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
                         />
                       </View>
                     </View>
-                    <Text style={styles.titleRe}>
-                      {t('plot_to_be_insured')}:{'    '}
-                      <Text style={styles.title}>{item.ins_plots.length}</Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('farmer_reg_nm')} :
-                      {'                                 '}
-                      <Text style={styles.title}>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>
+                        {t('plot_to_be_insured')}:{' '}
+                      </Text>
+                      <Text style={styles.value}>{item.ins_plots.length}</Text>
+                    </View>
+
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('farmer_reg_nm')} :</Text>
+                      <Text style={styles.value}>
                         {item.agri_user.userName}
                       </Text>
-                    </Text>
+                    </View>
 
-                    <Text style={styles.titleRe}>
-                      {t('date')} :{'                                  '}
-                      <Text style={styles.title}>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('date')} : </Text>
+
+                      <Text style={styles.value}>
                         {mydate.toString().substring(4, 15)}
                       </Text>
-                    </Text>
-                    <Text style={styles.titleRe}>
-                      {t('far_list_number')}:{'                              '}
-                      <Text style={styles.title}>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>{t('far_list_number')}: </Text>
+                      <Text style={styles.value}>
                         {item.agri_user.contactNumber}
                       </Text>
-                    </Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatListContainer: {
-    marginHorizontal: '4%',
+    marginHorizontal: '2.5%',
     // marginBottom: 5,
   },
   flatListItem: {
@@ -384,12 +384,24 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 20,
     borderLeftWidth: 5,
-    borderColor: Colors.borderGreen,
+    borderLeftColor: Colors.borderGreen,
     // flexDirection: 'row',
     // alignItems: 'center',
     // marginBottom: 8,
     paddingHorizontal: 15,
-    elevation: 2,
+    marginHorizontal: '2.5%',
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -510,6 +522,33 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
     paddingBottom: 5,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    // paddingHorizontal: 10,
+  },
+  detailRow1: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    // paddingHorizontal: 10,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    flex: 1,
+  },
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
+    textAlign: 'right',
   },
 
   ////////////////////////////////////////////////////////////

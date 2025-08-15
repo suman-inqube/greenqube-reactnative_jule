@@ -1053,11 +1053,10 @@ const styles = StyleSheet.create({
 
     marginHorizontal: '4%',
     borderWidth: 1,
-    borderColor: Colors.borderGreen,
     // paddingTop: 10,
     // marginBottom: 30,
 
-    backgroundColor: Colors.background,
+    backgroundColor: 'white',
     // padding: 10,
     borderRadius: 8,
     borderWidth: 1,
