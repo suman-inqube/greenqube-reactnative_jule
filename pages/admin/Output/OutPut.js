@@ -26,7 +26,7 @@ const OutPut = () => {
             <View style={{ flex: 1 }}>
                 <CustomHeader path={'Dashboard'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
                 <View style={styles.container}>
-                    <FormsTitle title={t('want_to_sell')} />
+                    {/* <FormsTitle title={t('want_to_sell')} /> */}
                     <View style={styles.btnContainer}>
                         <TouchableOpacity style={activeBtn === 1 ? styles.btnActive : styles.btn} onPress={() => setActiveBtn(1)}>
                             <Text style={activeBtn === 1 ? styles.btnActiveTitle : styles.btnTitle}>{t('post_output_n')}</Text>

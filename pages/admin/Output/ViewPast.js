@@ -6,6 +6,7 @@ import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import MessageDialog from '../../Common/MessageDialog';
 import { useRoute, useIsFocused } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
 const ViewPast = (props) => {
     //GQR-67
     const { loginUser_data, t, AlertMesg, LoadingScreen, Filter, setItem, effective_dates, DatePickerComp, Toast, getItem, farmerData } = useContext(userCreateContext);
@@ -223,7 +224,7 @@ const ViewPast = (props) => {
     }
     return (
         <>
-            <View style={{ flexGrow: 1 }}>
+            <View style={{ flexGrow: 1, backgroundColor: Colors.background_light }}>
                 {isLoading ?
                     <View style={styles.loadingScreen}><LoadingScreen /></View>
                     :

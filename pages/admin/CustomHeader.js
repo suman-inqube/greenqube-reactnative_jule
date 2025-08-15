@@ -1,4 +1,4 @@
-import React, {lazy, useEffect, memo} from 'react';
+import React, { lazy, useEffect, memo } from 'react';
 import {
   TouchableOpacity,
   Image,
@@ -8,12 +8,12 @@ import {
   StatusBar,
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {goBack} from '../utils/NavigationUtils';
-import {Colors, Fonts} from '../utils/Constants';
-import {useDrawerStatus} from '@react-navigation/drawer';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { goBack } from '../utils/NavigationUtils';
+import { Colors, Fonts } from '../utils/Constants';
+import { useDrawerStatus } from '@react-navigation/drawer';
 
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 const CustomHeader = ({
   path,
   HandlerGoBack,
@@ -24,7 +24,7 @@ const CustomHeader = ({
   filterOptionShow,
 }) => {
   const drawerStatus = useDrawerStatus();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const titleMap = {
     Dashboard: 'Dashboard',
     Profile: 'User Profile',
@@ -57,10 +57,10 @@ const CustomHeader = ({
     FarmerFarmIncomeExpenseView: t('income_expense_View'),
     InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
     activityDetail: t('act_detail_'),
+    DailySalesReport: t('daily_sales_report'),
   };
   const navigation = useNavigation();
   const route = useRoute();
-  console.log(route);
   const title = titleMap[route.name] ?? route.name;
   console.log(title);
   const openDrawer = () => {
@@ -86,7 +86,7 @@ const CustomHeader = ({
             <Image
               source={require('../Common/images/back.png')}
               resizeMode="contain"
-              style={{width: 24, height: 24, tintColor: '#ffffffff'}}
+              style={{ width: 24, height: 24, tintColor: '#ffffffff' }}
             />
           </TouchableOpacity>
           {/* <TouchableOpacity onPress={() => goBack()} style={styles.backButton}>
@@ -95,13 +95,13 @@ const CustomHeader = ({
           {title == 'Dashboard' ? (
             <Image
               source={require('../Common/images/logo.png')}
-              style={{width: 100, height: 43}}
+              style={{ width: 100, height: 43 }}
               resizeMode="contain"
             />
           ) : (
             <Image
               source={require('../Common/images/logoIcon.png')}
-              style={{width: 50, height: 40}}
+              style={{ width: 50, height: 40 }}
               resizeMode="contain"
             />
           )}
@@ -135,7 +135,7 @@ const CustomHeader = ({
                   overflow: 'hidden',
                 }}>
                 <ImageForm
-                  source={{uri: logoImage}}
+                  source={{ uri: logoImage }}
                   resizeMode="contain"
                   // resizeMode='cover'
                   height={50}
@@ -144,7 +144,7 @@ const CustomHeader = ({
               </View>
             ) : null}
 
-            {title != 'Dashboard' ? (
+            {!['Dashboard', 'Daily Sales Report'].includes(title) ? (
               <TouchableOpacity
                 style={{
                   width: 32,
@@ -159,7 +159,7 @@ const CustomHeader = ({
                 onPress={() => filterOptionShow()}>
                 <Image
                   source={require('../Common/images/setting.png')}
-                  style={{width: 25, height: 25}}
+                  style={{ width: 25, height: 25 }}
                 />
               </TouchableOpacity>
             ) : null}
@@ -177,7 +177,7 @@ const CustomHeader = ({
               }}>
               <Image
                 source={require('../Common/images/4dot.png')}
-                style={{width: 25, height: 25}}
+                style={{ width: 25, height: 25 }}
               />
             </TouchableOpacity>
           </View>
@@ -188,7 +188,7 @@ const CustomHeader = ({
           <>
             {topBanner != undefined || topBanner != null ? (
               <ImageForm
-                source={{uri: topBanner}}
+                source={{ uri: topBanner }}
                 resizeMode="cover"
                 height={200}
                 width={'100%'}
@@ -196,7 +196,7 @@ const CustomHeader = ({
             ) : (
               <Image
                 source={require('../Common/images/dashboard.jpeg')}
-                style={{width: '100%', height: 200}}
+                style={{ width: '100%', height: 200 }}
               />
             )}
           </>

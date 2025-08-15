@@ -9,6 +9,9 @@ import { ROUTES } from '../../utils/Routes';
 import { axiosGet } from '../../utils/api';
 import PaginationNav from '../../Components/PaginationNav';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
+import { FloatingAction } from 'react-native-floating-action';
+import { getActionsProblemSupervisor } from '../../utils/options';
+import AnimatedCard from '../../Components/AnimatedCard';
 const ListProblem = ({ navigation }) => {
     //GQR-67
     const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, onBackPress, getItem,
@@ -33,18 +36,14 @@ const ListProblem = ({ navigation }) => {
     const [toDate, setToDate] = useState("");
     const [fromDateFilter, setFromDateFilter] = useState('');
     const [searchResultsList, setSearchResultsList] = useState(false);
-    const [searchFarmerName, setSearchFarmerName] = useState('');
-    const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+    const [searchFarmerName, setSearchFarmerName] = useState({ label: "", value: "" });
+    const [searchFarmerPhone, setSearchFarmerPhone] = useState({ label: "", value: "" });
     const [searchResults, setSearchResults] = useState([]);
     const [filterName, setFilterName] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [refreshing, setRefreshing] = useState(false);
-    const navigateToPages = (pageName, fid) => {
-        setItem("problem_id_data", fid)
-        navigation.navigate(pageName);
-    };
-    const handleProblem = async (pageNo, search_uid, from_date, to_date, farmer_mobile) => {
+    const handleProblem = async (pageNo, search_uid, from_date, to_date, farmer_mobile, search_key_type) => {
         try {
             setIsLoading(true);
             let response;
@@ -52,11 +51,11 @@ const ListProblem = ({ navigation }) => {
                 response = await axiosGet(
                     ROUTES.GET.QUESTION_ROUTE({
                         pageNo,
-                        user_id: search_uid,
-                        from_date,
-                        to_date,
+                        user_id: search_key_type != undefined ? search_uid : searchFarmerName.value,
+                        from_date: from_date == undefined ? fromDate : from_date,
+                        to_date: to_date == undefined ? toDate : to_date,
                         agent_id: user_id,
-                        farmer_mobile,
+                        farmer_mobile: search_key_type != undefined ? farmer_mobile : searchFarmerPhone.label,
                     }),
                     token,
                     { information: `${dbname},${lan_id}` }
@@ -80,27 +79,6 @@ const ListProblem = ({ navigation }) => {
             setIsLoading(false);
         }
     };
-
-    const onPageLoad = async () => {
-        handleProblem(1)
-        setIsLoading(true);
-        // var response = [];
-        // if (isOnline) {
-        //     response = await problemListAPI(dbname, lan_id, token, user_id, 1);
-        //     if (response?.status == 200) { await setItem('problemTypeName', response) }
-        // } else {
-        //     response = await getItem('problemTypeName');
-        // }
-        // if (response?.status == 200) {
-        //     setIsLoading(false);
-        //     const totalPage = Math.ceil(response?.data?.data.count / 20)
-        //     setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage, pageNo: 1 });
-        //     setProblemAll(response?.data?.data?.rows)
-        //     setProblemAllRaw(response?.data?.data?.rows)
-        //     setItem("problem_Data", response?.data?.data)
-        //     setIsLoading(false)
-        // }
-    };
     const filterDataRemove = () => {
         setSearchFarmerPhone("");
         setSearchFarmerName("");
@@ -119,89 +97,16 @@ const ListProblem = ({ navigation }) => {
         setSearchResultsList(false);
         navigation.navigate('Dashboard');
     }
-    const handleBackPress = () => {
-        setToDate("");
-        setfromDate("");
-        setFilterItem("");
-        setSearchFarmerPhone("");
-        setSearchFarmerName("");
-        setFilterOption(false);
-        setSearchResultsList(false);
-        navigation.navigate('Dashboard');
-        return true;
-    }
     useEffect(() => {
         handleProblem(page)
     }, [page])
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         requestAnimationFrame(async () => {
-            // await onPageLoad("refreshing");
             await handleProblem(page);
             setRefreshing(false);
         });
     }, []);
-    const CardItem = useCallback(
-        ({ item, index, navigation }) => {
-            const truncatedTitle =
-                item.question_title?.length > 30
-                    ? `${item.question_title.substring(0, 30)}...`
-                    : item.question_title;
-            const cardAnimation = useRef(new Animated.Value(0)).current;
-            useEffect(() => {
-                Animated.timing(cardAnimation, {
-                    toValue: 1,
-                    duration: 500,
-                    delay: index * 150,
-                    useNativeDriver: true,
-                }).start();
-            }, []);
-            return (
-                <Animated.View style={[
-                    styles.activityCard,
-                    {
-                        opacity: cardAnimation,
-                        transform: [{
-                            translateY: cardAnimation.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [50, 0],
-                            }),
-                        }],
-
-                    }
-                ]}>
-                    <TouchableOpacity
-                        style={styles.problemCard}
-                        onPress={() => navigateToPages("ProblemView", item.fid)}
-                        activeOpacity={0.7}
-                    >
-                        <View style={styles.cardHeader}>
-                            <Text style={styles.problemTitle} numberOfLines={2}>
-                                {t("problem_title")}: {truncatedTitle}
-                            </Text>
-                        </View>
-
-                        <View style={styles.cardContent}>
-                            <View style={styles.infoRow}>
-                                <Text style={styles.infoLabel}>{t("name")}:</Text>
-                                <Text style={styles.infoValue} numberOfLines={1}>
-                                    {item.agri_user?.userName || "N/A"}
-                                </Text>
-                            </View>
-
-                            <View style={styles.infoRow}>
-                                <Text style={styles.infoLabel}>{t("far_list_number")}:</Text>
-                                <Text style={styles.infoValue}>
-                                    {item.agri_user?.contactNumber || "N/A"}
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                </Animated.View>
-            );
-        },
-        []
-    );
     const filterOptionShow = async () => {
         try {
             const { openFilterSheet } = await import('../../Components/FilterSheet');
@@ -239,56 +144,34 @@ const ListProblem = ({ navigation }) => {
             setSearchFarmerName({ label: farmerName?.label, value: farmerName?.value });
             setSearchFarmerPhone({ label: farmerPhone?.label, value: farmerPhone?.value });
             setPage(1);
-            handleProblem(page, farmerName?.value, fromDate, toDate, farmerPhone?.label)
+            handleProblem(page, farmerName?.value, fromDate, toDate, farmerPhone?.label, filter)
         } catch (error) {
             console.log(error, "error")
         }
     }, []);
     const handleFilterRemove = () => {
-
+        try {
+            setFromDate("");
+            setToDate("");
+            setSearchFarmerName({ label: "", value: "" });
+            setSearchFarmerPhone({ label: "", value: "" });
+            setFilterItem("");
+            handleProblem(1, '', '', '', '',);
+            setPage(1);
+        } catch (error) {
+            console.log(error)
+        }
     }
+    const navigateToPages = useCallback((pageName, fid) => {
+        setItem("problem_id_data", fid)
+        navigation.navigate(pageName);
+    },[]);
     return (
         <Root>
             <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background_light }}>
                 <View style={{ flex: 1 }}>
                     <CustomHeader t={t} filterOptionShow={filterOptionShow} />
-                    {/* {openFromDate && <DatePickerComp openDate={openFromDate} newDate={newFromDate} setOpenDate={setOpenFromDate} handleDatePicker={handleDatePicker} />}
-                    {openToDate && <DatePickerComp openDate={openToDate} newDate={newToDate} setOpenDate={setOpenToDate} handleDatePicker={handleDatePicker2} minimumDate={fromDate == "" ? "" : new Date(`${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1}-${new Date(fromDate).getDate() + 1}`)} />}
-                    <Filter
-                        filterItem={filterItem}
-                        filterOption={filterOption}
-                        setOpenToDate={setOpenToDate}
-                        fromDate={fromDate}
-                        newToDate={toDate}
-                        setOpenFromDate={setOpenFromDate}
-                        filterOptionShow={filterOptionShow}
-                        onchangeFilterItem={onchangeFilterItem}
-                        onChangeText={(item) => handleFilterList(item)}
-                        FarmerProductNameValue={searchFarmerName}
-                        FarmerProductPhoneValue={searchFarmerPhone}
-                        title={t('problem_reporting')}
-                        filterDataRemove={filterDataRemove}
-                    />
-                    <>
-                        {
-                            searchResultsList && searchResultsList ?
-                                <View View style={isKeyboardVisible ? styles.flatContainerLengthUp : styles.flatContainer}>
-                                    <FlatList
-                                        style={searchResults.length > 8 ? styles.flatlistHeight : ""}
-                                        data={searchResults}
-                                        renderItem={({ item }) => (
 
-                                            <TouchableOpacity onPress={() => handleResultSelectList(item)} style={styles.flatlistitem}>
-                                                <Text style={[styles.flatlisttitle, { color: 'black' }]}>{filterName == "PhoneNumber" ? item.phone : item.label}</Text>
-                                            </TouchableOpacity>
-                                        )}
-                                        keyExtractor={(item, index) => index}
-                                    />
-                                </View> : ""
-                        }
-                    </> */}
-                    {/* {isLoading ? <View style={styles.loadingScreen}><LoadingScreen /></View> : null} */}
-                    {/* <View style={styles.content}> */}
                     <FlatList
                         nestedScrollEnabled={true}
                         data={isLoading ? Array.from({ length: 5 }) : problemAll}
@@ -296,7 +179,33 @@ const ListProblem = ({ navigation }) => {
                             isLoading ? (
                                 <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                             ) : (
-                                <CardItem item={item} index={index} navigation={navigation} />
+                                <AnimatedCard item={item} child={<TouchableOpacity
+                                    style={styles.problemCard}
+                                    onPress={() => navigateToPages("ProblemView", item.fid)}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={styles.cardHeader}>
+                                        <Text style={styles.problemTitle} numberOfLines={2}>
+                                            {t("problem_title")}: {item.question_title?.length > 30
+                                                ? `${item.question_title.substring(0, 30)}...`
+                                                : item.question_title}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.cardContent}>
+                                        <View style={styles.infoRow}>
+                                            <Text style={styles.infoLabel}>{t("name")}:</Text>
+                                            <Text style={styles.infoValue} numberOfLines={1}>
+                                                {item.agri_user?.userName || "N/A"}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.infoRow}>
+                                            <Text style={styles.infoLabel}>{t("far_list_number")}:</Text>
+                                            <Text style={styles.infoValue}>
+                                                {item.agri_user?.contactNumber || "N/A"}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>} index={index} />
                             )
                         }
                         keyExtractor={(item, index) => `problem_${item?.fid || index}`}
@@ -328,7 +237,16 @@ const ListProblem = ({ navigation }) => {
                         onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
                         t={t}
                     />
-                    {/* </View> */}
+                    <FloatingAction
+                        position="right"
+                        actions={getActionsProblemSupervisor(t, styles, Colors)}
+                        color={Colors.useGreen}
+                        onPressItem={(name) => {
+                            navigateToPages('ProblemCreate', 123)
+                        }}
+                        showBackground={true}
+                        overlayColor="rgba(22, 17, 17, 0.35)"
+                        distanceToEdge={{ vertical: 80, horizontal: 25 }} />
                 </View>
             </SafeAreaView>
         </Root>
@@ -364,7 +282,7 @@ const styles = StyleSheet.create({
     },
     cardHeader: {
         // backgroundColor: '#fa9e003b',
-        backgroundColor:Colors.useGreen,
+        backgroundColor: Colors.useGreen,
         // backgroundColor:Colors.lightGreen,
         paddingHorizontal: 16,
         paddingVertical: 13,
@@ -375,7 +293,7 @@ const styles = StyleSheet.create({
     },
     problemTitle: {
         // color: '#f59f0bff',
-        color:Colors.background,
+        color: Colors.background,
         fontSize: 16,
         fontFamily: Fonts.Medium,
     },
@@ -400,96 +318,5 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.Medium,
         flex: 2,
         textAlign: "right",
-    },
-    paginationContainer: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingVertical: 20,
-        marginTop: 16,
-    },
-    paginationButton: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 8,
-        minWidth: 80,
-        alignItems: "center",
-    },
-    prevButton: {
-        backgroundColor: Colors.secondary || "#e0e0e0",
-    },
-    nextButton: {
-        backgroundColor: Colors.primary || "#4BAE4F",
-    },
-    paginationText: {
-        color: "#333",
-        fontSize: 14,
-        fontFamily: "Poppins-Medium",
-    },
-    pageInfo: {
-        alignItems: "center",
-    },
-    pageInfoText: {
-        color: "#666",
-        fontSize: 12,
-        fontFamily: "Poppins-Regular",
-    },
-    fab: {
-        position: "absolute",
-        right: 20,
-        bottom: 20,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: Colors.primary || "#4BAE4F",
-        justifyContent: "center",
-        alignItems: "center",
-        elevation: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-    },
-    fabIcon: {
-        width: 24,
-        height: 24,
-        tintColor: "#ffffff",
-    },
-    loadingOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-    },
-    loadingText: {
-        marginTop: 12,
-        color: "#666",
-        fontSize: 16,
-        fontFamily: "Poppins-Regular",
-    },
-    emptyState: {
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 60,
-    },
-    emptyStateText: {
-        color: "#666",
-        fontSize: 16,
-        fontFamily: "Poppins-Regular",
-        marginBottom: 20,
-        textAlign: "center",
-    },
-    refreshButton: {
-        backgroundColor: Colors.primary || "#4BAE4F",
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
-    },
-    refreshButtonText: {
-        color: "#ffffff",
-        fontSize: 14,
-        fontFamily: "Poppins-Medium",
     }
 });

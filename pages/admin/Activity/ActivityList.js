@@ -46,7 +46,7 @@ function ActivityList({ navigation }) {
   const filterOptionShow = async () => {
     const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
-      options: ['All', 'Active', 'Inactive', 'Pending'],
+      options: ['farmer', 'phone', 'date', 'carbon'],
       // onchangeFilterItem: onchangeFilterItem,
       t: t,
       dropdownData: farmerData,
@@ -180,7 +180,7 @@ function ActivityList({ navigation }) {
         delay: index * 150,
         useNativeDriver: true,
       }).start();
-    }, [cardAnimation, index]);
+    }, []);
     return (
       <Animated.View
         style={[

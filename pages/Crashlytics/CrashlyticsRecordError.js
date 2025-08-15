@@ -9,7 +9,7 @@ export const CrashlyticsRecordError = async (error, screen_name = "", api = "") 
         DeviceInfo.getDeviceName(),
         getItem('currentRouteName'),
     ])
-    console.log(typeof error)
+    console.log(error,"//////////////")
     const {
         dbname = "",
         contactNumber = ""

@@ -5,7 +5,6 @@ import DropdownForm from '../Common/DropdownForm';
 import { Colors, Fonts } from '../utils/Constants';
 const RadioForm = lazy(() => import('../Common/RadioForm'));
 const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
-import { getNavigationType } from '../utils/helpers';
 export const openFilterSheet = ({
     options,
     dropdownData = [],
@@ -17,7 +16,7 @@ export const openFilterSheet = ({
     searchFarmerName,
     searchFarmerPhone,
     handleFilterResult,
-    setfromDate,
+    setFromDate,
     setToDate,
     fromDate,
     toDate,
@@ -51,17 +50,22 @@ export const openFilterSheet = ({
                 // onchangeFilterItem?.(value);
             };
             const onFromDateChange = (date) => {
-                setSheetFromDate(date); // local for sheet UI
-                setfromDate(date);      // parent state
+                try {
+                    setSheetFromDate(date);
+                    setFromDate(date);
+                } catch (error) {
+                    console.log(error);
+                }
             };
 
             const onToDateChange = (date) => {
-                setSheetToDate(date);
-                setToDate(date);
+                try {
+                    setSheetToDate(date);
+                    setToDate(date);
+                } catch (error) {
+                    console.log(error)
+                }
             };
-            // const filterCancel = () => {
-            //     handleFilterRemove();
-            // }
             const renderDropdown = (data, name) => (
                 <DropdownForm
                     data={data}
@@ -70,7 +74,7 @@ export const openFilterSheet = ({
                     valueField="value"
                     placeholder={t(name)}
                     onChange={(item) => {
-                        console.log("dropdown",item)
+                        console.log("dropdown", item)
                         const { label, value, phone } = item || {}
                         if (name === "enter_farmer_s_name") {
                             setSheetFarmerName({ label: label, value: value });
@@ -148,10 +152,10 @@ export const openFilterSheet = ({
 
                             /> : null}
                             {
-                                carbonFlag == true && <RadioForm label={t('Carbon/NonCarbon')}
+                                carbonFlag == true&&options[2] == "date"  ? <RadioForm label={t('Carbon/NonCarbon')}
                                     selected={selectedValue === 'Carbon'}
                                     onSelect={() => handleSelect('Carbon')}
-                                />
+                                />:null
                             }
                         </View>
                         : null}
