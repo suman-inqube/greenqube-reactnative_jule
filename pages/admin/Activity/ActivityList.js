@@ -87,7 +87,7 @@ function ActivityList({navigation}) {
   const filterOptionShow = async () => {
     const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
-      options: ['All', 'Active', 'Inactive', 'Pending'],
+      options: ['farmer', 'phone', 'date', 'carbon'],
       // onchangeFilterItem: onchangeFilterItem,
       t: t,
       dropdownData: farmerData,
@@ -257,60 +257,48 @@ function ActivityList({navigation}) {
     }
   };
 
-  const ActivityCard = useCallback(
-    memo(({activity, index, navigation}) => {
-      const status = activity?.deviation > 0 ? 'active' : 'pending';
-      const statusColor = getStatusColor(status);
-      const cardAnimation = useRef(new Animated.Value(0)).current;
-      useEffect(() => {
-        Animated.timing(cardAnimation, {
-          toValue: 1,
-          duration: 500,
-          delay: index * 150,
-          useNativeDriver: true,
-        }).start();
-      }, [cardAnimation, index]);
-      return (
-        <Animated.View
-          style={[
-            styles.activityCard,
-            {
-              opacity: cardAnimation,
-              transform: [
-                {
-                  translateY: cardAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-              ],
-              borderLeftColor: statusColor,
-            },
-          ]}>
-          <TouchableOpacity
-            style={styles.cardContent}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('activityDetail', activity)}>
-            {/* Header with Produce and Status */}
-            <View style={styles.cardHeader}>
-              <View style={styles.produceSection}>
-                <View
-                  style={[
-                    styles.produceIcon,
-                    {backgroundColor: statusColor + '15'},
-                  ]}>
-                  <Text style={styles.emoji}>
-                    {getProduceEmoji(activity?.cropName?.name)}
-                  </Text>
-                </View>
-                <View style={styles.produceInfo}>
-                  <Text style={styles.produceName}>
-                    {activity?.cropName?.name}
-                  </Text>
-                  <Text style={styles.plotSite}>
-                    {activity?.land_info?.plot_no}
-                  </Text>
-                </View>
+  const ActivityCard = useCallback(memo(({ activity, index, navigation }) => {
+    const status = activity?.deviation > 0 ? "active" : "pending";
+    const statusColor = getStatusColor(status);
+    const cardAnimation = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      Animated.timing(cardAnimation, {
+        toValue: 1,
+        duration: 500,
+        delay: index * 150,
+        useNativeDriver: true,
+      }).start();
+    }, []);
+    return (
+      <Animated.View
+        style={[
+          styles.activityCard,
+          {
+            opacity: cardAnimation,
+            transform: [{
+              translateY: cardAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              }),
+            }],
+            borderLeftColor: statusColor,
+          }
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.cardContent}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("activityDetail", activity)}
+        >
+          {/* Header with Produce and Status */}
+          <View style={styles.cardHeader}>
+            <View style={styles.produceSection}>
+              <View style={[styles.produceIcon, { backgroundColor: statusColor + '15' }]}>
+                <Text style={styles.emoji}>{getProduceEmoji(activity?.cropName?.name)}</Text>
+              </View>
+              <View style={styles.produceInfo}>
+                <Text style={styles.produceName}>{activity?.cropName?.name}</Text>
+                <Text style={styles.plotSite}>{activity?.land_info?.plot_no}</Text>
               </View>
               <View
                 style={[

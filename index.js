@@ -27,9 +27,9 @@ export default function Main() {
         setFatalError(null);
         CrashlyticsRecordError(fatalError?.message);
     };
-    // if (fatalError) {
-    //     return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
-    // }
+    if (fatalError) {
+        return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
+    }
     return (
         <MyErrorBoundary>
             <UserCreateContextProvider>

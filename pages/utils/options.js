@@ -14,8 +14,40 @@ const getActionsActivity = (t, styles, Colors) => [
     color: Colors.useGreen,
     textStyle: styles.actionText,
     textBackground: '#ffffff',
-    icon: { uri: 'https://example.com/icon.png' }
+   icon: require('../Common/images/activity.png'),
   }
 ];
 
-export { OPTIONS_CARBON, getActionsActivity,CARBON_TYPE };
+const getActionsProblemSupervisor = (t, styles, Colors) => [
+  {
+    text: t('Report Problem'),
+    name: 'bt_add',
+    position: 1,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffffff',
+    icon: require('../Common/images/warning.png'),
+  }
+];
+const getActionsDealerReportSupervisor = (t, styles, Colors) => [
+   {
+    text: t('dealer_report'),
+    name: 'dealer_report',
+    position: 1,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffff',
+    icon: require('../Common/images/dealer.png'), // Dealer PNG
+  },
+  {
+    text: t('farmer_report'),
+    name: 'farmer_report',
+    position: 2,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffff',
+    icon: require('../Common/images/farmerFlat.png'), // Farmer PNG
+  }
+];
+
+export { OPTIONS_CARBON, getActionsActivity, getActionsProblemSupervisor, getActionsDealerReportSupervisor, CARBON_TYPE };
