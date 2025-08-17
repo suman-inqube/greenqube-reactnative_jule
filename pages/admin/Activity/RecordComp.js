@@ -1,6 +1,8 @@
-import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native'
-import React from 'react'
-import Icon from 'react-native-vector-icons/Feather'
+import {StyleSheet, View, TouchableOpacity, Image, Text} from 'react-native';
+import React from 'react';
+import Icon from 'react-native-vector-icons/Feather';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Colors} from '../../utils/Constants';
 
 const RecordComp = ({
   selectedRecord,
@@ -12,55 +14,54 @@ const RecordComp = ({
   soundRecordThirdItem,
   title,
   cancelRecord,
-  soundPlay
+  soundPlay,
 }) => {
   const items = [
     {
       key: 'firstItemRecord',
       modalSetter: setModalVisibleRecordFirstItem,
       sound: soundRecordFirstItem,
-      cancelKey: 'firstItem'
+      cancelKey: 'firstItem',
     },
     {
       key: 'secondItemRecord',
       modalSetter: setModalVisibleRecordSecoundItem,
       sound: soundRecordSecoundItem,
-      cancelKey: 'secoundItem'
+      cancelKey: 'secoundItem',
     },
     {
       key: 'thirdItemRecord',
       modalSetter: setModalVisibleRecordThirdItem,
       sound: soundRecordThirdItem,
-      cancelKey: 'thirdItem'
-    }
-  ]
+      cancelKey: 'thirdItem',
+    },
+  ];
 
   return (
     <>
       <Text style={styles.title}>{title || 'Recordings'}</Text>
       <View style={styles.container}>
         {items.map((item, idx) => {
-          const hasFile = selectedRecord[item.key] !== ''
+          const hasFile = selectedRecord[item.key] !== '';
           const hasTempRecording =
-            item.sound && item.sound.result !== '' && !item.sound.isLoggingIn
+            item.sound && item.sound.result !== '' && !item.sound.isLoggingIn;
 
           return (
             <TouchableOpacity
               key={idx}
               style={styles.item}
               onPress={() => item.modalSetter(true)}
-              activeOpacity={0.7}
-            >
+              activeOpacity={0.7}>
               {hasFile ? (
-                <TouchableOpacity onPress={() => soundPlay(selectedRecord[item.key])}>
+                <TouchableOpacity
+                  onPress={() => soundPlay(selectedRecord[item.key])}>
                   <Icon name="play-circle" size={48} color="#10b981" />
                 </TouchableOpacity>
               ) : hasTempRecording ? (
                 <View style={styles.tempWrapper}>
                   <TouchableOpacity
                     style={styles.cancelBtn}
-                    onPress={() => cancelRecord(item.cancelKey)}
-                  >
+                    onPress={() => cancelRecord(item.cancelKey)}>
                     <Icon name="x-circle" size={22} color="#ef4444" />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => soundPlay(item.cancelKey)}>
@@ -71,30 +72,39 @@ const RecordComp = ({
                 <Icon name="mic" size={36} color="#9ca3af" />
               )}
             </TouchableOpacity>
-          )
+          );
         })}
       </View>
     </>
-  )
-}
+  );
+};
 
-export default RecordComp
+export default RecordComp;
 
 const styles = StyleSheet.create({
   title: {
-    color: '#111827',
-    fontFamily: 'Poppins-Regular',
     fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    marginBottom: 5,
+    marginLeft: 15,
   },
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingBottom: 10
+    backgroundColor: '#e3f4ffcf',
+    // elevation: 3,
+    padding: 10,
+    margin: 2,
+    // marginVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 15,
   },
   item: {
-    width: '30%',
+    width: '25%',
     aspectRatio: 1,
     borderRadius: 8,
     borderWidth: 1,
@@ -102,16 +112,16 @@ const styles = StyleSheet.create({
     borderColor: '#d1d5db',
     backgroundColor: '#f9fafb',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   tempWrapper: {
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   cancelBtn: {
     position: 'absolute',
     top: -10,
     right: -10,
-    zIndex: 10
-  }
-})
+    zIndex: 10,
+  },
+});

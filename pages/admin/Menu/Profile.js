@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   // },
   fromContainer: {
     flex: 1,
-    backgroundColor: Colors.background_light,
+    backgroundColor: 'white',
     // padding: 10,
     borderRadius: 8,
     borderWidth: 1,
