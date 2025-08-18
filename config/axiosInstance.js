@@ -62,7 +62,6 @@ export const getAxiosInstance = async () => {
               status: 200,
             };
           }
-          console.log('response111', response);
           return response;
         } catch (err) {
           console.error('Decryption failed:', err);

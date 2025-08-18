@@ -1,4 +1,4 @@
-import React, { lazy, useEffect, memo } from 'react';
+import React, { lazy, useEffect, memo, useCallback, useMemo } from 'react';
 import {
   TouchableOpacity,
   Image,
@@ -6,15 +6,77 @@ import {
   StyleSheet,
   Text,
   StatusBar,
+  Platform,
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { goBack } from '../utils/NavigationUtils';
 import { Colors, Fonts } from '../utils/Constants';
 import { useDrawerStatus } from '@react-navigation/drawer';
-
 import { useTranslation } from 'react-i18next';
-const CustomHeader = ({
+const DASHBOARD_TITLE = 'Dashboard';
+const DAILY_SALES_TITLE = 'Daily Sales Report';
+const TITLES_WITHOUT_FILTER = [DASHBOARD_TITLE, DAILY_SALES_TITLE];
+const IMAGES = {
+  back: require('../Common/images/back.png'),
+  logo: require('../Common/images/logo.png'),
+  logoIcon: require('../Common/images/logoIcon.png'),
+  setting: require('../Common/images/setting.png'),
+  fourDot: require('../Common/images/4dot.png'),
+  dashboard: require('../Common/images/dashboard.jpeg'),
+};
+const BackButton = memo(({ onPress }) => (
+  <TouchableOpacity onPress={onPress}>
+    <Image
+      source={IMAGES.back}
+      resizeMode="contain"
+      style={styles.backIcon}
+    />
+  </TouchableOpacity>
+));
+
+const LogoImage = memo(({ isDashboard }) => (
+  <Image
+    source={isDashboard ? IMAGES.logo : IMAGES.logoIcon}
+    style={isDashboard ? styles.dashboardLogo : styles.regularLogo}
+    resizeMode="contain"
+  />
+));
+
+const RoundButton = memo(({ onPress, imageSource, style }) => (
+  <TouchableOpacity style={[styles.roundButton, style]} onPress={onPress}>
+    <Image source={imageSource} style={styles.buttonIcon} />
+  </TouchableOpacity>
+));
+
+const CompanyLogo = memo(({ logoImage }) => (
+  <View style={styles.companyLogoContainer}>
+    <ImageForm
+      source={{ uri: logoImage }}
+      resizeMode="contain"
+      height={50}
+      width={50}
+    />
+  </View>
+));
+
+const BannerImage = memo(({ topBanner }) => (
+  topBanner ? (
+    <ImageForm
+      source={{ uri: topBanner }}
+      resizeMode="cover"
+      height={200}
+      width="100%"
+    />
+  ) : (
+    <Image
+      source={IMAGES.dashboard}
+      style={styles.defaultBanner}
+    />
+  )
+));
+
+const CustomHeader = memo(({
   path,
   HandlerGoBack,
   banner,
@@ -25,12 +87,13 @@ const CustomHeader = ({
 }) => {
   const drawerStatus = useDrawerStatus();
   const { t } = useTranslation();
-  const titleMap = {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const titleMap = useMemo(() => ({
     Dashboard: 'Dashboard',
-    Profile: 'User Profile',
+    Profile: t('profile'),
     Settings: 'App Settings',
     activityList: 'Activity List',
-    Profile: t('profile'),
     ProblemList: t('problem_reporting'),
     FarmerFarmIncomeExpenseList: t('income_expense_list'),
     FarmIncomeExpenseList: t('income_expense_list'),
@@ -58,197 +121,166 @@ const CustomHeader = ({
     InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
     activityDetail: t('act_detail_'),
     DailySalesReport: t('daily_sales_report'),
-  };
-  const navigation = useNavigation();
-  const route = useRoute();
-  const title = titleMap[route.name] ?? route.name;
-  console.log(title);
-  const openDrawer = () => {
+    OutPutList: t('want_to_sell'),
+    userList: t('farmer_list'),
+  }), [t]);
+  const title = useMemo(() => titleMap[route.name] ?? route.name, [titleMap, route.name]);
+  const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
+  const showFilter = useMemo(() =>
+    !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
+    [title, filterOptionShow]
+  );
+  const showBanner = useMemo(() =>
+    show && !banner && (topBanner || true),
+    [show, banner, topBanner]
+  );
+  const handleGoBack = useCallback(() => {
+    if (HandlerGoBack) {
+      HandlerGoBack();
+    } else {
+      goBack();
+    }
+  }, [HandlerGoBack]);
+
+  const openDrawer = useCallback(() => {
     navigation.openDrawer();
-  };
+  }, [navigation]);
+
+  const handleFilterPress = useCallback(() => {
+    if (filterOptionShow) {
+      filterOptionShow();
+    }
+  }, [filterOptionShow]);
+  const statusBarProps = useMemo(() => ({
+    barStyle: 'light-content',
+    backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#003c04',
+  }), [drawerStatus]);
+
   useEffect(() => {
     navigation.closeDrawer();
-  }, []);
+  }, [navigation]);
   return (
     <View style={styles.mainContainer}>
-      <StatusBar
-        barStyle={drawerStatus === 'open' ? 'light-content' : 'light-content'}
-        backgroundColor={drawerStatus === 'open' ? Colors.drawer : '#003c04'}
-      />
-      <View
-        style={
-          Platform.OS === 'android'
-            ? styles.androidContainer
-            : styles.iosContainer
-        }>
-        <View style={styles.rightContainer}>
-          <TouchableOpacity onPress={() => goBack()}>
-            <Image
-              source={require('../Common/images/back.png')}
-              resizeMode="contain"
-              style={{ width: 24, height: 24, tintColor: '#ffffffff' }}
-            />
-          </TouchableOpacity>
-          {/* <TouchableOpacity onPress={() => goBack()} style={styles.backButton}>
-            <Icon name="arrow-back" size={24} color="#FFF" />
-          </TouchableOpacity> */}
-          {title == 'Dashboard' ? (
-            <Image
-              source={require('../Common/images/logo.png')}
-              style={{ width: 100, height: 43 }}
-              resizeMode="contain"
-            />
-          ) : (
-            <Image
-              source={require('../Common/images/logoIcon.png')}
-              style={{ width: 50, height: 40 }}
-              resizeMode="contain"
+      <StatusBar {...statusBarProps} />
+
+      <View style={Platform.select({
+        android: styles.androidContainer,
+        ios: styles.iosContainer,
+      })}>
+        <View style={styles.leftContainer}>
+          <BackButton onPress={handleGoBack} />
+          <LogoImage isDashboard={isDashboard} />
+          {!isDashboard && (
+            <Text style={styles.titleText}>{title}</Text>
+          )}
+        </View>
+        <View style={styles.rightSection}>
+          {logoImage && isDashboard && (
+            <CompanyLogo logoImage={logoImage} />
+          )}
+
+          {showFilter && (
+            <RoundButton
+              onPress={handleFilterPress}
+              imageSource={IMAGES.setting}
             />
           )}
-          {title != 'Dashboard' ? (
-            <View>
-              <Text style={styles.titleText}>{title}</Text>
-            </View>
-          ) : null}
-        </View>
-        <View>
-          <View
-            style={{
-              flexDirection: 'row',
-              marginRight: 10,
-              alignItems: 'center',
-              flex: 1,
-              paddingVertical: 35,
-              overflow: 'hidden',
-            }}>
-            {logoImage && title == 'Dashboard' ? (
-              <View
-                style={{
-                  width: 32,
-                  backgroundColor: 'white',
-                  height: 32,
-                  borderRadius: 12,
-                  marginLeft: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginRight: 10,
-                  overflow: 'hidden',
-                }}>
-                <ImageForm
-                  source={{ uri: logoImage }}
-                  resizeMode="contain"
-                  // resizeMode='cover'
-                  height={50}
-                  width={50}
-                />
-              </View>
-            ) : null}
 
-            {!['Dashboard', 'Daily Sales Report'].includes(title) ? (
-              <TouchableOpacity
-                style={{
-                  width: 32,
-                  backgroundColor: 'white',
-                  height: 32,
-                  borderRadius: 12,
-                  marginLeft: 10,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginRight: 10,
-                }}
-                onPress={() => filterOptionShow()}>
-                <Image
-                  source={require('../Common/images/setting.png')}
-                  style={{ width: 25, height: 25 }}
-                />
-              </TouchableOpacity>
-            ) : null}
-            <TouchableOpacity
-              onPress={openDrawer}
-              style={{
-                width: 32,
-                backgroundColor: 'white',
-                height: 32,
-                borderRadius: 12,
-                marginLeft: 10,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 10,
-              }}>
-              <Image
-                source={require('../Common/images/4dot.png')}
-                style={{ width: 25, height: 25 }}
-              />
-            </TouchableOpacity>
-          </View>
+          <RoundButton
+            onPress={openDrawer}
+            imageSource={IMAGES.fourDot}
+          />
         </View>
       </View>
-      <View>
-        {show == true && banner != true && (
-          <>
-            {topBanner != undefined || topBanner != null ? (
-              <ImageForm
-                source={{ uri: topBanner }}
-                resizeMode="cover"
-                height={200}
-                width={'100%'}
-              />
-            ) : (
-              <Image
-                source={require('../Common/images/dashboard.jpeg')}
-                style={{ width: '100%', height: 200 }}
-              />
-            )}
-          </>
-        )}
-      </View>
+      {showBanner && (
+        <BannerImage topBanner={topBanner} />
+      )}
     </View>
   );
-};
+});
 
-export default memo(CustomHeader);
+CustomHeader.displayName = 'CustomHeader';
+
 const styles = StyleSheet.create({
   mainContainer: {
-    // borderBottomWidth: 2,
-    // marginTop:StatusBar.currentHeight,
     backgroundColor: '#003c04',
-    // flex: 1,
     width: '100%',
-    height: 70,
+    minHeight: 70,
     justifyContent: 'center',
   },
   androidContainer: {
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    // paddingVertical: 3
+    paddingHorizontal: 15,
   },
   iosContainer: {
     marginTop: 30,
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    // paddingVertical: 3
+    paddingHorizontal: 15,
   },
-  rightContainer: {
+  leftContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 15,
-    justifyContent: 'center',
+    flex: 1,
   },
-  image: {
-    width: 200,
-    // width: width * 100,
-    height: 200,
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  backIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#ffffff',
+  },
+  dashboardLogo: {
+    width: 100,
+    height: 43,
+    marginLeft: 10,
+  },
+  regularLogo: {
+    width: 50,
+    height: 40,
+    marginLeft: 10,
   },
   titleText: {
     color: Colors.background,
     fontSize: 16,
     fontFamily: Fonts.Regular,
+    marginLeft: 15,
+    flex: 1,
   },
-  backButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  roundButton: {
+    width: 32,
+    backgroundColor: 'white',
+    height: 32,
+    borderRadius: 12,
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  buttonIcon: {
+    width: 25,
+    height: 25,
+  },
+  companyLogoContainer: {
+    width: 32,
+    backgroundColor: 'white',
+    height: 32,
+    borderRadius: 16,
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  defaultBanner: {
+    width: '100%',
+    height: 200,
   },
 });
+
+export default CustomHeader;

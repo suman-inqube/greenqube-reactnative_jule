@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Colors, Fonts } from '../utils/Constants';
 import moment from 'moment';
-const TrackingInformation = ({ latestActivities, t, usefulInfoList }) => {
+const TrackingInformation = ({ latestActivities, t, usefulInfoList,navigation }) => {
     const [activeTab, setActiveTab] = useState('tracking');
     const trackingScale = useRef(new Animated.Value(1)).current;
     const infoScale = useRef(new Animated.Value(1)).current;
@@ -114,12 +114,14 @@ const TrackingInformation = ({ latestActivities, t, usefulInfoList }) => {
                                         borderBottomWidth: isLastItem ? 0 : 1, // 👈 hide border if last
                                         borderColor: Colors.border || '#ccc',
                                         backgroundColor: '#fff',
-                                    }}>
+                                    }}
+                                    onPress={()=>navigation.navigate("activityDetail",item)}
+                                    >
                                     <Text style={[styles.text, { color: Colors.text,fontFamily:Fonts.Medium }]}>
                                         {item?.typeActivity?.categoryName || 'Activity Name: Nill'}
                                     </Text>
                                     <View style={{ flexDirection: 'row' }}>
-                                        <Text style={[styles.text, { color: Colors.text }]}>{t('perf_date')}: </Text><Text>{moment(item.act_perform_date).utc().format('YYYY-MM-DD')}</Text>
+                                        <Text style={[styles.text, { color: Colors.text }]}>{t('perf_date')}: </Text><Text style={[styles.text, { color: Colors.text }]}>{moment(item.act_perform_date).utc().format('YYYY-MM-DD')}</Text>
                                     </View>
                                 </TouchableOpacity>
                             );
@@ -141,12 +143,15 @@ const TrackingInformation = ({ latestActivities, t, usefulInfoList }) => {
                                         borderBottomWidth: isLastItem ? 0 : 1, // 👈 hide border if last
                                         borderColor: Colors.border || '#ccc',
                                         backgroundColor: '#fff',
-                                    }}>
+                                    }}
+                                    onPress={()=> navigation.navigate('UsefulInformation',item.fid)}
+                                    >
                                     <Text style={[styles.text, { color: Colors.text ,fontFamily:Fonts.Medium}]}>
                                         {item?.post_name || 'Information Name: Nill'}
                                     </Text>
                                       <View style={{ flexDirection: 'row' }}>
-                                        <Text style={[styles.text, { color: Colors.text }]}>{t('perf_date')}: </Text><Text>{moment(item.updated_at).utc().format('YYYY-MM-DD')}</Text>
+                                        <Text style={[styles.text, { color: Colors.text }]}>{t('perf_date')}: </Text><Text style={[styles.text, { color: Colors.text }]}>{moment(item.updated_at).utc().format('YYYY-MM-DD')}</Text>
+                                        
                                     </View>
                                 </TouchableOpacity>
                             );

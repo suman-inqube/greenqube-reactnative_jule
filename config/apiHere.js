@@ -1228,10 +1228,11 @@ export const outputListAPI = async (
       authorization: `${token}`,
     },
   };
+  console.log(`${config.BASE_URL}inputOutputRoute/list/1/0/2?&
+        farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`)
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/list/1/0/2?&
-        farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`,
+      `${config.BASE_URL}inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`,
       axiosHeaders,
     );
     return response;

@@ -1,387 +1,794 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, TextInput, Keyboard } from 'react-native'
-import React, { useState, useEffect, useCallback, useContext } from 'react'
+import React, { useState, useEffect, useCallback, useContext, useMemo, useRef,memo } from 'react';
+import {
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    StatusBar,
+    RefreshControl,
+    Animated,
+    Dimensions,
+    Easing,
+    Platform,
+} from 'react-native';
+import SkeletonUserCard from '../../Components/Skeleton/SkeletonUserCard';
+// Components
 import ImageForm from '../../Common/ImageForm';
-import { userDataListAPI } from './UsersAPI';
-import { useIsFocused } from '@react-navigation/native';
-//GQR-66
-import { userCreateContext } from '../../Context/usersCreateContext';
-//GQR-66
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
+import PaginationNav from '../../Components/PaginationNav';
+
+// API & Context
+import { userDataListAPI } from './UsersAPI';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-const UserList = ({ navigation }) => {
-    //GQR-66
-    const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
-        setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
-    //GQR-66
-    const isFocused = useIsFocused();
-    const [isLoading, setIsLoading] = useState(false);
-    const [userList, setuserList] = useState([]);
-    const [expandedItem, setExpandedItem] = useState(null);
-    const [phoneNumber, setPhoneNumber] = useState('');
-    function MenuBoxDisplay({ farmeruserID, agri_land_user_rels, menuName }) {
-        const handleMenu = (menuName) => {
-            const PlotdataArray = agri_land_user_rels?.agri_land_user_rels.map(data => ({ value: data.rel_id, label: data.plot_no }))
-            let file_path = "";
-            if (agri_land_user_rels.agri_files[0] != undefined) {
-                file_path = agri_land_user_rels.agri_files[0].file_path;
-            }
-            navigation.navigate(menuName, {
-                farmeruserID: farmeruserID, agri_land_user_rels: PlotdataArray, userName: agri_land_user_rels.userName, contactNumber: agri_land_user_rels.contactNumber, profileImage: file_path, gender: agri_land_user_rels.gender, farmer_type: agri_land_user_rels.farmer_type
-            });
-        }
-        return (
-            <View style={styles.boxMenu}>
-                <View style={styles.box1_1}>
-                    <TouchableOpacity onPress={() => handleMenu("password")}>
-                        <View style={{ alignItems: 'center' }}>
-                            <ImageForm source={require('../../Common/images/change_password_green.png')} resizeMode="cover" height={30} width={30} />
-                            <Text style={styles.titleBottom}>{t('forgot_password')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMenu("information")}>
-                        <View style={{ alignItems: 'center' }}>
-                            <ImageForm source={require('../../Common/images/add_info_plus.png')} resizeMode="cover" height={30} width={30} />
-                            <Text style={[styles.titleBottom, { marginVertical: 8 }]}>{t('far_list_information')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMenu("livehood")}>
-                        <View style={{ alignItems: 'center', justifyContent: 'flex-start' }}>
-                            <ImageForm source={require('../../Common/images/add_plot_plus.png')} resizeMode="cover" height={30} width={30} />
-                            <Text style={styles.titleBottom}>{t('farming_details')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMenu("CrateProblemUser")}>
-                        <View style={{ alignItems: 'center' }}>
-                            <ImageForm source={require('../../Common/images/add_qust_plus.png')} resizeMode="cover" height={30} width={30} />
-                            <Text style={[styles.titleBottom, { marginVertical: 8 }]}>{t('q_a')}</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        );
-    }
+import { Colors, Fonts } from '../../utils/Constants';
+import { Image } from 'moti';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-    function UserBoxDisplay({ item, item2, item3, item4 }) {
-        return (
-            <View style={styles.box1}>
-                <View style={styles.box1_1}>
-                    <View>
-                        <Text style={styles.title}>{item}</Text>
-                        <Text style={styles.title}>{item2}</Text>
-                        <Text style={styles.title}>{item3}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.title}>{item4}</Text>
-                    </View>
-                </View>
-            </View>
-        );
-    }
-    const toggleItem = useCallback((itemId) => {
-        if (expandedItem === itemId) {
-            setExpandedItem(null);
-        } else {
-            setExpandedItem(itemId);
-        }
-    }, [])
-    const userDataListAPI1 = async (dbName, languageId, token, user_id) => {
-        try {
+const MENU_ITEMS = [
+    {
+        key: 'password',
+        icon: require('../../Common/images/change_password_green.png'),
+        labelKey: 'forgot_password',
+        gradient: ['#FF6B6B', '#FF8E8E'],
+        iconBg: '#FFE5E5',
+    },
+    {
+        key: 'information',
+        icon: require('../../Common/images/add_info_plus.png'),
+        labelKey: 'far_list_information',
+        gradient: ['#4ECDC4', '#7FDBDA'],
+        iconBg: '#E5F9F8',
+    },
+    {
+        key: 'livehood',
+        icon: require('../../Common/images/add_plot_plus.png'),
+        labelKey: 'farming_details',
+        gradient: ['#45B7D1', '#74C7E3'],
+        iconBg: '#E5F4FA',
+    },
+    {
+        key: 'CrateProblemUser',
+        icon: require('../../Common/images/add_qust_plus.png'),
+        labelKey: 'q_a',
+        gradient: ['#F9CA24', '#F0B90B'],
+        iconBg: '#FEF5D3',
+    },
+];
 
-
-            setIsLoading(true);
-           
-            let response = await userDataListAPI(dbName, languageId, token, user_id, dbLanTokUsr.pageNo, '');
-               
-             if (response.status === 200) {
-                setPhoneNumber('');
-                const totalPage = Math.ceil(
-                  response?.data?.data?.count /
-                    response?.data?.data?.no_of_item_per_page,
-                );
-                setdbLanTokUsr({
-                    ...dbLanTokUsr,
-                    pageNo: 1,
-                    currentPage: '',
-                    totalPage: totalPage
-                });
-                setIsLoading(false);
-                setuserList(response?.data?.data)
-                await setItem('userListData', response?.data?.data);
-            
-            } else {
-                setIsLoading(false);
-                const userListData = await getItem('userListData');
-                setuserList(userListData)
-            }
-        } catch (error) {
-            CrashlyticsRecordError(error, 'UserList', 'userDataListAPI1');
-
-        }
-    }
-    const onPageLoad = async () => {
-        const { dbname, lan_id, token, user_id } = loginUser_data;
-        userDataListAPI1(dbname, lan_id, token, user_id);
-    };
-    const handleBackPress = () => {
-        navigation.navigate('Dashboard'); return true;
-    }
+// Modern Menu Button - Only animate menu buttons when expanded
+const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
+    const buttonAnim = useRef(new Animated.Value(0)).current;
     useEffect(() => {
+        if (isExpanded) {
+            const delay = index * 50;
+            Animated.spring(buttonAnim, {
+                toValue: 1,
+                delay,
+                tension: 120,
+                friction: 7,
+                useNativeDriver: true,
+            }).start();
+        } else {
+            buttonAnim.setValue(0);
+        }
+    }, [isExpanded, index]);
+
+    const handlePress = useCallback(() => {
+        Animated.sequence([
+            Animated.timing(buttonAnim, {
+                toValue: 0.9,
+                duration: 80,
+                useNativeDriver: true,
+            }),
+            Animated.timing(buttonAnim, {
+                toValue: 1,
+                duration: 80,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            onPress(item.key);
+        });
+    }, [onPress, item.key]);
+
+    if (!isExpanded) return null;
+
+    return (
+        <Animated.View
+            style={[
+                styles.modernMenuButton,
+                {
+                    opacity: buttonAnim,
+                    transform: [
+                        { scale: buttonAnim },
+                        {
+                            translateY: buttonAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [15, 0],
+                            }),
+                        },
+                    ],
+                },
+            ]}
+        >
+            <TouchableOpacity
+                style={[styles.menuButtonTouchable, { backgroundColor: item.iconBg }]}
+                onPress={handlePress}
+                activeOpacity={0.8}
+            >
+                <View style={styles.modernIconContainer}>
+                    <ImageForm
+                        source={item.icon}
+                        resizeMode="cover"
+                        height={24}
+                        width={24}
+                    />
+                </View>
+                <Text style={styles.modernMenuText} numberOfLines={2}>
+                    {t(item.labelKey)}
+                </Text>
+            </TouchableOpacity>
+        </Animated.View>
+    );
+});
+
+const ModernUserCard = memo(({
+    item,
+    isExpanded,
+    onToggle,
+    onMenuPress,
+    t,
+    index,
+    animationsEnabled,
+    expandedItem,
+    setState,
+    state
+}) => {
+    const cardAnim = useRef(new Animated.Value(animationsEnabled ? 0 : 1)).current;
+    const expandAnim = useRef(new Animated.Value(0)).current;
+    const rotateAnim = useRef(new Animated.Value(0)).current;
+    const hasAnimated = useRef(false);
+
+    // Only animate card entrance on initial load
+    useEffect(() => {
+        // Only animate if animations are enabled and haven't animated before
+        const delay = index * 100;
+        Animated.spring(cardAnim, {
+            toValue: 1,
+            delay,
+            tension: 80,
+            friction: 8,
+            useNativeDriver: true,
+        }).start(() => {
+            hasAnimated.current = true;
+        });
+    }, []);
+
+    // Animate expansion/collapse - This should work independent of entrance animation
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(expandAnim, {
+                toValue: isExpanded ? 1 : 0,
+                duration: 300, // Reduced for faster response
+                easing: Easing.bezier(0.4, 0.0, 0.2, 1),
+                useNativeDriver: false,
+            }),
+            Animated.timing(rotateAnim, {
+                toValue: isExpanded ? 1 : 0,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [isExpanded]);
+
+    const handleMenuPress = useCallback((menuKey) => {
+        const plotData = item.agri_land_user_rels?.agri_land_user_rels?.map(data => ({
+            value: data.rel_id,
+            label: data.plot_no
+        })) || [];
+        const filePath = item.agri_files?.[0]?.file_path || '';
+        onMenuPress(menuKey, {
+            farmeruserID: item.user_id,
+            agri_land_user_rels: plotData,
+            userName: item.userName,
+            contactNumber: item.contactNumber,
+            profileImage: filePath,
+            gender: item.gender,
+            farmer_type: item.farmer_type,
+        });
+    }, [item, onMenuPress]);
+
+    const handleCardPress = useCallback(() => {
+        onToggle(item.user_id);
+        setState(prev => ({ ...prev, onPageLoad: true }));
+    }, [onToggle, item.user_id]);
+    const cardStyle = state.onPageLoad == false ? [
+        styles.modernUserCard,
+        {
+            opacity: cardAnim,
+            transform: [
+                { scale: cardAnim },
+                {
+                    translateX: cardAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [SCREEN_WIDTH * 0.3, 0],
+                    }),
+                },
+            ],
+        }
+    ] : [styles.modernUserCard];
+    // console.log(item.agri_files.length>0)
+    return (
+        <Animated.View style={cardStyle}>
+            <TouchableOpacity
+                onPress={handleCardPress}
+                activeOpacity={0.95}
+                style={styles.cardTouchable}
+            >
+                {/* Card Header */}
+                <View style={styles.cardHeader}>
+                    <View style={styles.userAvatar}>
+                        {item.agri_files.length > 0 ? (
+                            <Image
+                                source={{ uri: item.agri_files[0].file_path }} // adjust key based on your data
+                                style={{
+                                    width: 60,
+                                    height: 60,
+                                    borderRadius: 30,
+                                    backgroundColor: '#ccc',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    overflow: 'hidden',
+                                }}
+                            />
+                        ) : (
+                            <Text style={styles.avatarText}>
+                                {item.userName?.charAt(0)?.toUpperCase() || 'U'}
+                            </Text>
+                        )}
+                    </View>
+
+
+                    <View style={styles.userDetails}>
+                        <Text style={styles.modernUserName} numberOfLines={1}>
+                            {item.userName}
+                        </Text>
+                        <View style={styles.contactRow}>
+                            <Text style={styles.phoneText}>
+                                {item.contactNumber}
+                            </Text>
+                        </View>
+                        <View style={styles.dateRow}>
+                            <Text style={styles.dateText}>
+                                {item.CreateDateTime?.substring(0, 10)}
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={styles.cardActions}>
+                        <View style={styles.plotsBadge}>
+                            <Text style={styles.plotsCount}>{item.agri_land_user_rels?.length || 0}</Text>
+                            <Text style={styles.plotsLabel}>{t('plots')}</Text>
+                        </View>
+                        {/* <Animated.View
+                            style={[
+                                styles.expandButton,
+                                {
+                                    transform: [
+                                        {
+                                            rotate: rotateAnim.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: ['0deg', '180deg'],
+                                            }),
+                                        },
+                                    ],
+                                },
+                            ]}
+                        >
+                            <Text style={styles.expandButtonText}>▼</Text>
+                        </Animated.View> */}
+                    </View>
+                </View>
+            </TouchableOpacity>
+
+            {/* Fixed height container to prevent FlatList jumps */}
+            <View style={[styles.menuPositionContainer, {
+                height: isExpanded ? 120 : 0,
+                borderTopWidth: isExpanded ? 1.5 : 0,
+                borderColor: Colors.border,
+                borderStyle: 'dotted'
+            }]}>
+                <Animated.View
+                    style={[
+                        styles.modernMenuContainer,
+                        {
+                            opacity: expandAnim,
+                            transform: [
+                                {
+                                    translateY: expandAnim.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [-120, 0],
+                                    }),
+                                },
+                                {
+                                    scaleY: expandAnim.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [0.8, 1],
+                                    }),
+                                },
+                            ],
+                        },
+                    ]}
+                >
+                    <View style={styles.modernMenuGrid}>
+                        {MENU_ITEMS.map((menuItem, menuIndex) => (
+                            <ModernMenuButton
+                                key={menuItem.key}
+                                item={menuItem}
+                                onPress={handleMenuPress}
+                                t={t}
+                                index={menuIndex}
+                                isExpanded={isExpanded}
+                            />
+                        ))}
+                    </View>
+                </Animated.View>
+            </View>
+        </Animated.View>
+    );
+});
+const UserList = ({ navigation }) => {
+    const {
+        dbLanTokUsr,
+        setdbLanTokUsr,
+        loginUser_data,
+        CustomHeader,
+        t,
+        getItem,
+        setItem,
+        Root,
+        Toast, navigationBarHeight, farmerData
+    } = useContext(userCreateContext);
+    const flatListRef = useRef(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+    const [filterItem, setFilterItem] = useState("");
+    const [searchFarmerPhone, setSearchFarmerPhone] = useState({ label: "", value: "" });
+    const [state, setState] = useState({
+        isLoading: true,
+        userList: null,
+        expandedItem: null,
+        phoneNumber: '',
+        refreshing: false,
+        onPageLoad: false,
+    });
+
+    const userCount = useMemo(() => state.userList?.count || 0, [state.userList]);
+    const hasUsers = useMemo(() => userCount > 0, [userCount]);
+
+    // API calls with error handling
+    const fetchUserList = useCallback(async (pageNo = 1, search_key_phone = "") => {
         try {
-            if (isFocused) {
-                if (phoneNumber == "") {
-                    onPageLoad();
+            setState(prev => ({ ...prev, isLoading: pageNo === 1, isLoading: true, }));
+            const { dbname, lan_id, token, user_id } = loginUser_data;
+            // const response = await userDataListAPI(dbname, lan_id, token, user_id, pageNo, searchQuery);
+            const response = await axiosGet(ROUTES.GET.AGENT_ROUTE({
+                page: pageNo,
+                search_key: search_key_phone,
+            }), token, { information: `${dbname},${lan_id},${user_id}`, })
+            if (response.status === 200) {
+                const { count, no_of_item_per_page, rows } = response.data || {};
+                const totalPages = Math.ceil(count / no_of_item_per_page);
+                setTotalPages(totalPages);
+                await setItem('userListData', rows);
+                setState(prev => ({
+                    ...prev,
+                    userList: rows,
+                    isLoading: false,
+                    expandedItem: null, // Reset expanded item on new data
+                }));
+                if (flatListRef.current) {
+                    flatListRef.current.scrollToOffset({ offset: 0, animated: true });
                 }
-                onBackPress(handleBackPress);
+                // Mark initial load complete after first successful fetch
+                if (!initialLoadComplete) {
+                    setInitialLoadComplete(true);
+                }
+
             }
         } catch (error) {
-            CrashlyticsRecordError(error, 'UserList', 'useEffect');
+            CrashlyticsRecordError(error, 'UserList', 'fetchUserList');
+            setState(prev => ({ ...prev, isLoading: false }));
         }
-    }, [isFocused]);
-    const handlePage = async (value) => {
-        try {
+    }, [loginUser_data, setItem, initialLoadComplete]);
 
+    const handleToggleItem = useCallback((itemId) => {
+        setState(prev => ({
+            ...prev,
+            expandedItem: prev.expandedItem === itemId ? null : itemId,
+        }));
+    }, []);
 
-            let currentPage = dbLanTokUsr.pageNo + 1;
-            if (value === 'next') {
-                if (dbLanTokUsr.totalPage >= currentPage) {
-                    setIsLoading(true);
-                    setdbLanTokUsr({ ...dbLanTokUsr, pageNo: currentPage })
-                    const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage, '');
-                    if (response.status === 200) {
-                        setIsLoading(false);
-                        setuserList(response.data.data);
-                        // basudev
-                        await setItem("userListData", response.data.data)
-                    }
-                } else {
-                    setIsLoading(false);
-                    Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-                }
-            } else if (value === 'previous') {
-                let currentPage = dbLanTokUsr.pageNo - 1;
-                if (dbLanTokUsr.pageNo !== 1) {
-                    setIsLoading(true);
-                    setdbLanTokUsr({ ...dbLanTokUsr, pageNo: currentPage })
-                    const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, currentPage, '');
-                    if (response.status === 200) {
-                        setIsLoading(false);
-                        setuserList(response.data.data);
-                        // basudev
-                        await setItem("userListData", response.data.data)
-                    }
-                }
-            }
-        } catch (error) {
-            CrashlyticsRecordError(error, 'UserList', 'handlePage');
+    const handleMenuPress = useCallback((menuName, params) => {
+        navigation.navigate(menuName, params);
+    }, [navigation]);
 
-        }
-    }
-    const searchByPhoneNumber = async () => {
-        Keyboard.dismiss();
-        const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, '0', phoneNumber);
-       console.log('check123', response);
-        if (response.status === 200) {
-            if (response.data.data.count != 0) {
-                setuserList(response.data.data);
-                // basudev
-                await setItem("userListData", response.data.data)
-            } else {
-                Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] })
-            }
-        }
-    }
-    const changePhoneNumber = useCallback((num) => {
-        setPhoneNumber(num);
-        if (num == "") {
-            Keyboard.dismiss();
-            userDataListAPI1(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId);
-        }
+    const handleRefresh = useCallback(async () => {
+        setState(prev => ({ ...prev, refreshing: true, expandedItem: null }));
+        await fetchUserList(1, '');
+        setState(prev => ({ ...prev, refreshing: false }));
+    }, [fetchUserList]);
+
+    useEffect(() => {
+        fetchUserList(page);
+    }, [page]);
+
+    const UserItemCard = useCallback(({ item, index }) => (
+        <ModernUserCard
+            item={item}
+            isExpanded={state.expandedItem === item.user_id}
+            expandedItem={state.expandedItem}
+            setState={setState}
+            state={state}
+            onToggle={handleToggleItem}
+            onMenuPress={handleMenuPress}
+            t={t}
+            index={index}
+            animationsEnabled={initialLoadComplete && !state.isLoading}
+        />
+    ), [state.expandedItem, handleToggleItem, handleMenuPress, t, initialLoadComplete, state.isLoading]);
+
+    const keyExtractor = useCallback((item, index) => {
+        return item?.user_id ? item.user_id.toString() : index.toString();
+    }, []);
+
+    const filterOptionShow = async () => {
+        const { openFilterSheet } = await import('../../Components/FilterSheet');
+        openFilterSheet({
+            options: ['', 'phone', '', ''],
+            t: t,
+            dropdownData: farmerData,
+            filterItem: filterItem,
+            setSearchFarmerPhone: setSearchFarmerPhone,
+            searchFarmerPhone: searchFarmerPhone,
+            title: 'Choose Status',
+            handleFilterResult: handleFilterResult,
+            handleFilterRemove: handleFilterRemove,
+            navigationBarHeight: navigationBarHeight,
+        });
+    };
+
+    const handleFilterResult = useCallback(({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+        setFilterItem(filter);
+        setSearchFarmerPhone({ label: farmerPhone?.label, value: farmerPhone?.value });
+        fetchUserList(1, farmerPhone?.label);
     }, [])
-    const HandlerGoBack = () => {
-        setuserList([]);
-        setPhoneNumber('');
-        navigation.navigate('Dashboard')
-    }
+    const handleFilterRemove = useCallback(() => {
+        setSearchFarmerPhone({ label: "", value: "" });
+        setFilterItem("");
+        fetchUserList(1, "", "", "", "", "");
+        setPage(1);
+    }, [])
     return (
         <MyErrorBoundary>
             <Root>
-                <View style={{ flex: 1, backgroundColor: '#fff' }}>
-                    <CustomHeader path='Dashboard' HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-                    <View style={{ marginTop: 10, flex: 1 }}>
-                        <View style={styles.header}>
-                            <View style={{ alignItems: 'center' }}>
-                                <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
-                                <Text style={styles.title}>{userList && userList.count} {t('farmers')}</Text>
-                            </View>
-                            <Text style={[styles.title, { fontWeight: '700', fontSize: 17 }]}>{t('farmer_list')}</Text>
-                        </View>
-                        <View style={styles.searchContainer}>
-                            <View style={styles.textInputContainer}>
-                                <TextInput placeholder={t('search_phone_by_number')}
-                                    keyboardType='numeric'
-                                    placeholderTextColor={'#000'} maxLength={10} style={styles.textInput}
-                                    onChangeText={(num) => changePhoneNumber(num)} value={phoneNumber} />
-                            </View>
-                            <TouchableOpacity onPress={searchByPhoneNumber} style={styles.searchIcon}>
-                                <ImageForm source={require('../../Common/images/search.png')} resizeMode="cover" height={40} width={40} />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ backgroundColor: '#e7e7e7' }}>
-                            <View style={styles.LoadingScreen}>
-                                {isLoading ? <LoadingScreen /> : null}
-                            </View>
-                            {userList ?
-                                <>
-                                    <View style={styles.LoadingScreen}>
-                                        {isLoading ? <LoadingScreen /> : null}
-                                    </View>
-                                    <FlatList
-                                        initialNumToRender={7}
-                                        showsVerticalScrollIndicator={false}
-                                        data={userList.rows}
-                                        style={userList && userList.count != 0 ? typeof userList.rows == "object" ? { marginBottom: 188, paddingTop: 10 } : "" : ""}
-                                        keyExtractor={(item) => item.user_id}
-                                        renderItem={({ item, index }) => (
-                                            <View style={{ marginBottom: 10, marginHorizontal: '3%', backgroundColor: '#FFF', borderRadius: 20 }}>
-                                                <TouchableOpacity onPress={() => toggleItem(item.user_id)} activeOpacity={0.7}>
-                                                    <UserBoxDisplay
-                                                        item={item.userName}
-                                                        item2={item.contactNumber}
-                                                        item3={item.CreateDateTime.substring(-1, 10)}
-                                                        item4={t('plots') + " : " + item.agri_land_user_rels.length}
-                                                    />
-                                                    {
-                                                        expandedItem === item.user_id && (
-                                                            <MenuBoxDisplay farmeruserID={item.user_id} agri_land_user_rels={item} />
-                                                        )
-                                                    }
-                                                </TouchableOpacity>
-                                            </View>
-                                        )
-                                        } />
-                                </>
-                                : ""}
-                        </View>
-                        <View style={styles.prevNextPage}>
-                            {userList && userList.count != 0 ?
-                                <TouchableOpacity onPress={() => handlePage('previous')}  >
-                                    <Text style={styles.title}>{t('prev_page')}</Text>
-                                </TouchableOpacity> : null}
-
-                            {userList && userList.count != 0 ? <TouchableOpacity onPress={() => handlePage('next')} >
-                                <Text style={styles.title}>{t('next_page')}</Text>
-                            </TouchableOpacity> : null}
-                        </View>
-                    </View>
+                <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
+                <View style={styles.container}>
+                    <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+                    <FlatList
+                        ref={flatListRef}
+                        data={state?.isLoading ? Array.from({ length: 6 }) : state?.userList}
+                        renderItem={({ item, index }) =>
+                            state?.isLoading ? (
+                                <SkeletonUserCard />
+                            ) : (
+                                <UserItemCard item={item} index={index} />
+                            )
+                        }
+                        keyExtractor={keyExtractor}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={state.refreshing}
+                                onRefresh={handleRefresh}
+                                colors={['#4CAF50']}
+                                tintColor="#4CAF50"
+                            />
+                        }
+                        contentContainerStyle={styles.listContent}
+                        // onScrollBeginDrag={handleScrollBeginDrag}
+                        removeClippedSubviews={true}
+                        maxToRenderPerBatch={10}
+                        windowSize={10}
+                        initialNumToRender={8}
+                        scrollEventThrottle={16}
+                        // Prevent layout jumps with maintainVisibleContentPosition
+                        maintainVisibleContentPosition={{
+                            minIndexForVisible: 0,
+                        }}
+                    />
+                    <PaginationNav
+                        isLoading={state.isLoading}
+                        page={page}
+                        totalPages={totalPages}
+                        onPrev={() => setPage(p => Math.max(1, p - 1))}
+                        onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+                        t={t}
+                    />
                 </View>
             </Root>
         </MyErrorBoundary>
-    )
-}
+    );
+};
+
 const styles = StyleSheet.create({
-    header:
-    {
-        flexDirection: 'row',
-        justifyContent: "space-between",
-        alignItems: 'center',
-        marginHorizontal: '10%'
-    },
-    box1:
-    {
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 80,
-        backgroundColor: 'white',
-        shadowColor: 'rgba(0, 0, 0, 0.2)',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-        elevation: 1,
-        paddingVertical: 30
-    },
-    box1_1: {
+    container: {
         flex: 1,
+        backgroundColor: Colors.background_light,
+    },
+    headerBackground: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+    },
+    headerContent: {
+        paddingHorizontal: 20,
+    },
+    headerTop: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginHorizontal: 20
+        marginBottom: 20,
     },
-    boxMenu: {
-        borderBottomStartRadius: 10,
-        borderBottomEndRadius: 10,
-        borderTopWidth: 1,
-        borderColor: 'green',
+    headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: 'white',
-        shadowColor: 'rgba(0, 0, 0, 0.2)',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-        header: 150,
-        elevation: 2,
-        paddingVertical: 10
-    },
-    containerflat: {
         flex: 1,
-        padding: 16,
     },
-    itemflat: {
-        backgroundColor: '#f0f0f0',
+    iconWrapper: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+    titleSection: {
+        flex: 1,
+    },
+    mainTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        fontFamily: 'Poppins-Bold',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.8)',
+        fontFamily: 'Poppins-Regular',
+    },
+    statsNumber: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        fontFamily: 'Poppins-Bold',
+    },
+    statsLabel: {
+        fontSize: 12,
+        color: 'rgba(255,255,255,0.8)',
+        fontFamily: 'Poppins-Regular',
+    },
+    searchSection: {
+        paddingHorizontal: 20,
+    },
+    modernSearchBar: {
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderRadius: 25,
+        paddingHorizontal: 4,
+        paddingVertical: 4,
+    },
+    clearButton: {
+        padding: 4,
+    },
+    clearButtonText: {
+        color: '#999',
+        fontSize: 16,
+    },
+    contentArea: {
+        flex: 1,
+        paddingTop: 20,
+    },
+    listContent: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
+    },
+    cardTouchable: {
+        padding: 0,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+    },
+    userAvatar: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#4CAF50',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    avatarText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        fontFamily: 'Poppins-Bold',
+    },
+    userDetails: {
+        flex: 1,
+    },
+    modernUserName: {
+        fontSize: 16,
+        color: Colors.text,
+        marginBottom: 4,
+        fontFamily: Fonts.Medium,
+    },
+    contactRow: {
+        marginBottom: 4,
+    },
+    phoneText: {
+        fontSize: 14,
+        color: Colors.lightText,
+        fontFamily: Fonts.Medium,
+    },
+    dateRow: {},
+    dateText: {
+        fontSize: 12,
+        color: Colors.lightText,
+        fontFamily: Fonts.Medium,
+    },
+    cardActions: {
+        alignItems: 'center',
+    },
+    plotsBadge: {
+        flexDirection: 'row',
+        backgroundColor: '#E8F5E8',
+        borderRadius: 20,
+        paddingVertical: 4,
+        paddingHorizontal: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+
+    plotsCount: {
+        fontSize: 15,
+        // fontWeight: 'bold',
+        color: Colors.borderGreen,
+        fontFamily: Fonts.SemiBold,
+        marginRight: 4,
+    },
+
+    plotsLabel: {
+        fontSize: 10,
+        color: Colors.borderGreen,
+        // marginTop: 5,
+        fontFamily: Fonts.Medium,
+    },
+
+    expandButton: {
         padding: 8,
+    },
+    expandButtonText: {
+        fontSize: 18,
+        color: Colors.text,
+    },
+    menuPositionContainer: {
+        overflow: 'hidden',
+        backgroundColor: Colors.background,
+    },
+    modernMenuContainer: {
+        height: 120,
+        backgroundColor: Colors.background,
+        overflow: 'hidden',
+    },
+    modernMenuGrid: {
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        justifyContent: 'space-between',
+    },
+    modernMenuButton: {
+        flex: 1,
+        marginHorizontal: 4,
+    },
+    menuButtonTouchable: {
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+        minHeight: 90,
+        justifyContent: 'center',
+    },
+    modernIconContainer: {
         marginBottom: 8,
     },
-    title: {
-        color: '#000',
-        lineHeight: 25,
-        fontFamily: 'Poppins-Regular',
-        fontSize: 14
+    modernMenuText: {
+        fontSize: 10,
+        textAlign: 'center',
+        color: '#333',
+        fontWeight: '600',
+        fontFamily: 'Poppins-Medium',
+        lineHeight: 12,
     },
-    titleBottom: {
-        color: '#000',
-        fontFamily: 'Poppins-Regular'
-    },
-    prevNextPage: {
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15,
-        position: 'absolute',
-        bottom: 0,
-        backgroundColor: '#ffffff'
-    },
-    LoadingScreen: {
-        position: 'absolute',
-        top: 100,
-        left: '45%',
-        zIndex: 999
-    },
-    searchContainer: {
-        marginHorizontal: '3%',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        borderWidth: 1,
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        marginVertical: 7,
-        elevation: 1,
-        backgroundColor: '#FFF',
     },
-    textInput: {
-        height: 45,
-        width: '100%',
-        color: '#000',
+    loadingCircle: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#4CAF50',
+        marginBottom: 16,
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#666',
         fontFamily: 'Poppins-Regular',
-        lineHeight: 18
     },
-    searchIcon: {
-        width: '10%',
+    emptyState: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    textInputContainer: {
-        width: '90%',
-    }
+    emptyText: {
+        fontSize: 16,
+        color: '#666',
+        fontFamily: 'Poppins-Regular',
+    },
+    paginationWrapper: {
+        backgroundColor: '#FFFFFF',
+        paddingTop: 16,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    modernHeader: {
+        backgroundColor: '#4CAF50',
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+        paddingTop: Platform.OS === 'ios' ? 50 : 30,
+        paddingBottom: 30,
+        elevation: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+    },
+    modernUserCard: {
+        marginBottom: 16,
+        backgroundColor: Colors.background,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        overflow: 'hidden',
+    },
 });
-export default UserList;
+UserList.whyDidYouRender = true;
+export default memo(UserList);
