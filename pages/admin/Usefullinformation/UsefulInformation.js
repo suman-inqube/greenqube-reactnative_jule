@@ -9,16 +9,15 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {WebView} from 'react-native-webview';
-import {noticeDetailsAPI} from '../../../config/apiHere';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { WebView } from 'react-native-webview';
+import { noticeDetailsAPI } from '../../../config/apiHere';
 import {
   useFocusEffect,
   useNavigation,
-  useIsFocused,
+  useIsFocused, useRoute
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-
+import { userCreateContext } from '../../Context/usersCreateContext';
 const head = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <style>
@@ -37,10 +36,11 @@ const UsefulInformation = () => {
     topBanner,
     FormsTitle,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token} = loginUser_data;
+  const { dbname, lan_id, token } = loginUser_data;
+  const route = useRoute();
   const [noticeDetails, setNoticeDetails] = useState([]);
   const [noticeFiles, setNoticeFiles] = useState([]);
-  const {width, height} = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
@@ -50,24 +50,24 @@ const UsefulInformation = () => {
     }
   };
 
-  const DocumentDisplay = ({item, file_ext}) => {
+  const DocumentDisplay = ({ item, file_ext }) => {
     if (file_ext === 'application/pdf') {
       return (
         <Image
-          style={{width: '100%', height: 100}}
+          style={{ width: '100%', height: 100 }}
           resizeMode="contain"
           source={require('../../Common/images/icons8-pdf-50.png')}
         />
       );
     } else if (file_ext === 'image/jpeg') {
       return (
-        <Image style={{width: '100%', height: 200}} source={{uri: item}} />
+        <Image style={{ width: '100%', height: 200 }} source={{ uri: item }} />
       );
     } else if (file_ext === 'video/mp4') {
       return (
         <WebView
-          source={{uri: item}}
-          style={{height: 300}}
+          source={{ uri: item }}
+          style={{ height: 300 }}
           javaScriptEnabled={true}
           mediaPlaybackRequiresUserAction={false}
         />
@@ -77,7 +77,7 @@ const UsefulInformation = () => {
   };
 
   const onPageLoad = async () => {
-    const noticeId = await getItem('userNoticeId');
+    const noticeId = route.params;
     if (noticeId) {
       const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
       if (response?.status === 200 && response.data.data.length > 0) {
@@ -88,40 +88,27 @@ const UsefulInformation = () => {
     }
   };
 
-  const handleBackPress = () => {
-    navigation.navigate('UsefulInformationList');
-    return true;
-  };
-
   useEffect(() => {
-    if (isFocused) {
-      onPageLoad();
-    }
-    onBackPress(handleBackPress);
-  }, [isFocused]);
-
-  const HandlerGoBack = () => {
-    navigation.navigate('UsefulInformationList');
-  };
+    onPageLoad();
+  }, []);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <CustomHeader
         path={'UsefulInformationList'}
-        HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
       />
-      <FormsTitle title={noticeDetails && noticeDetails.post_name} />
+      {/* <FormsTitle title={noticeDetails && noticeDetails.post_name} /> */}
 
       {/* Horizontal Scroll for Attachments */}
-      <View style={{marginHorizontal: 7, marginBottom: 10}}>
+      <View style={{ marginHorizontal: 7, marginBottom: 10 }}>
         <FlatList
           horizontal
           data={noticeFiles}
           keyExtractor={item => item.file_id}
           showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <TouchableOpacity
               style={{
                 width: 200,
@@ -145,9 +132,9 @@ const UsefulInformation = () => {
       </View>
 
       {/* WebView Content */}
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <WebView
-          style={{flex: 1}}
+          style={{ flex: 1 }}
           originWhitelist={['*']}
           source={{
             html: `

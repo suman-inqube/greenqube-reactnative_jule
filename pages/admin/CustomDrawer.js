@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {memo, useCallback, useState, useMemo} from 'react';
 import {
   Alert,
   ScrollView,
@@ -6,7 +6,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
 import {removeItem} from '../../config/getDataFromStorage';
 import {StackActions, useNavigation} from '@react-navigation/native';
@@ -14,335 +13,287 @@ import {useTranslation} from 'react-i18next';
 import DeviceInfo from '../DeviceInfo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors, Fonts} from '../utils/Constants';
-const CustomDrawer = props => {
+
+// Constants for better performance and maintainability
+const MENU_TYPES = {
+  PROFILE: 'profile',
+  BUSINESS: 'business',
+  FARM_ACCOUNT: 'farmAccount',
+};
+
+const STORAGE_KEYS = [
+  'logoImageData',
+  'loginUser_data',
+  'profileImgData',
+  'userNameData',
+  'userType',
+  'bottomBannerData',
+  'topBannerData',
+  'currency',
+  'fcmToken',
+  'company_website',
+];
+
+// Extracted menu item component for better performance
+const MenuItem = memo(({
+  iconName,
+  title,
+  onPress,
+  isExpandable = false,
+  isExpanded = false,
+  expandIconMarginRight = 130,
+}) => (
+  <TouchableOpacity style={styles.memuContainer} onPress={onPress}>
+    <View style={isExpandable ? styles.menuItem : styles.menuItemCal}>
+      <View style={styles.iconView}>
+        <MaterialIcons name={iconName} size={22} color="#030730" />
+      </View>
+      <Text style={styles.menuText}>{title}</Text>
+      {isExpandable && (
+        <MaterialIcons
+          name={isExpanded ? 'expand-less' : 'expand-more'}
+          size={22}
+          color="#d5dbd7"
+          style={{marginRight: expandIconMarginRight}}
+        />
+      )}
+    </View>
+  </TouchableOpacity>
+));
+
+// Extracted submenu item component
+const SubMenuItem = memo(({iconName, title, onPress}) => (
+  <TouchableOpacity
+    style={[styles.subMenu, {paddingLeft: 30}]}
+    onPress={onPress}>
+    <View style={styles.subMenuItem}>
+      <MaterialIcons name={iconName} size={22} color="#eaf3ee" />
+      <Text style={styles.subText}>{title}</Text>
+    </View>
+  </TouchableOpacity>
+));
+
+const CustomDrawer = memo(({state}) => {
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
   const navigation = useNavigation();
-  const {state} = props; // Get the navigation state from props
-  const activeRouteName = state?.routes[state.index]?.name; // Get current active screen name
 
-  const isActiveScreen = screenName => {
-    return activeRouteName === screenName;
-  };
+  // Memoize active route name calculation
+  const activeRouteName = useMemo(() => 
+    state?.routes[state.index]?.name, [state]
+  );
 
-  const isActiveParent = screenNames => {
-    return screenNames.includes(activeRouteName);
-  };
+  // Consolidated expanded state
+  const [expandedMenus, setExpandedMenus] = useState({
+    profile: false,
+    business: false,
+    farmAccount: false,
+  });
 
-  const [profileExpanded, setProfileExpanded] = useState(false);
-  const [businessExpanded, setBusinessExpanded] = useState(false);
-  const [farmAccountExpanded, setFarmAccountExpanded] = useState(false);
-
-  const handleLogout = async () => {
+  // Memoized handlers
+  const handleLogout = useCallback(() => {
     Alert.alert(
-      `${t('app_name')}`,
-      `${t('close_app')}`,
+      t('app_name'),
+      t('close_app'),
       [
         {
-          text: `${t('cancle')}`,
-          onPress: () => console.log('Cancel Pressed'),
+          text: t('cancle'),
           style: 'cancel',
         },
         {
-          text: `${t('ok')}`,
-          onPress: () => {
-            removeData();
-          },
+          text: t('ok'),
+          onPress: removeData,
         },
       ],
       {cancelable: false},
     );
-  };
-  const removeData = async () => {
-    if (netConnection) {
-      await Promise.all([
-        removeItem('logoImageData'),
-        removeItem('loginUser_data'),
-        removeItem('profileImgData'),
-        removeItem('userNameData'),
-        removeItem('userType'),
-        removeItem('bottomBannerData'),
-        removeItem('topBannerData'),
-        removeItem('currency'),
-        removeItem('fcmToken'),
-        removeItem('company_website'),
-      ]);
+  }, [t]);
+
+  const removeData = useCallback(async () => {
+    if (!netConnection) {
+      Alert.alert('You are offline hence cannot proceed');
+      return;
+    }
+
+    try {
+      // Use Promise.all for better performance
+      await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
+      
       const popAction = StackActions.pop(1);
       navigation.dispatch(popAction);
       navigation.navigate('Login');
-    } else {
-      Alert.alert('You are offline hence cannot proceed');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      Alert.alert('Error occurred during logout');
     }
-  };
-  const navigateToPages = pageName => {
+  }, [netConnection, navigation]);
+
+  const navigateToPages = useCallback((pageName) => {
     if (netConnection) {
       navigation.navigate(pageName);
     }
-  };
+  }, [netConnection, navigation]);
 
-  const handleMenuExpand = menuName => {
-    // Close all menus first
-    setProfileExpanded(false);
-    setBusinessExpanded(false);
-    setFarmAccountExpanded(false);
+  const handleMenuExpand = useCallback((menuName) => {
+    setExpandedMenus(prev => ({
+      profile: menuName === MENU_TYPES.PROFILE ? !prev.profile : false,
+      business: menuName === MENU_TYPES.BUSINESS ? !prev.business : false,
+      farmAccount: menuName === MENU_TYPES.FARM_ACCOUNT ? !prev.farmAccount : false,
+    }));
+  }, []);
 
-    // Then open the selected menu
-    switch (menuName) {
-      case 'profile':
-        setProfileExpanded(!profileExpanded);
-        break;
-      case 'business':
-        setBusinessExpanded(!businessExpanded);
-        break;
-      case 'farmAccount':
-        setFarmAccountExpanded(!farmAccountExpanded);
-        break;
-    }
-  };
+  // Memoized menu data
+  const menuConfig = useMemo(() => [
+    {
+      id: 'home',
+      iconName: 'home',
+      title: t('Home'),
+      onPress: () => navigateToPages('Dashboard'),
+    },
+    {
+      id: 'profile',
+      iconName: 'person',
+      title: t('profile'),
+      isExpandable: true,
+      isExpanded: expandedMenus.profile,
+      onPress: () => handleMenuExpand(MENU_TYPES.PROFILE),
+      expandIconMarginRight: 130,
+      subItems: [
+        {
+          iconName: 'supervisor-account',
+          title: t('profile'),
+          onPress: () => navigateToPages('Profile'),
+        },
+        {
+          iconName: 'lock-reset',
+          title: t('change_password'),
+          onPress: () => navigateToPages('ChangePassword'),
+        },
+      ],
+    },
+    {
+      id: 'business',
+      iconName: 'business',
+      title: t('traceability'),
+      isExpandable: true,
+      isExpanded: expandedMenus.business,
+      onPress: () => handleMenuExpand(MENU_TYPES.BUSINESS),
+      expandIconMarginRight: 100,
+      subItems: [
+        {
+          iconName: 'business-center',
+          title: t('traceability'),
+          onPress: () => navigateToPages('Business'),
+        },
+        {
+          iconName: 'receipt',
+          title: t('daily_sales_report'),
+          onPress: () => navigateToPages('DailySalesReport'),
+        },
+      ],
+    },
+    {
+      id: 'farmAccount',
+      iconName: 'account-balance',
+      title: t('farm_income_amp_expense'),
+      isExpandable: true,
+      isExpanded: expandedMenus.farmAccount,
+      onPress: () => handleMenuExpand(MENU_TYPES.FARM_ACCOUNT),
+      expandIconMarginRight: 50,
+      subItems: [
+        {
+          iconName: 'currency-rupee',
+          title: t('farm_income_amp_expense'),
+          onPress: () => navigateToPages('FarmIncomeExpenseList'),
+        },
+        {
+          iconName: 'real-estate-agent',
+          title: t('L_view_loan_nrequested'),
+          onPress: () => navigateToPages('LoanViewPastRequested'),
+        },
+        {
+          iconName: 'assignment-add',
+          title: t('loan_request_n'),
+          onPress: () => navigateToPages('LoanRequest'),
+        },
+        {
+          iconName: 'security',
+          title: t('Insu_enquiry_detail'),
+          onPress: () => navigateToPages('InsuranceViewPastRequested'),
+        },
+        {
+          iconName: 'maps-ugc',
+          title: t('request_for_ninsurance'),
+          onPress: () => navigateToPages('RequestForInsurance'),
+        },
+      ],
+    },
+    {
+      id: 'training',
+      iconName: 'school',
+      title: t('training_support'),
+      onPress: () => navigateToPages('TraingList'),
+    },
+    {
+      id: 'instrument',
+      iconName: 'local-activity',
+      title: t('instrument_Wise_Activity_View'),
+      onPress: () => navigateToPages('InstrumentWiseActivityView'),
+    },
+    {
+      id: 'logout',
+      iconName: 'logout',
+      title: t('sign_out'),
+      onPress: handleLogout,
+    },
+  ], [t, expandedMenus, handleMenuExpand, navigateToPages, handleLogout]);
 
   return (
     <View style={styles.mainView}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{marginBottom: 80}}>
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => navigateToPages('Dashboard')}>
-            <View style={styles.menuItemCal}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="home" size={22} color="#030730" />
-              </View>
-              <Text style={styles.menuText}>{t('Home')}</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Profile Section */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => handleMenuExpand('profile')}>
-            <View style={[styles.menuItem, {marginTop: 8}]}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="person" size={22} color="#030730" />
-              </View>
-              <Text style={styles.menuText}>{t('profile')}</Text>
-              <MaterialIcons
-                name={profileExpanded ? 'expand-less' : 'expand-more'}
-                size={22}
-                color="#d5dbd7"
-                style={{marginRight: 130}}
+        <View style={styles.contentContainer}>
+          {menuConfig.map((menu) => (
+            <View key={menu.id}>
+              <MenuItem
+                iconName={menu.iconName}
+                title={menu.title}
+                onPress={menu.onPress}
+                isExpandable={menu.isExpandable}
+                isExpanded={menu.isExpanded}
+                expandIconMarginRight={menu.expandIconMarginRight}
               />
-            </View>
-          </TouchableOpacity>
-
-          {profileExpanded && (
-            <View style={{marginBottom: 30}}>
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('Profile')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons
-                    name="supervisor-account"
-                    size={22}
-                    color="#eaf3ee"
-                  />
-                  <Text style={styles.subText}>{t('profile')}</Text>
+              
+              {menu.isExpanded && menu.subItems && (
+                <View style={styles.subMenuContainer}>
+                  {menu.subItems.map((subItem, index) => (
+                    <SubMenuItem
+                      key={`${menu.id}-${index}`}
+                      iconName={subItem.iconName}
+                      title={subItem.title}
+                      onPress={subItem.onPress}
+                    />
+                  ))}
                 </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('ChangePassword')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons name="lock-reset" size={22} color="#eaf3ee" />
-                  <Text style={styles.subText}>{t('change_password')}</Text>
-                </View>
-              </TouchableOpacity>
+              )}
             </View>
-          )}
-
-          {/* Business/Traceability Section */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => handleMenuExpand('business')}>
-            <View style={styles.menuItem}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="business" size={22} color="#030730" />
-              </View>
-              <Text style={styles.menuText}>{t('traceability')}</Text>
-              <MaterialIcons
-                name={businessExpanded ? 'expand-less' : 'expand-more'}
-                size={22}
-                color="#d5dbd7"
-                style={{marginRight: 100}}
-              />
-            </View>
-          </TouchableOpacity>
-
-          {businessExpanded && (
-            <View style={{marginBottom: 30}}>
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('Business')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons
-                    name="business-center"
-                    size={22}
-                    color="#eaf3ee"
-                  />
-                  <Text style={styles.subText}>{t('traceability')}</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('DailySalesReport')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons name="receipt" size={22} color="#eaf3ee" />
-                  <Text style={styles.subText}>{t('daily_sales_report')}</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* FARMAccount Section */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => handleMenuExpand('farmAccount')}>
-            <View style={styles.menuItem}>
-              <View style={styles.iconView}>
-                <MaterialIcons
-                  name="account-balance"
-                  size={22}
-                  color="#030730"
-                />
-              </View>
-              <Text style={styles.menuText}>
-                {t('farm_income_amp_expense')}
-              </Text>
-              <MaterialIcons
-                name={farmAccountExpanded ? 'expand-less' : 'expand-more'}
-                size={22}
-                color="#d5dbd7"
-                style={{marginRight: 50}}
-              />
-            </View>
-          </TouchableOpacity>
-
-          {farmAccountExpanded && (
-            <View style={{marginBottom: 30}}>
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('FarmIncomeExpenseList')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons
-                    name="currency-rupee"
-                    size={22}
-                    color="#eaf3ee"
-                  />
-                  <Text style={styles.subText}>
-                    {t('farm_income_amp_expense')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('LoanViewPastRequested')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons
-                    name="real-estate-agent"
-                    size={22}
-                    color="#eaf3ee"
-                  />
-                  <Text style={styles.subText}>
-                    {t('L_view_loan_nrequested')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('LoanRequest')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons
-                    name="assignment-add"
-                    size={22}
-                    color="#eaf3ee"
-                  />
-                  <Text style={styles.subText}>{t('loan_request_n')}</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('InsuranceViewPastRequested')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons name="security" size={22} color="#eaf3ee" />
-                  <Text style={styles.subText}>{t('Insu_enquiry_detail')}</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.subMenu, {paddingLeft: 30}]}
-                onPress={() => navigateToPages('RequestForInsurance')}>
-                <View style={styles.subMenuItem}>
-                  <MaterialIcons name="maps-ugc" size={22} color="#eaf3ee" />
-                  <Text style={styles.subText}>
-                    {t('request_for_ninsurance')}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* Training Support - Single Menu */}
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => navigateToPages('TraingList')}>
-            <View style={styles.menuItemCal}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="school" size={22} color="#030730" />
-              </View>
-              <Text style={styles.menuText}>{t('training_support')}</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* InstrumentWiseActivityView - Single Menu */}
-
-          <TouchableOpacity
-            style={styles.memuContainer}
-            onPress={() => navigateToPages('InstrumentWiseActivityView')}>
-            <View style={styles.menuItemCal}>
-              <View style={styles.iconView}>
-                <MaterialIcons
-                  name="local-activity"
-                  size={22}
-                  color="#030730"
-                />
-              </View>
-              <Text style={styles.menuText}>
-                {t('instrument_Wise_Activity_View')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Logout Section */}
-          <TouchableOpacity style={styles.memuContainer} onPress={handleLogout}>
-            <View style={styles.menuItem}>
-              <View style={styles.iconView}>
-                <MaterialIcons name="logout" size={22} color="#030730" />
-              </View>
-              <Text style={styles.menuText}>{t('sign_out')}</Text>
-            </View>
-          </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
     </View>
   );
-};
+});
 
-export default memo(CustomDrawer);
+CustomDrawer.displayName = 'CustomDrawer';
+
+export default CustomDrawer;
+
 const styles = StyleSheet.create({
   mainView: {
     marginTop: 120,
     flex: 1,
+  },
+  contentContainer: {
+    marginBottom: 80,
   },
   memuContainer: {
     paddingVertical: 12,
@@ -354,6 +305,9 @@ const styles = StyleSheet.create({
     marginRight: 5,
     borderEndStartRadius: 50,
     paddingVertical: 2,
+  },
+  subMenuContainer: {
+    marginBottom: 30,
   },
   menuItem: {
     flexDirection: 'row',

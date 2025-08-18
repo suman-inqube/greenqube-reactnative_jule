@@ -1,10 +1,12 @@
 import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors, Fonts } from '../utils/Constants';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const PaginationNav = ({ page, totalPages, onPrev, onNext, t, isLoading }) => {
   const disablePrev = page === 1 || isLoading;
   const disableNext = page === totalPages || isLoading;
+
   return (
     <View style={styles.bottomNav}>
       <TouchableOpacity
@@ -12,9 +14,8 @@ const PaginationNav = ({ page, totalPages, onPrev, onNext, t, isLoading }) => {
         disabled={disablePrev}
         onPress={onPrev}
       >
-        <Text style={[styles.navText, styles.nextButton]}>
-          {t('prev_page')}
-        </Text>
+        {/* <Ionicons name="chevron-back" size={20} color="#666" /> */}
+        <Text style={[styles.navText, styles.nextButton]}>{t('prev_page')} </Text>
       </TouchableOpacity>
 
       <Text style={styles.pageIndicator}>
@@ -26,9 +27,8 @@ const PaginationNav = ({ page, totalPages, onPrev, onNext, t, isLoading }) => {
         disabled={disableNext}
         onPress={onNext}
       >
-        <Text style={[styles.navText, styles.nextButton]}>
-          {t('next_page')}
-        </Text>
+        <Text style={[styles.navText, styles.nextButton]}>{t('next_page')}</Text>
+          {/* <Ionicons name="chevron-forward" size={20} color="#666" /> */}
       </TouchableOpacity>
     </View>
   );
@@ -54,6 +54,11 @@ const styles = StyleSheet.create({
   },
   navButton: {
     padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8
   },
   navText: {
     fontSize: 14,

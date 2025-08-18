@@ -57,6 +57,17 @@ export const ROUTES = {
       agent_id = "",
       farmer_mobile = "",
     }) => `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&problem_type_id=&problem_name_id=&farmer_mobile=${farmer_mobile}`,
+    INPUT_OUTPUT_ROUTE: ({
+      farmer_id = "",
+      from_date = "",
+      to_date = "",
+      agent_id = "",
+      farmer_mobile = "",
+    }) => `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
+    AGENT_ROUTE: ({
+      page = 1,
+      search_key = ""
+    }) => `agentRoute/listFarmer_e/1/${page}/2?search_key=${search_key}`,
   },
   PUT: {
     USER_PROFILE_UPDATE: ({ user_id }) => `loginSignupRoute/update/${user_id}`,

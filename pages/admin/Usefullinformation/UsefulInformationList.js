@@ -60,11 +60,7 @@ const UsefulInformationList = () => {
     setIsGridView(prev => !prev);
   };
   const detailItem = async (itemId) => {
-    await setItem('userNoticeId', itemId);
-    navigation.navigate('UsefulInformation', {
-      pagename: 'UsefulInformation',
-      noticeId: itemId,
-    });
+    navigation.navigate('UsefulInformation', itemId);
   };
 
   const usefulInfoList = async (
@@ -120,17 +116,12 @@ const UsefulInformationList = () => {
   };
 
   useEffect(() => {
-    if (isFocused) {
-      if (currentRoute.params?.data == "remove") {
-        onPageLoad();
-      }
-      onBackPress(() => {
-        setNoticeList([]);
-        setTitleSearch('');
-        navigation.navigate('Dashboard'); return true;
-      })
+
+    if (currentRoute.params?.data == "remove") {
+      onPageLoad();
     }
-  }, [isFocused]);
+
+  }, []);
   const searchByTitle = async () => {
     Keyboard.dismiss();
     const { agri_state, agri_district, agri_subdivision } = agri_user_addresses[0];
@@ -174,7 +165,7 @@ const UsefulInformationList = () => {
         {/* Header with Title and Toggle Button */}
         <View style={styles.headerContainer}>
           <View style={styles.titleContainer}>
-            <FormsTitle title={t('dash_useful_information')} />
+            {/* <FormsTitle title={t('dash_useful_information')} /> */}
           </View>
           <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
             {isGridView ? (
@@ -412,10 +403,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   loaderContainer: {
-  flex: 1,
-  alignItems: 'center',
-  paddingVertical: 40,
-},
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
 });
 
 export default UsefulInformationList;
