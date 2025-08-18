@@ -1,7 +1,8 @@
-import React, { memo } from 'react';
-import { View, StyleSheet, Text, useColorScheme } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
-import { Colors } from '../utils/Constants';
+import React, {memo} from 'react';
+import {View, StyleSheet, Text, useColorScheme} from 'react-native';
+import {Dropdown} from 'react-native-element-dropdown';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Colors, Fonts} from '../utils/Constants';
 
 const DropdownForm = ({
   color = '#4e4e4e',
@@ -9,19 +10,29 @@ const DropdownForm = ({
   data = [],
   onChange,
   val,
-  disable = false
+  disable = false,
+  labelStyle,
+  required = false,
 }) => {
   const scheme = useColorScheme();
-  const labelString = label ? label.charAt(0).toUpperCase() + label.slice(1) : '';
+  const labelString = label
+    ? label.charAt(0).toUpperCase() + label.slice(1)
+    : '';
 
   return (
     <View>
-      {/* Label */}
-      {labelString ? (
-        <Text style={[styles.label, { color }]}>
-          {labelString}
-        </Text>
-      ) : null}
+      <View style={styles.labelContainer}>
+        {/* Label */}
+        {labelString ? (
+          <>
+            <Text
+              style={[styles.labelText, {color: color ?? 'black'}, labelStyle]}>
+              {labelString}
+            </Text>
+            {required && <Text style={styles.requiredStar}> *</Text>}
+          </>
+        ) : null}
+      </View>
 
       {/* Dropdown */}
       <View style={styles.container}>
@@ -105,5 +116,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#fff',
     padding: 4,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 5,
+    marginBottom: 5,
+  },
+  labelText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
+  },
+  requiredStar: {
+    color: 'red',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 16,
   },
 });

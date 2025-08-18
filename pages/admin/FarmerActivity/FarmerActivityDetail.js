@@ -482,7 +482,12 @@ const FarmerActivityDetail = () => {
                           ) : (
                             <Image
                               source={require('../../Common/images/microphone.png')}
-                              style={{width: 40, height: 40, opacity: 0.7}}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                opacity: 0.7,
+                                tintColor: '#6e6e6e99',
+                              }}
                             />
                           )}
                           {selectedRecord.thirdItemRecord != '' ? (
@@ -502,7 +507,12 @@ const FarmerActivityDetail = () => {
                           ) : (
                             <Image
                               source={require('../../Common/images/microphone.png')}
-                              style={{width: 40, height: 40, opacity: 0.7}}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                opacity: 0.7,
+                                tintColor: '#6e6e6e99',
+                              }}
                             />
                           )}
                         </View>
