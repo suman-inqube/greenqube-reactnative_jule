@@ -366,30 +366,30 @@ const RequestForInsurance = ({}) => {
                     return (
                       <View key={index} style={styles.plotContainerItem}>
                         <View>
-                          <Text style={styles.infoLabel}>
+                          <Text style={styles.infoValue}>
                             {t('addcrop_cropname')}
                           </Text>
-                          <Text style={styles.infoLabel}>
+                          <Text style={styles.infoValue}>
                             {t('addcrop_cropvariety')}
                           </Text>
-                          <Text style={styles.infoLabel}>
+                          <Text style={styles.infoValue}>
                             {t('showing_date')}
                           </Text>
-                          <Text style={styles.infoLabel}>
+                          <Text style={styles.infoValue}>
                             {t('harvesting_date_auto_calculated')}
                           </Text>
                         </View>
                         <View>
-                          <Text style={styles.infoValue}>
+                          <Text style={styles.infoLabel}>
                             :{data.name.substring(-1, 15)}
                           </Text>
-                          <Text style={styles.infoValue}>
+                          <Text style={styles.infoLabel}>
                             :{data.varity.substring(-1, 15)}
                           </Text>
-                          <Text style={styles.infoValue}>
+                          <Text style={styles.infoLabel}>
                             :{data.cycleStarts}
                           </Text>
-                          <Text style={styles.infoValue}>
+                          <Text style={styles.infoLabel}>
                             :{data.cycleEnd.substring(0, 10)}
                           </Text>
                         </View>
