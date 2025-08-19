@@ -13,11 +13,7 @@ import React, {useState, useEffect, useCallback, useContext} from 'react';
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
-import {
-  useFocusEffect,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {PipeListDetails} from '../../../config/apiHere';
@@ -64,75 +60,73 @@ const FarmerActivityDetail = () => {
     //   getItem('activity_Data'),
     //   getItem('uact_id_data'),
     // ]);
-    if (route.params.activity) {
-      const farmerFound = route.params.activity;
 
-      if (farmerFound?.type == 'carbon_activity') {
-        const PipeListDetailsRes = await axiosGet(
-          ROUTES.GET.PIPE_LIST_DETAILS({
-            plot_id: farmerFound.plot_id,
-            act_master_id: farmerFound?.act_master_id,
-            cu_rel_id: farmerFound?.cu_rel_fid,
-          }),
-          token,
-          {information: `${dbname},${lan_id},${user_id}`},
-        );
-        if (PipeListDetailsRes?.status == 200) {
-          setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
-        }
+    const farmerFound = route.params;
+
+    if (farmerFound?.type == 'carbon_activity') {
+      const PipeListDetailsRes = await axiosGet(
+        ROUTES.GET.PIPE_LIST_DETAILS({
+          plot_id: farmerFound.plot_id,
+          act_master_id: farmerFound?.act_master_id,
+          cu_rel_id: farmerFound?.cu_rel_fid,
+        }),
+        token,
+        {information: `${dbname},${lan_id},${user_id}`},
+      );
+      if (PipeListDetailsRes?.status == 200) {
+        setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
       }
-      setIsLoading(false);
-      if (farmerFound?.agri_files) {
-        let Imag1 = '';
-        let Imag2 = '';
-        let Imag3 = '';
-        let audio1 = '';
-        let audio2 = '';
-        let audio3 = '';
-        let pic = 0;
-        let aud = 0;
-        for (let i = 0; i < farmerFound.agri_files.length; i++) {
-          if (farmerFound.agri_files[i].term_type === 'ua_activity') {
-            if (aud === 0) {
-              audio1 = farmerFound.agri_files[i].file_path;
-            } else if (aud === 1) {
-              audio2 = farmerFound.agri_files[i].file_path;
-            } else if (aud === 2) {
-              audio3 = farmerFound.agri_files[i].file_path;
-            }
-            aud++;
-          } else {
-            if (pic === 0) {
-              Imag1 = farmerFound.agri_files[i].file_path;
-            } else if (pic === 1) {
-              Imag2 = farmerFound.agri_files[i].file_path;
-            } else if (pic === 2) {
-              Imag3 = farmerFound.agri_files[i].file_path;
-            }
-            pic++;
-          }
-        }
-        setSelectedImage({
-          ...selectedImage,
-          firstItem: Imag1,
-          secondItem: Imag2,
-          thirdItem: Imag3,
-        });
-        setSelectedRecord({
-          firstItemRecord: audio1,
-          secondItemRecord: audio2,
-          thirdItemRecord: audio3,
-        });
-      }
-      setfarmerActivity(farmerFound);
     }
+    setIsLoading(false);
+    if (farmerFound?.agri_files) {
+      let Imag1 = '';
+      let Imag2 = '';
+      let Imag3 = '';
+      let audio1 = '';
+      let audio2 = '';
+      let audio3 = '';
+      let pic = 0;
+      let aud = 0;
+      for (let i = 0; i < farmerFound.agri_files.length; i++) {
+        if (farmerFound.agri_files[i].term_type === 'ua_activity') {
+          if (aud === 0) {
+            audio1 = farmerFound.agri_files[i].file_path;
+          } else if (aud === 1) {
+            audio2 = farmerFound.agri_files[i].file_path;
+          } else if (aud === 2) {
+            audio3 = farmerFound.agri_files[i].file_path;
+          }
+          aud++;
+        } else {
+          if (pic === 0) {
+            Imag1 = farmerFound.agri_files[i].file_path;
+          } else if (pic === 1) {
+            Imag2 = farmerFound.agri_files[i].file_path;
+          } else if (pic === 2) {
+            Imag3 = farmerFound.agri_files[i].file_path;
+          }
+          pic++;
+        }
+      }
+      setSelectedImage({
+        ...selectedImage,
+        firstItem: Imag1,
+        secondItem: Imag2,
+        thirdItem: Imag3,
+      });
+      setSelectedRecord({
+        firstItemRecord: audio1,
+        secondItemRecord: audio2,
+        thirdItemRecord: audio3,
+      });
+    }
+    setfarmerActivity(farmerFound);
   };
 
   useEffect(() => {
     onPageLoad();
   }, []);
 
-  const HandlerGoBack = () => navigation.navigate('FarmerActivityList');
   const soundPlay = async path => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
@@ -155,7 +149,6 @@ const FarmerActivityDetail = () => {
           <View style={styles.container}>
             <CustomHeader
               path="FarmerActivityList"
-              HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />

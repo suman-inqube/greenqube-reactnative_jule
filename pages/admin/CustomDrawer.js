@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useState, useMemo} from 'react';
+import React, {memo, useCallback, useState, useMemo,useContext} from 'react';
 import {
   Alert,
   ScrollView,
@@ -10,10 +10,9 @@ import {
 import {removeItem} from '../../config/getDataFromStorage';
 import {StackActions, useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
-import DeviceInfo from '../DeviceInfo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors, Fonts} from '../utils/Constants';
-
+import { userCreateContext } from '../Context/usersCreateContext';
 // Constants for better performance and maintainability
 const MENU_TYPES = {
   PROFILE: 'profile',
@@ -74,6 +73,7 @@ const SubMenuItem = memo(({iconName, title, onPress}) => (
 ));
 
 const CustomDrawer = memo(({state}) => {
+  const {DeviceInfo} = useContext(userCreateContext) || {};
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
   const navigation = useNavigation();

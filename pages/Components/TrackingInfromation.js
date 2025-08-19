@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Colors, Fonts } from '../utils/Constants';
 import moment from 'moment';
-const TrackingInformation = ({ latestActivities, t, usefulInfoList,navigation }) => {
+const TrackingInformation = ({ latestActivities, t, usefulInfoList,navigation,activity_path,information_path }) => {
     const [activeTab, setActiveTab] = useState('tracking');
     const trackingScale = useRef(new Animated.Value(1)).current;
     const infoScale = useRef(new Animated.Value(1)).current;
@@ -115,7 +115,7 @@ const TrackingInformation = ({ latestActivities, t, usefulInfoList,navigation })
                                         borderColor: Colors.border || '#ccc',
                                         backgroundColor: '#fff',
                                     }}
-                                    onPress={()=>navigation.navigate("activityDetail",item)}
+                                    onPress={()=>navigation.navigate(activity_path||"activityDetail",item)}
                                     >
                                     <Text style={[styles.text, { color: Colors.text,fontFamily:Fonts.Medium }]}>
                                         {item?.typeActivity?.categoryName || 'Activity Name: Nill'}
@@ -144,7 +144,7 @@ const TrackingInformation = ({ latestActivities, t, usefulInfoList,navigation })
                                         borderColor: Colors.border || '#ccc',
                                         backgroundColor: '#fff',
                                     }}
-                                    onPress={()=> navigation.navigate('UsefulInformation',item.fid)}
+                                    onPress={()=> navigation.navigate(information_path||'UsefulInformation',item.fid)}
                                     >
                                     <Text style={[styles.text, { color: Colors.text ,fontFamily:Fonts.Medium}]}>
                                         {item?.post_name || 'Information Name: Nill'}

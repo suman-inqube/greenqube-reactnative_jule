@@ -36,15 +36,9 @@ import {ROUTES} from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
 import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
-
+import useCollapsibleHeader from '../utils/useCollapsibleHeader';
+import {getDashboardItems} from '../utils/dashboardItems';
 const HEADER_HEIGHT = 60;
-const STICKY_TOP_OFFSET =
-  Platform.OS === 'android' ? StatusBar.currentHeight || 10 : 10;
-const INITIAL_IMAGE_HEIGHT = 160;
-const COLLAPSED_IMAGE_HEIGHT = 135;
-const ITEM_WIDTH = 105;
-const SPACING = 5;
-const VISIBLE_ITEMS = 3;
 
 const Dashboard = ({navigation}) => {
   useDoubleBackToExit();
@@ -59,7 +53,17 @@ const Dashboard = ({navigation}) => {
     Toast,
     AlertMesg,
   } = useContext(userCreateContext);
+  const [refreshing, setRefreshing] = useState(false);
 
+  const {
+    headerTranslateY,
+    filterTranslateY,
+    imageHeight,
+    imageOpacity,
+    handleScroll,
+    INITIAL_IMAGE_HEIGHT,
+    HEADER_HEIGHT,
+  } = useCollapsibleHeader(refreshing);
   // Batch UI-related small states into one object to reduce setState calls
   const [uiState, setUiState] = useState({
     bottomBanner: null,
@@ -79,18 +83,6 @@ const Dashboard = ({navigation}) => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  // Animation refs
-  const headerTranslateY = useRef(new Animated.Value(0)).current;
-  const filterTranslateY = useRef(new Animated.Value(0)).current;
-  const imageHeight = useRef(new Animated.Value(INITIAL_IMAGE_HEIGHT)).current;
-  const imageOpacity = useRef(new Animated.Value(1)).current;
-  const currentOffset = useRef(0);
-  const isHeaderVisible = useRef(true);
-  const itemFullWidth = ITEM_WIDTH + SPACING;
-
-  // navigateToPages memoized
   const navigateToPages = useCallback(
     pageName => {
       if (isOnline) {
@@ -279,104 +271,6 @@ const Dashboard = ({navigation}) => {
       Alert.alert('Company website not found');
     }
   }, [uiState.company_website]);
-
-  // handleScroll: skip heavy animation/update while refreshing to avoid stutter
-  const handleScroll = useCallback(
-    ({nativeEvent}) => {
-      if (refreshing) return; // avoid heavy animation during refresh
-
-      const offsetY = nativeEvent.contentOffset.y;
-      const diff = offsetY - currentOffset.current;
-      const velocity = Math.abs(diff);
-      const animationDuration = Math.max(
-        150,
-        Math.min(400, 300 - velocity * 2),
-      );
-
-      if (offsetY <= 0) {
-        Animated.parallel([
-          Animated.timing(headerTranslateY, {
-            toValue: 0,
-            duration: animationDuration,
-            useNativeDriver: true,
-          }),
-          Animated.timing(filterTranslateY, {
-            toValue: 0,
-            duration: animationDuration,
-            useNativeDriver: true,
-          }),
-          Animated.timing(imageHeight, {
-            toValue: INITIAL_IMAGE_HEIGHT,
-            duration: animationDuration,
-            useNativeDriver: false,
-          }),
-          Animated.timing(imageOpacity, {
-            toValue: 1,
-            duration: animationDuration,
-            useNativeDriver: false,
-          }),
-        ]).start(() => {
-          isHeaderVisible.current = true;
-        });
-        StatusBar.setBackgroundColor('#003c04', true);
-        currentOffset.current = offsetY;
-        return;
-      }
-
-      const scrollProgress = Math.min(offsetY / 200, 1);
-      const newHeight =
-        INITIAL_IMAGE_HEIGHT -
-        (INITIAL_IMAGE_HEIGHT - COLLAPSED_IMAGE_HEIGHT) * scrollProgress;
-      const newOpacity = 1 - scrollProgress * 0.3;
-
-      // update image values without starting many animations (value changes)
-      imageHeight.setValue(newHeight);
-      imageOpacity.setValue(newOpacity);
-
-      const isScrollingDown = diff > 8;
-      const isScrollingUp = diff < -8;
-
-      if (isScrollingDown && isHeaderVisible.current && offsetY > 50) {
-        Animated.parallel([
-          Animated.timing(headerTranslateY, {
-            toValue: -HEADER_HEIGHT,
-            duration: animationDuration,
-            useNativeDriver: true,
-          }),
-          Animated.timing(filterTranslateY, {
-            toValue: -HEADER_HEIGHT + STICKY_TOP_OFFSET - 40,
-            duration: animationDuration,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
-          isHeaderVisible.current = false;
-        });
-        StatusBar.setBackgroundColor('#003c04', true);
-        StatusBar.setBarStyle('light-content', true);
-      } else if (isScrollingUp && !isHeaderVisible.current) {
-        Animated.parallel([
-          Animated.timing(headerTranslateY, {
-            toValue: 0,
-            duration: animationDuration,
-            useNativeDriver: true,
-          }),
-          Animated.timing(filterTranslateY, {
-            toValue: 0,
-            duration: animationDuration,
-            useNativeDriver: true,
-          }),
-        ]).start(() => {
-          isHeaderVisible.current = true;
-        });
-        StatusBar.setBackgroundColor('#003c04', true);
-      }
-
-      currentOffset.current = offsetY;
-    },
-    [refreshing, headerTranslateY, filterTranslateY, imageHeight, imageOpacity],
-  );
-
-  // onRefresh: keep UI responsive — start refresh indicator immediately
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
@@ -390,7 +284,7 @@ const Dashboard = ({navigation}) => {
   const headerContent = useMemo(
     () => (
       <>
-        <UpcomingActivities t={t} profileImg={uiState.profileImg} />
+        <UpcomingActivities t={t} uiState={uiState} />
         <TrackingInfromation
           latestActivities={dataState.latestActivities}
           t={t}
@@ -439,58 +333,14 @@ const Dashboard = ({navigation}) => {
       CompanyWebsiteOpen,
     ],
   );
-
   const dashBoardItemList = useMemo(
-    () => [
-      {
-        text: t('register_nfarmer'),
-        imageurl: require('../Common/images/register_farmer.png'),
-        onpress: () => navigateToPages('PersonalInformation'),
-      },
-      {
-        text: t('farmer_list'),
-        imageurl: require('../Common/images/farmer_list.png'),
-        onpress: () => navigateToPages('userList'),
-      },
-      {
-        text: t('crop_prob_far_dash'),
-        imageurl: require('../Common/images/raise_problem_only.png'),
-        onpress: () => navigateToPages('ProblemList'),
-      },
-      {
-        text: t('acti_report_far_dash'),
-        imageurl: require('../Common/images/activity_report_only.png'),
-        onpress: () => navigateToPages('activityList'),
-      },
-      {
-        text: t('agri_inputs_ninquiry_far_dash'),
-        imageurl: require('../Common/images/input_inqu_only.png'),
-        onpress: () => navigateToPages('InputList'),
-      },
-      {
-        text: t('agri_output_far_dash'),
-        imageurl: require('../Common/images/dash_sale_your_product.png'),
-        onpress: () => navigateToPages('OutPutList'),
-      },
-      {
-        text: t('market_information'),
-        imageurl: require('../Common/images/market_information_only.png'),
-        onpress: () => navigateToPages('ListProblem'),
-      },
-      {
-        text: t('useful_ninformation_dash'),
-        imageurl: require('../Common/images/dash_useful_information.png'),
-        onpress: () => navigateToPages('UsefulInformationList'),
-      },
-    ],
+    () => getDashboardItems(t, navigateToPages),
     [t, navigateToPages],
   );
-
   const LOOP_ITEMS = useMemo(
     () => [...dashBoardItemList, ...dashBoardItemList, ...dashBoardItemList],
     [dashBoardItemList],
   );
-
   return (
     <FarmerDrawerScreenWrapper1>
       <SafeAreaView style={styles.container}>
@@ -530,9 +380,9 @@ const Dashboard = ({navigation}) => {
                   <View style={styles.bottomContent}>
                     <CarouselSlider
                       items={LOOP_ITEMS}
-                      itemWidth={ITEM_WIDTH}
-                      itemFullWidth={itemFullWidth}
-                      visibleItems={VISIBLE_ITEMS}
+                      itemWidth={105}
+                      itemFullWidth={10}
+                      visibleItems={3}
                       spacing={14}
                       onPress={_data => _data.onpress()}
                       scrollSpeed={2500}
@@ -627,5 +477,4 @@ const styles = StyleSheet.create({
   bottomContent: {paddingBottom: 15, paddingTop: 15, alignItems: 'center'},
   bottomContainer: {},
 });
-
 export default React.memo(Dashboard);

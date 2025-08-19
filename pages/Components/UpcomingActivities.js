@@ -6,11 +6,11 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState, memo} from 'react';
+import React, { useState, memo } from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import moment from 'moment';
-const UpcomingActivities = ({profileImg, t}) => {
+const UpcomingActivities = ({ uiState, t }) => {
   const [upcomingActivities, setUpcomingActivities] = useState([
     {
       id: 1,
@@ -41,30 +41,30 @@ const UpcomingActivities = ({profileImg, t}) => {
           resizeMode="stretch"
           height={200}
           width={'100%'}
-          style={{borderRadius: 10}}
+          style={{ borderRadius: 10 }}
         />
         <View style={styles.greenOverlay} />
         <View style={styles.userTitleOverlay}>
           <View style={styles.profileDetails}>
             <View style={styles.profileBackView}>
-              {/* {profileImg ? (
-                      <ImagePlaceHolderCircleWithoutAddButton
-                        imageurl={{ uri: profileImg }}
-                        style={styles.dp}
-                      />
-                    ) : ( */}
-              <ImagePlaceHolderCircleWithoutAddButton
-                imageurl={require('../Common/images/avatar.png')}
-                style={{width: 100, height: 100, borderRadius: 75}}
-              />
-              {/* )} */}
+              {uiState?.profileImg ? (
+                <ImagePlaceHolderCircleWithoutAddButton
+                  imageurl={{ uri: uiState?.profileImg }}
+                  // style={styles.dp}
+                />
+              ) : (
+                <ImagePlaceHolderCircleWithoutAddButton
+                  imageurl={require('../Common/images/avatar.png')}
+                  // style={{ width: 100, height: 100, borderRadius: 75 }}
+                />
+              )}
             </View>
             <View style={styles.userDetails}>
               <Text
                 style={styles.userTitle}
                 numberOfLines={1}
                 ellipsizeMode="tail">
-                {'userName dfsdg dsg dfg df g df g df g fdg fd g dfg fd g '}
+                {uiState.userName}
               </Text>
               {/* {companyName && (
                       <Text style={styles.companyName}>{t(companyName)}</Text>
@@ -78,7 +78,7 @@ const UpcomingActivities = ({profileImg, t}) => {
             <FlatList
               data={upcomingActivities}
               keyExtractor={item => item.id.toString()}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <View style={styles.activityItem}>
                   <View style={styles.activityIndicator} />
                   <View style={styles.activityDetails}>
@@ -93,7 +93,7 @@ const UpcomingActivities = ({profileImg, t}) => {
                   </View>
                 </View>
               )}
-              // contentContainerStyle={styles.activitiesListContainer}
+            // contentContainerStyle={styles.activitiesListContainer}
             />
           </View>
         </View>
