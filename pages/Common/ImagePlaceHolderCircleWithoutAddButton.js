@@ -14,8 +14,8 @@ export default ImagePlaceHolderCircleWithoutAddButton;
 
 const styles = StyleSheet.create({
   container: {
-    width: 100, // Adjust the container size as needed
-    height: 100,
+    width: 80, // Adjust the container size as needed
+    height: 80,
     position: 'relative', // Required for absolute positioning
     // borderWidth: 2,
     justifyContent: 'center',

@@ -1067,7 +1067,10 @@
   
     "Insu_enquiry_detail": "Insurance Past Reque...",
     "farmer_information":"Farmer Information",
-    "income_expense_View": "Income Expense View"
+    "income_expense_View": "Income Expense View",
+    "ActivityReportAWD":"Activity Report AWD",
+     "no_my_questions": "Oops! No 'My Questions' available",
+  "no_other_questions": "Oops! No other questions available"
     
 
 

@@ -21,6 +21,9 @@ import MessageDialog from '../../Common/MessageDialog';
 import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const FarmerViewProblem = ({navigation}) => {
   //GQR-67
   const {
@@ -201,16 +204,7 @@ const FarmerViewProblem = ({navigation}) => {
       onPageLoad();
     }
   }, [route.params, isFocused]);
-  useFocusEffect(
-    useCallback(() => {
-      // onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('FarmerListProblem');
-        return true;
-      });
-    }, [route.params, isFocused]),
-  );
-  const HandlerGoBack = () => navigation.navigate('FarmerListProblem');
+
   const soundPlay = async path => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
@@ -225,344 +219,688 @@ const FarmerViewProblem = ({navigation}) => {
     });
   };
   return (
-    <Root>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <>
-          <CustomHeader
-            path="FarmerListProblem"
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          <FormsTitle title={t('plot_and_crop_problem')} />
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View>
-              {farmerProblem && farmerProblem.agri_user ? (
-                <View style={styles.container}>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('farmer_name')}</Text>
-                    <Text style={styles.itemTitle}>
-                      : {farmerProblem.agri_user.userName}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('farmer_number')}</Text>
-                    <Text style={styles.itemTitle}>
-                      : {farmerProblem.agri_user.contactNumber}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>
-                      {t('enter_problem_title')}
-                    </Text>
-                    <Text style={styles.itemTitle}>
-                      : {farmerProblem.question_title}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>
-                      {t('question_details')}
-                    </Text>
-                    <Text style={styles.itemTitle}>
-                      : {farmerProblem.question_desc}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('plot')}</Text>
-                    <Text style={styles.itemTitle}>
-                      : {farmerProblem.agri_land_user_rel?.plot_no}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('problem_type')}</Text>
-                    <Text style={styles.itemTitle}>
-                      :{' '}
-                      {farmerProblem?.problem_type &&
-                        farmerProblem?.problem_type?.name}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('select_problem')}</Text>
-                    <Text style={styles.itemTitle}>
-                      :{' '}
-                      {farmerProblem?.problem_name &&
-                        farmerProblem?.problem_name?.name}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>
-                      {t('addcrop_croptype')}
-                    </Text>
-                    <Text style={styles.itemTitle}>
-                      :{' '}
-                      {farmerProblem.crop_type && farmerProblem.crop_type.name}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('crop_name')}</Text>
-                    <Text style={styles.itemTitle}>
-                      :{' '}
-                      {farmerProblem.crop_name && farmerProblem.crop_name.name}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('crop_veriety')}</Text>
-                    <Text style={styles.itemTitle}>
-                      :{' '}
-                      {farmerProblem.crop_variety &&
-                        farmerProblem.crop_variety.name}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('growth_stage')}</Text>
-                    <Text style={styles.itemTitle}>
-                      :{' '}
-                      {farmerProblem.growth_stage &&
-                        farmerProblem.growth_stage.name}
-                    </Text>
-                  </View>
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{t('affect_date')}</Text>
-                    <Text style={styles.itemTitle}>
-                      : {farmerProblem.affected_date ?? ''}
-                    </Text>
-                  </View>
-                  <View style={styles.itemPhoto}>
-                    <TakePhoto
-                      openImagePicker={openImagePicker}
-                      selectedImage={selectedImage}
-                      title={t('view_phote')}
-                    />
-                  </View>
-                  <View style={{marginHorizontal: 20}}>
-                    <Text style={styles.title}>
-                      {t('listen_to_the_problem')}
-                    </Text>
-                    <View style={styles.photoContainer}>
-                      {selectedRecord.firstItemRecord != '' ? (
-                        <TouchableOpacity
-                          onPress={() =>
-                            soundPlay(selectedRecord.firstItemRecord)
-                          }>
-                          <Image
-                            source={require('../../Common/images/play.png')}
-                            style={{width: 70, height: 70}}
-                          />
-                        </TouchableOpacity>
-                      ) : (
-                        <Image
-                          source={require('../../Common/images/microphone.png')}
-                          style={{width: 70, height: 70, opacity: 0.7}}
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        {isLoading ? (
+          <View style={styles.LoadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: Colors.background_light,
+            }}>
+            <CustomHeader
+              path="FarmerListProblem"
+              logoImage={logoImage}
+              topBanner={topBanner}
+            />
+            {/* <FormsTitle title={t('plot_and_crop_problem')} /> */}
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={{backgroundColor: Colors.background_light}}>
+                {farmerProblem && farmerProblem.agri_user ? (
+                  <>
+                    <View style={styles.card}>
+                      <Text style={styles.cardTitle}>
+                        {t('personal_information')}
+                      </Text>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('farmer_name')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            : {farmerProblem.agri_user.userName}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('farmer_number')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            : {farmerProblem.agri_user.contactNumber}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <View style={styles.card}>
+                      <Text style={styles.cardTitle}>
+                        {t('Problem Details')}
+                      </Text>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('enter_problem_title')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            : {farmerProblem.question_title}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('question_details')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            : {farmerProblem.question_desc}
+                          </Text>
+                        </View>
+                        <View style={styles.item}>
+                          <Text style={styles.itemTitle}>{t('plot')}</Text>
+                          <Text style={styles.itemTitle}>
+                            : {farmerProblem.agri_land_user_rel?.plot_no}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('problem_type')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            :{' '}
+                            {farmerProblem?.problem_type &&
+                              farmerProblem?.problem_type?.name}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('select_problem')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            :{' '}
+                            {farmerProblem?.problem_name &&
+                              farmerProblem?.problem_name?.name}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('addcrop_croptype')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            :{' '}
+                            {farmerProblem.crop_type &&
+                              farmerProblem.crop_type.name}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>{t('crop_name')}</Text>
+                          <Text style={styles.infoLabel}>
+                            :{' '}
+                            {farmerProblem.crop_name &&
+                              farmerProblem.crop_name.name}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('crop_veriety')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            :{' '}
+                            {farmerProblem.crop_variety &&
+                              farmerProblem.crop_variety.name}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('growth_stage')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            :{' '}
+                            {farmerProblem.growth_stage &&
+                              farmerProblem.growth_stage.name}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>
+                            {t('affect_date')}
+                          </Text>
+                          <Text style={styles.infoLabel}>
+                            : {farmerProblem.affected_date ?? ''}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <View style={styles.cardImg}>
+                      <View style={styles.itemPhoto}>
+                        <Text style={styles.cardTitle}>{t('Documents')}</Text>
+                        <TakePhoto
+                          openImagePicker={openImagePicker}
+                          selectedImage={selectedImage}
+                          title={t('view_phote')}
                         />
-                      )}
-                      {selectedRecord.secondItemRecord != '' ? (
-                        <TouchableOpacity
-                          onPress={() =>
-                            soundPlay(selectedRecord.secondItemRecord)
-                          }>
-                          <Image
-                            source={require('../../Common/images/play.png')}
-                            style={{width: 70, height: 70}}
-                          />
-                        </TouchableOpacity>
-                      ) : (
-                        <Image
-                          source={require('../../Common/images/microphone.png')}
-                          style={{width: 70, height: 70, opacity: 0.7}}
+                      </View>
+                      <View style={{}}>
+                        <Text style={styles.title}>
+                          {t('listen_to_the_problem')}
+                        </Text>
+                        <View style={styles.photoContainer}>
+                          {selectedRecord.firstItemRecord != '' ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                soundPlay(selectedRecord.firstItemRecord)
+                              }>
+                              <Image
+                                source={require('../../Common/images/play.png')}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  tintColor: '#3a9015ff',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          ) : (
+                            <Image
+                              source={require('../../Common/images/microphone.png')}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                opacity: 0.7,
+                                tintColor: '#6e6e6e99',
+                              }}
+                            />
+                          )}
+                          {selectedRecord.secondItemRecord != '' ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                soundPlay(selectedRecord.secondItemRecord)
+                              }>
+                              <Image
+                                source={require('../../Common/images/play.png')}
+                                style={{
+                                  width: 50,
+                                  height: 50,
+                                  tintColor: '#3a9015ff',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          ) : (
+                            <Image
+                              source={require('../../Common/images/microphone.png')}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                opacity: 0.7,
+                                tintColor: '#6e6e6e99',
+                              }}
+                            />
+                          )}
+                          {selectedRecord.thirdItemRecord != '' ? (
+                            <TouchableOpacity
+                              onPress={() =>
+                                soundPlay(selectedRecord.thirdItemRecord)
+                              }>
+                              <Image
+                                source={require('../../Common/images/play.png')}
+                                style={{
+                                  width: 50,
+                                  height: 50,
+                                  tintColor: '#3a9015ff',
+                                }}
+                              />
+                            </TouchableOpacity>
+                          ) : (
+                            <Image
+                              source={require('../../Common/images/microphone.png')}
+                              sty
+                              style={{
+                                width: 40,
+                                height: 40,
+                                opacity: 0.7,
+                                tintColor: '#6e6e6e99',
+                              }}
+                            />
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  ''
+                )}
+                {btnColor === 2 ? (
+                  <View style={styles.commentsContainer}>
+                    <Text style={styles.cardTitle}>{t('add_comments')}</Text>
+                    <View style={styles.infoRowCom}>
+                      <TextInput
+                        multiline={true}
+                        numberOfLines={4}
+                        style={[styles.textarea, {color: '#000'}]}
+                        value={comment1}
+                        onChangeText={item => setComment1(item)}
+                      />
+                      <TouchableOpacity onPress={() => saveCommet()}>
+                        <MaterialIcons
+                          name="send"
+                          size={30}
+                          color={'#0aa214ff'}
                         />
-                      )}
-                      {selectedRecord.thirdItemRecord != '' ? (
-                        <TouchableOpacity
-                          onPress={() =>
-                            soundPlay(selectedRecord.thirdItemRecord)
-                          }>
-                          <Image
-                            source={require('../../Common/images/play.png')}
-                            style={{width: 70, height: 70}}
-                          />
-                        </TouchableOpacity>
-                      ) : (
-                        <Image
-                          source={require('../../Common/images/microphone.png')}
-                          style={{width: 70, height: 70, opacity: 0.7}}
-                        />
-                      )}
+                      </TouchableOpacity>
                     </View>
                   </View>
-                </View>
-              ) : (
-                ''
-              )}
-              {btnColor === 2 ? (
-                <View style={styles.commentsContainer}>
-                  <TextInput
-                    multiline={true}
-                    numberOfLines={4}
-                    style={[styles.textarea, {color: '#000'}]}
-                    value={comment1}
-                    onChangeText={item => setComment1(item)}
-                  />
-                  <TouchableOpacity onPress={() => saveCommet()}>
+                ) : (
+                  ''
+                )}
+                <View style={styles.btnContainer}>
+                  <TouchableOpacity
+                    style={btnColor === 1 ? styles.btnActive : styles.btn}
+                    onPress={() => setBtnColor(1)}>
                     <Text
-                      style={[
-                        styles.btn,
-                        {
-                          backgroundColor: '#023a02',
-                          color: '#FFF',
-                          fontSize: 10,
-                          marginLeft: 5,
-                          textAlign: 'center',
-                        },
-                      ]}>
-                      {t('add_comments')}
+                      style={
+                        btnColor === 1 ? styles.btnTitleActive : styles.btnTitle
+                      }>
+                      {t('answers')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={btnColor === 2 ? styles.btnActive : styles.btn}
+                    onPress={() => setBtnColor(2)}>
+                    <Text
+                      style={
+                        btnColor === 2 ? styles.btnTitleActive : styles.btnTitle
+                      }>
+                      {t('comments')}
                     </Text>
                   </TouchableOpacity>
                 </View>
-              ) : (
-                ''
-              )}
-              <View style={styles.btnContainer}>
-                <TouchableOpacity
-                  style={btnColor === 1 ? styles.btnActive : styles.btn}
-                  onPress={() => setBtnColor(1)}>
-                  <Text
-                    style={
-                      btnColor === 1 ? styles.btnTitleActive : styles.btnTitle
-                    }>
-                    {t('answers')}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={btnColor === 2 ? styles.btnActive : styles.btn}
-                  onPress={() => setBtnColor(2)}>
-                  <Text
-                    style={
-                      btnColor === 2 ? styles.btnTitleActive : styles.btnTitle
-                    }>
-                    {t('comments')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {btnColor === 1 ? (
-                <View style={styles.AnsContainer}>
-                  {answerAll.length > 0 ? (
-                    <View style={styles.AnsItem}>
-                      {answerAll.map((value, index) => (
-                        <View style={styles.AnsTextContainer} key={index}>
-                          <Text style={styles.AnsTitle}>
-                            {t('role_col')} : Super Admin
-                          </Text>
-                          <Text style={styles.AnsTitle}>
-                            {t('date')} :{' '}
-                            {formatDateToMMDDYYYY(value.created_at)}
-                          </Text>
-                          <Text style={styles.AnsTitle}>
-                            {t('comments')} :{value.optional_solution}{' '}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : (
-                    ''
-                  )}
-                </View>
-              ) : (
-                <View style={styles.AnsContainer}>
-                  {commentAll
-                    ? commentAll.map((value, index) => (
-                        <View style={styles.AnsItem} key={index}>
-                          <View style={{width: '20%'}}>
-                            {value.agri_user.agri_files.length > 0 ? (
-                              value.agri_user.agri_files.map(
-                                (value1, index1) =>
-                                  value1.term_type === '1' && (
-                                    <View key={index1}>
-                                      {value1.file_path != '' ? (
-                                        <ImagePlaceHolderCircleWithoutAddButton
-                                          imageurl={{uri: value1.file_path}}
-                                        />
-                                      ) : (
-                                        <Image
-                                          source={{uri: value1.file_path}}
-                                          resizeMode="cover"
-                                          style={{width: 50, height: 50}}
-                                        />
-                                      )}
-                                    </View>
-                                  ),
-                              )
-                            ) : (
-                              <View style={{marginVertical: 10}}>
-                                <ImagePlaceHolderCircleWithoutAddButton
-                                  imageurl={require('../../Common/images/avatar.png')}
-                                />
-                              </View>
-                            )}
-                          </View>
-                          <View style={styles.AnsTextContainer}>
-                            {value.agri_user.agri_files.forEach(element => {
-                              <Text style={styles.AnsTitle}>{element}</Text>;
-                            })}
+                {btnColor === 1 ? (
+                  <View style={styles.AnsContainer}>
+                    {answerAll.length > 0 ? (
+                      <View style={styles.AnsItem}>
+                        {answerAll.map((value, index) => (
+                          <View style={styles.AnsTextContainer} key={index}>
                             <Text style={styles.AnsTitle}>
-                              {t('name')} : {value.agri_user.userName}
-                              {value.agri_user.userType === 3 ? (
-                                <Text>({t('retailer')}) </Text>
+                              {t('role_col')} : Super Admin
+                            </Text>
+                            <Text style={styles.AnsTitle}>
+                              {t('date')} :{' '}
+                              {formatDateToMMDDYYYY(value.created_at)}
+                            </Text>
+                            <Text style={styles.AnsTitle}>
+                              {t('comments')} :{value.optional_solution}{' '}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : (
+                      ''
+                    )}
+                  </View>
+                ) : (
+                  <View style={styles.commentsContainer}>
+                    {commentAll
+                      ? commentAll.map((value, index) => (
+                          <View style={styles.AnsItem} key={index}>
+                            <View style={{width: '20%'}}>
+                              {value.agri_user.agri_files.length > 0 ? (
+                                value.agri_user.agri_files.map(
+                                  (value1, index1) =>
+                                    value1.term_type === '1' && (
+                                      <View key={index1}>
+                                        {value1.file_path != '' ? (
+                                          <ImagePlaceHolderCircleWithoutAddButton
+                                            imageurl={{uri: value1.file_path}}
+                                          />
+                                        ) : (
+                                          <Image
+                                            source={{uri: value1.file_path}}
+                                            resizeMode="cover"
+                                            style={{width: 50, height: 50}}
+                                          />
+                                        )}
+                                      </View>
+                                    ),
+                                )
                               ) : (
-                                <Text> ({t('login_farmer')})</Text>
+                                <View style={{marginVertical: 10}}>
+                                  <ImagePlaceHolderCircleWithoutAddButton
+                                    imageurl={require('../../Common/images/avatar.png')}
+                                  />
+                                </View>
                               )}
-                            </Text>
-                            <Text style={styles.AnsTitle}>
-                              {t('date')}:{' '}
-                              {formatDateToMMDDYYYY(value.CreateDateTime)}
-                            </Text>
-                            <Text style={styles.AnsTitle}>
-                              {t('comments')} : {value.comment_content}
-                            </Text>
+                            </View>
+                            <View style={styles.AnsTextContainer}>
+                              {value.agri_user.agri_files.forEach(element => {
+                                <Text style={styles.infoValueCom}>
+                                  {element}
+                                </Text>;
+                              })}
+                              <Text style={styles.infoValueCom}>
+                                {t('name')} : {value.agri_user.userName}
+                                {value.agri_user.userType === 3 ? (
+                                  <Text style={{color: '#15820bff'}}>
+                                    ({t('retailer')})
+                                  </Text>
+                                ) : (
+                                  <Text> ({t('login_farmer')})</Text>
+                                )}
+                              </Text>
+                              <Text style={styles.infoValueCom}>
+                                {t('date')}:{' '}
+                                {formatDateToMMDDYYYY(value.CreateDateTime)}
+                              </Text>
+                              <Text style={styles.infoValueCom}>
+                                {t('comments')} :{value.comment_content}
+                              </Text>
+                            </View>
                           </View>
-                        </View>
-                      ))
-                    : ''}
-                </View>
-              )}
-            </View>
-          </ScrollView>
-        </>
-      )}
-    </Root>
+                        ))
+                      : ''}
+                  </View>
+                )}
+              </View>
+            </ScrollView>
+          </View>
+        )}
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
 export default FarmerViewProblem;
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: '2.5%',
-    backgroundColor: '#FFF',
-    borderRadius: 8,
+  idcontainer: {
+    marginVertical: 30,
+    marginHorizontal: 20,
   },
-  item: {
+  idcontainer2: {
+    marginVertical: 10,
+    marginHorizontal: 30,
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+
+    borderRadius: 20,
+    padding: 10,
+  },
+  idItemContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  idItem: {
+    padding: 10,
+    width: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  idImage: {
+    width: 60,
+    height: 60,
+  },
+  imageTitle: {
+    fontSize: 10,
+    color: '#000',
+    fontFamily: 'Poppins-Regular',
+  },
+  title: {
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    marginLeft: 10,
+  },
+  titleImg: {
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    marginLeft: 10,
+  },
+  centeredView: {
+    // backgroundColor: '#FFF',
+    // width: '90%',
+    // left: '5%',
+    // // justifyContent: 'center',
+    // alignItems: 'center',
+    // position: "absolute",
+    // top: '50%'
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    width: '90%',
+    backgroundColor: '#FFF',
+    borderRadius: 4,
+    padding: '2.5%',
+  },
+  loadingScreen: {
+    position: 'absolute',
+    top: '60%',
+    zIndex: 999,
+    left: '45%',
+  },
+  commentContainer: {
+    padding: 12,
+    // borderWidth: 1,
+    elevation: 1,
+    marginBottom: 10,
+    borderColor: '#CA8586',
+    backgroundColor: '#ECC8C5',
+    borderRadius: 10,
+  },
+  plotContainer: {
+    backgroundColor: '#F7FCFF',
+    borderRadius: 8,
+    elevation: 5,
+    marginTop: 5,
+    // borderWidth: 1,
+    // borderColor: Colors.borderGreen,
+  },
+  plotContainerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderWidth: 0.5,
+    borderColor: Colors.borderGreen,
+    margin: 15,
+    borderRadius: 8,
+    padding: 10,
+  },
+  plotText: {
+    color: Colors.text,
+    marginVertical: 2,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+  },
+
+  ///////////////////
+
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '5%',
+    marginTop: 20,
+    // borderWidth: 1,
+    // borderColor: Colors.borderGreen,
+  },
+  cardImg: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '5%',
+    marginTop: 20,
+    // borderWidth: 1,
+    // borderColor: Colors.borderGreen,
+  },
+  cardTitle: {
+    fontSize: 16,
+
+    color: Colors.borderGreen,
+    marginBottom: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    justifyContent: 'space-between',
+  },
+  infoRowCom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  infoTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+    marginVertical: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginVertical: 10,
   },
-  itemPhoto: {
-    marginLeft: 20,
+  infoLabel: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    flexShrink: 1,
+    // 👈 lets the text shrink and stay in one line
   },
-  itemTitle: {
-    width: '50%',
-    color: '#000',
+  infoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  infoValueCom: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+  },
+  documentSection: {
+    marginBottom: 16,
+  },
+  documentTitle: {
+    fontSize: 14,
+    color: Colors.text,
+    marginBottom: 8,
+    fontFamily: 'Poppins-Medium',
+  },
+  documentContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  documentItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  documentName: {
+    fontSize: 12,
+    color: '#2c3e50',
+    marginLeft: 8,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
   },
   photoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 10,
+    backgroundColor: '#e3f4ffcf',
+    // elevation: 3,
+    padding: 10,
+    margin: 2,
+    // marginVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 15,
+    marginHorizontal: 15,
   },
-  title: {
+  commentsContainer: {
+    // marginHorizontal: '6%',
+    // marginTop: 10,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: '5%',
+    marginTop: 20,
+  },
+  textarea: {
+    borderWidth: 2,
+    width: '90%',
+    borderRadius: 8,
+    borderColor: Colors.border,
+  },
+  AnsContainer: {
+    backgroundColor: '#FFF',
+    padding: 8,
+    borderRadius: 10,
+    elevation: 5,
+    marginHorizontal: '2%',
+  },
+  AnsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  AnsTextContainer: {
+    // marginHorizontal: '5%',
+    borderBottomWidth: 0.5,
+    // width: '75%',
+    borderColor: 'green',
+    marginLeft: 15,
+  },
+  AnsTitle: {
     color: '#000',
+    marginBottom: 7,
+    fontFamily: 'Poppins-Regular',
+  },
+  LoadingScreen: {
+    position: 'absolute',
+    top: '52%',
+    left: '45%',
+    zIndex: 9999,
   },
   btnContainer: {
     flexDirection: 'row',
@@ -577,53 +915,107 @@ const styles = StyleSheet.create({
   btnTitle: {
     textAlign: 'center',
     color: '#000000',
-    fontSize: 18,
+    fontFamily: 'Poppins-Regular',
   },
   btnTitleActive: {
     textAlign: 'center',
     color: '#FFF',
-    fontSize: 18,
+    fontFamily: 'Poppins-Regular',
   },
   btnActive: {
     backgroundColor: '#023a02',
     width: '40%',
     padding: 15,
     borderRadius: 10,
+    fontFamily: 'Poppins-Regular',
   },
-  commentsContainer: {
-    marginHorizontal: '2%',
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  textarea: {
-    borderWidth: 0.5,
-    width: '65%',
-    borderRadius: 10,
-    backgroundColor: '#FFF',
-  },
-  AnsContainer: {
-    backgroundColor: '#FFF',
-    padding: 8,
-    borderRadius: 10,
-    elevation: 5,
-    width: '90%',
-    marginHorizontal: '5%',
-  },
-  AnsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  AnsTextContainer: {
-    marginHorizontal: '5%',
-    borderBottomWidth: 0.5,
-    width: '75%',
-    marginRight: 50,
-    borderColor: 'green',
-  },
-  AnsTitle: {
-    color: '#000',
-    marginBottom: 7,
-  },
+
+  ///////////////////////////////////////////
+  // container: {
+  //   marginHorizontal: '5%',
+  //   marginBottom: 50,
+  // },
+  // idcontainer: {
+  //   marginVertical: 10,
+  // },
+  // idItemContainer: {
+  //   flexDirection: 'row',
+  //   flexWrap: 'wrap',
+  // },
+  // idItem: {
+  //   padding: 10,
+  //   width: '30%',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // idImage: {
+  //   width: 60,
+  //   height: 60,
+  // },
+  // imageTitle: {
+  //   fontSize: 10,
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  // },
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  // centeredView: {
+  //   // backgroundColor: '#FFF',
+  //   // width: '90%',
+  //   // left: '5%',
+  //   // // justifyContent: 'center',
+  //   // alignItems: 'center',
+  //   // position: "absolute",
+  //   // top: '50%'
+  //   flex: 1,
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   backgroundColor: 'rgba(0,0,0,0.5)',
+  // },
+  // modalView: {
+  //   width: '90%',
+  //   backgroundColor: '#FFF',
+  //   borderRadius: 4,
+  //   padding: '2.5%',
+  // },
+  // loadingScreen: {
+  //   position: 'absolute',
+  //   top: '60%',
+  //   zIndex: 999,
+  //   left: '45%',
+  // },
+  // commentContainer: {
+  //   padding: 12,
+  //   // borderWidth: 1,
+  //   elevation: 1,
+  //   marginBottom: 10,
+  //   borderColor: '#CA8586',
+  //   backgroundColor: '#ECC8C5',
+  //   borderRadius: 10,
+  // },
+  // plotContainer: {
+  //   backgroundColor: '#FFF',
+  //   borderRadius: 10,
+  //   elevation: 5,
+  // },
+  // plotContainerItem: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-around',
+  //   alignItems: 'center',
+  //   backgroundColor: '#FFF',
+  //   borderWidth: 1,
+  //   borderColor: '#000',
+  //   margin: 15,
+  //   borderRadius: 10,
+  //   padding: 10,
+  // },
+  // plotText: {
+  //   color: '#000',
+  //   marginVertical: 2,
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
 });

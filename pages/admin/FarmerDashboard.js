@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useContext, useRef, useMemo, useCallback } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   View,
   StyleSheet,
@@ -7,27 +14,30 @@ import {
   Alert,
   BackHandler,
   FlatList,
-  InteractionManager, SafeAreaView, Animated, RefreshControl
+  InteractionManager,
+  SafeAreaView,
+  Animated,
+  RefreshControl,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
-import { userCreateContext } from '../Context/usersCreateContext';
-import { addModuleForView } from '../../config/apiHere';
+import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
+import {userCreateContext} from '../Context/usersCreateContext';
+import {addModuleForView} from '../../config/apiHere';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
-import { ImageBackground } from 'react-native';
-import { Colors, Fonts } from '../utils/Constants';
-import { axiosGet } from '../utils/api';
-import { ROUTES } from '../utils/Routes';
+import {ImageBackground} from 'react-native';
+import {Colors, Fonts} from '../utils/Constants';
+import {axiosGet} from '../utils/api';
+import {ROUTES} from '../utils/Routes';
 import CarouselSlider from '../Components/CarouselSlider';
-import { getDashboardFarmerItems } from '../utils/dashboardItems';
+import {getDashboardFarmerItems} from '../utils/dashboardItems';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import TrackingInfromation from '../Components/TrackingInfromation';
 // import DeviceInfo from 'react-native-device-info';
 const HEADER_HEIGHT = 60;
-const FarmerDashboard = ({ navigation }) => {
+const FarmerDashboard = ({navigation}) => {
   //GQR-65
   const {
     getItem,
@@ -39,8 +49,8 @@ const FarmerDashboard = ({ navigation }) => {
     loginUser_data,
     setItem,
   } = useContext(userCreateContext) || {};
-  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data || {};
-
+  const {dbname, lan_id, token, user_id, agri_user_addresses} =
+    loginUser_data || {};
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -52,10 +62,10 @@ const FarmerDashboard = ({ navigation }) => {
     imageOpacity,
     handleScroll,
     INITIAL_IMAGE_HEIGHT,
-    HEADER_HEIGHT
+    HEADER_HEIGHT,
   } = useCollapsibleHeader(refreshing);
   //GQR-65
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const [latLong, setLatLong] = useState({
     latitude: '',
     longitude: '',
@@ -65,7 +75,7 @@ const FarmerDashboard = ({ navigation }) => {
     // console.log(pageName);
     if (netConnection) {
       if (pageName == 'Weather') {
-        navigation.navigate(pageName, { latLong });
+        navigation.navigate(pageName, {latLong});
       } else {
         switch (pageName) {
           case 'FarmerListProblem':
@@ -190,37 +200,35 @@ const FarmerDashboard = ({ navigation }) => {
         ]),
       ]);
 
-      const { dbname, lan_id, token, agri_user_addresses, user_id } = loginUser_data || {};
-      const [LIST_USER_ACTIVITY,
-        FARMER_USEFULL_INFO_LIST,] = await Promise.all([
-          axiosGet(
-            ROUTES.GET.LIST_USER_ACTIVITY({
-              pageNO: 1,
-              carbonType: '',
-              userID: '',
-              searchItem: '',
-              from_date: '',
-              to_date: '',
-            }),
-            token,
-            { information: `${dbname},${lan_id},${user_id}` },
-          ),
-          axiosGet(
-            ROUTES.GET.FARMER_USEFULL_INFO_LIST({
-              userId: user_id,
-              userType: 'farmer',
-              post: 'general_info',
-              state_id: agri_user_addresses[0].agri_state.fid,
-              district_id:
-                agri_user_addresses[0].agri_district.fid,
-              subdiv_id:
-                agri_user_addresses[0].agri_subdivision.fid,
-              newCropId: "",
-            }),
-            '',
-            { information: `${dbname},${lan_id}` },
-          ),
-        ])
+      const {dbname, lan_id, token, agri_user_addresses, user_id} =
+        loginUser_data || {};
+      const [LIST_USER_ACTIVITY, FARMER_USEFULL_INFO_LIST] = await Promise.all([
+        axiosGet(
+          ROUTES.GET.LIST_USER_ACTIVITY({
+            pageNO: 1,
+            carbonType: '',
+            userID: '',
+            searchItem: '',
+            from_date: '',
+            to_date: '',
+          }),
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
+        ),
+        axiosGet(
+          ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+            userId: user_id,
+            userType: 'farmer',
+            post: 'general_info',
+            state_id: agri_user_addresses[0].agri_state.fid,
+            district_id: agri_user_addresses[0].agri_district.fid,
+            subdiv_id: agri_user_addresses[0].agri_subdivision.fid,
+            newCropId: '',
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
+        ),
+      ]);
       const logoImgToSet = logoImage || logoImageData || null;
       const topBannerToSet = topBanner || topBannerData || null;
       setUiState(prev => ({
@@ -230,7 +238,7 @@ const FarmerDashboard = ({ navigation }) => {
         profileImg: profileImgData,
         company_website: company_website || prev.company_website,
         logoImg: logoImgToSet,
-        topBannerImg: topBannerToSet
+        topBannerImg: topBannerToSet,
       }));
       let latestActivities = [];
       let usefulInfoList = [];
@@ -244,9 +252,8 @@ const FarmerDashboard = ({ navigation }) => {
         latestActivities,
         usefulInfoList,
       });
-
     } catch (error) {
-      console.error("aaaa", error)
+      console.error('aaaa', error);
     }
     setIsLoading(false);
   };
@@ -268,9 +275,9 @@ const FarmerDashboard = ({ navigation }) => {
           onPress: () => console.log('Cancel Pressed'),
           style: 'cancel',
         },
-        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
+        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
   };
   const CompanyWebsiteOpen = () => {
@@ -282,11 +289,7 @@ const FarmerDashboard = ({ navigation }) => {
   };
 
   const handleInfoPress = itemId => {
-    setItem('userNoticeId', itemId);
-    navigation.navigate('FarmerUsefulInformation', {
-      pagename: 'FarmerUsefulInformation',
-      noticeId: itemId,
-    });
+    navigation.navigate('FarmerActivityDetail', itemId);
   };
 
   const [uiState, setUiState] = useState({
@@ -305,7 +308,7 @@ const FarmerDashboard = ({ navigation }) => {
   });
   const dashBoardItemList = useMemo(
     () => getDashboardFarmerItems(t, navigateToPages),
-    [t, navigateToPages]
+    [t, navigateToPages],
   );
   const LOOP_ITEMS = useMemo(
     () => [...dashBoardItemList, ...dashBoardItemList, ...dashBoardItemList],
@@ -321,8 +324,8 @@ const FarmerDashboard = ({ navigation }) => {
           t={t}
           usefulInfoList={dataState.usefulInfoList}
           navigation={navigation}
-          activity_path={"FarmerActivityDetail"}
-          information_path={"FarmerUsefulInformation"}
+          activity_path={'FarmerActivityDetail'}
+          information_path={'FarmerUsefulInformation'}
         />
         <View
           style={{
@@ -337,7 +340,7 @@ const FarmerDashboard = ({ navigation }) => {
               onPress={CompanyWebsiteOpen}
               style={styles.bottomContainer}>
               <ImageForm
-                source={{ uri: uiState.bottomBanner }}
+                source={{uri: uiState.bottomBanner}}
                 resizeMode="cover"
                 height={220}
                 width={'100%'}
@@ -384,7 +387,7 @@ const FarmerDashboard = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.header,
-                { transform: [{ translateY: headerTranslateY }] },
+                {transform: [{translateY: headerTranslateY}]},
               ]}>
               <CustomHeader
                 path="exit"
@@ -397,10 +400,10 @@ const FarmerDashboard = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.filterBar,
-                { transform: [{ translateY: filterTranslateY }] },
+                {transform: [{translateY: filterTranslateY}]},
               ]}>
               <Animated.View
-                style={[styles.animatedHeaderImage, { height: imageHeight }]}>
+                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
                 <ImageBackground
                   source={{
                     uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
@@ -408,7 +411,7 @@ const FarmerDashboard = ({ navigation }) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{ opacity: 0.8 }}>
+                  imageStyle={{opacity: 0.8}}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -435,7 +438,7 @@ const FarmerDashboard = ({ navigation }) => {
               </Animated.View>
             </Animated.View>
 
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -474,7 +477,7 @@ const FarmerDashboard = ({ navigation }) => {
   );
 };
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background_light },
+  container: {flex: 1, backgroundColor: Colors.background_light},
   header: {
     height: HEADER_HEIGHT - 10,
     position: 'absolute',
@@ -487,7 +490,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -504,9 +507,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#003c04',
   },
-  imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
-  overlay: { ...StyleSheet.absoluteFillObject },
-  bottomContent: { paddingBottom: 15, paddingTop: 15, alignItems: 'center' },
+  imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
+  overlay: {...StyleSheet.absoluteFillObject},
+  bottomContent: {paddingBottom: 15, paddingTop: 15, alignItems: 'center'},
   bottomContainer: {},
 });
 export default FarmerDashboard;

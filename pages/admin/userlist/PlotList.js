@@ -1,570 +1,241 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity, ScrollView, Image, Animated, Dimensions, Modal
-} from 'react-native'
-import React, { useEffect, useState, useRef, useContext } from 'react'
-const { width } = Dimensions.get('window');
-import CollapsibleCard from '../../Common/CollapsibleCard';
+  StyleSheet, Text, View, FlatList, TouchableOpacity,
+  ScrollView, Image, Animated, Dimensions, BackHandler
+} from 'react-native';
+import React, { useEffect, useState, useRef, useContext, useCallback,memo } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { plotListApproval, LandUnitArea, LandUnitsquare_metre } from '../../../config/apiHere';
-const qs = require('qs');
+import CollapsibleCard from '../../Common/CollapsibleCard';
 import LiveHood from './LiveHood';
-import { calculateAreaFun } from '../../Common/calculateAreaFun';
-//GQR-65
 import { userCreateContext } from '../../Context/usersCreateContext';
-import { AlertMesg } from '../../Common/ToastAlert';
+import { FloatingAction } from 'react-native-floating-action';
+import { getActionsPlot } from '../../utils/options';
+import { Colors } from '../../utils/Constants';
+const { width } = Dimensions.get('window');
+const StatusBadge = ({ status }) => {
+  const badgeStyles = {
+    APPROVED: { bg: '#D4EDDA', color: '#155724', text: 'APPROVED' },
+    PENDING: { bg: '#FFF3CD', color: '#856404', text: 'PENDING' },
+    REJECTED: { bg: '#F8D7DA', color: '#721C24', text: 'REJECTED' },
+    CARBON_DOCUMENTS_SUBMITTED: { bg: '#D4EDDA', color: '#155724', text: 'SUBMITTED' },
+    CARBON_DOCUMENTS_REJECTED: { bg: '#F8D7DA', color: '#721C24', text: 'CARBON REJECTED' },
+    CARBON_DOCUMENTS_APPROVED: { bg: '#D4EDDA', color: '#155724', text: 'VERIFIED' },
+  };
+  if (!badgeStyles[status]) return null;
+  return (
+    <View style={[styles.statusBox, { backgroundColor: badgeStyles[status].bg }]}>
+      <Text style={[styles.statusText, { color: badgeStyles[status].color }]}>
+        {badgeStyles[status].text}
+      </Text>
+    </View>
+  );
+};
+const PlotCard = memo(({ item, onPress, landUnitsquareMetre, landAreaUnit }) => {
+  const convertedArea = (
+    Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) * Number(item?.google_area || 0)
+  ).toFixed(2);
+
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <CollapsibleCard
+        width="100%"
+        header={<Text style={[styles.text, { fontSize: 15 }]}>{item?.plot_no}</Text>}
+        content={
+          <>
+            <View style={styles.plotInfoContainer}>
+              <View>
+                {['Plot Name', 'Reported Land Area', 'Converted Land Area', 'Crop Name',
+                  'Crop Variety', 'Cycle Start Date', 'Cycle End Date'].map((label, idx) => (
+                    <Text key={idx} style={styles.text}>{label}</Text>
+                  ))}
+              </View>
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.text}>: {item?.plot_no}</Text>
+                <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text>
+                <Text style={styles.text}>: {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}</Text>
+                <Text style={styles.text}>: {item?.plot_crops[0]?.crop_name?.name}</Text>
+                <Text style={styles.text}>: {item?.plot_crops[0]?.crop_variety?.name}</Text>
+                <Text style={styles.text}>: {item?.plot_crops[0]?.sowing_date}</Text>
+                <Text style={styles.text}>: {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}</Text>
+              </View>
+            </View>
+
+            {item?.status_level === 'REJECTED' && (
+              <View style={styles.rejectBox}>
+                <Text style={styles.rejectText}>{item?.comment}</Text>
+              </View>
+            )}
+          </>
+        }
+        footer={
+          <View style={styles.footerRow}>
+            <View style={styles.areaRow}>
+              <Image
+                source={require('../../Common/images/area-with-pins.png')}
+                style={styles.areaIcon}
+              />
+              <Text style={styles.text}>
+                {convertedArea} {landAreaUnit?.[0]?.name || ''}
+              </Text>
+            </View>
+            <StatusBadge status={item?.status_level} />
+          </View>
+        }
+      />
+    </TouchableOpacity>
+  );
+});
 const PlotList = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { farmeruserID, agri_land_user_rels, } = route.params;
+  const { farmeruserID } = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
   const [addPlot, setAddPlot] = useState(false);
-  const [plotList, setplotList] = useState([]);
+  const [plotList, setPlotList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const scrollRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
-  const animatedValue = useRef(new Animated.Value(0)).current;
   const [landAreaUnit, setLandAreaUnit] = useState([]);
-  const onTabPress = (index, data) => {
-    setActiveTab(index);
-    if (data) {
-      setDataProps(data)
-    } else {
-      setDataProps({})
-    }
-    scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
-  };
+  const scrollRef = useRef(null);
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const { loginUser_data, t, onBackPress, Root, CustomHeader, LoadingScreen } =
+    useContext(userCreateContext);
 
-  const onScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
-    { useNativeDriver: false },
-  );
+  const { dbname, lan_id, token } = loginUser_data;
+
+  const onTabPress = useCallback((index, data = {}) => {
+    setActiveTab(index);
+    setDataProps(data);
+    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+  }, []);
 
   const indicatorPosition = animatedValue.interpolate({
     inputRange: [0, width],
-    outputRange: [0, width / 2], // Moves indicator with swipe
+    outputRange: [0, width / 2],
   });
-  const {
-    loginUser_data,
-    t,
-    AlertMesg,
-    onBackPress,
-    getItem,
-    logoImage,
-    topBanner,
-    Root,
-    Toast,
-    LoadingScreen,
-    DatePickerComp,
-    FormsTitle,
-    CustomHeader,
-    ButtonFormBottom,
-    InputTextForm,
-    DropdownForm,
-    effective_dates,
-  } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
-  //GQR-65
-  const HandlerGoBack = () => navigation.navigate('userList');
-  const handleBackPress = () => {
-    if (activeTab == 1) {
-      setActiveTab(0)
-      onTabPress(0)
-      return true;
-    }
-    navigation.navigate('userList');
-    return true;
-  };
-  useEffect(() => {
-    if (activeTab == 0) {
-      onPageLoad();
-    }
-    onBackPress(handleBackPress);
-  }, [activeTab])
+
   const onPageLoad = async () => {
     try {
       setIsLoading(true);
-      const [plotListApprovalRes, LandUnitArea_res, LandUnitsquare_metre_res] = await Promise.all([
+      const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
         plotListApproval(dbname, lan_id, token, farmeruserID),
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
-      ])
-       
-      if (plotListApprovalRes?.status == 200) {
-        // const { data } = plotListApprovalRes?.data;
-        setplotList(plotListApprovalRes?.data);
-      }
-      if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
-        if (count > 0) {
-          setLandAreaUnit(rows);
-        } else {
-          setLandAreaUnit([]);
-        }
-      }
-      if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
-        if (count > 0) {
-          setLandUnitsquareMetre(rows);
-        } else {
-          setLandUnitsquareMetre([]);
-        }
-      }
-      setAddPlot(false);
+      ]);
+
+      if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
+      if (unitAreaRes?.status === 200) setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
+      if (unitSqRes?.status === 200) setLandUnitsquareMetre(unitSqRes?.data?.data?.rows || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setIsLoading(false);
+      setAddPlot(false);
       setDataProps({});
-    } catch (error) {
-      console.error(error);
     }
-  }
-  const onRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => {
-      // Simulate fetching new data
-      setRefreshing(false);
-    }, 2000);
   };
+
+  useEffect(() => {
+    if (activeTab === 0) onPageLoad();
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (activeTab === 1) {
+        onTabPress(0);   
+        return true;  
+      }
+      return false;     
+    });
+    return () => backHandler.remove();
+  }, [activeTab]);
+
   return (
+    <Root>
+      <View style={styles.container}>
+        <CustomHeader path="userList" HandlerGoBack={() => navigation.navigate('userList')} />
 
-    <>
-      <Root>
-        <View style={styles.container}>
-
-
-          <View style={{ width: '100%' }}><CustomHeader path="userList"
-            HandlerGoBack={HandlerGoBack} /></View>
-          {/* Tab Bar */}
-          <View style={styles.tabBar}>
-            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>
-              <Text
-                style={[styles.tabText, activeTab === 0 && styles.activeTabText]}>
-                Plot Status
-              </Text>
+        {/* Tabs */}
+        <View style={styles.tabBar}>
+          {['Plot Status', 'Plot Add and Edit'].map((label, idx) => (
+            <TouchableOpacity key={idx} style={styles.tab} onPress={() => onTabPress(idx)}>
+              <Text style={[styles.tabText, activeTab === idx && styles.activeTabText]}>{label}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(1)}>
-              <Text
-                style={[styles.tabText, activeTab === 1 && styles.activeTabText]}>
-                Plot Add and Edit
-              </Text>
-            </TouchableOpacity>
-
-            {/* Animated Tab Indicator */}
-            <Animated.View
-              style={[
-                styles.indicator,
-                { transform: [{ translateX: indicatorPosition }] },
-              ]}
+          ))}
+          <Animated.View style={[styles.indicator, { transform: [{ translateX: indicatorPosition }] }]} />
+        </View>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          scrollEnabled={false}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: animatedValue } } }], { useNativeDriver: false })}
+          scrollEventThrottle={16}
+          onMomentumScrollEnd={e => setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))}
+        >
+          <View style={styles.page}>
+            {isLoading && <LoadingScreen />}
+            <FlatList
+              data={plotList}
+              keyExtractor={(item,index) => item?.id?.toString()||index}
+              refreshing={refreshing}
+              onRefresh={() => setRefreshing(false)}
+              renderItem={({ item }) => (
+                <PlotCard
+                  item={item}
+                  onPress={() => onTabPress(1, item)}
+                  landUnitsquareMetre={landUnitsquareMetre}
+                  landAreaUnit={landAreaUnit}
+                />
+              )}
+              contentContainerStyle={{ padding: 15 }}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={5}
+              windowSize={5}
+              removeClippedSubviews={true}
             />
           </View>
-
-          {/* Swipeable Content */}
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={onScroll}
-            onMomentumScrollEnd={event => {
-              const index = Math.round(event.nativeEvent.contentOffset.x / width);
-              setActiveTab(index);
-            }}
-            //basudev
-            scrollEnabled={false}
-            scrollEventThrottle={16}>
-            {/* Tab 1 */}
-            <View style={styles.page}>
-              {isLoading ? (
-                <View style={styles.LoadingScreen}>
-                  <LoadingScreen />
-                </View>
-              ) : null}
-              <FlatList
-                data={plotList}
-                keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                refreshing={refreshing}  // Enable pull-to-refresh
-                onRefresh={onRefresh}
-                showsVerticalScrollIndicator={false} // Hides vertical scrollbar
-                showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-                style={{ padding: 10 }}
-                renderItem={({ _index, item }) => {
-                  return (
-                    <TouchableOpacity
-                      style={
-                        {
-                          // backgroundColor: 'white',
-                          // borderRadius: 8,
-                          // marginBottom: 12,
-                          // shadowColor: '#000',
-                          // shadowOffset: { width: 0, height: 2 },
-                          // shadowOpacity: 0.1,
-                          // shadowRadius: 4,
-                          // // elevation: 3,
-                          // borderWidth: 0.6,
-                          // borderColor: '#d0d4dc',
-                          // padding: 15,
-                          // flexDirection: 'row'
-                        }
-                      }
-                      onPress={() => onTabPress(1, item)}>
-                      <CollapsibleCard
-                        width="100%"
-                        header={
-                          <View style={{ height: 30 }}>
-                            <Text style={[styles.text, { fontSize: 15 }]}>
-                              {item?.plot_no}
-                            </Text>
-                            {/* <Text>3 items in cart</Text> */}
-                          </View>
-                        }
-                        content={
-                          <>
-                            <View
-                              style={{
-                                backgroundColor: 'white',
-                                borderRadius: 8,
-                                // marginBottom: 12,
-                                marginVertical: 10,
-                                shadowColor: '#000',
-                                // shadowOffset: { width: 0, height: 2 },
-                                // shadowOpacity: 0.1,
-                                // shadowRadius: 4,
-                                // elevation: 3,
-                                // borderWidth: 0.6,
-                                // borderColor: '#d0d4dc',
-                                flexDirection: 'row',
-                              }}>
-                              <View>
-                                <Text style={styles.text}>Plot Name</Text>
-                                {/* <Text style={styles.text}>Plot Size</Text> */}
-                                <Text style={styles.text}>
-                                  Reported Land Area{' '}
-                                </Text>
-                                <Text style={styles.text}>
-                                  Converted Land Area{' '}
-                                </Text>
-                                {/* <Text style={styles.text}>
-                                  Approved Land Area{' '}
-                                </Text> */}
-                                <Text style={styles.text}>Crop Name</Text>
-                                <Text style={styles.text}>Crop Variety</Text>
-                                <Text style={styles.text}>
-                                  {' '}
-                                  Cycle Start Date{' '}
-                                </Text>
-                                <Text style={styles.text}>Cycle End Date</Text>
-                              </View>
-                              <View style={{ marginLeft: 10 }}>
-                                <Text style={styles.text}>
-                                  {' '}
-                                  : {item?.plot_no}{' '}
-                                </Text>
-                                {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
-                                <Text style={styles.text}>
-                                  {' '}
-                                  : {item?.land_size} {item?.land_unit?.name}{' '}
-                                </Text>
-                                <Text style={styles.text}>
-                                  :{' '}
-                                  {parseFloat(item?.land_convert_size).toFixed(
-                                    2,
-                                  )}{' '}
-                                  {landAreaUnit?.[0]?.name}
-                                </Text>
-                                {/* <Text style={styles.text}>
-                                  :{' '}
-                                  {parseFloat(item?.land_convert_size) >
-                                  Number(
-                                    landUnitsquareMetre?.[0]
-                                      ?.defined_unit_value || 0,
-                                  ) *
-                                    Number(item?.google_area || 0)
-                                    ? parseFloat(
-                                        item?.land_convert_size,
-                                      ).toFixed(2)
-                                    : (Number(
-                                        landUnitsquareMetre?.[0]
-                                          ?.defined_unit_value || 0,
-                                      ) * Number(item?.google_area || 0)).toFixed(
-                                    2,
-                                  )}{' '}
-                                  {landAreaUnit?.[0]?.name || ''}
-                                </Text> */}
-                                <Text style={styles.text}>
-                                  : {item?.plot_crops[0]?.crop_name?.name}
-                                </Text>
-                                <Text style={styles.text}>
-                                  : {item?.plot_crops[0]?.crop_variety?.name}
-                                </Text>
-                                <Text style={styles.text}>
-                                  : {item?.plot_crops[0]?.sowing_date}
-                                </Text>
-                                <Text style={styles.text}>
-                                  :{' '}
-                                  {item?.plot_crops[0]?.harvesting_date.substring(
-                                    0,
-                                    10,
-                                  )}
-                                </Text>
-                              </View>
-                            </View>
-                            {/* basu */}
-                            {item?.status_level == 'REJECTED' && (
-                              <View
-                                style={{
-                                  backgroundColor: '#F8D7DA',
-                                  borderRadius: 5,
-                                  borderColor: '#F8D7DA',
-                                  elevation: 1,
-                                  marginVertical: 10,
-                                }}>
-                                <Text
-                                  style={{
-                                    paddingHorizontal: 10,
-                                    color: '#721C24',
-                                    fontFamily: 'Poppins-Regular',
-                                    fontSize: 14,
-                                  }}>
-                                  {item?.comment}{' '}
-                                </Text>
-                              </View>
-                            )}
-                          </>
-                        }
-                        footer={
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                              }}>
-                              <Image
-                                source={require('../../Common/images/area-with-pins.png')}
-                                style={{
-                                  width: 25,
-                                  height: 25,
-                                  tintColor: '#0d8320',
-                                }}
-                              />
-                              <Text style={styles.text}>
-                                {' '}
-                                {parseFloat(
-                                  Number(
-                                    landUnitsquareMetre?.[0]
-                                      ?.defined_unit_value || 0,
-                                  ) * Number(item?.google_area || 0),
-                                ).toFixed(2)}{' '}
-                                {landAreaUnit?.[0]?.name || ''}
-                              </Text>
-                              {/* basu */}
-                            </View>
-                            {item.status_level == 'APPROVED' && (
-                              <View
-                                style={{
-                                  backgroundColor: '#D4EDDA',
-                                  padding: 8,
-                                  borderRadius: 5,
-                                  // marginRight: 15,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  alignItems: 'center',
-                                  width: 100,
-                                  // borderWidth: 1,
-                                  // borderColor: "#b8f8a9",
-                                  height: 38,
-                                }}>
-                                {/* <Icon
-                                name="check"
-                                size={20}
-                                color="green"
-                                iconFamily="Feather"
-                              /> */}
-                                <Text style={{ color: '#155724', fontSize: 14 }}>
-                                  {item.status_level}
-                                </Text>
-                              </View>
-                            )}
-                            {item.status_level ==
-                              'CARBON_DOCUMENTS_SUBMITTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 120,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
-                                name="check"
-                                size={20}
-                                color="green"
-                                iconFamily="Feather"
-                              /> */}
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
-                                    SUBMITTED
-                                  </Text>
-                                </View>
-                              )}
-                            {item.status_level ==
-                              'CARBON_DOCUMENTS_REJECTED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#F8D7DA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 180,
-                                    borderWidth: 1,
-                                    borderColor: '#F8D7DA',
-                                    height: 38,
-                                  }}>
-                                  {/* <Icon
-                            name="close"
-                            size={16}
-                            color="#FF5252"
-                            iconFamily="AntDesign"
-                          /> */}
-                                  <Text style={{ color: '#721C24', fontSize: 14 }}>
-                                    CARBON REJECTED
-                                  </Text>
-                                </View>
-                              )}
-
-                            {item.status_level ==
-                              'CARBON_DOCUMENTS_APPROVED' && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#D4EDDA',
-                                    padding: 8,
-                                    borderRadius: 5,
-                                    // marginRight: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-evenly',
-                                    alignItems: 'center',
-                                    width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
-                                    height: 38,
-                                  }}>
-                                  <Text style={{ color: '#155724', fontSize: 14 }}>
-                                    VERIFIED
-                                  </Text>
-                                </View>
-                              )}
-                            {item.status_level == 'PENDING' && (
-                              <View
-                                style={{
-                                  // backgroundColor:'#ffe69b',
-                                  backgroundColor: '#FFF3CD',
-                                  padding: 8,
-                                  borderRadius: 5,
-                                  // marginRight: 15,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  alignItems: 'center',
-                                  width: 100,
-                                  // borderWidth: 1,
-                                  // borderColor: "#ffc107",
-                                  height: 38,
-                                }}>
-                                {/* <Icon
-                            name="av-timer"
-                            size={20}
-                            color="#ffc107"
-                            iconFamily="MaterialCommunityIcons"
-                          /> */}
-                                <Text style={{ color: '#856404', fontSize: 14 }}>
-                                  {item.status_level}
-                                </Text>
-                              </View>
-                            )}
-                            {item.status_level == 'REJECTED' && (
-                              <View
-                                style={{
-                                  backgroundColor: '#F8D7DA',
-                                  padding: 8,
-                                  borderRadius: 5,
-                                  // marginRight: 15,
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  alignItems: 'center',
-                                  width: 100,
-                                  borderWidth: 1,
-                                  borderColor: '#F8D7DA',
-                                  height: 38,
-                                }}>
-                                {/* <Icon
-                            name="close"
-                            size={16}
-                            color="#FF5252"
-                            iconFamily="AntDesign"
-                          /> */}
-                                <Text style={{ color: '#721C24', fontSize: 14 }}>
-                                  {item.status_level}
-                                </Text>
-                              </View>
-                            )}
-                          </View>
-                        }
-                      />
-                    </TouchableOpacity>
-                  );
-                }}
+          <View style={styles.page}>
+            {activeTab === 1 && (
+              <LiveHood
+                dataProps={dataProps}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                onTabPress={onTabPress}
+                setAddPlot={setAddPlot}
+                addPlot={addPlot}
               />
-            </View>
-
-
-            {/* Tab 2 */}
-            <View style={styles.page}>
-              {
-                activeTab == 1 && <LiveHood dataProps={dataProps} activeTab={activeTab} setActiveTab={setActiveTab} onTabPress={onTabPress} setAddPlot={setAddPlot} addPlot={addPlot} />
-              }
-            </View>
-          </ScrollView>
-          {activeTab == 0 ? <TouchableOpacity
-            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
-            onPress={() => { onTabPress(1); setDataProps({}); setAddPlot(true) }}>
-            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
-              {t('Add Plot')}
-            </Text>
-          </TouchableOpacity> : null}
-
-        </View>
-      </Root>
-    </>
-  )
-}
-
-export default PlotList
-
+            )}
+          </View>
+        </ScrollView>
+        {activeTab === 0 && (
+          <>
+            <FloatingAction
+              position="right"
+              actions={getActionsPlot(t, styles, Colors)}
+              color={Colors.useGreen}
+              onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{ vertical: 80, horizontal: 25 }}
+            />
+          </>
+        )}
+      </View>
+    </Root>
+  );
+};
 const styles = StyleSheet.create({
   container: { flex: 1 },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    // elevation: 1,
+    elevation: 1,
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    // elevation: 3,
-    // borderWidth: 0.6,
-    // borderColor: '#d0d4dc'
+    paddingVertical:3,
   },
   tab: {
     flex: 1,
@@ -790,4 +461,35 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
   },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  areaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  areaIcon: {
+    width: 25,
+    height: 25,
+    tintColor: '#0d8320',
+  },
+  statusBox: {
+    padding: 8,
+    borderRadius: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    width: 100,
+    height: 38,
+  },
+  plotInfoContainer: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    marginVertical: 10,
+    shadowColor: '#000',
+    flexDirection: 'row',
+  }
 });
+export default memo(PlotList);
+

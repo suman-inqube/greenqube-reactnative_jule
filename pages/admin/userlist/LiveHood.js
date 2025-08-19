@@ -8,7 +8,7 @@ import {
   Keyboard,
   Modal,
   Alert,
-  Linking,
+  Linking,InteractionManager
 } from 'react-native';
 import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import {
@@ -58,20 +58,17 @@ import * as turf from '@turf/turf';
 
 import SignatureCapture from '../../Common/SignaturePad';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
+import { groupByRelId } from '../../utils/helpers';
 const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPlot, addPlot }) => {
   //GQR-65
   const {
     loginUser_data,
     t,
     AlertMesg,
-    onBackPress,
     getItem,
-    Root,
     Toast,
     LoadingScreen,
     DatePickerComp,
-    FormsTitle,
-    CustomHeader,
     ButtonFormBottom,
     InputTextForm,
     DropdownForm,
@@ -195,131 +192,91 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   const [nearPolData, setnearPolData] = useState([]);
   const [statuslevel, setstatuslevel] = useState({ label: '', value: '' });
   const [updateRelId, setupdateRelId] = useState('');
-  const [particularLocSet, setparticularLocSet] = useState([]);
   const [referencelatLong, setreferencelatLong] = useState({ latitude: 0, longitude: 0 });
   const [outofRange, setOutofRange] = useState(false);
   const [previousPlotLatlong, setPreviousPlotLatlong] = useState([]);
   const [add_new_crop, setAdd_new_crop] = useState(false);
-  const [approveArea, setApproveArea] = useState(0);
-  const groupByRelId = data => {
-    const grouped = data.reduce((result, item) => {
-      const latitude = parseFloat(item.latitude);
-      const longitude = parseFloat(item.longitude);
-      if (isNaN(latitude) || isNaN(longitude)) {
-        return result;
+const onPageLoad = async () => {
+  try {
+    setIsLoading(true);
+    const fusedLocation = await getItem("fusedLocation");
+    const { latitude, longitude } = fusedLocation || {};
+    setreferencelatLong({ latitude, longitude });
+    const axiosConfig = {
+      headers: {
+        information: `${dbname},${lan_id}`,
+        Accept: "application/json",
+      },
+    };
+    const [
+      nearestLatLong_res,
+      unitConversion_res,
+      plotSiteUserLandDetails_res,
+      landUnitArea_res,
+      landUnitSquare_res,
+      productSeason_res,
+      plotDoc_res,
+      terrainType_res,
+      soilType_res,
+      landType_res,
+      landUnit_res,
+      produceVariety_res,
+      productionProcess_res,
+    ] = await Promise.all([
+      nearestLatLong(dbname, lan_id, token, latitude, longitude),
+      UnitConversonToDefault(dbname, lan_id, token),
+      PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
+      LandUnitArea(dbname, lan_id, token),
+      LandUnitsquare_metre(dbname, lan_id, token),
+      ProductionSeasonAndApi(dbname, lan_id, ""),
+      getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
+      terraintype_resAPI(dbname, lan_id, "terrain_type"),
+      soilType_resAPI(dbname, lan_id, "soil_type"),
+      landType_resAPI(dbname, lan_id, "land_type"),
+      landunit_resAPI(axiosConfig),
+      produceVarietyAPI(dbname, lan_id),
+      productionProcessAPI(dbname, lan_id),
+    ]);
+    if (nearestLatLong_res?.status === 200) {
+      const { data } = nearestLatLong_res.data;
+      if (data?.length > 0) {
+        setnearPolData(data);
+        const grouped = groupByRelId(data);
+        setnearPolSet(grouped);
+        setPolygons(grouped);
       }
-      const newItem = { latitude, longitude };
-      if (!result[item.rel_id]) {
-        result[item.rel_id] = [];
-      }
-      result[item.rel_id].push(newItem);
-      return result;
-    }, {});
-
-    return Object.values(grouped);
-  };
-  const onPageLoad = async () => {
-    try {
-      setIsLoading(true);
-      const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
-      let groupedData;
-      const axiosConfig = {
-        headers: {
-          information: `${dbname},${lan_id}`,
-          Accept: 'application/json',
-        },
-      };
-      const [
-        nearestLatLong_res,
-        UnitConversonToDefault_res,
-        plotSiteUserLandDetails_res,
-        LandUnitArea_res,
-        LandUnitsquare_metre_res,
-        productSeasonresRes, getPlotDoc
-      ] = await Promise.all([
-        nearestLatLong(dbname, lan_id, token, latitude, longitude),
-        UnitConversonToDefault(dbname, lan_id, token),
-        PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
-        LandUnitArea(dbname, lan_id, token),
-        LandUnitsquare_metre(dbname, lan_id, token),
-        ProductionSeasonAndApi(dbname, lan_id, ''),
-        // livelihoodCropAndPlotDetailsAPI(dbname, lan_id, farmeruserID, dataProps?.rel_id),
-         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
-        terraintype_resAPI(dbname, lan_id, 'terrain_type'),
-        soilType_resAPI(dbname, lan_id, 'soil_type'),
-        landType_resAPI(dbname, lan_id, 'land_type'),
-        landunit_resAPI(axiosConfig),
-        produceVarietyAPI(dbname, lan_id),
-        productionProcessAPI(dbname, lan_id),
-      ]);
-      setreferencelatLong({ latitude, longitude });
-      if (nearestLatLong_res?.status == 200) {
-        if (nearestLatLong_res.data.data.length > 0) {
-          setnearPolData(nearestLatLong_res.data.data);
-          groupedData = groupByRelId(nearestLatLong_res.data.data);
-          setnearPolSet(groupedData);
-          setPolygons(groupedData);
-        }
-      }
-      let i = 0;
-      if (UnitConversonToDefault_res?.status == 200) {
-        if (UnitConversonToDefault_res.data.data?.count > 0) {
-          UnitConversonToDefault_res.data.data.rows.forEach(element => {
-            if (
-              element.defined_unit_value == null ||
-              element.defined_unit_value == ''
-            ) {
-              i = i + 1;
-            }
-          });
-        }
-      }
-      if (i > 0) {
+    }
+    if (unitConversion_res?.status === 200) {
+      const rows = unitConversion_res.data?.data?.rows || [];
+      const invalidUnits = rows.filter(
+        (el) => !el.defined_unit_value || el.defined_unit_value === ""
+      );
+      if (invalidUnits.length > 0) {
         setConvertionLUState(true);
       }
-
-      if (LandUnitArea_res?.status == 200) {
-        if (LandUnitArea_res.data.data?.count > 0) {
-          LandUnitArea_res.data.data.rows.forEach(element => {
-
-            if (element.defined_unit_value.length > 0) {
-              setDefaultLand(true);
-            } else {
-              setDefaultLand(false);
-            }
-          });
-        }
-      }
-
-      if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
-        if (count > 0) {
-          setLandAreaUnit(rows);
-        } else {
-          setLandAreaUnit([]);
-        }
-      }
-      if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
-        if (count > 0) {
-          setLandUnitsquareMetre(rows);
-        } else {
-          setLandUnitsquareMetre([]);
-        }
-      }
-      if (plotSiteUserLandDetails_res?.status === 200) {
-        setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      Toast.show({
-        text: JSON.stringify(error),
-        ...AlertMesg[0],
-      });
-      CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
     }
-  };
+    if (landUnitArea_res?.status === 200) {
+      const { count, rows = [] } = landUnitArea_res.data?.data || {};
+      setLandAreaUnit(count > 0 ? rows : []);
+      setDefaultLand(rows.some((el) => el.defined_unit_value?.length > 0));
+    }
+    if (landUnitSquare_res?.status === 200) {
+      const { count, rows = [] } = landUnitSquare_res.data?.data || {};
+      setLandUnitsquareMetre(count > 0 ? rows : []);
+    }
+    if (plotSiteUserLandDetails_res?.status === 200) {
+      setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
+    }
+    setIsLoading(false);
+  } catch (error) {
+    setIsLoading(false);
+    Toast.show({
+      text: JSON.stringify(error),
+      ...AlertMesg[0],
+    });
+    CrashlyticsRecordError(error, "LiveHood", "onpageload");
+  }
+};
 
 
   const handlePlot = async findData => {
@@ -671,9 +628,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   };
   useEffect(() => {
 
-    onPageLoad();
-    removesetLocation();
-    // onBackPress(handleBackPress);
+      const task = InteractionManager.runAfterInteractions(() => {
+         onPageLoad();
+       });
+       return () => task.cancel(); // cleanup
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {

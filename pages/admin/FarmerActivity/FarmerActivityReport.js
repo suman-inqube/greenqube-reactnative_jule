@@ -5,16 +5,17 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Dimensions, Alert
+  Dimensions,
+  Alert,
 } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, {useEffect, useState, useCallback, useContext} from 'react';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import TakePhoto from './TakePhoto';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
 import RecordComp from '../Activity/RecordComp';
 import {
   activityScheduleAPI,
@@ -27,19 +28,22 @@ import {
   productionStageAPI,
   addModuleForView,
 } from '../../../config/apiHere';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useFocusEffect } from '@react-navigation/native';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {useFocusEffect} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { plotHook } from '../../hooks/plotHook';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {plotHook} from '../../hooks/plotHook';
 import HarvestedModel from '../../Common/HarvestedModel';
-import { isPointInPolygon } from 'geolib';
+import {isPointInPolygon} from 'geolib';
 import getCurrentLocation from '../../Common/getCurrentLocation';
-import { isWithin20Meters } from '../../Common/calculateAreaFun';
-const FarmerActivityReport = ({ navigation }) => {
+import {isWithin20Meters} from '../../Common/calculateAreaFun';
+import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+const FarmerActivityReport = ({navigation}) => {
   const {
     InputTextForm,
     DropdownForm,
@@ -63,16 +67,16 @@ const FarmerActivityReport = ({ navigation }) => {
     isOnline,
     LoadingScreen,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
-  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(
+  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
     token,
     user_id,
     isOnline,
   );
-  const { netConnection } = DeviceInfo();
-   const [isLoading, setIsLoading] = useState(true);
+  const {netConnection} = DeviceInfo();
+  const [isLoading, setIsLoading] = useState(true);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -166,14 +170,14 @@ const FarmerActivityReport = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   // const [outofRange, setOutofRange] = useState(false);
-    const [pipeLatLong, setPipeLatLong] = useState([]);
-    const [overdueAct, setOverdueAct] = useState([]);
-    const [lastAct, setLastAct] = useState();
-    const [upcomingAct, setUpcomingAct] = useState("");
-    const [scheduleInfo, setScheduleInfo] = useState({
-      lastAct: '',
-      upcomingAct: '',
-    });
+  const [pipeLatLong, setPipeLatLong] = useState([]);
+  const [overdueAct, setOverdueAct] = useState([]);
+  const [lastAct, setLastAct] = useState();
+  const [upcomingAct, setUpcomingAct] = useState('');
+  const [scheduleInfo, setScheduleInfo] = useState({
+    lastAct: '',
+    upcomingAct: '',
+  });
   const openImagePicker = item => {
     const options = {
       mediaType: 'photo',
@@ -201,15 +205,16 @@ const FarmerActivityReport = ({ navigation }) => {
           },
           watermarkTexts: [
             {
-              text: `${saveData.latitude},${saveData.longitude
-                },${new Intl.DateTimeFormat('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
-                }).format(timestamp)}`,
+              text: `${saveData.latitude},${
+                saveData.longitude
+              },${new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }).format(timestamp)}`,
 
               positionOptions: {
                 position: Position.bottomLeft,
@@ -255,7 +260,7 @@ const FarmerActivityReport = ({ navigation }) => {
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({ ...saveData, act_perform_date: effective_date });
+    setSaveData({...saveData, act_perform_date: effective_date});
   };
   const setCycleDate = async () => {
     setIsButtonDisabled(true);
@@ -282,142 +287,135 @@ const FarmerActivityReport = ({ navigation }) => {
     //   saveData.cu_rel_id,
     // );
 
-     var [setCycleDate, activitySchedule] = await Promise.all([
-       setCycleDateAPI(
-         dbname,
-         lan_id,
-         farmerID,
-         token,
-         saveData.cu_rel_id,
-         save_data,
-       ),
-       activityScheduleAPI(
-         dbname,
-         lan_id,
-         token,
-         'user_activity',
-         saveData.plot_id,
-         saveData.crop_name,
-         saveData.cu_rel_id,
-       ),
-     ]);
-    
-    
-    
-            if (activitySchedule.status == 200) {
-              if (
-                activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-              ) {
-                var lastData =
-                  activitySchedule?.data?.data?.lastActivity?.activityName
-                    ?.categoryName +
-                  ' (' +
-                  formatDate(
-                    activitySchedule?.data?.data?.lastActivity?.act_start_date,
-                  ) +
-                  ' - ' +
-                  formatDate(
-                    activitySchedule?.data?.data?.lastActivity?.act_to_date,
-                  ) +
-                  ')';
-    
-                setLastAct(lastData);
-              }
-    
-              if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-                // activitySchedule?.data?.data?.otherActivities.forEach(function (
-                //   element,
-                // ) {
-                //   var overdueData;
-                //   if (element?.days_until_start < 0) {
-                //     overdueData =
-                //       element?.activityName.categoryName +
-                //       ' (' +
-                //       formatDate(element?.activity_start_date) +
-                //       ' - ' +
-                //       formatDate(element?.activity_end_date) +
-                //       ')';
-                //     // console.log(overdueData);
-                //   }
-                //   setOverdueAct(prevItems => [...prevItems, overdueData]);
-                // });
+    var [setCycleDate, activitySchedule] = await Promise.all([
+      setCycleDateAPI(
+        dbname,
+        lan_id,
+        farmerID,
+        token,
+        saveData.cu_rel_id,
+        save_data,
+      ),
+      activityScheduleAPI(
+        dbname,
+        lan_id,
+        token,
+        'user_activity',
+        saveData.plot_id,
+        saveData.crop_name,
+        saveData.cu_rel_id,
+      ),
+    ]);
 
-                activitySchedule?.data?.data?.otherActivities.forEach(function (
-                  element,
-                ) {
-                  var overdueData;
-                  if (element?.days_until_start < 0) {
-                    overdueData =
-                      element?.activityName.categoryName +
-                      ' (' +
-                      formatDate(element?.activity_start_date) +
-                      ' - ' +
-                      formatDate(element?.activity_end_date) +
-                      ')';
-                    //  console.log("00",overdueData);
-                    setOverdueAct(prevItems => [...prevItems, overdueData]);
-                  }
-                  // setOverdueAct(prevItems => [...prevItems, overdueData]);
-                });
+    if (activitySchedule.status == 200) {
+      if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
+        var lastData =
+          activitySchedule?.data?.data?.lastActivity?.activityName
+            ?.categoryName +
+          ' (' +
+          formatDate(
+            activitySchedule?.data?.data?.lastActivity?.act_start_date,
+          ) +
+          ' - ' +
+          formatDate(activitySchedule?.data?.data?.lastActivity?.act_to_date) +
+          ')';
 
+        setLastAct(lastData);
+      }
 
-                const upcomingActivity =
-                  activitySchedule?.data?.data?.otherActivities?.find(
-                    item => item.days_until_start >= 0,
-                  );
-                // console.log(upcomingActivity.days_from);
-                if (upcomingActivity != undefined) {
-                const monthNames = [
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                  'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December',
-                ];
-                const cycleDate =
-                  cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
-                // const cycleDate =
-                //   data.crop_cycl_start_date == null ||
-                //   data.crop_cycl_start_date == '2004-02-29'
-                //     ? data.sowing_date
-                //     : data.crop_cycl_start_date;
-    
-                const sdate = new Date(cycleDate);
-                sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-                const smonth = monthNames[sdate.getMonth()];
-                const sday = sdate.getDate();
-                const syear = sdate.getFullYear();
-                const startDate = `${smonth} ${sday}, ${syear}`;
-                const edate = new Date(cycleDate);
-                edate.setDate(edate.getDate() + upcomingActivity.days_to);
-                const emonth = monthNames[edate.getMonth()];
-                const eday = edate.getDate();
-                const eyear = edate.getFullYear();
-                const endDate = `${emonth} ${eday}, ${eyear}`;
-                const startDateEndDate = `${startDate}-${endDate}`;
-    
-                setUpcomingAct(
-                  upcomingActivity?.activityName?.categoryName +
-                    ' (' +
-                    startDateEndDate +
-                    ')',
-                );
-                // console.log(
-                //   upcomingActivity?.activityName?.categoryName +
-                //     ' (' +
-                //     startDateEndDate +
-                //     ')',
-                // );
-              }
-              }
-            }
+      if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+        // activitySchedule?.data?.data?.otherActivities.forEach(function (
+        //   element,
+        // ) {
+        //   var overdueData;
+        //   if (element?.days_until_start < 0) {
+        //     overdueData =
+        //       element?.activityName.categoryName +
+        //       ' (' +
+        //       formatDate(element?.activity_start_date) +
+        //       ' - ' +
+        //       formatDate(element?.activity_end_date) +
+        //       ')';
+        //     // console.log(overdueData);
+        //   }
+        //   setOverdueAct(prevItems => [...prevItems, overdueData]);
+        // });
+
+        activitySchedule?.data?.data?.otherActivities.forEach(function (
+          element,
+        ) {
+          var overdueData;
+          if (element?.days_until_start < 0) {
+            overdueData =
+              element?.activityName.categoryName +
+              ' (' +
+              formatDate(element?.activity_start_date) +
+              ' - ' +
+              formatDate(element?.activity_end_date) +
+              ')';
+            //  console.log("00",overdueData);
+            setOverdueAct(prevItems => [...prevItems, overdueData]);
+          }
+          // setOverdueAct(prevItems => [...prevItems, overdueData]);
+        });
+
+        const upcomingActivity =
+          activitySchedule?.data?.data?.otherActivities?.find(
+            item => item.days_until_start >= 0,
+          );
+        // console.log(upcomingActivity.days_from);
+        if (upcomingActivity != undefined) {
+          const monthNames = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+          ];
+          const cycleDate =
+            cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
+          // const cycleDate =
+          //   data.crop_cycl_start_date == null ||
+          //   data.crop_cycl_start_date == '2004-02-29'
+          //     ? data.sowing_date
+          //     : data.crop_cycl_start_date;
+
+          const sdate = new Date(cycleDate);
+          sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+          const smonth = monthNames[sdate.getMonth()];
+          const sday = sdate.getDate();
+          const syear = sdate.getFullYear();
+          const startDate = `${smonth} ${sday}, ${syear}`;
+          const edate = new Date(cycleDate);
+          edate.setDate(edate.getDate() + upcomingActivity.days_to);
+          const emonth = monthNames[edate.getMonth()];
+          const eday = edate.getDate();
+          const eyear = edate.getFullYear();
+          const endDate = `${emonth} ${eday}, ${eyear}`;
+          const startDateEndDate = `${startDate}-${endDate}`;
+
+          setUpcomingAct(
+            upcomingActivity?.activityName?.categoryName +
+              ' (' +
+              startDateEndDate +
+              ')',
+          );
+          // console.log(
+          //   upcomingActivity?.activityName?.categoryName +
+          //     ' (' +
+          //     startDateEndDate +
+          //     ')',
+          // );
+        }
+      }
+    }
   };
 
   const formatDate = dateString => {
@@ -470,17 +468,25 @@ const FarmerActivityReport = ({ navigation }) => {
       // const { latitude, longitude } = await getCurrentLocation() || {};
       const fusedLocation = await getItem('fusedLocation');
       const {latitude, longitude} = fusedLocation;
-      const latandlongArr = response?.data?.data?.land_info?.agri_land_user_latlongs?.map((_data, _index) => ({
-        longitude: _data.longitude, latitude: _data.latitude
-      }))
+      const latandlongArr =
+        response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
+          (_data, _index) => ({
+            longitude: _data.longitude,
+            latitude: _data.latitude,
+          }),
+        );
       if (latandlongArr.length != 0) {
-        const is20Meters = isWithin20Meters({ latitude, longitude }, latandlongArr, 20);
+        const is20Meters = isWithin20Meters(
+          {latitude, longitude},
+          latandlongArr,
+          20,
+        );
         if (is20Meters.length != 0) {
-          console.log("User is inside the polygon.");
+          console.log('User is inside the polygon.');
           setOutofRange(false);
         } else {
-          setOutofRange(true)
-          console.log("User is outside the polygon.");
+          setOutofRange(true);
+          console.log('User is outside the polygon.');
         }
       }
       const dateString = response.data.data.harvesting_date;
@@ -490,13 +496,13 @@ const FarmerActivityReport = ({ navigation }) => {
         const data = response.data.data;
         setShowingMenu(true);
         data.crop_cycl_start_date == null ||
-          data.crop_cycl_start_date == '2004-02-29'
+        data.crop_cycl_start_date == '2004-02-29'
           ? setIsButtonDisabled(false)
           : setIsButtonDisabled(true);
         // console.log(isButtonDisabled);
         let cycle_start_date =
           data.crop_cycl_start_date == null ||
-            data.crop_cycl_start_date == '2004-02-29'
+          data.crop_cycl_start_date == '2004-02-29'
             ? data.sowing_date
             : data.crop_cycl_start_date;
 
@@ -563,153 +569,152 @@ const FarmerActivityReport = ({ navigation }) => {
         //   setproductionStageAll(dataArray);
         // }
         if (isOnline) {
-                            // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
-                            // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
-        
-                             var [productionStage_res, activitySchedule] =
-                               await Promise.all([
-                                 productionStageAPI(
-                                   dbname,
-                                   lan_id,
-                                   data.crop_type_id,
-                                   data.crop_name_id,
-                                 ),
-                                 activityScheduleAPI(
-                                   dbname,
-                                   lan_id,
-                                   token,
-                                   'user_activity',
-                                   relId.value,
-                                   data.crop_name_id,
-                                   data.cu_rel_id,
-                                 ),
-                                //  setItem(
-                                //    'productionStageAPI' +
-                                //      data.crop_type_id +
-                                //      data.crop_type_id,
-                                //    productionStage_res,
-                                //  ),
-                                 setLastAct(''),
-                                 setOverdueAct([]),
-                                 setUpcomingAct(''),
-                               ]);
-                        } else {
-                            var productionStage_res = await getItem('productionStageAPI' + data.crop_type_id + data.crop_type_id)
-                        }
-                        if (productionStage_res) {
-                            const dataArray = productionStage_res?.data?.data?.growth_stage.map(data => ({ value: data.growth_stage.fid, label: data.growth_stage.name }));
-                            setproductionStageAll(dataArray)
-                        }
-        
-                        if (activitySchedule.status == 200) {
-                          if (
-                            activitySchedule?.data?.data?.lastActivity !==
-                            'No Last Activity'
-                          ) {
-                            var lastData =
-                              activitySchedule.data.data.lastActivity
-                                .activityName.categoryName +
-                              ' (' +
-                              formatDate(
-                                activitySchedule?.data?.data?.lastActivity
-                                  ?.act_start_date,
-                              ) +
-                              ' - ' +
-                              formatDate(
-                                activitySchedule?.data?.data?.lastActivity
-                                  ?.act_to_date,
-                              ) +
-                              ')';
-                             setLastAct(lastData);
-                          }
-                           console.log('sch== ',activitySchedule.data.data);
-                          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-                            activitySchedule?.data?.data?.otherActivities.forEach(
-                              function (element) {
-                                var overdueData;
-                                if (element?.days_until_start < 0) {
-                                  overdueData =
-                                    element.activityName.categoryName +
-                                    ' (' +
-                                    formatDate(element?.activity_start_date) +
-                                    ' - ' +
-                                    formatDate(element?.activity_end_date) +
-                                    ')';
-                                  console.log(overdueData);
-                                  setOverdueAct(prevItems => [
-                                    ...prevItems,
-                                    overdueData,
-                                  ]);
-                                }
-                                
-                              },
-                            );
-        
-                            const upcomingActivity =
-                              activitySchedule?.data?.data?.otherActivities?.find(
-                                item => item.days_until_start >= 0,
-                              );
-                            // console.log(upcomingActivity.days_from);
-                            if (upcomingActivity != undefined) {
-                            const monthNames = [
-                              'January',
-                              'February',
-                              'March',
-                              'April',
-                              'May',
-                              'June',
-                              'July',
-                              'August',
-                              'September',
-                              'October',
-                              'November',
-                              'December',
-                            ];
-                            // const cycleDate =
-                            //   cycleDtartDate == ''
-                            //     ? saveData.cycle_start_date
-                            //     : cycleDtartDate;
-                            const cycleDate =
-                              data.crop_cycl_start_date == null ||
-                              data.crop_cycl_start_date == '2004-02-29'
-                                ? data.sowing_date
-                                : data.crop_cycl_start_date;
-                            const sdate = new Date(cycleDate);
-                            sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-                            const smonth = monthNames[sdate.getMonth()];
-                            const sday = sdate.getDate();
-                            const syear = sdate.getFullYear();
-                            const startDate = `${smonth} ${sday}, ${syear}`;
-                            const edate = new Date(cycleDate);
-                            edate.setDate(edate.getDate() + upcomingActivity.days_to);
-                            const emonth = monthNames[edate.getMonth()];
-                            const eday = edate.getDate();
-                            const eyear = edate.getFullYear();
-                            const endDate = `${emonth} ${eday}, ${eyear}`;
-                            const startDateEndDate = `${startDate}-${endDate}`;
-        
-                            setUpcomingAct(
-                              upcomingActivity?.activityName?.categoryName +
-                                ' (' +
-                                startDateEndDate +
-                                ')',
-                            );
-                          }
-                            // const upcomingActivity =
-                            //   activitySchedule?.data?.data?.otherActivities?.find(
-                            //     item => item.days_until_start >= 0,
-                            //   );
-        
-                            // setUpcomingAct(upcomingActivity);
-                            // console.log(upcomingActivity);
-                          }
-                          // setScheduleInfo({
-                          //   ...scheduleInfo,
-                          //   lastAct: '',
-                          //   upcomingAct: '',
-                          // });
-                        }
-                        setIsLoading(false);
+          // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
+          // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
+
+          var [productionStage_res, activitySchedule] = await Promise.all([
+            productionStageAPI(
+              dbname,
+              lan_id,
+              data.crop_type_id,
+              data.crop_name_id,
+            ),
+            activityScheduleAPI(
+              dbname,
+              lan_id,
+              token,
+              'user_activity',
+              relId.value,
+              data.crop_name_id,
+              data.cu_rel_id,
+            ),
+            //  setItem(
+            //    'productionStageAPI' +
+            //      data.crop_type_id +
+            //      data.crop_type_id,
+            //    productionStage_res,
+            //  ),
+            setLastAct(''),
+            setOverdueAct([]),
+            setUpcomingAct(''),
+          ]);
+        } else {
+          var productionStage_res = await getItem(
+            'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+          );
+        }
+        if (productionStage_res) {
+          const dataArray = productionStage_res?.data?.data?.growth_stage.map(
+            data => ({
+              value: data.growth_stage.fid,
+              label: data.growth_stage.name,
+            }),
+          );
+          setproductionStageAll(dataArray);
+        }
+
+        if (activitySchedule.status == 200) {
+          if (
+            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
+          ) {
+            var lastData =
+              activitySchedule.data.data.lastActivity.activityName
+                .categoryName +
+              ' (' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_start_date,
+              ) +
+              ' - ' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_to_date,
+              ) +
+              ')';
+            setLastAct(lastData);
+          }
+          console.log('sch== ', activitySchedule.data.data);
+          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+            activitySchedule?.data?.data?.otherActivities.forEach(function (
+              element,
+            ) {
+              var overdueData;
+              if (element?.days_until_start < 0) {
+                overdueData =
+                  element.activityName.categoryName +
+                  ' (' +
+                  formatDate(element?.activity_start_date) +
+                  ' - ' +
+                  formatDate(element?.activity_end_date) +
+                  ')';
+                console.log(overdueData);
+                setOverdueAct(prevItems => [...prevItems, overdueData]);
+              }
+            });
+
+            const upcomingActivity =
+              activitySchedule?.data?.data?.otherActivities?.find(
+                item => item.days_until_start >= 0,
+              );
+            // console.log(upcomingActivity.days_from);
+            if (upcomingActivity != undefined) {
+              const monthNames = [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December',
+              ];
+              // const cycleDate =
+              //   cycleDtartDate == ''
+              //     ? saveData.cycle_start_date
+              //     : cycleDtartDate;
+              const cycleDate =
+                data.crop_cycl_start_date == null ||
+                data.crop_cycl_start_date == '2004-02-29'
+                  ? data.sowing_date
+                  : data.crop_cycl_start_date;
+              const sdate = new Date(cycleDate);
+              sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+              const smonth = monthNames[sdate.getMonth()];
+              const sday = sdate.getDate();
+              const syear = sdate.getFullYear();
+              const startDate = `${smonth} ${sday}, ${syear}`;
+              const edate = new Date(cycleDate);
+              edate.setDate(edate.getDate() + upcomingActivity.days_to);
+              const emonth = monthNames[edate.getMonth()];
+              const eday = edate.getDate();
+              const eyear = edate.getFullYear();
+              const endDate = `${emonth} ${eday}, ${eyear}`;
+              const startDateEndDate = `${startDate}-${endDate}`;
+
+              setUpcomingAct(
+                upcomingActivity?.activityName?.categoryName +
+                  ' (' +
+                  startDateEndDate +
+                  ')',
+              );
+            }
+            // const upcomingActivity =
+            //   activitySchedule?.data?.data?.otherActivities?.find(
+            //     item => item.days_until_start >= 0,
+            //   );
+
+            // setUpcomingAct(upcomingActivity);
+            // console.log(upcomingActivity);
+          }
+          // setScheduleInfo({
+          //   ...scheduleInfo,
+          //   lastAct: '',
+          //   upcomingAct: '',
+          // });
+        }
+        setIsLoading(false);
       } else {
         setIsButtonDisabled(false);
         setSearchFarmerName('');
@@ -801,7 +806,7 @@ const FarmerActivityReport = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -810,7 +815,7 @@ const FarmerActivityReport = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -966,7 +971,7 @@ const FarmerActivityReport = ({ navigation }) => {
             'activity_user',
             1,
           );
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             handleClear();
             navigation.navigate('FarmerActivityList');
@@ -990,7 +995,7 @@ const FarmerActivityReport = ({ navigation }) => {
         } else {
           await setItem('offlineFarmerActivityData', 'off' + timeStamp);
         }
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           handleClear();
           navigation.navigate('FarmerActivityList');
@@ -1000,8 +1005,8 @@ const FarmerActivityReport = ({ navigation }) => {
   };
 
   const handleActivityPattern = item => {
-    setactivityInfoReadio({ ...activityInfoReadio, activityPreFormDate: item });
-    setSaveData({ ...saveData, act_pattern: item });
+    setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
+    setSaveData({...saveData, act_pattern: item});
     if (item === 'schedule') {
       setisActiveMenu(true);
     } else {
@@ -1029,7 +1034,7 @@ const FarmerActivityReport = ({ navigation }) => {
         response,
       );
     }
-    setSaveData({ ...saveData, act_ref_type: item.value });
+    setSaveData({...saveData, act_ref_type: item.value});
     if (response.data.data.count > 0) {
       const dataArray = [];
       response.data.data.rows.forEach(element => {
@@ -1192,10 +1197,10 @@ const FarmerActivityReport = ({ navigation }) => {
       var activityType_res = await getItem('activityType' + user_id);
     }
     if (activityType_res) {
-       setIsLoading(false);
+      setIsLoading(false);
       const dataArray = [];
       activityType_res.data.data.rows.forEach(element => {
-        dataArray.push({ value: element.fid, label: element.categoryName });
+        dataArray.push({value: element.fid, label: element.categoryName});
       });
       setactivityTypeAll(dataArray);
     }
@@ -1203,7 +1208,7 @@ const FarmerActivityReport = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      setSaveData({ plot_id: '' });
+      setSaveData({plot_id: ''});
       onBackPress(() => {
         navigation.navigate('FarmerActivityList');
         return true;
@@ -1296,341 +1301,342 @@ const FarmerActivityReport = ({ navigation }) => {
     }
   };
   return (
-    <>
-      <View style={styles.container}>
-        <CustomHeader
-          path="FarmerActivityList"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <DatePickerComp
-          openDate={cycleStartDate}
-          newDate={newFromDate}
-          setOpenDate={srtCycleStartDate}
-          handleDatePicker={handleDatePicker}
-        />
-        <DatePickerComp
-          openDate={activityPreDate}
-          newDate={newFromDate}
-          setOpenDate={setActivityPreDate}
-          handleDatePicker={handleDatePicker2}
-        />
-        {modalVisibleRecordFirstItem ? (
-          <SoundRecord
-            modalVisibleRecord={modalVisibleRecordFirstItem}
-            setModalVisibleRecord={setModalVisibleRecordFirstItem}
-            onStartRecordFirstItem={onStartRecordFirstItem}
-            onStopRecordFirstItem={onStopRecordFirstItem}
-            soundRecord={soundRecordFirstItem}
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <View style={styles.container}>
+          <CustomHeader
+            path="FarmerActivityList"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
           />
-        ) : null}
-        {modalVisibleRecordSecoundItem ? (
-          <SoundRecord
-            modalVisibleRecord={modalVisibleRecordSecoundItem}
-            setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-            onStartRecordFirstItem={onStartRecordSecoundItem}
-            onStopRecordFirstItem={onStopRecordSecoundItem}
-            soundRecord={soundRecordSecoundItem}
+          <DatePickerComp
+            openDate={cycleStartDate}
+            newDate={newFromDate}
+            setOpenDate={srtCycleStartDate}
+            handleDatePicker={handleDatePicker}
           />
-        ) : null}
-        {modalVisibleRecordThirdItem ? (
-          <SoundRecord
-            modalVisibleRecord={modalVisibleRecordThirdItem}
-            setModalVisibleRecord={setModalVisibleRecordThirdItem}
-            onStartRecordFirstItem={onStartRecordThirdItem}
-            onStopRecordFirstItem={onStopRecordThirdItem}
-            soundRecord={soundRecordThirdItem}
+          <DatePickerComp
+            openDate={activityPreDate}
+            newDate={newFromDate}
+            setOpenDate={setActivityPreDate}
+            handleDatePicker={handleDatePicker2}
           />
-        ) : null}
-
-        <View style={styles.titleContainer}>
-          <Text
-            style={[
-              styles.title,
-              {
-                paddingBottom: 8,
-                paddingTop: 4,
-                fontWeight: '700',
-                fontSize: 18,
-              },
-            ]}>
-            {t('report_activity')}
-          </Text>
-        </View>
-        <ScrollView showsVerticalScrollIndicator={false}>
-         {isLoading && (
-                              <View style={styles.loadingScreen}>
-                                <LoadingScreen />
-                              </View>
-                            )}
-          <View style={styles.fromContainer}>
-            <DropdownForm
-              label={t('plot')}
-              data={plotAll}
-              color="red"
-              onChange={relId => handlePlot(relId)}
-              val={saveData.plot_id}
+          {modalVisibleRecordFirstItem ? (
+            <SoundRecord
+              modalVisibleRecord={modalVisibleRecordFirstItem}
+              setModalVisibleRecord={setModalVisibleRecordFirstItem}
+              onStartRecordFirstItem={onStartRecordFirstItem}
+              onStopRecordFirstItem={onStopRecordFirstItem}
+              soundRecord={soundRecordFirstItem}
             />
+          ) : null}
+          {modalVisibleRecordSecoundItem ? (
+            <SoundRecord
+              modalVisibleRecord={modalVisibleRecordSecoundItem}
+              setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+              onStartRecordFirstItem={onStartRecordSecoundItem}
+              onStopRecordFirstItem={onStopRecordSecoundItem}
+              soundRecord={soundRecordSecoundItem}
+            />
+          ) : null}
+          {modalVisibleRecordThirdItem ? (
+            <SoundRecord
+              modalVisibleRecord={modalVisibleRecordThirdItem}
+              setModalVisibleRecord={setModalVisibleRecordThirdItem}
+              onStartRecordFirstItem={onStartRecordThirdItem}
+              onStopRecordFirstItem={onStopRecordThirdItem}
+              soundRecord={soundRecordThirdItem}
+            />
+          ) : null}
 
-            {showingMenu ? (
-              <View style={styles.plotSiteContainer}>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>{t('crop_name')}</Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('crop_veriety')}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('showing_date')}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('harvesting_date_auto_calculated')}
-                  </Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {nameVarityStartEnd.name}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {nameVarityStartEnd.varity}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
-                  </Text>
-                </View>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {isLoading && (
+              <View style={styles.loadingScreen}>
+                <LoadingScreen />
               </View>
-            ) : (
-              ''
             )}
-
-            <DropdownForm
-              label={t('growth_stage')}
-              color="red"
-              data={productionStageAll}
-              onChange={production_stage =>
-                setSaveData({...saveData, growth_stage: production_stage.value})
-              }
-            />
-
-            <View>
-              <Text style={styles.title}>
-                {t('pick_crop_cycle_start_date')}
-              </Text>
-              <View style={styles.cycleContainer}>
-                <TouchableOpacity
-                  style={styles.cycleContainerDate}
-                  disabled={isButtonDisabled}
-                  onPress={() => srtCycleStartDate(true)}>
-                  <View style={{width: '80%'}}>
-                    <Text style={styles.title}>
-                      {cycleDtartDate == ''
-                        ? saveData.cycle_start_date
-                        : cycleDtartDate}
-                    </Text>
-                  </View>
-                  <Image
-                    source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.cycleContainerStartDate,
-                    {
-                      backgroundColor: isButtonDisabled ? '#EBEBE4' : 'green',
-                    },
-                  ]}
-                  disabled={isButtonDisabled}
-                  onPress={() => setCycleDate()}>
-                  <Text
-                    style={[
-                      styles.title,
-                      {color: isButtonDisabled ? '#000' : '#FFF'},
-                    ]}>
-                    {t('set_the_crop_cycle_start_date')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.activityPattern}>
-              <Text style={styles.title}>{t('activity_pattern')}</Text>
-              <RadioForm
-                label={t('schedule')}
-                selected={activityInfoReadio.activityPreFormDate === 'schedule'}
-                onSelect={() => handleActivityPattern('schedule')}
-              />
-              <RadioForm
-                label={t('regular')}
-                selected={activityInfoReadio.activityPreFormDate === 'regular'}
-                onSelect={() => handleActivityPattern('regular')}
-              />
-            </View>
-            {isActiveMenu ? (
-              <>
+            <View style={styles.fromContainer}>
+              <View style={{padding: 20}}>
                 <DropdownForm
-                  label={t('activity_type')}
-                  color="red"
-                  data={activityTypeAll}
-                  onChange={item => handleActivityType(item)}
-                  val={saveData.act_ref_type}
-                />
-                <DropdownForm
-                  label={t('select_activity')}
-                  color="red"
-                  data={activityInfoAll}
-                  onChange={item => handleActivityInfo(item)}
-                  val={saveData.act_to_date_label}
+                  label={t('plot')}
+                  data={plotAll}
+                  required={true}
+                  onChange={relId => handlePlot(relId)}
+                  val={saveData.plot_id}
                 />
 
-                {lastAct ? (
+                {showingMenu ? (
                   <View style={styles.plotSiteContainer}>
                     <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>Last activity</Text>
-                    </View>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>{lastAct}</Text>
-                    </View>
-                  </View>
-                ) : null}
-
-                {upcomingAct ? (
-                  <View style={styles.plotSiteContainer}>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>
-                        Upcoming activity
+                      <Text style={styles.label}>{t('crop_name')}</Text>
+                      <Text style={styles.value}>
+                        {nameVarityStartEnd.name}
                       </Text>
                     </View>
                     <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>
-                        {/* {upcomingAct.activityName.categoryName +
+                      <Text style={styles.label}>{t('crop_veriety')}</Text>
+                      <Text style={styles.value}>
+                        {nameVarityStartEnd.varity}
+                      </Text>
+                    </View>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.label}>{t('showing_date')}</Text>
+                      <Text style={styles.value}>
+                        {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
+                      </Text>
+                    </View>
+                    <View style={styles.plotSiteContainerItem}>
+                      <Text style={styles.label}>
+                        {t('harvesting_date_auto_calculated')}
+                      </Text>
+                      <Text style={styles.value}>
+                        {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                      </Text>
+                    </View>
+                  </View>
+                ) : (
+                  ''
+                )}
+
+                <DropdownForm
+                  label={t('growth_stage')}
+                  required={true}
+                  data={productionStageAll}
+                  onChange={production_stage =>
+                    setSaveData({
+                      ...saveData,
+                      growth_stage: production_stage.value,
+                    })
+                  }
+                />
+
+                <View style={{marginBottom: 5}}>
+                  <Text style={styles.title}>
+                    {t('pick_crop_cycle_start_date')}
+                  </Text>
+                  <View style={styles.cycleContainer}>
+                    <TouchableOpacity
+                      style={styles.cycleContainerDate}
+                      disabled={isButtonDisabled}
+                      onPress={() => srtCycleStartDate(true)}>
+                      <View style={{width: '80%'}}>
+                        <Text style={styles.title}>
+                          {cycleDtartDate == ''
+                            ? saveData.cycle_start_date
+                            : cycleDtartDate}
+                        </Text>
+                      </View>
+                      <Image
+                        source={require('../../Common/images/calendar.png')}
+                        style={{width: 20, height: 20}}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.cycleContainerStartDate,
+                        {
+                          backgroundColor: isButtonDisabled
+                            ? '#EBEBE4'
+                            : 'green',
+                        },
+                      ]}
+                      disabled={isButtonDisabled}
+                      onPress={() => setCycleDate()}>
+                      <Text
+                        style={[
+                          styles.titleDate,
+                          {color: isButtonDisabled ? '#000' : '#FFF'},
+                        ]}>
+                        {t('set_the_crop_cycle_start_date')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={styles.activityPattern}>
+                  <Text style={styles.title}>{t('activity_pattern')}</Text>
+                  <RadioForm
+                    label={t('schedule')}
+                    selected={
+                      activityInfoReadio.activityPreFormDate === 'schedule'
+                    }
+                    onSelect={() => handleActivityPattern('schedule')}
+                  />
+                  <RadioForm
+                    label={t('regular')}
+                    selected={
+                      activityInfoReadio.activityPreFormDate === 'regular'
+                    }
+                    onSelect={() => handleActivityPattern('regular')}
+                  />
+                </View>
+                {isActiveMenu ? (
+                  <>
+                    <DropdownForm
+                      label={t('activity_type')}
+                      required={true}
+                      data={activityTypeAll}
+                      onChange={item => handleActivityType(item)}
+                      val={saveData.act_ref_type}
+                    />
+                    <DropdownForm
+                      label={t('select_activity')}
+                      required={true}
+                      data={activityInfoAll}
+                      onChange={item => handleActivityInfo(item)}
+                      val={saveData.act_to_date_label}
+                    />
+
+                    {lastAct ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.detailRow}>
+                          <Text style={styles.label}>Last activity</Text>
+                          <Text style={styles.value1}>{lastAct}</Text>
+                        </View>
+                      </View>
+                    ) : null}
+
+                    {upcomingAct ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.detailRow}>
+                          <Text style={styles.label}>Upcoming activity</Text>
+                          <Text style={styles.value1}>
+                            {/* {upcomingAct.activityName.categoryName +
                                               ' (' +
                                               formatDate(upcomingAct.activity_start_date) +
                                               ' - ' +
                                               formatDate(upcomingAct.activity_end_date) +
                                               ')'} */}
-                        {upcomingAct}
-                      </Text>
-                    </View>
-                  </View>
-                ) : null}
+                            {upcomingAct}
+                          </Text>
+                        </View>
+                      </View>
+                    ) : null}
 
-                {overdueAct?.length > 0 ? (
-                  <View style={styles.plotSiteContainer}>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>
-                        Overdue Activities
-                      </Text>
-                    </View>
-
-                    {/* {overdueAct.map((act, index) => ( */}
-                    <View style={styles.plotSiteContainerItem}>
-                      {overdueAct.map((act, index) => (
-                        <Text key={index} style={styles.plotSiteItemText}>
-                          {/* {act.activityName.categoryName +
+                    {overdueAct?.length > 0 ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.detailRow}>
+                          <Text style={styles.label}>Overdue Activities</Text>
+                          {overdueAct.map((act, index) => (
+                            <Text key={index} style={styles.value1}>
+                              {/* {act.activityName.categoryName +
                                                                     ' (' +
                                                                     formatDate(act.activity_start_date) +
                                                                     ' - ' +
                                                                     formatDate(act.activity_end_date) +
                                                                     ')'} */}
-                          {act}
-                        </Text>
-                      ))}
-                    </View>
+                              {act}
+                            </Text>
+                          ))}
+                        </View>
+
+                        {/* {overdueAct.map((act, index) => ( */}
+                      </View>
+                    ) : null}
+                  </>
+                ) : (
+                  ''
+                )}
+
+                <View style={{marginBottom: 15, marginTop: 10}}>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Text
+                      style={{
+                        fontFamily: 'Poppins-Regular',
+                        fontSize: 15,
+                        color: '#4e4e4e',
+                      }}>
+                      {t('pick_activity_perform_date')}
+                    </Text>
+                    <Text style={styles.requiredStar}> *</Text>
                   </View>
-                ) : null}
-              </>
-            ) : (
-              ''
-            )}
+                  <TouchableOpacity
+                    style={styles.activityPerFromDate}
+                    onPress={() => setActivityPreDate(true)}>
+                    <Text style={styles.title}>{activityPreFormDate}</Text>
+                    <Image
+                      source={require('../../Common/images/calendar.png')}
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
+                </View>
 
-            <View>
-              <Text style={{color: 'red'}}>
-                {t('pick_activity_perform_date')}
-              </Text>
-              <TouchableOpacity
-                style={styles.activityPerFromDate}
-                onPress={() => setActivityPreDate(true)}>
-                <Text style={styles.title}>{activityPreFormDate}</Text>
-                <Image
-                  source={require('../../Common/images/calendar.png')}
-                  style={{width: 20, height: 20}}
+                <InputTextForm
+                  label={t('your_comm_')}
+                  value={saveData.act_desc}
+                  onChangeText={act_desc =>
+                    setSaveData({...saveData, act_desc: act_desc})
+                  }
                 />
-              </TouchableOpacity>
+
+                <InputTextForm
+                  label={t('material_used')}
+                  value={saveData.material_used}
+                  onChangeText={material_used =>
+                    setSaveData({...saveData, material_used: material_used})
+                  }
+                />
+
+                <InputTextForm
+                  label={t('water_used')}
+                  value={saveData.water_used}
+                  onChangeText={water_used =>
+                    setSaveData({...saveData, water_used: water_used})
+                  }
+                />
+
+                <InputTextForm
+                  label={t('power_used')}
+                  value={saveData.power_used}
+                  onChangeText={power_used =>
+                    setSaveData({...saveData, power_used: power_used})
+                  }
+                />
+
+                <TakePhoto
+                  openImagePicker={openImagePicker}
+                  selectedImage={selectedImage}
+                  title={t('take_a_photo_optional')}
+                />
+
+                {/* <RecordComp selectedRecord={selectedRecord} onPress={handleRecord} /> */}
+                <RecordComp
+                  selectedRecord={selectedRecord}
+                  title={t('record_your_comment_optional')}
+                  // onPress={handleRecord}
+                  setModalVisibleRecordFirstItem={
+                    setModalVisibleRecordFirstItem
+                  }
+                  setModalVisibleRecordSecoundItem={
+                    setModalVisibleRecordSecoundItem
+                  }
+                  setModalVisibleRecordThirdItem={
+                    setModalVisibleRecordThirdItem
+                  }
+                  soundRecordFirstItem={soundRecordFirstItem}
+                  soundRecordSecoundItem={soundRecordSecoundItem}
+                  soundRecordThirdItem={soundRecordThirdItem}
+                  cancelRecord={cancelRecord}
+                  soundPlay={soundPlay}
+                />
+              </View>
             </View>
-
-            <InputTextForm
-              label={t('your_comm_')}
-              value={saveData.act_desc}
-              onChangeText={act_desc =>
-                setSaveData({...saveData, act_desc: act_desc})
-              }
+          </ScrollView>
+          {modalVisible && (
+            <HarvestedModel
+              setModalVisible={setModalVisible}
+              modalVisible={modalVisible}
+              handleHarvested={handleHarvested}
             />
-
-            <InputTextForm
-              label={t('material_used')}
-              value={saveData.material_used}
-              onChangeText={material_used =>
-                setSaveData({...saveData, material_used: material_used})
-              }
-            />
-
-            <InputTextForm
-              label={t('water_used')}
-              value={saveData.water_used}
-              onChangeText={water_used =>
-                setSaveData({...saveData, water_used: water_used})
-              }
-            />
-
-            <InputTextForm
-              label={t('power_used')}
-              value={saveData.power_used}
-              onChangeText={power_used =>
-                setSaveData({...saveData, power_used: power_used})
-              }
-            />
-
-            <TakePhoto
-              openImagePicker={openImagePicker}
-              selectedImage={selectedImage}
-              title={t('take_a_photo_optional')}
-            />
-
-            {/* <RecordComp selectedRecord={selectedRecord} onPress={handleRecord} /> */}
-            <RecordComp
-              selectedRecord={selectedRecord}
-              title={t('record_your_comment_optional')}
-              // onPress={handleRecord}
-              setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-              setModalVisibleRecordSecoundItem={
-                setModalVisibleRecordSecoundItem
-              }
-              setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
-              soundRecordFirstItem={soundRecordFirstItem}
-              soundRecordSecoundItem={soundRecordSecoundItem}
-              soundRecordThirdItem={soundRecordThirdItem}
-              cancelRecord={cancelRecord}
-              soundPlay={soundPlay}
-            />
+          )}
+          <View style={{marginTop: 10}}>
+            <ButtonForm label={t('submit')} onPress={() => handleSave()} />
           </View>
-        </ScrollView>
-        {modalVisible && (
-          <HarvestedModel
-            setModalVisible={setModalVisible}
-            modalVisible={modalVisible}
-            handleHarvested={handleHarvested}
-          />
-        )}
-        <View style={{marginTop: 10}}>
-          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+          <Root></Root>
         </View>
-        <Root></Root>
-      </View>
-    </>
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -1639,6 +1645,7 @@ export default FarmerActivityReport;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background_light,
   },
   titleContainer: {
     width: '95%',
@@ -1646,12 +1653,24 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   title: {
-    color: '#000',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
+    color: '#4e4e4e',
+  },
+  titleDate: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: '#4e4e4e',
   },
   fromContainer: {
-    width: '90%',
-    marginHorizontal: '5%',
-    marginBottom: 50,
+    flex: 1,
+    backgroundColor: 'white',
+    // padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginVertical: 20,
+    marginHorizontal: 16,
   },
   activityPattern: {
     marginVertical: 10,
@@ -1666,33 +1685,43 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     color: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cycleContainerStartDateDesible: {
     backgroundColor: 'green',
     padding: 10,
     borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cycleContainerDate: {
-    width: '55%',
+    width: '50%',
     // flexDirection: 'row-reverse',
     flexDirection: 'row',
-    backgroundColor: '#FFF',
-    padding: 10,
-    borderRadius: 8,
+    height: 48,
     borderWidth: 0.5,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activityPerFromDate: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15,
-    borderRadius: 8,
-    height: 40,
-    borderColor: 'gray',
+    height: 48,
     borderWidth: 0.5,
-    backgroundColor: 'white',
-    width: '100%',
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
   },
   flatlistcontainer: {
     marginVertical: 10,
@@ -1709,35 +1738,63 @@ const styles = StyleSheet.create({
   },
 
   flatContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'white',
     position: 'absolute',
     zIndex: 999,
-    bottom: '100%',
+    // bottom: '100%',
+    top: 90,
     left: 0,
-    marginHorizontal: '5%',
-    width: '90%',
+    marginHorizontal: '10%',
+    width: '80%',
     elevation: 10,
     borderRadius: 10,
     padding: 10,
   },
   flatlisttitle: {
-    padding: 10,
+    padding: 5,
     color: '#000',
   },
   flatlistHeight: {
-    height: Dimensions.get('window').height / 2.5,
+    height: Dimensions.get('window').height / 4,
   },
   plotSiteContainer: {
-    flexDirection: 'row',
-    borderWidth: 0.5,
-    borderColor: '#000',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    backgroundColor: '#FFF',
-    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2faffff',
+
+    marginVertical: 8,
+    borderRadius: 20,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.borderGreen,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    // paddingHorizontal: 15,
+    // marginHorizontal: '1%',
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   plotSiteContainerItem: {
-    width: '50%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+    // paddingHorizontal: 5,
+    paddingHorizontal: 10,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 5,
   },
   plotSiteItemText: {
     color: '#000',
@@ -1748,5 +1805,46 @@ const styles = StyleSheet.create({
     top: 100,
     zIndex: 999,
     left: '45%',
+  },
+  requiredStar: {
+    color: 'red',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 16,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+    marginBottom: 5,
+  },
+
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+  },
+  value1: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+    marginBottom: 10,
+    textAlign: 'left',
+  },
+  detailRow: {
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    // paddingHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 10,
   },
 });

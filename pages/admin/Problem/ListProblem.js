@@ -33,6 +33,7 @@ import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 import {FloatingAction} from 'react-native-floating-action';
 import {getActionsProblemSupervisor} from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const ListProblem = ({navigation}) => {
   //GQR-67
   const {
@@ -242,97 +243,100 @@ const ListProblem = ({navigation}) => {
     navigation.navigate(pageName);
   }, []);
   return (
-    <Root>
-      <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
-        <View style={{flex: 1}}>
-          <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <SafeAreaView
+          style={{flex: 1, backgroundColor: Colors.background_light}}>
+          <View style={{flex: 1}}>
+            <CustomHeader t={t} filterOptionShow={filterOptionShow} />
 
-          <FlatList
-            nestedScrollEnabled={true}
-            data={isLoading ? Array.from({length: 5}) : problemAll}
-            renderItem={({item, index}) =>
-              isLoading ? (
-                <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
-              ) : (
-                <AnimatedCard
-                  item={item}
-                  child={
-                    <TouchableOpacity
-                      style={styles.problemCard}
-                      onPress={() => navigateToPages('ProblemView', item.fid)}
-                      activeOpacity={0.7}>
-                      <View style={styles.cardHeader}>
-                        <Text style={styles.problemTitle} numberOfLines={2}>
-                          {t('problem_title')}:{' '}
-                          {item.question_title?.length > 30
-                            ? `${item.question_title.substring(0, 30)}...`
-                            : item.question_title}
-                        </Text>
-                      </View>
-                      <View style={styles.cardContent}>
-                        <View style={styles.infoRow}>
-                          <Text style={styles.infoLabel}>{t('name')}:</Text>
-                          <Text style={styles.infoValue} numberOfLines={1}>
-                            {item.agri_user?.userName || 'N/A'}
+            <FlatList
+              nestedScrollEnabled={true}
+              data={isLoading ? Array.from({length: 5}) : problemAll}
+              renderItem={({item, index}) =>
+                isLoading ? (
+                  <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+                ) : (
+                  <AnimatedCard
+                    item={item}
+                    child={
+                      <TouchableOpacity
+                        style={styles.problemCard}
+                        onPress={() => navigateToPages('ProblemView', item.fid)}
+                        activeOpacity={0.7}>
+                        <View style={styles.cardHeader}>
+                          <Text style={styles.problemTitle} numberOfLines={2}>
+                            {t('problem_title')}:{' '}
+                            {item.question_title?.length > 30
+                              ? `${item.question_title.substring(0, 30)}...`
+                              : item.question_title}
                           </Text>
                         </View>
-                        <View style={styles.infoRow}>
-                          <Text style={styles.infoLabel}>
-                            {t('far_list_number')}:
-                          </Text>
-                          <Text style={styles.infoValue}>
-                            {item.agri_user?.contactNumber || 'N/A'}
-                          </Text>
+                        <View style={styles.cardContent}>
+                          <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>{t('name')}:</Text>
+                            <Text style={styles.infoValue} numberOfLines={1}>
+                              {item.agri_user?.userName || 'N/A'}
+                            </Text>
+                          </View>
+                          <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>
+                              {t('far_list_number')}:
+                            </Text>
+                            <Text style={styles.infoValue}>
+                              {item.agri_user?.contactNumber || 'N/A'}
+                            </Text>
+                          </View>
                         </View>
-                      </View>
-                    </TouchableOpacity>
-                  }
-                  index={index}
+                      </TouchableOpacity>
+                    }
+                    index={index}
+                  />
+                )
+              }
+              keyExtractor={(item, index) => `problem_${item?.fid || index}`}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[Colors.green]}
+                  tintColor={Colors.green}
                 />
-              )
-            }
-            keyExtractor={(item, index) => `problem_${item?.fid || index}`}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={[Colors.green]}
-                tintColor={Colors.green}
-              />
-            }
-            // ListEmptyComponent={isLoading ? renderEmptyState : null}
-            // ListFooterComponent={
-            //     problemAll.length > 0 ? renderFooter : null
-            // }
-            onEndReachedThreshold={0.5}
-            contentContainerStyle={styles.listContainer}
-            removeClippedSubviews={true}
-            maxToRenderPerBatch={5}
-            updateCellsBatchingPeriod={20}
-            windowSize={5}
-          />
-          <PaginationNav
-            page={page}
-            totalPages={totalPages}
-            onPrev={() => setPage(p => Math.max(1, p - 1))}
-            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-            t={t}
-          />
-          <FloatingAction
-            position="right"
-            actions={getActionsProblemSupervisor(t, styles, Colors)}
-            color={Colors.useGreen}
-            onPressItem={name => {
-              navigateToPages('ProblemCreate', 123);
-            }}
-            showBackground={true}
-            overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
-          />
-        </View>
-      </SafeAreaView>
-    </Root>
+              }
+              // ListEmptyComponent={isLoading ? renderEmptyState : null}
+              // ListFooterComponent={
+              //     problemAll.length > 0 ? renderFooter : null
+              // }
+              onEndReachedThreshold={0.5}
+              contentContainerStyle={styles.listContainer}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={5}
+              updateCellsBatchingPeriod={20}
+              windowSize={5}
+            />
+            <PaginationNav
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage(p => Math.max(1, p - 1))}
+              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+              t={t}
+            />
+            <FloatingAction
+              position="right"
+              actions={getActionsProblemSupervisor(t, styles, Colors)}
+              color={Colors.useGreen}
+              onPressItem={name => {
+                navigateToPages('ProblemCreate', 123);
+              }}
+              showBackground={true}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{vertical: 80, horizontal: 25}}
+            />
+          </View>
+        </SafeAreaView>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 export default ListProblem;

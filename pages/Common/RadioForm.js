@@ -62,11 +62,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 5,
-    marginLeft: 25,
+    // marginLeft: 25,
   },
   radioCircle: {
-    height: 24, // Adjust based on outer size + 2 * margin (24 + 6)
-    width: 24, // Adjust based on outer size + 2 * margin (24 + 6)
+    height: 20, 
+    width: 20, 
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#478541',
@@ -75,10 +75,10 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   innerCircle: {
-    height: 18, // Adjust based on outer size - 2 * margin (24 - 6)
+    height: 18, 
     width: 18,
     borderRadius: 9,
-    margin: 2, // <- 3px gap between border and fill
+    margin: 2, 
 
     alignItems: 'center',
     justifyContent: 'center',
