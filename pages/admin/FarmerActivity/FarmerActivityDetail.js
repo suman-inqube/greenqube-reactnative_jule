@@ -129,16 +129,6 @@ const FarmerActivityDetail = () => {
     onPageLoad();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('FarmerActivityList');
-        return true;
-      });
-    }, []),
-  );
-  const HandlerGoBack = () => navigation.navigate('FarmerActivityList');
   const soundPlay = async path => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
@@ -161,7 +151,6 @@ const FarmerActivityDetail = () => {
           <View style={styles.container}>
             <CustomHeader
               path="FarmerActivityList"
-              HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />

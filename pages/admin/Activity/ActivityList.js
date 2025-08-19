@@ -322,7 +322,7 @@ function ActivityList({ navigation }) {
             actions={getActionsActivity(t, styles, Colors)}
             color={Colors.useGreen}
             onPressItem={(name) => {
-              SPSheet.hide();
+              // SPSheet.hide();
               handleSPSheetShow();
             }}
             showBackground={true}
