@@ -3,11 +3,8 @@ import {
   StyleSheet, View, Modal, Dimensions, Animated, TouchableOpacity, Text
 } from 'react-native';
 import MapView, {Polygon, Marker, Callout} from 'react-native-maps';
-// import CompassHeading from 'react-native-compass-heading';
 import { isPointInPolygon } from 'geolib';
-
 const { width, height } = Dimensions.get('window');
-
 const ActivityMap = ({
   modalVisibleMap,
   setModalVisibleMap,
@@ -20,35 +17,8 @@ const ActivityMap = ({
 }) => {
   const mapRef = useRef(null);
   const animatedHeading = useRef(new Animated.Value(0)).current;
-  const lastUpdate = useRef(Date.now());
-
   const [currentHeading, setCurrentHeading] = useState(0);
-
-  // Compass logic
-  const startCompass = useCallback(() => {
-    CompassHeading.start(3, ({heading}) => {
-      const now = Date.now();
-      if (now - lastUpdate.current < 16) return;
-
-      const smoothed = currentHeading + 0.15 * (heading - currentHeading);
-      Animated.spring(animatedHeading, {
-        toValue: smoothed,
-        speed: 20,
-        useNativeDriver: false,
-      }).start();
-
-      setCurrentHeading(smoothed);
-      lastUpdate.current = now;
-    });
-  }, [animatedHeading, currentHeading]);
-
-  const stopCompass = useCallback(() => {
-    CompassHeading.stop();
-  }, []);
-
-  // Update camera heading
   useEffect(() => {
-    // console.log('photo', pipeLatLong);
     const listener = animatedHeading.addListener(({value}) => {
       if (mapRef.current && location) {
         mapRef.current.setCamera(
@@ -64,29 +34,13 @@ const ActivityMap = ({
     });
     return () => animatedHeading.removeListener(listener);
   }, [animatedHeading, location]);
-
-  // Check if location is in polygon
   useEffect(() => {
-    // console.log('err', location);
-    // console.log('err22', plotPolygon);
     if (location && plotPolygon?.length) {
       const inside = isPointInPolygon(location, plotPolygon);
       console.log('inside22', inside);
       setOutOfRange(inside); // true = outside
     }
   }, [location, plotPolygon]);
-
-  // Mount/unmount logic
-  useEffect(() => {
-    // if (modalVisibleMap) {
-    //   startCompass();
-    // } else {
-    //   stopCompass();
-    // }
-    // return () => {
-    //   stopCompass();
-    // };
-  }, [modalVisibleMap, startCompass, stopCompass]);
 
   return (
     <Modal

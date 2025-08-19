@@ -1,40 +1,140 @@
+import React, {
+  useReducer,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableOpacity,
-  TextInput,
-  BackHandler,
   Keyboard,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { useRoute, useNavigation, CommonActions } from '@react-navigation/native';
+import DatePicker from 'react-native-date-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
+import DocumentPicker, { types } from 'react-native-document-picker';
+
 import ImageForm from '../../Common/ImageForm';
+import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
+import LoadingScreen from '../../Common/LoadingScreen';
 import {
   fetchBlockAPI,
   fetchDistrictAPI,
   fetchStateAPI,
   UserInformationUpdate,
 } from './UsersAPI';
-import { launchImageLibrary } from 'react-native-image-picker';
-import DatePicker from 'react-native-date-picker';
-import config from '../../../config';
-import {
-  useRoute,
-  useFocusEffect,
-  useNavigation,
-  useIsFocused,
-  CommonActions,
-} from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import DocumentPicker, { types } from 'react-native-document-picker';
-import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
-import LoadingScreen from '../../Common/LoadingScreen';
-import { addIdAddressImgs,onlyUpdateIdAddrFile } from '../../../config/apiHere';
 import { deletePlotImageAPI } from '../Loan/LoanAPI';
+import { onlyUpdateIdAddrFile } from '../../../config/apiHere';
+
+import config from '../../../config';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors } from '../../utils/Constants';
+import RadioForm from '../../Common/RadioForm';
 const qs = require('qs');
-const Information = ({ sendDataToParent, farmerID }) => {
-  //GQR-66
+
+/* ----------------------------- UI SUB-COMPONENTS ---------------------------- */
+
+const SectionCard = React.memo(({ title, children, style }) => (
+  <View style={[styles.card, style]}>
+    {title ? <Text style={styles.cardTitle}>{title}</Text> : null}
+    <View style={styles.cardBody}>{children}</View>
+  </View>
+));
+
+const RadioGroup = React.memo(({ label, options, value, onChange }) => (
+  <View style={{ marginTop: 6 }}>
+    {label ? <Text style={styles.sectionLabel}>{label}</Text> : null}
+    {options.map(opt => (<RadioForm
+     key={opt.value}
+      label={opt.label}
+      selected={value === opt.value }
+      onSelect={() => onChange(opt.value)}
+    />))}
+  </View>
+));
+
+/* ----------------------------- REDUCER & STATE ------------------------------ */
+
+const initialFilesState = [
+  // 0: address proof
+  { uri: '', name: '', type: '', fileName: '', imageType: 'address', file_path: '', file_id: '', id: '' },
+  // 1: identity proof
+  { uri: '', name: '', type: '', fileName: '', imageType: 'identity', file_path: '', file_id: '', id: '' },
+];
+
+const initialFormState = {
+  userName: '',
+  contactNumber: '',
+  gender: '',
+  farmer_type: '',
+  age: '',
+  country: '',
+  state: '',
+  stateName: '',
+  district: '',
+  districtName: '',
+  block: '',
+  blockName: '',
+
+  aadhar_number: '',
+  pan_number: '',
+  voter_card_number: '',
+  kcc_number: '',
+
+  user_bank_account_holder: '',
+  user_bank_account_name: '',
+  user_bank_branch_name: '',
+  user_bank_account_number: '',
+  user_bank_ifsc_code: '',
+
+  pension_authority: '',
+  pension_account_no: '',
+  effective_from: '',
+  pension_amount: '',
+  frequency: '',
+
+  company_name: '',
+  policy_no: '',
+  sum_insured: '',
+};
+
+function formReducer(state, action) {
+  switch (action.type) {
+    case 'SET_BULK':
+      return { ...state, ...action.payload };
+    case 'SET_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'RESET_LOCATION':
+      return {
+        ...state,
+        state: action.stateId ?? '',
+        stateName: action.stateName ?? '',
+        district: '',
+        districtName: '',
+        block: '',
+        blockName: '',
+      };
+    case 'RESET_DISTRICT':
+      return {
+        ...state,
+        district: action.districtId ?? '',
+        districtName: action.districtName ?? '',
+        block: '',
+        blockName: '',
+      };
+    default:
+      return state;
+  }
+}
+
+/* --------------------------------- SCREEN ---------------------------------- */
+
+const Information = () => {
   const {
     t,
     AlertMesg,
@@ -44,19 +144,18 @@ const Information = ({ sendDataToParent, farmerID }) => {
     topBanner,
     Root,
     Toast,
-    FormsTitle,
     CustomHeader,
     ButtonForm,
     InputTextForm,
     DropdownForm,
     ImagePlaceHolderCircle,
-    RadioForm,
     effective_dates,
     loginUser_data,
   } = useContext(userCreateContext);
-  //GQR-66
+
   const navigation = useNavigation();
   const route = useRoute();
+
   const {
     farmeruserID,
     userName,
@@ -65,1030 +164,826 @@ const Information = ({ sendDataToParent, farmerID }) => {
     gender,
     farmer_type,
   } = route.params;
-  const [newdate, setnewDate] = useState(new Date());
-  const [open, setOpen] = useState(false);
+
+  const [form, dispatch] = useReducer(formReducer, initialFormState);
+  const [identityProofs, setIdentityProofs] = useState(initialFilesState);
+
+  const [newDate, setNewDate] = useState(new Date());
+  const [dateOpen, setDateOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [dbName, setdbName] = useState();
-  const [languageID, setlanguageID] = useState();
+
+  const [dbName, setDbName] = useState();
+  const [languageID, setLanguageID] = useState();
   const [loginUserId, setLoginUserId] = useState('');
   const [loginUserToken, setLoginUserToken] = useState('');
-  const [stateAll, setstateAll] = useState([]);
-  const [districtAll, setdistrictAll] = useState([]);
-  const [blockAll, setblockAll] = useState([]);
+
+  const [stateAll, setStateAll] = useState([]);
+  const [districtAll, setDistrictAll] = useState([]);
+  const [blockAll, setBlockAll] = useState([]);
+
   const [selectedImage, setSelectedImage] = useState(null);
-  const [myphoto, setmyPhoto] = useState({ uri: '', type: '', name: '' });
-  const [farmerData, setfarmerData] = useState({
-    userName: '',
-    contactNumber: '',
-    gender: '',
-    farmer_type: '',
-    age: '',
-    state: '',
-    district: '',
-    block: '',
-    aadhar_number: '',
-    pan_number: '',
-    voter_card_number: '',
-    kcc_number: '',
-    user_bank_account_holder: '',
-    user_bank_account_name: '',
-    user_bank_branch_name: '',
-    user_bank_account_number: '',
-    user_bank_ifsc_code: '',
-    pension_authority: '',
-    pension_account_no: '',
-    effective_from: '',
-    pension_amount: '',
-    frequency: '',
-    company_name: '',
-    policy_no: '',
-    sum_insured: '',
-    districtName:'',
-  });
-  const [regionaldatas, setregionaldatas] = useState({
-    state: '',
-    district: '',
-    block: '',
-  });
-  const [currency, setcurrency] = useState('');
-  const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-    {
-      uri: '',
-      name: '',
-      type: '',
-      fileName: '',
-      imageType: 'address',
-      file_path: '',
-      file_id: '',
-      id: '',
-    },
-    {
-      uri: '',
-      name: '',
-      type: '',
-      fileName: '',
-      imageType: 'identity',
-      file_path: '',
-      file_id: '',
-      id: '',
-    },
-  ]);
-  
+  const [myPhoto, setMyPhoto] = useState({ uri: '', type: '', name: '' });
+
+  const [regional, setRegional] = useState({ state: '', district: '', block: '' });
+  const [currency, setCurrency] = useState('');
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
-  const openImagePicker = () => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('Image picker error: ', response.error);
-      } else {
-        let imageUri = response.uri || response.assets[0].base64;
-        setmyPhoto({
-          uri: response.assets[0].uri,
-          type: response.assets[0].type,
-          name: response.assets[0].fileName,
-        });
-        setSelectedImage(imageUri);
+
+  /* ----------------------------- MEMOIZED LABELS ---------------------------- */
+
+  const genderOptions = useMemo(
+    () => [
+      { label: t('farmer_reg_male'), value: '1' },
+      { label: t('farmer_reg_female'), value: '2' },
+    ],
+    [t]
+  );
+
+  const farmerTypeOptions = useMemo(
+    () => [
+      { label: t('grower'), value: '1' },
+      { label: t('small_holder'), value: '2' },
+      { label: t('farm_worker'), value: '3' },
+    ],
+    [t]
+  );
+
+  /* --------------------------------- HELPERS -------------------------------- */
+
+  const openImagePicker = useCallback(() => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 512,
+        maxWidth: 512,
+        quality: 0.85,
+      },
+      res => {
+        if (res?.assets?.[0]) {
+          const a = res.assets[0];
+          setMyPhoto({ uri: a.uri, type: a.type, name: a.fileName || 'profile.jpg' });
+          setSelectedImage(a.uri || a.base64);
+        }
       }
-    });
-  };
+    );
+  }, []);
 
-  const getState = async (dbName, languageID) => {
-    const response = await fetchStateAPI(dbName, languageID);
-    if (response?.status == 200) {
-      const dataArray = response?.data?.data?.rows.map(data => ({
-        value: data.fid,
-        label: data.state_name,
-      }));
-      setstateAll(dataArray);
-    }
-  };
-  const getDistrict = async (dbName, languageID, stateID) => {
-    const response = await fetchDistrictAPI(dbName, languageID, stateID);
+  const getStates = useCallback(async (_db, _lan) => {
+    const response = await fetchStateAPI(_db, _lan);
     if (response?.status === 200) {
-      const dataArray = response?.data?.data?.rows.map(data => ({
-        value: data.fid,
-        label: data.district_name,
-      }));
-      setdistrictAll(dataArray);
+      const rows = response?.data?.data?.rows || [];
+      setStateAll(rows.map(r => ({ value: r?.fid, label: r?.state_name })));
     }
-  };
-  const getBlock = async (dbName, languageID, districtID) => {
-    const response = await fetchBlockAPI(dbName, languageID, districtID);
-    if (response?.status == 200) {
-      const dataArray = response?.data?.data?.rows.map(data => ({
-        value: data.fid,
-        label: data.subdiv_name,
-      }));
-      setblockAll(dataArray);
+  }, []);
+
+  const getDistricts = useCallback(async (_db, _lan, stateID) => {
+    const response = await fetchDistrictAPI(_db, _lan, stateID);
+    if (response?.status === 200) {
+      const rows = response?.data?.data?.rows || [];
+      setDistrictAll(rows.map(r => ({ value: r?.fid, label: r?.district_name })));
+    } else {
+      setDistrictAll([]);
     }
-  };
-  const handleStateDistrictBlock = (moduleName, data) => {
-    if (moduleName === 'state') {
-      setfarmerData({
-        ...farmerData,
-        state: data.value,
-        stateName: data.label,
-        district: '',
-        districtName: '',
-        block: '',
-        blockName: '',
-      });
-      const stateID = data.value;
-      getDistrict(dbName, languageID, stateID);
-    } else if (moduleName === 'district') {
-      setfarmerData({
-        ...farmerData,
-        district: data.value,
-        districtName: data.label,
-        block: '',
-        blockName: '',
-      });
-      const districtID = data.value;
-      getBlock(dbName, languageID, districtID);
+  }, []);
+
+  const getBlocks = useCallback(async (_db, _lan, districtID) => {
+    const response = await fetchBlockAPI(_db, _lan, districtID);
+    if (response?.status === 200) {
+      const rows = response?.data?.data?.rows || [];
+      setBlockAll(rows.map(r => ({ value: r?.fid, label: r?.subdiv_name })));
+    } else {
+      setBlockAll([]);
     }
-  };
-  const handleEffectFrom = async item =>
-    setfarmerData({ ...farmerData, effective_from: effective_dates(item) });
-  const onPageLoad = async () => {
+  }, []);
+
+  const handleStateDistrictBlock = useCallback(
+    async (kind, data) => {
+      if (kind === 'state') {
+        dispatch({ type: 'RESET_LOCATION', stateId: data.value, stateName: data.label });
+        await getDistricts(dbName, languageID, data.value);
+        setBlockAll([]); // clear blocks until district selected
+      } else if (kind === 'district') {
+        dispatch({ type: 'RESET_DISTRICT', districtId: data.value, districtName: data.label });
+        await getBlocks(dbName, languageID, data.value);
+      }
+    },
+    [dbName, languageID, getDistricts, getBlocks]
+  );
+
+  const handleEffectFrom = useCallback(
+    (date) => dispatch({ type: 'SET_FIELD', field: 'effective_from', value: effective_dates(date) }),
+    [effective_dates]
+  );
+
+  const computeAge = useCallback((dobStr) => {
+    if (!dobStr) return '';
+    const dob = new Date(dobStr);
+    const now = new Date();
+    let age = now.getFullYear() - dob.getFullYear();
+    const m = now.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
+    return String(age);
+  }, []);
+
+  /* -------------------------------- PAGE INIT ------------------------------- */
+
+  const onPageLoad = useCallback(async () => {
     setIsLoading(true);
-    const [userListData, state, district, block, curr] = await Promise.all([
-      getItem('userListData'),
-      getItem('state'),
-      getItem('district'),
-      getItem('block'),
-      getItem('currency'),
-    ]);
-    if (loginUser_data) {
-      setcurrency(curr);
+    try {
+      const [userListData, state, district, block, curr] = await Promise.all([
+        getItem('userListData'),
+        getItem('state'),
+        getItem('district'),
+        getItem('block'),
+        getItem('currency'),
+      ]);
+
+      if (!loginUser_data) return;
+
+      setCurrency(curr);
       const { dbname, lan_id, token, user_id } = loginUser_data;
-      setregionaldatas({
-        ...regionaldatas,
-        state: state,
-        district: district,
-        block: block,
-      });
+
+      setRegional({ state, district, block });
+      setDbName(dbname);
+      setLanguageID(lan_id);
+      setLoginUserId(user_id);
+      setLoginUserToken(token);
+
+      await getStates(dbname, lan_id);
+
+      // Pre-fill from cached list
       if (userListData) {
-        const farmerFound = userListData.rows.find(
-          user => user.user_id === farmeruserID,
-        );
+        const farmerFound = userListData?.find(u => u.user_id === farmeruserID);
         if (farmerFound) {
-          const dob = new Date(farmerFound.date_of_birth);
-          const currentDate = new Date();
-          const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
-          if (farmerFound.agri_user_addresses[0].agri_district) {
-            await Promise.all([
-              getDistrict(
-                dbname,
-                lan_id,
-                farmerFound.agri_user_addresses[0]?.agri_state?.fid,
-              ),
-              getBlock(
-                dbname,
-                lan_id,
-                farmerFound.agri_user_addresses[0]?.agri_district?.fid,
-              ),
-            ]);
-          }
+          // prefetch district & block options if we have location data
+          const addr = farmerFound?.agri_user_addresses?.[0];
+          const stateFid = addr?.agri_state?.fid;
+          const districtFid = addr?.agri_district?.fid;
 
-          if (farmerFound.agri_files[0] != undefined) {
-            const filteredFilesProfile = farmerFound.agri_files.filter(
-              file => file.term_type === '1',
-            );
-            setSelectedImage(filteredFilesProfile[0]?.file_path);
-            const identityProofIdentityPropfValue = [
-              ...identityProofIdentityPropf,
-            ];
-            const values_adress = [...identityProofIdentityPropf];
+          if (stateFid) await getDistricts(dbname, lan_id, stateFid);
+          if (districtFid) await getBlocks(dbname, lan_id, districtFid);
 
-            // Update address proof in the same object
-            farmerFound.agri_files
-              .filter((file) => file.term_type === 'farmer_address')
-              .map((_file) => {
-                values_adress[0] = {
-                  ...values_adress[0], // Keep other properties intact
-                  uri: _file.file_path,
-                  name: _file.file_name,
-                  type: _file.file_ext,
-                  imageType: 'address', // Update the specific property
-                  fileName: _file.file_name,
-                  file_id: _file.file_id,
-                  id: _file.file_id,
-                };
-              });
+          // profile image
+          const profile = (farmerFound?.agri_files || []).filter(f => f.term_type === '1');
+          if (profile?.[0]?.file_path) setSelectedImage(profile[0].file_path);
 
-            // Update identity proof in the same object
-            farmerFound.agri_files
-              .filter((file) => file.term_type === 'farmer_identity')
-              .map((_file) => {
-                values_adress[1] = {
-                  ...values_adress[1], // Keep other properties intact
-                  uri: _file.file_path,
-                  name: _file.file_name,
-                  type: _file.file_ext,
-                  imageType: 'identity', // Update the specific property
-                  fileName: _file.file_name,
-                  file_id: _file.file_id,
-                  id: _file.file_id,
-                };
-              });
+          // identity/address proofs
+          const nextProofs = [...initialFilesState];
+          (farmerFound?.agri_files || [])
+            .filter(f => f.term_type === 'farmer_address')
+            .forEach(f => {
+              nextProofs[0] = {
+                ...nextProofs[0],
+                uri: f.file_path,
+                name: f.file_name,
+                type: f.file_ext,
+                imageType: 'address',
+                fileName: f.file_name,
+                file_id: f.file_id,
+                id: f.file_id,
+              };
+            });
 
-            // Update the state with modified objects
-            setIdentityProofIdentityPropf(values_adress);
+          (farmerFound?.agri_files || [])
+            .filter(f => f.term_type === 'farmer_identity')
+            .forEach(f => {
+              nextProofs[1] = {
+                ...nextProofs[1],
+                uri: f.file_path,
+                name: f.file_name,
+                type: f.file_ext,
+                imageType: 'identity',
+                fileName: f.file_name,
+                file_id: f.file_id,
+                id: f.file_id,
+              };
+            });
 
-          }
-          setfarmerData({
-            ...farmerData,
-            userName: farmerFound?.userName,
-            contactNumber: farmerFound?.contactNumber,
-            gender: farmerFound?.gender,
-            farmer_type: farmerFound?.farmer_type,
-            date_of_birth: farmerFound?.date_of_birth,
-            age: yearsDiff.toString(),
-            country: farmerFound?.agri_user_addresses[0]?.country,
-            state: farmerFound?.agri_user_addresses[0]?.agri_state?.fid,
-            stateName:
-              farmerFound?.agri_user_addresses[0]?.agri_state?.state_name,
-            district: farmerFound?.agri_user_addresses[0]?.agri_district?.fid,
-            districtName:
-              farmerFound?.agri_user_addresses[0]?.agri_district?.district_name,
-            block: farmerFound?.agri_user_addresses[0]?.agri_subdivision?.fid,
-            blockName:
-              farmerFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
-            aadhar_number: farmerFound?.aadhar_number,
-            pan_number: farmerFound?.pan_number,
-            voter_card_number: farmerFound?.voter_card_number,
-            kcc_number: farmerFound?.kcc_number,
-            user_bank_account_holder: farmerFound?.user_bank_account_holder,
-            user_bank_account_name: farmerFound?.user_bank_account_name,
-            user_bank_branch_name: farmerFound?.user_bank_branch_name,
-            user_bank_account_number: farmerFound?.user_bank_account_number,
-            user_bank_ifsc_code: farmerFound?.user_bank_ifsc_code,
-            pension_authority: farmerFound?.pension_details?.pension_authority,
-            pension_account_no:
-              farmerFound?.pension_details?.pension_account_no,
-            effective_from: farmerFound?.pension_details?.effective_from,
-            pension_amount: farmerFound?.pension_details?.pension_amount,
-            frequency: farmerFound?.pension_details?.frequency,
-            company_name: farmerFound?.lic_details?.company_name,
-            policy_no: farmerFound?.lic_details?.policy_no,
-            sum_insured: farmerFound?.lic_details?.sum_insured,
+          setIdentityProofs(nextProofs);
+
+          // form data
+          const age = computeAge(farmerFound?.date_of_birth);
+          dispatch({
+            type: 'SET_BULK',
+            payload: {
+              userName: farmerFound?.userName,
+              contactNumber: farmerFound?.contactNumber,
+              gender: farmerFound?.gender,
+              farmer_type: farmerFound?.farmer_type,
+              date_of_birth: farmerFound?.date_of_birth,
+              age,
+
+              country: addr?.country,
+              state: addr?.agri_state?.fid,
+              stateName: addr?.agri_state?.state_name,
+              district: addr?.agri_district?.fid,
+              districtName: addr?.agri_district?.district_name,
+              block: addr?.agri_subdivision?.fid,
+              blockName: addr?.agri_subdivision?.subdiv_name,
+
+              aadhar_number: farmerFound?.aadhar_number,
+              pan_number: farmerFound?.pan_number,
+              voter_card_number: farmerFound?.voter_card_number,
+              kcc_number: farmerFound?.kcc_number,
+
+              user_bank_account_holder: farmerFound?.user_bank_account_holder,
+              user_bank_account_name: farmerFound?.user_bank_account_name,
+              user_bank_branch_name: farmerFound?.user_bank_branch_name,
+              user_bank_account_number: farmerFound?.user_bank_account_number,
+              user_bank_ifsc_code: farmerFound?.user_bank_ifsc_code,
+
+              pension_authority: farmerFound?.pension_details?.pension_authority,
+              pension_account_no: farmerFound?.pension_details?.pension_account_no,
+              effective_from: farmerFound?.pension_details?.effective_from,
+              pension_amount: farmerFound?.pension_details?.pension_amount,
+              frequency: farmerFound?.pension_details?.frequency,
+
+              company_name: farmerFound?.lic_details?.company_name,
+              policy_no: farmerFound?.lic_details?.policy_no,
+              sum_insured: farmerFound?.lic_details?.sum_insured,
+            },
+          });
+        } else {
+          // fallback for name/phone passed from params
+          dispatch({
+            type: 'SET_BULK',
+            payload: {
+              userName: userName || '',
+              contactNumber: contactNumber || '',
+              gender: gender || '',
+              farmer_type: farmer_type || '',
+            },
           });
         }
-        setdbName(dbname);
-        setlanguageID(lan_id);
-        setLoginUserId(user_id);
-        setLoginUserToken(token);
-        getState(dbname, lan_id);
       }
+    } catch (err) {
+      Toast.show({ text: t('something_wrong_try_again'), ...AlertMesg[1] });
+      console.log('onPageLoad error:', err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  };
-  const handleBackPress = () => {
-    navigation.navigate('userList');
-    return true;
-  };
+  }, [
+    loginUser_data,
+    getItem,
+    getStates,
+    getDistricts,
+    getBlocks,
+    farmeruserID,
+    t,
+    AlertMesg,
+    Toast,
+    userName,
+    contactNumber,
+    gender,
+    farmer_type,
+    computeAge,
+  ]);
+
   useEffect(() => {
     setSelectedImage(null);
     onPageLoad();
-    onBackPress(handleBackPress);
-  }, []);
-  const handleUserListUpdate = async () => {
-    if (farmerData?.stateName == "" || farmerData?.stateName == undefined) {
-      Toast.show({ text: t('select_state_first'), ...AlertMesg[0] });
-    } else if (farmerData?.districtName == "" || farmerData?.districtName == undefined) {
-      Toast.show({ text: t('select_district_first'), ...AlertMesg[0] });
-    } else if (farmerData?.blockName == "" || farmerData?.blockName == undefined) {
-      Toast.show({ text: t('select_block_first'), ...AlertMesg[0] });
-    } else {
-      try {
-        setIsLoading(true);
-        Keyboard.dismiss();
-        const formData = new FormData();
-        formData.append('meta', []);
-        formData.append('lan_id', languageID);
-        formData.append('father_name', '');
-        formData.append('gender', farmerData.gender);
-        formData.append('cast', '');
-        formData.append('bankInfo', []);
-        formData.append(
-          'addressInfo',
-          JSON.stringify([
-            {
-              country: farmerData.country,
-              state: farmerData.state,
-              district: farmerData.district,
-              subdivision: farmerData.block,
-            },
-          ]),
-        );
-        formData.append('status', 1);
-        formData.append('userName', farmerData.userName);
-        formData.append('date_of_birth', farmerData.date_of_birth);
-        formData.append('unique_id', '');
-        formData.append('has_farmer_smart_phone', '');
-        formData.append('finance_agriculture_campagin', '');
-        formData.append('financial_or_bank_name', '');
-        formData.append('bank_account_number', '');
-        formData.append('financial_entity_name', '');
-        formData.append('farmer_belongs_name', '');
-        formData.append('emailId', '');
-        formData.append('type_percel_ownership_document', '');
-        formData.append('farmer_belongs_option', '');
-        formData.append('finance_agriculture_campagin_option', '');
-        formData.append('faco_value', '');
-        formData.append('agent_ally', '');
-        formData.append('aadhar_number', farmerData.aadhar_number);
-        formData.append('kcc_number', farmerData.kcc_number);
-        formData.append(
-          'user_bank_account_holder',
-          farmerData.user_bank_account_holder,
-        );
-        formData.append(
-          'user_bank_account_name',
-          farmerData.user_bank_account_name,
-        );
-        formData.append(
-          'user_bank_account_number',
-          farmerData.user_bank_account_number,
-        );
-        formData.append(
-          'user_bank_branch_name',
-          farmerData.user_bank_branch_name,
-        );
-        formData.append('user_bank_ifsc_code', farmerData.user_bank_ifsc_code);
-        formData.append(
-          'pension_details',
-          JSON.stringify({
-            pension_authority: farmerData.pension_authority,
-            pension_account_no: farmerData.pension_account_no,
-            effective_from: farmerData.effective_from,
-            pension_amount: farmerData.pension_amount,
-            frequency: farmerData.frequency,
-          }),
-        );
-        formData.append(
-          'lic_details',
-          JSON.stringify({
-            company_name: farmerData.company_name,
-            policy_no: farmerData.policy_no,
-            sum_insured: farmerData.sum_insured,
-          }),
-        );
-        formData.append('pan_number', farmerData.pan_number);
-        formData.append('voter_card_number', farmerData.voter_card_number);
-        formData.append('farmer_type', farmerData.farmer_type);
-        if (myphoto.name != '') {
-          formData.append('photo', myphoto);
-        }
-        const formDataPlotImg = new FormData();
-        if (
-          identityProofIdentityPropf[0]?.fileName != '' &&
-          identityProofIdentityPropf[0]?.fileName != ''
-        ) {
-          const { uri, type, name } = identityProofIdentityPropf[0];
-          formDataPlotImg.append('farmer_address', {
-            uri: uri,
-            type: type,
-            name: name,
-          });
-        }
-        if (
-          identityProofIdentityPropf[1]?.fileName != '' &&
-          identityProofIdentityPropf[1]?.fileName != ''
-        ) {
-          const { uri, type, name } = identityProofIdentityPropf[1];
-          formDataPlotImg.append('farmer_identity', {
-            uri: uri,
-            type: type,
-            name: name,
-          });
-        }
-        formDataPlotImg.append('user_id', farmeruserID);
-        // console.error(farmeruserID)
-        let formDataDelete = qs.stringify({
-          file_delete_ids: photoDeletedValue.toString(),
-        });
-        const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
-          UserInformationUpdate(
-            dbName,
-            languageID,
-            loginUserId,
-            loginUserToken,
-            farmeruserID,
-            formData,
-          ),
-          onlyUpdateIdAddrFile(
-            dbName,
-            languageID,
-            farmeruserID,
-            loginUserToken,
-            formDataPlotImg,
-          ),
-          deletePlotImageAPI(dbName, languageID, loginUserToken, formDataDelete),
-        ]);
-        if (userDataUpdate.status === 200) {
-          Toast.show({
-            text: 'User information update successfully',
-            ...AlertMesg[0],
-          });
-          setTimeout(() => {
-            // navigation.navigate('Dashboard');
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 1,
-                routes: [
-                  { name: 'Dashboard' },
-                  {
-                    name: 'Dashboard',
-                    params: { pagename: 'Dashboard' },
-                  },
-                ],
-              }),
-            );
-          }, 2000);
-        }
-        setIsLoading(false);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-  const HandlerGoBack = () => navigation.navigate('userList');
-  const handleDocumentSelection = async (data, index, objData) => {
+    const unsub = onBackPress(() => {
+      navigation.navigate('userList');
+      return true;
+    });
+    return () => {
+      if (typeof unsub === 'function') unsub();
+    };
+  }, [onPageLoad, onBackPress, navigation]);
+
+  /* ----------------------------- FILE HANDLERS ------------------------------ */
+
+  const handleDocumentSelection = useCallback(async (imageType, index) => {
     try {
       const response = await DocumentPicker.pick({
         presentationStyle: 'fullScreen',
         type: [types.pdf, types.images],
       });
-      const values = [...identityProofIdentityPropf];
-      const photoId = values[index]?.file_id;
-      if (
-        photoId &&
-        photoId !== undefined &&
-        photoId !== '' &&
-        !photoDeletedValue.includes(photoId)
-      ) {
-        setPhotoDeletedValue(prev => [...prev, photoId]);
+
+      if (!response?.[0]) return;
+
+      const next = [...identityProofs];
+      const prevId = next[index]?.file_id;
+
+      // If replacing an existing uploaded file, mark it for deletion
+      if (prevId && !photoDeletedValue.includes(prevId)) {
+        setPhotoDeletedValue(prev => [...prev, prevId]);
       }
-      values[index]['uri'] = response[0].uri;
-      values[index]['name'] = response[0].name;
-      values[index]['type'] = response[0].type;
-      values[index]['fileName'] = response[0].name;
-      values[index]['imageType'] = data;
-      values[index]['file_path'] = '';
-      values[index]['file_id'] = '';
-      setIdentityProofIdentityPropf(values);
+
+      next[index] = {
+        ...next[index],
+        uri: response[0].uri,
+        name: response[0].name,
+        type: response[0].type,
+        fileName: response[0].name,
+        imageType,
+        file_path: '',
+        file_id: '',
+      };
+      setIdentityProofs(next);
     } catch (err) {
-      console.error(err);
+      if (!DocumentPicker.isCancel(err)) {
+        Toast.show({ text: t('file_pick_error'), ...AlertMesg[1] });
+        console.log(err);
+      }
     }
-  };
-  const handleDocumentSelectionRemove = async index => {
+  }, [identityProofs, photoDeletedValue, t, Toast, AlertMesg]);
+
+  const handleDocumentSelectionRemove = useCallback(async (index) => {
     try {
-      const values = [...identityProofIdentityPropf];
-      const photoId = values[index]?.file_id;
-      values[index]['uri'] = '';
-      values[index]['name'] = '';
-      values[index]['type'] = '';
-      values[index]['fileName'] = '';
-      values[index]['imageType'] = '';
-      values[index]['file_path'] = '';
-      values[index]['file_id'] = '';
-      values[index]['file_name'] = '';
-      setIdentityProofIdentityPropf(values);
-      // setPhotoDeletedValue(prev => [...prev, photoId]);
-      if (photoId && photoId !== undefined && photoId !== '') {
-        // setPhotoDeletedValue(prev => [...prev, photoId]);
-        let formDataDelete = qs.stringify({
-          file_delete_ids: photoId?.toString(),
-        });
-        const [deletePlotImageAPIRes] = await Promise.all([
-          deletePlotImageAPI(
-            dbName,
-            languageID,
-            loginUserToken,
-            formDataDelete,
-          ),
-        ]);
+      const next = [...identityProofs];
+      const fileId = next[index]?.file_id;
+
+      // reset local item
+      next[index] = {
+        ...next[index],
+        uri: '',
+        name: '',
+        type: '',
+        fileName: '',
+        imageType: index === 0 ? 'address' : 'identity',
+        file_path: '',
+        file_id: '',
+      };
+      setIdentityProofs(next);
+
+      // if server file existed, delete immediately
+      if (fileId) {
+        const formDataDelete = qs.stringify({ file_delete_ids: fileId.toString() });
+        await deletePlotImageAPI(dbName, languageID, loginUserToken, formDataDelete);
       }
     } catch (error) {
+      Toast.show({ text: t('file_delete_error'), ...AlertMesg[1] });
       console.log(error);
     }
-  };
+  }, [identityProofs, dbName, languageID, loginUserToken, t, Toast, AlertMesg]);
+
+  /* ------------------------------- SUBMIT ----------------------------------- */
+
+  const handleSubmit = useCallback(async () => {
+    // basic guards (use server-side validation as source of truth)
+    if (!form.stateName) {
+      return Toast.show({ text: t('select_state_first'), ...AlertMesg[0] });
+    }
+    if (!form.districtName) {
+      return Toast.show({ text: t('select_district_first'), ...AlertMesg[0] });
+    }
+    if (!form.blockName) {
+      return Toast.show({ text: t('select_block_first'), ...AlertMesg[0] });
+    }
+
+    try {
+      setIsLoading(true);
+      Keyboard.dismiss();
+
+      const formData = new FormData();
+      formData.append('meta', []);
+      formData.append('lan_id', languageID);
+      formData.append('father_name', '');
+      formData.append('gender', form.gender);
+      formData.append('cast', '');
+      formData.append('bankInfo', []);
+      formData.append(
+        'addressInfo',
+        JSON.stringify([{ country: form.country, state: form.state, district: form.district, subdivision: form.block }])
+      );
+      formData.append('status', 1);
+      formData.append('userName', form.userName);
+      formData.append('date_of_birth', form.date_of_birth);
+      formData.append('unique_id', '');
+      formData.append('has_farmer_smart_phone', '');
+      formData.append('finance_agriculture_campagin', '');
+      formData.append('financial_or_bank_name', '');
+      formData.append('bank_account_number', '');
+      formData.append('financial_entity_name', '');
+      formData.append('farmer_belongs_name', '');
+      formData.append('emailId', '');
+      formData.append('type_percel_ownership_document', '');
+      formData.append('farmer_belongs_option', '');
+      formData.append('finance_agriculture_campagin_option', '');
+      formData.append('faco_value', '');
+      formData.append('agent_ally', '');
+
+      formData.append('aadhar_number', form.aadhar_number);
+      formData.append('kcc_number', form.kcc_number);
+
+      formData.append('user_bank_account_holder', form.user_bank_account_holder);
+      formData.append('user_bank_account_name', form.user_bank_account_name);
+      formData.append('user_bank_account_number', form.user_bank_account_number);
+      formData.append('user_bank_branch_name', form.user_bank_branch_name);
+      formData.append('user_bank_ifsc_code', form.user_bank_ifsc_code);
+
+      formData.append('pension_details', JSON.stringify({
+        pension_authority: form.pension_authority,
+        pension_account_no: form.pension_account_no,
+        effective_from: form.effective_from,
+        pension_amount: form.pension_amount,
+        frequency: form.frequency,
+      }));
+
+      formData.append('lic_details', JSON.stringify({
+        company_name: form.company_name,
+        policy_no: form.policy_no,
+        sum_insured: form.sum_insured,
+      }));
+
+      formData.append('pan_number', form.pan_number);
+      formData.append('voter_card_number', form.voter_card_number);
+      formData.append('farmer_type', form.farmer_type);
+
+      if (myPhoto?.name) formData.append('photo', myPhoto);
+
+      // Files formData
+      const filesFd = new FormData();
+      if (identityProofs[0]?.fileName) {
+        const { uri, type, name } = identityProofs[0];
+        filesFd.append('farmer_address', { uri, type, name });
+      }
+      if (identityProofs[1]?.fileName) {
+        const { uri, type, name } = identityProofs[1];
+        filesFd.append('farmer_identity', { uri, type, name });
+      }
+      filesFd.append('user_id', farmeruserID);
+      const formDataDelete = qs.stringify({
+        file_delete_ids: (photoDeletedValue || []).toString(),
+      });
+      const [updateRes] = await Promise.all([
+        UserInformationUpdate(dbName, languageID, loginUserId, loginUserToken, farmeruserID, formData),
+        onlyUpdateIdAddrFile(dbName, languageID, farmeruserID, loginUserToken, filesFd),
+        deletePlotImageAPI(dbName, languageID, loginUserToken, formDataDelete),
+      ]);
+      if (updateRes?.status === 200) {
+        Toast.show({ text: t('user_information_update_success') || 'User information updated successfully', ...AlertMesg[0] });
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Dashboard' },
+              { name: 'Dashboard', params: { pagename: 'Dashboard' } },
+            ],
+          })
+        );
+      } else {
+        Toast.show({ text: t('update_failed_try_again'), ...AlertMesg[1] });
+      }
+    } catch (error) {
+      console.log('Update error:', error);
+      Toast.show({ text: t('update_failed_try_again'), ...AlertMesg[1] });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    form,
+    languageID,
+    myPhoto,
+    identityProofs,
+    photoDeletedValue,
+    farmeruserID,
+    dbName,
+    loginUserId,
+    loginUserToken,
+    Toast,
+    t,
+    AlertMesg,
+    navigation,
+  ]);
+
+  /* ---------------------------------- UI ------------------------------------ */
+
   return (
-    <>
-      <Root>
-        <CustomHeader
-          path="userList"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <FormsTitle title={'User Profile'} />
-        {isLoading ? (
-          <View style={styles.LoadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{ marginHorizontal: 20, backgroundColor: '#FFFFF' }}>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 30,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <View style={{ alignItems: 'center' }}>
-                  <ImagePlaceHolderCircle
-                    openImagePicker={openImagePicker}
-                    selectedImage={selectedImage}
-                  />
-                </View>
-                <InputTextForm
-                  label={t('name')}
-                  color="red"
-                  value={
-                    farmerData.userName == '' ? userName : farmerData.userName
-                  }
-                  onChangeText={userName => {
-                    setfarmerData({ ...farmerData, userName: userName });
-                  }}
-                  editable={false}
-                />
-                <InputTextForm
-                  label={t('new_reg_phone_number')}
-                  color="red"
-                  value={
-                    farmerData.contactNumber == ''
-                      ? contactNumber
-                      : farmerData.contactNumber
-                  }
-                  editable={false}
-                />
-                <View>
-                  <Text style={{ fontSize: 16, color: '#000' }}>
-                    {t('farmer_reg_gnd')}
-                  </Text>
-                  <RadioForm
-                    label={t('farmer_reg_male')}
-                    selected={
-                      farmerData.gender == ''
-                        ? gender === '1'
-                        : farmerData.gender == '1'
-                    }
-                    onSelect={() => setfarmerData({ ...farmerData, gender: '1' })}
-                  />
-                  <RadioForm
-                    label={t('farmer_reg_female')}
-                    selected={
-                      farmerData.gender == ''
-                        ? gender === '2'
-                        : farmerData.gender == '2'
-                    }
-                    onSelect={() => setfarmerData({ ...farmerData, gender: '2' })}
-                  />
-                </View>
-                <View style={{ marginBottom: 15 }}>
-                  <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>
-                    {t('far_reg_far_type')}
-                  </Text>
-                  <RadioForm
-                    label={t('grower')}
-                    selected={
-                      farmerData.farmer_type == ''
-                        ? farmer_type == '1'
-                        : farmerData.farmer_type === '1'
-                    }
-                    onSelect={() =>
-                      setfarmerData({ ...farmerData, farmer_type: '1' })
-                    }
-                  />
-                  <RadioForm
-                    label={t('small_holder')}
-                    selected={
-                      farmerData.farmer_type == ''
-                        ? farmer_type == '2'
-                        : farmerData.farmer_type === '2'
-                    }
-                    onSelect={() =>
-                      setfarmerData({ ...farmerData, farmer_type: '2' })
-                    }
-                  />
-                  <RadioForm
-                    label={t('farm_worker')}
-                    selected={
-                      farmerData.farmer_type == ''
-                        ? farmer_type == '3'
-                        : farmerData.farmer_type === '3'
-                    }
-                    onSelect={() =>
-                      setfarmerData({ ...farmerData, farmer_type: '3' })
-                    }
-                  />
-                </View>
-                <InputTextForm
-                  label={t('age')}
-                  value={farmerData.age ?? farmerData.age}
-                  keyboardType="numeric"
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.state == ''
-                      ? t('pre_state_division_zone')
-                      : t(`${regionaldatas.state}`)
-                  }
-                  data={stateAll}
-                  onChange={data => {
-                    handleStateDistrictBlock('state', data);
-                  }}
-                  val={farmerData.stateName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.state == ''
-                      ? t('pre_district_county')
-                      : t(`${regionaldatas.district}`)
-                  }
-                  data={districtAll}
-                  onChange={data => {
-                    handleStateDistrictBlock('district', data);
-                  }}
-                  val={farmerData.districtName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.block == ''
-                      ? t('select_block_sub_county_upzila')
-                      : t(`${regionaldatas.block}`)
-                  }
-                  data={blockAll}
-                  onChange={item => {
-                    setfarmerData({ ...farmerData, block: item.value,blockName:item.label });
-                  }}
-                  val={farmerData.blockName}
-                />
-                {/* <View style={styles.idcontainer}>
-                  <Text style={[styles.title,{fontSize:14,color:'#000'}]}>
-                    {t('address_proofAndIdentityPropf')}
-                  </Text>
-                  <View style={styles.idItemContainer}>
-                    {identityProofIdentityPropf &&
-                      identityProofIdentityPropf.map((data, index) => {
-                        return (
-                          <TouchableOpacity
-                            style={styles.idItem}
-                            onPress={() =>
-                              handleDocumentSelection(data.ImageType, index)
-                            }
-                            key={index}>
-                            <Image
-                              source={require('../../Common/images/document.png')}
-                              style={styles.idImage}
-                            />
-                            <Text>
-                              {data?.name == ''||data?.name ==undefined ? data.file_name: data.name}
-                              {data.name}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                  </View>
-                </View> */}
-                {/* <ProofAndIdentityPropfComp
-                  identityProofIdentityPropf={identityProofIdentityPropf}
-                  t={t}
-                  title={t('address_proofAndIdentityPropf')}
-                  handleDocumentSelection={handleDocumentSelection}
-                  handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-                /> */}
-                <ProofAndIdentityPropfComp
-                  identityProofIdentityPropf={identityProofIdentityPropf}
-                  t={t}
-                  title={t('address_proofAndIdentityPropf')}
-                  setStateValue={setIdentityProofIdentityPropf}
-                  stateValue={identityProofIdentityPropf}
-                  photoDeletedValue={photoDeletedValue}
-                  setPhotoDeletedValue={setPhotoDeletedValue}
-                  loginUser_data={loginUser_data}
-                  disable={true}
-                  InputTextFormEdit={true}
-                />
+    <Root>
+      <CustomHeader
+        path="userList"
+        HandlerGoBack={() => navigation.navigate('userList')}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+
+      {isLoading ? (
+        <View style={styles.loadingOverlay}>
+          <LoadingScreen />
+        </View>
+      ) : null}
+      <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+        <View style={styles.container}>
+          <ScrollView
+            // contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <SectionCard >
+              <View style={{ alignItems: 'center', marginBottom: 8 }}>
+                <ImagePlaceHolderCircle openImagePicker={openImagePicker} selectedImage={selectedImage || profileImage} />
               </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <>
-                  <Text style={styles.title}>
-                    {t('different_identity_number')}
-                  </Text>
-                  <View style={{ marginTop: 10 }}>
-                    <InputTextForm
-                      label={t('adhar_no')}
-                      onChangeText={aadhar_number => {
-                        setfarmerData({
-                          ...farmerData,
-                          aadhar_number: aadhar_number,
-                        });
-                      }}
-                      keyboardType="numeric"
-                      value={farmerData.aadhar_number}
+
+              <InputTextForm
+                label={t('name')}
+                value={form.userName || userName}
+                editable={false}
+              />
+              <InputTextForm
+                label={t('new_reg_phone_number')}
+                value={form.contactNumber || contactNumber}
+                editable={false}
+              />
+
+              <RadioGroup
+                label={t('farmer_reg_gnd')}
+                options={genderOptions}
+                value={form.gender || gender}
+                onChange={val => dispatch({ type: 'SET_FIELD', field: 'gender', value: val })}
+              />
+
+              <RadioGroup
+                label={t('far_reg_far_type')}
+                options={farmerTypeOptions}
+                value={form.farmer_type || farmer_type}
+                onChange={val => dispatch({ type: 'SET_FIELD', field: 'farmer_type', value: val })}
+              />
+
+              <InputTextForm
+                label={t('age')}
+                value={form.age}
+                keyboardType="numeric"
+                editable={false}
+              />
+
+              {/* Location */}
+              <DropdownForm
+                label={regional.state ? t(`${regional.state}`) : t('pre_state_division_zone')}
+                data={stateAll}
+                onChange={d => handleStateDistrictBlock('state', d)}
+                val={form.stateName}
+              />
+              <DropdownForm
+                label={regional.district ? t(`${regional.district}`) : t('pre_district_county')}
+                data={districtAll}
+                onChange={d => handleStateDistrictBlock('district', d)}
+                val={form.districtName}
+              />
+              <DropdownForm
+                label={regional.block ? t(`${regional.block}`) : t('select_block_sub_county_upzila')}
+                data={blockAll}
+                onChange={item => dispatch({ type: 'SET_BULK', payload: { block: item.value, blockName: item.label } })}
+                val={form.blockName}
+              />
+
+              <ProofAndIdentityPropfComp
+                identityProofIdentityPropf={identityProofs}
+                t={t}
+                title={t('address_proofAndIdentityPropf')}
+                setStateValue={setIdentityProofs}
+                stateValue={identityProofs}
+                photoDeletedValue={photoDeletedValue}
+                setPhotoDeletedValue={setPhotoDeletedValue}
+                loginUser_data={loginUser_data}
+                disable={true}
+                InputTextFormEdit={true}
+                handleDocumentSelection={handleDocumentSelection}
+                handleDocumentSelectionRemove={handleDocumentSelectionRemove}
+              />
+            </SectionCard>
+
+            <SectionCard title={t('different_identity_number')}>
+              <InputTextForm
+                label={t('adhar_no')}
+                value={form.aadhar_number}
+                keyboardType="numeric"
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'aadhar_number', value: v })}
+              />
+              <InputTextForm
+                label={t('pan_no')}
+                value={form.pan_number}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'pan_number', value: v })}
+              />
+              <InputTextForm
+                label={t('voter_card_no')}
+                value={form.voter_card_number}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'voter_card_number', value: v })}
+              />
+              <InputTextForm
+                label={t('kcc_no')}
+                value={form.kcc_number}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'kcc_number', value: v })}
+              />
+            </SectionCard>
+
+            <SectionCard title={t('bank_account_details')}>
+              <InputTextForm
+                label={t('account_holder_name')}
+                value={form.user_bank_account_holder}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'user_bank_account_holder', value: v })}
+              />
+              <InputTextForm
+                label={t('farmer_reg_bankifsc')}
+                value={form.user_bank_account_name}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'user_bank_account_name', value: v })}
+              />
+              <InputTextForm
+                label={t('branch_name')}
+                value={form.user_bank_branch_name}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'user_bank_branch_name', value: v })}
+              />
+              <InputTextForm
+                label={t('bank_account')}
+                value={form.user_bank_account_number}
+                keyboardType="numeric"
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'user_bank_account_number', value: v })}
+              />
+              <InputTextForm
+                label={t('ifsc_no')}
+                value={form.user_bank_ifsc_code}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'user_bank_ifsc_code', value: v })}
+              />
+            </SectionCard>
+
+            <SectionCard title={t('pension_details')}>
+              <InputTextForm
+                label={t('pension_providing_authority')}
+                value={form.pension_authority}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'pension_authority', value: v })}
+              />
+
+              <InputTextForm
+                label={t('pension_account_number')}
+                value={form.pension_account_no}
+                keyboardType="numeric"
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'pension_account_no', value: v })}
+              />
+
+              <Text style={styles.smallLabel}>{t('effective_from')}</Text>
+              <View style={styles.dateRow}>
+                <TouchableOpacity style={styles.dateInput} onPress={() => setDateOpen(true)} activeOpacity={0.8}>
+                  <Text style={styles.dateText}>{form.effective_from || t('select')}</Text>
+                  <TouchableOpacity onPress={() => setDateOpen(true)}>
+                    <ImageForm
+                      source={require('../../Common/images/calendar.png')}
+                      resizeMode="cover"
+                      height={28}
+                      width={28}
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('pan_no')}
-                    value={farmerData.pan_number}
-                    onChangeText={pan_number => {
-                      setfarmerData({ ...farmerData, pan_number: pan_number });
-                    }}
-                  />
-                  <InputTextForm
-                    label={t('voter_card_no')}
-                    value={farmerData.voter_card_number}
-                    onChangeText={voter_card_number => {
-                      setfarmerData({
-                        ...farmerData,
-                        voter_card_number: voter_card_number,
-                      });
-                    }}
-                  />
-                  <InputTextForm
-                    label={t('kcc_no')}
-                    onChangeText={kcc_number => {
-                      setfarmerData({ ...farmerData, kcc_number: kcc_number });
-                    }}
-                    value={farmerData.kcc_number}
-                  />
-                </>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+
+                <DatePicker
+                  modal
+                  mode="date"
+                  open={dateOpen}
+                  date={newDate}
+                  onConfirm={(d) => {
+                    setNewDate(d);
+                    handleEffectFrom(d);
+                    setDateOpen(false);
+                  }}
+                  onCancel={() => setDateOpen(false)}
+                />
               </View>
-            </View>
 
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <>
-                  <Text style={styles.title}>{t('bank_account_details')}</Text>
-                  <View style={{ marginTop: 10 }}>
-                    <InputTextForm
-                      label={t('account_holder_name')}
-                      onChangeText={user_bank_account_holder =>
-                        setfarmerData({
-                          ...farmerData,
-                          user_bank_account_holder: user_bank_account_holder,
-                        })
-                      }
-                      value={farmerData.user_bank_account_holder}
-                    />
-                  </View>
-                  <InputTextForm
-                    label={t('farmer_reg_bankifsc')}
-                    onChangeText={user_bank_account_name =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_account_name: user_bank_account_name,
-                      })
-                    }
-                    value={farmerData.user_bank_account_name}
-                  />
+              <InputTextForm
+                label={`${t('pension_amount_currency')} (${currency || ''})`}
+                value={form.pension_amount}
+                keyboardType="numeric"
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'pension_amount', value: v })}
+              />
 
-                  <InputTextForm
-                    label={t('branch_name')}
-                    onChangeText={user_bank_branch_name =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_branch_name: user_bank_branch_name,
-                      })
-                    }
-                    value={farmerData.user_bank_branch_name}
-                  />
+              <DropdownForm
+                label={t('per_month_quarter_year')}
+                data={config.pensionParMonthData}
+                onChange={v => dispatch({ type: 'SET_FIELD', field: 'frequency', value: v.value })}
+                val={form.frequency}
+              />
+            </SectionCard>
 
-                  <InputTextForm
-                    label={t('bank_account')}
-                    onChangeText={user_bank_account_number =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_account_number: user_bank_account_number,
-                      })
-                    }
-                    value={farmerData.user_bank_account_number}
-                    keyboardType="numeric"
-                  />
-
-                  <InputTextForm
-                    label={t('ifsc_no')}
-                    onChangeText={user_bank_ifsc_code =>
-                      setfarmerData({
-                        ...farmerData,
-                        user_bank_ifsc_code: user_bank_ifsc_code,
-                      })
-                    }
-                    value={farmerData.user_bank_ifsc_code}
-                  />
-                </>
-              </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <>
-                  <Text style={styles.title}>{t('pension_details')}</Text>
-                  <View style={{ marginTop: 10 }}>
-                    <InputTextForm
-                      label={t('pension_providing_authority')}
-                      onChangeText={pension_authority =>
-                        setfarmerData({
-                          ...farmerData,
-                          pension_authority: pension_authority,
-                        })
-                      }
-                      value={farmerData.pension_authority}
-                    />
-                  </View>
-
-                  <InputTextForm
-                    label={t('pension_account_number')}
-                    onChangeText={pension_account_no =>
-                      setfarmerData({
-                        ...farmerData,
-                        pension_account_no: pension_account_no,
-                      })
-                    }
-                    value={farmerData.pension_account_no}
-                    keyboardType="numeric"
-                  />
-
-                  <View>
-                    <Text
-                      style={{ marginBottom: 5, marginLeft: 5, color: '#000' }}>
-                      {t('effective_from')}
-                    </Text>
-                    <View style={styles.passwordMainContainer}>
-                      <TouchableOpacity
-                        style={styles.passwordContainer}
-                        onPress={() => setOpen(true)}
-                        activeOpacity={0.7}>
-                        <Text style={styles.inputTextStyle}>
-                          {farmerData.effective_from}
-                        </Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
-                          <ImageForm
-                            source={require('../../Common/images/calendar.png')}
-                            resizeMode="cover"
-                            height={30}
-                            width={30}
-                          />
-                        </TouchableOpacity>
-                        <DatePicker
-                          modal
-                          mode="date"
-                          open={open}
-                          date={newdate}
-                          onConfirm={item => {
-                            handleEffectFrom(item);
-                            setOpen(false);
-                          }}
-                          onCancel={() => {
-                            setOpen(false);
-                          }}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  <InputTextForm
-                    label={t('pension_amount_currency') + '(' + currency + ')'}
-                    onChangeText={pension_amount =>
-                      setfarmerData({
-                        ...farmerData,
-                        pension_amount: pension_amount,
-                      })
-                    }
-                    value={farmerData.pension_amount}
-                    keyboardType="numeric"
-                  />
-                  <DropdownForm
-                    label={t('per_month_quarter_year')}
-                    data={config.pensionParMonthData}
-                    onChange={frequency =>
-                      setfarmerData({ ...farmerData, frequency: frequency.value })
-                    }
-                    val={farmerData.frequency}
-                  />
-                </>
-              </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#E9FCC5',
-                marginTop: 20,
-                marginBottom: 80,
-                borderRadius: 20,
-                elevation: 3,
-              }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
-                <>
-                  <Text style={styles.title}>
-                    {t('life_insurance_details')}
-                  </Text>
-                  <View style={{ marginTop: 10 }}>
-                    <InputTextForm
-                      label={t('lic_name_of_company')}
-                      onChangeText={company_name =>
-                        setfarmerData({
-                          ...farmerData,
-                          company_name: company_name,
-                        })
-                      }
-                      value={farmerData.company_name}
-                    />
-                  </View>
-                  <InputTextForm
-                    label={t('policy_number')}
-                    onChangeText={policy_no =>
-                      setfarmerData({ ...farmerData, policy_no: policy_no })
-                    }
-                    value={farmerData.policy_no}
-                    keyboardType="numeric"
-                  />
-                  <InputTextForm
-                    label={t('sum_insured_currency') + '(' + currency + ')'}
-                    onChangeText={sum_insured =>
-                      setfarmerData({ ...farmerData, sum_insured: sum_insured })
-                    }
-                    value={farmerData.sum_insured}
-                    keyboardType="numeric"
-                  />
-                </>
-              </View>
-            </View>
-            <View style={{ backgroundColor: '#E9FCC5' }}></View>
-          </View>
-        </ScrollView>
-        <ButtonForm
-          label={t('submit')}
-          onPress={() => handleUserListUpdate()}
-        />
-      </Root>
-    </>
+            <SectionCard title={t('life_insurance_details')}>
+              <InputTextForm
+                label={t('lic_name_of_company')}
+                value={form.company_name}
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'company_name', value: v })}
+              />
+              <InputTextForm
+                label={t('policy_number')}
+                value={form.policy_no}
+                keyboardType="numeric"
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'policy_no', value: v })}
+              />
+              <InputTextForm
+                label={`${t('sum_insured_currency')} (${currency || ''})`}
+                value={form.sum_insured}
+                keyboardType="numeric"
+                onChangeText={v => dispatch({ type: 'SET_FIELD', field: 'sum_insured', value: v })}
+              />
+            </SectionCard>
+          </ScrollView>
+        </View>
+      </View>
+      <ButtonForm label={t('submit')} onPress={handleSubmit} loading={isLoading} />
+    </Root>
   );
 };
 
 export default Information;
 
+/* -------------------------------- STYLES ----------------------------------- */
+
 const styles = StyleSheet.create({
-  passwordMainContainer: {
+  container: {
     flex: 1,
-    alignItems: 'center',
+    paddingHorizontal: 16,
+    // paddingBottom: 24,
+    backgroundColor: Colors.background,
+    // padding: 10,
+    borderRadius: 8,
+
+    margin: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
   },
-  passwordContainer: {
+  card: {
+    backgroundColor: Colors.background,
+    borderRadius: 16,
+    paddingTop: 16,
+    paddingBottom: 6,
+    // paddingHorizontal: 16,
+    // elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    marginTop: 16,
+
+  },
+  cardTitle: {
+    color: '#2F3E2F',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  cardBody: {
+    marginTop: 8,
+  },
+  sectionLabel: {
+    fontSize: 16,
+    color: '#1E1E1E',
+    marginBottom: 6,
+  },
+  radioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  radioOuter: {
+    height: 18,
+    width: 18,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#8ABF3A',
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioOuterActive: {
+    borderColor: '#4E9F3D',
+  },
+  radioInner: {
+    height: 8,
+    width: 8,
+    borderRadius: 6,
+    backgroundColor: '#4E9F3D',
+  },
+  radioLabel: {
+    color: '#333',
+    fontSize: 15,
+  },
+  smallLabel: {
+    marginBottom: 6,
+    marginLeft: 6,
+    color: '#000',
+  },
+  dateRow: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  dateInput: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderColor: 'gray',
-    borderWidth: 0.5,
-    borderRadius: 8,
+    borderColor: '#D0D5DD',
+    borderWidth: 1,
+    borderRadius: 10,
     width: '100%',
-    paddingEnd: 8,
-    backgroundColor: 'white',
-    height: 40,
-    marginBottom: 15,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFFFFF',
+    height: 44,
+    marginBottom: 10,
   },
-  inputTextStyle: {
-    marginHorizontal: 10,
-    borderColor: 'gray',
+  dateText: {
     color: '#000',
   },
-  title: {
-    color: '#454545',
-    fontSize: 18,
-  },
-  LoadingScreen: {
+  loadingOverlay: {
     position: 'absolute',
-    top: '52%',
-    left: '45%',
-    zIndex: 9999,
+    top: '50%',
+    alignSelf: 'center',
+    zIndex: 20,
   },
 });

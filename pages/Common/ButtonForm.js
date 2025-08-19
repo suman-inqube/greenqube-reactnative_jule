@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import {Text, View, TouchableOpacity, ActivityIndicator} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors} from '../utils/Constants';
@@ -14,46 +14,39 @@ const ButtonForm = ({
   iconColor = 'white',
   loading = false,
 }) => {
-  const hasClickedRef = useRef(false);
-  const handlePress = () => {
-    if (!hasClickedRef.current && !loading) {
-      hasClickedRef.current = true;
-      onPress?.();
-    }
-  };
   return (
     <View>
       <TouchableOpacity
         style={{
           backgroundColor: bcolor ?? Colors.green,
           padding: 10,
-          // borderRadius: 30,
-          // marginBottom: 10,
           width: '100%',
           justifyContent: 'center',
           alignSelf: 'center',
           alignItems: 'center',
           flexDirection: 'row',
-          opacity: loading ? 0.8 : 1,
+          opacity: loading ? 0.7 : 1,
           height: 50,
+          borderRadius: 8,
         }}
-        onPress={handlePress}
-        disabled={loading}>
+        onPress={onPress}
+        disabled={loading} // disable when loading
+      >
         {loading ? (
           <Animated.View
-            entering={FadeIn.duration(300)}
-            exiting={FadeOut.duration(300)}>
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}>
             <ActivityIndicator size="small" color={tcolor ?? 'white'} />
           </Animated.View>
         ) : (
           <Animated.View
             style={{flexDirection: 'row', alignItems: 'center'}}
-            entering={FadeIn.duration(300)}
-            exiting={FadeOut.duration(300)}>
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}>
             <Text
               style={{
                 color: tcolor ?? 'white',
-                fontSize: 20,
+                fontSize: 18,
                 fontFamily: 'Poppins-SemiBold',
                 textAlign: 'center',
               }}>
@@ -75,4 +68,4 @@ const ButtonForm = ({
   );
 };
 
-export default ButtonForm;
+export default React.memo(ButtonForm);

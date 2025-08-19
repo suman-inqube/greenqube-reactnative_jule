@@ -35,10 +35,22 @@ const getNavigationType = async () => {
     return 'UNKNOWN';
   }
 }
+const groupByRelId = (data) =>
+  Object.values(
+    data.reduce((result, item) => {
+      const lat = parseFloat(item.latitude);
+      const lng = parseFloat(item.longitude);
+      if (isNaN(lat) || isNaN(lng)) return result;
+
+      (result[item.rel_id] = result[item.rel_id] || []).push({ latitude: lat, longitude: lng });
+      return result;
+    }, {})
+  );
 
 export {
     getStatusColor,
     getProduceEmoji,
     formatDate,
-    getNavigationType
+    getNavigationType,
+    groupByRelId
 }

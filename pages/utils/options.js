@@ -60,4 +60,15 @@ const getActionsPostNew = (t, styles, Colors) => [
     icon: require('../Common/images/add-post.png'),
   }
 ];
-export { OPTIONS_CARBON, getActionsActivity, getActionsProblemSupervisor, getActionsDealerReportSupervisor,getActionsPostNew, CARBON_TYPE };
+const getActionsPlot= (t, styles, Colors) => [
+  {
+    text: t('add_plot'),
+    name: 'bt_add',
+    position: 1,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffffff',
+    icon: require('../Common/images/plotting.png'),
+  }
+];
+export { OPTIONS_CARBON, getActionsActivity, getActionsProblemSupervisor, getActionsDealerReportSupervisor,getActionsPostNew,getActionsPlot, CARBON_TYPE };
