@@ -81,7 +81,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 101
         versionName "9.9"
-         buildConfigField "String", "baseUrl", "\"http://34.87.10.106:4003/\""
+          buildConfigField "String", "baseUrl", "\"http://34.87.10.106:4003/\""
         // buildConfigField "String", "baseUrl", "\"https://mygreenqube.com:4003/\""
           buildConfigField "String", "encryptedKey", "\"greenQube_96740_64428\""
     }

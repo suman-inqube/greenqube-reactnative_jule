@@ -337,25 +337,25 @@ export const activityListAPI = async (
     },
   };
   try {
-    // let response = await axios.get(
-    //   `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-    //   axiosHeaders,
-    // );
-     const instance = await getAxiosInstance();
-    let response = await instance.get(
-      `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-      {
-        headers: {
-          authorization: `${token}`,
-          information: `${dbName},${languageID},${userID}`,
-        },
-      },
+    let resultJson = await axios.get(
+      `${config.BASE_URL}inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      axiosHeaders,
     );
-    const resultJson = {
-      data: response,
-      status: 200,
-    };
-    
+    // const instance = await getAxiosInstance();
+    // let response = await instance.get(
+    //   `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    //   {
+    //     headers: {
+    //       authorization: `${token}`,
+    //       information: `${dbName},${languageID},${userID}`,
+    //     },
+    //   },
+    // );
+    // const resultJson = {
+    //   data: response,
+    //   status: 200,
+    // };
+
     return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response, "ActivityList", "activityListAPI");

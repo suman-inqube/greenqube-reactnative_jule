@@ -35,6 +35,7 @@ import LoadingScreen from './Common/LoadingScreen';
 import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import Checkbox from './Common/CheckboxCom';
 import { AlertMesg } from './Common/ToastAlert';
+import CustomAlert from './Common/CustomAlert';
 import {
   useNavigation,
   useIsFocused,
@@ -215,11 +216,22 @@ const Login = ({ route }) => {
             loginUserdata?.db_company_id,
           );
           if (details_company_res?.status == 200) {
-            // console.log('details_company_res==', details_company_res?.data);
+
+            if (details_company_res?.data?.data[0]?.unitStatus == false){
+              setIsLoading(false);
+              CustomAlert(
+                'Unit Data',
+                'Unit data not given properly. Please add from admin.',
+                true,
+                'OK',
+              );
+              return;
+            }
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
               agri_calculator:
                 details_company_res?.data?.data[0]?.agri_calculator,
+              // unitStatus: details_company_res?.data?.data[0]?.unitStatus,
             });
           }
           // db_name:dbname, company_id:value, agri_company.country_id:country_id
