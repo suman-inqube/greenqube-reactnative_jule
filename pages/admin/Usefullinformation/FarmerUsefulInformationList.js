@@ -17,16 +17,16 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import {cropListApi} from '../../../config/apiHere';
-import {farmerUsefulInfoListAPI} from '../../../config/apiHere';
+import { cropListApi } from '../../../config/apiHere';
+import { farmerUsefulInfoListAPI } from '../../../config/apiHere';
 import moment from 'moment';
 // import { useNavigation } from '@react-navigation/native';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import ImageForm from '../../Common/ImageForm';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
-import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
+import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
 const FarmerUsefulInformationList = () => {
   //GQR-67
   const {
@@ -41,11 +41,11 @@ const FarmerUsefulInformationList = () => {
     setItem,
     CustomHeader,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
+  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const navigation = useNavigation();
-  const {currentRoute, previousRoute} = useCurrentAndPreviousRoute();
+  const { currentRoute, previousRoute } = useCurrentAndPreviousRoute();
   const [noticeList, setNoticeList] = useState([]);
   const [isGridView, setIsGridView] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -62,15 +62,11 @@ const FarmerUsefulInformationList = () => {
     setIsGridView(!isGridView);
   };
   const detailItem = async itemId => {
-    await setItem('userNoticeId', itemId);
-    navigation.navigate('FarmerUsefulInformation', {
-      pagename: 'FarmerUsefulInformation',
-      noticeId: itemId,
-    });
+    navigation.navigate('FarmerUsefulInformation', itemId);
   };
 
   const renderItem = useCallback(
-    ({item}) =>
+    ({ item }) =>
       isGridView ? (
         <GridItemComponent
           item={item}
@@ -140,18 +136,8 @@ const FarmerUsefulInformationList = () => {
     }
   };
   useEffect(() => {
-    if (isFocused) {
-      if (currentRoute.params?.data == 'remove') {
-        onPageLoad();
-      }
-      onBackPress(() => {
-        setNoticeList([]);
-        setTitleSearch('');
-        navigation.navigate('FarmerDashboard');
-        return true;
-      });
-    }
-  }, [isFocused]);
+    onPageLoad();
+  }, []);
 
   const HandlerGoBack = () => {
     setNoticeList([]);
@@ -294,7 +280,7 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
@@ -331,7 +317,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -376,7 +362,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

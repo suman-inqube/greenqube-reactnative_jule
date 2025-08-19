@@ -8,9 +8,9 @@ import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordErr
 import { Root as PopupRootProvider } from 'react-native-popup-confirm-toast';
 import ErrorScreen from './pages/Common/ErrorScreen';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
-if (__DEV__) {
-  require('./wdyr');
-}
+// if (__DEV__) {
+//   require('./wdyr');
+// }
 let isExceptionHandlerConfigured = false;
 const configureExceptionHandlers = (setFatalError) => {
   if (isExceptionHandlerConfigured) return;

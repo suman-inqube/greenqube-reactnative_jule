@@ -790,5 +790,4 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
 });
-UserList.whyDidYouRender = true;
 export default memo(UserList);

@@ -20,24 +20,15 @@ function ActivityList({ navigation }) {
   //GQR-67
   const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, CustomHeader, t, getItem, setItem, logoImage, topBanner, Root, effective_dates, isOnline, farmerData, navigationBarHeight } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
-  const { pageNo } = dbLanTokUsr;
   //GQR-67
   const [isLoading, setIsLoading] = useState(true);
   const [activityAll, setactivityAll] = useState([]);
   const [filterItem, setFilterItem] = useState("");
-  const [filterName, setFilterName] = useState("");
-  const [newFromDate, setnewFromDate] = useState("");
-  const [newToDate, setnewToDate] = useState("");
-  const [openFromDate, setOpenFromDate] = useState(false);
-  const [openToDate, setOpenToDate] = useState(false);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [searchFarmerName, setSearchFarmerName] = useState({ label: "", value: "" });
   const [searchFarmerPhone, setSearchFarmerPhone] = useState({ label: "", value: "" });
   // const [farmerData, setFarmerData] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [fromDateFilter, setFromDateFilter] = useState('');
   const [carbonType, setCarbonType] = useState({ label: "", value: "" });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -157,15 +148,15 @@ function ActivityList({ navigation }) {
           component: () => (
             <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS_CARBON} />
           ),
-          height: 200,
+          height: 150+navigationBarHeight,
           zIndex: 1000,
         });
       } else {
         navigation.navigate('activityReport');
       }
     } catch (error) {
+      console.log(error)
       CrashlyticsRecordError(error, "ActivityList", "handleSPSheetShow");
-
     }
   };
 
@@ -331,6 +322,7 @@ function ActivityList({ navigation }) {
             actions={getActionsActivity(t, styles, Colors)}
             color={Colors.useGreen}
             onPressItem={(name) => {
+              SPSheet.hide();
               handleSPSheetShow();
             }}
             showBackground={true}

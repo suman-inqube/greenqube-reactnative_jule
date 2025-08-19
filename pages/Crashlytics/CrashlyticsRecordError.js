@@ -34,11 +34,11 @@ export const CrashlyticsRecordError = async (error, screen_name = "", api = "") 
         data: data
     };
 
-    try {
-        const response = await axios.request(config);
-        console.log("response", response)
-        crashlytics().recordError(error, 'api_error');
-    } catch (err) {
-        console.error("Error sending crash report:", err);
-    }
+    // try {
+    //     const response = await axios.request(config);
+    //     console.log("response", response)
+    //     crashlytics().recordError(error, 'api_error');
+    // } catch (err) {
+    //     console.error("Error sending crash report:", err);
+    // }
 };

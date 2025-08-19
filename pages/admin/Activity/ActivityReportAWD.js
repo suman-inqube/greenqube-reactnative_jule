@@ -1314,14 +1314,9 @@ const ActivityReportAWD = ({navigation}) => {
       );
     }
   };
-  const handleBackPress = () => {
-    navigation.navigate('activityList');
-    return true;
-  };
+
   useEffect(() => {
-    // checkLocation();
     onPageLoad();
-    onBackPress(handleBackPress);
   }, []);
 
   const handleHarvested = async data => {
