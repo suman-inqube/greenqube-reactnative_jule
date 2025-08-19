@@ -1531,10 +1531,25 @@ const ActivityReportAWD = ({navigation}) => {
     }
   };
 
+  // const openImagePickerPipe = async item => {
+  //   setCameraItem(item);
+  //   setModalVisibleMap(true);
+  // };
+  
   const openImagePickerPipe = async item => {
-    setCameraItem(item);
-    setModalVisibleMap(true);
+    if (location != null) {
+      setCameraItem(item);
+      setModalVisibleMap(true);
+    } else {
+      CustomAlert(
+        'Camera Error:',
+        'Device current location does not getting properly.Please wait and retry',
+        true,
+        'OK',
+      );
+    }
   };
+
   const handleRemovedpipeDetails = _inde => {
     try {
       const values = [...pipeDetails];
