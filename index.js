@@ -1,33 +1,34 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { AppRegistry } from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {AppRegistry} from 'react-native';
 import App from './App';
-import { name as appName } from './app.json';
-import { setJSExceptionHandler, setNativeExceptionHandler } from 'react-native-exception-handler';
-import { UserCreateContextProvider } from './pages/Context/usersCreateContext';
-import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
-import { Root as PopupRootProvider } from 'react-native-popup-confirm-toast';
+import {name as appName} from './app.json';
+import {
+  setJSExceptionHandler,
+  setNativeExceptionHandler,
+} from 'react-native-exception-handler';
+import {UserCreateContextProvider} from './pages/Context/usersCreateContext';
+import {CrashlyticsRecordError} from './pages/Crashlytics/CrashlyticsRecordError';
+import {Root as PopupRootProvider} from 'react-native-popup-confirm-toast';
 import ErrorScreen from './pages/Common/ErrorScreen';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
-if (__DEV__) {
-  require('./wdyr');
-}
+
 let isExceptionHandlerConfigured = false;
-const configureExceptionHandlers = (setFatalError) => {
+const configureExceptionHandlers = setFatalError => {
   if (isExceptionHandlerConfigured) return;
-  
+
   const jsExceptionHandler = (error, isFatal) => {
     if (isFatal) {
-      console.log("isFatal", isFatal);
-       CrashlyticsRecordError(error);
+      console.log('isFatal', isFatal);
+      CrashlyticsRecordError(error);
       setFatalError(error);
     } else {
       console.warn('[Non-Fatal Error]', error);
-       CrashlyticsRecordError(error);
+      CrashlyticsRecordError(error);
     }
   };
-  const nativeExceptionHandler = (errorString) => {
+  const nativeExceptionHandler = errorString => {
     console.error('[Native Exception]', errorString);
-     CrashlyticsRecordError(errorString);
+    CrashlyticsRecordError(errorString);
   };
 
   setJSExceptionHandler(jsExceptionHandler, true);

@@ -216,9 +216,9 @@ const FarmerDashboard = ({navigation}) => {
       console.error('Error fetching activities:', error);
     }
   };
-  // useEffect(() => {
-  //   fetchLatestActivities();
-  // }, []);
+  useEffect(() => {
+    fetchLatestActivities();
+  }, []);
 
   const fetchUsefulInformation = async () => {
     try {
@@ -255,42 +255,42 @@ const FarmerDashboard = ({navigation}) => {
         //   'general_info',
         // );
 
-        const infoResponse = await axiosGet(
-          ROUTES.GET.FARMER_USEFULL_INFO_LIST({
-            userId: user_id,
-            userType: 'farmer',
-            post: 'general_info',
-            state_id: loginUser_data.agri_user_addresses[0].agri_state.fid,
-            district_id:
-              loginUser_data.agri_user_addresses[0].agri_district.fid,
-            subdiv_id:
-              loginUser_data.agri_user_addresses[0].agri_subdivision.fid,
-            newCropId: newCropId,
-          }),
-          '',
-          {information: `${dbname},${lan_id}`},
-        );
-
-        if (infoResponse?.status == 200) {
-          // Get only the latest 3 items
-          const latestThree = infoResponse.data.data.rows.slice(0, 3);
-          setUsefulInfoList(latestThree);
-        }
+        // const infoResponse = await axiosGet(
+        //   ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+        //     userId: user_id,
+        //     userType: 'farmer',
+        //     post: 'general_info',
+        //     state_id: loginUser_data.agri_user_addresses[0].agri_state.fid,
+        //     district_id:
+        //       loginUser_data.agri_user_addresses[0].agri_district.fid,
+        //     subdiv_id:
+        //       loginUser_data.agri_user_addresses[0].agri_subdivision.fid,
+        //     newCropId: '',
+        //   }),
+        //   '',
+        //   {information: `${dbname},${lan_id}`},
+        // );
+        // if (infoResponse?.status == 200) {
+        //     // Get only the latest 3 items
+        //     const latestThree = infoResponse.data.data.rows.slice(0, 3);
+        //     setUsefulInfoList(latestThree);
+        //   }
       }
     } catch (error) {
       console.error('Error fetching useful information:', error);
     }
   };
-  // useEffect(() => {
-  //   fetchUsefulInformation();
-  // }, []);
+
+  useEffect(() => {
+    fetchUsefulInformation();
+  }, []);
 
   useEffect(() => {
     if (loginUser_data) {
       fetchLatestActivities();
       fetchUsefulInformation();
     }
-  }, [isFocused, loginUser_data]);
+  }, [loginUser_data]);
   const onPageLoad = async () => {
     const [
       userNameData,
@@ -319,8 +319,8 @@ const FarmerDashboard = ({navigation}) => {
     if (loginUser_data && loginUser_data.dbname) {
       setCompanyName(loginUser_data.dbname);
     }
-    fetchLatestActivities();
-    fetchUsefulInformation();
+    // fetchLatestActivities();
+    // fetchUsefulInformation();
   };
 
   useEffect(() => {
@@ -330,17 +330,7 @@ const FarmerDashboard = ({navigation}) => {
   }, []);
 
   const HandlerGoBack = () => exit();
-  useEffect(() => {
-    if (isFocused) {
-      const onBackPress = () => {
-        exit();
-        return true;
-      };
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () =>
-        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }
-  }, [isFocused]);
+
   const exit = () => {
     Alert.alert(
       `${t('app_name')}`,
@@ -365,11 +355,7 @@ const FarmerDashboard = ({navigation}) => {
   };
 
   const handleInfoPress = itemId => {
-    setItem('userNoticeId', itemId);
-    navigation.navigate('FarmerUsefulInformation', {
-      pagename: 'FarmerUsefulInformation',
-      noticeId: itemId,
-    });
+    navigation.navigate('FarmerActivityDetail', itemId);
   };
 
   return (
@@ -499,9 +485,8 @@ const FarmerDashboard = ({navigation}) => {
                       <View style={styles.activityItem}>
                         <View style={styles.activityIndicator} />
                         <View style={styles.activityDetails}>
-                          {/* <Marquee speed={0.3} spacing={100} fade={true}> */}
                           <Text style={styles.activityTitle}>{item.title}</Text>
-                          {/* </Marquee> */}
+
                           <View style={styles.activityMeta}>
                             <Text style={styles.activityDate}>
                               {moment(item.date).format('MMM D, YYYY')}
@@ -510,7 +495,6 @@ const FarmerDashboard = ({navigation}) => {
                         </View>
                       </View>
                     )}
-                    // contentContainerStyle={styles.activitiesListContainer}
                   />
                 </View>
               </View>

@@ -51,6 +51,7 @@ import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
 import {axiosPost} from './utils/api';
 import {ROUTES} from './utils/Routes';
+
 const Login = ({route}) => {
   const {setlogoImage, settopBanner, AllFarmerList, t} =
     useContext(userCreateContext);
@@ -394,7 +395,7 @@ const Login = ({route}) => {
           }
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
         Toast.show({
           text: `${error.response?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
@@ -826,5 +827,5 @@ const styles = StyleSheet.create({
     top: 200,
     zIndex: 999,
     left: '45%',
-  }
+  },
 });

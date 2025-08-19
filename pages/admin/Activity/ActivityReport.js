@@ -1301,32 +1301,30 @@ const ActivityReport = ({navigation}) => {
                     nameVarityStartEnd.name != '' ? (
                       <View style={styles.plotSiteContainer}>
                         <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.plotSiteItemText}>
-                            {t('crop_name')}
-                          </Text>
-                          <Text style={styles.plotSiteItemText}>
-                            {t('crop_veriety')}
-                          </Text>
-                          <Text style={styles.plotSiteItemText}>
-                            {t('showing_date')}
-                          </Text>
-                          <Text style={styles.plotSiteItemText}>
-                            {t('harvesting_date_auto_calculated')}
+                          <Text style={styles.label}>{t('crop_name')}</Text>
+                          <Text style={styles.value}>
+                            {nameVarityStartEnd.name}
                           </Text>
                         </View>
                         <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.plotSiteItemText}>
-                            {nameVarityStartEnd.name}
-                          </Text>
-                          <Text style={styles.plotSiteItemText}>
+                          <Text style={styles.label}>{t('crop_veriety')}</Text>
+                          <Text style={styles.value}>
                             {nameVarityStartEnd.varity.substring(0, 12)}
                           </Text>
-                          <Text style={styles.plotSiteItemText}>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.label}>{t('showing_date')}</Text>
+                          <Text style={styles.value}>
                             {formatDateToMMDDYYYY(
                               nameVarityStartEnd.cycleStarts,
                             )}
                           </Text>
-                          <Text style={styles.plotSiteItemText}>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.label}>
+                            {t('harvesting_date_auto_calculated')}
+                          </Text>
+                          <Text style={styles.value}>
                             {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
                           </Text>
                         </View>
@@ -1408,14 +1406,14 @@ const ActivityReport = ({navigation}) => {
                     <>
                       <DropdownForm
                         label={t('activity_type')}
-                        color="red"
+                        required={true}
                         data={activityTypeAll}
                         onChange={item => handleActivityType(item)}
                         val={saveData.act_ref_type}
                       />
                       <DropdownForm
                         label={t('select_activity')}
-                        color="red"
+                        required={true}
                         data={activityInfoAll}
                         onChange={item => handleActivityInfo(item)}
                         val={saveData.act_to_date_label}
@@ -1423,28 +1421,18 @@ const ActivityReport = ({navigation}) => {
 
                       {lastAct ? (
                         <View style={styles.plotSiteContainer}>
-                          <View style={styles.plotSiteContainerItem}>
-                            <Text style={styles.plotSiteItemText}>
-                              Last activity
-                            </Text>
-                          </View>
-                          <View style={styles.plotSiteContainerItem}>
-                            <Text style={styles.plotSiteItemText}>
-                              {lastAct}
-                            </Text>
+                          <View style={styles.detailRow}>
+                            <Text style={styles.label}>Last activity</Text>
+                            <Text style={styles.value1}>{lastAct}</Text>
                           </View>
                         </View>
                       ) : null}
 
                       {upcomingAct ? (
                         <View style={styles.plotSiteContainer}>
-                          <View style={styles.plotSiteContainerItem}>
-                            <Text style={styles.plotSiteItemText}>
-                              Upcoming activity
-                            </Text>
-                          </View>
-                          <View style={styles.plotSiteContainerItem}>
-                            <Text style={styles.plotSiteItemText}>
+                          <View style={styles.detailRow}>
+                            <Text style={styles.label}>Upcoming activity</Text>
+                            <Text style={styles.value1}>
                               {/* {upcomingAct.activityName.categoryName +
                               ' (' +
                               formatDate(upcomingAct.activity_start_date) +
@@ -1459,16 +1447,10 @@ const ActivityReport = ({navigation}) => {
 
                       {overdueAct?.length > 0 ? (
                         <View style={styles.plotSiteContainer}>
-                          <View style={styles.plotSiteContainerItem}>
-                            <Text style={styles.plotSiteItemText}>
-                              Overdue Activities
-                            </Text>
-                          </View>
-
-                          {/* {overdueAct.map((act, index) => ( */}
-                          <View style={styles.plotSiteContainerItem}>
+                          <View style={styles.detailRow}>
+                            <Text style={styles.label}>Overdue Activities</Text>
                             {overdueAct.map((act, index) => (
-                              <Text key={index} style={styles.plotSiteItemText}>
+                              <Text key={index} style={styles.value1}>
                                 {/* {act.activityName.categoryName +
                                 ' (' +
                                 formatDate(act.activity_start_date) +
@@ -1479,6 +1461,11 @@ const ActivityReport = ({navigation}) => {
                               </Text>
                             ))}
                           </View>
+
+                          {/* {overdueAct.map((act, index) => ( */}
+                          {/* <View style={styles.plotSiteContainerItem}>
+                           
+                          </View> */}
                         </View>
                       ) : null}
                     </>
@@ -1486,10 +1473,18 @@ const ActivityReport = ({navigation}) => {
                     ''
                   )}
 
-                  <View>
-                    <Text style={{color: 'red'}}>
-                      {t('pick_activity_perform_date')}
-                    </Text>
+                  <View style={{marginBottom: 15, marginTop: 10}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Text
+                        style={{
+                          fontFamily: 'Poppins-Regular',
+                          fontSize: 15,
+                          color: '#4e4e4e',
+                        }}>
+                        {t('pick_activity_perform_date')}
+                      </Text>
+                      <Text style={styles.requiredStar}> *</Text>
+                    </View>
                     <TouchableOpacity
                       style={styles.activityPerFromDate}
                       onPress={() => setActivityPreDate(true)}>
@@ -1681,16 +1676,43 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').height / 4,
   },
   plotSiteContainer: {
-    flexDirection: 'row',
-    borderWidth: 0.5,
-    borderColor: '#000',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    backgroundColor: '#FFF',
-    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2faffff',
+
+    marginVertical: 8,
+    borderRadius: 20,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.borderGreen,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    // paddingHorizontal: 15,
+    // marginHorizontal: '1%',
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   plotSiteContainerItem: {
-    width: '50%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+    // paddingHorizontal: 5,
+    paddingHorizontal: 10,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 5,
   },
   plotSiteItemText: {
     color: '#000',
@@ -1706,5 +1728,41 @@ const styles = StyleSheet.create({
     color: 'red',
     fontFamily: 'Poppins-Bold',
     fontSize: 16,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+    marginBottom: 5,
+  },
+
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+  },
+  value1: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+    marginBottom: 10,
+    textAlign: 'left',
+  },
+  detailRow: {
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    // paddingHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 10,
   },
 });

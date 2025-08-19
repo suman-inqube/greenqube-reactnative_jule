@@ -24,6 +24,8 @@ import {PipeListDetails} from '../../../config/apiHere';
 import {formatDateToDateName} from '../../Common/DateChanger';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const FarmerActivityDetail = () => {
   const route = useRoute();
@@ -58,21 +60,22 @@ const FarmerActivityDetail = () => {
   const [carbonActivity, setCarbonActivity] = useState([]);
 
   const onPageLoad = async () => {
-    const [activityData, uact_id_data] = await Promise.all([
-      getItem('activity_Data'),
-      getItem('uact_id_data'),
-    ]);
-    if (activityData) {
-      const farmerFound = route.params;
+    // const [activityData, uact_id_data] = await Promise.all([
+    //   getItem('activity_Data'),
+    //   getItem('uact_id_data'),
+    // ]);
+    if (route.params.activity) {
+      const farmerFound = route.params.activity;
+
       if (farmerFound?.type == 'carbon_activity') {
-        const PipeListDetailsRes = await PipeListDetails(
-          dbname,
-          lan_id,
+        const PipeListDetailsRes = await axiosGet(
+          ROUTES.GET.PIPE_LIST_DETAILS({
+            plot_id: farmerFound.plot_id,
+            act_master_id: farmerFound?.act_master_id,
+            cu_rel_id: farmerFound?.cu_rel_fid,
+          }),
           token,
-          user_id,
-          farmerFound.plot_id,
-          farmerFound?.act_master_id,
-          farmerFound?.cu_rel_fid,
+          {information: `${dbname},${lan_id},${user_id}`},
         );
         if (PipeListDetailsRes?.status == 200) {
           setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
@@ -121,23 +124,14 @@ const FarmerActivityDetail = () => {
           thirdItemRecord: audio3,
         });
       }
-      console.log(farmerFound);
       setfarmerActivity(farmerFound);
     }
   };
+
   useEffect(() => {
     onPageLoad();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('FarmerActivityList');
-        return true;
-      });
-    }, []),
-  );
   const HandlerGoBack = () => navigation.navigate('FarmerActivityList');
   const soundPlay = async path => {
     SPSheet.show({
@@ -321,92 +315,92 @@ const FarmerActivityDetail = () => {
                       value={farmerActivity?.act_perform_date}
                       editable={false}
                     />
-                    {carbonActivity.length != 0 && (
-                      <FlatList
-                        scrollEnabled={false}
-                        data={carbonActivity}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={_item => {
-                          return (
+
+                    <FlatList
+                      scrollEnabled={false}
+                      data={carbonActivity}
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={_item => {
+                        return (
+                          <View
+                            style={{
+                              backgroundColor: '#e3f4ffcf',
+                              // elevation: 3,
+                              padding: 10,
+                              margin: 2,
+                              marginVertical: 10,
+                              borderRadius: 8,
+                              borderWidth: 1,
+                              borderColor: Colors.border,
+                            }}>
                             <View
                               style={{
-                                backgroundColor: '#e3f4ffcf',
-                                // elevation: 3,
-                                padding: 10,
-                                margin: 2,
-                                marginVertical: 10,
-                                borderRadius: 8,
-                                borderWidth: 1,
-                                borderColor: Colors.border,
+                                flexDirection: 'row',
+                                marginBottom: 7,
                               }}>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  marginBottom: 7,
-                                }}>
-                                <Text
-                                  style={[styles.label, {paddingVertical: 0}]}>
-                                  Instrument Name :
-                                </Text>
-                                <Text
-                                  style={[
-                                    styles.value,
-                                    {
-                                      marginLeft: 10,
-                                      paddingVertical: 0,
-                                    },
-                                  ]}>
-                                  {_item.item?.pipe_name}
-                                </Text>
-                              </View>
-                              <View>
-                                {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
-                                {_item.item?.pipeFiles.length != 0 && (
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                      gap: 20,
-                                    }}>
-                                    {_item.item?.pipeFiles?.[0]?.file_path !=
-                                      undefined && (
-                                      <View style={styles.imageContainer}>
-                                        <Image
-                                          source={{
-                                            uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
-                                          }}
-                                          style={{
-                                            width: 70,
-                                            height: 80,
-                                            borderRadius: 8,
-                                          }}
-                                          resizeMode="contain"
-                                        />
-                                      </View>
-                                    )}
-                                    {_item.item.pipeFiles?.[1]?.file_path !=
-                                      undefined && (
-                                      <View style={styles.imageContainer}>
-                                        <Image
-                                          source={{
-                                            uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
-                                          }}
-                                          style={{
-                                            width: 70,
-                                            height: 80,
-                                            borderRadius: 8,
-                                          }}
-                                          resizeMode="contain"
-                                        />
-                                      </View>
-                                    )}
-                                  </View>
-                                )}
-                              </View>
+                              <Text
+                                style={[styles.label, {paddingVertical: 0}]}>
+                                Instrument Name :
+                              </Text>
+                              <Text
+                                style={[
+                                  styles.value,
+                                  {
+                                    marginLeft: 10,
+                                    paddingVertical: 0,
+                                  },
+                                ]}>
+                                {_item.item?.pipe_name}
+                              </Text>
                             </View>
-                          );
-                        }}
-                      />
-                    )}
+                            <View>
+                              {/* <Text style={[styles.title,{paddingVertical:0}]}>Pipe Image</Text> */}
+                              {_item.item?.pipeFiles.length != 0 && (
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    gap: 20,
+                                  }}>
+                                  {_item.item?.pipeFiles?.[0]?.file_path !=
+                                    undefined && (
+                                    <View style={styles.imageContainer}>
+                                      <Image
+                                        source={{
+                                          uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
+                                        }}
+                                        style={{
+                                          width: 70,
+                                          height: 80,
+                                          borderRadius: 8,
+                                        }}
+                                        resizeMode="contain"
+                                      />
+                                    </View>
+                                  )}
+                                  {_item.item.pipeFiles?.[1]?.file_path !=
+                                    undefined && (
+                                    <View style={styles.imageContainer}>
+                                      <Image
+                                        source={{
+                                          uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                        }}
+                                        style={{
+                                          width: 70,
+                                          height: 80,
+                                          borderRadius: 8,
+                                        }}
+                                        resizeMode="contain"
+                                      />
+                                    </View>
+                                  )}
+                                </View>
+                              )}
+                            </View>
+                          </View>
+                        );
+                      }}
+                    />
+
                     <InputTextForm
                       label={t('your_comm_')}
                       value={farmerActivity?.act_desc}

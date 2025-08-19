@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import {farmerProblemListAPI} from '../../../config/apiHere';
 import {useFocusEffect} from '@react-navigation/native';
@@ -17,6 +18,15 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {ROUTES} from '../../utils/Routes';
 import {axiosGet} from '../../utils/api';
+import PaginationNav from '../../Components/PaginationNav';
+import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
+import {getActionsProblemSupervisor} from '../../utils/options';
+import AnimatedCard from '../../Components/AnimatedCard';
+import {FloatingAction} from 'react-native-floating-action';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+import {Colors, Fonts} from '../../utils/Constants';
+
 const FarmerListProblem = ({navigation}) => {
   //GQR-67
   const {
@@ -43,6 +53,8 @@ const FarmerListProblem = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeBtn, setActiveBtn] = useState(1);
   const [problemAll, setProblemAll] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const navigateToPages = async (pageName, fid) => {
     await setItem('problem_id_data', fid);
     navigation.navigate(pageName);
@@ -131,6 +143,13 @@ const FarmerListProblem = ({navigation}) => {
       setIsLoading(false);
     }
   };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    requestAnimationFrame(async () => {
+      await handleProblem(page);
+      setRefreshing(false);
+    });
+  }, []);
   useFocusEffect(
     React.useCallback(() => {
       if (isFocused) {
@@ -142,6 +161,7 @@ const FarmerListProblem = ({navigation}) => {
       onBackPress(handleBackPress);
     }, [netConnection]),
   );
+  const filterOptionShow = () => {};
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
   const handleBackPress = () => {
     navigation.navigate('FarmerDashboard');
@@ -149,74 +169,164 @@ const FarmerListProblem = ({navigation}) => {
   };
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={{flex: 1}}>
-        <View style={{flex: 1}}>
-          <CustomHeader
-            path="FarmerDashboard"
-            HandlerGoBack={HandlerGoBack}
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
-          <FormsTitle title={t('problem_reporting')} />
-          <View style={styles.btnContainer}>
-            <TouchableOpacity
-              style={activeBtn === 1 ? styles.btnActive : styles.btn}
-              onPress={() => myProblemList()}>
-              <Text
-                style={
-                  activeBtn === 1 ? styles.btnActiveTitle : styles.btnTitle
-                }>
-                {t('my_question')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={activeBtn === 2 ? styles.btnActive : styles.btn}
-              onPress={() => otherProblemList()}>
-              <Text
-                style={
-                  activeBtn === 2 ? styles.btnActiveTitle : styles.btnTitle
-                }>
-                {t('other_question')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {isLoading ? (
-            <View style={styles.loadingScreen}>
-              <LoadingScreen />
-            </View>
-          ) : (
-            <>
-              <FlatList
-                data={problemAll}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    style={styles.wrapper}
-                    onPress={() =>
-                      navigateToPages('FarmerViewProblem', item.fid)
-                    }>
-                    <Text style={styles.title}>
-                      {t('problem_title')} : {item.question_title}
-                    </Text>
-                    <Text style={styles.title}>
-                      {' '}
-                      {t('date')} : {formatDateToMMDDYYYY(item.updated_at)}
-                    </Text>
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <CustomHeader
+          path="FarmerDashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+          // filterOptionShow={filterOptionShow}
+          t={t}
+        />
+
+        {/* <View style={styles.btnContainer}>
+          <TouchableOpacity
+            style={activeBtn === 1 ? styles.btnActive : styles.btn}
+            onPress={() => myProblemList()}>
+            <Text
+              style={activeBtn === 1 ? styles.btnActiveTitle : styles.btnTitle}>
+              {t('my_question')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={activeBtn === 2 ? styles.btnActive : styles.btn}
+            onPress={() => otherProblemList()}>
+            <Text
+              style={activeBtn === 2 ? styles.btnActiveTitle : styles.btnTitle}>
+              {t('other_question')}
+            </Text>
+          </TouchableOpacity>
+        </View> */}
+        {isLoading ? (
+          <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+        ) : (
+          <>
+            {problemAll?.length > 0 ? (
+              <>
+                <FlatList
+                  nestedScrollEnabled={true}
+                  data={isLoading ? Array.from({length: 5}) : problemAll}
+                  renderItem={({item, index}) =>
+                    isLoading ? (
+                      <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+                    ) : (
+                      <AnimatedCard
+                        item={item}
+                        child={
+                          <TouchableOpacity
+                            style={styles.problemCard}
+                            onPress={() =>
+                              navigateToPages('FarmerViewProblem', item.fid)
+                            }
+                            activeOpacity={0.7}>
+                            <View style={styles.cardHeader}>
+                              <Text
+                                style={styles.problemTitle}
+                                numberOfLines={2}>
+                                {t('problem_title')} :{' '}
+                                {item.question_title?.length > 30
+                                  ? `${item.question_title.substring(0, 30)}...`
+                                  : item.question_title}
+                              </Text>
+                            </View>
+                            <View style={styles.cardContent}>
+                              <View style={styles.infoRow}>
+                                <Text style={styles.infoLabel}>
+                                  {t('date')} :
+                                </Text>
+                                <Text
+                                  style={styles.infoValue}
+                                  numberOfLines={1}>
+                                  {formatDateToMMDDYYYY(item.updated_at)}
+                                </Text>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        }
+                        index={index}
+                      />
+                    )
+                  }
+                  keyExtractor={(item, index) => index}
+                  showsVerticalScrollIndicator={false}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      colors={[Colors.green]}
+                      tintColor={Colors.green}
+                    />
+                  }
+                  onEndReachedThreshold={0.5}
+                  contentContainerStyle={styles.listContainer}
+                  removeClippedSubviews={true}
+                  maxToRenderPerBatch={5}
+                  updateCellsBatchingPeriod={20}
+                  windowSize={5}
+                />
+                <View style={styles.prevNextPage}>
+                  <TouchableOpacity onPress={() => handlePage('previous')}>
+                    <Text style={styles.infoPageLabel}>{t('prev_page')}</Text>
                   </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-              />
-              <View style={styles.prevNextPage}>
-                <TouchableOpacity onPress={() => handlePage('previous')}>
-                  <Text style={styles.title}>{t('prev_page')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handlePage('next')}>
-                  <Text style={styles.title}>{t('next_page')}</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handlePage('next')}>
+                    <Text style={styles.infoPageLabel}>{t('next_page')}</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <View style={styles.noDataContainer}>
+                <MaterialIcons
+                  name="sentiment-dissatisfied"
+                  size={50}
+                  color="#767676ff"
+                />
+                <Text style={styles.noDataText}>
+                  {activeBtn === 1
+                    ? t('no_my_questions')
+                    : t('no_other_questions')}
+                </Text>
               </View>
-            </>
-          )}
-        </View>
-        <TouchableOpacity
+            )}
+          </>
+        )}
+
+        <FloatingAction
+          position="right"
+          actions={[
+            {
+              text: t('add_crop_problem'),
+              name: 'create_problem',
+              icon: <MaterialIcons name="add" size={24} color="white" />,
+              color: Colors.useGreen,
+            },
+            {
+              text: activeBtn === 1 ? t('other_question') : t('my_question'),
+              name: activeBtn === 1 ? 'other_questions' : 'my_questions',
+              icon: (
+                <MaterialIcons
+                  name={activeBtn === 1 ? 'swap-horiz' : 'swap-horiz'}
+                  size={24}
+                  color="white"
+                />
+              ),
+              color: Colors.useGreen,
+            },
+          ]}
+          color={Colors.useGreen}
+          onPressItem={name => {
+            if (name === 'create_problem') {
+              navigateToPages('FarmerCreateProblem', 123);
+            } else if (name === 'other_questions') {
+              otherProblemList();
+            } else if (name === 'my_questions') {
+              myProblemList();
+            }
+          }}
+          showBackground={true}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{vertical: 80, horizontal: 25}}
+        />
+        {/* <TouchableOpacity
           style={styles.plusIconContainer}
           onPress={() => navigateToPages('FarmerCreateProblem', 123)}>
           <Image
@@ -224,27 +334,27 @@ const FarmerListProblem = ({navigation}) => {
             resizeMode="cover"
             style={{width: 50, height: 50}}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </SafeAreaView>
     </FarmerDrawerScreenWrapper1>
   );
 };
 export default FarmerListProblem;
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  item: {
-    backgroundColor: '#f9c2ff',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
-  title: {
-    color: '#000',
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-  },
+  // container: {
+  //   flex: 1,
+  // },
+  // item: {
+  //   backgroundColor: '#f9c2ff',
+  //   padding: 20,
+  //   marginVertical: 8,
+  //   marginHorizontal: 16,
+  // },
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
   btnContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -286,84 +396,91 @@ const styles = StyleSheet.create({
     position: 'relative',
     bottom: 0,
   },
-  wrapper: {
-    marginHorizontal: '2.5%',
-    backgroundColor: '#FFF',
-    marginVertical: 10,
-    padding: 10,
-    borderRadius: 8,
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background_light,
   },
-  flatListItem: {
+  content: {
+    flex: 1,
+  },
+  listContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    // paddingBottom: 100, // Space for FAB
+  },
+  problemCard: {
+    backgroundColor: '#ffffff',
+    marginVertical: 8,
+    borderRadius: 12,
+    // elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
+  },
+  cardHeader: {
+    // backgroundColor: '#fa9e003b',
+    backgroundColor: Colors.useGreen,
+    // backgroundColor:Colors.lightGreen,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: Colors.border,
+  },
+  problemTitle: {
+    // color: '#f59f0bff',
+    color: Colors.background,
+    fontSize: 16,
+    fontFamily: Fonts.Medium,
+  },
+  cardContent: {
+    padding: 16,
+  },
+  infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  plusIconContainer: {
-    position: 'absolute',
-    right: 20,
-    bottom: 50,
-    elevation: 5,
-    zIndex: 99,
-    width: 60,
-    height: 60,
-    backgroundColor: '#4BAE4F',
+  infoLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+    flex: 1,
+  },
+  infoPageLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+  },
+  infoValue: {
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+    flex: 2,
+    textAlign: 'right',
+  },
+  noDataContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 30,
-    elevation: 3,
+    padding: 20,
   },
-
-  flatContainer: {
-    // backgroundColor: '#ffffff',
-    // position: 'absolute',
-    // zIndex: 999,
-    // bottom: '100%',
-    // left: 0,
-    // marginHorizontal: '5%',
-    // width: '90%',
-    // elevation: 10,
-    // borderRadius: 10,
-    // padding: 10,
-    // bottom:100
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    zIndex: 999,
-    left: 0,
-    // top:30,
-    marginTop: 60,
-    bottom: '65%',
-    marginHorizontal: '5%',
-    width: '90%',
-    elevation: 10,
-    borderRadius: 10,
-    padding: 10,
+  noDataImage: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    marginBottom: 20,
   },
-  flatContainerLengthUp: {
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    zIndex: 999,
-    left: 0,
-    // top: 30,
-    bottom: '45%',
-    marginHorizontal: '5%',
-    width: '90%',
-    elevation: 10,
-    borderRadius: 10,
-    padding: 10,
-  },
-  flatlistHeight: {
-    height: Dimensions.get('window').height / 4,
-  },
-
-  flatlisttitle: {
-    color: '#000',
-    marginVertical: 6,
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-  },
-  flatlistitem: {},
-  loadingScreen: {
-    position: 'relative',
-    top: 100,
+  noDataText: {
+    fontSize: 16,
+    fontFamily: Fonts.Medium,
+    color: Colors.text,
+    textAlign: 'center',
   },
 });

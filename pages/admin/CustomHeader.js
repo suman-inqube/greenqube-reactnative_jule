@@ -1,4 +1,4 @@
-import React, { lazy, useEffect, memo, useCallback, useMemo } from 'react';
+import React, {lazy, useEffect, memo, useCallback, useMemo} from 'react';
 import {
   TouchableOpacity,
   Image,
@@ -9,11 +9,11 @@ import {
   Platform,
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { goBack } from '../utils/NavigationUtils';
-import { Colors, Fonts } from '../utils/Constants';
-import { useDrawerStatus } from '@react-navigation/drawer';
-import { useTranslation } from 'react-i18next';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {goBack} from '../utils/NavigationUtils';
+import {Colors, Fonts} from '../utils/Constants';
+import {useDrawerStatus} from '@react-navigation/drawer';
+import {useTranslation} from 'react-i18next';
 const DASHBOARD_TITLE = 'Dashboard';
 const DAILY_SALES_TITLE = 'Daily Sales Report';
 const TITLES_WITHOUT_FILTER = [DASHBOARD_TITLE, DAILY_SALES_TITLE];
@@ -25,17 +25,13 @@ const IMAGES = {
   fourDot: require('../Common/images/4dot.png'),
   dashboard: require('../Common/images/dashboard.jpeg'),
 };
-const BackButton = memo(({ onPress }) => (
+const BackButton = memo(({onPress}) => (
   <TouchableOpacity onPress={onPress}>
-    <Image
-      source={IMAGES.back}
-      resizeMode="contain"
-      style={styles.backIcon}
-    />
+    <Image source={IMAGES.back} resizeMode="contain" style={styles.backIcon} />
   </TouchableOpacity>
 ));
 
-const LogoImage = memo(({ isDashboard }) => (
+const LogoImage = memo(({isDashboard}) => (
   <Image
     source={isDashboard ? IMAGES.logo : IMAGES.logoIcon}
     style={isDashboard ? styles.dashboardLogo : styles.regularLogo}
@@ -43,16 +39,16 @@ const LogoImage = memo(({ isDashboard }) => (
   />
 ));
 
-const RoundButton = memo(({ onPress, imageSource, style }) => (
+const RoundButton = memo(({onPress, imageSource, style}) => (
   <TouchableOpacity style={[styles.roundButton, style]} onPress={onPress}>
     <Image source={imageSource} style={styles.buttonIcon} />
   </TouchableOpacity>
 ));
 
-const CompanyLogo = memo(({ logoImage }) => (
+const CompanyLogo = memo(({logoImage}) => (
   <View style={styles.companyLogoContainer}>
     <ImageForm
-      source={{ uri: logoImage }}
+      source={{uri: logoImage}}
       resizeMode="contain"
       height={50}
       width={50}
@@ -60,144 +56,144 @@ const CompanyLogo = memo(({ logoImage }) => (
   </View>
 ));
 
-const BannerImage = memo(({ topBanner }) => (
+const BannerImage = memo(({topBanner}) =>
   topBanner ? (
     <ImageForm
-      source={{ uri: topBanner }}
+      source={{uri: topBanner}}
       resizeMode="cover"
       height={200}
       width="100%"
     />
   ) : (
-    <Image
-      source={IMAGES.dashboard}
-      style={styles.defaultBanner}
-    />
-  )
-));
+    <Image source={IMAGES.dashboard} style={styles.defaultBanner} />
+  ),
+);
 
-const CustomHeader = memo(({
-  path,
-  HandlerGoBack,
-  banner,
-  logoImage,
-  topBanner,
-  show,
-  filterOptionShow,
-}) => {
-  const drawerStatus = useDrawerStatus();
-  const { t } = useTranslation();
-  const navigation = useNavigation();
-  const route = useRoute();
-  const titleMap = useMemo(() => ({
-    Dashboard: 'Dashboard',
-    Profile: t('profile'),
-    Settings: 'App Settings',
-    activityList: 'Activity List',
-    ProblemList: t('problem_reporting'),
-    FarmerFarmIncomeExpenseList: t('income_expense_list'),
-    FarmIncomeExpenseList: t('income_expense_list'),
-    FarmIncomeExpenseView: t('income_expense_list'),
-    AddExpense: t('add_expense'),
-    AddIcome: t('add_income'),
-    ChangePassword: t('change_password'),
-    LoanEnquiryDetail: t('loan_enquiry_detail'),
-    LoanRequest: t('loan_request_n'),
-    LoanViewPastRequested: t('view_loan_nrequested'),
-    InsuranceViewPastRequested: t('Insu_enquiry_detail'),
-    RequestForInsurance: t('request_for_ninsurance'),
-    FarmerLoanViewPastRequested: t('view_loan_nrequested'),
-    FarmerLoanEnquiryDetail: t('Loan Enquiry Detail'),
-    FarmerLoanRequest: t('loan_request_n'),
-    FarmerInsuViewPastRequested: t('Insu_enquiry_detail'),
-    FarmerRequestForInsurance: t('request_for_ninsurance'),
-    PestisideCalculator: t('pestiside_calculator'),
-    FertilizerCalculator: t('fertilizer_calculator'),
-    FarmerInstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
-    FarmerChangePassword: t('change_password'),
-    FarmerAddExpense: t('add_expense'),
-    FarmerAddIncome: t('add_income'),
-    FarmerFarmIncomeExpenseView: t('income_expense_View'),
-    InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
-    activityDetail: t('act_detail_'),
-    DailySalesReport: t('daily_sales_report'),
-    OutPutList: t('want_to_sell'),
-    userList: t('farmer_list'),
-  }), [t]);
-  const title = useMemo(() => titleMap[route.name] ?? route.name, [titleMap, route.name]);
-  const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
-  const showFilter = useMemo(() =>
-    !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
-    [title, filterOptionShow]
-  );
-  const showBanner = useMemo(() =>
-    show && !banner && (topBanner || true),
-    [show, banner, topBanner]
-  );
-  const handleGoBack = useCallback(() => {
-    if (HandlerGoBack) {
-      HandlerGoBack();
-    } else {
-      goBack();
-    }
-  }, [HandlerGoBack]);
+const CustomHeader = memo(
+  ({
+    path,
+    HandlerGoBack,
+    banner,
+    logoImage,
+    topBanner,
+    show,
+    filterOptionShow,
+  }) => {
+    const drawerStatus = useDrawerStatus();
+    const {t} = useTranslation();
+    const navigation = useNavigation();
+    const route = useRoute();
+    const titleMap = useMemo(
+      () => ({
+        Dashboard: 'Dashboard',
+        Profile: t('profile'),
+        Settings: 'App Settings',
+        activityList: 'Activity List',
+        ProblemList: t('problem_reporting'),
+        FarmerFarmIncomeExpenseList: t('income_expense_list'),
+        FarmIncomeExpenseList: t('income_expense_list'),
+        FarmIncomeExpenseView: t('income_expense_list'),
+        AddExpense: t('add_expense'),
+        AddIcome: t('add_income'),
+        ChangePassword: t('change_password'),
+        LoanEnquiryDetail: t('loan_enquiry_detail'),
+        LoanRequest: t('loan_request_n'),
+        LoanViewPastRequested: t('view_loan_nrequested'),
+        InsuranceViewPastRequested: t('Insu_enquiry_detail'),
+        RequestForInsurance: t('request_for_ninsurance'),
+        FarmerLoanViewPastRequested: t('view_loan_nrequested'),
+        FarmerLoanEnquiryDetail: t('Loan Enquiry Detail'),
+        FarmerLoanRequest: t('loan_request_n'),
+        FarmerInsuViewPastRequested: t('Insu_enquiry_detail'),
+        FarmerRequestForInsurance: t('request_for_ninsurance'),
+        PestisideCalculator: t('pestiside_calculator'),
+        FertilizerCalculator: t('fertilizer_calculator'),
+        FarmerInstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
+        FarmerChangePassword: t('change_password'),
+        FarmerAddExpense: t('add_expense'),
+        FarmerAddIncome: t('add_income'),
+        FarmerFarmIncomeExpenseView: t('income_expense_View'),
+        InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
+        activityDetail: t('act_detail_'),
+        DailySalesReport: t('daily_sales_report'),
+        OutPutList: t('want_to_sell'),
+        userList: t('farmer_list'),
+      }),
+      [t],
+    );
+    const title = useMemo(
+      () => titleMap[route.name] ?? route.name,
+      [titleMap, route.name],
+    );
+    const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
+    const showFilter = useMemo(
+      () => !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
+      [title, filterOptionShow],
+    );
+    const showBanner = useMemo(
+      () => show && !banner && (topBanner || true),
+      [show, banner, topBanner],
+    );
+    const handleGoBack = useCallback(() => {
+      if (HandlerGoBack) {
+        HandlerGoBack();
+      } else {
+        goBack();
+      }
+    }, [HandlerGoBack]);
 
-  const openDrawer = useCallback(() => {
-    navigation.openDrawer();
-  }, [navigation]);
+    const openDrawer = useCallback(() => {
+      navigation.openDrawer();
+    }, [navigation]);
 
-  const handleFilterPress = useCallback(() => {
-    if (filterOptionShow) {
-      filterOptionShow();
-    }
-  }, [filterOptionShow]);
-  const statusBarProps = useMemo(() => ({
-    barStyle: 'light-content',
-    backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#003c04',
-  }), [drawerStatus]);
+    const handleFilterPress = useCallback(() => {
+      if (filterOptionShow) {
+        filterOptionShow();
+      }
+    }, [filterOptionShow]);
+    const statusBarProps = useMemo(
+      () => ({
+        barStyle: 'light-content',
+        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#003c04',
+      }),
+      [drawerStatus],
+    );
 
-  useEffect(() => {
-    navigation.closeDrawer();
-  }, [navigation]);
-  return (
-    <View style={styles.mainContainer}>
-      <StatusBar {...statusBarProps} />
+    useEffect(() => {
+      navigation.closeDrawer();
+    }, [navigation]);
+    return (
+      <View style={styles.mainContainer}>
+        <StatusBar {...statusBarProps} />
 
-      <View style={Platform.select({
-        android: styles.androidContainer,
-        ios: styles.iosContainer,
-      })}>
-        <View style={styles.leftContainer}>
-          <BackButton onPress={handleGoBack} />
-          <LogoImage isDashboard={isDashboard} />
-          {!isDashboard && (
-            <Text style={styles.titleText}>{title}</Text>
-          )}
+        <View
+          style={Platform.select({
+            android: styles.androidContainer,
+            ios: styles.iosContainer,
+          })}>
+          <View style={styles.leftContainer}>
+            <BackButton onPress={handleGoBack} />
+            <LogoImage isDashboard={isDashboard} />
+            {!isDashboard && <Text style={styles.titleText}>{title}</Text>}
+          </View>
+          <View style={styles.rightSection}>
+            {logoImage && isDashboard && <CompanyLogo logoImage={logoImage} />}
+
+            {showFilter && (
+              <RoundButton
+                onPress={handleFilterPress}
+                imageSource={IMAGES.setting}
+              />
+            )}
+
+            <RoundButton onPress={openDrawer} imageSource={IMAGES.fourDot} />
+          </View>
         </View>
-        <View style={styles.rightSection}>
-          {logoImage && isDashboard && (
-            <CompanyLogo logoImage={logoImage} />
-          )}
-
-          {showFilter && (
-            <RoundButton
-              onPress={handleFilterPress}
-              imageSource={IMAGES.setting}
-            />
-          )}
-
-          <RoundButton
-            onPress={openDrawer}
-            imageSource={IMAGES.fourDot}
-          />
-        </View>
+        {showBanner && <BannerImage topBanner={topBanner} />}
       </View>
-      {showBanner && (
-        <BannerImage topBanner={topBanner} />
-      )}
-    </View>
-  );
-});
+    );
+  },
+);
 
 CustomHeader.displayName = 'CustomHeader';
 

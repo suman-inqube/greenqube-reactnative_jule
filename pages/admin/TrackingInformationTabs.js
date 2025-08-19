@@ -141,7 +141,7 @@ const TrackingInformationTabs = ({
                 renderItem={({item}) => (
                   <TouchableOpacity
                     style={styles.dataItem}
-                    onPress={() => handleInfoPress(item.fid)}>
+                    onPress={() => handleInfoPress(item)}>
                     <View
                       style={{
                         width: '8%',
