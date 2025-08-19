@@ -223,7 +223,6 @@ const ActivityDetail = () => {
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => navigation.navigate('activityList');
   const soundPlay = async path => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
@@ -547,7 +546,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   fromContainer: {
-    marginTop: 50,
+    marginTop: 20,
 
     marginHorizontal: '4%',
     borderWidth: 1,

@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     marginBottom: 15,
+    marginHorizontal: '3%',
   },
   item: {
     width: '25%',

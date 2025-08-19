@@ -33,6 +33,9 @@ const audioRecorderPlayer = new AudioRecorderPlayer();
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
+import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const FarmerCreateProblem = ({navigation}) => {
   //GQR-67
   const {
@@ -704,9 +707,7 @@ const FarmerCreateProblem = ({navigation}) => {
       onBackPress(handleBackPress);
     }
   }, [isFocused, netConnection]);
-  const HandlerGoBack = () => {
-    navigation.navigate('FarmerListProblem');
-  };
+
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
     if (item == 'firstItem') {
@@ -753,200 +754,200 @@ const FarmerCreateProblem = ({navigation}) => {
     });
   };
   return (
-    <View style={styles.container}>
-      <CustomHeader
-        path="FarmerListProblem"
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <DatePickerComp
-        openDate={addAffectedDate}
-        newDate={newFromDate}
-        setOpenDate={setaddAffectedDate}
-        handleDatePicker={handleDatePicker}
-      />
-      <FormsTitle title={t('add_crop_problem')} />
-      {modalVisibleRecordFirstItem ? (
-        <SoundRecord
-          modalVisibleRecord={modalVisibleRecordFirstItem}
-          setModalVisibleRecord={setModalVisibleRecordFirstItem}
-          onStartRecordFirstItem={onStartRecordFirstItem}
-          onStopRecordFirstItem={onStopRecordFirstItem}
-          soundRecord={soundRecordFirstItem}
+    <FarmerDrawerScreenWrapper1>
+      <View style={styles.container}>
+        <CustomHeader
+          path="FarmerListProblem"
+          logoImage={logoImage}
+          topBanner={topBanner}
         />
-      ) : null}
-      {modalVisibleRecordSecoundItem ? (
-        <SoundRecord
-          modalVisibleRecord={modalVisibleRecordSecoundItem}
-          setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-          onStartRecordFirstItem={onStartRecordSecoundItem}
-          onStopRecordFirstItem={onStopRecordSecoundItem}
-          soundRecord={soundRecordSecoundItem}
+        <DatePickerComp
+          openDate={addAffectedDate}
+          newDate={newFromDate}
+          setOpenDate={setaddAffectedDate}
+          handleDatePicker={handleDatePicker}
         />
-      ) : null}
-      {modalVisibleRecordThirdItem ? (
-        <SoundRecord
-          modalVisibleRecord={modalVisibleRecordThirdItem}
-          setModalVisibleRecord={setModalVisibleRecordThirdItem}
-          onStartRecordFirstItem={onStartRecordThirdItem}
-          onStopRecordFirstItem={onStopRecordThirdItem}
-          soundRecord={soundRecordThirdItem}
-        />
-      ) : null}
-      <ScrollView>
-        {isLoading && (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        )}
-        <View style={styles.fromContainer}>
-          <DropdownForm
-            label={t('plot')}
-            data={plotAll}
-            color="red"
-            onChange={relId => handlePlot(relId)}
+        {/* <FormsTitle title={t('add_crop_problem')} /> */}
+        {modalVisibleRecordFirstItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordFirstItem}
+            setModalVisibleRecord={setModalVisibleRecordFirstItem}
+            onStartRecordFirstItem={onStartRecordFirstItem}
+            onStopRecordFirstItem={onStopRecordFirstItem}
+            soundRecord={soundRecordFirstItem}
           />
-          {showingMenu ? (
-            <View style={styles.plotSiteContainer}>
-              <View style={styles.plotSiteContainerCell}>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>{t('crop_name')}</Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {nameVarityStartEnd.name}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.plotSiteContainerCell}>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {' '}
-                    {t('crop_veriety')}{' '}
-                  </Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {' '}
-                    {nameVarityStartEnd.varity}{' '}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.plotSiteContainerCell}>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('showing_date')}
-                  </Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.plotSiteContainerCell}>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('harvesting_date_auto_calculated')}
-                  </Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
-                  </Text>
-                </View>
-              </View>
+        ) : null}
+        {modalVisibleRecordSecoundItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordSecoundItem}
+            setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+            onStartRecordFirstItem={onStartRecordSecoundItem}
+            onStopRecordFirstItem={onStopRecordSecoundItem}
+            soundRecord={soundRecordSecoundItem}
+          />
+        ) : null}
+        {modalVisibleRecordThirdItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordThirdItem}
+            setModalVisibleRecord={setModalVisibleRecordThirdItem}
+            onStartRecordFirstItem={onStartRecordThirdItem}
+            onStopRecordFirstItem={onStopRecordThirdItem}
+            soundRecord={soundRecordThirdItem}
+          />
+        ) : null}
+        <ScrollView>
+          {isLoading && (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
             </View>
-          ) : (
-            ''
           )}
-          <DropdownForm
-            label={t('growth_stage')}
-            color="red"
-            data={productionStageAll}
-            onChange={production_stage =>
-              setSaveData({...saveData, growth_stage: production_stage.value})
-            }
-          />
-          <DropdownForm
-            label={t('problem_type')}
-            color="red"
-            data={problemTypeAll}
-            onChange={item => handleProblemType(item)}
-          />
-          <DropdownForm
-            label={t('select_problem')}
-            color="red"
-            data={problemNameAll}
-            onChange={item => handleProblemName(item)}
-          />
-          <DropdownForm
-            label={t('select_severity')}
-            color="red"
-            data={severityAll}
-            onChange={item =>
-              setSaveData({...saveData, severity_id: item.value})
-            }
-          />
-          <InputTextForm
-            label={t('production_system')}
-            value={nameVarityStartEnd.production_process}
-            editable={false}
-          />
-          <View>
-            <Text style={{color: 'red'}}>
-              {t('agent_crop_problem_affected_date')}
-            </Text>
-            <TouchableOpacity
-              style={styles.activityPerFromDate}
-              onPress={() => setaddAffectedDate(true)}>
-              <Text style={{color: '#000'}}>{affectedDate}</Text>
-              <Image
-                source={require('../../Common/images/calendar.png')}
-                style={{width: 20, height: 20}}
+          <View style={styles.fromContainer}>
+            <View style={{padding: 20}}>
+              <DropdownForm
+                label={t('plot')}
+                data={plotAll}
+                required={true}
+                onChange={relId => handlePlot(relId)}
               />
-            </TouchableOpacity>
+              {showingMenu ? (
+                <View style={styles.plotSiteContainer}>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>{t('crop_name')}</Text>
+                    <Text style={styles.value}>{nameVarityStartEnd.name}</Text>
+                  </View>
+
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>{t('crop_veriety')}</Text>
+                    <Text style={styles.value}>
+                      {nameVarityStartEnd.varity}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>{t('showing_date')}</Text>
+                    <Text style={styles.value}>
+                      {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>
+                      {t('harvesting_date_auto_calculated')}
+                    </Text>
+                    <Text style={styles.value}>
+                      {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                ''
+              )}
+              <DropdownForm
+                label={t('growth_stage')}
+                required={true}
+                data={productionStageAll}
+                onChange={production_stage =>
+                  setSaveData({
+                    ...saveData,
+                    growth_stage: production_stage.value,
+                  })
+                }
+              />
+              <DropdownForm
+                label={t('problem_type')}
+                required={true}
+                data={problemTypeAll}
+                onChange={item => handleProblemType(item)}
+              />
+              <DropdownForm
+                label={t('select_problem')}
+                required={true}
+                data={problemNameAll}
+                onChange={item => handleProblemName(item)}
+              />
+              <DropdownForm
+                label={t('select_severity')}
+                required={true}
+                data={severityAll}
+                onChange={item =>
+                  setSaveData({...saveData, severity_id: item.value})
+                }
+              />
+              <InputTextForm
+                label={t('production_system')}
+                value={nameVarityStartEnd.production_process}
+                editable={false}
+              />
+              <View>
+                <View style={styles.labelContainer}>
+                  <Text
+                    style={{
+                      color: '#4e4e4e',
+                      fontFamily: 'Poppins-Regular',
+                      fontSize: 15,
+                    }}>
+                    {t('agent_crop_problem_affected_date')}
+                  </Text>
+                  <Text style={styles.requiredStar}> *</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.activityPerFromDate}
+                  onPress={() => setaddAffectedDate(true)}>
+                  <Text
+                    style={{
+                      color: '#000',
+                      fontFamily: 'Poppins-Regular',
+                      fontSize: 15,
+                    }}>
+                    {affectedDate}
+                  </Text>
+                  <Image
+                    source={require('../../Common/images/calendar.png')}
+                    style={{width: 20, height: 20}}
+                  />
+                </TouchableOpacity>
+              </View>
+              <InputTextForm
+                label={t('enter_problem_title')}
+                onChangeText={item =>
+                  setSaveData({...saveData, question_title: item})
+                }
+                value={saveData.question_title}
+              />
+              <InputTextForm
+                label={t('enter_problem_description')}
+                onChangeText={item =>
+                  setSaveData({...saveData, question_desc: item})
+                }
+                value={saveData.question_desc}
+              />
+              <TakePhoto
+                openImagePicker={openImagePicker}
+                selectedImage={selectedImage}
+                title={t('take_a_photo_optional')}
+              />
+              <RecordComp
+                selectedRecord={selectedRecord}
+                title={t('record_your_comment_optional')}
+                // onPress={handleRecord}
+                setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
+                setModalVisibleRecordSecoundItem={
+                  setModalVisibleRecordSecoundItem
+                }
+                setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
+                soundRecordFirstItem={soundRecordFirstItem}
+                soundRecordSecoundItem={soundRecordSecoundItem}
+                soundRecordThirdItem={soundRecordThirdItem}
+                cancelRecord={cancelRecord}
+                soundPlay={soundPlay}
+              />
+            </View>
           </View>
-          <InputTextForm
-            label={t('enter_problem_title')}
-            onChangeText={item =>
-              setSaveData({...saveData, question_title: item})
-            }
-            value={saveData.question_title}
-          />
-          <InputTextForm
-            label={t('enter_problem_description')}
-            onChangeText={item =>
-              setSaveData({...saveData, question_desc: item})
-            }
-            value={saveData.question_desc}
-          />
-          <TakePhoto
-            openImagePicker={openImagePicker}
-            selectedImage={selectedImage}
-            title={t('take_a_photo_optional')}
-          />
-          <RecordComp
-            selectedRecord={selectedRecord}
-            title={t('record_your_comment_optional')}
-            // onPress={handleRecord}
-            setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-            setModalVisibleRecordSecoundItem={setModalVisibleRecordSecoundItem}
-            setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
-            soundRecordFirstItem={soundRecordFirstItem}
-            soundRecordSecoundItem={soundRecordSecoundItem}
-            soundRecordThirdItem={soundRecordThirdItem}
-            cancelRecord={cancelRecord}
-            soundPlay={soundPlay}
-          />
+        </ScrollView>
+        <View style={{marginTop: 10}}>
+          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
-      </ScrollView>
-      <View style={{marginTop: 10}}>
-        <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+        <Root></Root>
       </View>
-      <Root></Root>
-    </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -954,6 +955,7 @@ export default FarmerCreateProblem;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background_light,
   },
   titleContainer: {
     width: '95%',
@@ -962,32 +964,58 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#000',
+    fontFamily: 'Poppins-Regular',
   },
   fromContainer: {
-    width: '90%',
-    marginHorizontal: '5%',
-    marginBottom: 50,
+    flex: 1,
+    backgroundColor: 'white',
+    // padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginVertical: 20,
+    marginHorizontal: 16,
   },
   activityPerFromDate: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15,
-    borderRadius: 8,
-    height: 40,
-    borderColor: 'gray',
+    height: 48,
     borderWidth: 0.5,
-    backgroundColor: 'white',
-    width: '100%',
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
+    marginBottom: 20,
   },
   plotSiteContainer: {
-    borderWidth: 0.5,
-    borderColor: '#000',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    backgroundColor: '#FFF',
-    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2faffff',
+
+    marginVertical: 8,
+    borderRadius: 20,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.borderGreen,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    // paddingHorizontal: 15,
+    // marginHorizontal: '1%',
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   plotSiteContainerCell: {
     flexDirection: 'row',
@@ -1001,16 +1029,18 @@ const styles = StyleSheet.create({
   plotSiteItemText: {
     color: '#000',
     marginVertical: 5,
+    fontFamily: 'Poppins-Regular',
   },
 
   flatContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'white',
     position: 'absolute',
     zIndex: 999,
-    bottom: '100%',
+    // bottom: '100%',
+    top: 90,
     left: 0,
-    marginHorizontal: '5%',
-    width: '90%',
+    marginHorizontal: '10%',
+    width: '80%',
     elevation: 10,
     borderRadius: 10,
     padding: 10,
@@ -1019,10 +1049,11 @@ const styles = StyleSheet.create({
   flatlisttitle: {
     padding: 10,
     color: '#000',
+    fontFamily: 'Poppins-Regular',
   },
 
   flatlistHeight: {
-    height: Dimensions.get('window').height / 3,
+    height: Dimensions.get('window').height / 4,
   },
 
   container_recording: {
@@ -1042,11 +1073,49 @@ const styles = StyleSheet.create({
   title_recording: {
     paddingVertical: 10,
     color: '#000',
+    fontFamily: 'Poppins-Regular',
   },
   loadingScreen: {
     position: 'absolute',
     top: 100,
     left: '45%',
     zIndex: 999,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+    // paddingHorizontal: 5,
+    paddingHorizontal: 10,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 5,
+  },
+  label: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+    marginBottom: 5,
+  },
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+  },
+  requiredStar: {
+    color: 'red',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 16,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+    marginLeft: 5,
   },
 });

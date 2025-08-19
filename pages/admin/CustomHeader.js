@@ -118,6 +118,17 @@ const CustomHeader = memo(
         DailySalesReport: t('daily_sales_report'),
         OutPutList: t('want_to_sell'),
         userList: t('farmer_list'),
+        FarmerListProblem: t('problem_reporting'),
+        FarmerCreateProblem: t('add_crop_problem'),
+        FarmerActivityList: t('my_activities'),
+        FarmerActivityDetail: t('act_detail_'),
+        FarmerActivityReportAWD: t('report_activity_AWD'),
+        FarmerActivityReport: t('report_activity'),
+        ActivityReportAWD: t('report_activity_AWD'),
+        activityReport: t('report_activity'),
+        ProblemView: t('plot_and_crop_problem'),
+        ProblemCreate: t('add_crop_problem'),
+        FarmerViewProblem: t('plot_and_crop_problem'),
       }),
       [t],
     );
@@ -125,6 +136,7 @@ const CustomHeader = memo(
       () => titleMap[route.name] ?? route.name,
       [titleMap, route.name],
     );
+    console.log('Screen-', title);
     const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
     const showFilter = useMemo(
       () => !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,

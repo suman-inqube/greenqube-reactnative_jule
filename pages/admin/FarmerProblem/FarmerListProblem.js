@@ -162,7 +162,7 @@ const FarmerListProblem = ({navigation}) => {
     }, [netConnection]),
   );
   const filterOptionShow = () => {};
-  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+  //
   const handleBackPress = () => {
     navigation.navigate('FarmerDashboard');
     return true;
@@ -172,7 +172,6 @@ const FarmerListProblem = ({navigation}) => {
       <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
         <CustomHeader
           path="FarmerDashboard"
-          HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
           // filterOptionShow={filterOptionShow}

@@ -291,9 +291,11 @@ const FarmerViewProblem = ({navigation}) => {
                             : {farmerProblem.question_desc}
                           </Text>
                         </View>
-                        <View style={styles.item}>
-                          <Text style={styles.itemTitle}>{t('plot')}</Text>
-                          <Text style={styles.itemTitle}>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <View style={styles.infoTextContainer}>
+                          <Text style={styles.infoValue}>{t('plot')}</Text>
+                          <Text style={styles.infoLabel}>
                             : {farmerProblem.agri_land_user_rel?.plot_no}
                           </Text>
                         </View>

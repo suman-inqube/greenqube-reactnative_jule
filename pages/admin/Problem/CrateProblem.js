@@ -760,7 +760,6 @@ const CreateProblem = ({navigation}) => {
       console.error('Error stopping the recording:', error);
     }
   }, []);
-  const HandlerGoBack = () => navigation.navigate('ProblemList');
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('ProblemList');
@@ -855,7 +854,6 @@ const CreateProblem = ({navigation}) => {
       <View style={styles.container}>
         <CustomHeader
           path="ProblemList"
-          HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

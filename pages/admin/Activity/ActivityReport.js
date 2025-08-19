@@ -1035,7 +1035,6 @@ const ActivityReport = ({navigation}) => {
       navigation.navigate('Dashboard');
     }
   };
-  const HandlerGoBack = () => navigation.navigate('activityList');
   const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
@@ -1195,7 +1194,6 @@ const ActivityReport = ({navigation}) => {
           <View style={styles.container}>
             <CustomHeader
               path="activityList"
-              HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />

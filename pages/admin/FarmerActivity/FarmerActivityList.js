@@ -228,9 +228,7 @@ const FarmerActivityList = ({navigation}) => {
       });
     }, [netConnection]),
   );
-  const HandlerGoBack = () => {
-    navigation.navigate('FarmerDashboard');
-  };
+
   const filterDataRemove = async () => {
     setFilterItem('');
     setFilterOption(false);
@@ -428,7 +426,6 @@ const FarmerActivityList = ({navigation}) => {
           <SafeAreaView style={styles.container}>
             <CustomHeader
               path="FarmerDashboard"
-              HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />
@@ -459,29 +456,30 @@ const FarmerActivityList = ({navigation}) => {
                 title={t('add_recent_incident')}
                 onPress={() => handleSPSheetShow()}
               /> */}
-
-              <FarmerFilter
-                filterItem={filterItem}
-                filterOption={filterOption}
-                setOpenToDate={setOpenToDate}
-                fromDate={fromDate}
-                newToDate={toDate}
-                setOpenFromDate={setOpenFromDate}
-                filterOptionShow={filterOptionShow}
-                onchangeFilterItem={onchangeFilterItem}
-                onChangeText={item => handleFilter(item)}
-                title={t('my_activities')}
-                // filterItem={'Date'}
-                onlyDate={true}
-                filterDataRemove={filterDataRemove}
-                carbonFlag={carbonFlag}
-                onChangeCarbonType={onChangeCarbonType}
-                carbonTypeVal={carbonType}
-                dataActivity={[
-                  {label: 'Carbon ', value: 'carbon_activity'},
-                  {label: 'Non-Carbon ', value: 'user_activity'},
-                ]}
-              />
+              <View style={{marginTop: 10}}>
+                <FarmerFilter
+                  filterItem={filterItem}
+                  filterOption={filterOption}
+                  setOpenToDate={setOpenToDate}
+                  fromDate={fromDate}
+                  newToDate={toDate}
+                  setOpenFromDate={setOpenFromDate}
+                  filterOptionShow={filterOptionShow}
+                  onchangeFilterItem={onchangeFilterItem}
+                  onChangeText={item => handleFilter(item)}
+                  // title={t('my_activities')}
+                  // filterItem={'Date'}
+                  onlyDate={true}
+                  filterDataRemove={filterDataRemove}
+                  carbonFlag={carbonFlag}
+                  onChangeCarbonType={onChangeCarbonType}
+                  carbonTypeVal={carbonType}
+                  dataActivity={[
+                    {label: 'Carbon ', value: 'carbon_activity'},
+                    {label: 'Non-Carbon ', value: 'user_activity'},
+                  ]}
+                />
+              </View>
 
               <>
                 <FlatList

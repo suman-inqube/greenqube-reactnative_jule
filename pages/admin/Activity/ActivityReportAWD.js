@@ -1328,7 +1328,6 @@ const ActivityReportAWD = ({navigation}) => {
       navigation.navigate('Dashboard');
     }
   };
-  const HandlerGoBack = () => navigation.navigate('activityList');
   const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
@@ -1661,7 +1660,6 @@ const ActivityReportAWD = ({navigation}) => {
               )}
               <CustomHeader
                 path="activityList"
-                HandlerGoBack={HandlerGoBack}
                 logoImage={logoImage}
                 topBanner={topBanner}
               />
@@ -1882,7 +1880,12 @@ const ActivityReportAWD = ({navigation}) => {
                           <View style={styles.plotSiteContainer}>
                             <View style={styles.detailRow}>
                               <Text style={styles.label}>Last activity</Text>
-                              <Text style={styles.value1}>{lastAct}</Text>
+                              <View style={styles.bulletPointContainer}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={[styles.value1, styles.leftAlign]}>
+                                  {lastAct}
+                                </Text>
+                              </View>
                             </View>
                           </View>
                         ) : null}
@@ -1893,15 +1896,18 @@ const ActivityReportAWD = ({navigation}) => {
                               <Text style={styles.label}>
                                 Upcoming activity
                               </Text>
-                              <Text style={styles.value1}>
-                                {/* {upcomingAct?.activityName?.categoryName +
+                              <View style={styles.bulletPointContainer}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={[styles.value1, styles.leftAlign]}>
+                                  {/* {upcomingAct?.activityName?.categoryName +
                             ' (' +
                             formatDate(upcomingAct?.activity_start_date) +
                             ' - ' +
                             formatDate(upcomingAct?.activity_end_date) +
                             ')'} */}
-                                {upcomingAct}
-                              </Text>
+                                  {upcomingAct}
+                                </Text>
+                              </View>
                             </View>
                           </View>
                         ) : null}
@@ -1913,15 +1919,22 @@ const ActivityReportAWD = ({navigation}) => {
                                 Overdue Activities
                               </Text>
                               {overdueAct.map((act, index) => (
-                                <Text key={index} style={styles.value1}>
-                                  {/* {act?.activityName?.categoryName +
+                                <View
+                                  key={index}
+                                  style={styles.bulletPointContainer}>
+                                  <Text style={styles.bulletPoint}>•</Text>
+                                  <Text
+                                    key={index}
+                                    style={[styles.value1, styles.leftAlign]}>
+                                    {/* {act?.activityName?.categoryName +
                               ' (' +
                               formatDate(act?.activity_start_date) +
                               ' - ' +
                               formatDate(act?.activity_end_date) +
                               ')'} */}
-                                  {act}
-                                </Text>
+                                    {act}
+                                  </Text>
+                                </View>
                               ))}
                             </View>
                           </View>
@@ -2312,7 +2325,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   label: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.text,
     fontFamily: 'Poppins-SemiBold',
     // flex: 1,
@@ -2347,5 +2360,26 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
     width: '100%',
     marginTop: 10,
+  },
+  leftAlign: {
+    textAlign: 'left',
+    alignSelf: 'flex-start', // Ensures text starts from left
+    width: '100%', // Takes full width of container
+    paddingLeft: 10, // Add some left padding if needed
+    flex: 1,
+  },
+  bulletPointContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 5,
+    width: '100%',
+    paddingLeft: 5,
+  },
+
+  bulletPoint: {
+    fontSize: 15,
+    color: 'black',
+    // marginRight: 1,
+    lineHeight: 20, // Adjust to match your text line height
   },
 });

@@ -132,7 +132,7 @@ const ViewProblem = ({navigation}) => {
             problemIdData,
           );
         }
-        console.log('response10', response?.data.data);
+
         if (response?.status == 200) {
           await setItem('farmerProblemDetail' + problemIdData, response);
         }
@@ -226,9 +226,7 @@ const ViewProblem = ({navigation}) => {
       }
     }
   };
-  const HandlerGoBack = () => {
-    navigation.navigate('ProblemList');
-  };
+
   useEffect(() => {
     if (isFocused) {
       onPageLoad();
@@ -238,11 +236,11 @@ const ViewProblem = ({navigation}) => {
     navigation.navigate('ProblemList');
     return true;
   };
-  useFocusEffect(
-    useCallback(() => {
-      onBackPress(handleBackPress);
-    }, [route.params, isFocused]),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     onBackPress(handleBackPress);
+  //   }, [route.params, isFocused]),
+  // );
   const soundPlay = async path => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
@@ -267,7 +265,6 @@ const ViewProblem = ({navigation}) => {
           }}>
           <CustomHeader
             path="ProblemList"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
@@ -744,8 +741,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     marginHorizontal: '5%',
     marginTop: 20,
-    // borderWidth: 1,
-    // borderColor: Colors.borderGreen,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   cardImg: {
     backgroundColor: 'white',

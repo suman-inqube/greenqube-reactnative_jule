@@ -18,6 +18,11 @@ import RNFS from 'react-native-fs';
 import {launchCamera} from 'react-native-image-picker';
 import Marker, {Position} from 'react-native-image-marker';
 import RecordComp from '../Activity/RecordComp';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import MyErrorBoundary from '../../Common/MyErrorBoundary';
+import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {
   activityInfoAPI,
   activitySaveAPI,
@@ -1268,106 +1273,106 @@ const FarmerActivityReportAWD = ({navigation}) => {
   //     setActivityInfoAll([]);
   //   }
   // };
- 
-   const handleActivityType = async item => {
-      try {
-        let dataArray = [];
-        if (isOnline) {
-          var response = await activityInfoAPI(
-            dbname,
-            lan_id,
-            token,
-            farmerID,
-            CropType,
-            CropName,
-            item.value,
-          );
-          await setItem(
-            'activityInfo' + farmerID + CropType + CropName + item.value,
-            response,
-          );
-        } else {
-          var response = await getItem(
-            'activityInfo' + farmerID + CropType + CropName + item.value,
-          );
-        }
-        setSaveData({
-          ...saveData,
-          act_to_date: '',
-          act_to_date_label: '',
-          act_start_date: '',
-          act_ref: '',
-          act_master_id: '',
-          act_ref_type: item.value,
-          field_type: '',
-        });
-        setSelectedImagePipe({
-          ...selectedImagePipe,
-          firstItem: '',
-          firstItemLat: '',
-          firstItemLong: '',
-          secondItem: '',
-          secondItemLat: '',
-          secondItemLong: '',
-        });
-        setselectPipeList({
-          ...selectPipeList,
-          label: '',
-          value: '',
-        });
-        if (response.data.data.count > 0) {
-          response.data.data.rows.forEach(element => {
-            const monthNames = [
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December',
-            ];
-            const cycleDate =
-              cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
-            const sdate = new Date(cycleDate);
-            sdate.setDate(sdate.getDate() + element?.days_from);
-            const smonth = monthNames[sdate.getMonth()];
-            const sday = sdate.getDate();
-            const syear = sdate.getFullYear();
-            const startDate = `${smonth} ${sday}, ${syear}`;
-            const edate = new Date(cycleDate);
-            edate.setDate(edate.getDate() + element?.days_to);
-            const emonth = monthNames[edate.getMonth()];
-            const eday = edate.getDate();
-            const eyear = edate.getFullYear();
-            const endDate = `${emonth} ${eday}, ${eyear}`;
-            const startDateEndDate = `${startDate}-${endDate}`;
-            dataArray.push({
-              start_date: sdate,
-              end_date: edate,
-              value: element.act_rid,
-              label:
-                element?.activity?.categoryName + ' (' + startDateEndDate + ')',
-              act_master_id: element?.act_master_id,
-              field_type: element?.activity?.field_type,
-            });
-          });
-          if (isButtonDisabled) {
-            setActivityInfoAll(dataArray);
-          }
-          setPipeListDetailsResArr([]);
-        } else {
-          setActivityInfoAll([]);
-        }
-      } catch (error) {
-        CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityType');
+
+  const handleActivityType = async item => {
+    try {
+      let dataArray = [];
+      if (isOnline) {
+        var response = await activityInfoAPI(
+          dbname,
+          lan_id,
+          token,
+          farmerID,
+          CropType,
+          CropName,
+          item.value,
+        );
+        await setItem(
+          'activityInfo' + farmerID + CropType + CropName + item.value,
+          response,
+        );
+      } else {
+        var response = await getItem(
+          'activityInfo' + farmerID + CropType + CropName + item.value,
+        );
       }
-    };
-    
+      setSaveData({
+        ...saveData,
+        act_to_date: '',
+        act_to_date_label: '',
+        act_start_date: '',
+        act_ref: '',
+        act_master_id: '',
+        act_ref_type: item.value,
+        field_type: '',
+      });
+      setSelectedImagePipe({
+        ...selectedImagePipe,
+        firstItem: '',
+        firstItemLat: '',
+        firstItemLong: '',
+        secondItem: '',
+        secondItemLat: '',
+        secondItemLong: '',
+      });
+      setselectPipeList({
+        ...selectPipeList,
+        label: '',
+        value: '',
+      });
+      if (response.data.data.count > 0) {
+        response.data.data.rows.forEach(element => {
+          const monthNames = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December',
+          ];
+          const cycleDate =
+            cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
+          const sdate = new Date(cycleDate);
+          sdate.setDate(sdate.getDate() + element?.days_from);
+          const smonth = monthNames[sdate.getMonth()];
+          const sday = sdate.getDate();
+          const syear = sdate.getFullYear();
+          const startDate = `${smonth} ${sday}, ${syear}`;
+          const edate = new Date(cycleDate);
+          edate.setDate(edate.getDate() + element?.days_to);
+          const emonth = monthNames[edate.getMonth()];
+          const eday = edate.getDate();
+          const eyear = edate.getFullYear();
+          const endDate = `${emonth} ${eday}, ${eyear}`;
+          const startDateEndDate = `${startDate}-${endDate}`;
+          dataArray.push({
+            start_date: sdate,
+            end_date: edate,
+            value: element.act_rid,
+            label:
+              element?.activity?.categoryName + ' (' + startDateEndDate + ')',
+            act_master_id: element?.act_master_id,
+            field_type: element?.activity?.field_type,
+          });
+        });
+        if (isButtonDisabled) {
+          setActivityInfoAll(dataArray);
+        }
+        setPipeListDetailsResArr([]);
+      } else {
+        setActivityInfoAll([]);
+      }
+    } catch (error) {
+      CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityType');
+    }
+  };
+
   const handleActivityInfo = async item => {
     // console.warn(item);
     const act_to_date1 = item.end_date;
@@ -1551,15 +1556,15 @@ const FarmerActivityReportAWD = ({navigation}) => {
     );
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      setSaveData({plot_id: ''});
-      onBackPress(() => {
-        navigation.navigate('FarmerActivityList');
-        return true;
-      });
-    }, []),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     setSaveData({plot_id: ''});
+  //     onBackPress(() => {
+  //       navigation.navigate('FarmerActivityList');
+  //       return true;
+  //     });
+  //   }, []),
+  // );
 
   useEffect(() => {
     setSoundRecordFirstItem({
@@ -1586,9 +1591,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
     });
     onPageLoad();
   }, [netConnection]);
-  const HandlerGoBack = () => {
-    navigation.navigate('FarmerActivityList');
-  };
+
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
     if (item == 'firstItem') {
@@ -1871,280 +1874,301 @@ const FarmerActivityReportAWD = ({navigation}) => {
     setselectPipeList({...selectPipeList, label, value});
   };
   return (
-    <>
-      <View style={styles.container}>
-        {modalVisibleMap && (
-          <ActivityMap
-            modalVisibleMap={modalVisibleMap}
-            setModalVisibleMap={setModalVisibleMap}
-            plotPolygon={plotPolygon}
-            TakePhoto={TakePhoto}
-            location={location}
-            setOutOfRange={setOutofRange}
-            outofRange={outofRange}
-            pipeLatLong={pipeLatLong}
-          />
-        )}
-        <CustomHeader
-          path="FarmerActivityList"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <DatePickerComp
-          openDate={cycleStartDate}
-          newDate={newFromDate}
-          setOpenDate={srtCycleStartDate}
-          handleDatePicker={handleDatePicker}
-        />
-        <DatePickerComp
-          openDate={activityPreDate}
-          newDate={newFromDate}
-          setOpenDate={setActivityPreDate}
-          handleDatePicker={handleDatePicker2}
-        />
-        {modalVisibleRecordFirstItem ? (
-          <SoundRecord
-            modalVisibleRecord={modalVisibleRecordFirstItem}
-            setModalVisibleRecord={setModalVisibleRecordFirstItem}
-            onStartRecordFirstItem={onStartRecordFirstItem}
-            onStopRecordFirstItem={onStopRecordFirstItem}
-            soundRecord={soundRecordFirstItem}
-          />
-        ) : null}
-        {modalVisibleRecordSecoundItem ? (
-          <SoundRecord
-            modalVisibleRecord={modalVisibleRecordSecoundItem}
-            setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-            onStartRecordFirstItem={onStartRecordSecoundItem}
-            onStopRecordFirstItem={onStopRecordSecoundItem}
-            soundRecord={soundRecordSecoundItem}
-          />
-        ) : null}
-        {modalVisibleRecordThirdItem ? (
-          <SoundRecord
-            modalVisibleRecord={modalVisibleRecordThirdItem}
-            setModalVisibleRecord={setModalVisibleRecordThirdItem}
-            onStartRecordFirstItem={onStartRecordThirdItem}
-            onStopRecordFirstItem={onStopRecordThirdItem}
-            soundRecord={soundRecordThirdItem}
-          />
-        ) : null}
-
-        <View style={styles.titleContainer}>
-          <Text
-            style={[
-              styles.title,
-              {
-                paddingBottom: 8,
-                paddingTop: 4,
-                fontWeight: '700',
-                fontSize: 18,
-              },
-            ]}>
-            {t('report_activity')}
-          </Text>
-        </View>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {isLoading && (
-            <View style={styles.loadingScreen}>
-              <LoadingScreen />
-            </View>
-          )}
-          <View style={styles.fromContainer}>
-            <DropdownForm
-              label={t('plot')}
-              data={plotAll}
-              color="red"
-              onChange={relId => handlePlot(relId)}
-              val={saveData.plot_id}
-            />
-
-            {showingMenu ? (
-              <View style={styles.plotSiteContainer}>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>{t('crop_name')}</Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('crop_veriety')}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('showing_date')}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {t('harvesting_date_auto_calculated')}
-                  </Text>
-                </View>
-                <View style={styles.plotSiteContainerItem}>
-                  <Text style={styles.plotSiteItemText}>
-                    {nameVarityStartEnd.name}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {nameVarityStartEnd.varity}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
-                  </Text>
-                  <Text style={styles.plotSiteItemText}>
-                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
-                  </Text>
-                </View>
-              </View>
-            ) : (
-              ''
-            )}
-
-            <DropdownForm
-              label={t('growth_stage')}
-              color="red"
-              data={productionStageAll}
-              onChange={production_stage =>
-                setSaveData({...saveData, growth_stage: production_stage.value})
-              }
-            />
-
-            <View>
-              <Text style={styles.title}>
-                {t('pick_crop_cycle_start_date')}
-              </Text>
-              <View style={styles.cycleContainer}>
-                <TouchableOpacity
-                  style={styles.cycleContainerDate}
-                  disabled={isButtonDisabled}
-                  onPress={() => srtCycleStartDate(true)}>
-                  <View style={{width: '80%'}}>
-                    <Text style={styles.title}>
-                      {cycleDtartDate == ''
-                        ? saveData.cycle_start_date
-                        : cycleDtartDate}
-                    </Text>
-                  </View>
-                  <Image
-                    source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.cycleContainerStartDate,
-                    {
-                      backgroundColor: isButtonDisabled ? '#EBEBE4' : 'green',
-                    },
-                  ]}
-                  disabled={isButtonDisabled}
-                  onPress={() => setCycleDate()}>
-                  <Text
-                    style={[
-                      styles.title,
-                      {color: isButtonDisabled ? '#000' : '#FFF'},
-                    ]}>
-                    {t('set_the_crop_cycle_start_date')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            {isActiveMenu ? (
-              <>
-                <DropdownForm
-                  label={t('activity_type')}
-                  color="red"
-                  data={activityTypeAll}
-                  onChange={item => handleActivityType(item)}
-                  val={saveData.act_ref_type}
+    <FarmerDrawerScreenWrapper1>
+      <MyErrorBoundary>
+        <Root>
+          <>
+            <View style={styles.container}>
+              {modalVisibleMap && (
+                <ActivityMap
+                  modalVisibleMap={modalVisibleMap}
+                  setModalVisibleMap={setModalVisibleMap}
+                  plotPolygon={plotPolygon}
+                  TakePhoto={TakePhoto}
+                  location={location}
+                  setOutOfRange={setOutofRange}
+                  outofRange={outofRange}
+                  pipeLatLong={pipeLatLong}
                 />
-                <DropdownForm
-                  label={t('select_activity')}
-                  color="red"
-                  data={activityInfoAll}
-                  onChange={item => handleActivityInfo(item)}
-                  val={saveData.act_to_date_label}
+              )}
+              <CustomHeader
+                path="FarmerActivityList"
+                logoImage={logoImage}
+                topBanner={topBanner}
+              />
+              <DatePickerComp
+                openDate={cycleStartDate}
+                newDate={newFromDate}
+                setOpenDate={srtCycleStartDate}
+                handleDatePicker={handleDatePicker}
+              />
+              <DatePickerComp
+                openDate={activityPreDate}
+                newDate={newFromDate}
+                setOpenDate={setActivityPreDate}
+                handleDatePicker={handleDatePicker2}
+              />
+              {modalVisibleRecordFirstItem ? (
+                <SoundRecord
+                  modalVisibleRecord={modalVisibleRecordFirstItem}
+                  setModalVisibleRecord={setModalVisibleRecordFirstItem}
+                  onStartRecordFirstItem={onStartRecordFirstItem}
+                  onStopRecordFirstItem={onStopRecordFirstItem}
+                  soundRecord={soundRecordFirstItem}
                 />
+              ) : null}
+              {modalVisibleRecordSecoundItem ? (
+                <SoundRecord
+                  modalVisibleRecord={modalVisibleRecordSecoundItem}
+                  setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+                  onStartRecordFirstItem={onStartRecordSecoundItem}
+                  onStopRecordFirstItem={onStopRecordSecoundItem}
+                  soundRecord={soundRecordSecoundItem}
+                />
+              ) : null}
+              {modalVisibleRecordThirdItem ? (
+                <SoundRecord
+                  modalVisibleRecord={modalVisibleRecordThirdItem}
+                  setModalVisibleRecord={setModalVisibleRecordThirdItem}
+                  onStartRecordFirstItem={onStartRecordThirdItem}
+                  onStopRecordFirstItem={onStopRecordThirdItem}
+                  soundRecord={soundRecordThirdItem}
+                />
+              ) : null}
 
-                {lastAct ? (
-                  <View style={styles.plotSiteContainer}>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>Last activity</Text>
-                    </View>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>{lastAct}</Text>
-                    </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {isLoading && (
+                  <View style={styles.loadingScreen}>
+                    <LoadingScreen />
                   </View>
-                ) : null}
+                )}
+                <View style={styles.fromContainer}>
+                  <View style={{padding: 20}}>
+                    <DropdownForm
+                      label={t('plot')}
+                      data={plotAll}
+                      required={true}
+                      onChange={relId => handlePlot(relId)}
+                      val={saveData.plot_id}
+                    />
 
-                {upcomingAct ? (
-                  <View style={styles.plotSiteContainer}>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>
-                        Upcoming activity
+                    {showingMenu ? (
+                      <View style={styles.plotSiteContainer}>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.label}>{t('crop_name')}</Text>
+                          <Text style={styles.value}>
+                            {nameVarityStartEnd.name}
+                          </Text>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.label}>{t('crop_veriety')}</Text>
+                          <Text style={styles.value}>
+                            {nameVarityStartEnd.varity}
+                          </Text>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.label}>{t('showing_date')}</Text>
+                          <Text style={styles.value}>
+                            {formatDateToMMDDYYYY(
+                              nameVarityStartEnd.cycleStarts,
+                            )}
+                          </Text>
+                        </View>
+                        <View style={styles.plotSiteContainerItem}>
+                          <Text style={styles.label}>
+                            {t('harvesting_date_auto_calculated')}
+                          </Text>
+                          <Text style={styles.value}>
+                            {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                          </Text>
+                        </View>
+                      </View>
+                    ) : (
+                      ''
+                    )}
+
+                    <DropdownForm
+                      label={t('growth_stage')}
+                      required={true}
+                      data={productionStageAll}
+                      onChange={production_stage =>
+                        setSaveData({
+                          ...saveData,
+                          growth_stage: production_stage.value,
+                        })
+                      }
+                    />
+
+                    <View style={{marginBottom: 15}}>
+                      <Text style={styles.title}>
+                        {t('pick_crop_cycle_start_date')}
                       </Text>
+                      <View style={styles.cycleContainer}>
+                        <TouchableOpacity
+                          style={styles.cycleContainerDate}
+                          disabled={isButtonDisabled}
+                          onPress={() => srtCycleStartDate(true)}>
+                          <View style={{width: '80%'}}>
+                            <Text style={styles.title}>
+                              {cycleDtartDate == ''
+                                ? saveData.cycle_start_date
+                                : cycleDtartDate}
+                            </Text>
+                          </View>
+                          <Image
+                            source={require('../../Common/images/calendar.png')}
+                            style={{width: 20, height: 20}}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.cycleContainerStartDate,
+                            {
+                              backgroundColor: isButtonDisabled
+                                ? '#EBEBE4'
+                                : 'green',
+                            },
+                          ]}
+                          disabled={isButtonDisabled}
+                          onPress={() => setCycleDate()}>
+                          <Text
+                            style={[
+                              styles.titleDate,
+                              {color: isButtonDisabled ? '#000' : '#FFF'},
+                            ]}>
+                            {t('set_the_crop_cycle_start_date')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>
-                        {/* {upcomingAct?.activityName?.categoryName +
+                    {isActiveMenu ? (
+                      <>
+                        <DropdownForm
+                          label={t('activity_type')}
+                          required={true}
+                          data={activityTypeAll}
+                          onChange={item => handleActivityType(item)}
+                          val={saveData.act_ref_type}
+                        />
+                        <DropdownForm
+                          label={t('select_activity')}
+                          required={true}
+                          data={activityInfoAll}
+                          onChange={item => handleActivityInfo(item)}
+                          val={saveData.act_to_date_label}
+                        />
+
+                        {lastAct ? (
+                          <View style={styles.plotSiteContainer}>
+                            <View style={styles.detailRow}>
+                              <Text style={styles.label}>Last activity</Text>
+                              <View style={styles.bulletPointContainer}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={[styles.value1, styles.leftAlign]}>
+                                  {lastAct}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        ) : null}
+
+                        {upcomingAct ? (
+                          <View style={styles.plotSiteContainer}>
+                            <View style={styles.detailRow}>
+                              <Text style={styles.label}>
+                                Upcoming activity
+                              </Text>
+                              <View style={styles.bulletPointContainer}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={[styles.value1, styles.leftAlign]}>
+                                  {/* {upcomingAct?.activityName?.categoryName +
                                             ' (' +
                                             formatDate(upcomingAct?.activity_start_date) +
                                             ' - ' +
                                             formatDate(upcomingAct?.activity_end_date) +
                                             ')'} */}
-                        {upcomingAct}
-                      </Text>
-                    </View>
-                  </View>
-                ) : null}
+                                  {upcomingAct}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        ) : null}
 
-                {overdueAct?.length > 0 ? (
-                  <View style={styles.plotSiteContainer}>
-                    <View style={styles.plotSiteContainerItem}>
-                      <Text style={styles.plotSiteItemText}>
-                        Overdue Activities
-                      </Text>
-                    </View>
-
-                    {/* {overdueAct.map((act, index) => ( */}
-                    <View style={styles.plotSiteContainerItem}>
-                      {overdueAct.map((act, index) => (
-                        <Text key={index} style={styles.plotSiteItemText}>
-                          {/* {act.activityName.categoryName +
+                        {overdueAct?.length > 0 ? (
+                          <View style={styles.plotSiteContainer}>
+                            <View style={styles.detailRow}>
+                              <Text style={styles.label}>
+                                Overdue Activities
+                              </Text>
+                              {overdueAct.map((act, index) => (
+                                <View
+                                  key={index}
+                                  style={styles.bulletPointContainer}>
+                                  <Text style={styles.bulletPoint}>•</Text>
+                                  <Text
+                                    key={index}
+                                    style={[styles.value1, styles.leftAlign]}>
+                                    {/* {act.activityName.categoryName +
                                               ' (' +
                                               formatDate(act.activity_start_date) +
                                               ' - ' +
                                               formatDate(act.activity_end_date) +
                                               ')'} */}
-                          {act}
-                        </Text>
-                      ))}
-                    </View>
-                  </View>
-                ) : null}
-                {saveData.field_type != '' && saveData.field_type != null && (
-                  <>
-                    <Text
-                      style={[
-                        styles.title,
-                        {
-                          marginHorizontal: 5,
-                          marginBottom: 5,
-                          color: 'red',
-                          fontFamily: 'Poppins-Regular',
-                        },
-                      ]}>
-                      {t('Enter Activity Detail')}
-                    </Text>
-                    <View
-                      style={{
-                        backgroundColor: '#FFF',
-                        padding: 10,
-                        borderRadius: 5,
-                        elevation: 1,
-                        marginBottom: 10,
-                        borderColor: '#fcf7f7',
-                        borderWidth: 1.3,
-                        borderRadius: 8,
-                        paddingHorizontal: 8,
-                        backgroundColor: '#ffffff',
-                        width: '100%',
-                        elevation: 1,
-                      }}>
-                      {/* <View style={styles.activityPattern}>
+                                    {act}
+                                  </Text>
+                                </View>
+                              ))}
+                            </View>
+
+                            {/* {overdueAct.map((act, index) => ( */}
+                          </View>
+                        ) : null}
+                        {saveData.field_type != '' &&
+                          saveData.field_type != null && (
+                            <>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  marginTop: 5,
+                                }}>
+                                <Text
+                                  style={{
+                                    fontFamily: 'Poppins-Regular',
+                                    fontSize: 15,
+                                    color: '#4e4e4e',
+                                  }}>
+                                  {t('Enter Activity Detail')}
+                                </Text>
+                                <Text style={styles.requiredStar}> *</Text>
+                              </View>
+                              <View
+                                style={{
+                                  backgroundColor: '#f2faffff',
+                                  width: '100%',
+                                  marginVertical: 8,
+                                  borderRadius: 20,
+                                  borderLeftWidth: 3,
+                                  borderLeftColor: Colors.borderGreen,
+                                  // flexDirection: 'row',
+                                  // alignItems: 'center',
+                                  // marginBottom: 8,
+                                  // paddingHorizontal: 15,
+                                  // marginHorizontal: '1%',
+                                  marginBottom: 15,
+                                  shadowColor: '#000',
+                                  shadowOffset: {width: 0, height: 4},
+                                  shadowOpacity: 0.1,
+                                  shadowRadius: 8,
+                                  // elevation: 4,
+                                  borderRightWidth: 1,
+                                  borderTopWidth: 1,
+                                  borderBottomWidth: 1,
+                                  borderRightColor: Colors.border,
+                                  borderTopColor: Colors.border,
+                                  borderBottomColor: Colors.border,
+                                }}>
+                                {/* <View style={styles.activityPattern}>
                       <RadioForm
                         label={t('Add Instrument ID')}
                         selected={pipeType === 'addPipe'}
@@ -2156,140 +2180,161 @@ const FarmerActivityReportAWD = ({navigation}) => {
                         onSelect={() => handleActivityPipeType('UpdatePipe')}
                       />
                     </View> */}
-                      {saveData.field_type == 'add' ? (
-                        <InputTextForm
-                          label={t('Enter Instrument Name')}
-                          color="red"
-                          value={pipeNumber}
-                          onChangeText={text => handleActivityPipeNumber(text)}
-                        />
-                      ) : (
-                        <DropdownForm
-                          label={t('Instrument')}
-                          color="red"
-                          data={PipeListDetailsArr}
-                          onChange={item => handleActivityPipe(item)}
-                          val={selectPipeList.label}
-                        />
-                      )}
-                      <TakePhotoPipe
-                        openImagePicker={openImagePickerPipe}
-                        selectedImage={selectedImagePipe}
-                        title={t('Take a photo')}
-                        color="red"
-                      />
-                      {saveData.field_type == 'add' && (
-                        <TouchableOpacity
-                          style={{
-                            alignSelf: 'flex-end',
-                            paddingVertical: 10,
-                            paddingHorizontal: 20,
-                            backgroundColor: 'green',
-                            borderRadius: 50,
-                          }}
-                          onPress={() => addMorePipe()}>
-                          <Text style={{color: '#FFF'}}>
-                            Save and Add Instrument
-                          </Text>
-                        </TouchableOpacity>
-                      )}
-                      <View style={{marginTop: 10}}>
-                        {pipeDetails.map((_data, _index) => (
-                          <TouchableOpacity
-                            style={{
-                              backgroundColor: '#fff',
-                              padding: 20,
-                              margin: 10,
-                              borderRadius: 5,
-                              elevation: 2, // <-- Only works on Android
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                            }}
-                            key={_index}>
-                            <>
-                              <Text
-                                style={{
-                                  color: '#000',
-                                  fontSize: 12,
-                                  paddingHorizontal: 10,
-                                }}>
-                                {_data.pipe_name}
-                              </Text>
+                                <View
+                                  style={{
+                                    paddingHorizontal: 10,
+                                    marginTop: 10,
+                                  }}>
+                                  {saveData.field_type == 'add' ? (
+                                    <InputTextForm
+                                      label={t('Enter Instrument Name')}
+                                      required={true}
+                                      value={pipeNumber}
+                                      onChangeText={text =>
+                                        handleActivityPipeNumber(text)
+                                      }
+                                    />
+                                  ) : (
+                                    <DropdownForm
+                                      label={t('Instrument')}
+                                      required={true}
+                                      data={PipeListDetailsArr}
+                                      onChange={item =>
+                                        handleActivityPipe(item)
+                                      }
+                                      val={selectPipeList.label}
+                                    />
+                                  )}
+                                  <TakePhotoPipe
+                                    openImagePicker={openImagePickerPipe}
+                                    selectedImage={selectedImagePipe}
+                                    title={t('Take a photo')}
+                                    required={true}
+                                  />
+                                  {saveData.field_type == 'add' && (
+                                    <TouchableOpacity
+                                      style={{
+                                        alignSelf: 'flex-end',
+                                        paddingVertical: 10,
+                                        paddingHorizontal: 20,
+                                        backgroundColor: 'green',
+                                        borderRadius: 50,
+                                      }}
+                                      onPress={() => addMorePipe()}>
+                                      <Text style={{color: '#FFF'}}>
+                                        Save and Add Instrument
+                                      </Text>
+                                    </TouchableOpacity>
+                                  )}
+                                  <View style={{marginTop: 10}}>
+                                    {pipeDetails.map((_data, _index) => (
+                                      <TouchableOpacity
+                                        style={{
+                                          backgroundColor: '#fff',
+                                          padding: 20,
+                                          margin: 10,
+                                          borderRadius: 5,
+                                          elevation: 2, // <-- Only works on Android
+                                          flexDirection: 'row',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center',
+                                        }}
+                                        key={_index}>
+                                        <>
+                                          <Text
+                                            style={{
+                                              color: '#000',
+                                              fontSize: 12,
+                                              paddingHorizontal: 10,
+                                            }}>
+                                            {_data.pipe_name}
+                                          </Text>
+                                        </>
+                                        <TouchableOpacity
+                                          onPress={() =>
+                                            handleRemovedpipeDetails(_index)
+                                          }>
+                                          <Image
+                                            source={require('../../Common/images/cross.png')}
+                                            style={{width: 20, height: 20}}
+                                          />
+                                        </TouchableOpacity>
+                                      </TouchableOpacity>
+                                    ))}
+                                  </View>
+                                </View>
+                              </View>
                             </>
-                            <TouchableOpacity
-                              onPress={() => handleRemovedpipeDetails(_index)}>
-                              <Image
-                                source={require('../../Common/images/cross.png')}
-                                style={{width: 20, height: 20}}
-                              />
-                            </TouchableOpacity>
-                          </TouchableOpacity>
-                        ))}
+                          )}
+                      </>
+                    ) : (
+                      ''
+                    )}
+
+                    <View style={{marginBottom: 15, marginTop: 10}}>
+                      <View
+                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text
+                          style={{
+                            fontFamily: 'Poppins-Regular',
+                            fontSize: 15,
+                            color: '#4e4e4e',
+                          }}>
+                          {t('pick_activity_perform_date')}
+                        </Text>
+                        <Text style={styles.requiredStar}> *</Text>
                       </View>
+                      <TouchableOpacity
+                        style={styles.activityPerFromDate}
+                        onPress={() => setActivityPreDate(true)}>
+                        <Text style={styles.title}>{activityPreFormDate}</Text>
+                        <Image
+                          source={require('../../Common/images/calendar.png')}
+                          style={{width: 20, height: 20}}
+                        />
+                      </TouchableOpacity>
                     </View>
-                  </>
-                )}
-              </>
-            ) : (
-              ''
-            )}
 
-            <View>
-              <Text style={{color: 'red'}}>
-                {t('pick_activity_perform_date')}
-              </Text>
-              <TouchableOpacity
-                style={styles.activityPerFromDate}
-                onPress={() => setActivityPreDate(true)}>
-                <Text style={styles.title}>{activityPreFormDate}</Text>
-                <Image
-                  source={require('../../Common/images/calendar.png')}
-                  style={{width: 20, height: 20}}
-                />
-              </TouchableOpacity>
-            </View>
+                    <InputTextForm
+                      label={t('your_comm_')}
+                      value={saveData.act_desc}
+                      onChangeText={act_desc =>
+                        setSaveData({...saveData, act_desc: act_desc})
+                      }
+                    />
 
-            <InputTextForm
-              label={t('your_comm_')}
-              value={saveData.act_desc}
-              onChangeText={act_desc =>
-                setSaveData({...saveData, act_desc: act_desc})
-              }
-            />
+                    <InputTextForm
+                      label={t('material_used')}
+                      value={saveData.material_used}
+                      onChangeText={material_used =>
+                        setSaveData({...saveData, material_used: material_used})
+                      }
+                    />
 
-            <InputTextForm
-              label={t('material_used')}
-              value={saveData.material_used}
-              onChangeText={material_used =>
-                setSaveData({...saveData, material_used: material_used})
-              }
-            />
+                    <InputTextForm
+                      label={t('water_used')}
+                      value={saveData.water_used}
+                      onChangeText={water_used =>
+                        setSaveData({...saveData, water_used: water_used})
+                      }
+                    />
 
-            <InputTextForm
-              label={t('water_used')}
-              value={saveData.water_used}
-              onChangeText={water_used =>
-                setSaveData({...saveData, water_used: water_used})
-              }
-            />
+                    <InputTextForm
+                      label={t('power_used')}
+                      value={saveData.power_used}
+                      onChangeText={power_used =>
+                        setSaveData({...saveData, power_used: power_used})
+                      }
+                    />
 
-            <InputTextForm
-              label={t('power_used')}
-              value={saveData.power_used}
-              onChangeText={power_used =>
-                setSaveData({...saveData, power_used: power_used})
-              }
-            />
-
-            {/* <TakePhoto
+                    {/* <TakePhoto
               openImagePicker={openImagePicker}
               selectedImage={selectedImage}
               title={t('take_a_photo_optional')}
             /> */}
 
-            {/* <RecordComp selectedRecord={selectedRecord} onPress={handleRecord} /> */}
-            {/* <RecordComp
+                    {/* <RecordComp selectedRecord={selectedRecord} onPress={handleRecord} /> */}
+                    {/* <RecordComp
               selectedRecord={selectedRecord}
               title={t('record_your_comment_optional')}
               // onPress={handleRecord}
@@ -2304,21 +2349,25 @@ const FarmerActivityReportAWD = ({navigation}) => {
               cancelRecord={cancelRecord}
               soundPlay={soundPlay}
             /> */}
-          </View>
-        </ScrollView>
-        {modalVisible && (
-          <HarvestedModel
-            setModalVisible={setModalVisible}
-            modalVisible={modalVisible}
-            handleHarvested={handleHarvested}
-          />
-        )}
-        <View style={{marginTop: 10}}>
-          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
-        </View>
-        <Root></Root>
-      </View>
-    </>
+                  </View>
+                </View>
+              </ScrollView>
+              {modalVisible && (
+                <HarvestedModel
+                  setModalVisible={setModalVisible}
+                  modalVisible={modalVisible}
+                  handleHarvested={handleHarvested}
+                />
+              )}
+              <View style={{marginTop: 10}}>
+                <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+              </View>
+              <Root></Root>
+            </View>
+          </>
+        </Root>
+      </MyErrorBoundary>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -2327,6 +2376,7 @@ export default FarmerActivityReportAWD;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background_light,
   },
   titleContainer: {
     width: '95%',
@@ -2334,12 +2384,24 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   title: {
-    color: '#000',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
+    color: '#4e4e4e',
+  },
+  titleDate: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    color: '#d9d9d9ff',
   },
   fromContainer: {
-    width: '90%',
-    marginHorizontal: '5%',
-    marginBottom: 50,
+    flex: 1,
+    backgroundColor: 'white',
+    // padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginVertical: 20,
+    marginHorizontal: 16,
   },
   activityPattern: {
     marginVertical: 10,
@@ -2354,33 +2416,43 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     color: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cycleContainerStartDateDesible: {
     backgroundColor: 'green',
     padding: 10,
     borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cycleContainerDate: {
-    width: '55%',
+    width: '50%',
     // flexDirection: 'row-reverse',
     flexDirection: 'row',
-    backgroundColor: '#FFF',
-    padding: 10,
-    borderRadius: 8,
+    height: 48,
     borderWidth: 0.5,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   activityPerFromDate: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15,
-    borderRadius: 8,
-    height: 40,
-    borderColor: 'gray',
+    height: 48,
     borderWidth: 0.5,
-    backgroundColor: 'white',
-    width: '100%',
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 10,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
   },
   flatlistcontainer: {
     marginVertical: 10,
@@ -2397,35 +2469,63 @@ const styles = StyleSheet.create({
   },
 
   flatContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'white',
     position: 'absolute',
     zIndex: 999,
-    bottom: '100%',
+    // bottom: '100%',
+    top: 90,
     left: 0,
-    marginHorizontal: '5%',
-    width: '90%',
+    marginHorizontal: '10%',
+    width: '80%',
     elevation: 10,
     borderRadius: 10,
     padding: 10,
   },
   flatlisttitle: {
-    padding: 10,
+    padding: 5,
     color: '#000',
   },
   flatlistHeight: {
-    height: Dimensions.get('window').height / 2.5,
+    height: Dimensions.get('window').height / 4,
   },
   plotSiteContainer: {
-    flexDirection: 'row',
-    borderWidth: 0.5,
-    borderColor: '#000',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    backgroundColor: '#FFF',
-    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f2faffff',
+
+    marginVertical: 8,
+    borderRadius: 20,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.borderGreen,
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    // paddingHorizontal: 15,
+    // marginHorizontal: '1%',
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
   },
   plotSiteContainerItem: {
-    width: '50%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+    // paddingHorizontal: 5,
+    paddingHorizontal: 10,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 5,
   },
   plotSiteItemText: {
     color: '#000',
@@ -2436,5 +2536,81 @@ const styles = StyleSheet.create({
     top: 100,
     zIndex: 999,
     left: '45%',
+  },
+  clickAddMorePlots: {
+    backgroundColor: '#045004',
+    marginHorizontal: 35,
+    paddingVertical: 15,
+    marginVertical: 20,
+    borderRadius: 20,
+  },
+  clickAddMorePlotsTitle: {
+    textAlign: 'center',
+    color: '#FFF',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+  },
+  requiredStar: {
+    color: 'red',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 16,
+  },
+  label: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    // flex: 1,
+    marginBottom: 5,
+  },
+
+  value: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+  },
+  value1: {
+    fontSize: 13,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    // flex: 1,
+    // textAlign: 'right',
+    marginBottom: 10,
+    paddingHorizontal: 2,
+    textAlign: 'left',
+  },
+  detailRow: {
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    marginBottom: 5,
+    // paddingHorizontal: 5,
+    // paddingHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'red',
+    width: '100%',
+    marginTop: 10,
+  },
+  leftAlign: {
+    textAlign: 'left',
+    alignSelf: 'flex-start', // Ensures text starts from left
+    width: '100%', // Takes full width of container
+    paddingLeft: 10, // Add some left padding if needed
+    flex: 1,
+  },
+  bulletPointContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 5,
+    width: '100%',
+    paddingLeft: 5,
+  },
+
+  bulletPoint: {
+    fontSize: 15,
+    color: 'black',
+    // marginRight: 1,
+    lineHeight: 20, // Adjust to match your text line height
   },
 });

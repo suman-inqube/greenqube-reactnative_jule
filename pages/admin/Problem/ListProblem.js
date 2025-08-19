@@ -149,16 +149,7 @@ const ListProblem = ({navigation}) => {
     setProblemAll(problemAllRaw);
     setSearchResultsList(false);
   };
-  const HandlerGoBack = () => {
-    setToDate('');
-    setfromDate('');
-    setFilterItem('');
-    setSearchFarmerPhone('');
-    setSearchFarmerName('');
-    setFilterOption(false);
-    setSearchResultsList(false);
-    navigation.navigate('Dashboard');
-  };
+
   useEffect(() => {
     handleProblem(page);
   }, [page]);

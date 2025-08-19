@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useState, useMemo,useContext} from 'react';
+import React, {memo, useCallback, useState, useMemo, useContext} from 'react';
 import {
   Alert,
   ScrollView,
@@ -12,7 +12,7 @@ import {StackActions, useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors, Fonts} from '../utils/Constants';
-import { userCreateContext } from '../Context/usersCreateContext';
+import {userCreateContext} from '../Context/usersCreateContext';
 // Constants for better performance and maintainability
 const MENU_TYPES = {
   PROFILE: 'profile',
@@ -34,31 +34,33 @@ const STORAGE_KEYS = [
 ];
 
 // Extracted menu item component for better performance
-const MenuItem = memo(({
-  iconName,
-  title,
-  onPress,
-  isExpandable = false,
-  isExpanded = false,
-  expandIconMarginRight = 130,
-}) => (
-  <TouchableOpacity style={styles.memuContainer} onPress={onPress}>
-    <View style={isExpandable ? styles.menuItem : styles.menuItemCal}>
-      <View style={styles.iconView}>
-        <MaterialIcons name={iconName} size={22} color="#030730" />
+const MenuItem = memo(
+  ({
+    iconName,
+    title,
+    onPress,
+    isExpandable = false,
+    isExpanded = false,
+    expandIconMarginRight = 130,
+  }) => (
+    <TouchableOpacity style={styles.memuContainer} onPress={onPress}>
+      <View style={isExpandable ? styles.menuItem : styles.menuItemCal}>
+        <View style={styles.iconView}>
+          <MaterialIcons name={iconName} size={22} color="#030730" />
+        </View>
+        <Text style={styles.menuText}>{title}</Text>
+        {isExpandable && (
+          <MaterialIcons
+            name={isExpanded ? 'expand-less' : 'expand-more'}
+            size={22}
+            color="#d5dbd7"
+            style={{marginRight: expandIconMarginRight}}
+          />
+        )}
       </View>
-      <Text style={styles.menuText}>{title}</Text>
-      {isExpandable && (
-        <MaterialIcons
-          name={isExpanded ? 'expand-less' : 'expand-more'}
-          size={22}
-          color="#d5dbd7"
-          style={{marginRight: expandIconMarginRight}}
-        />
-      )}
-    </View>
-  </TouchableOpacity>
-));
+    </TouchableOpacity>
+  ),
+);
 
 // Extracted submenu item component
 const SubMenuItem = memo(({iconName, title, onPress}) => (
@@ -79,8 +81,9 @@ const CustomDrawer = memo(({state}) => {
   const navigation = useNavigation();
 
   // Memoize active route name calculation
-  const activeRouteName = useMemo(() => 
-    state?.routes[state.index]?.name, [state]
+  const activeRouteName = useMemo(
+    () => state?.routes[state.index]?.name,
+    [state],
   );
 
   // Consolidated expanded state
@@ -110,6 +113,7 @@ const CustomDrawer = memo(({state}) => {
   }, [t]);
 
   const removeData = useCallback(async () => {
+    console.log('offLine');
     if (!netConnection) {
       Alert.alert('You are offline hence cannot proceed');
       return;
@@ -118,7 +122,7 @@ const CustomDrawer = memo(({state}) => {
     try {
       // Use Promise.all for better performance
       await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
-      
+
       const popAction = StackActions.pop(1);
       navigation.dispatch(popAction);
       navigation.navigate('Login');
@@ -128,131 +132,138 @@ const CustomDrawer = memo(({state}) => {
     }
   }, [netConnection, navigation]);
 
-  const navigateToPages = useCallback((pageName) => {
-    if (netConnection) {
-      navigation.navigate(pageName);
-    }
-  }, [netConnection, navigation]);
+  const navigateToPages = useCallback(
+    pageName => {
+      if (netConnection) {
+        navigation.navigate(pageName);
+      }
+    },
+    [netConnection, navigation],
+  );
 
-  const handleMenuExpand = useCallback((menuName) => {
+  const handleMenuExpand = useCallback(menuName => {
     setExpandedMenus(prev => ({
       profile: menuName === MENU_TYPES.PROFILE ? !prev.profile : false,
       business: menuName === MENU_TYPES.BUSINESS ? !prev.business : false,
-      farmAccount: menuName === MENU_TYPES.FARM_ACCOUNT ? !prev.farmAccount : false,
+      farmAccount:
+        menuName === MENU_TYPES.FARM_ACCOUNT ? !prev.farmAccount : false,
     }));
   }, []);
 
   // Memoized menu data
-  const menuConfig = useMemo(() => [
-    {
-      id: 'home',
-      iconName: 'home',
-      title: t('Home'),
-      onPress: () => navigateToPages('Dashboard'),
-    },
-    {
-      id: 'profile',
-      iconName: 'person',
-      title: t('profile'),
-      isExpandable: true,
-      isExpanded: expandedMenus.profile,
-      onPress: () => handleMenuExpand(MENU_TYPES.PROFILE),
-      expandIconMarginRight: 130,
-      subItems: [
-        {
-          iconName: 'supervisor-account',
-          title: t('profile'),
-          onPress: () => navigateToPages('Profile'),
-        },
-        {
-          iconName: 'lock-reset',
-          title: t('change_password'),
-          onPress: () => navigateToPages('ChangePassword'),
-        },
-      ],
-    },
-    {
-      id: 'business',
-      iconName: 'business',
-      title: t('traceability'),
-      isExpandable: true,
-      isExpanded: expandedMenus.business,
-      onPress: () => handleMenuExpand(MENU_TYPES.BUSINESS),
-      expandIconMarginRight: 100,
-      subItems: [
-        {
-          iconName: 'business-center',
-          title: t('traceability'),
-          onPress: () => navigateToPages('Business'),
-        },
-        {
-          iconName: 'receipt',
-          title: t('daily_sales_report'),
-          onPress: () => navigateToPages('DailySalesReport'),
-        },
-      ],
-    },
-    {
-      id: 'farmAccount',
-      iconName: 'account-balance',
-      title: t('farm_income_amp_expense'),
-      isExpandable: true,
-      isExpanded: expandedMenus.farmAccount,
-      onPress: () => handleMenuExpand(MENU_TYPES.FARM_ACCOUNT),
-      expandIconMarginRight: 50,
-      subItems: [
-        {
-          iconName: 'currency-rupee',
-          title: t('farm_income_amp_expense'),
-          onPress: () => navigateToPages('FarmIncomeExpenseList'),
-        },
-        {
-          iconName: 'real-estate-agent',
-          title: t('L_view_loan_nrequested'),
-          onPress: () => navigateToPages('LoanViewPastRequested'),
-        },
-        {
-          iconName: 'assignment-add',
-          title: t('loan_request_n'),
-          onPress: () => navigateToPages('LoanRequest'),
-        },
-        {
-          iconName: 'security',
-          title: t('Insu_enquiry_detail'),
-          onPress: () => navigateToPages('InsuranceViewPastRequested'),
-        },
-        {
-          iconName: 'maps-ugc',
-          title: t('request_for_ninsurance'),
-          onPress: () => navigateToPages('RequestForInsurance'),
-        },
-      ],
-    },
-    {
-      id: 'training',
-      iconName: 'school',
-      title: t('training_support'),
-      onPress: () => navigateToPages('TraingList'),
-    },
-    {
-      id: 'instrument',
-      iconName: 'local-activity',
-      title: t('instrument_Wise_Activity_View'),
-      onPress: () => navigateToPages('InstrumentWiseActivityView'),
-    },
-    {
-      id: 'logout',
-      iconName: 'logout',
-      title: t('sign_out'),
-      onPress: handleLogout,
-    },
-  ], [t, expandedMenus, handleMenuExpand, navigateToPages, handleLogout]);
+  const menuConfig = useMemo(
+    () => [
+      {
+        id: 'home',
+        iconName: 'home',
+        title: t('Home'),
+        onPress: () => navigateToPages('Dashboard'),
+      },
+      {
+        id: 'profile',
+        iconName: 'person',
+        title: t('profile'),
+        isExpandable: true,
+        isExpanded: expandedMenus.profile,
+        onPress: () => handleMenuExpand(MENU_TYPES.PROFILE),
+        expandIconMarginRight: 130,
+        subItems: [
+          {
+            iconName: 'supervisor-account',
+            title: t('profile'),
+            onPress: () => navigateToPages('Profile'),
+          },
+          {
+            iconName: 'lock-reset',
+            title: t('change_password'),
+            onPress: () => navigateToPages('ChangePassword'),
+          },
+        ],
+      },
+      {
+        id: 'business',
+        iconName: 'business',
+        title: t('traceability'),
+        isExpandable: true,
+        isExpanded: expandedMenus.business,
+        onPress: () => handleMenuExpand(MENU_TYPES.BUSINESS),
+        expandIconMarginRight: 100,
+        subItems: [
+          {
+            iconName: 'business-center',
+            title: t('traceability'),
+            onPress: () => navigateToPages('Business'),
+          },
+          {
+            iconName: 'receipt',
+            title: t('daily_sales_report'),
+            onPress: () => navigateToPages('DailySalesReport'),
+          },
+        ],
+      },
+      {
+        id: 'farmAccount',
+        iconName: 'account-balance',
+        title: t('farm_income_amp_expense'),
+        isExpandable: true,
+        isExpanded: expandedMenus.farmAccount,
+        onPress: () => handleMenuExpand(MENU_TYPES.FARM_ACCOUNT),
+        expandIconMarginRight: 50,
+        subItems: [
+          {
+            iconName: 'currency-rupee',
+            title: t('farm_income_amp_expense'),
+            onPress: () => navigateToPages('FarmIncomeExpenseList'),
+          },
+          {
+            iconName: 'real-estate-agent',
+            title: t('L_view_loan_nrequested'),
+            onPress: () => navigateToPages('LoanViewPastRequested'),
+          },
+          {
+            iconName: 'assignment-add',
+            title: t('loan_request_n'),
+            onPress: () => navigateToPages('LoanRequest'),
+          },
+          {
+            iconName: 'security',
+            title: t('Insu_enquiry_detail'),
+            onPress: () => navigateToPages('InsuranceViewPastRequested'),
+          },
+          {
+            iconName: 'maps-ugc',
+            title: t('request_for_ninsurance'),
+            onPress: () => navigateToPages('RequestForInsurance'),
+          },
+        ],
+      },
+      {
+        id: 'training',
+        iconName: 'school',
+        title: t('training_support'),
+        onPress: () => navigateToPages('TraingList'),
+      },
+      {
+        id: 'instrument',
+        iconName: 'local-activity',
+        title: t('instrument_Wise_Activity_View'),
+        onPress: () => navigateToPages('InstrumentWiseActivityView'),
+      },
+      {
+        id: 'logout',
+        iconName: 'logout',
+        title: t('sign_out'),
+        onPress: handleLogout,
+      },
+    ],
+    [t, expandedMenus, handleMenuExpand, navigateToPages, handleLogout],
+  );
 
   return (
     <View style={styles.mainView}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>
-          {menuConfig.map((menu) => (
+          {menuConfig.map(menu => (
             <View key={menu.id}>
               <MenuItem
                 iconName={menu.iconName}
@@ -262,7 +273,7 @@ const CustomDrawer = memo(({state}) => {
                 isExpanded={menu.isExpanded}
                 expandIconMarginRight={menu.expandIconMarginRight}
               />
-              
+
               {menu.isExpanded && menu.subItems && (
                 <View style={styles.subMenuContainer}>
                   {menu.subItems.map((subItem, index) => (
