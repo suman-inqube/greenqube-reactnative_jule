@@ -1,39 +1,24 @@
 import React, { useEffect, useState, useContext, useRef, useMemo, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Linking,
-  StatusBar,
   Alert,
   BackHandler,
-  ScrollView,
   FlatList,
-  Dimensions, InteractionManager, SafeAreaView, Animated, RefreshControl
+  InteractionManager, SafeAreaView, Animated, RefreshControl
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { BoxDisplay, BoxDisplayDeactive } from './dashboardComp';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
-import ForegroundHandler from '../PushNotification/ForegroundHandler';
-import { useIsFocused } from '@react-navigation/native';
-import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
-import BackGroundLocation from '../BackgroundService/BackGroundLocation';
 import { userCreateContext } from '../Context/usersCreateContext';
 import { addModuleForView } from '../../config/apiHere';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import { ImageBackground } from 'react-native';
-import moment from 'moment';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import CustomHeaderCopy from './CustomHeaderCopy';
-import { farmerActivityListAPI } from '../../config/apiHere';
-import { farmerUsefulInfoListAPI, cropListApi } from '../../config/apiHere';
 import { Colors, Fonts } from '../utils/Constants';
-import { Marquee } from '@animatereactnative/marquee';
 import { axiosGet } from '../utils/api';
 import { ROUTES } from '../utils/Routes';
-import TrackingInformationTabs from './TrackingInformationTabs';
 import CarouselSlider from '../Components/CarouselSlider';
 import { getDashboardFarmerItems } from '../utils/dashboardItems';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
@@ -43,19 +28,15 @@ import TrackingInfromation from '../Components/TrackingInfromation';
 // import DeviceInfo from 'react-native-device-info';
 const HEADER_HEIGHT = 60;
 const FarmerDashboard = ({ navigation }) => {
-  const screenWidth = Dimensions.get('window').width;
-
   //GQR-65
   const {
     getItem,
     t,
     CustomHeader,
     DeviceInfo,
-    onBackPress,
     logoImage,
     topBanner,
     loginUser_data,
-    dbLanTokUsr,
     setItem,
   } = useContext(userCreateContext) || {};
   const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data || {};
@@ -189,7 +170,7 @@ const FarmerDashboard = ({ navigation }) => {
         userNameData,
         profileImgData,
         bottomBannerData,
-        // loginUser_data,
+        loginUser_data,
         company_website,
         logoImageData,
         topBannerData,
@@ -198,7 +179,7 @@ const FarmerDashboard = ({ navigation }) => {
         getItem('profileImgData'),
         getItem('bottomBannerData'),
         // getItem('topBannerData'),
-        // getItem('loginUser_data'),
+        getItem('loginUser_data'),
         getItem('company_website'),
 
         getItem('logoImageData'),
@@ -210,61 +191,60 @@ const FarmerDashboard = ({ navigation }) => {
       ]);
 
       const { dbname, lan_id, token, agri_user_addresses, user_id } = loginUser_data || {};
-      if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
-        const [LIST_USER_ACTIVITY,
-          FARMER_USEFULL_INFO_LIST,] = await Promise.all([
-            axiosGet(
-              ROUTES.GET.LIST_USER_ACTIVITY({
-                pageNO: 1,
-                carbonType: '',
-                userID: '',
-                searchItem: '',
-                from_date: '',
-                to_date: '',
-              }),
-              token,
-              { information: `${dbname},${lan_id},${user_id}` },
-            ),
-            axiosGet(
-              ROUTES.GET.FARMER_USEFULL_INFO_LIST({
-                userId: user_id,
-                userType: 'farmer',
-                post: 'general_info',
-                state_id: agri_user_addresses[0].agri_state.fid,
-                district_id:
-                  agri_user_addresses[0].agri_district.fid,
-                subdiv_id:
-                  agri_user_addresses[0].agri_subdivision.fid,
-                newCropId: "",
-              }),
-              '',
-              { information: `${dbname},${lan_id}` },
-            ),
-          ])
-        const logoImgToSet = logoImage || logoImageData || null;
-        const topBannerToSet = topBanner || topBannerData || null;
-        setUiState(prev => ({
-          ...prev,
-          bottomBanner: bottomBannerData,
-          userName: userNameData,
-          profileImg: profileImgData,
-          company_website: company_website || prev.company_website,
-          logoImg: logoImgToSet,
-          topBannerImg: topBannerToSet
-        }));
-        let latestActivities = [];
-        let usefulInfoList = [];
-        if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-          usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
-        }
-        if (LIST_USER_ACTIVITY?.status === 200) {
-          latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
-        }
-        setDataState({
-          latestActivities,
-          usefulInfoList,
-        });
+      const [LIST_USER_ACTIVITY,
+        FARMER_USEFULL_INFO_LIST,] = await Promise.all([
+          axiosGet(
+            ROUTES.GET.LIST_USER_ACTIVITY({
+              pageNO: 1,
+              carbonType: '',
+              userID: '',
+              searchItem: '',
+              from_date: '',
+              to_date: '',
+            }),
+            token,
+            { information: `${dbname},${lan_id},${user_id}` },
+          ),
+          axiosGet(
+            ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+              userId: user_id,
+              userType: 'farmer',
+              post: 'general_info',
+              state_id: agri_user_addresses[0].agri_state.fid,
+              district_id:
+                agri_user_addresses[0].agri_district.fid,
+              subdiv_id:
+                agri_user_addresses[0].agri_subdivision.fid,
+              newCropId: "",
+            }),
+            '',
+            { information: `${dbname},${lan_id}` },
+          ),
+        ])
+      const logoImgToSet = logoImage || logoImageData || null;
+      const topBannerToSet = topBanner || topBannerData || null;
+      setUiState(prev => ({
+        ...prev,
+        bottomBanner: bottomBannerData,
+        userName: userNameData,
+        profileImg: profileImgData,
+        company_website: company_website || prev.company_website,
+        logoImg: logoImgToSet,
+        topBannerImg: topBannerToSet
+      }));
+      let latestActivities = [];
+      let usefulInfoList = [];
+      if (FARMER_USEFULL_INFO_LIST?.status === 200) {
+        usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
+      if (LIST_USER_ACTIVITY?.status === 200) {
+        latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
+      }
+      setDataState({
+        latestActivities,
+        usefulInfoList,
+      });
+
     } catch (error) {
       console.error("aaaa", error)
     }
