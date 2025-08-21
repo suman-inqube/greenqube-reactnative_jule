@@ -15,8 +15,11 @@ import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import { useRoute, useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors } from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
+import { SPSheet } from 'react-native-popup-confirm-toast';
+import AudioPlayerView from '../../Common/AudioPlayerView';
 const audioRecorderPlayer = new AudioRecorderPlayer();
+import DatePickerField from '../../Common/DatePickerField';
 const CrateProblemUser = ({ navigation }) => {
     //GQR-66
     const { DropdownForm, InputTextForm, FormsTitle, DatePickerComp, loginUser_data, LoadingScreen, CustomHeader, t, AlertMesg, onBackPress, getItem,
@@ -128,6 +131,7 @@ const CrateProblemUser = ({ navigation }) => {
         }
     }
     const handlePlot = async (relId) => {
+        setIsLoading(true)
         const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
         if (response) {
             setNameVarityStartEnd({
@@ -179,6 +183,7 @@ const CrateProblemUser = ({ navigation }) => {
                 }, 1300);
             }
         }
+        setIsLoading(false)
     }
     const openImagePicker = (item) => {
         const options = {
@@ -229,14 +234,8 @@ const CrateProblemUser = ({ navigation }) => {
                     ...selectedImage, [item]: `file://${path}`
                 });
                 const newPhoto = { uri: `file://${path}`, type: 'image/jpeg', name: `file://${path}` }
-                // const newTitle = {}
                 addPhoto(newPhoto);
-
-                // let imageUri = response.uri || response.assets?.[0]?.uri;
-                // setSelectedImage({ ...selectedImage, [item]: imageUri });
-                // const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri }
                 const newTitle = {}
-                // addPhoto(newPhoto);
                 addTitle(newTitle)
 
             }
@@ -257,6 +256,7 @@ const CrateProblemUser = ({ navigation }) => {
         setSaveData({ ...saveData, affected_date: effective_date })
     }
     const handleProblemType = (problem_type) => {
+        setIsLoading(true)
         setSaveData({
             ...saveData,
             problem_type_id: problem_type.value,
@@ -277,13 +277,16 @@ const CrateProblemUser = ({ navigation }) => {
             });
             setProblemNameAll(dataArray)
         }
+        setIsLoading(false)
     };
     const handleProblemName = (problem_name) => {
+        setIsLoading(true)
         setSaveData({
             ...saveData,
             problem_name_id: problem_name.value,
             question_title: nameVarityStartEnd.name + "," + nameVarityStartEnd.question_title1 + "," + problem_name.label
-        })
+        });
+        setIsLoading(false)
     };
     const handleSearch = (text) => {
         setSearchFarmerName(text);
@@ -317,66 +320,31 @@ const CrateProblemUser = ({ navigation }) => {
             console.warn(err);
         }
     };
-    function handleClear() {
-        setSaveData({
-            ...saveData,
-            agent_fcm: "",
-            farmer_fcm: "eJ_QQHq1Qq-337QqKYbK4A:APA91bFCGrfq6XPr7dc7UyWMFoPdaY9fGryYS6JSByN5QPY7WlLOIXtmWU1-Z16RfuDhqf7InNwiHIhJh1_W6J-MYl97s7FA-xodzjza5J_DKKoVodUJfiqLyZIy56Tvicr0vsIbDGAj ",
-            latitude: "",
-            longitude: "",
-            question_type: "crop_problem",
-            land_unit_id: "",
-            affected_area: "",
-            category_id: "",
-            affected_date: "",
-            question_title: "",
-            question_desc: "",
-            production_process: "",
-            severity_id: "",
-        })
-        setaffectedDate("");
-        setShowingMenu(false)
-        setproductionStageAll([]);
-        setProblemAll([]);
-        setProblemTypeAll([]);
-        setProblemNameAll([]);
-        setSeverityAll([]);
-        setSelectedImage({
-            firstItem: "",
-            secondItem: "",
-            thirdItem: "",
-        });
-        setNameVarityStartEnd({
-            ...nameVarityStartEnd,
-            name: "",
-            varity: "",
-            cycleStarts: "",
-            cycleEnd: "",
-            production_process: "",
-        })
-    }
     const onPageLoad = async () => {
-        handleClear();
-        requestLivePermission();
-        const [problemName_res, response, severity_res] = await Promise.all([
-            problemTypeNameAPI(dbname, lan_id, token),
-            farmerByNameAPI(dbname, lan_id, token, user_id),
-            problemSeverityAPI(dbname, lan_id)
-        ]);
-        if (problemName_res?.status == 200) {
-            setProblemAll(problemName_res.data.data);
-            const dataArray = problemName_res?.data?.data.map(element => ({ value: element.fid, label: element.name }))
-            setProblemTypeAll(dataArray)
-            setIsLoading(false)
+        try {
+            requestLivePermission();
+            const [problemName_res, response, severity_res] = await Promise.all([
+                problemTypeNameAPI(dbname, lan_id, token),
+                farmerByNameAPI(dbname, lan_id, token, user_id),
+                problemSeverityAPI(dbname, lan_id)
+            ]);
+            if (problemName_res?.status == 200) {
+                setProblemAll(problemName_res.data.data);
+                const dataArray = problemName_res?.data?.data.map(element => ({ value: element.fid, label: element.name }))
+                setProblemTypeAll(dataArray)
+            }
+            if (severity_res?.status == 200) {
+                const dataArray = severity_res?.data?.data?.rows.map(element => ({ value: element.fid, label: element.name }));
+                setSeverityAll(dataArray)
+            }
+            if (response?.status == 200) {
+                const dataArray = response?.data?.data?.rows.map(element => ({ value: element.user_id, label: element.userName, phone: element.contactNumber }))
+                setFarmerData(dataArray)
+            }
+        } catch (error) {
+            console.log(error)
         }
-        if (severity_res?.status == 200) {
-            const dataArray = severity_res?.data?.data?.rows.map(element => ({ value: element.fid, label: element.name }));
-            setSeverityAll(dataArray)
-        }
-        if (response?.status == 200) {
-            const dataArray = response?.data?.data?.rows.map(element => ({ value: element.user_id, label: element.userName, phone: element.contactNumber }))
-            setFarmerData(dataArray)
-        }
+        setIsLoading(false)
     };
     const validateForm = () => {
         if (!farmerID) {
@@ -431,6 +399,7 @@ const CrateProblemUser = ({ navigation }) => {
     }
     const handleSave = async () => {
         if (validateForm()) {
+            setIsLoading(true);
             let array = [];
             const formData = new FormData();
             myphotoAll.forEach((photo) => {
@@ -485,13 +454,13 @@ const CrateProblemUser = ({ navigation }) => {
             formData.append("severity_id", saveData.severity_id);
             const database_res = await problemSaveAPI(dbname, lan_id, token, farmerID, formData);
             if (database_res.status === 200) {
-                handleClear()
                 // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
                 Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] })
                 setTimeout(() => {
                     navigation.navigate('userList');
                 }, 1500);
             }
+            setIsLoading(true);
         }
     }
     const onStartRecordFirstItem = async () => {
@@ -582,50 +551,73 @@ const CrateProblemUser = ({ navigation }) => {
         // }
     }, []);
     useEffect(() => {
-        setSoundRecordFirstItem({
-            item: '1',
-            isLoggingIn: false,
-            recordSecs: 0,
-            recordTime: '00:00:00',
-            result: ""
-        });
-        setSoundRecordSecoundItem({
-            item: '2',
-            isLoggingIn: false,
-            recordSecs: 0,
-            recordTime: '00:00:00',
-            result: ""
-        });
-        setSoundRecordThirdItem({
-            item: '3',
-            isLoggingIn: false,
-            recordSecs: 0,
-            recordTime: '00:00:00',
-            result: ""
-        });
-        if (isFocused) {
-            setplotAll(agri_land_user_rels);
-            setfarmerID(farmeruserID);
-            setSearchFarmerName(userName);
-            setSearchFarmerPhone(contactNumber);
-            onPageLoad();
-            onBackPress(() => { navigation.navigate('userList'); return true; })
+        setplotAll(agri_land_user_rels);
+        setfarmerID(farmeruserID);
+        setSearchFarmerName(userName);
+        setSearchFarmerPhone(contactNumber);
+        onPageLoad();
+    }, []);
+    const cancelRecord = async (item) => {
+        await audioRecorderPlayer.stopPlayer();
+        if (item == "firstItem") {
+            setSoundRecordFirstItem({
+                item: '1',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+
+        } else if (item == "secoundItem") {
+            setSoundRecordSecoundItem({
+                item: '2',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
+        } else if (item == "thirdItem") {
+            setSoundRecordThirdItem({
+                item: '3',
+                isLoggingIn: false,
+                recordSecs: 0,
+                recordTime: '00:00:00',
+                result: ""
+            });
         }
-    }, [isFocused]);
-    const HandlerGoBack = () => {
-        navigation.navigate('userList');
+    }
+    const soundPlay = async (item) => {
+        let path;
+        if (item == "firstItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
+        } else if (item == "secoundItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
+        } else if (item == "thirdItem") {
+            path = `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
+        }
+        SPSheet.show({
+            component: () => <AudioPlayerView path={path} />,
+            dragFromTopOnly: true,
+            onCloseComplete: () => {
+                // alert('onCloseComplete');
+            },
+            onOpenComplete: () => {
+                // console.log(SPSheet)
+            },
+            height: 260
+        });
     }
     return (
         <View style={styles.container}>
             <CustomHeader
                 path="userList"
-                HandlerGoBack={HandlerGoBack}
                 logoImage={logoImage}
                 topBanner={topBanner}
             />
             <DatePickerComp
                 openDate={addAffectedDate}
                 newDate={newFromDate}
+                title={t('agent_crop_problem_affected_date')}
                 setOpenDate={setaddAffectedDate}
                 handleDatePicker={handleDatePicker}
             />
@@ -657,28 +649,6 @@ const CrateProblemUser = ({ navigation }) => {
                     soundRecord={soundRecordThirdItem}
                 />
             ) : null}
-            <SafeAreaView>
-                {searchResultsList && searchResultsList ? (
-                    <View style={styles.flatContainer}>
-                        <FlatList
-                            style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                            data={searchResults}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    onPress={() =>
-                                        handleResultSelect(item.label, item.value, item.phone)
-                                    }
-                                    style={styles.flatlistitem}>
-                                    <Text style={styles.flatlisttitle}>{item.label}</Text>
-                                </TouchableOpacity>
-                            )}
-                            keyExtractor={(item, index) => index}
-                        />
-                    </View>
-                ) : (
-                    ''
-                )}
-            </SafeAreaView>
             {isLoading ?
                 <View style={styles.loadingScreen}>
                     <LoadingScreen />
@@ -794,20 +764,11 @@ const CrateProblemUser = ({ navigation }) => {
                         value={nameVarityStartEnd.production_process}
                         editable={false}
                     />
-                    <View>
-                        <Text style={{ color: 'red' }}>
-                            {t('agent_crop_problem_affected_date')}
-                        </Text>
-                        <TouchableOpacity
-                            style={styles.activityPerFromDate}
-                            onPress={() => setaddAffectedDate(true)}>
-                            <Text style={{ color: '#000' }}>{affectedDate}</Text>
-                            <Image
-                                source={require('../../Common/images/calendar.png')}
-                                style={{ width: 20, height: 20 }}
-                            />
-                        </TouchableOpacity>
-                    </View>
+                    <DatePickerField
+                        label={t('agent_crop_problem_affected_date')}
+                        value={affectedDate}
+                        onPress={() => setaddAffectedDate(true)}
+                    />
                     <InputTextForm
                         label={t('enter_problem_title')}
                         onChangeText={item =>
@@ -839,10 +800,12 @@ const CrateProblemUser = ({ navigation }) => {
                         soundRecordFirstItem={soundRecordFirstItem}
                         soundRecordSecoundItem={soundRecordSecoundItem}
                         soundRecordThirdItem={soundRecordThirdItem}
+                        cancelRecord={cancelRecord}
+                        soundPlay={soundPlay}
                     />
                 </ScrollView>
             </View>
-            <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+            <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading}/>
             <Root></Root>
         </View>
     );
@@ -853,7 +816,8 @@ export default CrateProblemUser
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.background_light,
+        // backgroundColor: Colors.background_light,
+
     },
     titleContainer: {
         width: "95%",
@@ -865,10 +829,12 @@ const styles = StyleSheet.create({
     },
     fromContainer: {
         flex: 1,
-        margin: 12,
-        padding: 16,
+        // margin: 12,
+        // padding: 16,
         backgroundColor: Colors.background,
-        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        // borderRadius: 8,
         borderColor: Colors.border,
         borderWidth: 1,
     },
@@ -878,17 +844,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 15,
         borderRadius: 8,
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 0.5,
+        height: 48,
         backgroundColor: 'white',
         width: '100%',
         paddingHorizontal: 10,
+        borderWidth: 0.5,
+        borderColor: Colors.useGreen,
     },
     plotSiteContainer: {
 
         borderWidth: 0.5,
-        borderColor: '#000',
+        borderColor: Colors.useGreen,
         borderRadius: 5,
         paddingHorizontal: 10,
         backgroundColor: '#FFF',

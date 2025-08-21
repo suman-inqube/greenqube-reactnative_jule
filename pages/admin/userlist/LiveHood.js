@@ -8,7 +8,7 @@ import {
   Keyboard,
   Modal,
   Alert,
-  Linking,InteractionManager
+  Linking, InteractionManager
 } from 'react-native';
 import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import {
@@ -73,7 +73,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     ButtonForm,
     InputTextForm,
     DropdownForm,
-    effective_dates,
+    effective_dates, navigationBarHeight
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-65
@@ -81,7 +81,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   const route = useRoute();
   const { farmeruserID, agri_land_user_rels } = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [farmerData, setfarmerData] = useState({
     createdBy: '',
     plot_no: '',
@@ -197,87 +197,87 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   const [outofRange, setOutofRange] = useState(false);
   const [previousPlotLatlong, setPreviousPlotLatlong] = useState([]);
   const [add_new_crop, setAdd_new_crop] = useState(false);
-const onPageLoad = async () => {
-  try {
-    setIsLoading(true);
-    const fusedLocation = await getItem("fusedLocation");
-    const { latitude, longitude } = fusedLocation || {};
-    setreferencelatLong({ latitude, longitude });
-    const axiosConfig = {
-      headers: {
-        information: `${dbname},${lan_id}`,
-        Accept: "application/json",
-      },
-    };
-    const [
-      nearestLatLong_res,
-      unitConversion_res,
-      plotSiteUserLandDetails_res,
-      landUnitArea_res,
-      landUnitSquare_res,
-      productSeason_res,
-      plotDoc_res,
-      terrainType_res,
-      soilType_res,
-      landType_res,
-      landUnit_res,
-      produceVariety_res,
-      productionProcess_res,
-    ] = await Promise.all([
-      nearestLatLong(dbname, lan_id, token, latitude, longitude),
-      UnitConversonToDefault(dbname, lan_id, token),
-      PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
-      LandUnitArea(dbname, lan_id, token),
-      LandUnitsquare_metre(dbname, lan_id, token),
-      ProductionSeasonAndApi(dbname, lan_id, ""),
-      getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
-      terraintype_resAPI(dbname, lan_id, "terrain_type"),
-      soilType_resAPI(dbname, lan_id, "soil_type"),
-      landType_resAPI(dbname, lan_id, "land_type"),
-      landunit_resAPI(axiosConfig),
-      produceVarietyAPI(dbname, lan_id),
-      productionProcessAPI(dbname, lan_id),
-    ]);
-    if (nearestLatLong_res?.status === 200) {
-      const { data } = nearestLatLong_res.data;
-      if (data?.length > 0) {
-        setnearPolData(data);
-        const grouped = groupByRelId(data);
-        setnearPolSet(grouped);
-        setPolygons(grouped);
+  const onPageLoad = async () => {
+    try {
+      setIsLoading(true);
+      const fusedLocation = await getItem("fusedLocation");
+      const { latitude, longitude } = fusedLocation || {};
+      setreferencelatLong({ latitude, longitude });
+      const axiosConfig = {
+        headers: {
+          information: `${dbname},${lan_id}`,
+          Accept: "application/json",
+        },
+      };
+      const [
+        nearestLatLong_res,
+        unitConversion_res,
+        plotSiteUserLandDetails_res,
+        landUnitArea_res,
+        landUnitSquare_res,
+        productSeason_res,
+        plotDoc_res,
+        terrainType_res,
+        soilType_res,
+        landType_res,
+        landUnit_res,
+        produceVariety_res,
+        productionProcess_res,
+      ] = await Promise.all([
+        nearestLatLong(dbname, lan_id, token, latitude, longitude),
+        UnitConversonToDefault(dbname, lan_id, token),
+        PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
+        LandUnitArea(dbname, lan_id, token),
+        LandUnitsquare_metre(dbname, lan_id, token),
+        ProductionSeasonAndApi(dbname, lan_id, ""),
+        getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
+        terraintype_resAPI(dbname, lan_id, "terrain_type"),
+        soilType_resAPI(dbname, lan_id, "soil_type"),
+        landType_resAPI(dbname, lan_id, "land_type"),
+        landunit_resAPI(axiosConfig),
+        produceVarietyAPI(dbname, lan_id),
+        productionProcessAPI(dbname, lan_id),
+      ]);
+      if (nearestLatLong_res?.status === 200) {
+        const { data } = nearestLatLong_res.data;
+        if (data?.length > 0) {
+          setnearPolData(data);
+          const grouped = groupByRelId(data);
+          setnearPolSet(grouped);
+          setPolygons(grouped);
+        }
       }
-    }
-    if (unitConversion_res?.status === 200) {
-      const rows = unitConversion_res.data?.data?.rows || [];
-      const invalidUnits = rows.filter(
-        (el) => !el.defined_unit_value || el.defined_unit_value === ""
-      );
-      if (invalidUnits.length > 0) {
-        setConvertionLUState(true);
+      if (unitConversion_res?.status === 200) {
+        const rows = unitConversion_res.data?.data?.rows || [];
+        const invalidUnits = rows.filter(
+          (el) => !el.defined_unit_value || el.defined_unit_value === ""
+        );
+        if (invalidUnits.length > 0) {
+          setConvertionLUState(true);
+        }
       }
+      if (landUnitArea_res?.status === 200) {
+        const { count, rows = [] } = landUnitArea_res.data?.data || {};
+        setLandAreaUnit(count > 0 ? rows : []);
+        setDefaultLand(rows.some((el) => el.defined_unit_value?.length > 0));
+      }
+      if (landUnitSquare_res?.status === 200) {
+        const { count, rows = [] } = landUnitSquare_res.data?.data || {};
+        setLandUnitsquareMetre(count > 0 ? rows : []);
+      }
+      if (plotSiteUserLandDetails_res?.status === 200) {
+        setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      Toast.show({
+        text: JSON.stringify(error),
+        ...AlertMesg[0],
+      });
+      CrashlyticsRecordError(error, "LiveHood", "onpageload");
     }
-    if (landUnitArea_res?.status === 200) {
-      const { count, rows = [] } = landUnitArea_res.data?.data || {};
-      setLandAreaUnit(count > 0 ? rows : []);
-      setDefaultLand(rows.some((el) => el.defined_unit_value?.length > 0));
-    }
-    if (landUnitSquare_res?.status === 200) {
-      const { count, rows = [] } = landUnitSquare_res.data?.data || {};
-      setLandUnitsquareMetre(count > 0 ? rows : []);
-    }
-    if (plotSiteUserLandDetails_res?.status === 200) {
-      setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
-    }
-    setIsLoading(false);
-  } catch (error) {
-    setIsLoading(false);
-    Toast.show({
-      text: JSON.stringify(error),
-      ...AlertMesg[0],
-    });
-    CrashlyticsRecordError(error, "LiveHood", "onpageload");
-  }
-};
+  };
 
 
   const handlePlot = async findData => {
@@ -301,10 +301,7 @@ const onPageLoad = async () => {
         nearestLatLong(dbname, lan_id, token, findData?.latitude, findData?.longitude),
       ]);
     setPlotId(findData.value);
-    //basudev
-
     if (getPlotDoc?.status == 200) {
-      // console.log('getPlotDoc', getPlotDoc?.data?.data?.rows[0]);
       const { count } = getPlotDoc?.data?.data;
       const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
       const values = [...addressProof];
@@ -382,7 +379,6 @@ const onPageLoad = async () => {
     }
     if (cropAndPlotDetails?.status === 200) {
       const data = cropAndPlotDetails?.data?.data || {};
-      // console.log('details', data);
       plotSiteUserLandDetails.map((dataLandDetails, index) => {
         if (dataLandDetails?.rel_id == findData.value) {
           if (
@@ -546,20 +542,9 @@ const onPageLoad = async () => {
           const foundArray = nearPolSet.filter(
             item => !isEqualCoordinatesArray(item, parsedTargetArray),
           );
-          // console.log('foundArray2', foundArray);
-
-          // If found, move it to the last index
-          // if (index !== -1) {
-          //   const [foundArray] = nearPolSet.splice(index, 1); // Remove it from current position
-          //   nearPolSet.push(foundArray); // Add it at the last index
-
-          // }
-          // setPolygons(nearPolSet);
           setnearPolSet(foundArray);
           setPolygons(foundArray);
         } else {
-          // GRQ-1131
-          // setPolygons([]);
           setPolygons(nearPolSet);
         }
         setLocationType('api_lication');
@@ -624,11 +609,10 @@ const onPageLoad = async () => {
     );
   };
   useEffect(() => {
-
-      const task = InteractionManager.runAfterInteractions(() => {
-         onPageLoad();
-       });
-       return () => task.cancel(); // cleanup
+    const task = InteractionManager.runAfterInteractions(() => {
+      onPageLoad();
+    });
+    return () => task.cancel(); // cleanup
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
@@ -1031,7 +1015,7 @@ const onPageLoad = async () => {
           return;
         }
       } else {
-    
+
       }
     }
     location.map((data, index) => {
@@ -1505,10 +1489,6 @@ const onPageLoad = async () => {
       }
     }
   };
-  // GRQ-1130
-  // GRQ-1135
-  // onPress={() => data?.latitude != 10 && data?.latitude.length != "" ? "" : handleCurrentLatLong(index)}
-  // GRQ-1135
   const removesetLocation = () => {
     setLocation([
       { latitude: '', longitude: '' },
@@ -1649,7 +1629,7 @@ const onPageLoad = async () => {
         )}
 
         <ScrollView
-          style={{ marginHorizontal: 10, marginVertical: 10,padding:15,backgroundColor:Colors.background,borderColor:Colors.border,borderWidth:1,borderRadius:8 }}
+          style={{ marginTop: 7, padding: 15, backgroundColor: Colors.background }}
           showsVerticalScrollIndicator={false}>
           <View style={{ marginBottom: 40 }}>
             {statuslevel.label == 'REJECTED' && (
@@ -1825,6 +1805,7 @@ const onPageLoad = async () => {
                     : true
               }
               InputTextFormEdit={InputTextFormEdit}
+              marginBottom={navigationBarHeight}
             />
             <View style={{ marginTop: 15 }}>
               <ProofAndIdentityPropfComp
@@ -1852,7 +1833,7 @@ const onPageLoad = async () => {
                       ? false
                       : true
                 }
-
+                marginBottom={navigationBarHeight}
               />
             </View>
             {area != 0 && area != null && (
@@ -2079,7 +2060,7 @@ const onPageLoad = async () => {
                 <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
+                  style={{ width: 20, height: 20, tintColor: Colors.useGreen }}
                 />
               </View>
             </TouchableOpacity>
@@ -2097,7 +2078,7 @@ const onPageLoad = async () => {
                 <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
+                  style={{ width: 20, height: 20, tintColor: Colors.useGreen }}
                 />
               </View>
             </TouchableOpacity>
@@ -2257,9 +2238,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 10,
-    borderRadius: 10,
-    elevation: 1,
-    height: 45,
+    borderRadius: 5,
+    // elevation: 1,
+    height: 48,
+    borderWidth: 0.5,
+    borderColor: Colors.useGreen,
   },
   title: {
     color: '#000',

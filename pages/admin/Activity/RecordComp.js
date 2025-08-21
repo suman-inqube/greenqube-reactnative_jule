@@ -44,7 +44,7 @@ const RecordComp = ({
         {items.map((item, idx) => {
           const hasFile = selectedRecord[item.key] !== '';
           const hasTempRecording =
-            item.sound && item.sound.result !== '' && !item.sound.isLoggingIn;
+            item.sound && item.sound.result !== '' && item.sound.result!="Already stopped";
 
           return (
             <TouchableOpacity
@@ -65,7 +65,7 @@ const RecordComp = ({
                     <Icon name="x-circle" size={22} color="#ef4444" />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => soundPlay(item.cancelKey)}>
-                    <Icon name="play-circle" size={48} color="#3b82f6" />
+                    <Icon name="play-circle" size={48} color={Colors.green} />
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // backgroundColor: '#e3f4ffcf',
-    // elevation: 3,
     padding: 10,
     margin: 2,
     // marginVertical: 10,

@@ -33,7 +33,6 @@ import './ignoreWarnings';
 import {navigationRef} from './pages/utils/NavigationUtils';
 const Stack = createNativeStackNavigator();
 // import { Provider as PaperProvider } from 'react-native-paper';
-
 function App() {
   const routeNameRef = useRef();
   const {loginUser_data} = useContext(userCreateContext) || {};

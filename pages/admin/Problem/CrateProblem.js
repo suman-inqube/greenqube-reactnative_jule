@@ -63,7 +63,7 @@ const CreateProblem = ({ navigation }) => {
     InputTextForm,
     DatePickerComp,
     ButtonForm,
-    isOnline,
+    isOnline, farmerData
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
   //GQR-65
@@ -71,7 +71,7 @@ const CreateProblem = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [farmerData, setFarmerData] = useState([]);
+  // const [farmerData, setFarmerData] = useState([]);
   const [searchFarmerName, setSearchFarmerName] = useState();
   const [searchFarmerPhone, setSearchFarmerPhone] = useState();
   const [searchResultsList, setSearchResultsList] = useState(false);
@@ -148,12 +148,8 @@ const CreateProblem = ({ navigation }) => {
     recordTime: '00:00:00',
     result: '',
   });
-  const handleResultSelect = async (
-    name,
-    currentfarmerId,
-    phone,
-    FcmUserToken,
-  ) => {
+  const handleResultSelect = async (item) => {
+    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     // setSelectedName(name);
@@ -366,58 +362,6 @@ const CreateProblem = ({ navigation }) => {
         problem_name.label,
     });
   };
-  const handleSearch = text => {
-    setSearchFarmerName(text);
-    setSearchFarmerPhone('');
-    const result = farmerData.filter(item =>
-      item.label.toLowerCase().includes(text.toLowerCase()),
-    );
-    if (result) {
-      setSearchResultsList(true);
-      setSearchResults(result);
-    }
-  };
-  function handleClear() {
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setSaveData({
-      ...saveData,
-      agent_fcm: '',
-      farmer_fcm: '',
-      latitude: '',
-      longitude: '',
-      question_type: 'crop_problem',
-      land_unit_id: '',
-      affected_area: '',
-      category_id: '',
-      affected_date: '',
-      question_title: '',
-      question_desc: '',
-      production_process: '',
-      severity_id: '',
-    });
-    setaffectedDate('');
-    setShowingMenu(false);
-    setplotAll([]);
-    setproductionStageAll([]);
-    setProblemAll([]);
-    setProblemTypeAll([]);
-    setProblemNameAll([]);
-    setSeverityAll([]);
-    setSelectedImage({
-      firstItem: '',
-      secondItem: '',
-      thirdItem: '',
-    });
-    setNameVarityStartEnd({
-      ...nameVarityStartEnd,
-      name: '',
-      varity: '',
-      cycleStarts: '',
-      cycleEnd: '',
-      production_process: '',
-    });
-  }
   const onPageLoad = async () => {
     setdbLanTokUsr({
       ...dbLanTokUsr,
@@ -467,7 +411,7 @@ const CreateProblem = ({ navigation }) => {
         phone: data.contactNumber,
         FcmUserToken: data.FcmUserToken,
       }));
-      setFarmerData(dataArray);
+      // setFarmerData(dataArray);
     }
   };
   const requestLivePermission = async () => {
@@ -664,7 +608,6 @@ const CreateProblem = ({ navigation }) => {
           await setItem('offlineSupervisorProblemData', 'off' + timeStamp);
         }
         Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-        handleClear();
         setTimeout(() => {
           navigation.navigate('ProblemList');
         }, 1200);
@@ -861,33 +804,7 @@ const CreateProblem = ({ navigation }) => {
             soundRecord={soundRecordThirdItem}
           />
         )}
-        <SafeAreaView>
-          {searchResultsList && searchResultsList ? (
-            <View style={styles.flatContainer}>
-              <FlatList
-                style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                data={searchResults}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleResultSelect(
-                        item.label,
-                        item.value,
-                        item.phone,
-                        item.FcmUserToken,
-                      )
-                    }
-                    style={styles.flatlistitem}>
-                    <Text style={styles.flatlisttitle}>{item.label}</Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-              />
-            </View>
-          ) : (
-            ''
-          )}
-        </SafeAreaView>
+       
         {modalVisible && (
           <HarvestedModel
             setModalVisible={setModalVisible}
@@ -903,10 +820,12 @@ const CreateProblem = ({ navigation }) => {
           )}
           <View style={styles.fromContainer}>
             <View style={{ padding: 20 }}>
-              <InputTextForm
+
+              <DropdownForm
                 label={t('farmer_name')}
-                value={searchFarmerName}
-                onChangeText={farmerName => handleSearch(farmerName)}
+                data={farmerData?.[0]}
+                required={true}
+                onChange={item => handleResultSelect(item)}
               />
               <InputTextForm
                 label={t('farmer_number')}

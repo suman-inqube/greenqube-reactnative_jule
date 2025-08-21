@@ -106,7 +106,6 @@ const PlotList = () => {
   const { dbname, lan_id, token } = loginUser_data;
 
   const onTabPress = useCallback((index, data = {}) => {
-    console.log(data)
     setActiveTab(index);
     setDataProps(data);
     scrollRef.current?.scrollTo({ x: index * width, animated: true });
@@ -498,7 +497,7 @@ const styles = StyleSheet.create({
   label: {
     color: Colors.text,
     fontFamily: Fonts.Regular,
-    fontSize:14,
+    fontSize: 14,
   }
 });
 export default memo(PlotList);

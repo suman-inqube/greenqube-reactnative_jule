@@ -24,23 +24,25 @@ import {
   InteractionManager,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import {userCreateContext} from '../Context/usersCreateContext';
-import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
+import { userCreateContext } from '../Context/usersCreateContext';
+import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
 import CarouselSlider from '../Components/CarouselSlider';
 import TrackingInfromation from '../Components/TrackingInfromation';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
-import {Colors} from '../utils/Constants';
-import {axiosGet} from '../utils/api';
-import {ROUTES} from '../utils/Routes';
+import { Colors } from '../utils/Constants';
+import { axiosGet } from '../utils/api';
+import { ROUTES } from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
-import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
+import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
-import {getDashboardItems} from '../utils/dashboardItems';
+import { getDashboardItems } from '../utils/dashboardItems';
 const HEADER_HEIGHT = 60;
-
-const Dashboard = ({navigation}) => {
+import useBackgroundLocation from '../hooks/useBackgroundLocation';
+const Dashboard = ({ navigation }) => {
+ const coords = useBackgroundLocation();
+ console.log(coords)
   useDoubleBackToExit();
 
   const {
@@ -88,7 +90,7 @@ const Dashboard = ({navigation}) => {
       if (isOnline) {
         if (pageName === 'PersonalInformation') {
           if (uiState.convertionLUState === false) {
-            navigation.navigate(pageName, {data: 'remove'});
+            navigation.navigate(pageName, { data: 'remove' });
           } else {
             Toast?.show({
               text: 'Please add the unit equivalent factor to default unit',
@@ -96,7 +98,7 @@ const Dashboard = ({navigation}) => {
             });
           }
         } else {
-          navigation.navigate(pageName, {data: 'remove'});
+          navigation.navigate(pageName, { data: 'remove' });
         }
       } else {
         if (
@@ -104,7 +106,7 @@ const Dashboard = ({navigation}) => {
           pageName === 'activityList' ||
           pageName === 'PersonalInformation'
         ) {
-          navigation.navigate(pageName, {data: 'remove'});
+          navigation.navigate(pageName, { data: 'remove' });
         }
       }
     },
@@ -150,7 +152,7 @@ const Dashboard = ({navigation}) => {
       let defaultLand = false;
 
       const login = loginUser_data || {};
-      const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
+      const { dbname, lan_id, token, agri_user_addresses, user_id } = login;
 
       if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
         // parallel server requests
@@ -173,7 +175,7 @@ const Dashboard = ({navigation}) => {
               newCropId: '',
             }),
             '',
-            {information: `${dbname},${lan_id}`},
+            { information: `${dbname},${lan_id}` },
           ),
           axiosGet(
             ROUTES.GET.LIST_USER_ACTIVITY({
@@ -185,7 +187,7 @@ const Dashboard = ({navigation}) => {
               to_date: '',
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           ),
         ]);
 
@@ -254,10 +256,10 @@ const Dashboard = ({navigation}) => {
       `${t('app_name')}`,
       `${t('close_app')}`,
       [
-        {text: `${t('cancle')}`, onPress: () => {}, style: 'cancel'},
-        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
+        { text: `${t('cancle')}`, onPress: () => { }, style: 'cancel' },
+        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
     return true;
   }, [t]);
@@ -304,7 +306,7 @@ const Dashboard = ({navigation}) => {
               onPress={CompanyWebsiteOpen}
               style={styles.bottomContainer}>
               <ImageForm
-                source={{uri: uiState.bottomBanner}}
+                source={{ uri: uiState.bottomBanner }}
                 resizeMode="cover"
                 height={220}
                 width={'100%'}
@@ -351,7 +353,7 @@ const Dashboard = ({navigation}) => {
             <Animated.View
               style={[
                 styles.header,
-                {transform: [{translateY: headerTranslateY}]},
+                { transform: [{ translateY: headerTranslateY }] },
               ]}>
               <CustomHeader
                 path="exit"
@@ -364,10 +366,10 @@ const Dashboard = ({navigation}) => {
             <Animated.View
               style={[
                 styles.filterBar,
-                {transform: [{translateY: filterTranslateY}]},
+                { transform: [{ translateY: filterTranslateY }] },
               ]}>
               <Animated.View
-                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
+                style={[styles.animatedHeaderImage, { height: imageHeight }]}>
                 <ImageBackground
                   source={{
                     uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
@@ -375,7 +377,7 @@ const Dashboard = ({navigation}) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{opacity: 0.8}}>
+                  imageStyle={{ opacity: 0.8 }}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -402,7 +404,7 @@ const Dashboard = ({navigation}) => {
               </Animated.View>
             </Animated.View>
 
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -442,7 +444,7 @@ const Dashboard = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.background_light},
+  container: { flex: 1, backgroundColor: Colors.background_light },
   header: {
     height: HEADER_HEIGHT - 10,
     position: 'absolute',
@@ -455,7 +457,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -472,9 +474,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#003c04',
   },
-  imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
-  overlay: {...StyleSheet.absoluteFillObject},
-  bottomContent: {paddingBottom: 15, paddingTop: 15, alignItems: 'center'},
+  imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
+  overlay: { ...StyleSheet.absoluteFillObject },
+  bottomContent: { paddingBottom: 15, paddingTop: 15, alignItems: 'center' },
   bottomContainer: {},
 });
 export default React.memo(Dashboard);
