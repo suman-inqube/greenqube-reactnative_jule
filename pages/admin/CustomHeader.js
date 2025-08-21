@@ -129,6 +129,10 @@ const CustomHeader = memo(
         ProblemView: t('plot_and_crop_problem'),
         ProblemCreate: t('add_crop_problem'),
         FarmerViewProblem: t('plot_and_crop_problem'),
+        FinancialInformation: t('financial_information'),
+        PlotSiteProduceInformation: t('reg_land_crop_information'),
+        RegistationSignUpViwer: t('Registation_SignUp_Viwer'),
+        PostNew: t('Post_New'),
       }),
       [t],
     );

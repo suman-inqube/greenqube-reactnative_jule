@@ -1,10 +1,12 @@
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const OPTIONS_CARBON = [
-  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
-  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
+  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
+  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
 ];
 const CARBON_TYPE = [
-  { label: 'Carbon', value: 'carbon_activity' },
-  { label: 'Non-Carbon ', value: 'user_activity' },
+  {label: 'Carbon', value: 'carbon_activity'},
+  {label: 'Non-Carbon ', value: 'user_activity'},
 ];
 const getActionsActivity = (t, styles, Colors) => [
   {
@@ -14,8 +16,8 @@ const getActionsActivity = (t, styles, Colors) => [
     color: Colors.useGreen,
     textStyle: styles.actionText,
     textBackground: '#ffffff',
-   icon: require('../Common/images/activity.png'),
-  }
+    icon: require('../Common/images/activity.png'),
+  },
 ];
 
 const getActionsProblemSupervisor = (t, styles, Colors) => [
@@ -27,10 +29,10 @@ const getActionsProblemSupervisor = (t, styles, Colors) => [
     textStyle: styles.actionText,
     textBackground: '#ffffffff',
     icon: require('../Common/images/warning.png'),
-  }
+  },
 ];
 const getActionsDealerReportSupervisor = (t, styles, Colors) => [
-   {
+  {
     text: t('dealer_report'),
     name: 'dealer_report',
     position: 1,
@@ -47,7 +49,7 @@ const getActionsDealerReportSupervisor = (t, styles, Colors) => [
     textStyle: styles.actionText,
     textBackground: '#ffffff',
     icon: require('../Common/images/farmerFlat.png'), // Farmer PNG
-  }
+  },
 ];
 const getActionsPostNew = (t, styles, Colors) => [
   {
@@ -58,9 +60,20 @@ const getActionsPostNew = (t, styles, Colors) => [
     textStyle: styles.actionText,
     textBackground: '#ffffffff',
     icon: require('../Common/images/add-post.png'),
-  }
+  },
 ];
-const getActionsPlot= (t, styles, Colors) => [
+const getActionsMapView = (t, styles, Colors) => [
+  {
+    text: t('MapView'),
+    name: 'bt_add',
+    position: 2,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffffff',
+    icon: <MaterialIcons name="public" size={26} color="#ffffff" />,
+  },
+];
+const getActionsPlot = (t, styles, Colors) => [
   {
     text: t('add_plot'),
     name: 'bt_add',
@@ -69,6 +82,15 @@ const getActionsPlot= (t, styles, Colors) => [
     textStyle: styles.actionText,
     textBackground: '#ffffffff',
     icon: require('../Common/images/plotting.png'),
-  }
+  },
 ];
-export { OPTIONS_CARBON, getActionsActivity, getActionsProblemSupervisor, getActionsDealerReportSupervisor,getActionsPostNew,getActionsPlot, CARBON_TYPE };
+export {
+  OPTIONS_CARBON,
+  getActionsActivity,
+  getActionsProblemSupervisor,
+  getActionsDealerReportSupervisor,
+  getActionsPostNew,
+  getActionsPlot,
+  CARBON_TYPE,
+  getActionsMapView,
+};

@@ -90,16 +90,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
   },
   passwordMainContainer: {
-    height: 50,
-    borderColor: Colors.secondary, // Make sure this color is visible
-    borderWidth: 1,
-    borderRadius: 8,
+    height: 48,
+    borderWidth: 0.5,
+    borderRadius: 6,
     backgroundColor: '#FFFFFF',
-    width: '100%',
-    elevation: 1,
     paddingHorizontal: 10,
-    color: '#000000', // Changed from 'white' to 'black' for better visibility
-    marginBottom: 20,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
+    marginBottom: 15,
   },
   passwordContainer: {
     flexDirection: 'row',

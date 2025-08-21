@@ -34,6 +34,7 @@ import {Colors, Fonts} from '../../utils/Constants';
 import {Image} from 'moti';
 import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 const MENU_ITEMS = [
@@ -521,54 +522,58 @@ const UserList = ({navigation}) => {
     setPage(1);
   }, []);
   return (
-    <MyErrorBoundary>
-      <Root>
-        <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
-        <View style={styles.container}>
-          <CustomHeader t={t} filterOptionShow={filterOptionShow} />
-          <FlatList
-            ref={flatListRef}
-            data={state?.isLoading ? Array.from({length: 6}) : state?.userList}
-            renderItem={({item, index}) =>
-              state?.isLoading ? (
-                <SkeletonUserCard />
-              ) : (
-                <UserItemCard item={item} index={index} />
-              )
-            }
-            keyExtractor={keyExtractor}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={state.refreshing}
-                onRefresh={handleRefresh}
-                colors={['#4CAF50']}
-                tintColor="#4CAF50"
-              />
-            }
-            contentContainerStyle={styles.listContent}
-            // onScrollBeginDrag={handleScrollBeginDrag}
-            removeClippedSubviews={true}
-            maxToRenderPerBatch={10}
-            windowSize={10}
-            initialNumToRender={8}
-            scrollEventThrottle={16}
-            // Prevent layout jumps with maintainVisibleContentPosition
-            maintainVisibleContentPosition={{
-              minIndexForVisible: 0,
-            }}
-          />
-          <PaginationNav
-            isLoading={state.isLoading}
-            page={page}
-            totalPages={totalPages}
-            onPrev={() => setPage(p => Math.max(1, p - 1))}
-            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-            t={t}
-          />
-        </View>
-      </Root>
-    </MyErrorBoundary>
+    <FarmerDrawerScreenWrapper1>
+      <MyErrorBoundary>
+        <Root>
+          <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
+          <View style={styles.container}>
+            <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+            <FlatList
+              ref={flatListRef}
+              data={
+                state?.isLoading ? Array.from({length: 6}) : state?.userList
+              }
+              renderItem={({item, index}) =>
+                state?.isLoading ? (
+                  <SkeletonUserCard />
+                ) : (
+                  <UserItemCard item={item} index={index} />
+                )
+              }
+              keyExtractor={keyExtractor}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={state.refreshing}
+                  onRefresh={handleRefresh}
+                  colors={['#4CAF50']}
+                  tintColor="#4CAF50"
+                />
+              }
+              contentContainerStyle={styles.listContent}
+              // onScrollBeginDrag={handleScrollBeginDrag}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              windowSize={10}
+              initialNumToRender={8}
+              scrollEventThrottle={16}
+              // Prevent layout jumps with maintainVisibleContentPosition
+              maintainVisibleContentPosition={{
+                minIndexForVisible: 0,
+              }}
+            />
+            <PaginationNav
+              isLoading={state.isLoading}
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage(p => Math.max(1, p - 1))}
+              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+              t={t}
+            />
+          </View>
+        </Root>
+      </MyErrorBoundary>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

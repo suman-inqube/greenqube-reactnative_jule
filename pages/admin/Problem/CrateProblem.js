@@ -64,6 +64,7 @@ const CreateProblem = ({navigation}) => {
     DatePickerComp,
     ButtonForm,
     isOnline,
+    farmerData,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
   //GQR-65
@@ -71,7 +72,6 @@ const CreateProblem = ({navigation}) => {
   const isFocused = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [farmerData, setFarmerData] = useState([]);
   const [searchFarmerName, setSearchFarmerName] = useState();
   const [searchFarmerPhone, setSearchFarmerPhone] = useState();
   const [searchResultsList, setSearchResultsList] = useState(false);
@@ -148,12 +148,8 @@ const CreateProblem = ({navigation}) => {
     recordTime: '00:00:00',
     result: '',
   });
-  const handleResultSelect = async (
-    name,
-    currentfarmerId,
-    phone,
-    FcmUserToken,
-  ) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     // setSelectedName(name);
@@ -426,22 +422,22 @@ const CreateProblem = ({navigation}) => {
       owner: owner.FcmUserToken,
     });
     if (isOnline) {
-      var [problemName_res, response, severity_res] = await Promise.all([
+      var [problemName_res, severity_res] = await Promise.all([
         problemTypeNameAPI(dbname, lan_id, token),
-        farmerByNameAPI(dbname, lan_id, token, user_id),
+
         problemSeverityAPI(dbname, lan_id),
       ]);
       if (problemName_res?.status == 200) {
         await Promise.all([
           setItem('supervisorProblemTypeName', problemName_res),
-          setItem('response' + user_id, response),
+
           setItem('severity_res', severity_res),
         ]);
       }
     } else {
-      var [problemName_res, response, severity_res] = await Promise.all([
+      var [problemName_res, severity_res] = await Promise.all([
         getItem('supervisorProblemTypeName'),
-        getItem('response' + user_id),
+
         getItem('severity_res'),
       ]);
     }
@@ -460,15 +456,6 @@ const CreateProblem = ({navigation}) => {
         label: data.name,
       }));
       setSeverityAll(dataArray);
-    }
-    if (response) {
-      const dataArray = response?.data?.data?.rows.map(data => ({
-        value: data.user_id,
-        label: data.userName,
-        phone: data.contactNumber,
-        FcmUserToken: data.FcmUserToken,
-      }));
-      setFarmerData(dataArray);
     }
   };
   const requestLivePermission = async () => {
@@ -932,11 +919,17 @@ const CreateProblem = ({navigation}) => {
           )}
           <View style={styles.fromContainer}>
             <View style={{padding: 20}}>
-              <InputTextForm
+              <DropdownForm
+                label={t('farmer_name')}
+                data={farmerData?.[0]}
+                required={true}
+                onChange={item => handleResultSelect(item)}
+              />
+              {/* <InputTextForm
                 label={t('farmer_name')}
                 value={searchFarmerName}
                 onChangeText={farmerName => handleSearch(farmerName)}
-              />
+              /> */}
               <InputTextForm
                 label={t('farmer_number')}
                 value={searchFarmerPhone}

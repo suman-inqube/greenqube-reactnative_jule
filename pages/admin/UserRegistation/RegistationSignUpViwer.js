@@ -18,6 +18,9 @@ import {
 } from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Colors, Fronts} from '../../utils/Constants';
+
 const RegistationSignUpViwer = () => {
   //GQR-65
   const {
@@ -53,7 +56,6 @@ const RegistationSignUpViwer = () => {
   const togglestoreProduceInfo = () =>
     setisstoreProduceInfo(!isstoreProduceInfo);
   const handleSave = async () => {
-
     setIsLoading(true);
     const formData = new FormData();
     const currentDate = new Date();
@@ -86,7 +88,7 @@ const RegistationSignUpViwer = () => {
       pincode: storePersnolInfo.pin,
     };
     const identity_details = {};
-    if(storeFinancial.kcc_number){
+    if (storeFinancial.kcc_number) {
       identity_details['kcc_number'] = storeFinancial.farmarLoanNo;
     }
     if (storeFinancial.adharCard) {
@@ -322,7 +324,7 @@ const RegistationSignUpViwer = () => {
   }, [isFocused]);
   const HandlerGoBack = () => {};
   return (
-    <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+    <View style={{flex: 1, backgroundColor: Colors.background_light}}>
       <Root>
         <CustomHeader
           path="RegistationSignUpViwer"
@@ -336,36 +338,54 @@ const RegistationSignUpViwer = () => {
           </View>
         )}
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{marginBottom: 100}}>
+          <View style={{paddingHorizontal: 20, marginTop: 50}}>
             <View
               style={{
-                margin: 10,
+                marginTop: 10,
+                padding: 17,
+                borderWidth: 0,
+                borderColor: '#ddd',
+                backgroundColor: '#d3ced7',
+                borderRadius: 20,
+                marginVertical: 20,
                 elevation: 3,
-                borderRadius: 30,
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-                backgroundColor: '#D5FFD0',
-                marginTop: 15,
+                // height: 55,
+                borderWidth: 0.5,
+                borderColor: 'black',
+                // alignItems: 'center',
               }}>
               <TouchableOpacity onPress={togglestorePersnolInfo}>
                 <View style={styles.headerStyle}>
-                  <Text
-                    style={[styles.title, {fontFamily: 'Poppins-SemiBold'}]}>
+                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <MaterialIcons
+                      name="account-circle"
+                      size={28}
+                      color="#113fac"
+                      style={styles.icon}
+                    />
+                  </View>
+                  <Text style={styles.toggleText}>
                     {isstorePersnolInfo
                       ? `${t('personal_information')}`
                       : `${t('personal_information')}`}
                   </Text>
-                  {isstorePersnolInfo ? (
-                    <Image
-                      source={require('../../Common/images/sub.png')}
-                      style={{width: 20, height: 20}}
-                    />
-                  ) : (
-                    <Image
-                      source={require('../../Common/images/add.png')}
-                      style={{width: 20, height: 20}}
-                    />
-                  )}
+                  <Text style={styles.toggleText}>
+                    {isstorePersnolInfo ? (
+                      <MaterialIcons
+                        name="do-not-disturb-on"
+                        size={25}
+                        color="red"
+                        style={styles.icon}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="add-circle"
+                        size={25}
+                        color="green"
+                        style={styles.icon}
+                      />
+                    )}
+                  </Text>
                 </View>
               </TouchableOpacity>
               {isstorePersnolInfo && (
@@ -475,32 +495,55 @@ const RegistationSignUpViwer = () => {
             </View>
             <View
               style={{
-                margin: 10,
+                marginTop: 10,
+                padding: 17,
+                borderWidth: 0,
+                borderColor: '#ddd',
+                backgroundColor: '#d3ced7',
+                borderRadius: 20,
+                marginVertical: 20,
                 elevation: 3,
-                borderRadius: 30,
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-                backgroundColor: '#D5FFD0',
+                // height: 55,
+                borderWidth: 0.5,
+                borderColor: 'black',
+                // alignItems: 'center',
               }}>
               <TouchableOpacity onPress={togglestoreFinancial}>
                 <View style={styles.headerStyle}>
+                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <MaterialIcons
+                      name="badge"
+                      size={28}
+                      color="#113fac"
+                      style={styles.icon}
+                    />
+                  </View>
                   <Text
-                    style={[styles.title, {fontFamily: 'Poppins-SemiBold'}]}>
+                    style={[
+                      styles.toggleText,
+                      {fontFamily: 'Poppins-SemiBold'},
+                    ]}>
                     {isstoreFinancial
                       ? `${t('financial_information')}`
                       : `${t('financial_information')}`}
                   </Text>
-                  {isstoreFinancial ? (
-                    <Image
-                      source={require('../../Common/images/sub.png')}
-                      style={{width: 20, height: 20}}
-                    />
-                  ) : (
-                    <Image
-                      source={require('../../Common/images/add.png')}
-                      style={{width: 20, height: 20}}
-                    />
-                  )}
+                  <Text style={styles.toggleText}>
+                    {isstoreFinancial ? (
+                      <MaterialIcons
+                        name="do-not-disturb-on"
+                        size={25}
+                        color="red"
+                        style={styles.icon}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="add-circle"
+                        size={25}
+                        color="green"
+                        style={styles.icon}
+                      />
+                    )}
+                  </Text>
                 </View>
               </TouchableOpacity>
               {isstoreFinancial && (
@@ -689,32 +732,51 @@ const RegistationSignUpViwer = () => {
             </View>
             <View
               style={{
-                margin: 10,
+                marginTop: 10,
+                padding: 17,
+                borderWidth: 0,
+                borderColor: '#ddd',
+                backgroundColor: '#d3ced7',
+                borderRadius: 20,
+                marginVertical: 20,
                 elevation: 3,
-                borderRadius: 30,
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-                backgroundColor: '#D5FFD0',
+                // height: 55,
+                borderWidth: 0.5,
+                borderColor: 'black',
+                // alignItems: 'center',
               }}>
               <TouchableOpacity onPress={togglestoreProduceInfo}>
                 <View style={styles.headerStyle}>
-                  <Text
-                    style={[styles.title, {fontFamily: 'Poppins-SemiBold'}]}>
+                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <MaterialIcons
+                      name="article"
+                      size={28}
+                      color="#113fac"
+                      style={styles.icon}
+                    />
+                  </View>
+                  <Text style={styles.toggleText}>
                     {isstoreProduceInfo
                       ? `${t('crop_information')}`
                       : `${t('crop_information')}`}
                   </Text>
-                  {isstoreProduceInfo ? (
-                    <Image
-                      source={require('../../Common/images/sub.png')}
-                      style={{width: 20, height: 20}}
-                    />
-                  ) : (
-                    <Image
-                      source={require('../../Common/images/add.png')}
-                      style={{width: 20, height: 20, resizeMode: 'cover'}}
-                    />
-                  )}
+                  <Text style={styles.toggleText}>
+                    {isstoreProduceInfo ? (
+                      <MaterialIcons
+                        name="do-not-disturb-on"
+                        size={25}
+                        color="red"
+                        style={styles.icon}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="add-circle"
+                        size={25}
+                        color="green"
+                        style={styles.icon}
+                      />
+                    )}
+                  </Text>
                 </View>
               </TouchableOpacity>
               {isstoreProduceInfo && (
@@ -869,7 +931,11 @@ const RegistationSignUpViwer = () => {
             </View>
           </View>
         </ScrollView>
-        <ButtonForm label={t('save')} onPress={handleSave} />
+        <ButtonForm
+          label={t('save')}
+          onPress={handleSave}
+          loading={isLoading}
+        />
       </Root>
     </View>
   );
@@ -878,25 +944,22 @@ const RegistationSignUpViwer = () => {
 export default RegistationSignUpViwer;
 const styles = StyleSheet.create({
   headerStyle: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    // borderColor: '#0a0a0a',
-    // borderWidth: 1,
-    padding: 5,
-    // backgroundColor: '#D5FFD0',
+    backgroundColor: '#ffffffff',
+    height: 35,
+    width: '100%',
+    marginLeft: -5,
+    borderRadius: 8,
+    marginTop: -3,
     borderRadius: 5,
-    height: 30,
-    paddingHorizontal: 15,
-    // borderRadius:20,
   },
   bodyContainer: {
     // backgroundColor: '#DAC0A3',
     backgroundColor: '#FFF',
     padding: 5,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    // paddingHorizontal: 12,
+    borderRadius: 8,
     // borderWidth:1,
     borderColor: '#00000065',
     justifyContent: 'center',
@@ -906,8 +969,8 @@ const styles = StyleSheet.create({
     // backgroundColor: '#DAC0A3',
     backgroundColor: '#FFF',
     padding: 5,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    // paddingHorizontal: 12,
+    borderRadius: 8,
     // borderWidth: 3,
     // borderColor: '#00000065',
     // elevation:5,
@@ -926,6 +989,13 @@ const styles = StyleSheet.create({
   },
   rightSection: {
     flex: 1, // Take 50% of the available horizontal space
+  },
+  toggleText: {
+    fontSize: 16,
+    color: 'black',
+    fontFamily: 'Poppins-SemiBold',
+    marginLeft: 15,
+    marginTop: 2,
   },
   title: {
     color: '#000',

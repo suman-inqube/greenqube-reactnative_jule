@@ -1071,7 +1071,14 @@
     "ActivityReportAWD":"Activity Report AWD",
      "no_my_questions": "Oops! No 'My Questions' available",
   "no_other_questions": "Oops! No other questions available",
-    "report_activity_AWD": "Report Activity AWD"
+    "report_activity_AWD": "Report Activity AWD",
+      "plot_location_points":"Plot Location Points",
+        "location_point": "Location",
+         "tap_to_tag":"Tap to tag",
+             "not_captured_yet": "Not Captured Yet",
+             "Registation_SignUp_Viwer":"Registation SignUp Viwer",
+             "Post_New":"Post New"
+
 
     
 
