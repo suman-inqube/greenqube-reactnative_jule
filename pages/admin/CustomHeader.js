@@ -133,6 +133,7 @@ const CustomHeader = memo(
         PlotSiteProduceInformation: t('reg_land_crop_information'),
         RegistationSignUpViwer: t('Registation_SignUp_Viwer'),
         PostNew: t('Post_New'),
+        password: t('forgot_password'),
       }),
       [t],
     );

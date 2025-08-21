@@ -7,6 +7,7 @@ import {
   LayoutChangeEvent,
   DimensionValue, Image
 } from 'react-native';
+import { Colors } from '../utils/Constants';
 
 
 
@@ -89,9 +90,9 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 0.6,
-    borderColor: '#d0d4dc',
+    // shadowRadius: 4,
+    borderWidth: 1,
+    borderColor:Colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,  // Added border bottom for header
-    borderBottomColor: '#eee',
+    borderBottomColor: Colors.border,
   },
   content: {
     overflow: 'hidden',
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
   footer: {
     padding: 10,
     borderTopWidth: 1,  // Footer border remains the same
-    borderTopColor: '#eee',
+    borderTopColor: Colors.border,
   },
   arrow: {
     marginLeft: 10,

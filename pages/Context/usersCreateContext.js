@@ -153,6 +153,7 @@ const UserCreateContextProvider = props => {
           phone: data.contactNumber,
           aadharNumber: data?.aadhar_number,
           kccNumber: data?.kcc_number,
+            FcmUserToken: data?.FcmUserToken,
         }));
         const dataArrayPhone = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
@@ -160,6 +161,7 @@ const UserCreateContextProvider = props => {
           phone: data.contactNumber,
           aadharNumber: data?.aadhar_number,
           kccNumber: data?.kcc_number,
+          FcmUserToken: data?.FcmUserToken,
         }));
         setFarmerData([dataArrayName, dataArrayPhone]);
         const PlotArray = responsePlot?.data?.data.map(data => ({

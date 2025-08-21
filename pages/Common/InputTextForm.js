@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native';
 import React, { memo } from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Colors } from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 
 const sanitizeInput = text => text.replace(/<\/?[^>]+(>|$)/g, '');
 
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   title: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily:Fonts.Regular,
     fontSize: 15,
   },
   requiredStar: {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderWidth: 0.5,
     borderRadius: 6,
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: Colors.background,
     paddingHorizontal: 10,
     color: '#000000',
     //  borderColor: '#d1d5db',

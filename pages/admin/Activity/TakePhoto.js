@@ -22,7 +22,7 @@ const TakePhoto = ({openImagePicker, selectedImage, title}) => {
             onPress={() => openImagePicker(img.key)}
             activeOpacity={0.7}>
             {img.uri ? (
-              <View style={styles.imageContainer}>
+              <View>
                 <Image
                   source={{uri: img.uri}}
                   style={styles.image}
@@ -30,7 +30,7 @@ const TakePhoto = ({openImagePicker, selectedImage, title}) => {
                 />
               </View>
             ) : (
-              <View style={styles.placeholder}>
+              <View>
                 <MaterialIcons
                   name="photo-camera"
                   size={40}
@@ -56,25 +56,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   container: {
-    backgroundColor: '#e3f4ffcf',
-    // elevation: 3,
+   flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: 10,
     margin: 2,
     // marginVertical: 10,
     borderRadius: 8,
-    borderWidth: 1,
+    // borderWidth: 1,
     borderColor: Colors.border,
-    flexDirection: 'row',
-    marginBottom: 10,
-    marginHorizontal: '4%',
+    marginBottom: 15,
+    // marginHorizontal: '3%',
   },
   item: {
-    width: '30%',
-    paddingVertical: 10,
-    borderRadius: 6,
-    justifyContent: 'center',
+      width: '25%',
+    aspectRatio: 1,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#d1d5db',
+    backgroundColor: '#f9fafb',
     alignItems: 'center',
-    TouchableOpacityAlign: 'center',
+    justifyContent: 'center',
   },
   placeholder: {
     flex: 1,
@@ -82,19 +84,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   image: {
-    width: 70,
+    width: 75,
     height: 80,
     borderRadius: 8,
   },
   imageContainer: {
     backgroundColor: 'white',
-    padding: 5, // Adjust padding as needed
+   
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3, // For Android shadow
+    // elevation: 3, // For Android shadow
   },
   label: {
     fontSize: 14,

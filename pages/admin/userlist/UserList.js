@@ -161,10 +161,7 @@ const ModernUserCard = memo(
     const expandAnim = useRef(new Animated.Value(0)).current;
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const hasAnimated = useRef(false);
-
-    // Only animate card entrance on initial load
     useEffect(() => {
-      // Only animate if animations are enabled and haven't animated before
       const delay = index * 100;
       Animated.spring(cardAnim, {
         toValue: 1,
@@ -176,13 +173,11 @@ const ModernUserCard = memo(
         hasAnimated.current = true;
       });
     }, []);
-
-    // Animate expansion/collapse - This should work independent of entrance animation
     useEffect(() => {
       Animated.parallel([
         Animated.timing(expandAnim, {
           toValue: isExpanded ? 1 : 0,
-          duration: 300, // Reduced for faster response
+          duration: 300,
           easing: Easing.bezier(0.4, 0.0, 0.2, 1),
           useNativeDriver: false,
         }),
@@ -197,7 +192,7 @@ const ModernUserCard = memo(
     const handleMenuPress = useCallback(
       menuKey => {
         const plotData =
-          item.agri_land_user_rels?.agri_land_user_rels?.map(data => ({
+          item.agri_land_user_rels?.map(data => ({
             value: data.rel_id,
             label: data.plot_no,
           })) || [];
@@ -237,7 +232,6 @@ const ModernUserCard = memo(
             },
           ]
         : [styles.modernUserCard];
-    // console.log(item.agri_files.length>0)
     return (
       <Animated.View style={cardStyle}>
         <TouchableOpacity

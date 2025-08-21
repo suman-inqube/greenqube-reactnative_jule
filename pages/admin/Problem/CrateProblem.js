@@ -363,58 +363,6 @@ const CreateProblem = ({navigation}) => {
         problem_name.label,
     });
   };
-  const handleSearch = text => {
-    setSearchFarmerName(text);
-    setSearchFarmerPhone('');
-    const result = farmerData.filter(item =>
-      item.label.toLowerCase().includes(text.toLowerCase()),
-    );
-    if (result) {
-      setSearchResultsList(true);
-      setSearchResults(result);
-    }
-  };
-  function handleClear() {
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setSaveData({
-      ...saveData,
-      agent_fcm: '',
-      farmer_fcm: '',
-      latitude: '',
-      longitude: '',
-      question_type: 'crop_problem',
-      land_unit_id: '',
-      affected_area: '',
-      category_id: '',
-      affected_date: '',
-      question_title: '',
-      question_desc: '',
-      production_process: '',
-      severity_id: '',
-    });
-    setaffectedDate('');
-    setShowingMenu(false);
-    setplotAll([]);
-    setproductionStageAll([]);
-    setProblemAll([]);
-    setProblemTypeAll([]);
-    setProblemNameAll([]);
-    setSeverityAll([]);
-    setSelectedImage({
-      firstItem: '',
-      secondItem: '',
-      thirdItem: '',
-    });
-    setNameVarityStartEnd({
-      ...nameVarityStartEnd,
-      name: '',
-      varity: '',
-      cycleStarts: '',
-      cycleEnd: '',
-      production_process: '',
-    });
-  }
   const onPageLoad = async () => {
     setdbLanTokUsr({
       ...dbLanTokUsr,
@@ -652,7 +600,6 @@ const CreateProblem = ({navigation}) => {
           await setItem('offlineSupervisorProblemData', 'off' + timeStamp);
         }
         Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
-        handleClear();
         setTimeout(() => {
           navigation.navigate('ProblemList');
         }, 1200);
@@ -754,38 +701,10 @@ const CreateProblem = ({navigation}) => {
       navigation.navigate('Dashboard');
     }
   };
-  const handleBackPress = () => {
-    navigation.navigate('ProblemList');
-    return true;
-  };
   useEffect(() => {
-    if (isFocused) {
-      onPageLoad();
-      requestLivePermission();
-      setSoundRecordFirstItem({
-        item: '1',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: '',
-      });
-      setSoundRecordSecoundItem({
-        item: '2',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: '',
-      });
-      setSoundRecordThirdItem({
-        item: '3',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: '',
-      });
-      onBackPress(handleBackPress);
-    }
-  }, [isFocused]);
+    onPageLoad();
+    requestLivePermission();
+  }, []);
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
     console.warn(item);
@@ -877,33 +796,7 @@ const CreateProblem = ({navigation}) => {
             soundRecord={soundRecordThirdItem}
           />
         )}
-        <SafeAreaView>
-          {searchResultsList && searchResultsList ? (
-            <View style={styles.flatContainer}>
-              <FlatList
-                style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                data={searchResults}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleResultSelect(
-                        item.label,
-                        item.value,
-                        item.phone,
-                        item.FcmUserToken,
-                      )
-                    }
-                    style={styles.flatlistitem}>
-                    <Text style={styles.flatlisttitle}>{item.label}</Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-              />
-            </View>
-          ) : (
-            ''
-          )}
-        </SafeAreaView>
+
         {modalVisible && (
           <HarvestedModel
             setModalVisible={setModalVisible}
