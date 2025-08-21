@@ -129,6 +129,7 @@ const CustomHeader = memo(
         ProblemView: t('plot_and_crop_problem'),
         ProblemCreate: t('add_crop_problem'),
         FarmerViewProblem: t('plot_and_crop_problem'),
+        password:t('forgot_password')
       }),
       [t],
     );

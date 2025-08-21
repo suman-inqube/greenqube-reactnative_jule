@@ -232,10 +232,6 @@ const ViewProblem = ({navigation}) => {
       onPageLoad();
     }
   }, [route.params, isFocused]);
-  const handleBackPress = () => {
-    navigation.navigate('ProblemList');
-    return true;
-  };
   // useFocusEffect(
   //   useCallback(() => {
   //     onBackPress(handleBackPress);

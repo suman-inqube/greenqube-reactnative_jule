@@ -59,6 +59,7 @@ import * as turf from '@turf/turf';
 import SignatureCapture from '../../Common/SignaturePad';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import { groupByRelId } from '../../utils/helpers';
+import { Colors } from '../../utils/Constants';
 const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPlot, addPlot }) => {
   //GQR-65
   const {
@@ -69,7 +70,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     Toast,
     LoadingScreen,
     DatePickerComp,
-    ButtonFormBottom,
+    ButtonForm,
     InputTextForm,
     DropdownForm,
     effective_dates,
@@ -622,10 +623,6 @@ const onPageLoad = async () => {
         coord.longitude === arr2[index].longitude,
     );
   };
-  const handleBackPress = () => {
-    navigation.navigate('userList');
-    return true;
-  };
   useEffect(() => {
 
       const task = InteractionManager.runAfterInteractions(() => {
@@ -869,14 +866,7 @@ const onPageLoad = async () => {
       );
     }
   };
-  //basudev
   const terraintype_resAPI = async (dbname, lan_id, type) => {
-    // Toast.show({
-    //   text: 'terraintype_resAPI',
-    //   ...AlertMesg[0],
-    // });
-    // Alert.alert('terraintype')
-
     try {
       let terraintype_res = await landRouteApi(dbname, lan_id, type);
       if (terraintype_res?.status == 200) {
@@ -886,17 +876,7 @@ const onPageLoad = async () => {
         }));
         setterrainTypeAll(terraintypeArray);
       }
-      // Toast.show({
-      //   text: JSON.stringify(terraintype_res?.status),
-      //   ...AlertMesg[0],
-      // });
-      // Alert.alert(terraintype_res?.data?.data?.count?.toString())
-      // Alert.alert(terraintype_res.data.data.rows.length)
     } catch (error) {
-      // Toast.show({
-      //   text: JSON.stringify(error),
-      //   ...AlertMesg[0],
-      // });
       console.log('Error in terraintypeAPI API', error);
     }
   };
@@ -1039,17 +1019,8 @@ const onPageLoad = async () => {
         ].includes(statuslevel.label)
       ) {
         if (deviation >= -5 && deviation <= 5) {
-          console.log(
-            'deviation ==',
-            farmerData?.ConvertedreportedLandsize,
-            deviation,
-          );
+
         } else {
-          console.log(
-            'deviation1212 ==',
-            farmerData?.ConvertedreportedLandsize,
-            deviation,
-          );
           Alert.alert(
             'Deviation',
             'The deviation between reported area and google area is not within 5%',
@@ -1060,7 +1031,7 @@ const onPageLoad = async () => {
           return;
         }
       } else {
-        console.log('ess==', farmerData?.ConvertedreportedLandsize, deviation);
+    
       }
     }
     location.map((data, index) => {
@@ -1396,7 +1367,7 @@ const onPageLoad = async () => {
   const handleAddUserDataland_size = (name, data) => {
     setfarmerData({ ...farmerData, [`${name}`]: data, ConvertedreportedLandsize: Number(farmerData.unit_value) * Number(data) });
   }
-  const HandlerGoBack = () => navigation.navigate('userList');
+
   // GRQ-1130
   const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
@@ -1615,7 +1586,6 @@ const onPageLoad = async () => {
   }
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
-
     if (harvested === '' && statuslevel.label === '') {
       setInputTextFormEdit(true);
     } else if (statuslevel.label == 'APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') {
@@ -1628,9 +1598,6 @@ const onPageLoad = async () => {
     } else if (harvested == 'same produce' && (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')) {
       setInputTextFormEdit(true);
     }
-    // else if (statuslevel.label === 'APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED' && harvested === "") {
-    //   console.log(statuslevel.label, harvested);
-    // } 
     else {
       console.log("No condition matched — status:", statuslevel.label, ", harvested:", harvested);
     }
@@ -1668,13 +1635,6 @@ const onPageLoad = async () => {
           setOpenDate={setopenCycleEnd}
           handleDatePicker={handleDatePicker2}
         />
-        {/* <CustomHeader
-          path="userList"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <FormsTitle title={t('plot_and_crop_details')} /> */}
         {isLoading ? (
           <View style={styles.LoadingScreen}>
             <LoadingScreen />
@@ -1689,7 +1649,7 @@ const onPageLoad = async () => {
         )}
 
         <ScrollView
-          style={{ marginHorizontal: 30, marginVertical: 10 }}
+          style={{ marginHorizontal: 10, marginVertical: 10,padding:15,backgroundColor:Colors.background,borderColor:Colors.border,borderWidth:1,borderRadius:8 }}
           showsVerticalScrollIndicator={false}>
           <View style={{ marginBottom: 40 }}>
             {statuslevel.label == 'REJECTED' && (
@@ -2209,9 +2169,10 @@ const onPageLoad = async () => {
             </Text>
           </TouchableOpacity>
         ) : null}
-        <ButtonFormBottom
+        <ButtonForm
           label={t('submit')}
           onPress={() => handleUserListUpdate()}
+          loading={isLoading}
         />
         {showModal && (
           <Modal

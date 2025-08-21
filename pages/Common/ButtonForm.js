@@ -27,7 +27,7 @@ const ButtonForm = ({
           flexDirection: 'row',
           opacity: loading ? 0.7 : 1,
           height: 50,
-          borderRadius: 8,
+          // borderRadius: 8,
         }}
         onPress={onPress}
         disabled={loading} // disable when loading

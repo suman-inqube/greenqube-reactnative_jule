@@ -21,6 +21,7 @@ function ActivityList({ navigation }) {
   const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, CustomHeader, t, getItem, setItem, logoImage, topBanner, Root, effective_dates, isOnline, farmerData, navigationBarHeight } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-67
+  const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [activityAll, setactivityAll] = useState([]);
   const [filterItem, setFilterItem] = useState("");
@@ -28,17 +29,13 @@ function ActivityList({ navigation }) {
   const [toDate, setToDate] = useState("");
   const [searchFarmerName, setSearchFarmerName] = useState({ label: "", value: "" });
   const [searchFarmerPhone, setSearchFarmerPhone] = useState({ label: "", value: "" });
-  // const [farmerData, setFarmerData] = useState([]);
   const [carbonType, setCarbonType] = useState({ label: "", value: "" });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
   const filterOptionShow = async () => {
     const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', 'carbon'],
-      // onchangeFilterItem: onchangeFilterItem,
       t: t,
       dropdownData: farmerData,
       filterItem: filterItem,
@@ -47,8 +44,6 @@ function ActivityList({ navigation }) {
       searchFarmerName: searchFarmerName,
       searchFarmerPhone: searchFarmerPhone,
       title: 'Choose Status',
-      // handleDatePicker: handleDatePicker,
-      // handleDatePicker2: handleDatePicker2,
       handleFilterResult: handleFilterResult,
       handleFilterRemove: handleFilterRemove,
       setFromDate: setFromDate,
@@ -60,12 +55,6 @@ function ActivityList({ navigation }) {
       CARBON_TYPE: CARBON_TYPE,
       carbonType: carbonType,
       navigationBarHeight: navigationBarHeight,
-      onApply: (values) => {
-        console.log('Applied Filter:', values);
-        setSelected(values.filterType);
-        // If you need to handle date range:
-        // doSomething(values.fromDate, values.toDate);
-      },
     });
   };
   const handleFilterResult = useCallback(({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
@@ -127,7 +116,7 @@ function ActivityList({ navigation }) {
       }
     } catch (error) {
       console.log(error);
-      // CrashlyticsRecordError(error, "ActivityList", "fatchActivityListAPI");
+      CrashlyticsRecordError(error, "ActivityList", "fatchActivityListAPI");
 
     }
   };
@@ -141,6 +130,11 @@ function ActivityList({ navigation }) {
       CrashlyticsRecordError(error, "ActivityList", "useEffect");
     }
   }, [page]);
+  useEffect(() => {
+    if (!isFocused) {
+      SPSheet.hide();
+    }
+  }, [isFocused]);
   const handleSPSheetShow = () => {
     try {
       if (carbonFlag == true) {
@@ -148,7 +142,7 @@ function ActivityList({ navigation }) {
           component: () => (
             <CarbonActivityBottomSheet index={0} spSheet={SPSheet} navigation={navigation} options={OPTIONS_CARBON} />
           ),
-          height: 150+navigationBarHeight,
+          height: 150 + navigationBarHeight,
           zIndex: 1000,
         });
       } else {

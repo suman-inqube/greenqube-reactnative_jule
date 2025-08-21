@@ -2,7 +2,7 @@ import {
   StyleSheet, Text, View, FlatList, TouchableOpacity,
   ScrollView, Image, Animated, Dimensions, BackHandler
 } from 'react-native';
-import React, { useEffect, useState, useRef, useContext, useCallback,memo } from 'react';
+import React, { useEffect, useState, useRef, useContext, useCallback, memo } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { plotListApproval, LandUnitArea, LandUnitsquare_metre } from '../../../config/apiHere';
 import CollapsibleCard from '../../Common/CollapsibleCard';
@@ -10,8 +10,9 @@ import LiveHood from './LiveHood';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { FloatingAction } from 'react-native-floating-action';
 import { getActionsPlot } from '../../utils/options';
-import { Colors } from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 const { width } = Dimensions.get('window');
+import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 const StatusBadge = ({ status }) => {
   const badgeStyles = {
     APPROVED: { bg: '#D4EDDA', color: '#155724', text: 'APPROVED' },
@@ -50,13 +51,13 @@ const PlotCard = memo(({ item, onPress, landUnitsquareMetre, landAreaUnit }) => 
                   ))}
               </View>
               <View style={{ marginLeft: 10 }}>
-                <Text style={styles.text}>: {item?.plot_no}</Text>
-                <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text>
-                <Text style={styles.text}>: {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}</Text>
-                <Text style={styles.text}>: {item?.plot_crops[0]?.crop_name?.name}</Text>
-                <Text style={styles.text}>: {item?.plot_crops[0]?.crop_variety?.name}</Text>
-                <Text style={styles.text}>: {item?.plot_crops[0]?.sowing_date}</Text>
-                <Text style={styles.text}>: {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}</Text>
+                <Text style={styles.label}>: {item?.plot_no}</Text>
+                <Text style={styles.label}>: {item?.land_size} {item?.land_unit?.name}</Text>
+                <Text style={styles.label}>: {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}</Text>
+                <Text style={styles.label}>: {item?.plot_crops[0]?.crop_name?.name}</Text>
+                <Text style={styles.label}>: {item?.plot_crops[0]?.crop_variety?.name}</Text>
+                <Text style={styles.label}>: {item?.plot_crops[0]?.sowing_date}</Text>
+                <Text style={styles.label}>: {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}</Text>
               </View>
             </View>
 
@@ -94,7 +95,7 @@ const PlotList = () => {
   const [addPlot, setAddPlot] = useState(false);
   const [plotList, setPlotList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
@@ -105,6 +106,7 @@ const PlotList = () => {
   const { dbname, lan_id, token } = loginUser_data;
 
   const onTabPress = useCallback((index, data = {}) => {
+    console.log(data)
     setActiveTab(index);
     setDataProps(data);
     scrollRef.current?.scrollTo({ x: index * width, animated: true });
@@ -140,10 +142,10 @@ const PlotList = () => {
     if (activeTab === 0) onPageLoad();
     const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
       if (activeTab === 1) {
-        onTabPress(0);   
-        return true;  
+        onTabPress(0);
+        return true;
       }
-      return false;     
+      return false;
     });
     return () => backHandler.remove();
   }, [activeTab]);
@@ -173,20 +175,23 @@ const PlotList = () => {
           onMomentumScrollEnd={e => setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))}
         >
           <View style={styles.page}>
-            {isLoading && <LoadingScreen />}
             <FlatList
-              data={plotList}
-              keyExtractor={(item,index) => item?.id?.toString()||index}
+              data={isLoading ? Array.from({ length: 5 }) : plotList}
+              keyExtractor={(item, index) => item?.id?.toString() || index}
               refreshing={refreshing}
               onRefresh={() => setRefreshing(false)}
-              renderItem={({ item }) => (
-                <PlotCard
-                  item={item}
-                  onPress={() => onTabPress(1, item)}
-                  landUnitsquareMetre={landUnitsquareMetre}
-                  landAreaUnit={landAreaUnit}
-                />
-              )}
+              renderItem={({ item, index }) =>
+                isLoading ? (
+                  <PlotStatusSkeletonScreen />
+                ) : (
+                  <PlotCard
+                    item={item}
+                    onPress={() => onTabPress(1, item)}
+                    landUnitsquareMetre={landUnitsquareMetre}
+                    landAreaUnit={landAreaUnit}
+                  />
+                )
+              }
               contentContainerStyle={{ padding: 15 }}
               showsVerticalScrollIndicator={false}
               initialNumToRender={5}
@@ -235,15 +240,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    paddingVertical:3,
+    paddingVertical: 3,
   },
   tab: {
     flex: 1,
     padding: 15,
     alignItems: 'center',
   },
-  tabText: { fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold', },
-  activeTabText: { fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold', },
+  tabText: { fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium, },
+  activeTabText: { fontSize: 16, color: 'green', fontFamily: Fonts.Medium, },
   indicator: {
     position: 'absolute',
     bottom: 0,
@@ -255,19 +260,19 @@ const styles = StyleSheet.create({
     width,
     flex: 1,
     // backgroundColor: '#E9EAEC',
-    backgroundColor: '#f5f6fb',
+    backgroundColor: Colors.background_light,
     // padding: 10,
   },
   item: {
     padding: 15,
     fontSize: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: Colors.border,
   },
   text: {
     fontSize: 14,
-    color: '#000',
-    fontFamily: 'Poppins-Regular',
+    color: Colors.text,
+    fontFamily: Fonts.Medium,
     marginVertical: 3,
   },
 
@@ -484,11 +489,16 @@ const styles = StyleSheet.create({
     height: 38,
   },
   plotInfoContainer: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     marginVertical: 10,
     shadowColor: '#000',
     flexDirection: 'row',
+  },
+  label: {
+    color: Colors.text,
+    fontFamily: Fonts.Regular,
+    fontSize:14,
   }
 });
 export default memo(PlotList);
