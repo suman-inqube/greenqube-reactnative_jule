@@ -42,7 +42,7 @@ const HEADER_HEIGHT = 60;
 import useBackgroundLocation from '../hooks/useBackgroundLocation';
 const Dashboard = ({ navigation }) => {
  const coords = useBackgroundLocation();
- console.log(coords)
+//  console.log(coords)
   useDoubleBackToExit();
 
   const {

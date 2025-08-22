@@ -115,6 +115,7 @@ const CustomHeader = memo(
         FarmerFarmIncomeExpenseView: t('income_expense_View'),
         InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
         activityDetail: t('act_detail_'),
+        activityList: t('my_activities'),
         DailySalesReport: t('daily_sales_report'),
         OutPutList: t('want_to_sell'),
         userList: t('farmer_list'),
@@ -137,7 +138,7 @@ const CustomHeader = memo(
       () => titleMap[route.name] ?? route.name,
       [titleMap, route.name],
     );
-    console.log('Screen-', title);
+    console.log('Screen-', route.name);
     const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
     const showFilter = useMemo(
       () => !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
