@@ -1,6 +1,6 @@
-import React from 'react';
+import React,{memo} from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { Colors,Fonts } from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 const DatePickerField = ({
   label,
   value,
@@ -20,16 +20,15 @@ const DatePickerField = ({
   );
 };
 
-export default DatePickerField;
+export default memo(DatePickerField);
 
 const styles = StyleSheet.create({
   container: {
     marginBottom: 12,
   },
   label: {
-    marginBottom: 8,
     fontFamily: Fonts.Regular,
-    fontSize: 14,
+    fontSize: 15
   },
   inputContainer: {
     flexDirection: 'row',
@@ -40,10 +39,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 13,
     paddingHorizontal: 12,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background,
   },
   valueText: {
-    color: '#000',
+    color: Colors.text,
     fontSize: 15,
   },
   icon: {

@@ -44,42 +44,42 @@
 
  const getDashboardFarmerItems = (t, navigateToPages) => [
   {
-    text: t("crop_prob_far_dash"), //
+    text: t("crop_prob_far_dash"), 
     imageurl: require("../Common/images/raise_problem_only.png"),
     onpress: () => navigateToPages("FarmerListProblem"),
   },
   {
-    text: t("acti_report_far_dash"),//
+    text: t("acti_report_far_dash"),
     imageurl: require("../Common/images/activity_report_only.png"),
     onpress: () => navigateToPages("FarmerActivityList"),
   },
   {
-    text: t("agri_inputs_ninquiry_far_dash"), //
+    text: t("agri_inputs_ninquiry_far_dash"), 
     imageurl: require("../Common/images/input_inqu_only.png"),
     onpress: () => navigateToPages("FarmerInputList"),
   },
   {
-    text: t("agri_output_far_dash"), ///
+    text: t("agri_output_far_dash"), 
     imageurl: require("../Common/images/dash_sale_your_product.png"),
     onpress: () => navigateToPages("FarmerOutPutList"),
   },
     {
-    text: t("weather_nadvisory_far_dash"), //
+    text: t("weather_nadvisory_far_dash"), 
     imageurl: require("../Common/images/dash_weather_advisory.png"),
     onpress: () => navigateToPages("Weather"),
   },
   {
-    text: t("useful_ninformation_far_dash"), ///
+    text: t("useful_ninformation_far_dash"), 
     imageurl: require("../Common/images/dash_sale_your_product.png"),
     onpress: () => navigateToPages("FarmerUsefulInformationList"),
   },
       {
-    text: t("training_support"), //
+    text: t("training_support"), 
     imageurl: require("../Common/images/training_support_green.png"),
     onpress: () => navigateToPages("FarmerTrainingList"),
   },
   {
-    text: t("Market Info"), ///
+    text: t("Market Info"), 
     imageurl: require("../Common/images/market_information_white.png"),
     onpress: () => {},
   }

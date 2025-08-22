@@ -664,7 +664,6 @@ const Information = () => {
           <LoadingScreen />
         </View>
       ) : null}
-      <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
         <View style={styles.container}>
           <ScrollView
             // contentContainerStyle={styles.container}
@@ -875,29 +874,17 @@ const Information = () => {
             </SectionCard>
           </ScrollView>
         </View>
-      </View>
       <ButtonForm label={t('submit')} onPress={handleSubmit} loading={isLoading} />
     </Root>
   );
 };
 
-export default Information;
-
-/* -------------------------------- STYLES ----------------------------------- */
-
+export default React.memo(Information);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    // paddingBottom: 24,
+    paddingHorizontal: 20,
     backgroundColor: Colors.background,
-    // padding: 10,
-    borderRadius: 8,
-
-    margin: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderStyle: 'dashed',
   },
   card: {
     backgroundColor: Colors.background,

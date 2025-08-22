@@ -158,7 +158,8 @@ const AddExpense = ({navigation}) => {
     });
   }, []);
 
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
@@ -369,11 +370,18 @@ const AddExpense = ({navigation}) => {
               </View>
               <View style={styles.mainView}>
                 <View style={styles.card}>
-                  <InputTextForm
+                  <DropdownForm
+                    label={t('farmer_name')}
+                    data={farmerData?.[0]}
+                    required={true}
+                    onChange={item => handleResultSelect(item)}
+                  />
+
+                  {/* <InputTextForm
                     label={t('farmer_name')}
                     value={searchFarmerName}
                     onChangeText={farmerName => handleSearch(farmerName)}
-                  />
+                  /> */}
                   <InputTextForm
                     label={t('farmer_number')}
                     value={searchFarmerPhone}

@@ -7,10 +7,10 @@ import {
   Image,
   BackHandler,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {userDetailAPI} from '../../../config/apiHere';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { userDetailAPI } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import {Colors} from '../../utils/Constants';
+import { Colors } from '../../utils/Constants';
 import {
   updateUserInfoAPI,
   districtDataListAPI1,
@@ -24,9 +24,10 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import DatePickerField from '../../Common/DatePickerField';
 const Profile = () => {
   //GQR-67
   const {
@@ -44,7 +45,7 @@ const Profile = () => {
     DropdownForm,
     ButtonForm,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
@@ -83,11 +84,11 @@ const Profile = () => {
       },
     ];
     if (storePersnolInfo.stateName == '') {
-      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
     } else if (storePersnolInfo.districtName == '') {
-      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
     } else if (storePersnolInfo.blockName == '') {
-      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
     } else {
       const formData = new FormData();
       formData.append('lan_id', storePersnolInfo.langId);
@@ -122,7 +123,7 @@ const Profile = () => {
           ...AlertMesg[0],
         });
         handleLogout();
-        navigation.navigate('Login', {pagename: 'Login'});
+        navigation.navigate('Login', { pagename: 'Login' });
       }
     }
   };
@@ -142,7 +143,7 @@ const Profile = () => {
     }
   };
   const handleLanguage = async language => {
-    const {block, district, state} = storePersnolInfo;
+    const { block, district, state } = storePersnolInfo;
     const locDiffLangRes = await locDiffLang(
       dbname,
       language.value,
@@ -152,7 +153,7 @@ const Profile = () => {
       block,
     );
     if (locDiffLangRes?.status == 200) {
-      const {distData, stateData, subdivData} =
+      const { distData, stateData, subdivData } =
         locDiffLangRes?.data?.data || {};
       await Promise.all([
         stateInfoDataList(dbname, language.value, token),
@@ -318,7 +319,7 @@ const Profile = () => {
           district: district,
           block: block,
         });
-        const {dbname, lan_id, token, user_id} = loginUser_data;
+        const { dbname, lan_id, token, user_id } = loginUser_data;
         userDetails(dbname, lan_id, token, user_id);
       }
       setIsLoading(false);
@@ -343,10 +344,10 @@ const Profile = () => {
       CommonActions.reset({
         index: 4,
         routes: [
-          {name: 'Login'},
+          { name: 'Login' },
           {
             name: 'Login',
-            params: {pagename: 'Login', locale: storePersnolInfo.langId},
+            params: { pagename: 'Login', locale: storePersnolInfo.langId },
           },
         ],
       }),
@@ -383,7 +384,7 @@ const Profile = () => {
           />
           <View style={styles.fromContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{padding: 10}}>
+              <View style={{ padding: 10 }}>
                 <InputTextForm
                   label={t('name')}
                   color="black"
@@ -396,26 +397,12 @@ const Profile = () => {
                   value={storePersnolInfo.contactNumber}
                   editable={false}
                 />
-                <View style={{marginBottom: 5}}>
-                  <Text
-                    style={{
-                      color: 'black',
-                      marginLeft: 5,
-                      fontFamily: 'Poppins-Regular',
-                    }}>
-                    {t('date_of_birth')}
-                  </Text>
-                  <TouchableOpacity style={styles.DateofBirth}>
-                    <Text
-                      style={{color: '#000', fontFamily: 'Poppins-Regular'}}>
-                      {storePersnolInfo.date_of_birth}{' '}
-                    </Text>
-                    <Image
-                      source={require('../../Common/images/calendar.png')}
-                      style={{width: 20, height: 20}}
-                    />
-                  </TouchableOpacity>
-                </View>
+                <DatePickerField
+                  label={t('date_of_birth')}
+                  value={storePersnolInfo.date_of_birth}
+                  labelColor={Colors.black}
+                />
+
                 <DropdownForm
                   label={t('select_language')}
                   color="black"
@@ -483,25 +470,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background_light,
   },
-  titleContainer: {
-    // width: '95%',
-    alignItems: 'flex-end',
-    paddingVertical: 8,
-    // backgroundColor: Colors.background_light
-  },
-  // title: {
-  //   color: '#000',
-  // },
   fromContainer: {
     flex: 1,
-    backgroundColor: 'white',
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    elevation: 1,
-    marginVertical: 10,
-    marginHorizontal: 16,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 16,
   },
   DateofBirth: {
     flexDirection: 'row',

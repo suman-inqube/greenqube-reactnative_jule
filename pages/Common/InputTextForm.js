@@ -2,9 +2,7 @@ import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native'
 import React, { memo } from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Fonts } from '../utils/Constants';
-
 const sanitizeInput = text => text.replace(/<\/?[^>]+(>|$)/g, '');
-
 const InputTextForm = ({
   value,
   color = '#4e4e4e',
@@ -75,12 +73,13 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   title: {
+    color:Colors.black,
     fontFamily:Fonts.Regular,
     fontSize: 15,
   },
   requiredStar: {
     color: 'red',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: Fonts.Medium,
     fontSize: 16,
   },
   inputField: {
@@ -89,7 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     // backgroundColor: Colors.background,
     paddingHorizontal: 10,
-    color: '#000000',
+    color: Colors.text,
     //  borderColor: '#d1d5db',
     borderColor:Colors.borderGreen
   },

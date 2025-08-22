@@ -114,6 +114,7 @@ const CustomDrawer = memo(({state}) => {
 
   const removeData = useCallback(async () => {
     console.log(netConnection);
+    // console.log('Logout');
     if (!netConnection) {
       Alert.alert('You are offline hence cannot proceed');
       return;

@@ -1,4 +1,4 @@
-import React, {lazy, useEffect, memo, useCallback, useMemo} from 'react';
+import React, { lazy, useEffect, memo, useCallback, useMemo } from 'react';
 import {
   TouchableOpacity,
   Image,
@@ -9,11 +9,11 @@ import {
   Platform,
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {goBack} from '../utils/NavigationUtils';
-import {Colors, Fonts} from '../utils/Constants';
-import {useDrawerStatus} from '@react-navigation/drawer';
-import {useTranslation} from 'react-i18next';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { goBack } from '../utils/NavigationUtils';
+import { Colors, Fonts } from '../utils/Constants';
+import { useDrawerStatus } from '@react-navigation/drawer';
+import { useTranslation } from 'react-i18next';
 const DASHBOARD_TITLE = 'Dashboard';
 const DAILY_SALES_TITLE = 'Daily Sales Report';
 const TITLES_WITHOUT_FILTER = [DASHBOARD_TITLE, DAILY_SALES_TITLE];
@@ -25,13 +25,13 @@ const IMAGES = {
   fourDot: require('../Common/images/4dot.png'),
   dashboard: require('../Common/images/dashboard.jpeg'),
 };
-const BackButton = memo(({onPress}) => (
+const BackButton = memo(({ onPress }) => (
   <TouchableOpacity onPress={onPress}>
     <Image source={IMAGES.back} resizeMode="contain" style={styles.backIcon} />
   </TouchableOpacity>
 ));
 
-const LogoImage = memo(({isDashboard}) => (
+const LogoImage = memo(({ isDashboard }) => (
   <Image
     source={isDashboard ? IMAGES.logo : IMAGES.logoIcon}
     style={isDashboard ? styles.dashboardLogo : styles.regularLogo}
@@ -39,16 +39,16 @@ const LogoImage = memo(({isDashboard}) => (
   />
 ));
 
-const RoundButton = memo(({onPress, imageSource, style}) => (
+const RoundButton = memo(({ onPress, imageSource, style }) => (
   <TouchableOpacity style={[styles.roundButton, style]} onPress={onPress}>
     <Image source={imageSource} style={styles.buttonIcon} />
   </TouchableOpacity>
 ));
 
-const CompanyLogo = memo(({logoImage}) => (
+const CompanyLogo = memo(({ logoImage }) => (
   <View style={styles.companyLogoContainer}>
     <ImageForm
-      source={{uri: logoImage}}
+      source={{ uri: logoImage }}
       resizeMode="contain"
       height={50}
       width={50}
@@ -56,10 +56,10 @@ const CompanyLogo = memo(({logoImage}) => (
   </View>
 ));
 
-const BannerImage = memo(({topBanner}) =>
+const BannerImage = memo(({ topBanner }) =>
   topBanner ? (
     <ImageForm
-      source={{uri: topBanner}}
+      source={{ uri: topBanner }}
       resizeMode="cover"
       height={200}
       width="100%"
@@ -80,7 +80,7 @@ const CustomHeader = memo(
     filterOptionShow,
   }) => {
     const drawerStatus = useDrawerStatus();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
     const titleMap = useMemo(
@@ -115,7 +115,6 @@ const CustomHeader = memo(
         FarmerFarmIncomeExpenseView: t('income_expense_View'),
         InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
         activityDetail: t('act_detail_'),
-        activityList: t('my_activities'),
         DailySalesReport: t('daily_sales_report'),
         OutPutList: t('want_to_sell'),
         userList: t('farmer_list'),
@@ -130,7 +129,14 @@ const CustomHeader = memo(
         ProblemView: t('plot_and_crop_problem'),
         ProblemCreate: t('add_crop_problem'),
         FarmerViewProblem: t('plot_and_crop_problem'),
-        password:t('forgot_password')
+        FinancialInformation: t('financial_information'),
+        PlotSiteProduceInformation: t('reg_land_crop_information'),
+        RegistationSignUpViwer: t('Registation_SignUp_Viwer'),
+        PostNew: t('Post_New'),
+        password: t('forgot_password'),
+        activityList: t('my_activities'),
+        information: t('useful_ninformation_dash'),
+        CrateProblemUser:t('problem_reporting')
       }),
       [t],
     );

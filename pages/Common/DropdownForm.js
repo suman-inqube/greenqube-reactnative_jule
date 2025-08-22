@@ -1,8 +1,8 @@
-import React, {memo} from 'react';
-import {View, StyleSheet, Text, useColorScheme} from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import React, { memo } from 'react';
+import { View, StyleSheet, Text, useColorScheme } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 
 const DropdownForm = ({
   color = '#4e4e4e',
@@ -26,7 +26,7 @@ const DropdownForm = ({
         {labelString ? (
           <>
             <Text
-              style={[styles.labelText, {color: color ?? 'black'}, labelStyle]}>
+              style={[styles.labelText, { color: color ?? 'black' }, labelStyle]}>
               {labelString}
             </Text>
             {required && <Text style={styles.requiredStar}> *</Text>}
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   label: {
     marginHorizontal: 5,
     marginBottom: 5,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.Regular,
     fontSize: 14,
   },
   container: {
@@ -85,17 +85,17 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 5,
     paddingHorizontal: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor:Colors.background,
     width: '100%',
   },
   placeholderStyle: {
-    color: Colors.black,
-    fontFamily: 'Poppins-Regular',
+    color: Colors.text,
+    fontFamily: Fonts.Regular,
     fontSize: 14,
   },
   selectedTextStyle: {
-    color: Colors.black,
-    fontFamily: 'Poppins-Regular',
+    color: Colors.text,
+    fontFamily: Fonts.Regular,
     fontSize: 14,
   },
   iconStyle: {
@@ -103,18 +103,18 @@ const styles = StyleSheet.create({
     height: 20,
   },
   inputSearchStyle: {
-    color: Colors.black,
-    fontFamily: 'Poppins-Regular',
+    color: Colors.text,
+    fontFamily: Fonts.Regular,
   },
   itemTextStyle: {
-    color: Colors.black,
-    fontFamily: 'Poppins-Regular',
+    color: Colors.text,
+    fontFamily: Fonts.Regular,
   },
   dropdownContainerStyle: {
     borderWidth: 0.5,
     borderColor: Colors.borderGreen,
     borderRadius: 5,
-    backgroundColor: '#fff',
+    backgroundColor:Colors.background,
     padding: 4,
   },
   labelContainer: {
@@ -124,12 +124,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   labelText: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.Regular,
     fontSize: 15,
   },
   requiredStar: {
     color: 'red',
-    fontFamily: 'Poppins-Bold',
+    fontFamily: Fonts.Medium,
     fontSize: 16,
   },
 });
