@@ -301,9 +301,9 @@ const LoanEnquiryDetail = () => {
     });
     setplotArr(plotDataArr);
   }, []);
-  const HandlerGoBack = () => {
-    navigation.navigate('Loan');
-  };
+  // const HandlerGoBack = () => {
+  //   navigation.navigate('Loan');
+  // };
   const handleSave = async () => {
     setIsLoading(true);
     const deleted_id_arr = photo_to_be_deleted.filter(item => item != '');
@@ -386,7 +386,6 @@ const LoanEnquiryDetail = () => {
           }}>
           <CustomHeader
             path={'LoanViewPastRequested'}
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

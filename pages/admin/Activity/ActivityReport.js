@@ -1549,7 +1549,11 @@ const ActivityReport = ({navigation}) => {
               </View>
             </ScrollView>
             <View style={{marginTop: 10}}>
-              <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+              <ButtonForm
+                label={t('submit')}
+                onPress={() => handleSave()}
+                loading={isLoading}
+              />
             </View>
           </View>
         </>

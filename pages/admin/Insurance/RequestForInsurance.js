@@ -21,8 +21,15 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 
 const RequestForInsurance = ({}) => {
+  const navigation = useNavigation();
+
   //GQR-67
   const {
     t,
@@ -38,7 +45,7 @@ const RequestForInsurance = ({}) => {
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchResultsList, setSearchResultsList] = useState(false);
   const [farmerList, setFarmerList] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -192,10 +199,16 @@ const RequestForInsurance = ({}) => {
       );
       console.log('addInsurance', addInsurance);
       if (addInsurance.status === 200) {
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+        setTimeout(() => {
+          setActiveBtn(2);
+        }, 2000);
+
+        navigation.navigate('InsuranceViewPastRequested');
       }
+      setIsLoading(false);
     }
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
 
   return (
     <FarmerDrawerScreenWrapper1>
@@ -203,7 +216,6 @@ const RequestForInsurance = ({}) => {
         <Root>
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
@@ -406,6 +418,7 @@ const RequestForInsurance = ({}) => {
             iconName="check-circle"
             iconColor="#fff"
             iconSize={30}
+            loading={isLoading}
           />
         </Root>
       </>

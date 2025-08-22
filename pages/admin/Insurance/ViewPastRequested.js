@@ -184,13 +184,11 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
     setFilterOption(false);
     setInsuranceList(insuranceListRow);
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <CustomHeader
           path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

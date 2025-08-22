@@ -41,7 +41,14 @@ import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const qs = require('qs');
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 const LoanRequest = ({setActiveBtn}) => {
+  const navigation = useNavigation();
+
   const scrollViewRef = useRef(null);
 
   //GQR-67
@@ -59,13 +66,14 @@ const LoanRequest = ({setActiveBtn}) => {
     CustomHeader,
     logoImage,
     topBanner,
+    ButtonForm,
     // handleResultSelect,
     farmerData,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const [blank, setBlank] = useState({label: '', value: 'dacsfddsd'});
   //GQR-67
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -1194,6 +1202,8 @@ const LoanRequest = ({setActiveBtn}) => {
         setTimeout(() => {
           setActiveBtn(2);
         }, 2000);
+
+        navigation.navigate('LoanViewPastRequested');
       }
       setIsLoading(false);
     }
@@ -1204,7 +1214,7 @@ const LoanRequest = ({setActiveBtn}) => {
       await Linking.openURL(propsData);
     }
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  // const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
     <FarmerDrawerScreenWrapper1>
       <>
@@ -1216,7 +1226,7 @@ const LoanRequest = ({setActiveBtn}) => {
           ) : null}
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
@@ -1538,12 +1548,17 @@ const LoanRequest = ({setActiveBtn}) => {
               </View>
             </ScrollView>
           </SafeAreaView>
-          <ButtonFormBottom
+          {/* <ButtonFormBottom
             label={t('submit')}
             onPress={handleSave}
             iconName="check-circle"
             iconColor="#fff"
             iconSize={30}
+          /> */}
+          <ButtonForm
+            label={t('submit')}
+            onPress={handleSave}
+            loading={isLoading}
           />
         </Root>
       </>

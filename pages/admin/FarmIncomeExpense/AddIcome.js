@@ -45,6 +45,7 @@ const AddIcome = ({navigation}) => {
     ButtonFormBottom,
     effective_dates,
     farmerData,
+    ButtonForm,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner} = loginUser_data;
   //GQR-67
@@ -56,6 +57,8 @@ const AddIcome = ({navigation}) => {
   // const [farmerData, setFarmerData] = useState([]);
   const [plotAll, setplotAll] = useState([]);
   const [showingMenu, setShowingMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
     name: '',
     varity: '',
@@ -123,6 +126,8 @@ const AddIcome = ({navigation}) => {
     const curr = await getItem('currency');
     setcurrency(curr);
     handleClear();
+    setIsLoading(false);
+
     // if (loginUser_data) {
     //     const dbName = loginUser_data.dbname;
     //     const languageId = loginUser_data.lan_id;
@@ -471,12 +476,13 @@ const AddIcome = ({navigation}) => {
               </View>
             </ScrollView>
           </View>
-          <ButtonFormBottom
+          <ButtonForm
             label={t('submit')}
             onPress={() => handleSave()}
             iconName="check-circle"
             iconColor="#fff"
             iconSize={30}
+            loading={isLoading}
           />
         </View>
       </Root>
