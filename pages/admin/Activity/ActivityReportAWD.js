@@ -53,16 +53,13 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {AnalyticsLogEvent} from '../../Analytics';
 import {isPointInPolygon, getDistance} from 'geolib';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
-import getCurrentLocation from '../../Common/getCurrentLocation';
 import ActivityMap from '../../Common/ActivityMap';
 import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const ActivityReportAWD = ({navigation}) => {
-  var watchId = useRef(null);
   //GQR-67
   const {
     loginUser_data,
@@ -70,7 +67,6 @@ const ActivityReportAWD = ({navigation}) => {
     CustomHeader,
     t,
     AlertMesg,
-    onBackPress,
     getItem,
     setItem,
     logoImage,
@@ -80,13 +76,11 @@ const ActivityReportAWD = ({navigation}) => {
     SPSheet,
     DeviceInfo,
     effective_dates,
-    FormsTitle,
-    RadioForm,
     InputTextForm,
     DropdownForm,
     ButtonForm,
     DatePickerComp,
-    isOnline,
+    isOnline,coords
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
@@ -159,7 +153,7 @@ const ActivityReportAWD = ({navigation}) => {
     cycleEnd: '',
   });
   // const [myphoto, setmyPhoto] = useState(null);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState(coords);
   const [myphotoAll, setmyPhotoAll] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleRecordFirstItem, setModalVisibleRecordFirstItem] =
@@ -294,12 +288,10 @@ const ActivityReportAWD = ({navigation}) => {
   };
   const handlePlot = async relId => {
     try {
-      const fusedLocation = await getItem('fusedLocation');
-      const {latitude, longitude} = fusedLocation;
+      const {latitude, longitude} = coords||{};
       setIsLoading(true);
       if (isOnline) {
         var [response] = await Promise.all([
-          // produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value),
           produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value),
         ]);
         await setItem('produceAgainstPlot' + farmerID + relId.value, response);
@@ -309,7 +301,6 @@ const ActivityReportAWD = ({navigation}) => {
         );
       }
       if (response) {
-        //  const { latitude, longitude } = location || {};
         if (
           response?.data?.data?.land_info?.agri_land_user_latlongs.length > 2
         ) {
@@ -1283,31 +1274,6 @@ const ActivityReportAWD = ({navigation}) => {
         }));
         setfarmerData(dataArray);
       }
-      watchId.current = Geolocation.watchPosition(
-        async position => {
-          const {latitude, longitude} = position.coords;
-
-          setLocation(prev => {
-            if (prev?.latitude !== latitude || prev?.longitude !== longitude) {
-              return {latitude, longitude};
-            }
-            return prev;
-          });
-        },
-        error => Alert.alert('Location Error', error.message),
-        {
-          enableHighAccuracy: true,
-          distanceFilter: 0,
-          timeout: 30000,
-          maximumAge: 0,
-        },
-      );
-      return () => {
-        if (watchId.current !== null) {
-          Geolocation.clearWatch(watchId.current);
-          watchId.current = null;
-        }
-      };
     } catch (error) {
       CrashlyticsRecordError(
         error,
@@ -1593,7 +1559,7 @@ const ActivityReportAWD = ({navigation}) => {
           second: '2-digit',
         }).format(timestamp);
 
-        const watermarkText = `${location.latitude},${location.longitude},${formattedTime}`;
+        const watermarkText = `${coords?.latitude},${coords?.longitude},${formattedTime}`;
 
         const markerOptions = {
           backgroundImage: {src: asset.uri, scale: 1},
@@ -1624,8 +1590,8 @@ const ActivityReportAWD = ({navigation}) => {
         setSelectedImagePipe(prev => ({
           ...prev,
           [cameraItem]: `file://${path}`,
-          [`${cameraItem}Lat`]: location.latitude,
-          [`${cameraItem}Long`]: location.longitude,
+          [`${cameraItem}Lat`]: coords?.latitude,
+          [`${cameraItem}Long`]: coords?.longitude,
         }));
         setModalVisibleMap(false);
         // if (watchIdRef.current) {
@@ -1639,7 +1605,7 @@ const ActivityReportAWD = ({navigation}) => {
         setModalVisibleMap(false);
       }
     });
-  }, [location, cameraItem, setSelectedImagePipe, setModalVisibleMap]);
+  }, [cameraItem, setSelectedImagePipe, setModalVisibleMap]);
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -1652,7 +1618,7 @@ const ActivityReportAWD = ({navigation}) => {
                   setModalVisibleMap={setModalVisibleMap}
                   plotPolygon={plotPolygon}
                   TakePhoto={TakePhoto}
-                  location={location}
+                  location={coords}
                   setOutOfRange={setOutofRange}
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}

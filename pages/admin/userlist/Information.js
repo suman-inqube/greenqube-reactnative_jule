@@ -440,18 +440,16 @@ const Information = () => {
   ]);
 
   useEffect(() => {
-    setSelectedImage(null);
+    // setSelectedImage(null);
     onPageLoad();
-    const unsub = onBackPress(() => {
-      navigation.navigate('userList');
-      return true;
-    });
-    return () => {
-      if (typeof unsub === 'function') unsub();
-    };
-  }, [onPageLoad, onBackPress, navigation]);
-
-  /* ----------------------------- FILE HANDLERS ------------------------------ */
+    // const unsub = onBackPress(() => {
+    //   navigation.navigate('userList');
+    //   return true;
+    // });
+    // return () => {
+    //   if (typeof unsub === 'function') unsub();
+    // };
+  }, []);
 
   const handleDocumentSelection = useCallback(async (imageType, index) => {
     try {
@@ -517,9 +515,6 @@ const Information = () => {
       console.log(error);
     }
   }, [identityProofs, dbName, languageID, loginUserToken, t, Toast, AlertMesg]);
-
-  /* ------------------------------- SUBMIT ----------------------------------- */
-
   const handleSubmit = useCallback(async () => {
     // basic guards (use server-side validation as source of truth)
     if (!form.stateName) {
@@ -647,9 +642,6 @@ const Information = () => {
     AlertMesg,
     navigation,
   ]);
-
-  /* ---------------------------------- UI ------------------------------------ */
-
   return (
     <Root>
       <CustomHeader
