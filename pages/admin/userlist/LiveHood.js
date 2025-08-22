@@ -73,7 +73,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     ButtonForm,
     InputTextForm,
     DropdownForm,
-    effective_dates, navigationBarHeight
+    effective_dates, navigationBarHeight,coords
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-65
@@ -200,8 +200,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   const onPageLoad = async () => {
     try {
       setIsLoading(true);
-      const fusedLocation = await getItem("fusedLocation");
-      const { latitude, longitude } = fusedLocation || {};
+      const { latitude, longitude } = coords || {};
       setreferencelatLong({ latitude, longitude });
       const axiosConfig = {
         headers: {

@@ -48,7 +48,7 @@ const Profile = () => {
   const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const [languageData, setlanguageData] = useState([]);
   const [stateInfoData, setstateInfoData] = useState([]);
@@ -459,7 +459,7 @@ const Profile = () => {
             </ScrollView>
           </View>
         </View>
-        <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+        <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading}/>
       </Root>
     </>
   );

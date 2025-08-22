@@ -39,12 +39,8 @@ import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import { getDashboardItems } from '../utils/dashboardItems';
 const HEADER_HEIGHT = 60;
-import useBackgroundLocation from '../hooks/useBackgroundLocation';
 const Dashboard = ({ navigation }) => {
- const coords = useBackgroundLocation();
-//  console.log(coords)
   useDoubleBackToExit();
-
   const {
     getItem,
     t,
@@ -53,7 +49,7 @@ const Dashboard = ({ navigation }) => {
     topBanner,
     isOnline,
     Toast,
-    AlertMesg,
+    AlertMesg, coords
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
 
