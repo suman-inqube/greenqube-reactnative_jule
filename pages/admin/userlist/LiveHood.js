@@ -60,6 +60,8 @@ import SignatureCapture from '../../Common/SignaturePad';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import { groupByRelId } from '../../utils/helpers';
 import { Colors } from '../../utils/Constants';
+import { FloatingAction } from 'react-native-floating-action';
+import { getActionsPlot } from '../../utils/options';
 const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPlot, addPlot }) => {
   //GQR-65
   const {
@@ -73,7 +75,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     ButtonForm,
     InputTextForm,
     DropdownForm,
-    effective_dates, navigationBarHeight,coords
+    effective_dates, navigationBarHeight, coords
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-65
@@ -81,7 +83,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   const route = useRoute();
   const { farmeruserID, agri_land_user_rels } = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [farmerData, setfarmerData] = useState({
     createdBy: '',
     plot_no: '',
@@ -2121,38 +2123,28 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             ) : (
               <></>
             )}
-            {
-              (addPlot == false ? (userData != 'addUserData' ?
-                <TouchableOpacity
-                  style={styles.clickAddMorePlots}
-                  onPress={() => handleUserData()}>
-                  <Text style={styles.clickAddMorePlotsTitle}>
-                    {t('click_to_add_more_plot')}{addPlot}
-                  </Text>
-                </TouchableOpacity> : null) : null)
-            }
+      
           </View>
         </ScrollView>
-        {/* <TouchableOpacity
-          style={styles.locationAddMoreContainer}
-          onPress={addMoreLocation}>
-          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
-            {t('AddLocation')}
-          </Text>
-        </TouchableOpacity> */}
-        {plotEdit || addPlot == true ? (
-          <TouchableOpacity
-            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
-            onPress={() => setShowModal(!showModal)}>
-            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
-              {t('MapView')}
-            </Text>
-          </TouchableOpacity>
-        ) : null}
+
         <ButtonForm
           label={t('submit')}
           onPress={() => handleUserListUpdate()}
           loading={isLoading}
+        />
+        <FloatingAction
+          position="right"
+          actions={getActionsPlot(t, styles, Colors, plotEdit, addPlot)}
+          color={Colors.useGreen}
+          onPressItem={(name) => {
+            if (name == "MapView") {
+              setShowModal(!showModal)
+            } else {
+              handleUserData()
+            }
+          }}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{ vertical: 80, horizontal: 25 }}
         />
         {showModal && (
           <Modal

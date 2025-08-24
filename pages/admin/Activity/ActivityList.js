@@ -1,10 +1,10 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions, SafeAreaView, Animated
+  StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions, SafeAreaView, Animated, RefreshControl
 } from 'react-native'
 import React, { useEffect, useState, useContext, useCallback, lazy, useRef, memo } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
-import { SPSheet } from 'react-native-popup-confirm-toast';
+import { SPSheet,Toast } from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import { OPTIONS_CARBON, getActionsActivity, CARBON_TYPE } from '../../utils/options';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
@@ -16,12 +16,15 @@ import { ROUTES } from '../../utils/Routes';
 import { getStatusColor, getProduceEmoji, formatDate } from '../../utils/helpers';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
 import PaginationNav from '../../Components/PaginationNav';
+import { AlertMesg } from '../../Common/ToastAlert';
 function ActivityList({ navigation }) {
   //GQR-67
   const { dbLanTokUsr, setdbLanTokUsr, loginUser_data, CustomHeader, t, getItem, setItem, logoImage, topBanner, Root, effective_dates, isOnline, farmerData, navigationBarHeight } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
+  const route = useRoute();
+  const flatListRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activityAll, setactivityAll] = useState([]);
   const [filterItem, setFilterItem] = useState("");
@@ -32,6 +35,7 @@ function ActivityList({ navigation }) {
   const [carbonType, setCarbonType] = useState({ label: "", value: "" });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
   const filterOptionShow = async () => {
     const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
@@ -114,6 +118,9 @@ function ActivityList({ navigation }) {
         setactivityAll(response?.data?.rows);
         setIsLoading(false);
       }
+      if (flatListRef.current) {
+        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
     } catch (error) {
       console.log(error);
       CrashlyticsRecordError(error, "ActivityList", "fatchActivityListAPI");
@@ -123,6 +130,18 @@ function ActivityList({ navigation }) {
   const onPageLoad = async (page) => {
     fatchActivityListAPI(page);
   };
+  const handleRefresh = useCallback(async () => {
+    setTotalPages(1);
+    await fatchActivityListAPI(1, '');
+  }, []);
+  useEffect(() => {
+    if (route?.params?.action === "addData") {
+      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+      setTotalPages(1);
+      fatchActivityListAPI(1, '');
+    }
+  }, [route?.params]);
+
   useEffect(() => {
     try {
       onPageLoad(page);
@@ -266,6 +285,7 @@ function ActivityList({ navigation }) {
             topBanner={topBanner}
             filterOptionShow={filterOptionShow} t={t} />
           <FlatList
+            ref={flatListRef}
             data={isLoading ? Array.from({ length: 5 }) : activityAll}
             keyExtractor={(item, index) => index?.toString()}
             renderItem={({ item, index }) =>
@@ -275,34 +295,20 @@ function ActivityList({ navigation }) {
                 <ActivityCard activity={item} index={index} navigation={navigation} />
               )
             }
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                colors={['#4CAF50']}
+                tintColor="#4CAF50"
+              />
+            }
             contentContainerStyle={{ padding: 20, paddingBottom: 50 }}
             showsVerticalScrollIndicator={false}
             initialNumToRender={5}
             windowSize={5}
             removeClippedSubviews={true}
           />
-
-          {/* Floating Action Button */}
-          {/* <Animated.View
-            style={[
-              styles.fabContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{
-                  scale: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 1],
-                  }),
-                }],
-              }
-            ]}
-          >
-            <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
-              <Text style={styles.fabIcon}>+</Text>
-            </TouchableOpacity>
-          </Animated.View> */}
-
-          {/* Bottom Navigation */}
           <PaginationNav
             isLoading={isLoading}
             page={page}

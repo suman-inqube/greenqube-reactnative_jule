@@ -498,6 +498,21 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: Fonts.Regular,
     fontSize: 14,
+    marginVertical: 3,
+  },
+  rejectBox: {
+    paddingVertical: 10,
+    backgroundColor: '#F8D7DA',
+    borderRadius: 5,
+    borderColor: '#F8D7DA',
+    borderWidth: 0.6,
+    marginVertical: 20,
+  },
+  rejectText: {
+    marginHorizontal: 5,
+    color: '#721C24',
+    fontFamily: Fonts.Regular,
+    fontSize: 14,
   }
 });
 export default memo(PlotList);

@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
+  Animated,
+  Dimensions,
+  StatusBar,
 } from 'react-native';
-import React, {useState, useEffect, useContext, useCallback, lazy} from 'react';
+import React, { useState, useEffect, useContext, useCallback, lazy, useRef } from 'react';
 import ModalCompProduct from './ModalCompProduct';
-import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
 import {
   inputCategoryAPI,
   inputListAPI,
@@ -16,11 +18,15 @@ import {
 } from '../../../config/apiHere';
 const SearchBy = lazy(() => import('./SearchBy'));
 const SearchSubBy = lazy(() => import('./SearchSubBy'));
-import {useIsFocused} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const InputList = ({navigation}) => {
-  //GQR-67
+import LinearGradient from 'react-native-linear-gradient';
+import { Colors } from '../../utils/Constants';
+import { FloatingAction } from 'react-native-floating-action';
+import { getActionsActivity } from '../../utils/options';
+import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
+const InputList = ({ navigation }) => {
   const {
     loginUser_data,
     LoadingScreen,
@@ -33,8 +39,11 @@ const InputList = ({navigation}) => {
     topBanner,
     FormsTitle,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
-  //GQR-67
+  const { dbname, lan_id, token, user_id } = loginUser_data;
+
+  const fadeAnims = useRef({}).current;
+  const slideAnims = useRef({}).current;
+  const scaleAnims = useRef({}).current;
 
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
@@ -47,16 +56,33 @@ const InputList = ({navigation}) => {
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
   const [currency, setCurrencyt] = useState('');
+
   const navigateToPages = useCallback(
     async index => {
+      // Add tap animation
+      if (scaleAnims[index]) {
+        Animated.sequence([
+          Animated.timing(scaleAnims[index], {
+            toValue: 0.98,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnims[index], {
+            toValue: 1,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+
       await setItem('input_single_data', inputListAll[index]);
-      // setIsLoading(true)
       setInputSingle(inputListAll[index]);
       setModalVisible(true);
       setIsLoading(false);
     },
     [inputListAll],
   );
+
   const handleCategory = useCallback(async search => {
     if (search.value == '0') {
       setInputListAll(inputListAllRaw);
@@ -78,6 +104,7 @@ const InputList = ({navigation}) => {
       }
     }
   }, []);
+
   const handleSubCategory = useCallback(async search => {
     const inputList = await inputListAPI(
       dbname,
@@ -90,6 +117,7 @@ const InputList = ({navigation}) => {
       setInputListAll(inputList?.data?.data?.rows);
     }
   }, []);
+
   const onPageLoad = async () => {
     const [currency_res] = await Promise.all([getItem('currency')]);
     setCurrencyt(currency_res);
@@ -121,135 +149,212 @@ const InputList = ({navigation}) => {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     setModalVisible(false);
     onPageLoad();
-    onBackPress(() => {
-      navigation.navigate('Dashboard');
-      return true;
+  }, []);
+
+
+  useEffect(() => {
+    // Initialize animations for each product
+    inputListAll.forEach((_, index) => {
+      if (!fadeAnims[index]) {
+        fadeAnims[index] = new Animated.Value(0);
+      }
+      if (!slideAnims[index]) {
+        slideAnims[index] = new Animated.Value(30);
+      }
+      if (!scaleAnims[index]) {
+        scaleAnims[index] = new Animated.Value(1);
+      }
     });
-  }, [isFocused]);
-  const HandlerGoBack = () => {
-    setCategory('');
-    setSubCategory('');
-    navigation.navigate('Dashboard');
+
+    // Animate items on load
+    inputListAll.forEach((_, index) => {
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(fadeAnims[index], {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnims[index], {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }, index * 100);
+    });
+  }, [inputListAll]);
+
+  const ProductCard = ({ product, index }) => {
+    // Ensure animations exist
+    if (!fadeAnims[index]) {
+      fadeAnims[index] = new Animated.Value(0);
+    }
+    if (!slideAnims[index]) {
+      slideAnims[index] = new Animated.Value(30);
+    }
+    if (!scaleAnims[index]) {
+      scaleAnims[index] = new Animated.Value(1);
+    }
+
+    return (
+      <Animated.View
+        style={[
+          styles.productCard,
+          {
+            opacity: fadeAnims[index],
+            transform: [
+              { translateY: slideAnims[index] },
+              { scale: scaleAnims[index] }
+            ],
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={() => navigateToPages(index)}
+          activeOpacity={0.95}
+          style={styles.cardContainer}
+        >
+          {/* Product Image - Facebook style large image */}
+          <View style={styles.imageContainer}>
+            {product.agri_files && product.agri_files.length > 0 ? (
+              <Image
+                source={{ uri: product.agri_files[0].file_path }}
+                style={styles.productImage}
+              />
+            ) : (
+              <Image
+                source={require('../../Common/images/logo.png')}
+                style={styles.productImage}
+              />
+            )}
+
+            {/* Trending Badge - Top Right */}
+            {product?.trending && (
+              <View style={styles.trendingBadge}>
+                <Text style={styles.trendingText}>🔥 New</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Content Section */}
+          <View style={styles.contentSection}>
+            {/* Product Name - Large Bold Title */}
+            <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.productName} numberOfLines={2}>
+                {product.product_name}
+              </Text>
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryBadgeText}>
+                  {product.productCategories[0]?.productCategory?.name || 'N/A'}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.descriptionText} numberOfLines={2}>
+              {product.description || 'Premium quality product for your agricultural needs'}
+            </Text>
+          </View>
+          <View style={{ width: 220, paddingLeft: 10 }}>
+            <ProductOptionDropDown
+              rate={product.agri_product_prices}
+              onChange={item =>
+                console.log(item.value && item.value)
+              }
+              key={index}
+              currency={currency}
+            />
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
   };
+
   return (
     <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1}}>
+      <StatusBar barStyle="light-content" backgroundColor="#059669" />
+      <View style={{ flex: 1 }}>
         <CustomHeader
           path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />
+
         <View style={styles.container}>
-          {/* <FormsTitle title={t('products')} /> */}
-          <View style={styles.searchByCategoryContainer}>
-            <View style={styles.searchByCategoryItem}>
-              <SearchBy
-                label={t('search_by_category')}
-                data={inputCategory}
-                onChange={item => handleCategory(item)}
-                val={category}
-              />
-            </View>
-            <View style={styles.searchByCategoryItem}>
-              <SearchSubBy
-                label={t('search_by_sub_category')}
-                data={inputSubCategory}
-                onChange={item => handleSubCategory(item)}
-                val={subCategory}
-              />
+          {/* Search Section */}
+          <View style={styles.searchSection}>
+            <View style={styles.searchByCategoryContainer}>
+              <View style={styles.searchByCategoryItem}>
+                <SearchBy
+                  label={t('search_by_category')}
+                  data={inputCategory}
+                  onChange={item => handleCategory(item)}
+                  val={category}
+                />
+              </View>
+              <View style={styles.searchByCategoryItem}>
+                <SearchSubBy
+                  label={t('search_by_sub_category')}
+                  data={inputSubCategory}
+                  onChange={item => handleSubCategory(item)}
+                  val={subCategory}
+                />
+              </View>
             </View>
           </View>
+
           <ModalCompProduct
             setModalVisible={setModalVisible}
             modalVisible={modalVisible}
             inputSigle={inputSingle}
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-            }}
+            style={styles.modalStyle}
           />
+
           {isLoading && (
             <View style={styles.loadingScreen}>
               <LoadingScreen />
             </View>
           )}
+
           <FlatList
             data={inputListAll}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                onPress={() => navigateToPages(index)}
-                key={index}>
-                <View style={styles.flatlistContainer}>
-                  <View style={styles.flatlistItem}>
-                    {item.agri_files && item.agri_files.length > 0 ? (
-                      <Image
-                        source={{uri: item.agri_files[0].file_path}}
-                        style={{width: 100, height: 100, resizeMode: 'contain'}}
-                      />
-                    ) : (
-                      <Image
-                        source={require('../../Common/images/logo.png')}
-                        style={{width: 100, height: 100, resizeMode: 'contain'}}
-                      />
-                    )}
-                    <View
-                      style={{
-                        justifyContent: 'flex-end',
-                        paddingHorizontal: 10,
-                        width: '100%',
-                      }}>
-                      <Text
-                        style={[
-                          styles.title,
-                          {fontFamily: 'Poppins-SemiBold', color: '#013715'},
-                        ]}>
-                        {item.product_name}
-                      </Text>
-                      <Text style={styles.title}>
-                        {item.productCategories[0].productCategory.name}
-                      </Text>
-                      <Text style={styles.title}>{item.product_code}</Text>
-                      <Text style={styles.title}>
-                        {item.description.length < 70
-                          ? item.description.substring(0, 70)
-                          : item.description.substring(0, 70) + '...'}
-                      </Text>
-                      <View style={{width: 220, paddingLeft: 10}}>
-                        <ProductOptionDropDown
-                          rate={item.agri_product_prices}
-                          onChange={item =>
-                            console.log(item.value && item.value)
-                          }
-                          key={index}
-                          currency={currency}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
+            contentContainerStyle={styles.flatListContent}
+            renderItem={({ item, index }) => (
+              <ProductCard key={item.fid} product={item} index={index} />
             )}
-            keyExtractor={(item, index) => index}
+            keyExtractor={(item, index) => `${item.fid}-${index}`}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
           />
 
-          <View style={styles.viewPastBtn}>
+          {/* Floating Action Button */}
+          {/* <View style={styles.viewPastBtn}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('PastEnquiry')}>
+              onPress={() => navigation.navigate('PastEnquiry')}
+              style={styles.fabContainer}
+            >
               <Text style={styles.viewPastBtnText}>
-                {t('view_input_requested')}
+                💬 {t('view_input_requested')}
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </View>
+      <FloatingAction
+        position="right"
+        actions={getActionsActivity(t, styles, Colors)}
+        color={Colors.useGreen}
+        onPressItem={(name) => {
+          // SPSheet.hide();
+          // handleSPSheetShow();
+        }}
+        showBackground={true}
+        overlayColor="rgba(22, 17, 17, 0.35)"
+        distanceToEdge={{ vertical: 80, horizontal: 25 }} />
     </FarmerDrawerScreenWrapper1>
   );
 };
@@ -258,64 +363,204 @@ export default InputList;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: '2.5%',
     flex: 1,
+    backgroundColor: '#f0f2f5', // Facebook's background color
   },
-  title: {
-    width: '70%',
-    color: '#000',
-    fontFamily: 'Poppins-Regular',
-    textAlign: 'auto',
-    fontSize: 14,
-  },
-  flatlistContainer: {
-    backgroundColor: '#FFFF',
-    // backgroundColor: 'red',
-    marginBottom: 10,
-    // paddingHorizontal: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-  },
-  flatlistItem: {
-    flexDirection: 'row',
-
-    // justifyContent:'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
+  searchSection: {
+    backgroundColor: 'white',
     paddingVertical: 15,
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    marginRight: 20,
-    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   searchByCategoryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 10,
   },
   searchByCategoryItem: {
-    width: '45%',
+    flex: 1,
+  },
+  flatListContent: {
+    paddingHorizontal: 0,
+    paddingBottom: 100,
+  },
+  separator: {
+    height: 8,
+    backgroundColor: '#f0f2f5',
+  },
+  productCard: {
+    backgroundColor: 'white',
+    marginBottom: 8,
+    margin: 16,
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: Colors.border,
+    borderStyle: 'dotted'
+  },
+  cardContainer: {
+    flex: 1,
+  },
+  imageContainer: {
+    position: 'relative',
+    width: '100%',
+    // height: 150, // Facebook style large image
+    backgroundColor: '#f0f2f5',
+  },
+  productImage: {
+    width: '100%',
+    // height: '80%',
+    height: 200,
+    resizeMode: 'cover',
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
+  },
+  trendingBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  trendingText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  contentSection: {
+    padding: 16,
+  },
+  productName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1c1e21', // Facebook's dark text
+    marginBottom: 8,
+    lineHeight: 24,
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  categoryIcon: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#e4e6ea',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  categoryIconText: {
+    fontSize: 10,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: '#65676b', // Facebook's secondary text
+    fontWeight: '500',
+  },
+  descriptionText: {
+    fontSize: 15,
+    color: '#1c1e21',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  primaryButton: {
+    flex: 1,
+    backgroundColor: '#1877f2', // Facebook blue
+    borderRadius: 6,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  buttonIcon: {
+    fontSize: 14,
+  },
+  primaryButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: '#e4e6ea', // Facebook's secondary button color
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    color: '#1c1e21',
+    fontSize: 15,
+    fontWeight: '600',
   },
   viewPastBtn: {
     position: 'absolute',
-    right: '-6%',
-    top: '70%',
-    backgroundColor: '#009200',
-    paddingLeft: 10,
-    paddingRight: 25,
-    paddingVertical: 2,
+    right: 0,
+    top: '75%',
+    backgroundColor: '#42b883',
+    paddingLeft: 20,
+    paddingRight: 15,
+    paddingVertical: 12,
     borderTopLeftRadius: 25,
     borderBottomLeftRadius: 25,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
     zIndex: 99,
   },
-  loadingScreen: {
-    position: 'relative',
-    top: 100,
+  fabContainer: {
+    borderTopLeftRadius: 25,
+    borderBottomLeftRadius: 25,
   },
   viewPastBtnText: {
-    color: '#ffff',
-    paddingLeft: 20,
+    color: 'white',
     fontFamily: 'Poppins-Regular',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  loadingScreen: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
+    zIndex: 100,
+  },
+  modalStyle: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+
+  categoryBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  categoryBadgeText: {
+    color: '#059669',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

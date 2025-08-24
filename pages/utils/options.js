@@ -1,12 +1,12 @@
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const OPTIONS_CARBON = [
-  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
-  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
+  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
+  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
 ];
 const CARBON_TYPE = [
-  {label: 'Carbon', value: 'carbon_activity'},
-  {label: 'Non-Carbon ', value: 'user_activity'},
+  { label: 'Carbon', value: 'carbon_activity' },
+  { label: 'Non-Carbon ', value: 'user_activity' },
 ];
 const getActionsActivity = (t, styles, Colors) => [
   {
@@ -73,17 +73,31 @@ const getActionsMapView = (t, styles, Colors) => [
     icon: <MaterialIcons name="public" size={26} color="#ffffff" />,
   },
 ];
-const getActionsPlot = (t, styles, Colors) => [
-  {
-    text: t('add_plot'),
-    name: 'bt_add',
-    position: 1,
-    color: Colors.useGreen,
-    textStyle: styles.actionText,
-    textBackground: '#ffffffff',
-    icon: require('../Common/images/plotting.png'),
-  },
-];
+const getActionsPlot = (t, styles, Colors, isEnable = false, addPlot = false) => {
+  const actions = [
+    {
+      text: t('add_plot'),
+      name: 'bt_add',
+      position: 1,
+      color: Colors.useGreen,
+      textStyle: styles.actionText,
+      textBackground: '#ffffffff',
+      icon: require('../Common/images/plotting.png'),
+    }
+  ];
+  if (isEnable || addPlot) {
+    actions.push({
+      text: t('MapView'),
+      name: 'MapView',
+      position: 2,
+      color: Colors.useGreen,
+      textStyle: styles.actionText,
+      textBackground: '#ffffffff',
+      icon: require('../Common/images/mapview.png'),
+    });
+  }
+  return actions;
+};
 export {
   OPTIONS_CARBON,
   getActionsActivity,

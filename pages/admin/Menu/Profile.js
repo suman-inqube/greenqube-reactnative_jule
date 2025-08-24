@@ -354,18 +354,8 @@ const Profile = () => {
     );
   };
   useEffect(() => {
-    if (isFocused) {
-      onPageLoad();
-    }
-    const onBackPress = () => {
-      navigation.navigate('Dashboard');
-      return true;
-    };
-    BackHandler.addEventListener('hardwareBackPress', onBackPress);
-    return () =>
-      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-  }, [isFocused]);
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+    onPageLoad();
+  }, []);
   return (
     <>
       <Root>
@@ -377,7 +367,6 @@ const Profile = () => {
           ) : null}
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
             t={t}
@@ -459,7 +448,7 @@ const Profile = () => {
             </ScrollView>
           </View>
         </View>
-        <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading}/>
+        <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading} />
       </Root>
     </>
   );

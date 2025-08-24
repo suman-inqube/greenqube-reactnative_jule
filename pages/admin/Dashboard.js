@@ -86,7 +86,7 @@ const Dashboard = ({ navigation }) => {
       if (isOnline) {
         if (pageName === 'PersonalInformation') {
           if (uiState.convertionLUState === false) {
-            navigation.navigate(pageName, { data: 'remove' });
+            navigation.navigate(pageName);
           } else {
             Toast?.show({
               text: 'Please add the unit equivalent factor to default unit',
@@ -94,7 +94,7 @@ const Dashboard = ({ navigation }) => {
             });
           }
         } else {
-          navigation.navigate(pageName, { data: 'remove' });
+          navigation.navigate(pageName);
         }
       } else {
         if (
@@ -102,7 +102,7 @@ const Dashboard = ({ navigation }) => {
           pageName === 'activityList' ||
           pageName === 'PersonalInformation'
         ) {
-          navigation.navigate(pageName, { data: 'remove' });
+          navigation.navigate(pageName);
         }
       }
     },
@@ -406,6 +406,7 @@ const Dashboard = ({ navigation }) => {
                 contentContainerStyle={{
                   paddingTop: HEADER_HEIGHT + INITIAL_IMAGE_HEIGHT,
                   flexGrow: 1, // ensure pull works even when content small
+                  overflow:'hidden'
                 }}
                 scrollEventThrottle={16}
                 showsVerticalScrollIndicator={false}

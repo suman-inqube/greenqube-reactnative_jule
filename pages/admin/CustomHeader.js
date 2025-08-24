@@ -136,7 +136,8 @@ const CustomHeader = memo(
         password: t('forgot_password'),
         activityList: t('my_activities'),
         information: t('useful_ninformation_dash'),
-        CrateProblemUser:t('problem_reporting')
+        CrateProblemUser:t('problem_reporting'),
+        InputList:t('agri_inputs_ninquiry_far_dash'),
       }),
       [t],
     );
