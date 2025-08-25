@@ -238,9 +238,6 @@ const OutPut = ({navigation}) => {
       setOutputListAll(outputList.data.data.rows);
       setOutputListRaw(outputList.data.data.rows);
       await setItem('output_data', outputList.data.data.rows);
-      if (route.params.io_oid != undefined) {
-        navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id);
-      }
     }
     setIsLoading(false);
   };

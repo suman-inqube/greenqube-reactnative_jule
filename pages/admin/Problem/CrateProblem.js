@@ -317,7 +317,10 @@ const CreateProblem = ({ navigation }) => {
           type: 'image/jpeg',
           name: `file://${path}`,
         };
-        addPhoto(newPhoto);
+        addPhoto(prev => ({
+          ...prev,
+          newPhoto
+        }));
         const newTitle = {};
         addTitle(newTitle);
       }
