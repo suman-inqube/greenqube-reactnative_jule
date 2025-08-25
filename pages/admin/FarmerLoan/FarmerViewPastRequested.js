@@ -190,12 +190,12 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
       setLoanList(tempData);
     }
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   return (
     <FarmerDrawerScreenWrapper1>
       <CustomHeader
-        path="Dashboard"
+        path="FarmerDashboard"
         HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}

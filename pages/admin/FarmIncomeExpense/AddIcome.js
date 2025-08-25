@@ -24,6 +24,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const AddIcome = ({navigation}) => {
   //GQR-67
   const {
@@ -164,7 +165,8 @@ const AddIcome = ({navigation}) => {
       });
     }, []),
   );
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
@@ -374,10 +376,11 @@ const AddIcome = ({navigation}) => {
               </View>
               <View style={styles.mainView}>
                 <View style={styles.card}>
-                  <InputTextForm
+                  <DropdownForm
                     label={t('farmer_name')}
-                    value={searchFarmerName}
-                    onChangeText={farmerName => handleSearch(farmerName)}
+                    data={farmerData?.[0]}
+                    required={true}
+                    onChange={item => handleResultSelect(item)}
                   />
 
                   <InputTextForm

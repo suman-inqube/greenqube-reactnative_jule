@@ -155,7 +155,7 @@ const FarmerRequestForInsurance = ({}) => {
       }
     }
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   return (
     <FarmerDrawerScreenWrapper1>

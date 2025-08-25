@@ -371,6 +371,8 @@ const LoanEnquiryDetail = () => {
       await Linking.openURL(propsData);
     }
   };
+  const HandlerGoBack = () => navigation.navigate('Dashboard');
+
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -386,6 +388,7 @@ const LoanEnquiryDetail = () => {
           }}>
           <CustomHeader
             path={'LoanViewPastRequested'}
+            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
@@ -431,7 +434,9 @@ const LoanEnquiryDetail = () => {
             /> */}
             <View style={styles.card}>
               {identityProof[0].name.length > 5 ? (
-                <Text style={styles.cardTitle}>{t('identity_proof')}</Text>
+                <Text style={styles.cardTitle}>
+                  {t('Attched_identity_proof')}
+                </Text>
               ) : (
                 ''
               )}
@@ -454,7 +459,7 @@ const LoanEnquiryDetail = () => {
                             style={styles.imageTitle}
                             numberOfLines={1}
                             ellipsizeMode="tail">
-                            {data.name == '' ? '' : data.name.substring(1, 18)}
+                            {data.name == '' ? '' : data.name.substring(1, 15)}
                             {/* {data.name.substring(7, 12)} */}
                           </Text>
                         </TouchableOpacity>
@@ -634,7 +639,9 @@ const LoanEnquiryDetail = () => {
                         style={[styles.idcontainer2, {marginHorizontal: 10}]}>
                         {data.agri_land_user_rel?.plot_img[0]?.file_name
                           .length > 5 ? (
-                          <Text style={styles.title}>{t('address_proof')}</Text>
+                          <Text style={styles.title}>
+                            {t('Attached_address_proof')}
+                          </Text>
                         ) : (
                           ''
                         )}
@@ -644,20 +651,20 @@ const LoanEnquiryDetail = () => {
                             .map((data, index) => {
                               return (
                                 <TouchableOpacity
-                                  style={styles.idItem}
+                                  style={styles.documentItem2}
                                   key={index}
                                   onPress={() => openURL(data.file_path)}>
                                   <MaterialIcons
                                     name="description"
-                                    size={40}
+                                    size={30}
                                     color="#0d8320"
                                   />
                                   <Text
-                                    style={styles.titleImg}
+                                    style={styles.imageTitle}
                                     numberOfLines={1}
                                     ellipsizeMode="tail">
                                     {data.file_name
-                                      ? data.file_name
+                                      ? data.file_name.substring(1, 12)
                                       : 'Unnamed'}
                                   </Text>
                                 </TouchableOpacity>
@@ -673,7 +680,9 @@ const LoanEnquiryDetail = () => {
             <View style={styles.card}>
               <Text style={styles.cardTitle}>{t('documents')}</Text>
               <View style={styles.documentSection}>
-                <Text style={styles.documentTitle}>{t('land_records')}</Text>
+                <Text style={styles.documentTitle}>
+                  {t('Attached_land_records')}
+                </Text>
                 <View style={styles.documentContainer}>
                   {landProof.map((data, index) => {
                     return (
@@ -691,7 +700,7 @@ const LoanEnquiryDetail = () => {
                           style={styles.imageTitle}
                           numberOfLines={1}
                           ellipsizeMode="tail">
-                          {data.name == '' ? '' : data.name.substring(1, 18)}
+                          {data.name == '' ? '' : data.name.substring(1, 15)}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -739,6 +748,7 @@ const styles = StyleSheet.create({
   idItemContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   idItem: {
     padding: 10,
@@ -754,6 +764,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#000',
     fontFamily: 'Poppins-Regular',
+    paddingHorizontal: 10,
   },
   title: {
     color: Colors.text,
@@ -764,8 +775,9 @@ const styles = StyleSheet.create({
   titleImg: {
     color: Colors.text,
     fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    marginLeft: 10,
+    fontSize: 10,
+    paddingHorizontal: 10,
+    overflow: 'hidden',
   },
   centeredView: {
     // backgroundColor: '#FFF',
@@ -831,15 +843,15 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 5,
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: '5%',
+    marginHorizontal: '3%',
     marginTop: 20,
     // borderWidth: 1,
     // borderColor: Colors.borderGreen,
@@ -893,6 +905,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
+    overflow: 'hidden',
+  },
+  documentItem2: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    overflow: 'hidden',
+    marginTop: 10,
   },
   documentName: {
     fontSize: 12,

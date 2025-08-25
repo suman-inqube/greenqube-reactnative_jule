@@ -80,7 +80,9 @@ const ActivityReportAWD = ({navigation}) => {
     DropdownForm,
     ButtonForm,
     DatePickerComp,
-    isOnline,coords
+    isOnline,
+    coords,
+    farmerData,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
@@ -89,7 +91,7 @@ const ActivityReportAWD = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const [farmerData, setfarmerData] = useState([]);
+  // const [farmerData, setfarmerData] = useState([]);
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -153,7 +155,6 @@ const ActivityReportAWD = ({navigation}) => {
     cycleEnd: '',
   });
   // const [myphoto, setmyPhoto] = useState(null);
-  const [location, setLocation] = useState(coords);
   const [myphotoAll, setmyPhotoAll] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleRecordFirstItem, setModalVisibleRecordFirstItem] =
@@ -234,7 +235,8 @@ const ActivityReportAWD = ({navigation}) => {
     setActivityPreFormDate(effective_date);
     setSaveData({...saveData, act_perform_date: effective_date});
   };
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     setSelectedName(name);
@@ -288,7 +290,7 @@ const ActivityReportAWD = ({navigation}) => {
   };
   const handlePlot = async relId => {
     try {
-      const {latitude, longitude} = coords||{};
+      const {latitude, longitude} = coords || {};
       setIsLoading(true);
       if (isOnline) {
         var [response] = await Promise.all([
@@ -1711,11 +1713,12 @@ const ActivityReportAWD = ({navigation}) => {
                 )}
                 <View style={styles.fromContainer}>
                   <View style={{padding: 20}}>
-                    <InputTextForm
+                    <DropdownForm
                       label={t('farmer_name')}
                       required={true}
-                      value={searchFarmerName}
-                      onChangeText={farmerName => handleSearch(farmerName)}
+                      data={farmerData?.[0]}
+                      // value={searchFarmerName}
+                      onChange={item => handleResultSelect(item)}
                     />
                     <InputTextForm
                       label={t('farmer_number')}

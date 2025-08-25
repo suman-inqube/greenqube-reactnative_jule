@@ -7,8 +7,9 @@ import {
   Image,
   Dimensions,
   Keyboard,
+  RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
 import ViewPast from './ViewPast';
 import {InsuranceListAPI} from '../../../config/apiHere';
 import {userCreateContext} from '../../Context/usersCreateContext';
@@ -16,6 +17,7 @@ import {Colors, Fonts} from '../../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+
 const InsuranceViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
   const {
@@ -55,6 +57,8 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
   const [searchResults, setSearchResults] = useState([]);
   const [modalVisibleData, setModalVisibleData] = useState({});
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
   const filterOptionShow = () => {
     if (!filterOption) {
       setFilterOption(true);
@@ -184,6 +188,14 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
     setFilterOption(false);
     setInsuranceList(insuranceListRow);
   };
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    requestAnimationFrame(async () => {
+      // await onPageLoad("refreshing");
+      await onPageLoad();
+      setRefreshing(false);
+    });
+  }, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -349,6 +361,14 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
               );
             }}
             keyExtractor={(item, index) => index}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.green]}
+                tintColor={Colors.green}
+              />
+            }
           />
         </View>
       </Root>

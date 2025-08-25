@@ -330,6 +330,7 @@ const PostNew = props => {
       }));
       setUnitData(dataArray);
     }
+    setIsLoading(false);
   };
   const validationData = () => {
     Keyboard.dismiss();

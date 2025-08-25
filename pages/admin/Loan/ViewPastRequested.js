@@ -8,8 +8,9 @@ import {
   Dimensions,
   SafeAreaView,
   Keyboard,
+  RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {loanRouteListAPI} from './LoanAPI_copy';
 import {userCreateContext} from '../../Context/usersCreateContext';
@@ -59,6 +60,8 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
   const [selectedName, setSelectedName] = useState('');
   const [farmerID, setfarmerID] = useState();
   const [currency, setCurrencyt] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
   const [statusAll, setTtatusAll] = useState([
     {value: 2, label: t('Approved')},
     {value: 1, label: t('pending')},
@@ -222,6 +225,14 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
+  }, []);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    requestAnimationFrame(async () => {
+      // await onPageLoad("refreshing");
+      await onPageLoad();
+      setRefreshing(false);
+    });
   }, []);
   const navigate = (LoanEnquiryDetail, item) => {
     navigation.navigate('LoanEnquiryDetail', item);
@@ -431,6 +442,14 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
                 );
               }}
               keyExtractor={(item, index) => index}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[Colors.green]}
+                  tintColor={Colors.green}
+                />
+              }
             />
           </View>
         </SafeAreaView>

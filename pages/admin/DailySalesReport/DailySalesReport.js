@@ -5,17 +5,26 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
-  BackHandler, Animated, SafeAreaView, RefreshControl
+  BackHandler,
+  Animated,
+  SafeAreaView,
+  RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
-import { DailySalesReportGetAPI } from '../../../config/apiHere';
-import { useIsFocused } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors, Fonts } from '../../utils/Constants';
-import { FloatingAction } from 'react-native-floating-action';
-import { getActionsDealerReportSupervisor } from '../../utils/options';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from 'react';
+import {DailySalesReportGetAPI} from '../../../config/apiHere';
+import {useIsFocused} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fonts} from '../../utils/Constants';
+import {FloatingAction} from 'react-native-floating-action';
+import {getActionsDealerReportSupervisor} from '../../utils/options';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-const DailySalesReport = ({ navigation }) => {
+const DailySalesReport = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -27,7 +36,7 @@ const DailySalesReport = ({ navigation }) => {
     logoImage,
     topBanner,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -56,85 +65,84 @@ const DailySalesReport = ({ navigation }) => {
       setRefreshing(false);
     });
   }, []);
-  const CardItem = useCallback(
-    ({ item, index, navigation }) => {
-      const truncatedTitle =
-        item.question_title?.length > 30
-          ? `${item.question_title.substring(0, 30)}...`
-          : item.question_title;
-      const cardAnimation = useRef(new Animated.Value(0)).current;
-      useEffect(() => {
-        Animated.timing(cardAnimation, {
-          toValue: 1,
-          duration: 500,
-          delay: index * 150,
-          useNativeDriver: true,
-        }).start();
-      }, []);
-      return (
-        <Animated.View style={[
+  const CardItem = useCallback(({item, index, navigation}) => {
+    const truncatedTitle =
+      item.question_title?.length > 30
+        ? `${item.question_title.substring(0, 30)}...`
+        : item.question_title;
+    const cardAnimation = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      Animated.timing(cardAnimation, {
+        toValue: 1,
+        duration: 500,
+        delay: index * 150,
+        useNativeDriver: true,
+      }).start();
+    }, []);
+    return (
+      <Animated.View
+        style={[
           styles.activityCard,
           {
             opacity: cardAnimation,
-            transform: [{
-              translateY: cardAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: [50, 0],
-              }),
-            }],
-
-          }
+            transform: [
+              {
+                translateY: cardAnimation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [50, 0],
+                }),
+              },
+            ],
+          },
         ]}>
-          <TouchableOpacity
-            style={styles.problemCard}
-            onPress={() => navigateToPages("ProblemView", item.fid)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.cardHeader}>
-              <Text style={styles.problemTitle} numberOfLines={2}>
-                {t('name')}: {item.salesUser.userName}
+        <TouchableOpacity
+          style={styles.problemCard}
+          onPress={() => navigateToPages('ProblemView', item.fid)}
+          activeOpacity={0.7}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.problemTitle} numberOfLines={2}>
+              {t('name')}: {item.salesUser.userName}
+            </Text>
+          </View>
+
+          <View style={styles.cardContent}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>{t('number_caps')}:</Text>
+              <Text style={styles.infoValue} numberOfLines={1}>
+                {item.salesUser.contactNumber || ''}
               </Text>
             </View>
 
-            <View style={styles.cardContent}>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>{t("number_caps")}:</Text>
-                <Text style={styles.infoValue} numberOfLines={1}>
-                  {item.salesUser.contactNumber || ""}
-                </Text>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>{item.srProducts.length != 0 &&
-                  item.srProducts[0].salesProduct != null
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>
+                {item.srProducts.length != 0 &&
+                item.srProducts[0].salesProduct != null
                   ? `${t('product_name')}:`
                   : item.srProducts.length != 0 &&
                     item.srProducts[0].salesProduceName != null
-                    ? `${t('product_name')}:` : ''}</Text>
-                <Text style={styles.infoValue}>
-                  {item.srProducts.length != 0 &&
-                    item.srProducts[0].salesProduct != null
-                    ? `${item.srProducts[0].salesProduct.product_name
-                    }`
-                    : item.srProducts.length != 0 &&
-                      item.srProducts[0].salesProduceName != null
-                      ? `${item.srProducts[0].salesProduceName.name
-                      }`
-                      : ''}
-                </Text>
-              </View>
+                  ? `${t('product_name')}:`
+                  : ''}
+              </Text>
+              <Text style={styles.infoValue}>
+                {item.srProducts.length != 0 &&
+                item.srProducts[0].salesProduct != null
+                  ? `${item.srProducts[0].salesProduct.product_name}`
+                  : item.srProducts.length != 0 &&
+                    item.srProducts[0].salesProduceName != null
+                  ? `${item.srProducts[0].salesProduceName.name}`
+                  : ''}
+              </Text>
             </View>
-            {/* <Text style={styles.flatTitle}>{item.srProducts.length != 0 ? item.srProducts[0].qty != null || item.srProducts[0].unit != null ? `${t('select_quantity_input')}: ${item.srProducts[0].qty != null ? item.srProducts[0].qty : ''}  ${item.srProducts[0].unit != null ? item.srProducts[0].unit.substring(-1, 2) + "..." : ''}` : null : null}
+          </View>
+          {/* <Text style={styles.flatTitle}>{item.srProducts.length != 0 ? item.srProducts[0].qty != null || item.srProducts[0].unit != null ? `${t('select_quantity_input')}: ${item.srProducts[0].qty != null ? item.srProducts[0].qty : ''}  ${item.srProducts[0].unit != null ? item.srProducts[0].unit.substring(-1, 2) + "..." : ''}` : null : null}
                                 </Text> */}
-          </TouchableOpacity>
-        </Animated.View>
-      );
-    },
-    []
-  );
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }, []);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background_light }}>
-      <View style={{ flex: 1 }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
+      <View style={{flex: 1}}>
         <CustomHeader
           path="Dashboard"
           logoImage={logoImage}
@@ -142,8 +150,8 @@ const DailySalesReport = ({ navigation }) => {
         />
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={isLoading ? Array.from({ length: 5 }) : dailySalesReportData}
-          renderItem={({ item, index }) =>
+          data={isLoading ? Array.from({length: 5}) : dailySalesReportData}
+          renderItem={({item, index}) =>
             isLoading ? (
               <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
             ) : (
@@ -171,16 +179,17 @@ const DailySalesReport = ({ navigation }) => {
         position="right"
         actions={getActionsDealerReportSupervisor(t, styles, Colors)}
         color={Colors.useGreen}
-        onPressItem={(name) => {
-          if (name=="dealer_report") {
-            navigation.navigate('DealerReport')
+        onPressItem={name => {
+          if (name == 'dealer_report') {
+            navigation.navigate('DealerReport');
           } else {
-            navigation.navigate('FarmerReport')
+            navigation.navigate('FarmerReport');
           }
         }}
         showBackground={true}
         overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{ vertical: 80, horizontal: 25 }} />
+        distanceToEdge={{vertical: 80, horizontal: 25}}
+      />
     </SafeAreaView>
   );
 };
@@ -217,15 +226,15 @@ const styles = StyleSheet.create({
     // paddingBottom: 100, // Space for FAB
   },
   problemCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: '#ffffff',
     marginVertical: 8,
     borderRadius: 12,
     // elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    overflow: "hidden",
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border,
     borderStyle: 'dashed',
@@ -239,7 +248,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderStyle: 'dashed',
     borderColor: Colors.border,
-
   },
   problemTitle: {
     // color: '#f59f0bff',
@@ -251,9 +259,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
   infoLabel: {
@@ -267,12 +275,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: Fonts.Medium,
     flex: 2,
-    textAlign: "right",
+    textAlign: 'right',
   },
   paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 20,
     marginTop: 16,
@@ -282,82 +290,82 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     minWidth: 80,
-    alignItems: "center",
+    alignItems: 'center',
   },
   prevButton: {
-    backgroundColor: Colors.secondary || "#e0e0e0",
+    backgroundColor: Colors.secondary || '#e0e0e0',
   },
   nextButton: {
-    backgroundColor: Colors.primary || "#4BAE4F",
+    backgroundColor: Colors.primary || '#4BAE4F',
   },
   paginationText: {
-    color: "#333",
+    color: '#333',
     fontSize: 14,
-    fontFamily: "Poppins-Medium",
+    fontFamily: 'Poppins-Medium',
   },
   pageInfo: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   pageInfoText: {
-    color: "#666",
+    color: '#666',
     fontSize: 12,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
   },
   fab: {
-    position: "absolute",
+    position: 'absolute',
     right: 20,
     bottom: 20,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.primary || "#4BAE4F",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: Colors.primary || '#4BAE4F',
+    justifyContent: 'center',
+    alignItems: 'center',
     elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
   fabIcon: {
     width: 24,
     height: 24,
-    tintColor: "#ffffff",
+    tintColor: '#ffffff',
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1000,
   },
   loadingText: {
     marginTop: 12,
-    color: "#666",
+    color: '#666',
     fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
   },
   emptyState: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 60,
   },
   emptyStateText: {
-    color: "#666",
+    color: '#666',
     fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   refreshButton: {
-    backgroundColor: Colors.primary || "#4BAE4F",
+    backgroundColor: Colors.primary || '#4BAE4F',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   refreshButtonText: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 14,
-    fontFamily: "Poppins-Medium",
-  }
+    fontFamily: 'Poppins-Medium',
+  },
 });

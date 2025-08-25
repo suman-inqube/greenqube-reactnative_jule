@@ -767,7 +767,8 @@ const LoanRequest = ({setActiveBtn}) => {
       setSearchResultsList(true);
     }
   };
-  const handleResultSelect = async (name, currentfarmerId, phone, item) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchFarmerPhone(phone);
     setSelectedName(name);
     setSearchFarmerName(name);
@@ -1214,7 +1215,7 @@ const LoanRequest = ({setActiveBtn}) => {
       await Linking.openURL(propsData);
     }
   };
-  // const HandlerGoBack = () => navigation.navigate('Dashboard');
+
   return (
     <FarmerDrawerScreenWrapper1>
       <>
@@ -1226,7 +1227,6 @@ const LoanRequest = ({setActiveBtn}) => {
           ) : null}
           <CustomHeader
             path="Dashboard"
-            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
@@ -1270,10 +1270,11 @@ const LoanRequest = ({setActiveBtn}) => {
                   {t('personal_information')}
                 </Text>
 
-                <InputTextForm
+                <DropdownForm
                   label={t('farmer_name')}
-                  value={searchFarmerName}
-                  onChangeText={farmerName => handleSearch(farmerName)}
+                  data={farmerData?.[0]}
+                  required={true}
+                  onChange={item => handleResultSelect(item)}
                 />
                 {searchResultsList && searchResultsList ? (
                   <View style={styles.searchResultsContainer}>
@@ -1700,15 +1701,15 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 20,
-    marginVertical: '5%',
+    marginVertical: '4%',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: '4%',
+    marginHorizontal: '3%',
   },
   cardTitle: {
     fontSize: 16,

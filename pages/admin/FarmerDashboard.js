@@ -202,12 +202,12 @@ const FarmerDashboard = ({navigation}) => {
 
       const {dbname, lan_id, token, agri_user_addresses, user_id} =
         loginUser_data || {};
-      const [LIST_USER_ACTIVITY, FARMER_USEFULL_INFO_LIST] = await Promise.all([
+      const [USER_ACTIVITY, FARMER_USEFULL_INFO_LIST] = await Promise.all([
         axiosGet(
-          ROUTES.GET.LIST_USER_ACTIVITY({
+          ROUTES.GET.USER_ACTIVITY({
             pageNO: 1,
             carbonType: '',
-            userID: '',
+            userID: user_id,
             searchItem: '',
             from_date: '',
             to_date: '',
@@ -245,8 +245,8 @@ const FarmerDashboard = ({navigation}) => {
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
-      if (LIST_USER_ACTIVITY?.status === 200) {
-        latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
+      if (USER_ACTIVITY?.status === 200) {
+        latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }
       setDataState({
         latestActivities,

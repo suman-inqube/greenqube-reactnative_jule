@@ -1077,7 +1077,11 @@
          "tap_to_tag":"Tap to tag",
              "not_captured_yet": "Not Captured Yet",
              "Registation_SignUp_Viwer":"Registation SignUp Viwer",
-             "Post_New":"Post New"
+             "Post_New":"Post New",
+             "Attached_land_records": "Attached Supporting Documents",
+  "Attached_address_proof": "Attached  Land Record",
+    "Attched_identity_proof": "Attached Identity Proof"
+
 
 
     

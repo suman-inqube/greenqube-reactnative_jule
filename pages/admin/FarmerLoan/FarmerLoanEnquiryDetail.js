@@ -414,7 +414,9 @@ const FarmerLoanEnquiryDetail = () => {
             </View>
             <View style={styles.card}>
               {identityProof[0].name.length > 5 ? (
-                <Text style={styles.cardTitle}>{t('identity_proof')}</Text>
+                <Text style={styles.cardTitle}>
+                  {t('Attched_identity_proof')}
+                </Text>
               ) : (
                 ''
               )}
@@ -436,7 +438,7 @@ const FarmerLoanEnquiryDetail = () => {
                             style={styles.imageTitle}
                             numberOfLines={1}
                             ellipsizeMode="tail">
-                            {data.name == '' ? '' : data.name.substring(1, 20)}
+                            {data.name == '' ? '' : data.name.substring(1, 15)}
                             {/* {data.name.substring(7, 12)} */}
                           </Text>
                         </TouchableOpacity>
@@ -624,7 +626,9 @@ const FarmerLoanEnquiryDetail = () => {
                         style={[styles.idcontainer2, {marginHorizontal: 10}]}>
                         {data.agri_land_user_rel?.plot_img[0]?.file_name
                           .length > 5 ? (
-                          <Text style={styles.title}>{t('address_proof')}</Text>
+                          <Text style={styles.title}>
+                            {t('Attached_address_proof')}
+                          </Text>
                         ) : (
                           ''
                         )}
@@ -634,20 +638,20 @@ const FarmerLoanEnquiryDetail = () => {
                             .map((data, index) => {
                               return (
                                 <TouchableOpacity
-                                  style={styles.idItem}
+                                  style={styles.documentItem2}
                                   key={index}
                                   onPress={() => openURL(data.file_path)}>
                                   <MaterialIcons
                                     name="description"
-                                    size={40}
+                                    size={30}
                                     color="#0d8320"
                                   />
                                   <Text
-                                    style={styles.titleImg}
+                                    style={styles.imageTitle}
                                     numberOfLines={1}
                                     ellipsizeMode="tail">
                                     {data.file_name
-                                      ? data.file_name
+                                      ? data.file_name.substring(1, 12)
                                       : 'Unnamed'}
                                   </Text>
                                 </TouchableOpacity>
@@ -702,7 +706,9 @@ const FarmerLoanEnquiryDetail = () => {
             <View style={styles.card}>
               <Text style={styles.cardTitle}>{t('documents')}</Text>
               <View style={styles.documentSection}>
-                <Text style={styles.documentTitle}>{t('land_records')}</Text>
+                <Text style={styles.documentTitle}>
+                  {t('Attached_land_records')}
+                </Text>
                 <View style={styles.documentContainer}>
                   {landProof.map((data, index) => {
                     return (
@@ -918,6 +924,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
+    overflow: 'hidden',
+    marginLeft: 5,
   },
   documentName: {
     fontSize: 12,
@@ -925,6 +933,18 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontFamily: 'Poppins-Regular',
     flex: 1,
+  },
+  documentItem2: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f8ff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    overflow: 'hidden',
+    marginTop: 10,
+    marginLeft: 5,
   },
 
   ///////////////////////////////////////////

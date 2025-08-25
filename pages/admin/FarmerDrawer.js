@@ -30,13 +30,10 @@ const FarmerDrawer = props => {
 
   const profileRoutes = ['FarmerProfile', 'FarmerChangePassword'];
   const plotInfoRoutes = ['FarmerLiveHood'];
+  const FarmerFarmIncomeExpenseListRoutes = ['FarmerFarmIncomeExpenseList'];
   const FarmerInstrumentWiseActivityView = ['FarmerInstrumentWiseActivityView'];
 
-  const farmAccRoutes = [
-    'FarmerFarmIncomeExpenseList',
-    'FarmerLoan',
-    'FarmerInsuranceEnquiry',
-  ];
+  const farmFincRoutes = ['FarmerLoan', 'FarmerInsuranceEnquiry'];
   const practiceRoutes = ['PackageOfPractices', 'SoilHealthManagement'];
   const calculatorRoutes = ['PestisideCalculator', 'FertilizerCalculator'];
   const isSubRouteActive = subRoutes => {
@@ -62,8 +59,8 @@ const FarmerDrawer = props => {
   const [practiceExpanded, setPracticeExpanded] = useState(
     isSubRouteActive(practiceRoutes),
   );
-  const [farmAccExpanded, setFarmAccExpanded] = useState(
-    isSubRouteActive(farmAccRoutes),
+  const [farmFincExpanded, setFarmFincExpanded] = useState(
+    isSubRouteActive(farmFincRoutes),
   );
   const [calculatorExpanded, setCalculatorExpanded] = useState(
     isSubRouteActive(calculatorRoutes),
@@ -76,7 +73,7 @@ const FarmerDrawer = props => {
     setProfileExpanded(false);
     setPlotInfoExpanded(false);
     setPracticeExpanded(false);
-    setFarmAccExpanded(false);
+    setFarmFincExpanded(false);
     setCalculatorExpanded(false);
     setFarmerInstrumentWiseActivityViewExpanded(false);
 
@@ -91,8 +88,8 @@ const FarmerDrawer = props => {
       case 'practice':
         setPracticeExpanded(!practiceExpanded);
         break;
-      case 'farmAcc':
-        setFarmAccExpanded(!farmAccExpanded);
+      case 'farmFinc':
+        setFarmFincExpanded(!farmFincExpanded);
         break;
       case 'calculator':
         setCalculatorExpanded(!calculatorExpanded);
@@ -594,12 +591,48 @@ const FarmerDrawer = props => {
 
             {/* Farm Accounts Section */}
             <TouchableOpacity
+              style={[
+                styles.memuContainer,
+                isActive('FarmerFarmIncomeExpenseList') &&
+                  styles.activeSingleMenu, // Apply active style
+              ]}
+              onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')}>
+              <View style={[styles.menuItemCal]}>
+                <View
+                  style={[
+                    styles.iconView,
+                    isActive('FarmerFarmIncomeExpenseList') &&
+                      styles.activeIcon, // Apply active style
+                  ]}>
+                  <MaterialIcons
+                    name="account-balance"
+                    size={22}
+                    color="#030730"
+                  />
+                </View>
+                {/* <Image
+                  source={require('../Common/images/insurance_menu.png')}
+                  style={[{height: 25, width: 25, tintColor: '#030730'}]}
+                /> */}
+
+                <Text
+                  style={[
+                    styles.menuText,
+                    isActive('FarmerFarmIncomeExpenseList') &&
+                      styles.activeText, // Active text color
+                  ]}>
+                  {t('farm_income_amp_expense')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={styles.memuContainer}
-              onPress={() => handleMenuExpand('farmAcc')}>
+              onPress={() => handleMenuExpand('farmFinc')}>
               <View style={styles.menuItem}>
                 <View style={styles.iconView}>
                   <MaterialIcons
-                    name="account-balance"
+                    name="currency-rupee"
                     size={22}
                     color="#030730"
                   />
@@ -614,68 +647,28 @@ const FarmerDrawer = props => {
                     styles.menuText,
                     isParentActive(
                       'FarmerFarmIncomeExpenseList',
-                      farmAccRoutes,
+                      farmFincRoutes,
                     ) && styles.activeText,
                     isParentActive(
                       'FarmerFarmIncomeExpenseList',
-                      farmAccRoutes,
+                      farmFincRoutes,
                     ) && {
                       color: Colors.primary_light,
                     },
                   ]}>
-                  {t('farm_income_amp_expense')}
+                  {t('Finance')}
                 </Text>
                 <MaterialIcons
-                  name={farmAccExpanded ? 'expand-less' : 'expand-more'}
+                  name={farmFincExpanded ? 'expand-less' : 'expand-more'}
                   size={22}
                   color="#d5dbd7"
                   style={{marginLeft: 5}}
                 />
               </View>
             </TouchableOpacity>
-            {farmAccExpanded && (
+            {farmFincExpanded && (
               <>
                 <View style={{marginBottom: 10}}>
-                  <TouchableOpacity
-                    style={[
-                      styles.subMenu,
-                      {paddingLeft: 30},
-                      isActive('FarmerFarmIncomeExpenseList') &&
-                        styles.activeSubMenu,
-                    ]}
-                    onPress={() =>
-                      navigateToPages('FarmerFarmIncomeExpenseList')
-                    }>
-                    <View style={styles.subMenuItem}>
-                      <MaterialIcons
-                        name="currency-rupee"
-                        size={20}
-                        color={
-                          isActive('FarmerFarmIncomeExpenseList')
-                            ? '#030635'
-                            : '#eaf3ee'
-                        }
-                      />
-                      {/* <Image
-                    source={require('../Common/images/insurance_menu.png')}
-                    style={[
-                      {height: 20, width: 20},
-                      isActive('FarmerFarmIncomeExpenseList') && {
-                        tintColor: '#030635',
-                      },
-                    ]}
-                  /> */}
-                      <Text
-                        style={[
-                          styles.subText,
-                          isActive('FarmerFarmIncomeExpenseList') &&
-                            styles.activeSubText,
-                        ]}>
-                        {t('farm_income_amp_expense')}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
@@ -820,7 +813,6 @@ const FarmerDrawer = props => {
                 </View>
               </>
             )}
-
             {/* FarmerInstrumentWiseActivityView */}
             <TouchableOpacity
               style={[
@@ -834,7 +826,7 @@ const FarmerDrawer = props => {
               <View style={[styles.menuItemCal]}>
                 <View
                   style={[
-                    styles.iconView,
+                    // styles.iconView,
                     isActive('FarmerInstrumentWiseActivityView') &&
                       styles.activeIcon, // Apply active style
                   ]}>
@@ -881,8 +873,9 @@ const FarmerDrawer = props => {
 export default FarmerDrawer;
 const styles = StyleSheet.create({
   mainView: {
-    marginTop: 120,
+    marginTop: 70,
     flex: 1,
+    marginBottom: 30,
   },
   container: {
     marginTop: 30,
@@ -905,7 +898,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#d5dbd7',
     paddingBottom: 8,
     marginTop: 0,
-    height: 60, // Fixed height for consistent alignment
+    height: 50, // Fixed height for consistent alignment
   },
   menuItemHome: {
     flexDirection: 'row',
@@ -922,7 +915,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.Lcolor,
     // marginBottom: 20,
-    height: 60, // Fixed height for consistent alignment
+    height: 50, // Fixed height for consistent alignment
   },
   activeSingleMenu: {
     backgroundColor: Colors.Lcolor,
