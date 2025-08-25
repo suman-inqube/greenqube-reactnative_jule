@@ -62,6 +62,7 @@ import { groupByRelId } from '../../utils/helpers';
 import { Colors } from '../../utils/Constants';
 import { FloatingAction } from 'react-native-floating-action';
 import { getActionsPlot } from '../../utils/options';
+import { use } from 'i18next';
 const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPlot, addPlot }) => {
   //GQR-65
   const {
@@ -84,7 +85,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   const { farmeruserID, agri_land_user_rels } = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [farmerData, setfarmerData] = useState({
+  const [farmerData, setFarmerData] = useState({
     createdBy: '',
     plot_no: '',
     cu_rel_id: '',
@@ -281,7 +282,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   };
 
 
-  const handlePlot = async findData => {
+  const handlePlot = useCallback(async findData => {
     setIsLoading(true);
     setPhotoDeletedValue([]);
     setHarvested('');
@@ -416,8 +417,8 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           } else {
             setArea(data.land_info?.google_area);
           }
-          setfarmerData({
-            ...farmerData,
+          setFarmerData(prev => ({
+            ...prev,
             createdBy: user_id,
             plot_no: data?.land_info?.plot_no,
             cu_rel_id: data?.cu_rel_id,
@@ -460,7 +461,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             ConvertedreportedLandsize:
               Number(dataLandDetails?.land_unit?.defined_unit_value) *
               Number(dataLandDetails?.land_size),
-          });
+          }));
           return;
         }
       });
@@ -599,7 +600,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         }
       }
     }
-  };
+  }, [farmerData, location, landUnitsquareMetre, plotSiteUserLandDetails, statuslevel]);
 
   const isEqualCoordinatesArray = (arr1, arr2) => {
     if (arr1.length !== arr2.length) return false;
@@ -619,13 +620,12 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     if (plotSiteUserLandDetails.length != 0) {
       if (dataProps?.plot_no != undefined) {
         handlePlot({ label: dataProps?.plot_no, value: dataProps?.rel_id, latitude: dataProps?.latitude, longitude: dataProps?.longitude });
-
         setupdateRelId(dataProps?.rel_id);
       }
     }
   }, [plotSiteUserLandDetails]);
   const RemoveFarmerData = () => {
-    setfarmerData({
+    setFarmerData({
       ...farmerData,
       createdBy: '',
       plot_no: '',
@@ -685,14 +685,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     setHarvested(data);
     setEdit('');
     if (data === 'same produce') {
-      setfarmerData({
-        ...farmerData,
+      setFarmerData(prev => ({
+        ...prev,
         cycleStartDate: '',
         cycleEndDate: '',
-      });
+      }));
     } else {
-      setfarmerData({
-        ...farmerData,
+      setFarmerData(prev => ({
+        ...prev,
         productionSeason: '',
         productionSeasonValue: '',
         livelihoodType: '',
@@ -713,13 +713,17 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         IOTLatLong: '',
         IOTLatlat: '',
         crop_cycl_start_date: '',
-      });
+      }));
     }
   };
   const handleDatePicker = item =>
-    setfarmerData({ ...farmerData, cycleStartDate: effective_dates(item) });
+    setFarmerData(prev => ({
+      ...prev, cycleStartDate: effective_dates(item)
+    }));
   const handleDatePicker2 = item =>
-    setfarmerData({ ...farmerData, cycleEndDate: effective_dates(item) });
+    setFarmerData(prev => ({
+      ...prev, cycleEndDate: effective_dates(item)
+    }));
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
@@ -734,14 +738,13 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       setLocation([...location, { latitude: '', longitude: '' }]);
     }
   };
-  const handleCurrentLatLong = async index => {
-    const fusedLocation = await getItem('fusedLocation');
+  const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
-    const { latitude, longitude } = fusedLocation;
+    const { latitude, longitude } = coords || {};
     if (
-      fusedLocation != null &&
-      longitude.toString().length == 10 &&
-      latitude.toString().length == 10 &&
+      coords != null &&
+      // longitude.toString().length == 10 &&
+      // latitude.toString().length == 10 &&
       latitude > 0 &&
       longitude > 0
     ) {
@@ -753,10 +756,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       if (filteredDatalatLong.length >= 3) {
         setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
         // setArea(calculateAreaFun(filteredDatalatLong));
-        setfarmerData({
-          ...farmerData,
+        setFarmerData(prev => ({
+          ...prev,
           google_area: geolib.getAreaOfPolygon(filteredDatalatLong),
-        });
+        }));
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
@@ -774,8 +777,8 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         ...AlertMesg[0],
       });
     }
-  };
-  const handleAddData = async (item, name, value) => {
+  }, []);
+  const handleAddData = useCallback(async (item, name, value) => {
     let selectUnitValue = '';
     if (name === 'unit') {
       if (farmerData.unit_valueArr != '') {
@@ -785,15 +788,15 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           }
         });
       }
-      setfarmerData({
-        ...farmerData,
+      setFarmerData(prev => ({
+        ...prev,
         [name]: item.label,
         [value]: item.value,
         ['unit_value']: selectUnitValue,
         ConvertedreportedLandsize: Number(selectUnitValue) * Number(farmerData.land_size)
-      });
+      }));
     } else {
-      setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value });
+      setFarmerData(prev => ({ ...prev, [name]: item.label, [value]: item.value }));
       if (name === 'terrainType') {
         livelihoodTypeAPI(dbname, lan_id, item.value, '');
       }
@@ -804,10 +807,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         productionProcessAPI(dbname, lan_id);
       }
     }
-  };
-  const handleAddDataproductionSeason = (item, name, value) => {
-    setfarmerData({
-      ...farmerData,
+  }, [farmerData]);
+  const handleAddDataproductionSeason = useCallback((item, name, value) => {
+    setFarmerData(prev => ({
+      ...prev,
       [name]: item.label,
       [value]: item.value,
       livelihoodType: '',
@@ -818,30 +821,30 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       produceVarietyValue: '',
       productionProcess: '',
       productionProcessValue: '',
-    });
-  };
-  const handleAddDatalivelihoodType = async (item, name, value) => {
-    setfarmerData({
-      ...farmerData,
+    }));
+  }, []);
+  const handleAddDatalivelihoodType = useCallback(async (item, name, value) => {
+    setFarmerData(prev => ({
+      ...prev,
       [name]: item.label,
       [value]: item.value,
       produceName: '',
       produceNameValue: '',
       produceVariety: '',
       produceVarietyValue: '',
-    });
+    }));
     if (name === 'livelihoodType') {
       livelihoodTypeAPI(dbname, lan_id, item.value, '');
     }
-  };
-  const handleAddDataproduceName = async (item, name, value) => {
-    setfarmerData({
-      ...farmerData,
+  }, []);
+  const handleAddDataproduceName = useCallback((item, name, value) => {
+    setFarmerData(prev => ({
+      ...prev,
       [name]: item.label,
       [value]: item.value,
       produceVariety: '',
       produceVarietyValue: '',
-    });
+    }));
     if (name === 'produceName') {
       produceNameAPI(
         dbname,
@@ -850,7 +853,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         item.value,
       );
     }
-  };
+  }, [farmerData]);
   const terraintype_resAPI = async (dbname, lan_id, type) => {
     try {
       let terraintype_res = await landRouteApi(dbname, lan_id, type);
@@ -897,10 +900,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     try {
       let landunitAPI = await axios.get(config.landunitAPI, { ...axiosConfig, ...timeoutConfig });
       if (landunitAPI?.status == 200) {
-        setfarmerData({
-          ...farmerData,
+        setFarmerData(prev => ({
+          ...prev,
           unit_valueArr: JSON.stringify(landunitAPI.data.data.rows),
-        });
+        }));
         const landunitArray = landunitAPI?.data?.data?.rows.map(data => ({
           value: data.fid,
           label: data?.name,
@@ -981,7 +984,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       setProductionUnit(productionUnitArr);
     }
   };
-  const handleUserListUpdate = async () => {
+  const handleUserListUpdate = useCallback(async () => {
 
     Keyboard.dismiss();
     const locationArry = [];
@@ -1019,6 +1022,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
 
       }
     }
+    console.log(farmerData.plot_Site_Name, "farmerDatafarmerDatafarmerData");
     location.map((data, index) => {
       if (data?.latitude != '' && data?.latitude != undefined) {
         locationArry.push('latitude');
@@ -1330,7 +1334,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         setIsLoading(false);
       }
     }
-  };
+  }, [farmerData]);
   const handleUserData = async () => {
     setOutofRange(false);
     setAddPlot(true);
@@ -1346,11 +1350,11 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     setArea(0);
     removesetLocation();
   };
-  const handleAddUserData = (name, data) => {
-    setfarmerData({ ...farmerData, [`${name}`]: data });
-  }
+  const handleAddUserData = useCallback((name, data) => {
+    setFarmerData(prev => ({ ...prev, [`${name}`]: data }));
+  }, [farmerData]);
   const handleAddUserDataland_size = (name, data) => {
-    setfarmerData({ ...farmerData, [`${name}`]: data, ConvertedreportedLandsize: Number(farmerData.unit_value) * Number(data) });
+    setFarmerData(prev => ({ ...prev, [`${name}`]: data, ConvertedreportedLandsize: Number(prev.unit_value) * Number(data) }));
   }
 
   // GRQ-1130
@@ -1413,10 +1417,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           setEditing(false);
           setShowModal(false);
           // setArea(calculateAreaFun(newPolygon));
-          setfarmerData({
-            ...farmerData,
+          setFarmerData(prev => ({
+            ...prev,
             google_area: geolib.getAreaOfPolygon(newPolygon),
-          });
+          }));
           if (landUnitsquareMetre?.[0]?.defined_unit_value) {
             setArea(
               Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
@@ -1453,7 +1457,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
   };
 
   const clearNewPolygon = () => {
-    setfarmerData({ ...farmerData, google_area: 0 });
+    setFarmerData(prev => ({ ...prev, google_area: 0 }));
     if (userData == 'addUserData' || addPlot == true) {
       setNewPolygon([]);
       setPolygons(nearPolSet);
@@ -1544,27 +1548,26 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
       }
     }, 3000);
   };
-  const handleIOTId = async (itemName, text) => {
+  const handleIOTId = useCallback(async (itemName, text) => {
     try {
-      setfarmerData({ ...farmerData, "IOTId": text })
+      setFarmerData(prev => ({ ...prev, "IOTId": text }));
     } catch (error) {
       console.log("Error in handleIOTId", error);
     }
-  }
-  const handleCurrentLatLongIOT = async () => {
+  }, []);
+  const handleCurrentLatLongIOT = useCallback(async () => {
     try {
-      const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
-      setfarmerData({
-        ...farmerData,
+      const { latitude, longitude } = coords || {};
+      setFarmerData(prev => ({
+        ...prev,
         IOTLatlat: longitude,
         IOTLatLong: latitude,
-      });
+      }));
     } catch (error) {
       console.log("Error in handleCurrentLatLongIOT", error);
 
     }
-  }
+  }, []);
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
     if (harvested === '' && statuslevel.label === '') {
@@ -2123,7 +2126,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             ) : (
               <></>
             )}
-      
+
           </View>
         </ScrollView>
 

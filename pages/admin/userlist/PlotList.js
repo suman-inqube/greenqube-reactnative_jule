@@ -1,6 +1,6 @@
 import {
   StyleSheet, Text, View, FlatList, TouchableOpacity,
-  ScrollView, Image, Animated, Dimensions, BackHandler
+  ScrollView, Image, Animated, Dimensions, BackHandler, InteractionManager
 } from 'react-native';
 import React, { useEffect, useState, useRef, useContext, useCallback, memo } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -138,7 +138,12 @@ const PlotList = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 0) onPageLoad();
+    if (activeTab === 0) {
+      const task = InteractionManager.runAfterInteractions(() => {
+        onPageLoad();
+      });
+      return () => task.cancel();
+    }
     const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
       if (activeTab === 1) {
         onTabPress(0);
@@ -153,8 +158,6 @@ const PlotList = () => {
     <Root>
       <View style={styles.container}>
         <CustomHeader path="userList" HandlerGoBack={() => navigation.navigate('userList')} />
-
-        {/* Tabs */}
         <View style={styles.tabBar}>
           {['Plot Status', 'Plot Add and Edit'].map((label, idx) => (
             <TouchableOpacity key={idx} style={styles.tab} onPress={() => onTabPress(idx)}>
@@ -251,16 +254,14 @@ const styles = StyleSheet.create({
   indicator: {
     position: 'absolute',
     bottom: 0,
-    width: width / 2, // Half of screen width (2 tabs)
+    width: width / 2,
     height: 3,
     backgroundColor: 'green',
   },
   page: {
     width,
     flex: 1,
-    // backgroundColor: '#E9EAEC',
-    backgroundColor: Colors.background_light,
-    // padding: 10,
+    backgroundColor: Colors.background_light
   },
   item: {
     padding: 15,
@@ -276,15 +277,6 @@ const styles = StyleSheet.create({
   },
 
   skeletonCardWrapper: {
-    // backgroundColor: 'white', // Ensure the wrapper has a background
-    // padding: 15,
-    // borderRadius: 8,
-    // marginBottom: 10,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
-    // // elevation: 3,
     backgroundColor: '#FFF',
     borderRadius: 8,
     marginBottom: 10,
@@ -292,7 +284,7 @@ const styles = StyleSheet.create({
     borderColor: '#d0d4dc'
   },
   skeletonCard: {
-    flex: 1, // Ensure it fills the parent wrapper
+    flex: 1,
   },
   skeletonHeader: {
     width: '60%',

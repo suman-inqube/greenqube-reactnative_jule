@@ -38,7 +38,7 @@ import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import { getDashboardItems } from '../utils/dashboardItems';
-const HEADER_HEIGHT = 60;
+// const HEADER_HEIGHT = 60;
 const Dashboard = ({ navigation }) => {
   useDoubleBackToExit();
   const {
@@ -245,7 +245,7 @@ const Dashboard = ({ navigation }) => {
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
     });
-    return () => task.cancel(); // cleanup
+    return () => task.cancel();
   }, []);
   const exit = useCallback(() => {
     Alert.alert(
@@ -408,7 +408,7 @@ const Dashboard = ({ navigation }) => {
                   flexGrow: 1, // ensure pull works even when content small
                   overflow:'hidden'
                 }}
-                scrollEventThrottle={16}
+                scrollEventThrottle={1}
                 showsVerticalScrollIndicator={false}
                 onScroll={handleScroll}
                 data={[]} // everything in header
@@ -443,7 +443,7 @@ const Dashboard = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background_light },
   header: {
-    height: HEADER_HEIGHT - 10,
+    height: 60 - 10,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   },
   filterBar: {
     position: 'absolute',
-    top: HEADER_HEIGHT,
+    top: 60,
     left: 0,
     right: 0,
     zIndex: 9,
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   },
   imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
   overlay: { ...StyleSheet.absoluteFillObject },
-  bottomContent: { paddingBottom: 15, paddingTop: 15, alignItems: 'center' },
+  bottomContent: { paddingBottom: 10, paddingTop: 15, alignItems: 'center', zIndex: 999 },
   bottomContainer: {},
 });
 export default React.memo(Dashboard);

@@ -152,8 +152,6 @@ const ActivityReportAWD = ({ navigation }) => {
     cycleEnd: '',
   });
   // const [myphoto, setmyPhoto] = useState(null);
-  const [location, setLocation] = useState(coords);
-  const [myphotoAll, setmyPhotoAll] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisibleRecordFirstItem, setModalVisibleRecordFirstItem] =
     useState(false);

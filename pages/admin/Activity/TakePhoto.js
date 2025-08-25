@@ -1,5 +1,5 @@
 import {StyleSheet, View, TouchableOpacity, Image, Text} from 'react-native';
-import React from 'react';
+import React ,{memo}from 'react';
 import Icon from 'react-native-vector-icons/Feather'; // for camera icon
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors} from '../../utils/Constants';
@@ -44,8 +44,6 @@ const TakePhoto = ({openImagePicker, selectedImage, title}) => {
     </>
   );
 };
-
-export default TakePhoto;
 
 const styles = StyleSheet.create({
   title: {
@@ -107,3 +105,5 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
 });
+export default memo(TakePhoto);
+

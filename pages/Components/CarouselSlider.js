@@ -122,6 +122,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 120,
     justifyContent: 'center',
+    paddingVertical: '20%',
+    zIndex: 999 ,
   },
   carouselItemImg: {
     backgroundColor: Colors.background_light,
