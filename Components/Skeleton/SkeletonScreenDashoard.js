@@ -26,7 +26,7 @@ const SkeletonScreenDashoard = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor="#003c04" barStyle="light-content" />
+            {/* <StatusBar backgroundColor="#003c04" barStyle="light-content" /> */}
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerContent}>

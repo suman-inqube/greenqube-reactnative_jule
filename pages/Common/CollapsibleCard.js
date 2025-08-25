@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -8,7 +8,7 @@ import {
   DimensionValue, Image
 } from 'react-native';
 import { Colors } from '../utils/Constants';
-
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const CollapsibleCard = ({
@@ -52,20 +52,26 @@ const CollapsibleCard = ({
   });
 
   return (
-    <View style={[styles.card, { width }]}>
+    <View style={[styles.card, { width, overflow: 'hidden' }]}>
       {/* Always visible header */}
       <TouchableOpacity onPress={toggleCard} style={styles.touchable}>
-        <Animated.View style={[styles.header, { paddingBottom: paddingAnim+400 }]}>
-          {header}
-          <Animated.View style={[styles.arrow, { transform: [{ rotate }] }]}>
-            {/* <Image r down-arrow */}
-            <Image
-              style={{ width: 20, height: 20 }}
-              source={require('../Common/images/down-arrow.png')}
-            />
-            {/* <Icon name="chevron-down" size={25} iconFamily="MaterialCommunityIcons" color="#000" /> */}
+        <LinearGradient
+          colors={[Colors.useGreen, '#4CAF50']} 
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <Animated.View style={[styles.header, { paddingBottom: paddingAnim + 400, }]}>
+            {header}
+            <Animated.View style={[styles.arrow, { transform: [{ rotate }] }]}>
+              {/* <Image r down-arrow */}
+              <Image
+                style={{ width: 20, height: 20, tintColor: Colors.background }}
+                source={require('../Common/images/down-arrow.png')}
+              />
+              {/* <Icon name="chevron-down" size={25} iconFamily="MaterialCommunityIcons" color="#000" /> */}
+            </Animated.View>
           </Animated.View>
-        </Animated.View>
+        </LinearGradient>
       </TouchableOpacity>
 
       {/* Collapsible content */}
@@ -91,15 +97,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     // shadowRadius: 4,
-    borderWidth: 1,
-    borderColor:Colors.border,
+    borderWidth: 0.5,
+    borderColor: Colors.useGreen,
+    // borderStyle: 'dashed'
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,  // Added border bottom for header
+    // borderBottomWidth: 1,  
     borderBottomColor: Colors.border,
   },
   content: {
@@ -114,16 +121,18 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 10,
-    borderTopWidth: 1,  // Footer border remains the same
-    borderTopColor: Colors.border,
+    borderTopWidth: 0.5, 
+    borderTopColor: Colors.useGreen,
   },
   arrow: {
     marginLeft: 10,
   },
   touchable: {
     overflow: 'hidden',
+
+
   },
 });
 
 
-export default CollapsibleCard;
+export default memo(CollapsibleCard);

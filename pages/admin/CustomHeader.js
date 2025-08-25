@@ -300,4 +300,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomHeader;
+export default memo(CustomHeader);

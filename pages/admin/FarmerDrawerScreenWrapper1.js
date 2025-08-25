@@ -1,5 +1,5 @@
-import {View, Text, StyleSheet} from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import React, { memo } from 'react';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -7,9 +7,9 @@ import Animated, {
   withTiming,
   withSpring,
 } from 'react-native-reanimated';
-import {useDrawerProgress} from '@react-navigation/drawer';
+import { useDrawerProgress } from '@react-navigation/drawer';
 
-const FarmerDrawerScreenWrapper1 = ({children}) => {
+const FarmerDrawerScreenWrapper1 = ({ children }) => {
   const progress = useDrawerProgress();
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -19,7 +19,7 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
     ],
     borderRadius: withSpring(
       interpolate(progress.value, [0, 1], [0, 30], 'clamp'),
-      {damping: 10},
+      { damping: 10 },
     ),
     overflow: 'hidden',
   }));
@@ -30,8 +30,8 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
   );
 };
 
-export default FarmerDrawerScreenWrapper1;
+export default memo(FarmerDrawerScreenWrapper1);
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#f1f3f2'},
+  container: { flex: 1 },
 });
