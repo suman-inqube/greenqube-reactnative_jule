@@ -69,6 +69,8 @@ const PostNew = props => {
   const [liveliHoodType, setLiveliHoodType] = useState([]);
   const [produceName, setProduceName] = useState([]);
   const [produceVariety, setProduceVariety] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [nameVarityLivelihood, setNameVarityLivelihood] = useState({
     name: '',
     varity: '',
@@ -328,6 +330,7 @@ const PostNew = props => {
       }));
       setUnitData(dataArray);
     }
+    setIsLoading(false);
   };
   const validationData = () => {
     Keyboard.dismiss();
@@ -617,6 +620,7 @@ const PostNew = props => {
         <ButtonForm
           label={nextpage == 1 ? `${t('next')}` : `${t('submit')}`}
           onPress={() => saveHandle()}
+          loading={isLoading}
         />
       </Root>
     </FarmerDrawerScreenWrapper1>

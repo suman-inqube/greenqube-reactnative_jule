@@ -16,6 +16,11 @@ import {Colors, Fonts} from '../../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 
 const FarmerInsuViewPastRequested = () => {
   //GQR-67
@@ -33,6 +38,8 @@ const FarmerInsuViewPastRequested = () => {
     logoImage,
     topBanner,
   } = useContext(userCreateContext);
+  const navigation = useNavigation();
+
   const {dbname, lan_id, token, owner, user_id} = loginUser_data;
   //GQR-67
   const [filterOption, setFilterOption] = useState(false);
@@ -216,13 +223,13 @@ const FarmerInsuViewPastRequested = () => {
     setModalVisible(true);
     setModalVisibleData(item);
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <CustomHeader
-          path="Dashboard"
+          path="FarmerDashboard"
           HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}

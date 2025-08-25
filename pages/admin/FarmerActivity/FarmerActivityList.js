@@ -187,10 +187,10 @@ const FarmerActivityList = ({navigation}) => {
   ) => {
     if (netConnection) {
       var response = await axiosGet(
-        ROUTES.GET.LIST_USER_ACTIVITY({
+        ROUTES.GET.USER_ACTIVITY({
           pageNO: pageNo,
           carbonType: carbonType,
-          userID: '',
+          userID: supervisorId,
           searchItem: searchItem,
           from_date: from_date,
           to_date: to_date,

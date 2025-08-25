@@ -18,6 +18,7 @@ const MENU_TYPES = {
   PROFILE: 'profile',
   BUSINESS: 'business',
   FARM_ACCOUNT: 'farmAccount',
+  FINANCE: 'finance',
 };
 
 const STORAGE_KEYS = [
@@ -91,6 +92,7 @@ const CustomDrawer = memo(({state}) => {
     profile: false,
     business: false,
     farmAccount: false,
+    finance: false,
   });
 
   // Memoized handlers
@@ -148,6 +150,7 @@ const CustomDrawer = memo(({state}) => {
       business: menuName === MENU_TYPES.BUSINESS ? !prev.business : false,
       farmAccount:
         menuName === MENU_TYPES.FARM_ACCOUNT ? !prev.farmAccount : false,
+      finance: menuName === MENU_TYPES.FINANCE ? !prev.finance : false,
     }));
   }, []);
 
@@ -167,7 +170,7 @@ const CustomDrawer = memo(({state}) => {
         isExpandable: true,
         isExpanded: expandedMenus.profile,
         onPress: () => handleMenuExpand(MENU_TYPES.PROFILE),
-        expandIconMarginRight: 130,
+        expandIconMarginRight: 30,
         subItems: [
           {
             iconName: 'supervisor-account',
@@ -181,41 +184,82 @@ const CustomDrawer = memo(({state}) => {
           },
         ],
       },
+      // {
+      //   id: 'business',
+      //   iconName: 'business',
+      //   title: t('traceability'),
+      //   // isExpandable: true,
+      //   // isExpanded: expandedMenus.business,
+      //   onPress: () => navigateToPages('Business'),
+      //   // expandIconMarginRight: 30,
+      //   // subItems: [
+      //   //   // {
+      //   //   //   iconName: 'business-center',
+      //   //   //   title: t('traceability'),
+      //   //   //   onPress: () => navigateToPages('Business'),
+      //   //   // },
+      //   //   {
+      //   //     iconName: 'receipt',
+      //   //     title: t('daily_sales_report'),
+      //   //     onPress: () => navigateToPages('DailySalesReport'),
+      //   //   },
+      //   // ],
+      // },
+
       {
-        id: 'business',
-        iconName: 'business',
-        title: t('traceability'),
-        isExpandable: true,
-        isExpanded: expandedMenus.business,
-        onPress: () => handleMenuExpand(MENU_TYPES.BUSINESS),
-        expandIconMarginRight: 100,
-        subItems: [
-          {
-            iconName: 'business-center',
-            title: t('traceability'),
-            onPress: () => navigateToPages('Business'),
-          },
-          {
-            iconName: 'receipt',
-            title: t('daily_sales_report'),
-            onPress: () => navigateToPages('DailySalesReport'),
-          },
-        ],
+        id: 'DailySalesReport',
+        iconName: 'receipt',
+        title: t('daily_sales_report'),
+        onPress: () => navigateToPages('DailySalesReport'),
       },
+
       {
         id: 'farmAccount',
         iconName: 'account-balance',
         title: t('farm_income_amp_expense'),
+        // isExpandable: true,
+        // isExpanded: expandedMenus.farmAccount,
+        onPress: () => navigateToPages('FarmIncomeExpenseList'),
+        // onPress: () => handleMenuExpand(MENU_TYPES.FARM_ACCOUNT),
+        // expandIconMarginRight: 30,
+        // subItems: [
+        //   // {
+        //   //   iconName: 'currency-rupee',
+        //   //   title: t('farm_income_amp_expense'),
+        //   //   onPress: () => navigateToPages('FarmIncomeExpenseList'),
+        //   // },
+        //   {
+        //     iconName: 'real-estate-agent',
+        //     title: t('L_view_loan_nrequested'),
+        //     onPress: () => navigateToPages('LoanViewPastRequested'),
+        //   },
+        //   {
+        //     iconName: 'assignment-add',
+        //     title: t('loan_request_n'),
+        //     onPress: () => navigateToPages('LoanRequest'),
+        //   },
+        //   {
+        //     iconName: 'security',
+        //     title: t('Insu_enquiry_detail'),
+        //     onPress: () => navigateToPages('InsuranceViewPastRequested'),
+        //   },
+        //   {
+        //     iconName: 'maps-ugc',
+        //     title: t('request_for_ninsurance'),
+        //     onPress: () => navigateToPages('RequestForInsurance'),
+        //   },
+        // ],
+      },
+      {
+        id: 'finance',
+        iconName: 'currency-rupee',
+        title: t('Finance'),
         isExpandable: true,
-        isExpanded: expandedMenus.farmAccount,
-        onPress: () => handleMenuExpand(MENU_TYPES.FARM_ACCOUNT),
-        expandIconMarginRight: 50,
+        isExpanded: expandedMenus.finance,
+        // onPress: () => navigateToPages('FarmIncomeExpenseList'),
+        onPress: () => handleMenuExpand(MENU_TYPES.FINANCE),
+        expandIconMarginRight: 30,
         subItems: [
-          {
-            iconName: 'currency-rupee',
-            title: t('farm_income_amp_expense'),
-            onPress: () => navigateToPages('FarmIncomeExpenseList'),
-          },
           {
             iconName: 'real-estate-agent',
             title: t('L_view_loan_nrequested'),
@@ -238,6 +282,7 @@ const CustomDrawer = memo(({state}) => {
           },
         ],
       },
+
       {
         id: 'training',
         iconName: 'school',
@@ -301,14 +346,15 @@ export default CustomDrawer;
 
 const styles = StyleSheet.create({
   mainView: {
-    marginTop: 120,
+    marginTop: 80,
     flex: 1,
+    marginBottom: 20,
   },
   contentContainer: {
     marginBottom: 80,
   },
   memuContainer: {
-    paddingVertical: 12,
+    paddingVertical: 10,
     backgroundColor: Colors.drawer,
   },
   subMenu: {

@@ -24,6 +24,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const AddIcome = ({navigation}) => {
   //GQR-67
   const {
@@ -45,6 +46,7 @@ const AddIcome = ({navigation}) => {
     ButtonFormBottom,
     effective_dates,
     farmerData,
+    ButtonForm,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner} = loginUser_data;
   //GQR-67
@@ -56,6 +58,8 @@ const AddIcome = ({navigation}) => {
   // const [farmerData, setFarmerData] = useState([]);
   const [plotAll, setplotAll] = useState([]);
   const [showingMenu, setShowingMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
     name: '',
     varity: '',
@@ -123,6 +127,8 @@ const AddIcome = ({navigation}) => {
     const curr = await getItem('currency');
     setcurrency(curr);
     handleClear();
+    setIsLoading(false);
+
     // if (loginUser_data) {
     //     const dbName = loginUser_data.dbname;
     //     const languageId = loginUser_data.lan_id;
@@ -159,7 +165,8 @@ const AddIcome = ({navigation}) => {
       });
     }, []),
   );
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
@@ -369,10 +376,11 @@ const AddIcome = ({navigation}) => {
               </View>
               <View style={styles.mainView}>
                 <View style={styles.card}>
-                  <InputTextForm
+                  <DropdownForm
                     label={t('farmer_name')}
-                    value={searchFarmerName}
-                    onChangeText={farmerName => handleSearch(farmerName)}
+                    data={farmerData?.[0]}
+                    required={true}
+                    onChange={item => handleResultSelect(item)}
                   />
 
                   <InputTextForm
@@ -471,12 +479,13 @@ const AddIcome = ({navigation}) => {
               </View>
             </ScrollView>
           </View>
-          <ButtonFormBottom
+          <ButtonForm
             label={t('submit')}
             onPress={() => handleSave()}
             iconName="check-circle"
             iconColor="#fff"
             iconSize={30}
+            loading={isLoading}
           />
         </View>
       </Root>

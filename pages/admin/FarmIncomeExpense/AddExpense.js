@@ -41,6 +41,7 @@ const AddExpense = ({navigation}) => {
     DatePickerComp,
     ButtonFormBottom,
     effective_dates,
+    ButtonForm,
     farmerData,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
@@ -52,6 +53,8 @@ const AddExpense = ({navigation}) => {
   const [searchResults, setSearchResults] = useState([]);
   const [plotAll, setplotAll] = useState([]);
   const [showingMenu, setShowingMenu] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
     name: '',
     varity: '',
@@ -121,6 +124,8 @@ const AddExpense = ({navigation}) => {
   const onPageLoad = async () => {
     const curr = await getItem('currency');
     setcurrency(curr);
+    setIsLoading(false);
+
     // handleClear();
     // const loginUser_data = await getItem('loginUser_data');
     // if (loginUser_data) {
@@ -478,12 +483,13 @@ const AddExpense = ({navigation}) => {
               </View>
             </ScrollView>
           </View>
-          <ButtonFormBottom
+          <ButtonForm
             label="Submit"
             onPress={() => handleSave()}
             iconName="check-circle"
             iconColor="#fff"
             iconSize={30}
+            loading={isLoading}
           />
         </View>
       </Root>

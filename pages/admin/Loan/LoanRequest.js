@@ -41,7 +41,14 @@ import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const qs = require('qs');
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 const LoanRequest = ({setActiveBtn}) => {
+  const navigation = useNavigation();
+
   const scrollViewRef = useRef(null);
 
   //GQR-67
@@ -59,13 +66,14 @@ const LoanRequest = ({setActiveBtn}) => {
     CustomHeader,
     logoImage,
     topBanner,
+    ButtonForm,
     // handleResultSelect,
     farmerData,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const [blank, setBlank] = useState({label: '', value: 'dacsfddsd'});
   //GQR-67
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -759,7 +767,8 @@ const LoanRequest = ({setActiveBtn}) => {
       setSearchResultsList(true);
     }
   };
-  const handleResultSelect = async (name, currentfarmerId, phone, item) => {
+  const handleResultSelect = async item => {
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchFarmerPhone(phone);
     setSelectedName(name);
     setSearchFarmerName(name);
@@ -1194,6 +1203,8 @@ const LoanRequest = ({setActiveBtn}) => {
         setTimeout(() => {
           setActiveBtn(2);
         }, 2000);
+
+        navigation.navigate('LoanViewPastRequested');
       }
       setIsLoading(false);
     }
@@ -1204,7 +1215,7 @@ const LoanRequest = ({setActiveBtn}) => {
       await Linking.openURL(propsData);
     }
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+
   return (
     <FarmerDrawerScreenWrapper1>
       <>
@@ -1216,7 +1227,6 @@ const LoanRequest = ({setActiveBtn}) => {
           ) : null}
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
@@ -1260,10 +1270,11 @@ const LoanRequest = ({setActiveBtn}) => {
                   {t('personal_information')}
                 </Text>
 
-                <InputTextForm
+                <DropdownForm
                   label={t('farmer_name')}
-                  value={searchFarmerName}
-                  onChangeText={farmerName => handleSearch(farmerName)}
+                  data={farmerData?.[0]}
+                  required={true}
+                  onChange={item => handleResultSelect(item)}
                 />
                 {searchResultsList && searchResultsList ? (
                   <View style={styles.searchResultsContainer}>
@@ -1538,12 +1549,17 @@ const LoanRequest = ({setActiveBtn}) => {
               </View>
             </ScrollView>
           </SafeAreaView>
-          <ButtonFormBottom
+          {/* <ButtonFormBottom
             label={t('submit')}
             onPress={handleSave}
             iconName="check-circle"
             iconColor="#fff"
             iconSize={30}
+          /> */}
+          <ButtonForm
+            label={t('submit')}
+            onPress={handleSave}
+            loading={isLoading}
           />
         </Root>
       </>
@@ -1685,15 +1701,15 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: 'white',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 20,
-    marginVertical: '5%',
+    marginVertical: '4%',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    marginHorizontal: '4%',
+    marginHorizontal: '3%',
   },
   cardTitle: {
     fontSize: 16,

@@ -1281,7 +1281,7 @@ const FarmerLoanRequest = ({}) => {
   //           propsData.spSheet.hide();
   //         }
   //       };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   return (
     <FarmerDrawerScreenWrapper1>
@@ -1293,7 +1293,7 @@ const FarmerLoanRequest = ({}) => {
             </View>
           ) : null}
           <CustomHeader
-            path="Dashboard"
+            path="FarmerDashboard"
             HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
