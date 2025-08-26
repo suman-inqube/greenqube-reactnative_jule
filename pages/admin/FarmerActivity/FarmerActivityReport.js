@@ -1626,7 +1626,7 @@ const FarmerActivityReport = ({ navigation }) => {
           />
         )}
         <View style={{marginTop: 10}}>
-          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+          <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading} />
         </View>
         <Root></Root>
       </View>

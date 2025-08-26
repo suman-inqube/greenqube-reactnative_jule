@@ -55,7 +55,7 @@ import ChangePassword from './ChangePassword/ChangePassword';
 import Business from './Business/Business';
 import InstrumentWiseActivityView from './Activity/InstrumentWiseActivityView';
 import InstrumentWiseActivityDetails from './Activity/InstrumentWiseActivityDetails';
-
+import Market from './Market/Market';
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
   return (
@@ -104,7 +104,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="UsefulInformationList"
         component={UsefulInformationList}
-        // options={{ gestureEnabled: false ,unmountOnBlur: true,}}
+      // options={{ gestureEnabled: false ,unmountOnBlur: true,}}
       />
 
       <Drawer.Screen
@@ -307,7 +307,12 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="InstrumentWiseActivityDetails"
         component={InstrumentWiseActivityDetails}
-      options={{unmountOnBlur: true, gestureEnabled: false}}
+        options={{ unmountOnBlur: true, gestureEnabled: false }}
+      />
+      <Drawer.Screen
+        name="Market"
+        component={Market}
+        options={{ unmountOnBlur: true, gestureEnabled: false }}
       />
 
     </Drawer.Navigator>

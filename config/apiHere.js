@@ -3252,10 +3252,6 @@ export const ActivityPipeImages = async (
       information: `${dbName},${language},${userId}`,
     },
   };
-  console.log(
-    `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
-    axiosHeaders,
-  );
   try {
     let response = await axios.get(
       `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
@@ -3342,6 +3338,37 @@ export const onlyUpdateIdAddrFile = async (
     );
     return response;
   } catch (error) {
+    return error.response;
+  }
+};
+
+
+
+
+export const Fenced_Rejected_Plot_List = async (
+  token,
+  dbName,
+  language,
+  userId,
+  status_level,
+  geo_type,
+  page
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${language},${userId}`,
+    },
+  };
+  console.log(`${config.BASE_URL}landRoute/plotNotification/1/1/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}`)
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}landRoute/plotNotification/1/1/${page}?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
     return error.response;
   }
 };

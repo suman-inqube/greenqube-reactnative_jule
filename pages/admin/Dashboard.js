@@ -232,7 +232,7 @@ const Dashboard = ({ navigation }) => {
               <BoxDisplay text={t('agri_output_far_dash')} imageurl={require('../Common/images/dash_sale_your_product.png')} onpress={() => navigateToPages('OutPutList')} />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('market_information')} imageurl={require('../Common/images/market_information_only.png')} />
+              <BoxDisplay text={t('market_information')} imageurl={require('../Common/images/market_information_only.png')}  onpress={() => navigateToPages('Market')}/>
               <BoxDisplay text={t('useful_ninformation_dash')} imageurl={require('../Common/images/dash_useful_information.png')} onpress={() => navigateToPages('UsefulInformationList')} />
             </View>
             <View style={{ marginTop: 16, elevation: 5 }}>

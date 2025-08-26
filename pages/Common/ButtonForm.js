@@ -1,7 +1,7 @@
 import { Text, View, TouchableOpacity } from 'react-native'
 import React from 'react'
 
-const ButtonForm = ({ label, onPress, tcolor, bcolor }) => {
+const ButtonForm = ({ label, onPress, tcolor, bcolor,loading = false }) => {
   const color = 'red';
   return (
     <View>
@@ -13,7 +13,11 @@ const ButtonForm = ({ label, onPress, tcolor, bcolor }) => {
        position:'absolute',
        bottom:-5,
        width:'100%'
-      }} onPress={onPress}>
+      }} 
+         onPress={!loading ? onPress : null} // 👈 disable when loading
+        disabled={loading} // 👈 disable press
+        activeOpacity={0.7}
+      >
         <Text style={{
           color: tcolor ?? 'white',
           fontSize: 20,
