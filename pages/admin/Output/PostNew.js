@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Dimensions,
   Keyboard,
+  Alert,
 } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
 import {launchCamera} from 'react-native-image-picker';
@@ -90,8 +91,8 @@ const PostNew = props => {
   const handleSearch = text => {
     setSearchFarmerName(text);
     setSearchFarmerPhone('');
-    console.log('farmerData', farmerData);
-    console.log('text', text);
+    // console.log('farmerData', farmerData);
+    // console.log('text', text);
     if (farmerData[0]) {
       const result = farmerData[0].filter(item =>
         item.label.toLowerCase().includes(text.toLowerCase()),
@@ -130,7 +131,7 @@ const PostNew = props => {
       token,
       currentfarmerId,
     );
-    console.log('response', response);
+    // console.log('response', response);
     if (response?.status == 200) {
       const dataArray = [
         {
@@ -356,6 +357,7 @@ const PostNew = props => {
   const saveHandle = async () => {
     const res = validationData();
     if (res == true) {
+      Alert.alert('Hii');
       if (nextpage === 1) {
         setNextPage(2);
       } else {
@@ -408,10 +410,12 @@ const PostNew = props => {
           user_id,
           formDataObject,
         );
+        console.log('database_res', database_res);
         if (database_res?.status === 200) {
           Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             props.sendDataToParent(2);
+            navigation.navigate('ViewPast');
           }, 1500);
         }
       }
@@ -472,7 +476,7 @@ const PostNew = props => {
           </SafeAreaView>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.fromContainer}>
-              <View style={{padding: 20}}>
+              <View style={{padding: 16}}>
                 {nextpage == 1 ? (
                   <>
                     <DropdownForm
@@ -653,8 +657,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Colors.border,
-    marginVertical: 20,
-    marginHorizontal: 16,
+    // marginVertical: 10,
+
     // zIndex: 999,
     // position: 'absolute',
   },

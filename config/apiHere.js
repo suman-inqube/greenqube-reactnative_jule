@@ -740,7 +740,10 @@ export const problemListAPI = async (
     //   axiosHeaders,
     // );
     // return response;
-    console.log(axiosHeaders,`questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${AgentID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`)
+    console.log(
+      axiosHeaders,
+      `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${AgentID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
+    );
     const instance = await getAxiosInstance();
     let response = await instance.get(
       `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${AgentID}&problem_type_id=&problem_name_id=&farmer_mobile=${mobileNo}`,
@@ -1207,7 +1210,7 @@ export const inputSaveAPI = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('outputSaveAPI:', error.response.data);
+    // return console.log('outputSaveAPI:', error.response.data);
   }
 };
 
@@ -1229,7 +1232,7 @@ export const outputListAPI = async (
     },
   };
   console.log(`${config.BASE_URL}inputOutputRoute/list/1/0/2?&
-        farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`)
+        farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`);
   try {
     let response = await axios.get(
       `${config.BASE_URL}inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`,
@@ -1325,7 +1328,7 @@ export const outputSaveAPI = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('outputSaveAPI:', error.response.data);
+    // return console.log('outputSaveAPI:', error.response.data);
   }
 };
 
@@ -1444,6 +1447,7 @@ export const usefulInfoListAPI = async (
       `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
+    console.log('Complete response:', response);
     const resultJson = {
       data: response,
       status: 200,

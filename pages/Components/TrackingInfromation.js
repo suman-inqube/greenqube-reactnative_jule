@@ -18,6 +18,12 @@ const TrackingInformation = ({
   navigation,
   activity_path,
   information_path,
+  // Add new props for navigation paths
+  trackingNavigationPath,
+  informationNavigationPath,
+  // Optional: Add props for navigation parameters
+  trackingNavigationParams,
+  informationNavigationParams,
 }) => {
   const [activeTab, setActiveTab] = useState('tracking');
   const trackingScale = useRef(new Animated.Value(1)).current;
@@ -49,7 +55,21 @@ const TrackingInformation = ({
 
     setActiveTab(tab);
   };
-
+  const handleIconPress = () => {
+    if (activeTab === 'tracking') {
+      // Navigate to tracking screen with optional parameters
+      navigation.navigate(
+        trackingNavigationPath || 'activityList',
+        trackingNavigationParams || {},
+      );
+    } else {
+      // Navigate to information screen with optional parameters
+      navigation.navigate(
+        informationNavigationPath || 'UsefulInformationList',
+        informationNavigationParams || {},
+      );
+    }
+  };
   // const handleIconPress = () => {
   //   if (activeTab === 'tracking') {
   //     navigation.navigate('activityList');
@@ -121,12 +141,10 @@ const TrackingInformation = ({
           </Animated.View>
         </View>
         <View style={styles.iconContainer}>
-          <TouchableOpacity
-          // onPress={handleIconPress}
-          >
+          <TouchableOpacity onPress={handleIconPress}>
             <MaterialIcons
-              name="double-arrow"
-              size={25}
+              name="arrow-forward"
+              size={22}
               color={Colors.useGreen}
             />
           </TouchableOpacity>

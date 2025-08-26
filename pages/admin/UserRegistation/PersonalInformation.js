@@ -509,6 +509,26 @@ const PersonalInformation = () => {
               keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
               <View style={styles.fromContainer}>
                 <ScrollView showsVerticalScrollIndicator={false}>
+                  <View
+                    style={{
+                      backgroundColor: 'green',
+                      alignSelf: 'flex-end',
+                      marginTop: 20,
+                      borderRadius: 10,
+                      width: '10%',
+
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 20,
+                      marginBottom: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color: 'white',
+                      }}>
+                      1/3
+                    </Text>
+                  </View>
                   <View style={{flex: 1}}>
                     <View style={styles.firatFormContainer}>
                       <View style={styles.profileImg}>
