@@ -1,7 +1,15 @@
-apply plugin: "com.android.application"
-apply plugin: "com.facebook.react"
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
+// apply plugin: "com.android.application"
+// apply plugin: "com.facebook.react"
+// apply plugin: 'com.google.gms.google-services'
+// apply plugin: 'com.google.firebase.crashlytics'
+plugins {
+    id "com.android.application"
+    id "com.facebook.react"
+    id "org.jetbrains.kotlin.android"
+    // If using Firebase
+    id "com.google.gms.google-services"
+    id "com.google.firebase.crashlytics"
+}
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -81,10 +89,14 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 101
         versionName "9.9"
-          buildConfigField "String", "baseUrl", "\"http://34.87.10.106:4003/\""
-        // buildConfigField "String", "baseUrl", "\"https://mygreenqube.com:4003/\""
+           buildConfigField "String", "baseUrl", "\"http://34.87.10.106:4003/\""
+        //  buildConfigField "String", "baseUrl", "\"https://mygreenqube.com:4003/\""
           buildConfigField "String", "encryptedKey", "\"greenQube_96740_64428\""
     }
+    buildFeatures {
+        buildConfig = true  // ✅ Enable BuildConfig generation
+    }
+      
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -105,11 +117,14 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    
 }
+
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
-    implementation("com.facebook.react:react-android")
+    // implementation("com.facebook.react:react-android")
+    implementation("com.facebook.react:react-android:0.71.8")
     
 //   implementation 'com.facebook.fresco:animated-gif:2.6.0'
     implementation 'com.facebook.fresco:animated-webp:2.0.0'
