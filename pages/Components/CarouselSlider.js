@@ -182,7 +182,7 @@ const CarouselSlider = ({
         }
       ]}
       onPress={() => handleItemPress(item, index)}
-      android_ripple={{ color: Colors.primary, borderless: true }}
+      android_ripple={{ color: Colors.lightGreen, borderless: true }}
     >
       <View style={[
         styles.carouselItemImg,

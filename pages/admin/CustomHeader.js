@@ -176,7 +176,7 @@ const CustomHeader = memo(
     const statusBarProps = useMemo(
       () => ({
         barStyle: 'light-content',
-        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#003c04',
+        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#1c571cff',
       }),
       [drawerStatus],
     );
@@ -221,7 +221,7 @@ CustomHeader.displayName = 'CustomHeader';
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: '#003c04',
+    backgroundColor: '#1c571cff',
     width: '100%',
     minHeight: 70,
     justifyContent: 'center',

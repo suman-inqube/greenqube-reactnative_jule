@@ -15,7 +15,7 @@ import {Colors} from '../../utils/Constants';
 const SkeletonScreenDashoard = () => {
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#003c04" barStyle="light-content" />
+      <StatusBar backgroundColor="#4CAF50" barStyle="light-content" />
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <MotiView
