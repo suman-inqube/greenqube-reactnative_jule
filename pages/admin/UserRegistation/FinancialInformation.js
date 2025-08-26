@@ -179,7 +179,7 @@ const FinancialInformation = () => {
                   marginTop: 20,
                   borderRadius: 10,
                   width: '10%',
-                  height: '5%',
+
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginRight: 20,
@@ -231,45 +231,51 @@ const FinancialInformation = () => {
                   {isIdentity && (
                     <>
                       <View style={{marginTop: 10}}>
-                        <InputTextForm
-                          label={t('adhar_no')}
-                          onChangeText={adharCard =>
-                            setstoreFinancial({
-                              ...storeFinancial,
-                              adharCard: adharCard,
-                            })
-                          }
-                          keyboardType="numeric"
-                          value={storeFinancial.adharCard}
-                        />
+                        <View style={styles.bodyContainer}>
+                          <InputTextForm
+                            label={t('adhar_no')}
+                            onChangeText={adharCard =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                adharCard: adharCard,
+                              })
+                            }
+                            keyboardType="numeric"
+                            value={storeFinancial.adharCard}
+                          />
+
+                          <InputTextForm
+                            label={t('pan_no')}
+                            value={storeFinancial.panNo}
+                            onChangeText={panNo =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                panNo: panNo,
+                              })
+                            }
+                          />
+                          <InputTextForm
+                            label={t('voter_card_no')}
+                            value={storeFinancial.voterCard}
+                            onChangeText={voterCard =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                voterCard: voterCard,
+                              })
+                            }
+                          />
+                          <InputTextForm
+                            label={t('kcc_no')}
+                            onChangeText={farmarLoanNo =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                farmarLoanNo: farmarLoanNo,
+                              })
+                            }
+                            value={storeFinancial.farmarLoanNo}
+                          />
+                        </View>
                       </View>
-                      <InputTextForm
-                        label={t('pan_no')}
-                        value={storeFinancial.panNo}
-                        onChangeText={panNo =>
-                          setstoreFinancial({...storeFinancial, panNo: panNo})
-                        }
-                      />
-                      <InputTextForm
-                        label={t('voter_card_no')}
-                        value={storeFinancial.voterCard}
-                        onChangeText={voterCard =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            voterCard: voterCard,
-                          })
-                        }
-                      />
-                      <InputTextForm
-                        label={t('kcc_no')}
-                        onChangeText={farmarLoanNo =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            farmarLoanNo: farmarLoanNo,
-                          })
-                        }
-                        value={storeFinancial.farmarLoanNo}
-                      />
                     </>
                   )}
                 </View>
@@ -313,58 +319,61 @@ const FinancialInformation = () => {
                   {isBank && (
                     <>
                       <View style={{marginTop: 10}}>
-                        <InputTextForm
-                          label={t('account_holder_name')}
-                          onChangeText={accountHolderName =>
-                            setstoreFinancial({
-                              ...storeFinancial,
-                              accountHolderName: accountHolderName,
-                            })
-                          }
-                          value={storeFinancial.accountHolderName}
-                        />
+                        <View style={styles.bodyContainer}>
+                          <InputTextForm
+                            label={t('account_holder_name')}
+                            onChangeText={accountHolderName =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                accountHolderName: accountHolderName,
+                              })
+                            }
+                            value={storeFinancial.accountHolderName}
+                          />
+
+                          <InputTextForm
+                            label={t('farmer_reg_bankifsc')}
+                            onChangeText={bankName =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                bankName: bankName,
+                              })
+                            }
+                            value={storeFinancial.bankName}
+                          />
+                          <InputTextForm
+                            label={t('branch_name')}
+                            onChangeText={branchName =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                branchName: branchName,
+                              })
+                            }
+                            value={storeFinancial.branchName}
+                          />
+                          <InputTextForm
+                            label={t('bank_account')}
+                            onChangeText={bankAccountNo =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                bankAccountNo: bankAccountNo,
+                              })
+                            }
+                            value={storeFinancial.bankAccountNo}
+                            keyboardType="numeric"
+                          />
+                          <InputTextForm
+                            label={t('ifsc_no')}
+                            onChangeText={ifscCode =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                ifscCode: ifscCode,
+                              })
+                            }
+                            value={storeFinancial.ifscCode}
+                          />
+                        </View>
                       </View>
-                      <InputTextForm
-                        label={t('farmer_reg_bankifsc')}
-                        onChangeText={bankName =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            bankName: bankName,
-                          })
-                        }
-                        value={storeFinancial.bankName}
-                      />
-                      <InputTextForm
-                        label={t('branch_name')}
-                        onChangeText={branchName =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            branchName: branchName,
-                          })
-                        }
-                        value={storeFinancial.branchName}
-                      />
-                      <InputTextForm
-                        label={t('bank_account')}
-                        onChangeText={bankAccountNo =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            bankAccountNo: bankAccountNo,
-                          })
-                        }
-                        value={storeFinancial.bankAccountNo}
-                        keyboardType="numeric"
-                      />
-                      <InputTextForm
-                        label={t('ifsc_no')}
-                        onChangeText={ifscCode =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            ifscCode: ifscCode,
-                          })
-                        }
-                        value={storeFinancial.ifscCode}
-                      />
                     </>
                   )}
                 </View>
@@ -407,94 +416,99 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isPension && (
                     <>
-                      <View style={{marginTop: 20}}>
-                        <InputTextForm
-                          label={t('pension_providing_authority')}
-                          onChangeText={pensionProvidingAuthority =>
-                            setstoreFinancial({
-                              ...storeFinancial,
-                              pensionProvidingAuthority:
-                                pensionProvidingAuthority,
-                            })
-                          }
-                          value={storeFinancial.pensionProvidingAuthority}
-                        />
-                      </View>
-                      <InputTextForm
-                        label={t('pension_account_number')}
-                        onChangeText={pensionAccountNo =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            pensionAccountNo: pensionAccountNo,
-                          })
-                        }
-                        value={storeFinancial.pensionAccountNo}
-                        keyboardType="numeric"
-                      />
-                      <View>
-                        <Text
-                          style={{
-                            marginBottom: 5,
-                            marginLeft: 5,
-                            color: '#000',
-                          }}>
-                          {t('effective_from')}
-                        </Text>
-                        <View style={styles.passwordMainContainer}>
-                          <View style={styles.passwordContainer}>
-                            <TouchableOpacity
-                              style={styles.inputTextStyle}
-                              onPress={() => setOpen(true)}>
-                              <Text style={styles.title}>
-                                {storeFinancial.pensionEffectiveFrom}
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setOpen(true)}>
-                              <ImageForm
-                                source={require('../../Common/images/date.png')}
-                                resizeMode="cover"
-                                height={30}
-                                width={30}
-                              />
-                            </TouchableOpacity>
-                            <DatePicker
-                              modal
-                              mode="date"
-                              open={open}
-                              date={newdate}
-                              onConfirm={item => {
-                                handleDatePicker(item);
-                                setOpen(false);
-                              }}
-                              onCancel={() => {
-                                setOpen(false);
-                              }}
-                            />
+                      <View style={{marginTop: 10}}>
+                        <View style={styles.bodyContainer}>
+                          <InputTextForm
+                            label={t('pension_providing_authority')}
+                            onChangeText={pensionProvidingAuthority =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                pensionProvidingAuthority:
+                                  pensionProvidingAuthority,
+                              })
+                            }
+                            value={storeFinancial.pensionProvidingAuthority}
+                          />
+
+                          <InputTextForm
+                            label={t('pension_account_number')}
+                            onChangeText={pensionAccountNo =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                pensionAccountNo: pensionAccountNo,
+                              })
+                            }
+                            value={storeFinancial.pensionAccountNo}
+                            keyboardType="numeric"
+                          />
+                          <View>
+                            <Text
+                              style={{
+                                marginBottom: 5,
+                                marginLeft: 5,
+                                color: '#000',
+                              }}>
+                              {t('effective_from')}
+                            </Text>
+                            <View style={styles.passwordMainContainer}>
+                              <View style={styles.passwordContainer}>
+                                <TouchableOpacity
+                                  style={styles.inputTextStyle}
+                                  onPress={() => setOpen(true)}>
+                                  <Text style={styles.title}>
+                                    {storeFinancial.pensionEffectiveFrom}
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setOpen(true)}>
+                                  <ImageForm
+                                    source={require('../../Common/images/date.png')}
+                                    resizeMode="cover"
+                                    height={30}
+                                    width={30}
+                                  />
+                                </TouchableOpacity>
+                                <DatePicker
+                                  modal
+                                  mode="date"
+                                  open={open}
+                                  date={newdate}
+                                  onConfirm={item => {
+                                    handleDatePicker(item);
+                                    setOpen(false);
+                                  }}
+                                  onCancel={() => {
+                                    setOpen(false);
+                                  }}
+                                />
+                              </View>
+                            </View>
                           </View>
+                          <InputTextForm
+                            label={
+                              t('pension_amount_currency') + ` (${currency})`
+                            }
+                            onChangeText={pensionAmount =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                pensionAmount: pensionAmount,
+                              })
+                            }
+                            value={storeFinancial.pensionAmount}
+                            keyboardType="numeric"
+                          />
+                          <DropdownForm
+                            label={t('per_month_quarter_year')}
+                            data={config?.pensionParMonthData}
+                            onChange={pensionPerMonth =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                pensionPerMonth: pensionPerMonth,
+                              })
+                            }
+                            val={storeFinancial.pensionPerMonth}
+                          />
                         </View>
                       </View>
-                      <InputTextForm
-                        label={t('pension_amount_currency') + ` (${currency})`}
-                        onChangeText={pensionAmount =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            pensionAmount: pensionAmount,
-                          })
-                        }
-                        value={storeFinancial.pensionAmount}
-                        keyboardType="numeric"
-                      />
-                      <DropdownForm
-                        label={t('per_month_quarter_year')}
-                        data={config?.pensionParMonthData}
-                        onChange={pensionPerMonth =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            pensionPerMonth: pensionPerMonth,
-                          })
-                        }
-                        val={storeFinancial.pensionPerMonth}
-                      />
                     </>
                   )}
                 </View>
@@ -537,40 +551,43 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isLifeInsurance && (
                     <>
-                      <View style={{marginTop: 20}}>
-                        <InputTextForm
-                          label={t('lic_name_of_company')}
-                          onChangeText={nameOfCompany =>
-                            setstoreFinancial({
-                              ...storeFinancial,
-                              nameOfCompany: nameOfCompany,
-                            })
-                          }
-                          value={storeFinancial.nameOfCompany}
-                        />
+                      <View style={{marginTop: 10}}>
+                        <View style={styles.bodyContainer}>
+                          <InputTextForm
+                            label={t('lic_name_of_company')}
+                            onChangeText={nameOfCompany =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                nameOfCompany: nameOfCompany,
+                              })
+                            }
+                            value={storeFinancial.nameOfCompany}
+                          />
+
+                          <InputTextForm
+                            label={t('policy_number')}
+                            onChangeText={policyNumber =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                policyNumber: policyNumber,
+                              })
+                            }
+                            value={storeFinancial.policyNumber}
+                            keyboardType="numeric"
+                          />
+                          <InputTextForm
+                            label={t('sum_insured_currency')}
+                            onChangeText={sumInsured =>
+                              setstoreFinancial({
+                                ...storeFinancial,
+                                sumInsured: sumInsured,
+                              })
+                            }
+                            value={storeFinancial.sumInsured}
+                            keyboardType="numeric"
+                          />
+                        </View>
                       </View>
-                      <InputTextForm
-                        label={t('policy_number')}
-                        onChangeText={policyNumber =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            policyNumber: policyNumber,
-                          })
-                        }
-                        value={storeFinancial.policyNumber}
-                        keyboardType="numeric"
-                      />
-                      <InputTextForm
-                        label={t('sum_insured_currency')}
-                        onChangeText={sumInsured =>
-                          setstoreFinancial({
-                            ...storeFinancial,
-                            sumInsured: sumInsured,
-                          })
-                        }
-                        value={storeFinancial.sumInsured}
-                        keyboardType="numeric"
-                      />
                     </>
                   )}
                 </View>
@@ -596,17 +613,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffffff',
     height: 35,
     width: '100%',
-    marginLeft: -5,
+    // marginLeft: -5,
     borderRadius: 8,
-    marginTop: -3,
+    // marginTop: -3,
     borderRadius: 5,
+  },
+  bodyContainer: {
+    // backgroundColor: '#DAC0A3',
+    backgroundColor: '#FFF',
+    padding: 16,
+    // paddingHorizontal: 12,
+    borderRadius: 8,
+    // borderWidth:1,
+    borderColor: '#00000065',
+    justifyContent: 'center',
+    // elevation:5
   },
   container: {
     marginTop: 10,
     padding: 17,
     borderWidth: 0,
     borderColor: '#ddd',
-    backgroundColor: '#d3ced7',
+    backgroundColor: '#e2dce7ff',
     borderRadius: 8,
     marginVertical: 20,
     elevation: 3,

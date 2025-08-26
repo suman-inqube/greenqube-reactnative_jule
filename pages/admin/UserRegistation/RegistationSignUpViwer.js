@@ -20,6 +20,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors, Fronts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
 const RegistationSignUpViwer = () => {
   //GQR-65
@@ -324,82 +325,222 @@ const RegistationSignUpViwer = () => {
   }, [isFocused]);
   const HandlerGoBack = () => {};
   return (
-    <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-      <Root>
-        <CustomHeader
-          path="RegistationSignUpViwer"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        {isLoading && (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        )}
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{paddingHorizontal: 20, marginTop: 50}}>
-            <View
-              style={{
-                marginTop: 10,
-                padding: 17,
-                borderWidth: 0,
-                borderColor: '#ddd',
-                backgroundColor: '#d3ced7',
-                borderRadius: 20,
-                marginVertical: 20,
-                elevation: 3,
-                // height: 55,
-                borderWidth: 0.5,
-                borderColor: 'black',
-                // alignItems: 'center',
-              }}>
-              <TouchableOpacity onPress={togglestorePersnolInfo}>
-                <View style={styles.headerStyle}>
-                  <View style={{paddingLeft: 5, paddingTop: 2}}>
-                    <MaterialIcons
-                      name="account-circle"
-                      size={28}
-                      color="#113fac"
-                      style={styles.icon}
-                    />
+    <FarmerDrawerScreenWrapper1>
+      <View style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <Root>
+          <CustomHeader
+            path="RegistationSignUpViwer"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          {isLoading && (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          )}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={{paddingHorizontal: 20, marginTop: 50}}>
+              <View
+                style={{
+                  marginTop: 10,
+                  padding: 17,
+                  borderWidth: 0,
+                  borderColor: '#ddd',
+                  backgroundColor: '#d3ced7',
+                  borderRadius: 20,
+                  marginVertical: 20,
+                  elevation: 3,
+                  // height: 55,
+                  borderWidth: 0.5,
+                  borderColor: 'black',
+                  // alignItems: 'center',
+                }}>
+                <TouchableOpacity onPress={togglestorePersnolInfo}>
+                  <View style={styles.headerStyle}>
+                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                      <MaterialIcons
+                        name="account-circle"
+                        size={28}
+                        color="#113fac"
+                        style={styles.icon}
+                      />
+                    </View>
+                    <Text style={styles.toggleText}>
+                      {isstorePersnolInfo
+                        ? `${t('personal_information')}`
+                        : `${t('personal_information')}`}
+                    </Text>
+                    <Text style={styles.toggleText}>
+                      {isstorePersnolInfo ? (
+                        <MaterialIcons
+                          name="do-not-disturb-on"
+                          size={25}
+                          color="red"
+                          style={styles.icon}
+                        />
+                      ) : (
+                        <MaterialIcons
+                          name="add-circle"
+                          size={25}
+                          color="green"
+                          style={styles.icon}
+                        />
+                      )}
+                    </Text>
                   </View>
-                  <Text style={styles.toggleText}>
-                    {isstorePersnolInfo
-                      ? `${t('personal_information')}`
-                      : `${t('personal_information')}`}
-                  </Text>
-                  <Text style={styles.toggleText}>
-                    {isstorePersnolInfo ? (
-                      <MaterialIcons
-                        name="do-not-disturb-on"
-                        size={25}
-                        color="red"
-                        style={styles.icon}
-                      />
+                </TouchableOpacity>
+                {isstorePersnolInfo && (
+                  <>
+                    {storePersnolInfo ? (
+                      storePersnolInfo ? (
+                        // storePersnolInfo.block ?
+                        <View style={{marginTop: 10}}>
+                          <View style={styles.bodyContainer}>
+                            <View style={{alignItems: 'flex-end'}}>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  navigation.navigate('PersonalInformation', {
+                                    pagename: 'RegistationSignUpViwer',
+                                  })
+                                }>
+                                <Image
+                                  source={require('../../Common/images/edit.png')}
+                                  style={{width: 25, height: 25}}
+                                />
+                              </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.mainContainer}>
+                              <Text style={styles.label}>{t('name')} :</Text>
+
+                              <Text style={styles.value}>
+                                {storePersnolInfo.name}
+                              </Text>
+                            </View>
+
+                            <View style={styles.mainContainer}>
+                              <Text style={styles.label}>
+                                {t('mobile_number')} :
+                              </Text>
+
+                              <Text style={styles.value}>
+                                {storePersnolInfo.phone}
+                              </Text>
+                            </View>
+                            <View style={styles.mainContainer}>
+                              <Text style={styles.label}>{t('age')} : </Text>
+
+                              <Text style={styles.value}>
+                                {storePersnolInfo.age} {t('fin_year')}
+                              </Text>
+                            </View>
+                            <View style={styles.mainContainer}>
+                              <Text style={styles.label}>
+                                {t('pre_state_division_zone')} :
+                              </Text>
+
+                              <Text style={styles.value}>
+                                {storePersnolInfo.state}
+                              </Text>
+                            </View>
+                            <View style={styles.mainContainer}>
+                              <Text style={styles.label}>
+                                {t('pre_district_county')} :
+                              </Text>
+
+                              <Text style={styles.value}>
+                                {storePersnolInfo.district}
+                              </Text>
+                            </View>
+                            <View style={styles.mainContainer}>
+                              <Text style={styles.label}>
+                                {t('select_block_sub_county_upzila').substring(
+                                  0,
+                                  17,
+                                )}{' '}
+                                :
+                              </Text>
+
+                              <Text style={styles.value}>
+                                {storePersnolInfo ? storePersnolInfo.block : ''}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      ) : (
+                        ''
+                      )
                     ) : (
+                      ''
+                    )}
+                  </>
+                )}
+              </View>
+              <View
+                style={{
+                  marginTop: 10,
+                  padding: 17,
+                  borderWidth: 0,
+                  borderColor: '#ddd',
+                  backgroundColor: '#d3ced7',
+                  borderRadius: 20,
+                  marginVertical: 20,
+                  elevation: 3,
+                  // height: 55,
+                  borderWidth: 0.5,
+                  borderColor: 'black',
+                  // alignItems: 'center',
+                }}>
+                <TouchableOpacity onPress={togglestoreFinancial}>
+                  <View style={styles.headerStyle}>
+                    <View style={{paddingLeft: 5, paddingTop: 2}}>
                       <MaterialIcons
-                        name="add-circle"
-                        size={25}
-                        color="green"
+                        name="badge"
+                        size={28}
+                        color="#113fac"
                         style={styles.icon}
                       />
-                    )}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              {isstorePersnolInfo && (
-                <>
-                  {storePersnolInfo ? (
-                    storePersnolInfo ? (
-                      // storePersnolInfo.block ?
-                      <View style={{margin: 10}}>
+                    </View>
+                    <Text
+                      style={[
+                        styles.toggleText,
+                        {fontFamily: 'Poppins-SemiBold'},
+                      ]}>
+                      {isstoreFinancial
+                        ? `${t('financial_information')}`
+                        : `${t('financial_information')}`}
+                    </Text>
+                    <Text style={styles.toggleText}>
+                      {isstoreFinancial ? (
+                        <MaterialIcons
+                          name="do-not-disturb-on"
+                          size={25}
+                          color="red"
+                          style={styles.icon}
+                        />
+                      ) : (
+                        <MaterialIcons
+                          name="add-circle"
+                          size={25}
+                          color="green"
+                          style={styles.icon}
+                        />
+                      )}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                {isstoreFinancial && (
+                  <>
+                    {storeFinancial ? (
+                      <View style={{marginTop: 10}}>
                         <View style={styles.bodyContainer}>
                           <View style={{alignItems: 'flex-end'}}>
                             <TouchableOpacity
                               onPress={() =>
-                                navigation.navigate('PersonalInformation', {
+                                navigation.navigate('FinancialInformation', {
                                   pagename: 'RegistationSignUpViwer',
+                                  editItem: storeFinancial,
                                 })
                               }>
                               <Image
@@ -410,188 +551,25 @@ const RegistationSignUpViwer = () => {
                           </View>
 
                           <View style={styles.mainContainer}>
-                            <View style={styles.leftSection}>
-                              <Text style={styles.title}>{t('name')} </Text>
-                            </View>
-                            <View style={styles.rightSection}>
-                              <Text style={styles.title}>
-                                : {storePersnolInfo.name}
-                              </Text>
-                            </View>
+                            <Text style={styles.label}>
+                              {t('account_holder_name')} :
+                            </Text>
+
+                            <Text style={styles.value}>
+                              {storeFinancial.accountHolderName}
+                            </Text>
                           </View>
 
                           <View style={styles.mainContainer}>
-                            <View style={styles.leftSection}>
-                              <Text style={styles.title}>
-                                {t('mobile_number')}{' '}
-                              </Text>
-                            </View>
-                            <View style={styles.rightSection}>
-                              <Text style={styles.title}>
-                                : {storePersnolInfo.phone}
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={styles.mainContainer}>
-                            <View style={styles.leftSection}>
-                              <Text style={styles.title}>{t('age')} </Text>
-                            </View>
-                            <View style={styles.rightSection}>
-                              <Text style={styles.title}>
-                                : {storePersnolInfo.age} {t('fin_year')}
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={styles.mainContainer}>
-                            <View style={styles.leftSection}>
-                              <Text style={styles.title}>
-                                {t('pre_state_division_zone')}{' '}
-                              </Text>
-                            </View>
-                            <View style={styles.rightSection}>
-                              <Text style={styles.title}>
-                                : {storePersnolInfo.state}
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={styles.mainContainer}>
-                            <View style={styles.leftSection}>
-                              <Text style={styles.title}>
-                                {t('pre_district_county')}{' '}
-                              </Text>
-                            </View>
-                            <View style={styles.rightSection}>
-                              <Text style={styles.title}>
-                                : {storePersnolInfo.district}
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={styles.mainContainer}>
-                            <View style={styles.leftSection}>
-                              <Text style={styles.title}>
-                                {t('select_block_sub_county_upzila').substring(
-                                  0,
-                                  17,
-                                )}{' '}
-                              </Text>
-                            </View>
-                            <View style={styles.rightSection}>
-                              <Text style={styles.title}>
-                                :{' '}
-                                {storePersnolInfo ? storePersnolInfo.block : ''}
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    ) : (
-                      ''
-                    )
-                  ) : (
-                    ''
-                  )}
-                </>
-              )}
-            </View>
-            <View
-              style={{
-                marginTop: 10,
-                padding: 17,
-                borderWidth: 0,
-                borderColor: '#ddd',
-                backgroundColor: '#d3ced7',
-                borderRadius: 20,
-                marginVertical: 20,
-                elevation: 3,
-                // height: 55,
-                borderWidth: 0.5,
-                borderColor: 'black',
-                // alignItems: 'center',
-              }}>
-              <TouchableOpacity onPress={togglestoreFinancial}>
-                <View style={styles.headerStyle}>
-                  <View style={{paddingLeft: 5, paddingTop: 2}}>
-                    <MaterialIcons
-                      name="badge"
-                      size={28}
-                      color="#113fac"
-                      style={styles.icon}
-                    />
-                  </View>
-                  <Text
-                    style={[
-                      styles.toggleText,
-                      {fontFamily: 'Poppins-SemiBold'},
-                    ]}>
-                    {isstoreFinancial
-                      ? `${t('financial_information')}`
-                      : `${t('financial_information')}`}
-                  </Text>
-                  <Text style={styles.toggleText}>
-                    {isstoreFinancial ? (
-                      <MaterialIcons
-                        name="do-not-disturb-on"
-                        size={25}
-                        color="red"
-                        style={styles.icon}
-                      />
-                    ) : (
-                      <MaterialIcons
-                        name="add-circle"
-                        size={25}
-                        color="green"
-                        style={styles.icon}
-                      />
-                    )}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              {isstoreFinancial && (
-                <>
-                  {storeFinancial ? (
-                    <View style={{margin: 10}}>
-                      <View style={styles.bodyContainer}>
-                        <View style={{alignItems: 'flex-end'}}>
-                          <TouchableOpacity
-                            onPress={() =>
-                              navigation.navigate('FinancialInformation', {
-                                pagename: 'RegistationSignUpViwer',
-                                editItem: storeFinancial,
-                              })
-                            }>
-                            <Image
-                              source={require('../../Common/images/edit.png')}
-                              style={{width: 25, height: 25}}
-                            />
-                          </TouchableOpacity>
-                        </View>
+                            <Text style={styles.label}>
+                              {t('adhar_no').substring(0, 20)} :
+                            </Text>
 
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {t('account_holder_name')}{' '}
+                            <Text style={styles.value}>
+                              {storeFinancial.adharCard}
                             </Text>
                           </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
-                              : {storeFinancial.accountHolderName}
-                            </Text>
-                          </View>
-                        </View>
-
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {t('adhar_no').substring(0, 20)}{' '}
-                            </Text>
-                          </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
-                              : {storeFinancial.adharCard}
-                            </Text>
-                          </View>
-                        </View>
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Bank Account No </Text>
                                                         </View>
@@ -599,7 +577,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.bankAccountNo}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Bank Name </Text>
                                                         </View>
@@ -607,7 +585,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.bankName}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Farmar Loan No </Text>
                                                         </View>
@@ -615,7 +593,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.farmarLoanNo}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Branch Name </Text>
                                                         </View>
@@ -623,7 +601,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.branchName}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Ifsc Code </Text>
                                                         </View>
@@ -631,19 +609,16 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.ifscCode}</Text>
                                                         </View>
                                                     </View> */}
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {t('lic_name_of_company')}{' '}
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>
+                              {t('lic_name_of_company')} :
+                            </Text>
+
+                            <Text style={styles.value}>
+                              {storeFinancial.ifscCode}
                             </Text>
                           </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
-                              : {storeFinancial.ifscCode}
-                            </Text>
-                          </View>
-                        </View>
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Pan No </Text>
                                                         </View>
@@ -651,7 +626,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.panNo}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Pension Account No </Text>
                                                         </View>
@@ -659,7 +634,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.pensionAccountNo}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Pension Amount </Text>
                                                         </View>
@@ -667,7 +642,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.pensionAmount}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Pension Effective From </Text>
                                                         </View>
@@ -675,7 +650,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.pensionEffectiveFrom}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Pension Per Month </Text>
                                                         </View>
@@ -683,22 +658,20 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.pensionPerMonth.label}</Text>
                                                         </View>
                                                     </View> */}
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>
                               {t('pension_providing_authority').substring(
                                 0,
                                 15,
                               )}{' '}
+                              :
+                            </Text>
+
+                            <Text style={styles.value}>
+                              {storeFinancial.pensionProvidingAuthority}
                             </Text>
                           </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
-                              : {storeFinancial.pensionProvidingAuthority}
-                            </Text>
-                          </View>
-                        </View>
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Policy Number </Text>
                                                         </View>
@@ -706,7 +679,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.policyNumber}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Sum Insured </Text>
                                                         </View>
@@ -714,7 +687,7 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.sumInsured}</Text>
                                                         </View>
                                                     </View> */}
-                        {/* <View style={styles.mainContainer}>
+                          {/* <View style={styles.mainContainer}>
                                                         <View style={styles.leftSection}>
                                                             <Text style={styles.title}> Voter Card </Text>
                                                         </View>
@@ -722,121 +695,117 @@ const RegistationSignUpViwer = () => {
                                                             <Text style={styles.title}>{storeFinancial.voterCard}</Text>
                                                         </View>
                                                     </View> */}
+                        </View>
                       </View>
-                    </View>
-                  ) : (
-                    ''
-                  )}
-                </>
-              )}
-            </View>
-            <View
-              style={{
-                marginTop: 10,
-                padding: 17,
-                borderWidth: 0,
-                borderColor: '#ddd',
-                backgroundColor: '#d3ced7',
-                borderRadius: 20,
-                marginVertical: 20,
-                elevation: 3,
-                // height: 55,
-                borderWidth: 0.5,
-                borderColor: 'black',
-                // alignItems: 'center',
-              }}>
-              <TouchableOpacity onPress={togglestoreProduceInfo}>
-                <View style={styles.headerStyle}>
-                  <View style={{paddingLeft: 5, paddingTop: 2}}>
-                    <MaterialIcons
-                      name="article"
-                      size={28}
-                      color="#113fac"
-                      style={styles.icon}
-                    />
-                  </View>
-                  <Text style={styles.toggleText}>
-                    {isstoreProduceInfo
-                      ? `${t('crop_information')}`
-                      : `${t('crop_information')}`}
-                  </Text>
-                  <Text style={styles.toggleText}>
-                    {isstoreProduceInfo ? (
-                      <MaterialIcons
-                        name="do-not-disturb-on"
-                        size={25}
-                        color="red"
-                        style={styles.icon}
-                      />
                     ) : (
+                      ''
+                    )}
+                  </>
+                )}
+              </View>
+              <View
+                style={{
+                  marginTop: 10,
+                  padding: 17,
+                  borderWidth: 0,
+                  borderColor: '#ddd',
+                  backgroundColor: '#d3ced7',
+                  borderRadius: 20,
+                  marginVertical: 20,
+                  elevation: 3,
+                  // height: 55,
+                  borderWidth: 0.5,
+                  borderColor: 'black',
+                  // alignItems: 'center',
+                }}>
+                <TouchableOpacity onPress={togglestoreProduceInfo}>
+                  <View style={styles.headerStyle}>
+                    <View style={{paddingLeft: 5, paddingTop: 2}}>
                       <MaterialIcons
-                        name="add-circle"
-                        size={25}
-                        color="green"
+                        name="article"
+                        size={28}
+                        color="#113fac"
                         style={styles.icon}
                       />
-                    )}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              {isstoreProduceInfo && (
-                <>
-                  {storeProduceInfo ? (
-                    <View
-                      style={[
-                        styles.bodyContainerMarginBottom,
-                        {marginTop: 10},
-                      ]}>
-                      {storeProduceInfo?.map((item, index) => {
-                        const {
-                          plotSiteName,
-                          plotSize,
-                          landUnitName,
-                          produceName,
-                          produceVariety,
-                          cycleStarts,
-                          cycleEnds,
-                        } = item?.storeProduceInfo;
-                        return (
-                          <View
-                            style={{
-                              borderBottomWidth: 2,
-                              borderColor: '#050505',
-                            }}
-                            key={index}>
-                            <View style={{alignItems: 'flex-end'}}>
-                              <TouchableOpacity
-                                onPress={() =>
-                                  navigation.navigate(
-                                    'PlotSiteProduceInformation',
-                                    {
-                                      pagename: 'RegistationSignUpViwer',
-                                      editItem: item,
-                                      arrayIndex: index,
-                                    },
-                                  )
-                                }>
-                                <Image
-                                  source={require('../../Common/images/edit.png')}
-                                  style={{width: 25, height: 25}}
-                                />
-                              </TouchableOpacity>
-                            </View>
-                            <View>
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('pre_plot_name')}{' '}
+                    </View>
+                    <Text style={styles.toggleText}>
+                      {isstoreProduceInfo
+                        ? `${t('crop_information')}`
+                        : `${t('crop_information')}`}
+                    </Text>
+                    <Text style={styles.toggleText}>
+                      {isstoreProduceInfo ? (
+                        <MaterialIcons
+                          name="do-not-disturb-on"
+                          size={25}
+                          color="red"
+                          style={styles.icon}
+                        />
+                      ) : (
+                        <MaterialIcons
+                          name="add-circle"
+                          size={25}
+                          color="green"
+                          style={styles.icon}
+                        />
+                      )}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                {isstoreProduceInfo && (
+                  <>
+                    {storeProduceInfo ? (
+                      <View
+                        style={[
+                          styles.bodyContainerMarginBottom,
+                          {marginTop: 10},
+                        ]}>
+                        {storeProduceInfo?.map((item, index) => {
+                          const {
+                            plotSiteName,
+                            plotSize,
+                            landUnitName,
+                            produceName,
+                            produceVariety,
+                            cycleStarts,
+                            cycleEnds,
+                          } = item?.storeProduceInfo;
+                          return (
+                            <View
+                              style={{
+                                borderBottomWidth: 2,
+                                borderColor: '#050505',
+                              }}
+                              key={index}>
+                              <View style={{alignItems: 'flex-end'}}>
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    navigation.navigate(
+                                      'PlotSiteProduceInformation',
+                                      {
+                                        pagename: 'RegistationSignUpViwer',
+                                        editItem: item,
+                                        arrayIndex: index,
+                                      },
+                                    )
+                                  }>
+                                  <Image
+                                    source={require('../../Common/images/edit.png')}
+                                    style={{width: 25, height: 25}}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                              <View>
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('pre_plot_name')} :
                                   </Text>
-                                </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>
+
+                                  <Text style={styles.value}>
                                     {plotSiteName}
                                   </Text>
                                 </View>
-                              </View>
-                              {/* <View style={styles.mainContainer}>
+                                {/* <View style={styles.mainContainer}>
                                                                     <View style={styles.leftSection}>
                                                                         <Text style={styles.title}> Land Type </Text>
                                                                     </View>
@@ -844,100 +813,78 @@ const RegistationSignUpViwer = () => {
                                                                         <Text style={styles.title}>{item.landType}</Text>
                                                                     </View>
                                                                 </View> */}
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('pre_land_size')}{' '}
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('pre_land_size')} :
                                   </Text>
+
+                                  <Text style={styles.value}>{plotSize}</Text>
                                 </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>{plotSize}</Text>
-                                </View>
-                              </View>
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('addland_unit')}
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('addland_unit')}:
                                   </Text>
-                                </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>
+
+                                  <Text style={styles.value}>
                                     {landUnitName}
                                   </Text>
                                 </View>
-                              </View>
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('crop_name')}{' '}
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('crop_name')} :
                                   </Text>
-                                </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>
+
+                                  <Text style={styles.value}>
                                     {produceName}
                                   </Text>
                                 </View>
-                              </View>
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('crop_veriety')}{' '}
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('crop_veriety')} :
                                   </Text>
-                                </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>
+
+                                  <Text style={styles.value}>
                                     {produceVariety}
                                   </Text>
                                 </View>
-                              </View>
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('showing_date')}{' '}
+
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('showing_date')} :
                                   </Text>
-                                </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>
+
+                                  <Text style={styles.value}>
                                     {cycleStarts}
                                   </Text>
                                 </View>
-                              </View>
-                              <View style={styles.mainContainer}>
-                                <View style={styles.leftSection}>
-                                  <Text style={styles.title}>
-                                    {' '}
-                                    {t('harvesting_date_auto_calculated')}{' '}
+                                <View style={styles.mainContainer}>
+                                  <Text style={styles.label}>
+                                    {t('harvesting_date_auto_calculated')} :
                                   </Text>
-                                </View>
-                                <View style={styles.rightSection}>
-                                  <Text style={styles.title}>{cycleEnds}</Text>
+
+                                  <Text style={styles.value}>{cycleEnds}</Text>
                                 </View>
                               </View>
                             </View>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  ) : (
-                    ''
-                  )}
-                </>
-              )}
+                          );
+                        })}
+                      </View>
+                    ) : (
+                      ''
+                    )}
+                  </>
+                )}
+              </View>
             </View>
-          </View>
-        </ScrollView>
-        <ButtonForm
-          label={t('save')}
-          onPress={handleSave}
-          loading={isLoading}
-        />
-      </Root>
-    </View>
+          </ScrollView>
+          <ButtonForm
+            label={t('save')}
+            onPress={handleSave}
+            loading={isLoading}
+          />
+        </Root>
+      </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -974,15 +921,30 @@ const styles = StyleSheet.create({
     // borderWidth: 3,
     // borderColor: '#00000065',
     // elevation:5,
-    margin: 10,
   },
   viewText: {
     marginTop: 15,
   },
   mainContainer: {
-    flex: 1,
     flexDirection: 'row',
-    marginBottom: 15, // Display children in a row horizontally
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 5,
+    marginTop: 8, // Display children in a row horizontally
+  },
+  label: {
+    fontSize: 13.5,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    flex: 1,
+  },
+  value: {
+    fontSize: 13.5,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
+    textAlign: 'right',
   },
   leftSection: {
     flex: 1, // Take 50% of the available horizontal space

@@ -86,7 +86,7 @@ const SignUpViwer = () => {
       pincode: storePersnolInfo_data.zip,
     };
     const identity_details = {};
-    if(storeFinancial.kcc_number){
+    if (storeFinancial.kcc_number) {
       identity_details['kcc_number'] = storeFinancial.farmarLoanNo;
     }
     if (storeFinancial_data.adharCard) {
@@ -294,9 +294,14 @@ const SignUpViwer = () => {
           });
         });
       }
-      console.log(formData)
+      console.log(formData);
       if (netConnection) {
-        const database_res = await signupSaveAPI(formData, dbname, language,landProofData.length);
+        const database_res = await signupSaveAPI(
+          formData,
+          dbname,
+          language,
+          landProofData.length,
+        );
         if (database_res?.status == 200) {
           Toast.show({
             time: 3,

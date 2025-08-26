@@ -524,6 +524,7 @@ const PlotSiteProduceInformation = () => {
         language_id,
         livelihoodType.value,
       );
+
       if (produceNameAPI?.status === 200) {
         produceNameArray = produceNameAPI?.data?.data?.crop_name?.map(data => ({
           value: data.crop_name.fid,
@@ -1139,7 +1140,7 @@ const PlotSiteProduceInformation = () => {
   };
   return (
     <FarmerDrawerScreenWrapper1>
-      <>
+      <View style={styles.mainContainer}>
         <CustomHeader
           path={path != '' ? path : 'FinancialInformation'}
           HandlerGoBack={HandlerGoBack}
@@ -1147,7 +1148,7 @@ const PlotSiteProduceInformation = () => {
           topBanner={topBanner}
         />
         {/* <FormsTitle title={t('reg_land_crop_information')} /> */}
-        <View style={styles.container}>
+        <View style={styles.fromContainer}>
           {isLoading ? (
             <View style={styles.loadingScreen}>
               <LoadingScreen />
@@ -1175,8 +1176,8 @@ const PlotSiteProduceInformation = () => {
                 3/3
               </Text>
             </View>
-            <View style={styles.formContainer}>
-              <View style={{paddingHorizontal: 20, marginVertical: 10}}>
+            <View style={styles.firatFormContainer}>
+              <View style={{paddingHorizontal: 10}}>
                 <InputTextForm
                   label={t('add_plot')}
                   required={true}
@@ -1741,7 +1742,7 @@ const PlotSiteProduceInformation = () => {
           </Modal>
         )}
         <Root></Root>
-      </>
+      </View>
     </FarmerDrawerScreenWrapper1>
   );
 };
@@ -1749,11 +1750,8 @@ const PlotSiteProduceInformation = () => {
 export default PlotSiteProduceInformation;
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: Colors.background_light,
-    flex: 1,
-    paddingTop: 10,
-  },
+  mainContainer: {flex: 1, backgroundColor: Colors.background_light},
+
   formContainer: {
     backgroundColor: Colors.background, // marginTop: 30,
     borderRadius: 8,
@@ -1763,9 +1761,31 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 10,
   },
+  fromContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    // paddingHorizontal: 16,
+  },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  firatFormContainer: {
+    // marginTop: 50,
+
+    // marginHorizontal: '4%',
+    // borderWidth: 1,
+    // paddingTop: 10,
+    // marginBottom: 30,
+
+    backgroundColor: 'white',
+    padding: 16,
+    // borderRadius: 8,
+    // borderWidth: 1,
+    // borderColor: Colors.border,
+    // // elevation:1,
+    marginVertical: 10,
+    // marginHorizontal: '4%',
   },
   headersTitle: {
     fontSize: 19,

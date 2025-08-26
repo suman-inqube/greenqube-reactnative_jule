@@ -345,7 +345,7 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
               showsVerticalScrollIndicator={false}
               data={loanList}
               style={
-                filterName !== '' ? {marginBottom: 130} : {marginBottom: 90}
+                filterName !== '' ? {marginBottom: 130} : {marginBottom: 40}
               }
               renderItem={({item}) => {
                 // var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);

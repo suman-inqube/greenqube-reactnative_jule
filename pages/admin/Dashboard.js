@@ -162,7 +162,7 @@ const Dashboard = ({navigation}) => {
           UnitConversonToDefault(dbname, lan_id, token),
           LandUnitArea(dbname, lan_id, token),
           axiosGet(
-            ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+            ROUTES.GET.USEFULL_INFO_LIST({
               userId: user_id,
               userType: 'farmer',
               post: 'general_info',
@@ -174,6 +174,7 @@ const Dashboard = ({navigation}) => {
             '',
             {information: `${dbname},${lan_id}`},
           ),
+          // console.log('k', USEFULL_INFO_LIST),
           axiosGet(
             ROUTES.GET.LIST_USER_ACTIVITY({
               pageNO: 1,
@@ -211,6 +212,7 @@ const Dashboard = ({navigation}) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
         }
+        console.log('usefulInfoList', usefulInfoList);
         if (LIST_USER_ACTIVITY?.status === 200) {
           latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
         }
@@ -289,6 +291,8 @@ const Dashboard = ({navigation}) => {
           t={t}
           usefulInfoList={dataState.usefulInfoList}
           navigation={navigation}
+          trackingNavigationPath="activityList"
+          informationNavigationPath="UsefulInformationList"
         />
         <View
           style={{
