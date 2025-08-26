@@ -200,7 +200,7 @@ const CarouselSlider = ({
               height: config.imageSize,
               width: config.imageSize,
               // borderRadius: config.imageSize / 2
-              borderRadius: 10
+              // borderRadius: 10
             }}
           />
         )}
