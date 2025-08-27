@@ -566,7 +566,10 @@ const ViewProblem = ({navigation}) => {
                                     ),
                                 )
                               ) : (
-                                <View style={{marginVertical: 10}}>
+                                <View
+                                  style={{
+                                    marginVertical: 10,
+                                  }}>
                                   <ImagePlaceHolderCircleWithoutAddButton
                                     imageurl={require('../../Common/images/avatar.png')}
                                   />
@@ -577,22 +580,24 @@ const ViewProblem = ({navigation}) => {
                               {value.agri_user?.agri_files.forEach(element => {
                                 <Text style={styles.infoValue}>{element}</Text>;
                               })}
-                              <Text style={styles.infoValue}>
-                                {value.agri_user?.userName}
-                                {value.agri_user?.userType === 3 ? (
-                                  <Text style={{color: '#15820bff'}}>
-                                    ({t('retailer')})
-                                  </Text>
-                                ) : (
-                                  <Text>({t('login_farmer')})</Text>
-                                )}
-                              </Text>
-                              <Text style={styles.infoValue}>
-                                {value.comment_content}
-                              </Text>
-                              <Text style={styles.infoValue}>
-                                {formatDateToMMDDYYYY(value.CreateDateTime)}
-                              </Text>
+                              <View style={{paddingHorizontal: 15}}>
+                                <Text style={styles.infoValue}>
+                                  {value.agri_user?.userName}
+                                  {value.agri_user?.userType === 3 ? (
+                                    <Text style={{color: '#15820bff'}}>
+                                      ({t('retailer')})
+                                    </Text>
+                                  ) : (
+                                    <Text>({t('login_farmer')})</Text>
+                                  )}
+                                </Text>
+                                <Text style={styles.infoValue}>
+                                  {value.comment_content}
+                                </Text>
+                                <Text style={styles.infoValue}>
+                                  {formatDateToMMDDYYYY(value.CreateDateTime)}
+                                </Text>
+                              </View>
                             </View>
                           </View>
                         );

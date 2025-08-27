@@ -22,7 +22,7 @@ import {getItem, removeItem} from '../../../config/getDataFromStorage';
 const qs = require('qs');
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fronts} from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const ChangePassword = ({sendDataToParent}) => {
   //GQR-67
@@ -117,23 +117,24 @@ const ChangePassword = ({sendDataToParent}) => {
               topBanner={topBanner}
             />
             {/* <FormsTitle title={t('change_password')} /> */}
-            <View style={{alignItems: 'center', justifyContent: 'center'}}>
-              <Image
-                source={require('../../Common/images/changepass.png')}
-                style={{width: '80%', height: 180}}
-              />
-            </View>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              <View style={styles.forgotContainer}>
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <Image
+                    source={require('../../Common/images/changepass.png')}
+                    style={{width: '80%', height: 100}}
+                  />
+                </View>
 
-            <View style={styles.forgotContainer}>
-              <Text style={styles.formMargin}>
-                {t('please_enter_old_password')}
-              </Text>
-              <View>
+                <Text style={styles.formMargin}>
+                  {t('please_enter_old_password')}
+                </Text>
+
                 <View style={styles.passwordContainer}>
                   <TextInput
                     secureTextEntry={passwordVisibility ? false : true}
-                    style={styles.inputTextStyle}
-                    placeholderTextColor={'#000'}
+                    style={styles.inputText}
+                    placeholderTextColor="#777"
                     onChangeText={passsword =>
                       setforgetPassword({
                         ...forgetPassword,
@@ -159,46 +160,47 @@ const ChangePassword = ({sendDataToParent}) => {
                     )}
                   </TouchableOpacity>
                 </View>
-              </View>
-              <Text style={styles.formMargin}>
-                {t('please_enter_new_password')}
-              </Text>
-              <View>
-                <View style={styles.passwordContainer}>
-                  <TextInput
-                    secureTextEntry={cpasswordVisibility ? false : true}
-                    style={styles.inputTextStyle}
-                    placeholderTextColor={'#000'}
-                    onChangeText={cpassword =>
-                      setforgetPassword({
-                        ...forgetPassword,
-                        cpassword: cpassword,
-                      })
-                    }
-                    onBlur={handleCheckPassowrdConfirm}
-                    value={forgetPassword.cpassword}
-                  />
-                  <TouchableOpacity
-                    onPress={() =>
-                      setcPasswordVisibility(!cpasswordVisibility)
-                    }>
-                    {cpasswordVisibility ? (
-                      <MaterialIcons
-                        name="visibility"
-                        size={25}
-                        color="#1d3122"
-                      />
-                    ) : (
-                      <MaterialIcons
-                        name="visibility-off"
-                        size={25}
-                        color="#1d3122"
-                      />
-                    )}
-                  </TouchableOpacity>
+
+                <Text style={styles.formMargin}>
+                  {t('please_enter_new_password')}
+                </Text>
+                <View>
+                  <View style={styles.passwordContainer}>
+                    <TextInput
+                      secureTextEntry={cpasswordVisibility ? false : true}
+                      style={styles.inputText}
+                      placeholderTextColor="#777"
+                      onChangeText={cpassword =>
+                        setforgetPassword({
+                          ...forgetPassword,
+                          cpassword: cpassword,
+                        })
+                      }
+                      onBlur={handleCheckPassowrdConfirm}
+                      value={forgetPassword.cpassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() =>
+                        setcPasswordVisibility(!cpasswordVisibility)
+                      }>
+                      {cpasswordVisibility ? (
+                        <MaterialIcons
+                          name="visibility"
+                          size={25}
+                          color="#1d3122"
+                        />
+                      ) : (
+                        <MaterialIcons
+                          name="visibility-off"
+                          size={25}
+                          color="#1d3122"
+                        />
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
+            </ScrollView>
             <View style={styles.buttonForm}>
               <ButtonForm
                 label={t('submit')}
@@ -223,43 +225,30 @@ const styles = StyleSheet.create({
     // height: '100%',
     flex: 1,
   },
+  scrollContainer: {
+    flexGrow: 1,
+    // justifyContent: 'center',
+    margin: 16,
+    // backgroundColor: Colors.background,
+    // borderWidth: 1,
+    // borderColor: Colors.border,
+    // borderRadius: 12,
+    // borderStyle: 'dashed',
+  },
   forgotContainer: {
-    // marginTop: 30,
+    padding: 16,
 
-    marginHorizontal: '4%',
-    // paddingTop: 10,
-    // marginBottom: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // marginTop: 20,
-
-    flex: 1,
-    backgroundColor: Colors.background,
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    // elevation:1,
-    marginVertical: 50,
-    // marginHorizontal: '2.5%',
-    backgroundColor: Colors.background,
-    // padding: 10,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 80,
-    // elevation:1,
+    paddingVertical: 40,
   },
   passwordContainer: {
-    marginHorizontal: 15,
     flexDirection: 'row',
-    borderWidth: 1,
     alignItems: 'center',
-    // marginVertical: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
     borderRadius: 8,
-    marginBottom: 30,
-    borderColor: Colors.secondary,
-
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   },
   passwordContainer2: {
     marginHorizontal: 15,
@@ -290,5 +279,12 @@ const styles = StyleSheet.create({
   formMargin: {
     color: '#000',
     fontSize: 14,
+  },
+  inputText: {
+    flex: 1,
+    height: 48,
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Regular,
   },
 });

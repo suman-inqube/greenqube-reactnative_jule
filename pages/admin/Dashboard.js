@@ -174,7 +174,6 @@ const Dashboard = ({navigation}) => {
             '',
             {information: `${dbname},${lan_id}`},
           ),
-          // console.log('k', USEFULL_INFO_LIST),
           axiosGet(
             ROUTES.GET.LIST_USER_ACTIVITY({
               pageNO: 1,

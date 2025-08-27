@@ -453,18 +453,18 @@ const FarmerDashboard = ({navigation}) => {
                 data={[]} // everything in header
                 keyExtractor={(item, index) => index.toString()}
                 alwaysBounceVertical={true}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    colors={['#003c04']}
-                    tintColor={'#003c04'}
-                    // progressViewOffset={50} // push down if header exists
-                    progressViewOffset={
-                      Platform.OS === 'android' ? HEADER_HEIGHT + 200 : 100
-                    }
-                  />
-                }
+                // refreshControl={
+                //   <RefreshControl
+                //     refreshing={refreshing}
+                //     onRefresh={onRefresh}
+                //     colors={['#003c04']}
+                //     tintColor={'#003c04'}
+                //     // progressViewOffset={50} // push down if header exists
+                //     progressViewOffset={
+                //       Platform.OS === 'android' ? HEADER_HEIGHT + 200 : 100
+                //     }
+                //   />
+                // }
                 removeClippedSubviews={true}
                 initialNumToRender={1}
                 maxToRenderPerBatch={2}

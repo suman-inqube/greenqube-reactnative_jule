@@ -2376,7 +2376,7 @@ export default FarmerActivityReportAWD;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background_light,
+    backgroundColor: 'white',
   },
   titleContainer: {
     width: '95%',
@@ -2397,11 +2397,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginVertical: 20,
-    marginHorizontal: 16,
+    padding: 16,
   },
   activityPattern: {
     marginVertical: 10,

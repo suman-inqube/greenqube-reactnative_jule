@@ -546,21 +546,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   fromContainer: {
-    marginTop: 20,
-
-    marginHorizontal: '4%',
-    borderWidth: 1,
     // paddingTop: 10,
     // marginBottom: 30,
 
     backgroundColor: 'white',
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    padding: 16,
+
     // elevation:1,
-    marginVertical: 10,
-    marginHorizontal: '4%',
   },
   photoContainer: {
     flexDirection: 'row',

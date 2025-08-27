@@ -116,7 +116,7 @@ const CustomDrawer = memo(({state}) => {
 
   const removeData = useCallback(async () => {
     console.log(netConnection);
-    // console.log('Logout');
+    console.log('Logout');
     if (!netConnection) {
       Alert.alert('You are offline hence cannot proceed');
       return;
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   subMenuContainer: {
-    marginBottom: 30,
+    marginBottom: 10,
   },
   menuItem: {
     flexDirection: 'row',
