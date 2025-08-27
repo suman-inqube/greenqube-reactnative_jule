@@ -90,7 +90,7 @@ const UsefulInformationList = () => {
         'general_info',
         titleSearch,
       );
-      console.log('response', response);
+      console.log('response', response.data.data.rows);
       if (response?.status === 200) {
         if (response.data.data.rows.length !== 0) {
           setNoticeList(response.data.data);
@@ -126,9 +126,7 @@ const UsefulInformationList = () => {
   };
 
   useEffect(() => {
-    if (currentRoute.params?.data == 'remove') {
-      onPageLoad();
-    }
+    onPageLoad();
   }, []);
   const searchByTitle = async () => {
     Keyboard.dismiss();

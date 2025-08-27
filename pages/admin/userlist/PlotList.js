@@ -40,7 +40,7 @@ const PlotCard = memo(({ item, onPress, landUnitsquareMetre, landAreaUnit }) => 
     <TouchableOpacity onPress={onPress}>
       <CollapsibleCard
         width="100%"
-        header={<Text style={[styles.text, { fontSize: 15 }]}>{item?.plot_no}</Text>}
+        header={<Text style={[styles.text, { fontSize: 18,color:Colors.background }]}>{item?.plot_no}</Text>}
         content={
           <>
             <View style={styles.plotInfoContainer}>
@@ -274,6 +274,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: Fonts.Medium,
     marginVertical: 3,
+    lineHeight: 20,
   },
 
   skeletonCardWrapper: {
@@ -485,12 +486,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     shadowColor: '#000',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   label: {
     color: Colors.text,
     fontFamily: Fonts.Regular,
     fontSize: 14,
     marginVertical: 3,
+    lineHeight: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   rejectBox: {
     paddingVertical: 10,

@@ -16,6 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
 import {ScrollView} from 'react-native-gesture-handler';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
 const head = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -50,7 +51,7 @@ const FarmerTraining = () => {
 
   const DocumentDisplay = props => {
     return (
-      <View>
+      <View style={{backgroundColor: 'white'}}>
         {props.file_ext === 'application/pdf' && (
           <Image
             style={{width: '100%', height: 100}}
@@ -58,12 +59,12 @@ const FarmerTraining = () => {
             source={require('../../Common/images/icons8-pdf-50.png')}
           />
         )}
-        {props.file_ext === 'image/jpeg'|| props.file_ext == "image/png" ?(
+        {props.file_ext === 'image/jpeg' || props.file_ext == 'image/png' ? (
           <Image
             style={{width: '100%', height: 200}}
             source={{uri: props.item}}
           />
-        ):null}
+        ) : null}
         {props.file_ext === 'video/mp4' && (
           <Image
             resizeMode="contain"
@@ -99,54 +100,56 @@ const FarmerTraining = () => {
   const HandlerGoBack = () => navigation.navigate('FarmerTrainingList');
 
   return (
-    <View style={{flex: 1}}>
-      <CustomHeader
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <FormsTitle title={noticeDetails.post_name} />
+    <FarmerDrawerScreenWrapper1>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
+        <CustomHeader
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
+        <FormsTitle title={noticeDetails.post_name} />
 
-      {/* Horizontal scroll file list */}
-      <View style={{width: '100%', alignItems: 'center'}}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{width: '100%'}}>
-          <FlatList
-            data={noticeFiles}
-            keyExtractor={item => item.file_id}
+        {/* Horizontal scroll file list */}
+        <View style={{width: '100%', alignItems: 'center'}}>
+          <ScrollView
             horizontal
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={{
-                  width: 200,
-                  margin: 10,
-                  backgroundColor: '#FFF',
-                  padding: 10,
-                  elevation: 5,
-                  borderRadius: 10,
-                  justifyContent: 'center',
-                }}
-                onPress={() => detailItem(item.file_path)}>
-                <TouchableOpacity>
-                  <DocumentDisplay
-                    item={item.file_path}
-                    file_ext={item.file_ext}
-                  />
+            showsHorizontalScrollIndicator={false}
+            style={{width: '100%'}}>
+            <FlatList
+              data={noticeFiles}
+              keyExtractor={item => item.file_id}
+              horizontal
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={{
+                    width: 220,
+                    marginHorizontal: 8,
+                    marginBottom: 15,
+                    backgroundColor: '#eaecedff',
+                    padding: 10,
+                    elevation: 3,
+                    borderRadius: 10,
+                    justifyContent: 'center',
+                  }}
+                  onPress={() => detailItem(item.file_path)}>
+                  <TouchableOpacity>
+                    <DocumentDisplay
+                      item={item.file_path}
+                      file_ext={item.file_ext}
+                    />
+                  </TouchableOpacity>
                 </TouchableOpacity>
-              </TouchableOpacity>
-            )}
-          />
-        </ScrollView>
-      </View>
+              )}
+            />
+          </ScrollView>
+        </View>
 
-      {/* WebView content */}
-      <WebView
-        style={{flex: 1, marginBottom: 10}}
-        originWhitelist={['*']}
-        source={{
-          html: `
+        {/* WebView content */}
+        <WebView
+          style={{flex: 1, marginBottom: 10}}
+          originWhitelist={['*']}
+          source={{
+            html: `
             <!DOCTYPE html>
             <html>
               <head>${head}</head> 
@@ -155,14 +158,15 @@ const FarmerTraining = () => {
               </body>
             </html>
           `,
-        }}
-        javaScriptEnabled
-        domStorageEnabled
-        allowsFullscreenVideo
-        automaticallyAdjustContentInsets={false}
-        startInLoadingState={true}
-      />
-    </View>
+          }}
+          javaScriptEnabled
+          domStorageEnabled
+          allowsFullscreenVideo
+          automaticallyAdjustContentInsets={false}
+          startInLoadingState={true}
+        />
+      </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

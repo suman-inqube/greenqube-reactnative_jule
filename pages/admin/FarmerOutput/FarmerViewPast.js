@@ -5,10 +5,13 @@ import {
   FlatList,
   TouchableOpacity,
   Dimensions,
+  SafeAreaView,
+  RefreshControl,
+  Alert,
 } from 'react-native';
 import Filter from '../../Common/FarmerFilter';
 import ViewModalPast from './FarmerViewModalPast';
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useCallback} from 'react';
 import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {
   FarmeroutputListAPI,
@@ -17,9 +20,17 @@ import {
 import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import MessageDialog from '../../Common/MessageDialog';
 import {userCreateContext} from '../../Context/usersCreateContext';
-const FarmerViewPast = () => {
+import {Colors, Fonts} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
+import {getActionsPostNewOutputFarmer} from '../../utils/options';
+import AnimatedCard from '../../Components/AnimatedCard';
+import {FloatingAction} from 'react-native-floating-action';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+const FarmerViewPast = ({navigation}) => {
   //GQR-67
   const {
+    CustomHeader,
     loginUser_data,
     LoadingScreen,
     DatePickerComp,
@@ -30,6 +41,7 @@ const FarmerViewPast = () => {
     Root,
     Popup,
     Toast,
+    navigationBarHeight,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
@@ -43,7 +55,6 @@ const FarmerViewPast = () => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [fromDateFilter, setFromDateFilter] = useState('');
@@ -51,6 +62,9 @@ const FarmerViewPast = () => {
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [fromDate, setFromDate] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
   const [result, setresult] = useState({
     qty: '',
     total: '',
@@ -59,13 +73,14 @@ const FarmerViewPast = () => {
   const [outputListAllRaw, setOutputListRaw] = useState([]);
   const [outputSingle, setOutputSingle] = useState();
   const [pastEnquiryView, setPastEnquiryView] = useState([]);
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+
+  // const filterOptionShow = () => {
+  //   if (!filterOption) {
+  //     setFilterOption(true);
+  //   } else {
+  //     setFilterOption(false);
+  //   }
+  // };
   const onchangeFilterItem = value => {
     setFilterName(value);
     setFilterItem(value);
@@ -124,56 +139,104 @@ const FarmerViewPast = () => {
     }
     setModalVisible(true);
   };
-
-  const handleFilter = async search => {
-    if (filterName === 'Farmer/Product Name') {
-      setSearchFarmerPhone('');
-      setSearchFarmerName(search);
-      const result = farmerData.filter(item =>
-        item.label.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setOutputListAll(outputListAllRaw);
-      } else {
-        let tempData = outputListAll.filter(item => {
-          return (
-            item.users.userName.toLowerCase().indexOf(search.toLowerCase()) > -1
-          );
-        });
-        setOutputListAll(tempData);
-        setSearchResultsList(true);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
-    } else if (filterName === 'PhoneNumber') {
-      setSearchFarmerName('');
-      setSearchFarmerPhone(search);
-      const result = farmerData.filter(item =>
-        item.phone.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setOutputListAll(outputListAllRaw);
-      } else {
-        let tempData = outputListAll.filter(item => {
-          return (
-            item.users.contactNumber
-              .toLowerCase()
-              .indexOf(search.toLowerCase()) > -1
-          );
-        });
-        setOutputListAll(tempData);
-        // setData(tempData);
-        setSearchResultsList(true);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
+  const filterOptionShow = async () => {
+    try {
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      openFilterSheet({
+        options: ['', '', 'date', ''],
+        // onchangeFilterItem: onchangeFilterItem,
+        t: t,
+        // dropdownData: farmerData,
+        filterItem: filterItem,
+        // setSearchFarmerName: setSearchFarmerName,
+        // setSearchFarmerPhone: setSearchFarmerPhone,
+        // searchFarmerName: searchFarmerName,
+        // searchFarmerPhone: searchFarmerPhone,
+        title: 'Choose Status',
+        handleFilterResult: handleFilterResult,
+        handleFilterRemove: handleFilterRemove,
+        setFromDate: setFromDate,
+        setToDate: setToDate,
+        fromDate: fromDate,
+        toDate: toDate,
+        effective_dates: effective_dates,
+        carbonFlag: false,
+        CARBON_TYPE: [],
+        navigationBarHeight: navigationBarHeight,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
-  const onPageLoad = async () => {
+  const handleFilterResult = useCallback(
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+      console.log('fromDate', fromDate);
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
+
+        onPageLoad(
+          fromDate,
+          toDate,
+          // filter,
+        );
+      } catch (error) {
+        console.log(error, 'error');
+      }
+    },
+    [],
+  );
+  const handleFilterRemove = () => {};
+  // const handleFilter = async search => {
+  //   if (filterName === 'Farmer/Product Name') {
+  //     setSearchFarmerPhone('');
+  //     setSearchFarmerName(search);
+  //     const result = farmerData.filter(item =>
+  //       item.label.toLowerCase().includes(search.toLowerCase()),
+  //     );
+  //     if (search == '') {
+  //       setSearchResultsList(false);
+  //       setOutputListAll(outputListAllRaw);
+  //     } else {
+  //       let tempData = outputListAll.filter(item => {
+  //         return (
+  //           item.users.userName.toLowerCase().indexOf(search.toLowerCase()) > -1
+  //         );
+  //       });
+  //       setOutputListAll(tempData);
+  //       setSearchResultsList(true);
+  //     }
+  //     if (result) {
+  //       setSearchResults(result);
+  //     }
+  //   } else if (filterName === 'PhoneNumber') {
+  //     setSearchFarmerName('');
+  //     setSearchFarmerPhone(search);
+  //     const result = farmerData.filter(item =>
+  //       item.phone.toLowerCase().includes(search.toLowerCase()),
+  //     );
+  //     if (search == '') {
+  //       setSearchResultsList(false);
+  //       setOutputListAll(outputListAllRaw);
+  //     } else {
+  //       let tempData = outputListAll.filter(item => {
+  //         return (
+  //           item.users.contactNumber
+  //             .toLowerCase()
+  //             .indexOf(search.toLowerCase()) > -1
+  //         );
+  //       });
+  //       setOutputListAll(tempData);
+  //       // setData(tempData);
+  //       setSearchResultsList(true);
+  //     }
+  //     if (result) {
+  //       setSearchResults(result);
+  //     }
+  //   }
+  // };
+  const onPageLoad = async (fromDate = '', toDate = '') => {
     const outputList = await FarmeroutputListAPI(
       dbname,
       lan_id,
@@ -186,9 +249,6 @@ const FarmerViewPast = () => {
       setOutputListAll(outputList?.data?.data?.rows);
       setOutputListRaw(outputList?.data?.data?.rows);
       setItem('output_data', outputList?.data?.data?.rows);
-      if (route.params?.data != 'remove') {
-        navigateToPages(route.params?.io_oid, dbname, lan_id, token, user_id);
-      }
     }
     setIsLoading(false);
   };
@@ -217,36 +277,48 @@ const FarmerViewPast = () => {
       onPageLoad();
     }, []),
   );
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    requestAnimationFrame(async () => {
+      // await handleProblem(page);
+      setRefreshing(false);
+    });
+  }, []);
   return (
-    <Root>
-      <View style={{flexGrow: 1, marginBottom: 300}}>
-        {isLoading ? (
-          <View style={styles.loadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : (
-          <View>
-            <DatePickerComp
-              openDate={openFromDate}
-              newDate={newFromDate}
-              setOpenDate={setOpenFromDate}
-              handleDatePicker={handleDatePicker}
-            />
-            <DatePickerComp
-              openDate={openToDate}
-              newDate={newToDate}
-              setOpenDate={setOpenToDate}
-              handleDatePicker={handleDatePicker2}
-              minimumDate={
-                fromDate == ''
-                  ? ''
-                  : new Date(
-                      `${new Date(fromDate).getFullYear()}-${
-                        new Date(fromDate).getMonth() + 1
-                      }-${new Date(fromDate).getDate() + 1}`,
-                    )
-              }
-            />
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <SafeAreaView
+          style={{
+            flex: 1,
+            backgroundColor: Colors.background_light,
+            marginBottom: 10,
+          }}>
+          <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+          {/* {isLoading ? (
+            <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+          ) : ( */}
+          <View style={{marginBottom: 100}}>
+            {/* <DatePickerComp
+                openDate={openFromDate}
+                newDate={newFromDate}
+                setOpenDate={setOpenFromDate}
+                handleDatePicker={handleDatePicker}
+              />
+              <DatePickerComp
+                openDate={openToDate}
+                newDate={newToDate}
+                setOpenDate={setOpenToDate}
+                handleDatePicker={handleDatePicker2}
+                minimumDate={
+                  fromDate == ''
+                    ? ''
+                    : new Date(
+                        `${new Date(fromDate).getFullYear()}-${
+                          new Date(fromDate).getMonth() + 1
+                        }-${new Date(fromDate).getDate() + 1}`,
+                      )
+                }
+              /> */}
             {modalVisible && (
               <ViewModalPast
                 setModalVisible={setModalVisible}
@@ -262,120 +334,271 @@ const FarmerViewPast = () => {
                 }}
               />
             )}
-            <Filter
-              filterItem={filterItem}
-              filterOption={filterOption}
-              setOpenToDate={setOpenToDate}
-              fromDate={fromDate}
-              newToDate={toDate}
-              setOpenFromDate={setOpenFromDate}
-              filterOptionShow={filterOptionShow}
-              onchangeFilterItem={onchangeFilterItem}
-              onChangeText={item => handleFilter(item)}
-              FarmerProductNameValue={searchFarmerName}
-              FarmerProductPhoneValue={searchFarmerPhone}
-              filterDataRemove={filterDataRemove}
-              onlyDate={true}
-            />
-            <View style={{paddingBottom: 8, flexGrow: 1}}>
-              <FlatList
-                data={outputListAll}
-                showsVerticalScrollIndicator={false}
-                renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={styles.flatListContainer}
-                    onPress={() =>
-                      navigateToPages(item.fid, dbname, lan_id, token, user_id)
+            {/* <Filter
+                filterItem={filterItem}
+                filterOption={filterOption}
+                setOpenToDate={setOpenToDate}
+                fromDate={fromDate}
+                newToDate={toDate}
+                setOpenFromDate={setOpenFromDate}
+                filterOptionShow={filterOptionShow}
+                onchangeFilterItem={onchangeFilterItem}
+                onChangeText={item => handleFilter(item)}
+                FarmerProductNameValue={searchFarmerName}
+                FarmerProductPhoneValue={searchFarmerPhone}
+                filterDataRemove={filterDataRemove}
+                onlyDate={true}
+              /> */}
+
+            <FlatList
+              data={isLoading ? Array.from({length: 5}) : outputListAll}
+              renderItem={({item, index}) =>
+                isLoading ? (
+                  <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+                ) : (
+                  <AnimatedCard
+                    item={item}
+                    child={
+                      <TouchableOpacity
+                        style={styles.problemCard}
+                        onPress={() =>
+                          navigateToPages(
+                            item.fid,
+                            dbname,
+                            lan_id,
+                            token,
+                            user_id,
+                          )
+                        }
+                        key={index}>
+                        <View style={styles.cardHeader}>
+                          <Text style={styles.problemTitle} numberOfLines={2}>
+                            {t('crop_name')}:{' '}
+                            {item.io_crop_name &&
+                              item.io_crop_name.name.substring(0, 5)}
+                            {item.io_crop_name &&
+                            item.io_crop_name.name.length > 6
+                              ? '...'
+                              : null}
+                          </Text>
+                        </View>
+                        <View style={styles.cardContent}>
+                          <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>{t('name')} : </Text>
+                            <Text style={styles.infoValue} numberOfLines={1}>
+                              {item.users.userName.substring(0, 10)}
+
+                              {item.users.userName.length > 10 ? '...' : null}
+                            </Text>
+                          </View>
+
+                          {item.io_crop_variety && (
+                            <View style={styles.infoRow}>
+                              <Text style={styles.infoLabel}>
+                                {t('ist_variety')}:{' '}
+                              </Text>
+                              <Text style={styles.infoValue} numberOfLines={1}>
+                                {item.io_crop_variety &&
+                                  item.io_crop_variety.name.substring(0, 14)}
+                                {item.io_crop_variety &&
+                                item.io_crop_variety.name.length > 14
+                                  ? '...'
+                                  : null}
+                              </Text>
+                            </View>
+                          )}
+
+                          <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>{t('date')} :</Text>
+                            <Text style={styles.infoValue} numberOfLines={1}>
+                              {formatDateToMMDDYYYY(item.date)}
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
                     }
-                    key={index}>
-                    <View style={styles.flatListItem}>
-                      <Text style={styles.title}>
-                        {t('crop_name')}:{' '}
-                        {item.io_crop_name &&
-                          item.io_crop_name.name.substring(0, 5)}
-                        {item.io_crop_name && item.io_crop_name.name.length > 6
-                          ? '...'
-                          : null}
-                      </Text>
-                      <Text style={styles.title}>
-                        {t('name')} : {item.users.userName.substring(0, 10)}
-                        {item.users.userName.length > 10 ? '...' : null}
-                      </Text>
-                    </View>
-                    <View style={styles.flatListItem}>
-                      {item.io_crop_variety && (
-                        <Text style={styles.title}>
-                          {t('ist_variety')}:
-                          {item.io_crop_variety &&
-                            item.io_crop_variety.name.substring(0, 14)}
-                          {item.io_crop_variety &&
-                          item.io_crop_variety.name.length > 14
-                            ? '...'
-                            : null}
-                        </Text>
-                      )}
-                      <Text style={styles.title}>
-                        {t('date')} : {formatDateToMMDDYYYY(item.date)}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={item => item.id}
-              />
-            </View>
+                    index={index}
+                  />
+                )
+              }
+              keyExtractor={(item, index) => item?.fid || index}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[Colors.green]}
+                  tintColor={Colors.green}
+                />
+              }
+              onEndReachedThreshold={0.5}
+              contentContainerStyle={styles.listContainer}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={5}
+              updateCellsBatchingPeriod={20}
+              windowSize={5}
+            />
           </View>
-        )}
-      </View>
-    </Root>
+          {/* )} */}
+          <FloatingAction
+            position="right"
+            actions={getActionsPostNewOutputFarmer(t, styles, Colors)}
+            color={Colors.useGreen}
+            onPressItem={name => {
+              navigation.navigate('FarmerPostNew');
+              // navigation.navigate('FarmerPostNew', 123);
+            }}
+            showBackground={true}
+            overlayColor="rgba(22, 17, 17, 0.35)"
+            distanceToEdge={{vertical: 80, horizontal: 25}}
+          />
+        </SafeAreaView>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 export default FarmerViewPast;
 const styles = StyleSheet.create({
-  flatListContainer: {
-    marginHorizontal: '2.5%',
+  // container: {
+  //   flex: 1,
+  // },
+  // item: {
+  //   backgroundColor: '#f9c2ff',
+  //   padding: 20,
+  //   marginVertical: 8,
+  //   marginHorizontal: 16,
+  // },
+  // title: {
+  //   color: '#000',
+  //   fontFamily: 'Poppins-Regular',
+  //   fontSize: 14,
+  // },
+  btnContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 10,
-    elevation: 5,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: '2%',
   },
-  flatListItem: {
-    width: '50%',
-  },
-  plusIcon: {
-    width: 50,
-    height: 50,
-    position: 'absolute',
-    top: '40%',
-    right: 20,
-    zIndex: 999,
-    elevation: 5,
-  },
-  flatContainer: {
-    backgroundColor: '#ffffff',
-    position: 'absolute',
-    zIndex: 999,
-    bottom: '100%',
-    left: 0,
-    marginHorizontal: '5%',
-    width: '90%',
+  btn: {
     elevation: 10,
+    backgroundColor: '#FFF',
+    paddingHorizontal: 10,
+    paddingVertical: 15,
     borderRadius: 10,
-    padding: 10,
+    width: '47%',
   },
-  flatlistHeight: {
-    height: Dimensions.get('window').height / 2.5,
+  btnActive: {
+    backgroundColor: '#a1dc17',
+    elevation: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    borderRadius: 10,
+    width: '47%',
   },
-  title: {
+  btnActiveTitle: {
+    textAlign: 'center',
+    color: '#FFF',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
+  },
+  btnTitle: {
+    textAlign: 'center',
     color: '#000',
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 15,
   },
-  loadingScreen: {
-    position: 'absolute',
-    top: 130,
-    zIndex: 999,
-    left: '45%',
+  prevNextPage: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    position: 'relative',
+    bottom: 0,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background_light,
+  },
+  content: {
+    flex: 1,
+  },
+  listContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    // paddingBottom: 100, // Space for FAB
+  },
+  problemCard: {
+    backgroundColor: '#ffffff',
+    marginVertical: 8,
+    borderRadius: 12,
+    // elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
+  },
+  cardHeader: {
+    // backgroundColor: '#fa9e003b',
+    backgroundColor: Colors.useGreen,
+    // backgroundColor:Colors.lightGreen,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: Colors.border,
+  },
+  problemTitle: {
+    // color: '#f59f0bff',
+    color: Colors.background,
+    fontSize: 16,
+    fontFamily: Fonts.Medium,
+  },
+  cardContent: {
+    padding: 16,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  infoLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+    flex: 1,
+  },
+  infoPageLabel: {
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+  },
+  infoValue: {
+    color: Colors.text,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+    flex: 2,
+    textAlign: 'right',
+  },
+  noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  noDataImage: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
+  noDataText: {
+    fontSize: 16,
+    fontFamily: Fonts.Medium,
+    color: Colors.text,
+    textAlign: 'center',
   },
 });

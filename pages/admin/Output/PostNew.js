@@ -357,7 +357,6 @@ const PostNew = props => {
   const saveHandle = async () => {
     const res = validationData();
     if (res == true) {
-      Alert.alert('Hii');
       if (nextpage === 1) {
         setNextPage(2);
       } else {
@@ -413,6 +412,7 @@ const PostNew = props => {
         console.log('database_res', database_res);
         if (database_res?.status === 200) {
           Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
           setTimeout(() => {
             props.sendDataToParent(2);
             navigation.navigate('ViewPast');

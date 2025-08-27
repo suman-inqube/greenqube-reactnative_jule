@@ -114,7 +114,7 @@ const FarmerDashboard = ({navigation}) => {
               1,
             );
             break;
-          case 'FarmerOutPutList':
+          case 'FarmerViewPast':
             addModuleForView(
               dbname,
               lan_id,

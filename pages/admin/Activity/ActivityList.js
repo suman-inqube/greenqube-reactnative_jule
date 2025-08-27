@@ -390,7 +390,7 @@ function ActivityList({navigation}) {
             <View style={styles.activityTypeRow}>
               <Text style={styles.label}>{t('activity_type')}:</Text>
               <Text style={styles.value}>
-                {activity.activityType || 'Not specified'}
+                {activity?.typeActivity?.categoryName || 'Not specified'}
               </Text>
             </View>
           </TouchableOpacity>

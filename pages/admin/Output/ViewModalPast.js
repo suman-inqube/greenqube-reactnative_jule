@@ -58,11 +58,13 @@ const ViewModalPast = props => {
               {props.outputSingle ? (
                 <View style={styles.itemContainer}>
                   {props.outputSingle.inout_plot_rel == null ? (
-                    <View style={styles.item}>
-                      <Text style={styles.itemText}>{t('name')}</Text>
-                      <Text style={styles.itemText}>
-                        : {props.outputSingle.others}
-                      </Text>
+                    <View style={styles.detailRow}>
+                      <View style={styles.textContainer}>
+                        <Text style={styles.valueText}>{t('name')}</Text>
+                        <Text style={styles.labelText}>
+                          : {props.outputSingle.others}
+                        </Text>
+                      </View>
                     </View>
                   ) : (
                     <>

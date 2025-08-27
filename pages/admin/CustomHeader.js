@@ -139,6 +139,12 @@ const CustomHeader = memo(
         CrateProblemUser: t('problem_reporting'),
         InputList: t('agri_inputs_ninquiry_far_dash'),
         PersonalInformation: t('personal_information'),
+        FarmerViewPast: t('view_output_nposted'),
+        FarmerPostNew: t('post_output_n'),
+        FarmerUsefulInformationList: t('dash_useful_information_list'),
+        FarmerUsefulInformation: t('dash_useful_information'),
+        FarmerTrainingList: t('training_support_list'),
+        FarmerTraining: t('training_support'),
       }),
       [t],
     );
@@ -176,7 +182,7 @@ const CustomHeader = memo(
     const statusBarProps = useMemo(
       () => ({
         barStyle: 'light-content',
-        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#003c04',
+        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#1c571cff',
       }),
       [drawerStatus],
     );
@@ -221,7 +227,7 @@ CustomHeader.displayName = 'CustomHeader';
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: '#003c04',
+    backgroundColor: '#1c571cff',
     width: '100%',
     minHeight: 70,
     justifyContent: 'center',
@@ -301,4 +307,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomHeader;
+export default memo(CustomHeader);

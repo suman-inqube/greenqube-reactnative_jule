@@ -1080,7 +1080,9 @@
              "Post_New":"Post New",
              "Attached_land_records": "Attached Supporting Documents",
   "Attached_address_proof": "Attached  Land Record",
-    "Attched_identity_proof": "Attached Identity Proof"
+    "Attched_identity_proof": "Attached Identity Proof",
+    "dash_useful_information_list":"Useful Information List",
+    "training_support_list":"Training List"
 
 
 

@@ -802,7 +802,7 @@ const FarmerCreateProblem = ({navigation}) => {
             </View>
           )}
           <View style={styles.fromContainer}>
-            <View style={{padding: 20}}>
+            <View>
               <DropdownForm
                 label={t('plot')}
                 data={plotAll}
@@ -955,7 +955,7 @@ export default FarmerCreateProblem;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background_light,
+    backgroundColor: 'white',
   },
   titleContainer: {
     width: '95%',
@@ -969,12 +969,7 @@ const styles = StyleSheet.create({
   fromContainer: {
     flex: 1,
     backgroundColor: 'white',
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginVertical: 20,
-    marginHorizontal: 16,
+    padding: 20,
   },
   activityPerFromDate: {
     flexDirection: 'row',

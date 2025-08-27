@@ -6,11 +6,11 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState, memo } from 'react';
+import React, {useState, memo} from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import moment from 'moment';
-const UpcomingActivities = ({ uiState, t }) => {
+const UpcomingActivities = ({uiState, t}) => {
   const [upcomingActivities, setUpcomingActivities] = useState([
     {
       id: 1,
@@ -41,7 +41,7 @@ const UpcomingActivities = ({ uiState, t }) => {
           resizeMode="stretch"
           height={200}
           width={'100%'}
-          style={{ borderRadius: 10 }}
+          style={{borderRadius: 10}}
         />
         <View style={styles.greenOverlay} />
         <View style={styles.userTitleOverlay}>
@@ -49,7 +49,7 @@ const UpcomingActivities = ({ uiState, t }) => {
             <View style={styles.profileBackView}>
               {uiState?.profileImg ? (
                 <ImagePlaceHolderCircleWithoutAddButton
-                  imageurl={{ uri: uiState?.profileImg }}
+                  imageurl={{uri: uiState?.profileImg}}
                   // style={styles.dp}
                 />
               ) : (
@@ -78,7 +78,7 @@ const UpcomingActivities = ({ uiState, t }) => {
             <FlatList
               data={upcomingActivities}
               keyExtractor={item => item.id.toString()}
-              renderItem={({ item }) => (
+              renderItem={({item}) => (
                 <View style={styles.activityItem}>
                   <View style={styles.activityIndicator} />
                   <View style={styles.activityDetails}>
@@ -93,7 +93,7 @@ const UpcomingActivities = ({ uiState, t }) => {
                   </View>
                 </View>
               )}
-            // contentContainerStyle={styles.activitiesListContainer}
+              // contentContainerStyle={styles.activitiesListContainer}
             />
           </View>
         </View>
@@ -126,16 +126,16 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   profileBackView: {
-    //     width: 100,
-    //     height: 100,
-    //     borderRadius: 90,
-    //     backgroundColor: 'white',
+    width: 100,
+    height: 100,
+    borderRadius: 90,
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignSelf: 'center',
-    //     alignItems: 'center',
-    //     marginBottom: 10,
-    //     zIndex: 1000,
-    //     marginRight: 30,
+    alignItems: 'center',
+    marginBottom: 10,
+    zIndex: 1000,
+    // marginRight: 30,
   },
   dp: {
     width: '100%',
@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
     height: 200,
     width: '100%',
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   upcomingActivitiesContainer: {
@@ -220,6 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
     fontFamily: 'Poppins-SemiBold',
+    textAlign: 'left',
   },
 });
 export default memo(UpcomingActivities);

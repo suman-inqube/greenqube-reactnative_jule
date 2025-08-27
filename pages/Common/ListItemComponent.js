@@ -1,10 +1,19 @@
-import React, { useEffect, memo } from 'react';
-import { Animated, Image, StyleSheet, Text, TouchableOpacity, View, Easing } from 'react-native';
+import React, {useEffect, memo} from 'react';
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Easing,
+} from 'react-native';
 import moment from 'moment';
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
-const ListItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => {
+const ListItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
   const animVal = getAnimationValue(item.fid);
 
   useEffect(() => {
@@ -30,12 +39,11 @@ const ListItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
   return (
     <AnimatedTouchableOpacity
       onPress={() => onPress(item.fid)}
-      style={[styles.listItem, { transform: [{ scale }] }]}
-      activeOpacity={0.7}
-    >
+      style={[styles.listItem, {transform: [{scale}]}]}
+      activeOpacity={0.7}>
       <View style={styles.listImageContainer}>
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.listImage} />
+          <Image source={{uri: imageUri}} style={styles.listImage} />
         ) : (
           <Image
             source={require('./images/greenqube_logo.png')}
@@ -59,16 +67,17 @@ const ListItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
 
 const styles = StyleSheet.create({
   listItem: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: '#eaecedff',
+    borderRadius: 8,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    marginHorizontal: 10,
   },
   listImageContainer: {
     marginRight: 16,

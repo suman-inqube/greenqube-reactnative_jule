@@ -208,10 +208,10 @@ const Dashboard = ({navigation}) => {
             }
           }
         }
+        console.log('FARMER_USEFULL_INFO_LIST', FARMER_USEFULL_INFO_LIST.data);
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
         }
-        console.log('usefulInfoList', usefulInfoList);
         if (LIST_USER_ACTIVITY?.status === 200) {
           latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
         }
@@ -275,8 +275,11 @@ const Dashboard = ({navigation}) => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
       // await onPageLoad("refreshing");
-      await onPageLoad();
+      const task = InteractionManager.runAfterInteractions(() => {
+        onPageLoad();
+      });
       setRefreshing(false);
+      return () => task.cancel();
     });
   }, []);
 
@@ -377,7 +380,7 @@ const Dashboard = ({navigation}) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{opacity: 0.8}}>
+                  imageStyle={{opacity: 0.6}}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -398,13 +401,14 @@ const Dashboard = ({navigation}) => {
                       bottom: -0,
                       borderTopRightRadius: 28,
                       borderTopLeftRadius: 28,
+                      zIndex: 9999,
                     }}
                   />
                 </ImageBackground>
               </Animated.View>
             </Animated.View>
 
-            <View style={{flex: 1}}>
+            <View style={{flex: 1, overflow: 'hidden'}}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -447,7 +451,7 @@ const Dashboard = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: Colors.background_light},
   header: {
-    height: 60 - 10,
+    // height: 60 - 10,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -461,6 +465,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    zIndex: 99999,
   },
   filterBar: {
     position: 'absolute',
@@ -468,12 +473,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 9,
-    elevation: 5,
+
+    zIndex: 9999,
   },
   animatedHeaderImage: {
     width: '100%',
     overflow: 'hidden',
     backgroundColor: '#003c04',
+    zIndex: 9999,
   },
   imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
   overlay: {...StyleSheet.absoluteFillObject},

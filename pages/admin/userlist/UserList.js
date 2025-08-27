@@ -27,15 +27,16 @@ import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import PaginationNav from '../../Components/PaginationNav';
 
 // API & Context
-import {userDataListAPI} from './UsersAPI';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
-import {Colors, Fonts} from '../../utils/Constants';
-import {Image} from 'moti';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { userDataListAPI } from './UsersAPI';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { Colors, Fonts } from '../../utils/Constants';
+import { Image } from 'moti';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
+import Icon from 'react-native-vector-icons/MaterialIcons';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const MENU_ITEMS = [
   {
@@ -69,7 +70,7 @@ const MENU_ITEMS = [
 ];
 
 // Modern Menu Button - Only animate menu buttons when expanded
-const ModernMenuButton = memo(({item, onPress, t, index, isExpanded}) => {
+const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
   const buttonAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (isExpanded) {
@@ -112,7 +113,7 @@ const ModernMenuButton = memo(({item, onPress, t, index, isExpanded}) => {
         {
           opacity: buttonAnim,
           transform: [
-            {scale: buttonAnim},
+            { scale: buttonAnim },
             {
               translateY: buttonAnim.interpolate({
                 inputRange: [0, 1],
@@ -123,7 +124,7 @@ const ModernMenuButton = memo(({item, onPress, t, index, isExpanded}) => {
         },
       ]}>
       <TouchableOpacity
-        style={[styles.menuButtonTouchable, {backgroundColor: item.iconBg}]}
+        style={[styles.menuButtonTouchable, { backgroundColor: item.iconBg }]}
         onPress={handlePress}
         activeOpacity={0.8}>
         <View style={styles.modernIconContainer}>
@@ -212,25 +213,25 @@ const ModernUserCard = memo(
 
     const handleCardPress = useCallback(() => {
       onToggle(item.user_id);
-      setState(prev => ({...prev, onPageLoad: true}));
+      setState(prev => ({ ...prev, onPageLoad: true }));
     }, [onToggle, item.user_id]);
     const cardStyle =
       state.onPageLoad == false
         ? [
-            styles.modernUserCard,
-            {
-              opacity: cardAnim,
-              transform: [
-                {scale: cardAnim},
-                {
-                  translateX: cardAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [SCREEN_WIDTH * 0.3, 0],
-                  }),
-                },
-              ],
-            },
-          ]
+          styles.modernUserCard,
+          {
+            opacity: cardAnim,
+            transform: [
+              { scale: cardAnim },
+              {
+                translateX: cardAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [SCREEN_WIDTH * 0.3, 0],
+                }),
+              },
+            ],
+          },
+        ]
         : [styles.modernUserCard];
     return (
       <Animated.View style={cardStyle}>
@@ -243,7 +244,7 @@ const ModernUserCard = memo(
             <View style={styles.userAvatar}>
               {item.agri_files.length > 0 ? (
                 <Image
-                  source={{uri: item.agri_files[0].file_path}} // adjust key based on your data
+                  source={{ uri: item.agri_files[0].file_path }} // adjust key based on your data
                   style={{
                     width: 60,
                     height: 60,
@@ -352,7 +353,7 @@ const ModernUserCard = memo(
     );
   },
 );
-const UserList = ({navigation}) => {
+const UserList = ({ navigation }) => {
   const {
     dbLanTokUsr,
     setdbLanTokUsr,
@@ -369,6 +370,7 @@ const UserList = ({navigation}) => {
   const flatListRef = useRef(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [count, setCount] = useState(0);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [filterItem, setFilterItem] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState({
@@ -391,8 +393,8 @@ const UserList = ({navigation}) => {
   const fetchUserList = useCallback(
     async (pageNo = 1, search_key_phone = '') => {
       try {
-        setState(prev => ({...prev, isLoading: pageNo === 1, isLoading: true}));
-        const {dbname, lan_id, token, user_id} = loginUser_data;
+        setState(prev => ({ ...prev, isLoading: pageNo === 1, isLoading: true }));
+        const { dbname, lan_id, token, user_id } = loginUser_data;
         // const response = await userDataListAPI(dbname, lan_id, token, user_id, pageNo, searchQuery);
         const response = await axiosGet(
           ROUTES.GET.AGENT_ROUTE({
@@ -400,12 +402,13 @@ const UserList = ({navigation}) => {
             search_key: search_key_phone,
           }),
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
+          { information: `${dbname},${lan_id},${user_id}` },
         );
         if (response.status === 200) {
-          const {count, no_of_item_per_page, rows} = response.data || {};
+          const { count, no_of_item_per_page, rows } = response.data || {};
           const totalPages = Math.ceil(count / no_of_item_per_page);
           setTotalPages(totalPages);
+          setCount(count);
           await setItem('userListData', rows);
           setState(prev => ({
             ...prev,
@@ -414,7 +417,7 @@ const UserList = ({navigation}) => {
             expandedItem: null, // Reset expanded item on new data
           }));
           if (flatListRef.current) {
-            flatListRef.current.scrollToOffset({offset: 0, animated: true});
+            flatListRef.current.scrollToOffset({ offset: 0, animated: true });
           }
           // Mark initial load complete after first successful fetch
           if (!initialLoadComplete) {
@@ -423,7 +426,7 @@ const UserList = ({navigation}) => {
         }
       } catch (error) {
         CrashlyticsRecordError(error, 'UserList', 'fetchUserList');
-        setState(prev => ({...prev, isLoading: false}));
+        setState(prev => ({ ...prev, isLoading: false }));
       }
     },
     [loginUser_data, setItem, initialLoadComplete],
@@ -444,9 +447,9 @@ const UserList = ({navigation}) => {
   );
 
   const handleRefresh = useCallback(async () => {
-    setState(prev => ({...prev, refreshing: true, expandedItem: null}));
+    setState(prev => ({ ...prev, refreshing: true, expandedItem: null }));
     await fetchUserList(1, '');
-    setState(prev => ({...prev, refreshing: false}));
+    setState(prev => ({ ...prev, refreshing: false }));
   }, [fetchUserList]);
 
   useEffect(() => {
@@ -454,7 +457,7 @@ const UserList = ({navigation}) => {
   }, [page]);
 
   const UserItemCard = useCallback(
-    ({item, index}) => (
+    ({ item, index }) => (
       <ModernUserCard
         item={item}
         isExpanded={state.expandedItem === item.user_id}
@@ -483,7 +486,7 @@ const UserList = ({navigation}) => {
   }, []);
 
   const filterOptionShow = async () => {
-    const {openFilterSheet} = await import('../../Components/FilterSheet');
+    const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['', 'phone', '', ''],
       t: t,
@@ -499,7 +502,7 @@ const UserList = ({navigation}) => {
   };
 
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       setFilterItem(filter);
       setSearchFarmerPhone({
         label: farmerPhone?.label,
@@ -510,7 +513,7 @@ const UserList = ({navigation}) => {
     [],
   );
   const handleFilterRemove = useCallback(() => {
-    setSearchFarmerPhone({label: '', value: ''});
+    setSearchFarmerPhone({ label: '', value: '' });
     setFilterItem('');
     fetchUserList(1, '', '', '', '', '');
     setPage(1);
@@ -522,12 +525,29 @@ const UserList = ({navigation}) => {
           <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
           <View style={styles.container}>
             <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+            {/* <View style={styles.header}>
+              <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />
+                <Text style={[{color:Colors.text,fontFamily:Fonts.Medium,fontWeight:700 }]}>{count} {t('farmers')}</Text>
+              </View>
+              <Text style={[{color:Colors.text,fontFamily:Fonts.Medium,fontWeight:700 }]}>{t('farmer_list')}</Text>
+            </View> */}
+            {/* <View style={styles.headerStats}>
+              <View style={styles.statsContainer}>
+                <View style={styles.statsIcon}>
+                  <Icon name="group" size={24} color="#4CAF50" />
+                </View>
+                <View style={styles.statsText}>
+                  <Text style={[{ color: Colors.text, fontFamily: Fonts.Medium, fontWeight: 700 }]}>{count} {t('farmers')}</Text>
+                </View>
+              </View>
+            </View> */}
             <FlatList
               ref={flatListRef}
               data={
-                state?.isLoading ? Array.from({length: 6}) : state?.userList
+                state?.isLoading ? Array.from({ length: 6 }) : state?.userList
               }
-              renderItem={({item, index}) =>
+              renderItem={({ item, index }) =>
                 state?.isLoading ? (
                   <SkeletonUserCard />
                 ) : (
@@ -575,6 +595,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background_light,
+  },
+  headerStats: {
+    backgroundColor: Colors.background,
+    marginHorizontal: 16,
+    marginTop: 16,
+    // marginBottom: 8,
+    // padding: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    // elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // marginBottom: 16,
+    paddingVertical: 12,
+  },
+  statsIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#E8F5E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
   },
   headerBackground: {
     position: 'absolute',
@@ -808,7 +861,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: -2},
+    shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -820,7 +873,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     elevation: 12,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 6},
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
   },
