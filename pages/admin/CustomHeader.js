@@ -145,6 +145,13 @@ const CustomHeader = memo(
         FarmerUsefulInformation: t('dash_useful_information'),
         FarmerTrainingList: t('training_support_list'),
         FarmerTraining: t('training_support'),
+        FarmerLiveHood: t('Livelihood'),
+        PackageOfPractices: t('scientific_farming'),
+        PackageOfPracticesDetails: t('Details'),
+        PackageItemDetails: t('Package_Item_Details'),
+        SoilHealthManagement: t('soil_health_management'),
+        PostRequest: t('request_soil_testing'),
+        MySoil: t('my_soil'),
       }),
       [t],
     );

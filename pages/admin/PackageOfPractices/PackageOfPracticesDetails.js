@@ -15,6 +15,8 @@ const Header_Max_Height = 240;
 const Header_Min_Height = 110;
 const Scroll_Distance = Header_Max_Height - Header_Min_Height;
 import {userCreateContext} from '../../Context/usersCreateContext';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors} from '../../utils/Constants';
 const PackageOfPracticesDetails = () => {
   //GQR-67
   const {t, CustomHeader} = useContext(userCreateContext);
@@ -58,18 +60,22 @@ const PackageOfPracticesDetails = () => {
           />
         )}
 
-        <Text style={[styles.title, styles.bannerTitle, {color: '#fff'}]}>
-          {thumbnails.label}
-        </Text>
+        <View style={styles.textOverlay}>
+          <Text
+            style={[styles.title, styles.bannerTitle, {color: '#001c00ff'}]}>
+            {thumbnails.label}
+          </Text>
+        </View>
       </Animated.View>
     );
   };
   return (
-    <>
+    <FarmerDrawerScreenWrapper1>
       <CustomHeader
         HandlerGoBack={() => HandlerGoBack('PackageOfPractices', '')}
         banner={true}
       />
+
       <DynamicHeader value={scrollOffsetY} />
       {popResAll[0]?.agri_crop_related?.description && (
         <DescriptionModel
@@ -92,7 +98,8 @@ const PackageOfPracticesDetails = () => {
         onScroll={Animated.event(
           [{nativeEvent: {contentOffset: {y: scrollOffsetY}}}],
           {useNativeDriver: false},
-        )}>
+        )}
+        style={{marginBottom: 20, backgroundColor: 'white'}}>
         {popResAll[0]?.agri_crop_related?.description &&
           popResAll[0]?.agri_crop_related?.description != 'null' && (
             <TouchableOpacity
@@ -117,12 +124,12 @@ const PackageOfPracticesDetails = () => {
               }>
               {agri_files[0] ? (
                 <Image
-                  style={{width: 50, height: 50}}
+                  style={{width: 50, height: 50, borderRadius: 8}}
                   source={{uri: agri_files[0]?.file_path}}
                 />
               ) : (
                 <Image
-                  style={{width: 50, height: 50}}
+                  style={{width: 50, height: 50, borderRadius: 8}}
                   source={require('../../Common/images/common_icon.png')}
                 />
               )}
@@ -131,7 +138,7 @@ const PackageOfPracticesDetails = () => {
           );
         })}
       </ScrollView>
-    </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
@@ -171,6 +178,18 @@ const styles = StyleSheet.create({
     zIndex: 999,
     // flex: 1
   },
+  textOverlay: {
+    position: 'absolute',
+    bottom: 95,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(244, 255, 244, 0.7)', // Light green with 70% opacity
+    padding: 10,
+    zIndex: 10000000,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: 95, // Higher than the image
+  },
   description: {
     marginTop: 30,
     padding: 10,
@@ -188,19 +207,24 @@ const styles = StyleSheet.create({
   bannerTitle: {
     position: 'absolute',
     zIndex: 9999999,
-    top: '60%',
-    width: '100%',
-    left: 50,
-    fontSize: 35,
+    // top: '60%',
+    // width: '100%',
+    // left: 50,
+    fontSize: 28,
+    fontFamily: 'Poppins-SemiBold',
+    color: 'black',
   },
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
     // height: 75,
-    elevation: 1,
-    backgroundColor: '#FFF',
-    margin: '2.5%',
+    backgroundColor: '#eefcffff',
+    marginHorizontal: '4%',
+
     padding: 10,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginVertical: '2.5%',
   },
 });

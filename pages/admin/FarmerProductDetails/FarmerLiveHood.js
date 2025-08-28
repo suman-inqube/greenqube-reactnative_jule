@@ -53,6 +53,7 @@ import CarbonCertificate from '../../Common/CarbonCertificate';
 import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors, Fonts} from '../../utils/Constants';
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -1849,7 +1850,7 @@ const FarmerLiveHood = ({
   }, [statuslevel.label, harvested]);
   return (
     <FarmerDrawerScreenWrapper1>
-      <>
+      <View style={{backgroundColor: 'white'}}>
         <DatePickerComp
           openDate={penCycleStart}
           newDate={newDate}
@@ -1897,7 +1898,11 @@ const FarmerLiveHood = ({
           handleHarvested={handleHarvested}
         />
         <ScrollView
-          style={{marginHorizontal: 30, marginVertical: 10}}
+          style={{
+            padding: 30,
+            // backgroundColor: 'red',
+            marginBottom: 50,
+          }}
           showsVerticalScrollIndicator={false}>
           <View style={{marginBottom: 40}}>
             {statuslevel.label == 'REJECTED' && (
@@ -1924,14 +1929,14 @@ const FarmerLiveHood = ({
             {userData == 'addUserData' || addPlot == true ? (
               <InputTextForm
                 label={t('addland_select_plot')}
-                color="red"
+                required={true}
                 value={farmerData.plot_Site_Name}
                 onChangeText={text => handleAddUserData('plot_Site_Name', text)}
               />
             ) : dataProps?.plot_no != undefined ? (
               <InputTextForm
                 label={t('addland_select_plot')}
-                color="red"
+                required={true}
                 editable={false}
                 value={farmerData.plot_Site_Name}
                 onChangeText={text => handleAddUserData('plot_Site_Name', text)}
@@ -1939,7 +1944,7 @@ const FarmerLiveHood = ({
             ) : (
               <DropdownForm
                 label={t('addland_select_plot')}
-                color="red"
+                required={true}
                 data={plotAll}
                 onChange={relId => handlePlot(relId)}
                 val={farmerData.plot_Site_Name}
@@ -1968,7 +1973,7 @@ const FarmerLiveHood = ({
 
             <DropdownForm
               label={t('select_terrain_type')}
-              color="red"
+              required={true}
               data={terrainTypeAll}
               val={farmerData.terrainType}
               onChange={item => {
@@ -1977,7 +1982,7 @@ const FarmerLiveHood = ({
             />
             <DropdownForm
               label={t('select_land_type')}
-              color="red"
+              required={true}
               data={landTypeAll}
               onChange={item => {
                 handleAddData(item, 'landType', 'landTypeValue');
@@ -1986,7 +1991,7 @@ const FarmerLiveHood = ({
             />
             <DropdownForm
               label={t('addland_soil_type_dv')}
-              color="red"
+              required={true}
               data={soilTypeAll}
               onChange={item => {
                 handleAddData(item, 'soilType', 'soilTypeValue');
@@ -1997,7 +2002,7 @@ const FarmerLiveHood = ({
               <View style={{width: '45%'}}>
                 <InputTextForm
                   label={t('pre_land_size')}
-                  color="red"
+                  required={true}
                   value={farmerData.land_size}
                   onChangeText={text =>
                     handleAddUserDataland_size('land_size', text)
@@ -2015,7 +2020,7 @@ const FarmerLiveHood = ({
               <View style={{width: '45%'}}>
                 <DropdownForm
                   label={t('select_unit')}
-                  color="red"
+                  required={true}
                   data={unitAll}
                   onChange={item => {
                     handleAddData(item, 'unit', 'unitValue');
@@ -2183,7 +2188,7 @@ const FarmerLiveHood = ({
             </View>
             <DropdownForm
               label={t('addcrop_select_cultivating_season')}
-              color="red"
+              required={true}
               data={productionSeason}
               onChange={item => {
                 handleAddDataproductionSeason(
@@ -2199,7 +2204,7 @@ const FarmerLiveHood = ({
             />
             <DropdownForm
               label={t('addcrop_croptype')}
-              color="red"
+              required={true}
               data={livelihoodType}
               onChange={item => {
                 handleAddDatalivelihoodType(
@@ -2215,7 +2220,7 @@ const FarmerLiveHood = ({
             />
             <DropdownForm
               label={t('crop_name')}
-              color="red"
+              required={true}
               data={produceName}
               onChange={item => {
                 handleAddDataproduceName(
@@ -2231,7 +2236,7 @@ const FarmerLiveHood = ({
             />
             <DropdownForm
               label={t('crop_veriety')}
-              color="red"
+              required={true}
               data={produceVariety}
               onChange={item => {
                 handleAddData(item, 'produceVariety', 'produceVarietyValue');
@@ -2243,7 +2248,7 @@ const FarmerLiveHood = ({
             />
             <DropdownForm
               label={t('production_system')}
-              color="red"
+              required={true}
               data={productionProcess}
               onChange={item => {
                 handleAddData(
@@ -2259,7 +2264,7 @@ const FarmerLiveHood = ({
               <View style={{width: '45%'}}>
                 <InputTextForm
                   label={`${t('expected_yield')}`}
-                  color="red"
+                  required={true}
                   value={farmerData.expectedProduction}
                   onChangeText={text =>
                     handleAddUserData('expectedProduction', text)
@@ -2276,7 +2281,7 @@ const FarmerLiveHood = ({
               <View style={{width: '45%'}}>
                 <DropdownForm
                   label={`${t('select_unit_input')}`}
-                  color="red"
+                  required={true}
                   data={productionUnit}
                   onChange={item => {
                     handleAddData(item, 'unitProduct', 'unitProductValue');
@@ -2300,9 +2305,17 @@ const FarmerLiveHood = ({
                   : null
               }
               activeOpacity={9}>
-              <Text style={{marginBottom: 5, color: '#f40000'}}>
-                {t('showing_date')}
-              </Text>
+              <View style={styles.labelContainer}>
+                <Text
+                  style={{
+                    color: '#4e4e4e',
+                    fontFamily: Fonts.Regular,
+                    fontSize: 15,
+                  }}>
+                  {t('showing_date')}
+                </Text>
+                <Text style={styles.requiredStar}> *</Text>
+              </View>
               <View style={styles.calenderContainer}>
                 <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
                 <Image
@@ -2318,9 +2331,17 @@ const FarmerLiveHood = ({
                   : null
               }
               activeOpacity={9}>
-              <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
-                {t('harvesting_date_auto_calculated')}
-              </Text>
+              <View style={styles.labelContainer2}>
+                <Text
+                  style={{
+                    color: '#4e4e4e',
+                    fontFamily: Fonts.Regular,
+                    fontSize: 15,
+                  }}>
+                  {t('harvesting_date_auto_calculated')}
+                </Text>
+                <Text style={styles.requiredStar}> *</Text>
+              </View>
               <View style={styles.calenderContainer}>
                 <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
                 <Image
@@ -2437,7 +2458,7 @@ const FarmerLiveHood = ({
             />
           </Modal>
         )}
-      </>
+      </View>
     </FarmerDrawerScreenWrapper1>
   );
 };
@@ -2480,13 +2501,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   calenderContainer: {
-    backgroundColor: '#FFF',
     flexDirection: 'row',
+    height: 48,
+    borderWidth: 0.5,
+    borderRadius: 6,
     justifyContent: 'space-between',
-    padding: 10,
-    borderRadius: 10,
-    elevation: 1,
-    height: 45,
+    // backgroundColor: Colors.background,
+    paddingHorizontal: 10,
+    color: Colors.text,
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
+    alignItems: 'center',
   },
   title: {
     color: '#000',
@@ -2517,5 +2542,20 @@ const styles = StyleSheet.create({
     top: '52%',
     left: '45%',
     zIndex: 9999,
+  },
+  requiredStar: {
+    color: 'red',
+    fontFamily: Fonts.Medium,
+    fontSize: 16,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  labelContainer2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
   },
 });

@@ -1,63 +1,122 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity,
-  ScrollView, Image, Animated, Dimensions, BackHandler, InteractionManager
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Animated,
+  Dimensions,
+  BackHandler,
+  InteractionManager,
 } from 'react-native';
-import React, { useEffect, useState, useRef, useContext, useCallback, memo } from 'react';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { plotListApproval, LandUnitArea, LandUnitsquare_metre } from '../../../config/apiHere';
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+  memo,
+} from 'react';
+import {useRoute, useNavigation} from '@react-navigation/native';
+import {
+  plotListApproval,
+  LandUnitArea,
+  LandUnitsquare_metre,
+} from '../../../config/apiHere';
 import CollapsibleCard from '../../Common/CollapsibleCard';
 import LiveHood from './LiveHood';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { FloatingAction } from 'react-native-floating-action';
-import { getActionsPlot } from '../../utils/options';
-import { Colors, Fonts } from '../../utils/Constants';
-const { width } = Dimensions.get('window');
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {FloatingAction} from 'react-native-floating-action';
+import {getActionsPlot} from '../../utils/options';
+import {Colors, Fonts} from '../../utils/Constants';
+const {width} = Dimensions.get('window');
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
-const StatusBadge = ({ status }) => {
+const StatusBadge = ({status}) => {
   const badgeStyles = {
-    APPROVED: { bg: '#D4EDDA', color: '#155724', text: 'APPROVED' },
-    PENDING: { bg: '#FFF3CD', color: '#856404', text: 'PENDING' },
-    REJECTED: { bg: '#F8D7DA', color: '#721C24', text: 'REJECTED' },
-    CARBON_DOCUMENTS_SUBMITTED: { bg: '#D4EDDA', color: '#155724', text: 'SUBMITTED' },
-    CARBON_DOCUMENTS_REJECTED: { bg: '#F8D7DA', color: '#721C24', text: 'CARBON REJECTED' },
-    CARBON_DOCUMENTS_APPROVED: { bg: '#D4EDDA', color: '#155724', text: 'VERIFIED' },
+    APPROVED: {bg: '#D4EDDA', color: '#155724', text: 'APPROVED'},
+    PENDING: {bg: '#FFF3CD', color: '#856404', text: 'PENDING'},
+    REJECTED: {bg: '#F8D7DA', color: '#721C24', text: 'REJECTED'},
+    CARBON_DOCUMENTS_SUBMITTED: {
+      bg: '#D4EDDA',
+      color: '#155724',
+      text: 'SUBMITTED',
+    },
+    CARBON_DOCUMENTS_REJECTED: {
+      bg: '#F8D7DA',
+      color: '#721C24',
+      text: 'CARBON REJECTED',
+    },
+    CARBON_DOCUMENTS_APPROVED: {
+      bg: '#D4EDDA',
+      color: '#155724',
+      text: 'VERIFIED',
+    },
   };
   if (!badgeStyles[status]) return null;
   return (
-    <View style={[styles.statusBox, { backgroundColor: badgeStyles[status].bg }]}>
-      <Text style={[styles.statusText, { color: badgeStyles[status].color }]}>
+    <View style={[styles.statusBox, {backgroundColor: badgeStyles[status].bg}]}>
+      <Text style={[styles.statusText, {color: badgeStyles[status].color}]}>
         {badgeStyles[status].text}
       </Text>
     </View>
   );
 };
-const PlotCard = memo(({ item, onPress, landUnitsquareMetre, landAreaUnit }) => {
+const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
   const convertedArea = (
-    Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) * Number(item?.google_area || 0)
+    Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) *
+    Number(item?.google_area || 0)
   ).toFixed(2);
 
   return (
     <TouchableOpacity onPress={onPress}>
       <CollapsibleCard
         width="100%"
-        header={<Text style={[styles.text, { fontSize: 18,color:Colors.background }]}>{item?.plot_no}</Text>}
+        header={
+          <Text style={[styles.text, {fontSize: 18, color: Colors.background}]}>
+            {item?.plot_no}
+          </Text>
+        }
         content={
           <>
             <View style={styles.plotInfoContainer}>
               <View>
-                {['Plot Name', 'Reported Land Area', 'Converted Land Area', 'Crop Name',
-                  'Crop Variety', 'Cycle Start Date', 'Cycle End Date'].map((label, idx) => (
-                    <Text key={idx} style={styles.text}>{label}</Text>
-                  ))}
+                {[
+                  'Plot Name',
+                  'Reported Land Area',
+                  'Converted Land Area',
+                  'Crop Name',
+                  'Crop Variety',
+                  'Cycle Start Date',
+                  'Cycle End Date',
+                ].map((label, idx) => (
+                  <Text key={idx} style={styles.text}>
+                    {label}
+                  </Text>
+                ))}
               </View>
-              <View style={{ marginLeft: 10 }}>
+              <View style={{marginLeft: 10}}>
                 <Text style={styles.label}>: {item?.plot_no}</Text>
-                <Text style={styles.label}>: {item?.land_size} {item?.land_unit?.name}</Text>
-                <Text style={styles.label}>: {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.crop_name?.name}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.crop_variety?.name}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.sowing_date}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}</Text>
+                <Text style={styles.label}>
+                  : {item?.land_size} {item?.land_unit?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {parseFloat(item?.land_convert_size).toFixed(2)}{' '}
+                  {landAreaUnit?.[0]?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.crop_name?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.crop_variety?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.sowing_date}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}
+                </Text>
               </View>
             </View>
 
@@ -89,7 +148,7 @@ const PlotCard = memo(({ item, onPress, landUnitsquareMetre, landAreaUnit }) => 
 const PlotList = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { farmeruserID } = route.params;
+  const {farmeruserID} = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
   const [addPlot, setAddPlot] = useState(false);
@@ -100,15 +159,15 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const { loginUser_data, t, onBackPress, Root, CustomHeader, LoadingScreen } =
+  const {loginUser_data, t, onBackPress, Root, CustomHeader, LoadingScreen} =
     useContext(userCreateContext);
 
-  const { dbname, lan_id, token } = loginUser_data;
+  const {dbname, lan_id, token} = loginUser_data;
 
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
     setDataProps(data);
-    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    scrollRef.current?.scrollTo({x: index * width, animated: true});
   }, []);
 
   const indicatorPosition = animatedValue.interpolate({
@@ -126,8 +185,10 @@ const PlotList = () => {
       ]);
 
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
-      if (unitAreaRes?.status === 200) setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
-      if (unitSqRes?.status === 200) setLandUnitsquareMetre(unitSqRes?.data?.data?.rows || []);
+      if (unitAreaRes?.status === 200)
+        setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
+      if (unitSqRes?.status === 200)
+        setLandUnitsquareMetre(unitSqRes?.data?.data?.rows || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -144,27 +205,47 @@ const PlotList = () => {
       });
       return () => task.cancel();
     }
-    const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (activeTab === 1) {
-        onTabPress(0);
-        return true;
-      }
-      return false;
-    });
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        if (activeTab === 1) {
+          onTabPress(0);
+          return true;
+        }
+        return false;
+      },
+    );
     return () => backHandler.remove();
   }, [activeTab]);
 
   return (
     <Root>
       <View style={styles.container}>
-        <CustomHeader path="userList" HandlerGoBack={() => navigation.navigate('userList')} />
+        <CustomHeader
+          path="userList"
+          HandlerGoBack={() => navigation.navigate('userList')}
+        />
         <View style={styles.tabBar}>
           {['Plot Status', 'Plot Add and Edit'].map((label, idx) => (
-            <TouchableOpacity key={idx} style={styles.tab} onPress={() => onTabPress(idx)}>
-              <Text style={[styles.tabText, activeTab === idx && styles.activeTabText]}>{label}</Text>
+            <TouchableOpacity
+              key={idx}
+              style={styles.tab}
+              onPress={() => onTabPress(idx)}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === idx && styles.activeTabText,
+                ]}>
+                {label}
+              </Text>
             </TouchableOpacity>
           ))}
-          <Animated.View style={[styles.indicator, { transform: [{ translateX: indicatorPosition }] }]} />
+          <Animated.View
+            style={[
+              styles.indicator,
+              {transform: [{translateX: indicatorPosition}]},
+            ]}
+          />
         </View>
         <ScrollView
           ref={scrollRef}
@@ -172,17 +253,21 @@ const PlotList = () => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           scrollEnabled={false}
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: animatedValue } } }], { useNativeDriver: false })}
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+            {useNativeDriver: false},
+          )}
           scrollEventThrottle={16}
-          onMomentumScrollEnd={e => setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))}
-        >
+          onMomentumScrollEnd={e =>
+            setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))
+          }>
           <View style={styles.page}>
             <FlatList
-              data={isLoading ? Array.from({ length: 5 }) : plotList}
+              data={isLoading ? Array.from({length: 5}) : plotList}
               keyExtractor={(item, index) => item?.id?.toString() || index}
               refreshing={refreshing}
               onRefresh={() => setRefreshing(false)}
-              renderItem={({ item, index }) =>
+              renderItem={({item, index}) =>
                 isLoading ? (
                   <PlotStatusSkeletonScreen />
                 ) : (
@@ -194,7 +279,7 @@ const PlotList = () => {
                   />
                 )
               }
-              contentContainerStyle={{ padding: 15 }}
+              contentContainerStyle={{padding: 15}}
               showsVerticalScrollIndicator={false}
               initialNumToRender={5}
               windowSize={5}
@@ -222,7 +307,7 @@ const PlotList = () => {
               color={Colors.useGreen}
               onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{ vertical: 80, horizontal: 25 }}
+              distanceToEdge={{vertical: 80, horizontal: 25}}
             />
           </>
         )}
@@ -231,7 +316,7 @@ const PlotList = () => {
   );
 };
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -239,7 +324,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     paddingVertical: 3,
@@ -249,8 +334,8 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
   },
-  tabText: { fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium, },
-  activeTabText: { fontSize: 16, color: 'green', fontFamily: Fonts.Medium, },
+  tabText: {fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium},
+  activeTabText: {fontSize: 16, color: 'green', fontFamily: Fonts.Medium},
   indicator: {
     position: 'absolute',
     bottom: 0,
@@ -261,7 +346,7 @@ const styles = StyleSheet.create({
   page: {
     width,
     flex: 1,
-    backgroundColor: Colors.background_light
+    backgroundColor: Colors.background_light,
   },
   item: {
     padding: 15,
@@ -282,7 +367,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     borderWidth: 0.6,
-    borderColor: '#d0d4dc'
+    borderColor: '#d0d4dc',
   },
   skeletonCard: {
     flex: 1,
@@ -340,14 +425,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     elevation: 1,
     marginVertical: 7,
-    borderRadius: 10
+    borderRadius: 10,
   },
   latlongContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 5,
-    padding: 3
+    padding: 3,
   },
   calenderContainer: {
     backgroundColor: '#FFF',
@@ -495,7 +580,7 @@ const styles = StyleSheet.create({
     marginVertical: 3,
     lineHeight: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   rejectBox: {
     paddingVertical: 10,
@@ -510,7 +595,6 @@ const styles = StyleSheet.create({
     color: '#721C24',
     fontFamily: Fonts.Regular,
     fontSize: 14,
-  }
+  },
 });
 export default memo(PlotList);
-

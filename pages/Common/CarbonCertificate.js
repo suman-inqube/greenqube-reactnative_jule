@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, {memo, useCallback, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,9 +8,9 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import { SPSheet } from 'react-native-popup-confirm-toast';
-import DocumentPicker, { types } from 'react-native-document-picker';
-import { createPdf } from 'react-native-images-to-pdf'; // Assuming you need to import this
+import {SPSheet} from 'react-native-popup-confirm-toast';
+import DocumentPicker, {types} from 'react-native-document-picker';
+import {createPdf} from 'react-native-images-to-pdf'; // Assuming you need to import this
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
@@ -30,9 +30,9 @@ const CarbonCertificate = ({
   status_level,
   disable,
   file,
-  InputTextFormEdit
+  InputTextFormEdit,
 }) => {
-  const { dbname, lan_id, token, user_id } = loginUser_data || {};
+  const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
     uri,
@@ -63,7 +63,7 @@ const CarbonCertificate = ({
           presentationStyle: 'fullScreen',
           type: [types.pdf, types.images],
         });
-        const { uri, name, type } = response?.[0] || {};
+        const {uri, name, type} = response?.[0] || {};
         let resizedUri = uri;
         let width = 0;
         let height = 0;
@@ -110,7 +110,7 @@ const CarbonCertificate = ({
 
   const onHandleDocumentSelectionRemove = useCallback(
     (index, level) => {
-      if (level === "CARBON_DOCUMENTS_REJECTED") {
+      if (level === 'CARBON_DOCUMENTS_REJECTED') {
         Alert.alert(
           'Confirm Deletion',
           'Are you sure you want to delete this document?',
@@ -123,7 +123,6 @@ const CarbonCertificate = ({
               text: 'Delete',
               style: 'destructive',
               onPress: async () => {
-
                 const values = [...stateValue];
                 const photoId = values[index]?.id;
                 values[index] = {
@@ -141,7 +140,7 @@ const CarbonCertificate = ({
               },
             },
           ],
-        )
+        );
       }
     },
     [stateValue, setStateValue],
@@ -153,7 +152,7 @@ const CarbonCertificate = ({
         // const { scannedImages } = await DocumentScanner.scanDocument({
         //   croppedImageQuality: 100,
         // });
-        const { scannedImages, status } = await DocumentScanner.scanDocument();
+        const {scannedImages, status} = await DocumentScanner.scanDocument();
         if (status !== 'success' || !scannedImages?.length) {
           Alert.alert('Error', 'Scanning failed or no image captured');
           return;
@@ -165,15 +164,18 @@ const CarbonCertificate = ({
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
         const path = await createPdf({
-          pages: resizedUris.map(uri => ({ imagePath: uri })),
-          outputPath
+          pages: resizedUris.map(uri => ({imagePath: uri})),
+          outputPath,
         });
         const fileStat = await RNFS.stat(path);
         const fileSizeInMB = fileStat.size / (1024 * 1024);
         console.log(`PDF Size: ${fileSizeInMB} MB`);
         const sizeLimitMB = 3;
         if (fileSizeInMB > sizeLimitMB) {
-          Alert.alert('File Too Large', `PDF size (${fileSizeInMB.toFixed(1)}MB) exceeds limit`);
+          Alert.alert(
+            'File Too Large',
+            `PDF size (${fileSizeInMB.toFixed(1)}MB) exceeds limit`,
+          );
           await RNFS.unlink(path);
           return;
         }
@@ -205,10 +207,10 @@ const CarbonCertificate = ({
   };
   const containsHttpOrHttps = url => /^(https?:\/\/)/i.test(url);
   const component = useCallback(
-    ({ data, index, spSheet }) => {
+    ({data, index, spSheet}) => {
       const openURL = async (data, index, spSheet) => {
         try {
-          const { file_path, uri } = data || {};
+          const {file_path, uri} = data || {};
           if (file_path) {
             const http = containsHttpOrHttps(file_path);
             // openFile(file_path);
@@ -280,8 +282,9 @@ const CarbonCertificate = ({
             }}>
             Attach Document
           </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-            {status_level === "CARBON_DOCUMENTS_REJECTED" || status_level === "APPROVED" ?
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+            {status_level === 'CARBON_DOCUMENTS_REJECTED' ||
+            status_level === 'APPROVED' ? (
               <TouchableOpacity
                 onPress={() => {
                   handleScanAndCreatePdf(data?.ImageType, index);
@@ -298,30 +301,38 @@ const CarbonCertificate = ({
                 }}>
                 <Image
                   source={require('../Common/images/scan.png')}
-                  style={{ width: 30, height: 30 }}
+                  style={{width: 30, height: 30}}
                 />
                 <Text style={styles.title}>Scanner</Text>
-              </TouchableOpacity> : <></>}
-            {status_level === "CARBON_DOCUMENTS_REJECTED" || status_level === "APPROVED" ? <TouchableOpacity
-              onPress={() => {
-                onHandleDocumentSelection(data?.ImageType, index);
-                spSheet.hide();
-              }}
-              style={{
-                backgroundColor: '#DFE8EF',
-                width: 70,
-                height: 70,
-                borderRadius: 10,
-                elevation: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Image
-                source={require('../Common/images/gallery.png')}
-                style={{ width: 30, height: 30 }}
-              />
-              <Text style={styles.title}>Gallery</Text>
-            </TouchableOpacity> : <></>}
+              </TouchableOpacity>
+            ) : (
+              <></>
+            )}
+            {status_level === 'CARBON_DOCUMENTS_REJECTED' ||
+            status_level === 'APPROVED' ? (
+              <TouchableOpacity
+                onPress={() => {
+                  onHandleDocumentSelection(data?.ImageType, index);
+                  spSheet.hide();
+                }}
+                style={{
+                  backgroundColor: '#DFE8EF',
+                  width: 70,
+                  height: 70,
+                  borderRadius: 10,
+                  elevation: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Image
+                  source={require('../Common/images/gallery.png')}
+                  style={{width: 30, height: 30}}
+                />
+                <Text style={styles.title}>Gallery</Text>
+              </TouchableOpacity>
+            ) : (
+              <></>
+            )}
             {/* {(containsHttpOrHttps(data?.file_path) ||
               containsHttpOrHttps(data?.uri)) && ( */}
             <TouchableOpacity
@@ -337,15 +348,14 @@ const CarbonCertificate = ({
               }}>
               <Image
                 source={require('../Common/images/view.png')}
-                style={{ width: 30, height: 30 }}
+                style={{width: 30, height: 30}}
               />
               <Text style={styles.title}>View</Text>
             </TouchableOpacity>
             {/* )} */}
           </View>
         </>
-      )
-
+      );
     },
     [onHandleDocumentSelection, status_level, InputTextFormEdit],
     //basudev
@@ -353,14 +363,20 @@ const CarbonCertificate = ({
   return (
     <View style={styles.idContainer}>
       <Text
-        style={[styles.title, { fontSize: 14, color: '#000', marginBottom: 10 }]}>
+        style={[styles.title, {fontSize: 14, color: '#000', marginBottom: 10}]}>
         {title}
       </Text>
       {loading && (
         <View style={styles.loaderBackdrop}>
           <View style={styles.loaderContainer}>
             <LoadingScreen />
-            <Text style={[styles.title, { fontSize: 14, color: '#000', marginBottom: 10 }]}>Processing document...</Text>
+            <Text
+              style={[
+                styles.title,
+                {fontSize: 14, color: '#000', marginBottom: 10},
+              ]}>
+              Processing document...
+            </Text>
           </View>
         </View>
       )}
@@ -371,10 +387,10 @@ const CarbonCertificate = ({
               style={styles.idItem}
               key={index}
               onPress={() => {
-                // basudev 
+                // basudev
                 // status_level != 'APPROVED' &&
                 SPSheet.show({
-                  component: () => component({ data, index, spSheet: SPSheet }),
+                  component: () => component({data, index, spSheet: SPSheet}),
                   height: 220 + marginBottom,
                 });
               }}>
@@ -386,7 +402,7 @@ const CarbonCertificate = ({
                       style={styles.idImage}
                     />
                   ) : (
-                    <Image source={{ uri: data.uri }} style={styles.idImage} />
+                    <Image source={{uri: data.uri}} style={styles.idImage} />
                   )
                 ) : (
                   <Image
@@ -395,24 +411,27 @@ const CarbonCertificate = ({
                   />
                 )}
                 {data?.url ||
-                  (data?.uri && (
-                    status_level == "CARBON_DOCUMENTS_REJECTED" ?
+                  (data?.uri &&
+                    (status_level == 'CARBON_DOCUMENTS_REJECTED' ? (
                       <TouchableOpacity
-                        onPress={() => onHandleDocumentSelectionRemove(index, status_level)} style={{ position: 'absolute', top: -20, right: -5 }}
-                      >
+                        onPress={() =>
+                          onHandleDocumentSelectionRemove(index, status_level)
+                        }
+                        style={{position: 'absolute', top: -20, right: -5}}>
                         <Image
                           source={require('./images/cross50.png')}
-                          style={{ width: 20, height: 20 }}
+                          style={{width: 20, height: 20}}
                         />
                       </TouchableOpacity>
-                      : <TouchableOpacity style={{ position: 'absolute', top: -20, right: -5 }}>
+                    ) : (
+                      <TouchableOpacity
+                        style={{position: 'absolute', top: -20, right: -5}}>
                         <Image
                           source={require('./images/cross50.png')}
-                          style={{ width: 20, height: 20 }}
+                          style={{width: 20, height: 20}}
                         />
                       </TouchableOpacity>
-
-                  ))}
+                    )))}
               </View>
               <Text style={styles.text}>
                 {data?.name?.substring(data?.name?.length - 9) ||
@@ -430,7 +449,7 @@ const styles = StyleSheet.create({
   idContainer: {
     flex: 1,
     elevation: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: '#e4e4e4ff',
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 5,
@@ -455,8 +474,8 @@ const styles = StyleSheet.create({
     // marginVertical:5,
     // borderRadius:10
   },
-  idImage: { width: 60, height: 60, resizeMode: 'cover', borderRadius: 5 },
-  text: { height: 20, color: '#000', textAlign: 'center' },
+  idImage: {width: 60, height: 60, resizeMode: 'cover', borderRadius: 5},
+  text: {height: 20, color: '#000', textAlign: 'center'},
   button: {
     padding: 10,
     alignItems: 'center',

@@ -73,12 +73,13 @@ const styles = StyleSheet.create({
     // backgroundColor: 'blue'
   },
   titleContainer: {
-    backgroundColor: '#195D06',
-    padding: 10,
+    backgroundColor: '#1c571cff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     color: '#FFF',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
+    fontSize: 18,
   },
 });

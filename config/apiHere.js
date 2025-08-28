@@ -2249,6 +2249,7 @@ export const cropListApi = async (dbName, languageId, userId) => {
       `${config.BASE_URL}cropRoute/listUserCrop/1/0/1?user_id=${userId}`,
       axiosHeaders,
     );
+
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -2652,6 +2653,7 @@ export const soilTestLab = async (dbName, lan_id, user_id) => {
       `${config.BASE_URL}soilTestLabRoute/list/1/0/1?district_id=&search_key=`,
       axiosHeaders,
     );
+    console.log('response123', response.status);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);

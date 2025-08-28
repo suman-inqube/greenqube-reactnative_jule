@@ -25,6 +25,8 @@ import FarmerLiveHood from './FarmerLiveHood';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {AlertMesg} from '../../Common/ToastAlert';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
+
 const PlotListFarmer = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -197,27 +199,22 @@ const PlotListFarmer = () => {
               scrollEventThrottle={16}>
               {/* Tab 1 */}
               <View style={styles.page}>
-                {isLoading ? (
-                  <View style={styles.LoadingScreen}>
-                    <LoadingScreen />
-                  </View>
-                ) : null}
                 <FlatList
-                  data={plotList}
+                  data={isLoading ? Array.from({length: 5}) : plotList}
                   keyExtractor={(item, index) =>
                     item?.id?.toString() || index.toString()
                   }
-                  refreshing={refreshing} // Enable pull-to-refresh
+                  refreshing={refreshing}
                   onRefresh={onRefresh}
-                  showsVerticalScrollIndicator={false} // Hides vertical scrollbar
-                  showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
+                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}
                   style={{padding: 10}}
-                  renderItem={({_index, item}) => {
-                    return (
+                  renderItem={({item, index}) =>
+                    isLoading ? (
+                      <PlotStatusSkeletonScreen />
+                    ) : (
                       <TouchableOpacity
-                        style={{
-                          marginBottom: 10,
-                        }}
+                        style={{marginBottom: 10}}
                         onPress={() => onTabPress(1, item)}>
                         <CollapsibleCard
                           width="100%"
@@ -226,7 +223,6 @@ const PlotListFarmer = () => {
                               <Text style={[styles.textHeader, {fontSize: 15}]}>
                                 {item?.plot_no}
                               </Text>
-                              {/* <Text>3 items in cart</Text> */}
                             </View>
                           }
                           content={
@@ -235,20 +231,12 @@ const PlotListFarmer = () => {
                                 style={{
                                   backgroundColor: 'white',
                                   borderRadius: 8,
-                                  // marginBottom: 12,
                                   marginVertical: 0,
                                   shadowColor: '#000',
-                                  // shadowOffset: { width: 0, height: 2 },
-                                  // shadowOpacity: 0.1,
-                                  // shadowRadius: 4,
-                                  // elevation: 3,
-                                  // borderWidth: 0.6,
-                                  // borderColor: '#d0d4dc',
                                   flexDirection: 'row',
                                 }}>
                                 <View>
                                   <Text style={styles.text}>Plot Name</Text>
-                                  {/* <Text style={styles.text}>Plot Size</Text> */}
                                   <Text style={styles.text}>
                                     Reported Land Area
                                   </Text>
@@ -268,7 +256,6 @@ const PlotListFarmer = () => {
                                   <Text style={styles.text}>
                                     : {item?.plot_no}
                                   </Text>
-                                  {/* <Text style={styles.text}>: {item?.land_size} {item?.land_unit?.name}</Text> */}
                                   <Text style={styles.text}>
                                     : {item?.land_size} {item?.land_unit?.name}
                                   </Text>
@@ -297,7 +284,6 @@ const PlotListFarmer = () => {
                                   </Text>
                                 </View>
                               </View>
-                              {/* basu */}
                               {item?.status_level == 'REJECTED' && (
                                 <View
                                   style={{
@@ -314,7 +300,7 @@ const PlotListFarmer = () => {
                                       fontFamily: 'Poppins-Regular',
                                       fontSize: 14,
                                     }}>
-                                    {item?.comment}{' '}
+                                    {item?.comment}
                                   </Text>
                                 </View>
                               )}
@@ -340,7 +326,6 @@ const PlotListFarmer = () => {
                                   }}
                                 />
                                 <Text style={styles.text}>
-                                  {' '}
                                   {parseFloat(
                                     Number(
                                       landUnitsquareMetre?.[0]
@@ -349,7 +334,6 @@ const PlotListFarmer = () => {
                                   ).toFixed(2)}{' '}
                                   {landAreaUnit?.[0]?.name}
                                 </Text>
-                                {/* basu */}
                               </View>
                               {item.status_level == 'APPROVED' && (
                                 <View
@@ -357,21 +341,12 @@ const PlotListFarmer = () => {
                                     backgroundColor: '#D4EDDA',
                                     padding: 8,
                                     borderRadius: 5,
-                                    // marginRight: 15,
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
                                     width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
                                     height: 38,
                                   }}>
-                                  {/* <Icon
-                                                      name="check"
-                                                      size={20}
-                                                      color="green"
-                                                      iconFamily="Feather"
-                                                    /> */}
                                   <Text
                                     style={{color: '#155724', fontSize: 14}}>
                                     {item.status_level}
@@ -385,21 +360,12 @@ const PlotListFarmer = () => {
                                     backgroundColor: '#D4EDDA',
                                     padding: 8,
                                     borderRadius: 5,
-                                    // marginRight: 15,
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
                                     width: 120,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
                                     height: 38,
                                   }}>
-                                  {/* <Icon
-                                                      name="check"
-                                                      size={20}
-                                                      color="green"
-                                                      iconFamily="Feather"
-                                                    /> */}
                                   <Text
                                     style={{color: '#155724', fontSize: 14}}>
                                     SUBMITTED
@@ -413,7 +379,6 @@ const PlotListFarmer = () => {
                                     backgroundColor: '#F8D7DA',
                                     padding: 8,
                                     borderRadius: 5,
-                                    // marginRight: 15,
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
@@ -422,19 +387,12 @@ const PlotListFarmer = () => {
                                     borderColor: '#F8D7DA',
                                     height: 38,
                                   }}>
-                                  {/* <Icon
-                                                  name="close"
-                                                  size={16}
-                                                  color="#FF5252"
-                                                  iconFamily="AntDesign"
-                                                /> */}
                                   <Text
                                     style={{color: '#721C24', fontSize: 14}}>
                                     CARBON REJECTED
                                   </Text>
                                 </View>
                               )}
-
                               {item.status_level ==
                                 'CARBON_DOCUMENTS_APPROVED' && (
                                 <View
@@ -442,13 +400,10 @@ const PlotListFarmer = () => {
                                     backgroundColor: '#D4EDDA',
                                     padding: 8,
                                     borderRadius: 5,
-                                    // marginRight: 15,
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
                                     width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#b8f8a9",
                                     height: 38,
                                   }}>
                                   <Text
@@ -460,25 +415,15 @@ const PlotListFarmer = () => {
                               {item.status_level == 'PENDING' && (
                                 <View
                                   style={{
-                                    // backgroundColor:'#ffe69b',
                                     backgroundColor: '#FFF3CD',
                                     padding: 8,
                                     borderRadius: 5,
-                                    // marginRight: 15,
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
                                     width: 100,
-                                    // borderWidth: 1,
-                                    // borderColor: "#ffc107",
                                     height: 38,
                                   }}>
-                                  {/* <Icon
-                                                  name="av-timer"
-                                                  size={20}
-                                                  color="#ffc107"
-                                                  iconFamily="MaterialCommunityIcons"
-                                                /> */}
                                   <Text
                                     style={{color: '#856404', fontSize: 14}}>
                                     {item.status_level}
@@ -491,7 +436,6 @@ const PlotListFarmer = () => {
                                     backgroundColor: '#F8D7DA',
                                     padding: 8,
                                     borderRadius: 5,
-                                    // marginRight: 15,
                                     flexDirection: 'row',
                                     justifyContent: 'space-evenly',
                                     alignItems: 'center',
@@ -500,12 +444,6 @@ const PlotListFarmer = () => {
                                     borderColor: '#F8D7DA',
                                     height: 38,
                                   }}>
-                                  {/* <Icon
-                                                  name="close"
-                                                  size={16}
-                                                  color="#FF5252"
-                                                  iconFamily="AntDesign"
-                                                /> */}
                                   <Text
                                     style={{color: '#721C24', fontSize: 14}}>
                                     {item.status_level}
@@ -516,8 +454,8 @@ const PlotListFarmer = () => {
                           }
                         />
                       </TouchableOpacity>
-                    );
-                  }}
+                    )
+                  }
                 />
               </View>
 
@@ -576,6 +514,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     alignItems: 'center',
+    backgroundColor: '#e4e4e4ff',
   },
   tabText: {fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold'},
   activeTabText: {fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold'},
