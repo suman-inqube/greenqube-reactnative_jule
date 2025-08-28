@@ -20,30 +20,27 @@ import React, {
   useCallback,
   useRef,
   memo,
+  useMemo
 } from 'react';
-import {problemListAPI} from '../../../config/apiHere';
-import {useFocusEffect} from '@react-navigation/native';
-import {useIsFocused} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
-import {ROUTES} from '../../utils/Routes';
-import {axiosGet} from '../../utils/api';
+import { useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
+import { ROUTES } from '../../utils/Routes';
+import { axiosGet } from '../../utils/api';
 import PaginationNav from '../../Components/PaginationNav';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {FloatingAction} from 'react-native-floating-action';
-import {getActionsProblemSupervisor} from '../../utils/options';
+import { getActionsProblemSupervisor } from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const ListProblem = ({navigation}) => {
+import FloatingActionButton from '../../Components/FloatingActionButton';
+const ListProblem = ({ navigation }) => {
   //GQR-67
   const {
     dbLanTokUsr,
     setdbLanTokUsr,
     loginUser_data,
-    LoadingScreen,
     CustomHeader,
     t,
-    onBackPress,
     getItem,
     setItem,
     logoImage,
@@ -60,10 +57,10 @@ const ListProblem = ({navigation}) => {
     farmerData,
     isOnline,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
-  const {pageNo} = dbLanTokUsr;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const { pageNo } = dbLanTokUsr;
   //GQR-67
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -120,7 +117,7 @@ const ListProblem = ({navigation}) => {
                 : searchFarmerPhone.label,
           }),
           token,
-          {information: `${dbname},${lan_id}`},
+          { information: `${dbname},${lan_id}` },
         );
         if (response?.status === 200) {
           await setItem('problemTypeName', response);
@@ -129,7 +126,7 @@ const ListProblem = ({navigation}) => {
         response = await getItem('problemTypeName');
       }
       if (!response?.status === 200) return;
-      const {rows, count} = response?.data || {};
+      const { rows, count } = response?.data || {};
       const totalPage = Math.ceil(count / 20);
       setTotalPages(totalPage);
       setProblemAll(rows);
@@ -162,7 +159,7 @@ const ListProblem = ({navigation}) => {
   }, []);
   const filterOptionShow = async () => {
     try {
-      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      const { openFilterSheet } = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['farmer', 'phone', 'date', ''],
         // onchangeFilterItem: onchangeFilterItem,
@@ -185,10 +182,10 @@ const ListProblem = ({navigation}) => {
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
       });
-    } catch (error) {}
+    } catch (error) { }
   };
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -220,8 +217,8 @@ const ListProblem = ({navigation}) => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({label: '', value: ''});
-      setSearchFarmerPhone({label: '', value: ''});
+      setSearchFarmerName({ label: '', value: '' });
+      setSearchFarmerPhone({ label: '', value: '' });
       setFilterItem('');
       handleProblem(1, '', '', '', '');
       setPage(1);
@@ -233,18 +230,19 @@ const ListProblem = ({navigation}) => {
     setItem('problem_id_data', fid);
     navigation.navigate(pageName);
   }, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <SafeAreaView
-          style={{flex: 1, backgroundColor: Colors.background_light}}>
-          <View style={{flex: 1}}>
-            <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+          style={{ flex: 1, backgroundColor: Colors.background_light }}>
+          <View style={{ flex: 1 }}>
+            {renderCustomHeader}
 
             <FlatList
               nestedScrollEnabled={true}
-              data={isLoading ? Array.from({length: 5}) : problemAll}
-              renderItem={({item, index}) =>
+              data={isLoading ? Array.from({ length: 5 }) : problemAll}
+              renderItem={({ item, index }) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -313,7 +311,7 @@ const ListProblem = ({navigation}) => {
               onNext={() => setPage(p => Math.min(totalPages, p + 1))}
               t={t}
             />
-            <FloatingAction
+            <FloatingActionButton
               position="right"
               actions={getActionsProblemSupervisor(t, styles, Colors)}
               color={Colors.useGreen}
@@ -322,7 +320,7 @@ const ListProblem = ({navigation}) => {
               }}
               showBackground={true}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{vertical: 80, horizontal: 25}}
+              distanceToEdge={{ vertical: 80, horizontal: 25 }}
             />
           </View>
         </SafeAreaView>
@@ -350,7 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

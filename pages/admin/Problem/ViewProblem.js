@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useState, useCallback, useContext} from 'react';
-import {useFocusEffect, useRoute, useIsFocused} from '@react-navigation/native';
+import React, { useEffect, useState, useCallback, useContext, useMemo } from 'react';
+import { useRoute, useIsFocused } from '@react-navigation/native';
 import TakePhoto from '../Activity/TakePhoto';
 import {
   problemAnswerListAPI,
@@ -16,14 +16,14 @@ import {
   problemCommentSaveAPI,
   farmerProblemDetailApi,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import ImagePlaceHolderCircleWithoutAddButton from '../../Common/ImagePlaceHolderCircleWithoutAddButton';
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fronts} from '../../utils/Constants';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-const ViewProblem = ({navigation}) => {
+const ViewProblem = ({ navigation }) => {
   // console.log('Question Title:', farmerProblem?.question_title);
   //GQR-67
   const {
@@ -46,9 +46,9 @@ const ViewProblem = ({navigation}) => {
     FormsTitle,
     isOnline,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +68,7 @@ const ViewProblem = ({navigation}) => {
     secondItemRecord: '',
     thirdItemRecord: '',
   });
-  const openImagePicker = item => {};
+  const openImagePicker = item => { };
   const saveCommet = async () => {
     if (comment1) {
       const formData = new FormData();
@@ -88,7 +88,7 @@ const ViewProblem = ({navigation}) => {
         formData,
       );
       if (database_res) {
-        Toast.show({text: `${t('comment_is_added')}`, ...AlertMesg[0]});
+        Toast.show({ text: `${t('comment_is_added')}`, ...AlertMesg[0] });
         // MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
         setComment1('');
         const commnetList = await problemCommentListAPI(
@@ -114,7 +114,7 @@ const ViewProblem = ({navigation}) => {
     if (problemData) {
       if (isOnline) {
         if (route.params != undefined) {
-          const {comment_qid, type} = route.params;
+          const { comment_qid, type } = route.params;
           if (type == 'comment') {
             setBtnColor(2);
           } else {
@@ -241,11 +241,16 @@ const ViewProblem = ({navigation}) => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
       dragFromTopOnly: true,
-      onCloseComplete: () => {},
-      onOpenComplete: () => {},
+      onCloseComplete: () => { },
+      onOpenComplete: () => { },
       height: 260,
     });
   };
+  const renderCustomHeader = useMemo(() => <CustomHeader
+    path="ProblemList"
+    logoImage={logoImage}
+    topBanner={topBanner}
+  />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -259,14 +264,10 @@ const ViewProblem = ({navigation}) => {
             flex: 1,
             backgroundColor: Colors.background_light,
           }}>
-          <CustomHeader
-            path="ProblemList"
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
+          {renderCustomHeader}
           {/* <FormsTitle title={t('plot_and_crop_problem')} /> */}
           <ScrollView>
-            <View style={{backgroundColor: Colors.background_light}}>
+            <View style={{ backgroundColor: Colors.background_light }}>
               {/* {
                         farmerProblem && farmerProblem?.agri_user ? */}
               <View style={styles.card}>
@@ -477,14 +478,14 @@ const ViewProblem = ({navigation}) => {
                     <TextInput
                       multiline={true}
                       numberOfLines={4}
-                      style={[styles.textarea, {color: '#000'}]}
+                      style={[styles.textarea, { color: '#000' }]}
                       value={comment1}
                       onChangeText={item => setComment1(item)}
                     />
 
                     <TouchableOpacity
                       onPress={() => saveCommet()}
-                      style={{marginLeft: 20}}>
+                      style={{ marginLeft: 20 }}>
                       <MaterialIcons
                         name="send"
                         size={30}
@@ -545,63 +546,63 @@ const ViewProblem = ({navigation}) => {
                 <View style={styles.commentsContainer}>
                   {commentAll
                     ? commentAll.map((value, index) => {
-                        return (
-                          <View style={styles.AnsItem} key={index}>
-                            <View style={{width: '20%'}}>
-                              {value.agri_user?.agri_files.length > 0 ? (
-                                value.agri_user?.agri_files.map(
-                                  (value1, index1) =>
-                                    value1.term_type === '1' && (
-                                      <View key={index1}>
-                                        {value1.file_path != '' ? (
-                                          <ImagePlaceHolderCircleWithoutAddButton
-                                            imageurl={{uri: value1.file_path}}
-                                          />
-                                        ) : (
-                                          <ImagePlaceHolderCircleWithoutAddButton
-                                            imageurl={require('../../Common/images/avatar.png')}
-                                          />
-                                        )}
-                                      </View>
-                                    ),
-                                )
-                              ) : (
-                                <View
-                                  style={{
-                                    marginVertical: 10,
-                                  }}>
-                                  <ImagePlaceHolderCircleWithoutAddButton
-                                    imageurl={require('../../Common/images/avatar.png')}
-                                  />
-                                </View>
-                              )}
-                            </View>
-                            <View style={styles.AnsTextContainer}>
-                              {value.agri_user?.agri_files.forEach(element => {
-                                <Text style={styles.infoValue}>{element}</Text>;
-                              })}
-                              <View style={{paddingHorizontal: 15}}>
-                                <Text style={styles.infoValue}>
-                                  {value.agri_user?.userName}
-                                  {value.agri_user?.userType === 3 ? (
-                                    <Text style={{color: '#15820bff'}}>
-                                      ({t('retailer')})
-                                    </Text>
-                                  ) : (
-                                    <Text>({t('login_farmer')})</Text>
-                                  )}
-                                </Text>
-                                <Text style={styles.infoValue}>
-                                  {value.comment_content}
-                                </Text>
-                                <Text style={styles.infoValue}>
-                                  {formatDateToMMDDYYYY(value.CreateDateTime)}
-                                </Text>
+                      return (
+                        <View style={styles.AnsItem} key={index}>
+                          <View style={{ width: '20%' }}>
+                            {value.agri_user?.agri_files.length > 0 ? (
+                              value.agri_user?.agri_files.map(
+                                (value1, index1) =>
+                                  value1.term_type === '1' && (
+                                    <View key={index1}>
+                                      {value1.file_path != '' ? (
+                                        <ImagePlaceHolderCircleWithoutAddButton
+                                          imageurl={{ uri: value1.file_path }}
+                                        />
+                                      ) : (
+                                        <ImagePlaceHolderCircleWithoutAddButton
+                                          imageurl={require('../../Common/images/avatar.png')}
+                                        />
+                                      )}
+                                    </View>
+                                  ),
+                              )
+                            ) : (
+                              <View
+                                style={{
+                                  marginVertical: 10,
+                                }}>
+                                <ImagePlaceHolderCircleWithoutAddButton
+                                  imageurl={require('../../Common/images/avatar.png')}
+                                />
                               </View>
+                            )}
+                          </View>
+                          <View style={styles.AnsTextContainer}>
+                            {value.agri_user?.agri_files.forEach(element => {
+                              <Text style={styles.infoValue}>{element}</Text>;
+                            })}
+                            <View style={{ paddingHorizontal: 15 }}>
+                              <Text style={styles.infoValue}>
+                                {value.agri_user?.userName}
+                                {value.agri_user?.userType === 3 ? (
+                                  <Text style={{ color: '#15820bff' }}>
+                                    ({t('retailer')})
+                                  </Text>
+                                ) : (
+                                  <Text>({t('login_farmer')})</Text>
+                                )}
+                              </Text>
+                              <Text style={styles.infoValue}>
+                                {value.comment_content}
+                              </Text>
+                              <Text style={styles.infoValue}>
+                                {formatDateToMMDDYYYY(value.CreateDateTime)}
+                              </Text>
                             </View>
                           </View>
-                        );
-                      })
+                        </View>
+                      );
+                    })
                     : ''}
                 </View>
               )}
@@ -737,7 +738,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginHorizontal: '5%',
@@ -752,7 +753,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginHorizontal: '5%',
@@ -855,7 +856,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginHorizontal: '5%',

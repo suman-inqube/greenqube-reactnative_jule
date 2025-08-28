@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
 import { launchCamera } from 'react-native-image-picker';
@@ -729,15 +729,16 @@ const CreateProblem = ({ navigation }) => {
   const handleSeverityChange = useCallback((item) => setSaveData((saveData) => ({ ...saveData, severity_id: item.value })), []);
   const handleActivityPerFromDate = useCallback(() => { setaddAffectedDate(true) }, []);
 
+  const renderCustomHeader = useMemo(() => <CustomHeader
+    path="ProblemList"
+    logoImage={logoImage}
+    topBanner={topBanner}
+  />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <View style={styles.container}>
-          <CustomHeader
-            path="ProblemList"
-            logoImage={logoImage}
-            topBanner={topBanner}
-          />
+          {renderCustomHeader}
           <DatePickerComp
             openDate={addAffectedDate}
             newDate={newFromDate}

@@ -19,7 +19,7 @@ const InputTextForm = ({
   iconSize = 20,
   iconColor = null,
 }) => {
-  // console.log('InputTextForm rendered',label);
+  console.log('InputTextForm rendered',label);
   const scheme = useColorScheme();
   const labelString = label
     ? label.charAt(0).toUpperCase() + label.slice(1)

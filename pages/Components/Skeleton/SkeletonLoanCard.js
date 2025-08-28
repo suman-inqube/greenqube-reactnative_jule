@@ -1,97 +1,34 @@
-import React from 'react';
-import {View, StyleSheet, Dimensions} from 'react-native';
-import {MotiView} from 'moti';
-import {Colors} from '../../utils/Constants';
+import React, { memo } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { MotiView } from 'moti';
+import { Colors } from '../../utils/Constants';
 
 const SkeletonLoanCard = () => {
   return (
-    <View style={styles.card}>
-      <MotiView
-        style={styles.header}
-        from={{opacity: 0.3}}
-        animate={{opacity: 1}}
-        transition={{
-          type: 'timing',
-          duration: 800,
-          loop: true,
-          repeatReverse: true,
-        }}
-      />
+    <MotiView
+      from={{ opacity: 0.3 }}
+      animate={{ opacity: 1 }}
+      transition={{
+        type: 'timing',
+        duration: 900,
+        loop: true,
+        repeatReverse: true,
+      }}
+      style={styles.card}
+    >
       <View style={styles.content}>
-        <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 60}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '50%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-        </View>
-        <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 80}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '60%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-        </View>
-        <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 60}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '50%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-        </View>
-        <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 60}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '50%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-        </View>
-        {/* <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 60}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '50%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-        </View> */}
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <View key={idx} style={styles.row}>
+            <View style={[styles.skeletonBox, { width: 60 }]} />
+            <View style={[styles.skeletonBox, { width: '50%' }]} />
+          </View>
+        ))}
       </View>
-    </View>
+    </MotiView>
   );
 };
+
+export default memo(SkeletonLoanCard);
 
 const styles = StyleSheet.create({
   card: {
@@ -101,17 +38,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderLeftWidth: 5,
     borderLeftColor: '#95b082ff',
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // marginBottom: 8,
     paddingHorizontal: 15,
     marginHorizontal: '2.5%',
     marginBottom: 10,
+
+    // ✅ lighter shadow (better FPS)
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    // elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+
     borderRightWidth: 1,
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -119,10 +55,6 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     borderBottomColor: Colors.border,
   },
-  // header: {
-  //   // height: 40,
-  //   backgroundColor: '#ffffffff',
-  // },
   content: {
     padding: 16,
   },
@@ -137,5 +69,3 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
 });
-
-export default SkeletonLoanCard;

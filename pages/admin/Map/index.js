@@ -17,11 +17,10 @@ import { isWithin20Meters } from "../../Common/calculateAreaFun";
 import SuggestiveSearchInput from "../../Common/SuggestiveSearchInput";
 import { getMapLocation } from "../../../config/apiHere";
 import LoadingScreen from "../../Common/LoadingScreen";
-import { FloatingAction } from "react-native-floating-action";
 import { Colors } from "../../utils/Constants";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 const screenWidth = Dimensions.get("window").width;
-
+import FloatingActionButton from "../../Components/FloatingActionButton";
 export default function Map({
   polygons,
   newPolygon,
@@ -129,7 +128,7 @@ export default function Map({
       }
     };
     init();
-  }, [baselatLong, location, polygons.length, animateToLocation]);
+  }, []);
 
   /** Polygon area calculation */
   useEffect(() => {
@@ -227,7 +226,7 @@ export default function Map({
         animateToLocation(lat, lng);
       }
     },
-    [animateToLocation]
+    []
   );
 
   const handleActionPress = useCallback(
@@ -271,7 +270,7 @@ export default function Map({
         style={styles.map}
         mapType="hybrid"
         provider={PROVIDER_GOOGLE}
-        onRegionChangeComplete={handleRegionChangeComplete}
+        onRegionChangeComplete={(newRegion) => handleRegionChangeComplete(newRegion)}
         onPress={handleMapPressGetDistance}
         showsUserLocation
         followsUserLocation
@@ -321,13 +320,14 @@ export default function Map({
         </View>
       )}
 
-      <FloatingAction
+      <FloatingActionButton
         position="right"
         actions={actions}
         color={Colors.useGreen}
         overlayColor="rgba(22, 17, 17, 0.35)"
         distanceToEdge={{ vertical: 80, horizontal: 25 }}
         onPressItem={handleActionPress}
+        openOnMount={editing === true ? true : false}
       />
 
       <View style={styles.searchBox}>

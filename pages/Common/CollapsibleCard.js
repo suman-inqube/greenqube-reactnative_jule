@@ -55,23 +55,23 @@ const CollapsibleCard = ({
     <View style={[styles.card, { width, overflow: 'hidden' }]}>
       {/* Always visible header */}
       <TouchableOpacity onPress={toggleCard} style={styles.touchable}>
-        <LinearGradient
-          colors={[Colors.useGreen, '#4CAF50']} 
+        {/* <LinearGradient
+          colors={[Colors.text, '#98c49aff']} 
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-        >
+        > */}
           <Animated.View style={[styles.header, { paddingBottom: paddingAnim + 400, }]}>
             {header}
             <Animated.View style={[styles.arrow, { transform: [{ rotate }] }]}>
               {/* <Image r down-arrow */}
               <Image
-                style={{ width: 20, height: 20, tintColor: Colors.background }}
+                style={{ width: 20, height: 20, tintColor: Colors.text }}
                 source={require('../Common/images/down-arrow.png')}
               />
               {/* <Icon name="chevron-down" size={25} iconFamily="MaterialCommunityIcons" color="#000" /> */}
             </Animated.View>
           </Animated.View>
-        </LinearGradient>
+        {/* </LinearGradient> */}
       </TouchableOpacity>
 
       {/* Collapsible content */}
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     // shadowRadius: 4,
     borderWidth: 0.5,
-    borderColor: Colors.useGreen,
+    borderColor: Colors.border,
     // borderStyle: 'dashed'
   },
   header: {
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    // borderBottomWidth: 1,  
+    borderBottomWidth: 0.4,  
     borderBottomColor: Colors.border,
   },
   content: {
@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 10,
-    borderTopWidth: 0.5, 
-    borderTopColor: Colors.useGreen,
+    borderTopWidth: 0.4, 
+    borderTopColor: Colors.border,
   },
   arrow: {
     marginLeft: 10,

@@ -1,54 +1,39 @@
-import React from 'react';
-import {View, StyleSheet, Dimensions} from 'react-native';
-import {MotiView} from 'moti';
+import React, { memo } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { MotiView } from 'moti';
 
 const SkeletonProblemCard = () => {
   return (
-    <View style={styles.card}>
-      <MotiView
-        style={styles.header}
-        from={{opacity: 0.3}}
-        animate={{opacity: 1}}
-        transition={{
-          type: 'timing',
-          duration: 800,
-          loop: true,
-          repeatReverse: true,
-        }}
-      />
+    <MotiView
+      from={{ opacity: 0.3 }}
+      animate={{ opacity: 1 }}
+      transition={{
+        type: 'timing',
+        duration: 800,
+        loop: true,
+        repeatReverse: true,
+      }}
+      style={styles.card}
+    >
+      {/* Header */}
+      <View style={styles.header} />
+
+      {/* Content */}
       <View style={styles.content}>
         <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 60}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '50%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
+          <View style={[styles.skeletonBox, { width: 60 }]} />
+          <View style={[styles.skeletonBox, { width: '50%' }]} />
         </View>
         <View style={styles.row}>
-          <MotiView
-            style={[styles.skeletonBox, {width: 80}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
-          <MotiView
-            style={[styles.skeletonBox, {width: '60%'}]}
-            from={{opacity: 0.3}}
-            animate={{opacity: 1}}
-            transition={{loop: true, repeatReverse: true, duration: 800}}
-          />
+          <View style={[styles.skeletonBox, { width: 80 }]} />
+          <View style={[styles.skeletonBox, { width: '60%' }]} />
         </View>
       </View>
-    </View>
+    </MotiView>
   );
 };
+
+export default memo(SkeletonProblemCard);
 
 const styles = StyleSheet.create({
   card: {
@@ -77,5 +62,3 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
 });
-
-export default SkeletonProblemCard;
