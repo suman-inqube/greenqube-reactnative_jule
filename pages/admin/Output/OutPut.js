@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import ViewModalPast from './ViewModalPast';
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+import React, {useState, useEffect, useContext, useCallback,useMemo} from 'react';
 import {
   outputListAPI,
   SupervisoroutputEnquiryViewAPI,
@@ -21,11 +21,11 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {FloatingAction} from 'react-native-floating-action';
 import {getActionsPostNew} from '../../utils/options';
 import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import FloatingActionButton from '../../Components/FloatingActionButton';
 const OutPut = ({navigation}) => {
   //GQR-67
   const {
@@ -36,7 +36,6 @@ const OutPut = ({navigation}) => {
     navigationBarHeight,
     setItem,
     effective_dates,
-    DatePickerComp,
     Toast,
     getItem,
     farmerData,
@@ -187,35 +186,6 @@ const OutPut = ({navigation}) => {
       }
     }
   };
-  const handleResultSelect = async (name, phone) => {
-    setSearchResultsList(false);
-    setSearchFarmerPhone(phone);
-    setSearchFarmerName(name);
-    setSearchResults([]);
-    if (name !== '') {
-      let tempData = outputListAll.filter(item => {
-        return (
-          item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1
-        );
-      });
-      setOutputListAll(tempData);
-      if (tempData.length === 0) {
-        Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
-      }
-    } else {
-      let tempData = outputListAll.filter(item => {
-        return (
-          item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) >
-          -1
-        );
-      });
-      setOutputListAll(tempData);
-      if (tempData.length === 0) {
-        Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
-      }
-    }
-  };
-
   const onPageLoad = async (
     farmer_id,
     farmer_mobile = '',
@@ -228,7 +198,7 @@ const OutPut = ({navigation}) => {
         farmer_id: farmer_id,
         from_date,
         to_date,
-        agent_id: user_id,
+        agent_id: '',
         farmer_mobile: farmer_mobile,
       }),
       token,
@@ -241,27 +211,12 @@ const OutPut = ({navigation}) => {
     }
     setIsLoading(false);
   };
-  const filterDataRemove = () => {
-    setSearchFarmerPhone('');
-    setSearchFarmerName('');
-    setFilterItem('');
-    setFilterOption(false);
-    setOutputListAll(outputListAllRaw);
-    setSearchResultsList(false);
-  };
   useEffect(() => {
-    if (isFocused) {
       setFilterName('');
       setFilterItem('');
       setFilterOption(false);
       onPageLoad();
-      // if (route.params.io_oid != undefined) {
-      //     pushNotification_popup(route.params.io_oid)
-      // } else {
-      //     onPageLoad();
-      // }
-    }
-  }, [isFocused]);
+  }, []);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
@@ -269,35 +224,6 @@ const OutPut = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
-  const pushNotification_popup = async fid => {
-    const [
-      // outputList,
-      supervisoroutputEnquiryViewAPI_res,
-    ] = await Promise.all([
-      // outputListAPI(dbname, lan_id, token, user_id),
-      SupervisoroutputEnquiryViewAPI(dbname, lan_id, token, user_id, fid),
-    ]);
-    // if (outputList) {
-    // setOutputListAll(outputList.data.data.rows);
-    // setOutputListRaw(outputList.data.data.rows);
-    // setItem("output_data", outputList.data.data.rows);
-    // const outputFound = outputList.find(user => user.fid === fid);
-    // setIsLoading(false)
-    // setOutputSingle(outputFound);
-    console.log(supervisoroutputEnquiryViewAPI_res.data);
-    // if (supervisoroutputEnquiryViewAPI_res) {
-    //     setPastEnquiryView(supervisoroutputEnquiryViewAPI_res.data.data)
-    // }
-    setModalVisible(true);
-    // setTimeout(() => {
-    //     if (route.params != undefined) {
-    //         console.log(route.params.io_oid)
-    //         navigateToPages(route.params.io_oid)
-    //     }
-    // }, 2000);
-    // }
-  };
-
   const filterOptionShow = async () => {
     try {
       const {openFilterSheet} = await import('../../Components/FilterSheet');
@@ -355,15 +281,29 @@ const OutPut = ({navigation}) => {
     },
     [],
   );
-  const handleFilterRemove = () => {};
+  const handleFilterRemove = () => {
+     try {
+      setFromDate('');
+      setToDate('');
+      setSearchFarmerName({ label: '', value: '' });
+      setSearchFarmerPhone({ label: '', value: '' });
+      setCarbonType({ label: '', value: '' });
+      setFilterItem('');
+      onPageLoad();
+      setPage(1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleSPSheetShow = useCallback(() => {
     navigation.navigate('PostNew');
   }, []);
+    const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-          <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+          {renderCustomHeader}
 
           <ViewModalPast
             setModalVisible={setModalVisible}
@@ -462,7 +402,7 @@ const OutPut = ({navigation}) => {
             updateCellsBatchingPeriod={20}
             windowSize={5}
           />
-          <FloatingAction
+          <FloatingActionButton
             position="right"
             actions={getActionsPostNew(t, styles, Colors)}
             color={Colors.useGreen}

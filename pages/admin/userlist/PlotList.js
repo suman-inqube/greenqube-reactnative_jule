@@ -3,7 +3,6 @@ import {
   Text,
   View,
   FlatList,
-  TouchableOpacity,
   ScrollView,
   Image,
   Animated,
@@ -18,6 +17,7 @@ import React, {
   useContext,
   useCallback,
   memo,
+  useMemo,
 } from 'react';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {
@@ -25,126 +25,15 @@ import {
   LandUnitArea,
   LandUnitsquare_metre,
 } from '../../../config/apiHere';
-import CollapsibleCard from '../../Common/CollapsibleCard';
 import LiveHood from './LiveHood';
 import {userCreateContext} from '../../Context/usersCreateContext';
-import {FloatingAction} from 'react-native-floating-action';
 import {getActionsPlot} from '../../utils/options';
 import {Colors, Fonts} from '../../utils/Constants';
 const {width} = Dimensions.get('window');
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
-const StatusBadge = ({status}) => {
-  const badgeStyles = {
-    APPROVED: {bg: '#D4EDDA', color: '#155724', text: 'APPROVED'},
-    PENDING: {bg: '#FFF3CD', color: '#856404', text: 'PENDING'},
-    REJECTED: {bg: '#F8D7DA', color: '#721C24', text: 'REJECTED'},
-    CARBON_DOCUMENTS_SUBMITTED: {
-      bg: '#D4EDDA',
-      color: '#155724',
-      text: 'SUBMITTED',
-    },
-    CARBON_DOCUMENTS_REJECTED: {
-      bg: '#F8D7DA',
-      color: '#721C24',
-      text: 'CARBON REJECTED',
-    },
-    CARBON_DOCUMENTS_APPROVED: {
-      bg: '#D4EDDA',
-      color: '#155724',
-      text: 'VERIFIED',
-    },
-  };
-  if (!badgeStyles[status]) return null;
-  return (
-    <View style={[styles.statusBox, {backgroundColor: badgeStyles[status].bg}]}>
-      <Text style={[styles.statusText, {color: badgeStyles[status].color}]}>
-        {badgeStyles[status].text}
-      </Text>
-    </View>
-  );
-};
-const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
-  const convertedArea = (
-    Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) *
-    Number(item?.google_area || 0)
-  ).toFixed(2);
-
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <CollapsibleCard
-        width="100%"
-        header={
-          <Text style={[styles.text, {fontSize: 18, color: Colors.background}]}>
-            {item?.plot_no}
-          </Text>
-        }
-        content={
-          <>
-            <View style={styles.plotInfoContainer}>
-              <View>
-                {[
-                  'Plot Name',
-                  'Reported Land Area',
-                  'Converted Land Area',
-                  'Crop Name',
-                  'Crop Variety',
-                  'Cycle Start Date',
-                  'Cycle End Date',
-                ].map((label, idx) => (
-                  <Text key={idx} style={styles.text}>
-                    {label}
-                  </Text>
-                ))}
-              </View>
-              <View style={{marginLeft: 10}}>
-                <Text style={styles.label}>: {item?.plot_no}</Text>
-                <Text style={styles.label}>
-                  : {item?.land_size} {item?.land_unit?.name}
-                </Text>
-                <Text style={styles.label}>
-                  : {parseFloat(item?.land_convert_size).toFixed(2)}{' '}
-                  {landAreaUnit?.[0]?.name}
-                </Text>
-                <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.crop_name?.name}
-                </Text>
-                <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.crop_variety?.name}
-                </Text>
-                <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.sowing_date}
-                </Text>
-                <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}
-                </Text>
-              </View>
-            </View>
-
-            {item?.status_level === 'REJECTED' && (
-              <View style={styles.rejectBox}>
-                <Text style={styles.rejectText}>{item?.comment}</Text>
-              </View>
-            )}
-          </>
-        }
-        footer={
-          <View style={styles.footerRow}>
-            <View style={styles.areaRow}>
-              <Image
-                source={require('../../Common/images/area-with-pins.png')}
-                style={styles.areaIcon}
-              />
-              <Text style={styles.text}>
-                {convertedArea} {landAreaUnit?.[0]?.name || ''}
-              </Text>
-            </View>
-            <StatusBadge status={item?.status_level} />
-          </View>
-        }
-      />
-    </TouchableOpacity>
-  );
-});
+import FloatingActionButton from '../../Components/FloatingActionButton';
+import TabBar from '../../Components/TabBar';
+import PlotCard from '../../Components/PlotCard';
 const PlotList = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -159,23 +48,14 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const {loginUser_data, t, onBackPress, Root, CustomHeader, LoadingScreen} =
-    useContext(userCreateContext);
-
+  const {loginUser_data, t, Root, CustomHeader} = useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
-
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
     setDataProps(data);
     scrollRef.current?.scrollTo({x: index * width, animated: true});
   }, []);
-
-  const indicatorPosition = animatedValue.interpolate({
-    inputRange: [0, width],
-    outputRange: [0, width / 2],
-  });
-
-  const onPageLoad = async () => {
+  const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
@@ -183,7 +63,6 @@ const PlotList = () => {
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
       ]);
-
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
       if (unitAreaRes?.status === 200)
         setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
@@ -196,8 +75,7 @@ const PlotList = () => {
       setAddPlot(false);
       setDataProps({});
     }
-  };
-
+  }, [activeTab]);
   useEffect(() => {
     if (activeTab === 0) {
       const task = InteractionManager.runAfterInteractions(() => {
@@ -217,36 +95,20 @@ const PlotList = () => {
     );
     return () => backHandler.remove();
   }, [activeTab]);
-
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
   return (
     <Root>
       <View style={styles.container}>
-        <CustomHeader
-          path="userList"
-          HandlerGoBack={() => navigation.navigate('userList')}
+        {renderCustomHeader}
+        <TabBar
+          tabs={['Plot Status', 'Plot Add and Edit']}
+          activeTab={activeTab}
+          onTabPress={ix => onTabPress(ix)}
+          indicatorColor={Colors.useGreen}
+          height={65}
+          backgroundColor={Colors.background}
+          colors={Colors.primary}
         />
-        <View style={styles.tabBar}>
-          {['Plot Status', 'Plot Add and Edit'].map((label, idx) => (
-            <TouchableOpacity
-              key={idx}
-              style={styles.tab}
-              onPress={() => onTabPress(idx)}>
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === idx && styles.activeTabText,
-                ]}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          <Animated.View
-            style={[
-              styles.indicator,
-              {transform: [{translateX: indicatorPosition}]},
-            ]}
-          />
-        </View>
         <ScrollView
           ref={scrollRef}
           horizontal
@@ -301,7 +163,7 @@ const PlotList = () => {
         </ScrollView>
         {activeTab === 0 && (
           <>
-            <FloatingAction
+            <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}
               color={Colors.useGreen}
@@ -556,14 +418,16 @@ const styles = StyleSheet.create({
     height: 25,
     tintColor: '#0d8320',
   },
-  statusBox: {
-    padding: 8,
-    borderRadius: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    width: 100,
-    height: 38,
+  badge: {
+    paddingHorizontal: 12, // fit text length
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start', // box only as wide as the text
+    marginVertical: 4,
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   plotInfoContainer: {
     backgroundColor: Colors.background,

@@ -25,9 +25,6 @@ import SkeletonUserCard from '../../Components/Skeleton/SkeletonUserCard';
 import ImageForm from '../../Common/ImageForm';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import PaginationNav from '../../Components/PaginationNav';
-
-// API & Context
-import { userDataListAPI } from './UsersAPI';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { Colors, Fonts } from '../../utils/Constants';
@@ -142,7 +139,6 @@ const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
     </Animated.View>
   );
 });
-
 const ModernUserCard = memo(
   ({
     item,
@@ -395,7 +391,6 @@ const UserList = ({ navigation }) => {
       try {
         setState(prev => ({ ...prev, isLoading: pageNo === 1, isLoading: true }));
         const { dbname, lan_id, token, user_id } = loginUser_data;
-        // const response = await userDataListAPI(dbname, lan_id, token, user_id, pageNo, searchQuery);
         const response = await axiosGet(
           ROUTES.GET.AGENT_ROUTE({
             page: pageNo,
@@ -450,7 +445,7 @@ const UserList = ({ navigation }) => {
     setState(prev => ({ ...prev, refreshing: true, expandedItem: null }));
     await fetchUserList(1, '');
     setState(prev => ({ ...prev, refreshing: false }));
-  }, [fetchUserList]);
+  }, []);
 
   useEffect(() => {
     fetchUserList(page);
@@ -518,13 +513,14 @@ const UserList = ({ navigation }) => {
     fetchUserList(1, '', '', '', '', '');
     setPage(1);
   }, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
           <StatusBar barStyle="light-content" backgroundColor="#4CAF50" />
           <View style={styles.container}>
-            <CustomHeader t={t} filterOptionShow={filterOptionShow} />
+            {renderCustomHeader}
             {/* <View style={styles.header}>
               <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                 <ImageForm source={require('../../Common/images/farmer.png')} resizeMode="cover" height={40} width={40} />

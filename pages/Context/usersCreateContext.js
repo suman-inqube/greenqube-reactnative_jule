@@ -1,6 +1,13 @@
-import React, { createContext, useEffect, useState, lazy } from "react";
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  lazy,
+} from "react";
 import { getItem, setItem, removeItem } from "../../config/getDataFromStorage";
-import { InteractionManager } from "react-native";
+import { InteractionManager, PermissionsAndroid, Platform } from "react-native";
 import Geolocation from "@react-native-community/geolocation";
 import {
   farmerByNameAPI,
@@ -9,14 +16,21 @@ import {
 } from "../../config/apiHere";
 import { useTranslation } from "react-i18next";
 import { AlertMesg } from "../Common/ToastAlert";
-import { Root, Toast, Popup, SPSheet } from "react-native-popup-confirm-toast";
+import {
+  Root,
+  Toast,
+  Popup,
+  SPSheet,
+} from "react-native-popup-confirm-toast";
 import { onBackPress } from "../Common/BackPressHandler";
 import DeviceInfo from "../DeviceInfo";
 import i18next from "i18next";
 import { getNavigationBarHeight } from "react-native-android-navbar-height";
 
 // Lazy imports
-const ImagePlaceHolderCircle = lazy(() => import("../Common/ImagePlaceHolderCircle"));
+const ImagePlaceHolderCircle = lazy(() =>
+  import("../Common/ImagePlaceHolderCircle")
+);
 const InputTextForm = lazy(() => import("../Common/InputTextForm"));
 const RadioForm = lazy(() => import("../Common/RadioForm"));
 const PasswordComp = lazy(() => import("../Common/PasswordComp"));
@@ -26,15 +40,13 @@ const CustomHeader = lazy(() => import("../admin/CustomHeader"));
 const LoadingScreen = lazy(() => import("../Common/LoadingScreen"));
 const FormsTitle = lazy(() => import("../Common/FormsTitle"));
 const DatePickerComp = lazy(() => import("../Common/DatePickerComp"));
-const ButtonFormBottom = lazy(() => import("../Common/ButtonFormBottom"));
+const ButtonFormBottom = lazy(() =>
+  import("../Common/ButtonFormBottom")
+);
 const Filter = lazy(() => import("../Common/Filter"));
 const DatePicker = lazy(() => import("react-native-date-picker"));
 const config = lazy(() => import("../../config"));
 const axios = lazy(() => import("axios"));
-
-
-// ... keep all your imports the same
-import { PermissionsAndroid, Platform } from "react-native";
 
 const userCreateContext = createContext();
 const userListContext = createContext("adduser");
@@ -44,22 +56,7 @@ const UserCreateContextProvider = (props) => {
   const { t } = useTranslation();
 
   // ---------- APP STATES ----------
-  const [dbLanTokUsr, setdbLanTokUsr] = useState({
-    pageNo: 1,
-    dbName: "",
-    languageId: "",
-    token: "",
-    supervisorId: "",
-    country: "",
-    company: "",
-    agri_user_addresses: "",
-    currentPage: "",
-    totalPage: "",
-    userType: "",
-    FcmUserToken: "",
-    owner: "",
-    farmerId: "",
-  });
+  const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
   const [loginUser_data, setloginUser_data] = useState({});
   const [logoImage, setlogoImage] = useState("");
@@ -68,12 +65,17 @@ const UserCreateContextProvider = (props) => {
   const [navigationBarHeight, setNavigationBarHeight] = useState(0);
 
   // ---------- LOCATION STATE ----------
-  const [coords, setCoords] = useState({ latitude: "", longitude: "", accuracy: "", timestamp: "", });
+  const [coords, setCoords] = useState({
+    latitude: "",
+    longitude: "",
+    accuracy: "",
+    timestamp: "",
+  });
+
+  const watchIdRef = useRef(null);
 
   // ---------- LOCATION SETUP ----------
   useEffect(() => {
-    let watchId;
-
     const requestPermission = async () => {
       if (Platform.OS === "android") {
         const granted = await PermissionsAndroid.request(
@@ -98,22 +100,32 @@ const UserCreateContextProvider = (props) => {
         return;
       }
 
-      watchId = Geolocation.watchPosition(
+      watchIdRef.current = Geolocation.watchPosition(
         (pos) => {
-          setCoords((prev) => ({
-            ...prev, // keep previous values
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            timestamp: pos.timestamp,
-          }));
+          setCoords((prev) => {
+            // ✅ only update if different (prevents useless rerenders)
+            if (
+              prev.latitude === pos.coords.latitude &&
+              prev.longitude === pos.coords.longitude &&
+              prev.accuracy === pos.coords.accuracy
+            ) {
+              return prev;
+            }
+            return {
+              ...prev,
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              accuracy: pos.coords.accuracy,
+              timestamp: pos.timestamp,
+            };
+          });
         },
         (err) => {
           console.log("Location error:", err);
         },
         {
           enableHighAccuracy: true,
-          distanceFilter: 10, // only update after 10 meters
+          distanceFilter: 10, // ✅ only update after 10m movement
           interval: 5000,
           fastestInterval: 2000,
           timeout: 20000,
@@ -125,8 +137,8 @@ const UserCreateContextProvider = (props) => {
     startWatching();
 
     return () => {
-      if (watchId != null) {
-        Geolocation.clearWatch(watchId);
+      if (watchIdRef.current != null) {
+        Geolocation.clearWatch(watchIdRef.current);
       }
     };
   }, []);
@@ -153,7 +165,7 @@ const UserCreateContextProvider = (props) => {
       ]);
 
       setNavigationBarHeight(getNavigationBar);
-      i18next.changeLanguage(loginUser_data?.lan_id.toString());
+      i18next.changeLanguage(loginUser_data?.lan_id?.toString());
 
       if (netConnection && loginUser_data?.token) {
         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
@@ -180,7 +192,10 @@ const UserCreateContextProvider = (props) => {
         if (farmer_response?.status == 200) {
           await Promise.all([
             setItem("farmerByNameAPI", farmer_response),
-            setItem("problemPlotAgainstFarmer" + loginUser_data?.user_id, responsePlot),
+            setItem(
+              "problemPlotAgainstFarmer" + loginUser_data?.user_id,
+              responsePlot
+            ),
             setItem("carbonFlag", resCarbonFlag),
           ]);
         }
@@ -217,12 +232,12 @@ const UserCreateContextProvider = (props) => {
           supervisorId: supervisorId,
           farmerId: loginUser_data?.user_id,
           agri_user_addresses: loginUser_data?.agri_user_addresses,
-          country: loginUser_data?.agri_user_addresses[0]?.country,
+          country: loginUser_data?.agri_user_addresses?.[0]?.country,
           company: loginUser_data?.db_company_id,
           owner: loginUser_data?.owner?.FcmUserToken,
           FcmUserToken: loginUser_data?.FcmUserToken,
           languageConpany: company,
-          country_id: country_id,
+          country_id,
           carbonFlag: option_value,
         });
 
@@ -273,57 +288,69 @@ const UserCreateContextProvider = (props) => {
     return dt.toISOString().split("T")[0];
   };
 
-  // ---------- PROVIDER ----------
+  // ---------- PROVIDER VALUE (Memoized) ----------
+  const contextValue = useMemo(
+    () => ({
+      dbLanTokUsr,
+      setdbLanTokUsr,
+      AllFarmerList,
+      farmerData,
+      loginUser_data,
+      isOnline: netConnection,
+      coords, // ✅ only rerenders when coords actually change
+      t,
+      AlertMesg,
+      onBackPress,
+      getItem,
+      setItem,
+      removeItem,
+      InputTextForm,
+      RadioForm,
+      PasswordComp,
+      ButtonForm,
+      axios,
+      config,
+      DeviceInfo,
+      DropdownForm,
+      Root,
+      Toast,
+      Popup,
+      SPSheet,
+      CustomHeader,
+      FormsTitle,
+      ImagePlaceHolderCircle,
+      logoImage,
+      topBanner,
+      setlogoImage,
+      settopBanner,
+      DatePicker,
+      LoadingScreen,
+      DatePickerComp,
+      ButtonFormBottom,
+      effective_dates,
+      Filter,
+      plotAll,
+      setplotAll,
+      navigationBarHeight,
+    }),
+    [
+      dbLanTokUsr,
+      farmerData,
+      loginUser_data,
+      netConnection,
+      coords,
+      logoImage,
+      topBanner,
+      plotAll,
+      navigationBarHeight,
+    ]
+  );
+
   return (
-    <userCreateContext.Provider
-      value={{
-        dbLanTokUsr,
-        setdbLanTokUsr,
-        AllFarmerList,
-        farmerData,
-        loginUser_data,
-        isOnline: netConnection,
-        coords,
-        t,
-        AlertMesg,
-        onBackPress,
-        getItem,
-        setItem,
-        removeItem,
-        InputTextForm,
-        RadioForm,
-        PasswordComp,
-        ButtonForm,
-        axios,
-        config,
-        DeviceInfo,
-        DropdownForm,
-        Root,
-        Toast,
-        Popup,
-        SPSheet,
-        CustomHeader,
-        FormsTitle,
-        ImagePlaceHolderCircle,
-        logoImage,
-        topBanner,
-        setlogoImage,
-        settopBanner,
-        DatePicker,
-        LoadingScreen,
-        DatePickerComp,
-        ButtonFormBottom,
-        effective_dates,
-        Filter,
-        plotAll,
-        setplotAll,
-        navigationBarHeight,
-      }}
-    >
+    <userCreateContext.Provider value={contextValue}>
       {props.children}
     </userCreateContext.Provider>
   );
 };
 
 export { userListContext, UserCreateContextProvider, userCreateContext };
-

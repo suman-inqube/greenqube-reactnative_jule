@@ -4,11 +4,9 @@ import {
   View,
   FlatList,
   TouchableOpacity,
-  Keyboard,
-  Dimensions,
   SafeAreaView,
   Animated,
-  RefreshControl,
+  RefreshControl, InteractionManager
 } from 'react-native';
 import React, {
   useEffect,
@@ -17,11 +15,11 @@ import React, {
   useCallback,
   lazy,
   useRef,
-  memo,
+  useMemo
 } from 'react';
-import {useIsFocused, useRoute} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {SPSheet, Toast} from 'react-native-popup-confirm-toast';
+import { useIsFocused, useRoute } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { SPSheet, Toast } from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import {
   OPTIONS_CARBON,
@@ -29,16 +27,16 @@ import {
   CARBON_TYPE,
 } from '../../utils/options';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
-import {Colors, Fonts} from '../../utils/Constants';
-import {FloatingAction} from 'react-native-floating-action';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-import {getStatusColor, getProduceEmoji, formatDate} from '../../utils/helpers';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { Colors, Fonts } from '../../utils/Constants';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
 import PaginationNav from '../../Components/PaginationNav';
-import {AlertMesg} from '../../Common/ToastAlert';
-function ActivityList({navigation}) {
+import { AlertMesg } from '../../Common/ToastAlert';
+import FloatingActionButton from '../../Components/FloatingActionButton';
+import ActivityCard from '../../Components/ActivityCard';
+function ActivityList({ navigation }) {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -56,7 +54,7 @@ function ActivityList({navigation}) {
     farmerData,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
+  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const route = useRoute();
@@ -74,12 +72,12 @@ function ActivityList({navigation}) {
     label: '',
     value: '',
   });
-  const [carbonType, setCarbonType] = useState({label: '', value: ''});
+  const [carbonType, setCarbonType] = useState({ label: '', value: '' });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const filterOptionShow = async () => {
-    const {openFilterSheet} = await import('../../Components/FilterSheet');
+    const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', 'carbon'],
       t: t,
@@ -104,7 +102,7 @@ function ActivityList({navigation}) {
     });
   };
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
         let search_key_val = '';
         if (filter == 'Farmer/Product Name') {
@@ -128,7 +126,7 @@ function ActivityList({navigation}) {
           value: sheetCarbonType?.value,
         });
         setPage(1);
-        fatchActivityListAPI(
+        fetchActivityListAPI(
           1,
           fromDate,
           toDate,
@@ -137,7 +135,7 @@ function ActivityList({navigation}) {
           filter,
         );
       } catch (error) {
-        console.log(error, 'error');
+ 
       }
     },
     [],
@@ -146,17 +144,17 @@ function ActivityList({navigation}) {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({label: '', value: ''});
-      setSearchFarmerPhone({label: '', value: ''});
-      setCarbonType({label: '', value: ''});
+      setSearchFarmerName({ label: '', value: '' });
+      setSearchFarmerPhone({ label: '', value: '' });
+      setCarbonType({ label: '', value: '' });
       setFilterItem('');
-      fatchActivityListAPI(1, '', '', '', '', '');
+      fetchActivityListAPI(1, '', '', '', '', '');
       setPage(1);
     } catch (error) {
       console.log(error);
     }
   };
-  const fatchActivityListAPI = async (
+  const fetchActivityListAPI = async (
     pageNo,
     fromDateParams,
     toDateParams,
@@ -179,17 +177,17 @@ function ActivityList({navigation}) {
               search_key_type && search_key_type !== 'carbon'
                 ? search_key_val
                 : filterItem
-                ? filterItem === 'Farmer/Product Name'
-                  ? searchFarmerName?.label
-                  : filterItem === 'PhoneNumber'
-                  ? searchFarmerPhone?.label
-                  : ''
-                : '',
+                  ? filterItem === 'Farmer/Product Name'
+                    ? searchFarmerName?.label
+                    : filterItem === 'PhoneNumber'
+                      ? searchFarmerPhone?.label
+                      : ''
+                  : '',
             from_date: fromDateParams == undefined ? fromDate : fromDateParams,
             to_date: toDateParams == undefined ? toDate : toDateParams,
           }),
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
+          { information: `${dbname},${lan_id},${user_id}` },
         );
         if (response?.status == 200) {
           await setItem('activityList', response);
@@ -200,39 +198,33 @@ function ActivityList({navigation}) {
       if (response?.status == 200) {
         const totalPage = Math.ceil(response.data.count / 20);
         setTotalPages(Math.ceil(response.data.count / 20));
-        setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage});
+        setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
         setactivityAll(response?.data?.rows);
         setIsLoading(false);
       }
       if (flatListRef.current) {
-        flatListRef.current.scrollToOffset({offset: 0, animated: true});
+        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
       }
     } catch (error) {
       console.log(error);
-      CrashlyticsRecordError(error, 'ActivityList', 'fatchActivityListAPI');
+      CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
     }
-  };
-  const onPageLoad = async page => {
-    fatchActivityListAPI(page);
   };
   const handleRefresh = useCallback(async () => {
     setTotalPages(1);
-    await fatchActivityListAPI(1, '');
+    await fetchActivityListAPI(1, '');
   }, []);
   useEffect(() => {
     if (route?.params?.action === 'addData') {
-      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
       setTotalPages(1);
-      fatchActivityListAPI(1, '');
+      fetchActivityListAPI(1, '');
     }
   }, [route?.params]);
-
   useEffect(() => {
-    try {
-      onPageLoad(page);
-    } catch (error) {
-      CrashlyticsRecordError(error, 'ActivityList', 'useEffect');
-    }
+    InteractionManager.runAfterInteractions(() => {
+      fetchActivityListAPI(page);
+    });
   }, [page]);
   useEffect(() => {
     if (!isFocused) {
@@ -251,7 +243,7 @@ function ActivityList({navigation}) {
               options={OPTIONS_CARBON}
             />
           ),
-          height: 150 + navigationBarHeight,
+          height: 170 + navigationBarHeight,
           zIndex: 1000,
         });
       } else {
@@ -263,157 +255,22 @@ function ActivityList({navigation}) {
     }
   };
 
-  const ActivityCard = useCallback(
-    memo(({activity, index, navigation}) => {
-      const status = activity?.deviation > 0 ? 'active' : 'pending';
-      const statusColor = getStatusColor(status);
-      const cardAnimation = useRef(new Animated.Value(0)).current;
-      useEffect(() => {
-        Animated.timing(cardAnimation, {
-          toValue: 1,
-          duration: 500,
-          delay: index * 150,
-          useNativeDriver: true,
-        }).start();
-      }, []);
-      return (
-        <Animated.View
-          style={[
-            styles.activityCard,
-            {
-              opacity: cardAnimation,
-              transform: [
-                {
-                  translateY: cardAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-              ],
-              borderLeftColor: statusColor,
-            },
-          ]}>
-          <TouchableOpacity
-            style={styles.cardContent}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('activityDetail', activity)}>
-            {/* Header with Produce and Status */}
-            <View style={styles.cardHeader}>
-              <View style={styles.produceSection}>
-                <View
-                  style={[
-                    styles.produceIcon,
-                    {backgroundColor: statusColor + '15'},
-                  ]}>
-                  <Text style={styles.emoji}>
-                    {getProduceEmoji(activity?.cropName?.name)}
-                  </Text>
-                </View>
-                <View style={styles.produceInfo}>
-                  <Text style={styles.produceName}>
-                    {activity?.cropName?.name}
-                  </Text>
-                  <Text style={styles.plotSite}>
-                    {activity?.land_info?.plot_no}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.statusBadge,
-                  {backgroundColor: statusColor + '15'},
-                ]}>
-                <Text style={[styles.statusText, {color: statusColor}]}>
-                  {status?.toUpperCase()}
-                </Text>
-              </View>
-            </View>
-
-            {/* Farmer Information */}
-            <View style={styles.farmerSection}>
-              <View style={styles.infoRow}>
-                <Text style={styles.label} numberOfLines={1}>
-                  {t('farmer_name')}:
-                </Text>
-                <Text style={styles.value}>
-                  {activity?.agri_user?.userName}
-                </Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>{t('farmer_number')}:</Text>
-                <Text style={[styles.value]}>
-                  {activity?.agri_user?.contactNumber}
-                </Text>
-              </View>
-            </View>
-
-            {/* Dates Section */}
-            <View style={styles.datesSection}>
-              <View style={styles.dateGrid}>
-                <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('Sowing')}</Text>
-                  <Text style={styles.dateValue}>
-                    {formatDate(activity?.actCurel?.sowing_date)}
-                  </Text>
-                </View>
-                <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('perf_date')}</Text>
-                  <Text style={styles.dateValue}>
-                    {formatDate(activity?.act_perform_date)}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.harvestSection}>
-                <Text style={styles.label}>{t('Harvesting')}:</Text>
-                <Text style={styles.harvestValue}>
-                  {effective_dates(activity?.actCurel?.harvesting_date)}
-                </Text>
-              </View>
-            </View>
-
-            {/* Additional Info */}
-            <View style={styles.additionalInfo}>
-              <View style={styles.deviationRow}>
-                <Text style={styles.label}>{t('deviation')}:</Text>
-                <Text
-                  style={[
-                    styles.deviationValue,
-                    {color: activity?.deviation > 0 ? '#EF4444' : '#10B981'},
-                  ]}>
-                  {activity?.deviation}
-                  {t('days')}
-                </Text>
-              </View>
-            </View>
-
-            {/* Activity Type */}
-            <View style={styles.activityTypeRow}>
-              <Text style={styles.label}>{t('activity_type')}:</Text>
-              <Text style={styles.value}>
-                {activity?.typeActivity?.categoryName || 'Not specified'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-      );
-    }),
-    [],
-  );
+  const renderCustomHeader = useMemo(() => <CustomHeader
+    logoImage={logoImage}
+    topBanner={topBanner}
+    filterOptionShow={filterOptionShow}
+    t={t}
+  />, []);
   return (
     <MyErrorBoundary>
       <Root>
         <SafeAreaView style={styles.container}>
-          <CustomHeader
-            logoImage={logoImage}
-            topBanner={topBanner}
-            filterOptionShow={filterOptionShow}
-            t={t}
-          />
+          {renderCustomHeader}
           <FlatList
             ref={flatListRef}
-            data={isLoading ? Array.from({length: 5}) : activityAll}
+            data={isLoading ? Array.from({ length: 5 }) : activityAll}
             keyExtractor={(item, index) => index?.toString()}
-            renderItem={({item, index}) =>
+            renderItem={({ item, index }) =>
               isLoading ? (
                 <SkeletonCardActivityList />
               ) : (
@@ -421,6 +278,9 @@ function ActivityList({navigation}) {
                   activity={item}
                   index={index}
                   navigation={navigation}
+                  t={t}
+                  effective_dates={effective_dates}
+                  path={"activityDetail"}
                 />
               )
             }
@@ -432,21 +292,14 @@ function ActivityList({navigation}) {
                 tintColor="#4CAF50"
               />
             }
-            contentContainerStyle={{padding: 20, paddingBottom: 50}}
+            contentContainerStyle={{ padding: 16, paddingBottom: 10 }}
             showsVerticalScrollIndicator={false}
             initialNumToRender={5}
             windowSize={5}
             removeClippedSubviews={true}
           />
-          <PaginationNav
-            isLoading={isLoading}
-            page={page}
-            totalPages={totalPages}
-            onPrev={() => setPage(p => Math.max(1, p - 1))}
-            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-            t={t}
-          />
-          <FloatingAction
+          <PaginationNav isLoading={isLoading} page={page} totalPages={totalPages} onPrev={() => setPage(p => Math.max(1, p - 1))} onNext={() => setPage(p => Math.min(totalPages, p + 1))} t={t} />
+          <FloatingActionButton
             position="right"
             actions={getActionsActivity(t, styles, Colors)}
             color={Colors.useGreen}
@@ -456,7 +309,7 @@ function ActivityList({navigation}) {
             }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
+            distanceToEdge={{ vertical: 80, horizontal: 25 }}
           />
         </SafeAreaView>
       </Root>
@@ -475,7 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -645,7 +498,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,

@@ -6,7 +6,7 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, {useState, useEffect, useCallback, useContext,useMemo} from 'react';
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
@@ -157,6 +157,7 @@ const onPageLoad = async () => {
       height: 260,
     });
   };
+    const renderCustomHeader = useMemo(() => <CustomHeader logoImage={logoImage} topBanner={topBanner} t={t} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -164,7 +165,7 @@ const onPageLoad = async () => {
           <LoadingScreen />
         ) : (
           <View style={styles.container}>
-            <CustomHeader logoImage={logoImage} topBanner={topBanner} t={t} />
+           {renderCustomHeader}
             <ScrollView
               showsVerticalScrollIndicator={false}
               nestedScrollEnabled={true}>
@@ -213,22 +214,16 @@ const onPageLoad = async () => {
                             justifyContent: 'center',
                             alignItems: 'center',
                             backgroundColor: '#f2faffff',
-
                             marginVertical: 8,
                             borderRadius: 20,
                             borderLeftWidth: 5,
                             borderLeftColor: Colors.borderGreen,
-                            // flexDirection: 'row',
-                            // alignItems: 'center',
-                            // marginBottom: 8,
-                            // paddingHorizontal: 15,
                             marginHorizontal: '2.5%',
                             marginBottom: 10,
                             shadowColor: '#000',
                             shadowOffset: {width: 0, height: 4},
                             shadowOpacity: 0.1,
                             shadowRadius: 8,
-                            // elevation: 4,
                             borderRightWidth: 1,
                             borderTopWidth: 1,
                             borderBottomWidth: 1,

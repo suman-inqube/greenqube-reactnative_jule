@@ -54,8 +54,8 @@ import * as turf from '@turf/turf';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fronts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {FloatingAction} from 'react-native-floating-action';
 import {getActionsMapView} from '../../utils/options';
+import FloatingActionButton from '../../Components/FloatingActionButton';
 
 const PlotSiteProduceInformation = () => {
   //GQR-65
@@ -1677,7 +1677,7 @@ const PlotSiteProduceInformation = () => {
           </Text>
         </TouchableOpacity> */}
 
-          <FloatingAction
+          <FloatingActionButton
             position="right"
             actions={getActionsMapView(t, styles, Colors)}
             color={Colors.useGreen}

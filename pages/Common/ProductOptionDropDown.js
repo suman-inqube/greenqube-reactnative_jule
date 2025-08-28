@@ -25,16 +25,19 @@ const ProductOptionDropDown = ({ rate, val, onChange, currency }) => {
         <>
             <View style={styles.container}>
                 <Dropdown
-                    mode='modal'
-                    style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                    // mode='modal'
+                       mode="default"
+                    style={[styles.dropdown]}
                     laceholderStyle={[styles.placeholderStyle, { color: 'black', fontFamily: 'Poppins-Regular' }]}
-                    selectedTextStyle={[styles.selectedTextStyle, { color: 'black', fontFamily: 'Poppins-Regular', height: 50, fontSize: 14 }]}
+                    selectedTextStyle={[styles.selectedTextStyle, { color: 'black', fontFamily: 'Poppins-Regular', 
+                        // height: 50, fontSize: 14
+                     }]}
                     inputSearchStyle={[styles.inputSearchStyle, { color: 'black', fontFamily: 'Poppins-Regular' }]}
                     iconStyle={styles.iconStyle}
                     itemTextStyle={styles.itemTextStyle}
                     data={price}
                     value={price[0]}
-                    maxHeight={300}
+                    // maxHeight={300}
                     labelField="label"
                     valueField="value"
                     searchPlaceholder="Search..."
@@ -53,15 +56,16 @@ const styles = StyleSheet.create({
     container: {
         // alignItems: 'center',
         // marginBottom: 15,
+        flex: 1,
     },
     dropdown: {
         height: 40,
-        // borderColor: 'gray',
-        // borderWidth: 0.5,
-        // borderRadius: 8,
-        // paddingHorizontal: 8,
-        // backgroundColor: 'white',
-        // width: '80%',
+        width: '100%',
+        borderColor: 'gray',
+        borderWidth: 0.5,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        backgroundColor: 'white',
     },
     itemTextStyle: {
         color: '#000',
