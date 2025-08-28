@@ -37,9 +37,9 @@ import useDoubleBackToExit from '../utils/useDoubleBackToExit';
 import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
-import {getDashboardItems} from '../utils/dashboardItems';
+import { getDashboardItems } from '../utils/dashboardItems';
 // const HEADER_HEIGHT = 60;
-const Dashboard = ({navigation}) => {
+const Dashboard = ({ navigation }) => {
   useDoubleBackToExit();
   const {
     getItem,
@@ -409,7 +409,7 @@ const Dashboard = ({navigation}) => {
               </Animated.View>
             </Animated.View>
 
-            <View style={{ flex: 1,overflow:'hidden' }}>
+            <View style={{ flex: 1, overflow: 'hidden' }}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    zIndex:99999
+    zIndex: 99999
   },
   filterBar: {
     position: 'absolute',
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 9,
 
-    zIndex:9999
+    zIndex: 9999
   },
   animatedHeaderImage: {
     width: '100%',
@@ -483,8 +483,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#003c04',
     zIndex: 9999,
   },
-  imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
-  overlay: {...StyleSheet.absoluteFillObject},
+  imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
+  overlay: { ...StyleSheet.absoluteFillObject },
   bottomContent: {
     paddingBottom: 10,
     paddingTop: 15,

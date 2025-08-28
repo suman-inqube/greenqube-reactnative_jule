@@ -40,6 +40,8 @@ import {
   PipeListDetails,
   inputOutputRoutePipeImages,
   activityScheduleAPI,
+  problemProduceAgainstPlotAPI,
+  problemProductionStageAPI
 } from '../../../config/apiHere';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
@@ -59,6 +61,7 @@ import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import { use } from 'i18next';
 const ActivityReportAWD = ({ navigation }) => {
   //GQR-67
   const {
@@ -89,14 +92,14 @@ const ActivityReportAWD = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const [searchFarmerName, setSearchFarmerName] = useState('');
+  const [searchFarmerName, setSearchFarmerName] = useState({ label: '', value: '', phone: '' });
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedName, setSelectedName] = useState('');
   const [farmerID, setfarmerID] = useState();
-  const [plotAll, setplotAll] = useState([]);
-  const [productionStageAll, setproductionStageAll] = useState([]);
-  const [activityTypeAll, setactivityTypeAll] = useState([]);
+  const [plotAll, setPlotAll] = useState([]);
+  const [productionStageAll, setProductionStageAll] = useState([]);
+  const [activityTypeAll, setActivityTypeAll] = useState([]);
   const [activityInfoAll, setActivityInfoAll] = useState([]);
   const [singlePlot, setsinglePlot] = useState({});
   const [CropType, setCropType] = useState();
@@ -218,15 +221,15 @@ const ActivityReportAWD = ({ navigation }) => {
     setActivityPreFormDate(effective_date);
     setSaveData({ ...saveData, act_perform_date: effective_date });
   };
-  const handleResultSelect = async (item) => {
+  const handleResultSelect = useCallback(async (item) => {
     setIsLoading(true);
     const { label: name, value: currentfarmerId, phone } = item || {}
-    setSearchResultsList(false);
-    setSearchFarmerPhone(phone);
-    setSelectedName(name);
-    setSearchFarmerName(name);
-    setSearchResults([]);
-    setfarmerID(currentfarmerId);
+    // setSearchFarmerPhone(phone);
+    // setSelectedName(name);
+    // setSearchFarmerName(name);
+    // setSearchResults([]);
+    setShowingMenu(false);
+    setSearchFarmerName(prev => ({ ...prev, label: name, value: currentfarmerId, phone }));
     setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
@@ -251,7 +254,7 @@ const ActivityReportAWD = ({ navigation }) => {
         value: data.rel_id,
         label: data.plot_no,
       }));
-      setplotAll(dataArray);
+      setPlotAll(dataArray);
       if (isOnline) {
         var activityType_res = await activityTypeAPIAWD(
           dbname,
@@ -268,12 +271,12 @@ const ActivityReportAWD = ({ navigation }) => {
           label: data.categoryName,
           field_type: data.field_type,
         }));
-        setactivityTypeAll(dataArray);
+        setActivityTypeAll(dataArray);
       }
     }
-        setIsLoading(false);
-  };
-  const handlePlot = async relId => {
+    setIsLoading(false);
+  }, [isOnline]);
+  const handlePlot = useCallback(async relId => {
     try {
       const { latitude, longitude } = coords || {};
       setIsLoading(true);
@@ -338,16 +341,16 @@ const ActivityReportAWD = ({ navigation }) => {
               data.crop_cycl_start_date == '2004-02-29'
               ? data.sowing_date
               : data.crop_cycl_start_date;
-          setNameVarityStartEnd({
-            ...nameVarityStartEnd,
+          setNameVarityStartEnd(prev => ({
+            ...prev,
             name: data.crop_name.name,
             varity: data.crop_variety.name,
             cycleStarts: cycle_start_date,
             cycleEnd: data.harvesting_date,
-          });
-          setSaveData({
-            ...saveData,
-            user_id: farmerID,
+          }));
+          setSaveData(prev => ({
+            ...prev,
+            user_id: user_id,
             plot_id: relId.value,
             plot_Name: relId.label,
             crop_name: data.crop_name.fid,
@@ -356,6 +359,8 @@ const ActivityReportAWD = ({ navigation }) => {
             cu_rel_id: data.cu_rel_id,
             cycle_start_date: cycle_start_date,
             crop_season: data?.crop_season?.fid,
+            latitude: coords?.latitude,
+            longitude: coords?.longitude,
             growth_stage: '',
             act_ref_type: '',
             act_to_date: '',
@@ -364,24 +369,24 @@ const ActivityReportAWD = ({ navigation }) => {
             act_ref: '',
             act_master_id: '',
             field_type: '',
-          });
-          setsinglePlot(response.data.data.rows);
+          }));
+          // setsinglePlot(response.data.data.rows);
           setCropType(data.crop_type.fid);
           setCropName(data.crop_name.fid);
-          setSelectedImagePipe({
-            ...selectedImagePipe,
+          setSelectedImagePipe(prev => ({
+            ...prev,
             firstItem: '',
             firstItemLat: '',
             firstItemLong: '',
             secondItem: '',
             secondItemLat: '',
             secondItemLong: '',
-          });
-          setselectPipeList({
-            ...selectPipeList,
+          }));
+          setselectPipeList(prev => ({
+            ...prev,
             label: '',
             value: '',
-          });
+          }));
           if (isOnline) {
             var [productionStage_res, activitySchedule, pipeLatLongRes] =
               await Promise.all([
@@ -428,7 +433,7 @@ const ActivityReportAWD = ({ navigation }) => {
                 label: data.growth_stage.name,
               }),
             );
-            setproductionStageAll(dataArray);
+            setProductionStageAll(dataArray);
           }
           if (activitySchedule.status == 200) {
             setIsLoading(false);
@@ -535,8 +540,7 @@ const ActivityReportAWD = ({ navigation }) => {
         } else {
           setIsButtonDisabled(false);
           // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-          setSearchFarmerName('');
-          setSearchFarmerPhone('');
+          setSearchFarmerName(prev => ({ ...prev, label: "", value: "", phone: "" }));
           // setplotAll([])
           setModalVisible(true);
         }
@@ -566,13 +570,12 @@ const ActivityReportAWD = ({ navigation }) => {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'handlePlot');
       console.log(error);
     }
-  };
+  }, []);
 
   const formatDate = dateString => {
     const date = new Date(dateString);
     const day = date.getDate();
     const year = date.getFullYear();
-
     const monthNames = [
       'January',
       'February',
@@ -588,7 +591,6 @@ const ActivityReportAWD = ({ navigation }) => {
       'December',
     ];
     const month = monthNames[date.getMonth()];
-
     return `${day} ${month}, ${year}`;
   };
   const setCycleDate = async () => {
@@ -1037,7 +1039,7 @@ const ActivityReportAWD = ({ navigation }) => {
     }
   };
 
-  const handleActivityType = async item => {
+  const handleActivityType = useCallback(async item => {
     try {
       let dataArray = [];
       if (isOnline) {
@@ -1059,8 +1061,8 @@ const ActivityReportAWD = ({ navigation }) => {
           'activityInfo' + farmerID + CropType + CropName + item.value,
         );
       }
-      setSaveData({
-        ...saveData,
+      setSaveData(prev => ({
+        ...prev,
         act_to_date: '',
         act_to_date_label: '',
         act_start_date: '',
@@ -1068,21 +1070,21 @@ const ActivityReportAWD = ({ navigation }) => {
         act_master_id: '',
         act_ref_type: item.value,
         field_type: '',
-      });
-      setSelectedImagePipe({
-        ...selectedImagePipe,
+      }));
+      setSelectedImagePipe(prev => ({
+        ...prev,
         firstItem: '',
         firstItemLat: '',
         firstItemLong: '',
         secondItem: '',
         secondItemLat: '',
         secondItemLong: '',
-      });
-      setselectPipeList({
-        ...selectPipeList,
+      }));
+      setselectPipeList(prev => ({
+        ...prev,
         label: '',
         value: '',
-      });
+      }));
       if (response.data.data.count > 0) {
         response.data.data.rows.forEach(element => {
           const monthNames = [
@@ -1134,9 +1136,9 @@ const ActivityReportAWD = ({ navigation }) => {
     } catch (error) {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityType');
     }
-  };
+  }, [CropType, CropName]);
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
-  const handleActivityInfo = async item => {
+  const handleActivityInfo = useCallback(async item => {
     try {
       const act_to_date1 = item.end_date;
       const date1 = new Date(act_to_date1);
@@ -1151,29 +1153,29 @@ const ActivityReportAWD = ({ navigation }) => {
       const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
       const day2 = date2.getDate().toString().padStart(2, '0');
       const act_start_date = `${year2}-${month2}-${day2}`;
-      setSaveData({
-        ...saveData,
+      setSaveData(prev => ({
+        ...prev,
         act_to_date: act_to_date,
         act_to_date_label: item.label,
         act_start_date: act_start_date,
         act_ref: item.value,
         act_master_id: item?.act_master_id,
         field_type: item?.field_type || '',
-      });
-      setSelectedImagePipe({
-        ...selectedImagePipe,
+      }));
+      setSelectedImagePipe(prev => ({
+        ...prev,
         firstItem: '',
         firstItemLat: '',
         firstItemLong: '',
         secondItem: '',
         secondItemLat: '',
         secondItemLong: '',
-      });
-      setselectPipeList({
-        ...selectPipeList,
+      }));
+      setselectPipeList(prev => ({
+        ...prev,
         label: '',
         value: '',
-      });
+      }));
       const PipeListDetailsRes = await getUniquePipeNames(
         dbname,
         lan_id,
@@ -1205,16 +1207,16 @@ const ActivityReportAWD = ({ navigation }) => {
     } catch (error) {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityInfo');
     }
-  };
+  }, []);
   //basudev
   const [selectPipeList, setselectPipeList] = useState({
     label: '',
     value: '',
   });
-  const handleActivityPipe = _item => {
+  const handleActivityPipe = useCallback(_item => {
     const { pipeFiles, pipeLatLong, label, value } = _item || {};
-    setselectPipeList({ ...selectPipeList, label, value });
-  };
+    setselectPipeList(prev => ({ ...prev, label, value }));
+  }, []);
   const requestLivePermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -1437,10 +1439,10 @@ const ActivityReportAWD = ({ navigation }) => {
     secondItemLat: '',
     secondItemLong: '',
   });
-  const handleActivityPipeNumber = text => {
+  const handleActivityPipeNumber = useCallback(text => {
     setPipeNumber(text);
-  };
-  const addMorePipe = () => {
+  }, []);
+  const addMorePipe = useCallback(() => {
     if (pipeNumber == '') {
       Toast.show({
         time: 2,
@@ -1461,24 +1463,24 @@ const ActivityReportAWD = ({ navigation }) => {
         ...pipeDetails,
         { pipe_name: pipeNumber, selectedImagePipe },
       ]);
-      setSelectedImagePipe({
-        ...selectedImagePipe,
+      setSelectedImagePipe(prev => ({
+        ...prev,
         firstItem: '',
         firstItemLat: '',
         firstItemLong: '',
         secondItem: '',
         secondItemLat: '',
         secondItemLong: '',
-      });
+      }));
       setPipeNumber('');
     }
-  };
+  }, [pipeNumber, selectedImagePipe]);
 
-  const openImagePickerPipe = async item => {
+  const openImagePickerPipe = useCallback(async item => {
     setCameraItem(item);
     setModalVisibleMap(true);
-  };
-  const handleRemovedpipeDetails = _inde => {
+  }, []);
+  const handleRemovedpipeDetails = useCallback(_inde => {
     try {
       const values = [...pipeDetails];
       values.splice(_inde, 1);
@@ -1486,7 +1488,7 @@ const ActivityReportAWD = ({ navigation }) => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, []);
   const [modalVisibleMap, setModalVisibleMap] = useState(false);
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState('');
@@ -1587,6 +1589,21 @@ const ActivityReportAWD = ({ navigation }) => {
       }
     });
   }, [cameraItem, setSelectedImagePipe, setModalVisibleMap]);
+  const handlegrowth_stage = useCallback(growth_stage => {
+    setSaveData(prev => ({ ...prev, growth_stage: growth_stage.value }))
+  }, []);
+  const handleact_desc = useCallback(act_desc => {
+    setSaveData(prev => ({ ...prev, act_desc: act_desc }))
+  }, []);
+  const handlematerial_used = useCallback(material_used => {
+    setSaveData(prev => ({ ...prev, material_used: material_used }))
+  }, []);
+  const handlewater_used = useCallback(water_used => {
+    setSaveData(prev => ({ ...prev, water_used: water_used }))
+  }, []);
+  const handlepower_used = useCallback(power_used => {
+    setSaveData(prev => ({ ...prev, power_used: power_used }))
+  }, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -1656,31 +1673,31 @@ const ActivityReportAWD = ({ navigation }) => {
                   handleHarvested={handleHarvested}
                 />
               )}
-              <ScrollView>
                 {isLoading && (
                   <View style={styles.loadingScreen}>
                     <LoadingScreen />
                   </View>
                 )}
+              <ScrollView>
                 <View style={styles.fromContainer}>
                   <DropdownForm
                     label={t('farmer_name')}
                     data={farmerData?.[0]}
                     required={true}
-                    onChange={relId => handleResultSelect(relId)}
-                    val={searchFarmerName}
+                    onChange={handleResultSelect}
+                    val={searchFarmerName?.label}
                   />
                   <InputTextForm
                     label={t('farmer_number')}
                     required={true}
-                    value={searchFarmerPhone}
+                    value={searchFarmerName?.phone}
                     editable={false}
                   />
                   <DropdownForm
                     label={t('select_plot')}
                     data={plotAll}
                     required={true}
-                    onChange={relId => handlePlot(relId)}
+                    onChange={handlePlot}
                     val={saveData.plot_Name}
                   />
                   {showingMenu ? (
@@ -1727,12 +1744,7 @@ const ActivityReportAWD = ({ navigation }) => {
                     label={t('growth_stage')}
                     required={true}
                     data={productionStageAll}
-                    onChange={production_stage =>
-                      setSaveData({
-                        ...saveData,
-                        growth_stage: production_stage.value,
-                      })
-                    }
+                    onChange={handlegrowth_stage}
                     val={saveData.growth_stage}
                   />
                   <View style={{ marginBottom: 15 }}>
@@ -1784,14 +1796,14 @@ const ActivityReportAWD = ({ navigation }) => {
                         label={t('activity_type')}
                         required={true}
                         data={activityTypeAll}
-                        onChange={item => handleActivityType(item)}
+                        onChange={handleActivityType}
                         val={saveData.act_ref_type}
                       />
                       <DropdownForm
                         label={t('select_activity')}
                         required={true}
                         data={activityInfoAll}
-                        onChange={item => handleActivityInfo(item)}
+                        onChange={handleActivityInfo}
                         val={saveData.act_to_date_label}
                       />
 
@@ -1859,8 +1871,9 @@ const ActivityReportAWD = ({ navigation }) => {
                         </View>
                       ) : null}
                       {saveData.field_type != '' &&
+                      // activityPattern
                         saveData.field_type != null && (
-                          <>
+                          <View style={{borderWidth:0.5, borderColor:Colors.useGreen, borderRadius:8, padding:10,}}>
                             <Text
                               style={[
                                 styles.title,
@@ -1873,48 +1886,20 @@ const ActivityReportAWD = ({ navigation }) => {
                               ]}>
                               {t('Enter Pipe Detail')}
                             </Text>
-                            <View
-                              style={{
-                                backgroundColor: '#FFF',
-                                padding: 10,
-                                borderRadius: 5,
-                                elevation: 1,
-                                marginBottom: 10,
-                                borderColor: '#fcf7f7',
-                                borderWidth: 1.3,
-                                borderRadius: 8,
-                                paddingHorizontal: 8,
-                                backgroundColor: '#ffffff',
-                                width: '100%',
-                                elevation: 1,
-                              }}>
-                              {/* <View style={styles.activityPattern}>
-                        <RadioForm
-                          label={t('Add Pipe')}
-                          selected={pipeType === 'addPipe'}
-                          onSelect={() => handleActivityPipeType('addPipe')}
-                        />
-                        <RadioForm
-                          label={t('Select Pipe')}
-                          selected={pipeType === 'UpdatePipe'}
-                          onSelect={() => handleActivityPipeType('UpdatePipe')}
-                        />
-                      </View> */}
+                            <View>
                               {saveData.field_type == 'add' ? (
                                 <InputTextForm
                                   label={t('Enter Instrument Name')}
                                   required={true}
                                   value={pipeNumber}
-                                  onChangeText={text =>
-                                    handleActivityPipeNumber(text)
-                                  }
+                                  onChangeText={handleActivityPipeNumber}
                                 />
                               ) : (
                                 <DropdownForm
                                   label={t('Instrument')}
                                   required={true}
                                   data={PipeListDetailsArr}
-                                  onChange={item => handleActivityPipe(item)}
+                                  onChange={handleActivityPipe}
                                   val={selectPipeList.label}
                                 />
                               )}
@@ -1976,7 +1961,7 @@ const ActivityReportAWD = ({ navigation }) => {
                                 ))}
                               </View>
                             </View>
-                          </>
+                          </View>
                         )}
                     </>
                   ) : (
@@ -2008,51 +1993,28 @@ const ActivityReportAWD = ({ navigation }) => {
                   <InputTextForm
                     label={t('your_comm_')}
                     value={saveData.act_desc}
-                    onChangeText={act_desc =>
-                      setSaveData({ ...saveData, act_desc: act_desc })
-                    }
+                    onChangeText={handleact_desc}
+
                   />
                   <InputTextForm
                     label={t('material_used')}
                     value={saveData.material_used}
-                    onChangeText={material_used =>
-                      setSaveData({ ...saveData, material_used: material_used })
-                    }
+                    onChangeText={handlematerial_used}
+
                   />
                   <InputTextForm
                     label={t('water_used')}
                     value={saveData.water_used}
-                    onChangeText={water_used =>
-                      setSaveData({ ...saveData, water_used: water_used })
-                    }
+                    onChangeText={handlewater_used}
                   />
                   <InputTextForm
                     label={t('power_used')}
                     value={saveData.power_used}
-                    onChangeText={power_used =>
-                      setSaveData({ ...saveData, power_used: power_used })
-                    }
+                    onChangeText={handlepower_used}
                   />
-                  {/* <TakePhoto openImagePicker={openImagePicker} selectedImage={selectedImage} title={t('take_a_photo_optional')} /> */}
-
-                  {/* <RecordComp
-                                selectedRecord={selectedRecord} onPress={handleRecord}
-                                setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-                                setModalVisibleRecordSecoundItem={setModalVisibleRecordSecoundItem}
-                                setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
-                                soundRecordFirstItem={soundRecordFirstItem}
-                                soundRecordSecoundItem={soundRecordSecoundItem}
-                                soundRecordThirdItem={soundRecordThirdItem}
-                                title={t('record_your_comment_optional')}
-                                cancelRecord={cancelRecord}
-                                soundPlay={soundPlay}
-                            /> */}
                 </View>
-
               </ScrollView>
-              <View style={{ marginTop: 10 }}>
-                <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading} />
-              </View>
+              <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading} />
             </View>
           </>
         </Root>
@@ -2150,26 +2112,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
 
-  flatContainer: {
-    backgroundColor: 'white',
-    position: 'absolute',
-    zIndex: 999,
-    // bottom: '100%',
-    top: 90,
-    left: 0,
-    marginHorizontal: '10%',
-    width: '80%',
-    elevation: 10,
-    borderRadius: 10,
-    padding: 10,
-  },
-  flatlisttitle: {
-    padding: 5,
-    color: '#000',
-  },
-  flatlistHeight: {
-    height: Dimensions.get('window').height / 4,
-  },
+
   plotSiteContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -2179,11 +2122,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderLeftWidth: 3,
     borderLeftColor: Colors.borderGreen,
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // marginBottom: 8,
-    // paddingHorizontal: 15,
-    // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -2215,7 +2153,7 @@ const styles = StyleSheet.create({
   },
   loadingScreen: {
     position: 'absolute',
-    top: 100,
+    top: '45%',
     zIndex: 999,
     left: '45%',
   },

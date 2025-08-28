@@ -1,10 +1,11 @@
-import {StyleSheet, View, TouchableOpacity, Image, Text} from 'react-native';
-import React, {memo} from 'react';
+import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native';
+import React, { memo } from 'react';
+import { Fonts } from '../utils/Constants';
 
-const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
+const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color }) => {
   return (
     <>
-      <Text style={(styles.title, {color: color ?? 'black'})}>
+      <Text style={(styles.title, { color: color ?? 'black' })}>
         {title ? title : 'Default'}
       </Text>
       <View style={styles.container}>
@@ -14,13 +15,14 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
           {selectedImage.firstItem == '' ? (
             <Image
               source={require('../Common/images/camera.jpeg')}
-              style={{width: 70, height: 80, opacity: 0.7}}
+              style={{ width: 40, height: 40, opacity: 0.7 }}
+
             />
           ) : (
             <Image
-              source={{uri: `${selectedImage.firstItem}`}}
+              source={{ uri: `${selectedImage.firstItem}` }}
               // style={styles.image}
-              style={{width: '100%', height: 100}}
+              style={{ width: '100%', height: 100 }}
               resizeMode="contain"
             />
           )}
@@ -31,13 +33,13 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
           {selectedImage.secondItem == '' ? (
             <Image
               source={require('../Common/images/camera.jpeg')}
-              style={{width: 40, height: 40, opacity: 0.7}}
+              style={{ width: 40, height: 40, opacity: 0.7 }}
             />
           ) : (
             <Image
-              source={{uri: `${selectedImage.secondItem}`}}
+              source={{ uri: `${selectedImage.secondItem}` }}
               // style={styles.image}
-              style={{width: '100%', height: 100}}
+              style={{ width: '100%', height: 100 }}
               resizeMode="contain"
             />
           )}
@@ -80,6 +82,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#000',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.Medium
   },
 });

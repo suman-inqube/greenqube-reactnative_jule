@@ -18,7 +18,7 @@ const DropdownForm = ({
   const labelString = label
     ? label.charAt(0).toUpperCase() + label.slice(1)
     : '';
-
+// console.log('DropdownForm rendered', label||'');
   return (
     <View>
       <View style={styles.labelContainer}>
@@ -64,8 +64,6 @@ const DropdownForm = ({
     </View>
   );
 };
-
-export default memo(DropdownForm);
 
 const styles = StyleSheet.create({
   label: {
@@ -133,3 +131,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+export default memo(DropdownForm);
+

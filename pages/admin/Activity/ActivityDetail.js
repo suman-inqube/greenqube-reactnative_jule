@@ -34,7 +34,7 @@ const ActivityDetail = () => {
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const navigation = useNavigation();
   const route = useRoute();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState({
     firstItem: '',
     secondItem: '',
@@ -63,68 +63,42 @@ const ActivityDetail = () => {
   });
   const [carbonActivity, setCarbonActivity] = useState([]);
   const openImagePicker = item => {};
-  const onPageLoad = async () => {
+// ✅ helper to safely extract up to 3 file paths by type
+const getFilePaths = (files, ext, max = 3) => {
+  if (!files) return Array(max).fill('');
+  return files
+    .filter(f => f.file_ext === ext)
+    .slice(0, max)
+    .map(f => f.file_path)
+    .concat(Array(max).fill('')) // fallback empty values
+    .slice(0, max); // ensure exact length
+};
+
+const onPageLoad = async () => {
+  try {
     const farmerFound = route.params;
-    setIsLoading(false);
+    setIsLoading(true);
+
     if (farmerFound?.agri_files) {
-      let Imag1 = '';
-      let Imag2 = '';
-      let Imag3 = '';
-      let audio1 = '';
-      let audio2 = '';
-      let audio3 = '';
-      const agri_files_image = farmerFound?.agri_files.filter(function (v, i) {
-        return v['file_ext'] == 'image/jpeg';
-      });
-      const agri_files_mp3 = farmerFound?.agri_files.filter(function (v, i) {
-        return v['file_ext'] == 'audio/mp3';
-      });
-      for (let i = 0; i < 3; i++) {
-        if (agri_files_image[0] != undefined) {
-          Imag1 = agri_files_image[0].file_path;
-        } else {
-          Imag1 = '';
-        }
-        if (agri_files_image[1] != undefined) {
-          Imag2 = agri_files_image[1].file_path;
-        } else {
-          Imag2 = '';
-        }
-        if (agri_files_image[2] != undefined) {
-          Imag3 = agri_files_image[2].file_path;
-        } else {
-          Imag3 = '';
-        }
-        if (agri_files_mp3[0] != undefined) {
-          audio1 = agri_files_mp3[0].file_path;
-        } else {
-          audio1 = '';
-        }
-        if (agri_files_mp3[1] != undefined) {
-          audio2 = agri_files_mp3[1].file_path;
-        } else {
-          audio2 = '';
-        }
-        if (agri_files_mp3[2] != undefined) {
-          audio3 = agri_files_mp3[2].file_path;
-        } else {
-          audio3 = '';
-        }
-      }
-      setSelectedImage({
-        ...selectedImage,
+      // ✅ get images and audio at once
+      const [Imag1, Imag2, Imag3] = getFilePaths(farmerFound.agri_files, 'image/jpeg');
+      const [audio1, audio2, audio3] = getFilePaths(farmerFound.agri_files, 'audio/mp3');
+
+      setSelectedImage(prev => ({
+        ...prev,
         firstItem: Imag1,
         secondItem: Imag2,
         thirdItem: Imag3,
-      });
+      }));
+
       setSelectedRecord({
         firstItemRecord: audio1,
         secondItemRecord: audio2,
         thirdItemRecord: audio3,
       });
     }
-    setIsLoading(false);
-    if (farmerFound?.type == 'carbon_activity') {
+
+    if (farmerFound?.type === 'carbon_activity') {
       const PipeListDetailsRes = await PipeListDetails(
         dbname,
         lan_id,
@@ -134,92 +108,39 @@ const ActivityDetail = () => {
         farmerFound?.act_master_id,
         farmerFound?.cu_rel_fid,
       );
-      // console.log('PipeListDetailsRes==', PipeListDetailsRes);
-      if (PipeListDetailsRes?.status == 200) {
-        setCarbonActivity(PipeListDetailsRes?.data?.data?.rows);
+
+      if (PipeListDetailsRes?.status === 200) {
+        setCarbonActivity(PipeListDetailsRes?.data?.data?.rows ?? []);
       }
     } else {
-      if (farmerFound?.agri_files) {
-        let Imag1 = '';
-        let Imag2 = '';
-        let Imag3 = '';
-        let audio1 = '';
-        let audio2 = '';
-        let audio3 = '';
-        const agri_files_image = farmerFound?.agri_files.filter(function (
-          v,
-          i,
-        ) {
-          return v['file_ext'] == 'image/jpeg';
-        });
-        const agri_files_mp3 = farmerFound?.agri_files.filter(function (v, i) {
-          return v['file_ext'] == 'audio/mp3';
-        });
-        for (let i = 0; i < 3; i++) {
-          if (agri_files_image[0] != undefined) {
-            Imag1 = agri_files_image[0].file_path;
-          } else {
-            Imag1 = '';
-          }
-          if (agri_files_image[1] != undefined) {
-            Imag2 = agri_files_image[1].file_path;
-          } else {
-            Imag2 = '';
-          }
-          if (agri_files_image[2] != undefined) {
-            Imag3 = agri_files_image[2].file_path;
-          } else {
-            Imag3 = '';
-          }
-          if (agri_files_mp3[0] != undefined) {
-            audio1 = agri_files_mp3[0].file_path;
-          } else {
-            audio1 = '';
-          }
-          if (agri_files_mp3[1] != undefined) {
-            audio2 = agri_files_mp3[1].file_path;
-          } else {
-            audio2 = '';
-          }
-          if (agri_files_mp3[2] != undefined) {
-            audio3 = agri_files_mp3[2].file_path;
-          } else {
-            audio3 = '';
-          }
-        }
-        setSelectedImage({
-          ...selectedImage,
-          firstItem: Imag1,
-          secondItem: Imag2,
-          thirdItem: Imag3,
-        });
-        setSelectedRecord({
-          firstItemRecord: audio1,
-          secondItemRecord: audio2,
-          thirdItemRecord: audio3,
-        });
-      }
       setCarbonActivity([]);
     }
 
-    setfarmerActivity({
-      ...farmerActivity,
-      userName: farmerFound?.agri_user?.userName,
-      contactNumber: farmerFound?.agri_user?.contactNumber,
-      activitycategoryName: farmerFound?.typeActivity,
-      cropActivitycategoryName: farmerFound?.cropActivity,
-      plot_no: farmerFound?.land_info?.plot_no,
-      cropName: farmerFound?.cropName?.name,
-      growthStage: farmerFound?.growthStage?.name,
-      act_perform_date: farmerFound?.updatedAt,
-      act_desc: farmerFound?.act_desc,
-      material_used: farmerFound?.material_used,
-      water_used: farmerFound?.water_used,
-      power_used: farmerFound?.power_used,
-      act_start_date: farmerFound?.act_start_date,
-      act_to_date: farmerFound?.act_to_date,
-    });
-  };
+    // ✅ set farmer activity in one go
+    setfarmerActivity(prev => ({
+      ...prev,
+      userName: farmerFound?.agri_user?.userName ?? '',
+      contactNumber: farmerFound?.agri_user?.contactNumber ?? '',
+      activitycategoryName: farmerFound?.typeActivity ?? '',
+      cropActivitycategoryName: farmerFound?.cropActivity ?? '',
+      plot_no: farmerFound?.land_info?.plot_no ?? '',
+      cropName: farmerFound?.cropName?.name ?? '',
+      growthStage: farmerFound?.growthStage?.name ?? '',
+      act_perform_date: farmerFound?.updatedAt ?? '',
+      act_desc: farmerFound?.act_desc ?? '',
+      material_used: farmerFound?.material_used ?? '',
+      water_used: farmerFound?.water_used ?? '',
+      power_used: farmerFound?.power_used ?? '',
+      act_start_date: farmerFound?.act_start_date ?? '',
+      act_to_date: farmerFound?.act_to_date ?? '',
+    }));
+  } catch (err) {
+    console.error('onPageLoad error:', err);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   useEffect(() => {
     onPageLoad();
   }, []);

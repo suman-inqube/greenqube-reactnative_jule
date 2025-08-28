@@ -1,25 +1,28 @@
-import React, { useState, useCallback, useRef,memo } from "react";
+import React, { useState, useCallback, useRef, memo, useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from "react-native";
 
-const MultiActionButton = ({ actions, statuslevel }) => {
+const MultiActionButton = ({ actions = [], statuslevel }) => {
   const [isOpen, setIsOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
+  /** Toggle menu open/close */
   const toggleMenu = useCallback(() => {
-    Animated.timing(animation, {
+    Animated.spring(animation, {
       toValue: isOpen ? 0 : 1,
-      duration: 300,
+      friction: 6,
       useNativeDriver: true,
     }).start();
     setIsOpen(prev => !prev);
-  }, [isOpen]);
+  }, [isOpen, animation]);
 
+  /** Handle action press */
   const handleActionPress = useCallback((action) => {
-    action.onPress();
-    // toggleMenu(); // If you want to close after press
+    action?.onPress?.();
+    // toggleMenu(); // uncomment if you want to auto-close
   }, []);
 
-  const renderActions = () =>
+  /** Pre-calc animated actions */
+  const renderedActions = useMemo(() => 
     actions.map((action, index) => {
       const translateY = animation.interpolate({
         inputRange: [0, 1],
@@ -28,29 +31,30 @@ const MultiActionButton = ({ actions, statuslevel }) => {
 
       return (
         <Animated.View
-          key={index}
+          key={action.label || index}
           style={[styles.actionButton, { transform: [{ translateY }] }]}
         >
           <TouchableOpacity
             style={[styles.action, action.style]}
             onPress={() => handleActionPress(action)}
+            activeOpacity={0.8}
           >
             <Text style={styles.actionText}>{action.label}</Text>
           </TouchableOpacity>
         </Animated.View>
       );
-    });
+    })
+  , [actions, animation, handleActionPress]);
+
+  /** Early exit if not allowed */
+  if (statuslevel && !["PENDING", "REJECTED"].includes(statuslevel)) return null;
 
   return (
     <View style={styles.container}>
-      {(!statuslevel || statuslevel === "PENDING" || statuslevel === "REJECTED") && (
-        <>
-          {renderActions()}
-          <TouchableOpacity style={styles.mainButton} onPress={toggleMenu}>
-            <Text style={styles.mainButtonText}>{isOpen ? "×" : "+"}</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      {renderedActions}
+      <TouchableOpacity style={styles.mainButton} onPress={toggleMenu} activeOpacity={0.8}>
+        <Text style={styles.mainButtonText}>{isOpen ? "×" : "+"}</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -63,8 +67,8 @@ const styles = StyleSheet.create({
     bottom: 50,
     right: 30,
     alignItems: "center",
-    zIndex: 999, // stays above other components
-    elevation: 10, // Android stacking fix
+    zIndex: 999,
+    elevation: 10,
   },
   mainButton: {
     width: 60,

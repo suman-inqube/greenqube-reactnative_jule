@@ -8,7 +8,7 @@ import {
   Keyboard,
   Modal,
   Alert,
-  Linking, InteractionManager
+  Linking, InteractionManager,TouchableWithoutFeedback,KeyboardAvoidingView
 } from 'react-native';
 import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import {
@@ -1368,7 +1368,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     if (!['APPROVED', 'CARBON_DOCUMENTS_SUBMITTED', 'CARBON_DOCUMENTS_APPROVED', 'CARBON_DOCUMENTS_REJECTED'].includes(statuslevel.label)) {
       const { latitude, longitude } = event.nativeEvent.coordinate;
       groupedData = groupByRelId(nearPolData);
-      // setNewPolygon([...newPolygon, { latitude, longitude }]);
       setNewPolygon([...newPolygon, { latitude, longitude, editing: true }]);
     }
   };
@@ -2162,7 +2161,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             }}
             onBackButtonPress={() => {
               setShowModal(!showModal);
-            }}>
+            }}
+            animationType="slide"
+            >
             <Map
               polygons={polygons}
               newPolygon={newPolygon}
@@ -2183,7 +2184,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               baselatLong={referencelatLong}
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
+              coords={coords}
             />
+
           </Modal>
         )}
       </>
