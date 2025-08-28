@@ -28,6 +28,7 @@ import ImageForm from '../../Common/ImageForm';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
 import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const FarmerTrainingList = () => {
   //GQR-67
   const {
@@ -121,7 +122,9 @@ const FarmerTrainingList = () => {
   };
   const onPageLoad = async () => {
     setLoading(true);
+
     const response = await cropListApi(dbname, lan_id, user_id);
+
     if (response?.status == 200) {
       let cropId = '';
       const datam = response?.data?.data?.rows;
@@ -142,18 +145,8 @@ const FarmerTrainingList = () => {
     setLoading(false);
   };
   useEffect(() => {
-    if (isFocused) {
-      if (currentRoute.params != undefined) {
-        onPageLoad();
-      }
-      onBackPress(() => {
-        setTrainingList([]);
-        setTitleSearch('');
-        navigation.navigate('FarmerDashboard');
-        return true;
-      });
-    }
-  }, [isFocused]);
+    onPageLoad();
+  }, []);
   const HandlerGoBack = () => {
     setTrainingList([]);
     setTitleSearch('');
@@ -172,104 +165,120 @@ const FarmerTrainingList = () => {
     );
   };
   return (
-    <Root>
-      <View style={styles.container}>
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <View style={styles.container}>
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
 
-        {/* Header with Title and Toggle Button */}
-        <View style={styles.headerContainer}>
-          <View style={styles.titleContainer}>
-            <FormsTitle title={t('training_support')} />
+          {/* Header with Title and Toggle Button */}
+
+          {/* <View style={styles.titleContainer}>
+              <FormsTitle title={t('training_support')} />
+            </View> */}
+
+          {/* Search Container */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              alignSelf: 'center',
+            }}>
+            <View style={styles.searchContainer}>
+              <View style={styles.textInputContainer}>
+                <TextInput
+                  placeholder={'Search...'}
+                  placeholderTextColor={'#999'}
+                  style={styles.textInput}
+                  value={titleSearch}
+                  onChangeText={setTitleSearch}
+                  onSubmitEditing={searchByTitle}
+                  returnKeyType="search"
+                  clearButtonMode="while-editing"
+                  autoCorrect={false}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={searchByTitle}
+                style={styles.searchIcon}>
+                <ImageForm
+                  source={require('../../Common/images/search.png')}
+                  resizeMode="cover"
+                  height={24}
+                  width={24}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.headerContainer}>
+              <TouchableOpacity
+                onPress={toggleView}
+                style={styles.toggleButton}>
+                {isGridView ? (
+                  <Image
+                    source={require('../../Common/images/view_list.png')}
+                    style={styles.toggleIcon}
+                  />
+                ) : (
+                  <Image
+                    source={require('../../Common/images/view_grid.png')}
+                    style={styles.toggleIcon}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
-          <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
-            {isGridView ? (
-              <Image
-                source={require('../../Common/images/view_list.png')}
-                style={styles.toggleIcon}
+          {/* FlatList Container */}
+          <View style={styles.flatListContainer}>
+            {loading ? (
+              <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#156106ff" />
+              </View>
+            ) : noticeList && noticeList.rows && noticeList.rows.length > 0 ? (
+              <FlatList
+                key={isGridView ? 'grid' : 'list'} // Force re-render on view change
+                data={noticeList.rows}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}
+                numColumns={isGridView ? 2 : 1}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.flatListContent}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                // columnWrapperStyle={isGridView ? { ...styles.gridRow, gap: 4 } : null}
+                removeClippedSubviews={true} // performance optimization
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={10}
               />
             ) : (
-              <Image
-                source={require('../../Common/images/view_grid.png')}
-                style={styles.toggleIcon}
-              />
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>{t('no_data_found')}</Text>
+              </View>
             )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Container */}
-        <View style={styles.searchContainer}>
-          <View style={styles.textInputContainer}>
-            <TextInput
-              placeholder={'Search...'}
-              placeholderTextColor={'#999'}
-              style={styles.textInput}
-              value={titleSearch}
-              onChangeText={setTitleSearch}
-              onSubmitEditing={searchByTitle}
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-              autoCorrect={false}
-            />
           </View>
-          <TouchableOpacity onPress={searchByTitle} style={styles.searchIcon}>
-            <ImageForm
-              source={require('../../Common/images/search.png')}
-              resizeMode="cover"
-              height={24}
-              width={24}
-            />
-          </TouchableOpacity>
         </View>
-
-        {/* FlatList Container */}
-        <View style={styles.flatListContainer}>
-          {loading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color="#156106ff" />
-            </View>
-          ) : noticeList && noticeList.rows && noticeList.rows.length > 0 ? (
-            <FlatList
-              key={isGridView ? 'grid' : 'list'} // Force re-render on view change
-              data={noticeList.rows}
-              renderItem={renderItem}
-              keyExtractor={keyExtractor}
-              numColumns={isGridView ? 2 : 1}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.flatListContent}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-              // columnWrapperStyle={isGridView ? { ...styles.gridRow, gap: 4 } : null}
-              removeClippedSubviews={true} // performance optimization
-              initialNumToRender={10}
-              maxToRenderPerBatch={10}
-              windowSize={10}
-            />
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>{t('no_data_found')}</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    </Root>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'white',
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    // justifyContent: 'space-between',
+    // paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#fff',
+    marginRight: 10,
+    justifyContent: 'center',
   },
   titleContainer: {
     flex: 1,
@@ -278,20 +287,21 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     backgroundColor: '#f0f0f0',
+    marginTop: 5,
   },
   toggleIcon: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     tintColor: '#333',
   },
   searchContainer: {
+    flex: 1,
     marginHorizontal: '3%',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0',
     borderRadius: 12,
     paddingHorizontal: 12,
-    // marginVertical: 12,
     marginTop: 15,
     marginBottom: 7,
     elevation: 2,
@@ -310,7 +320,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   searchIcon: {
-    padding: 8,
+    // padding: 8,
   },
   flatListContainer: {
     flex: 1,

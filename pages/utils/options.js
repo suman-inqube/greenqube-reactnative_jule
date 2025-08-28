@@ -1,12 +1,12 @@
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const OPTIONS_CARBON = [
-  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
-  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
+  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
+  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
 ];
 const CARBON_TYPE = [
-  { label: 'Carbon', value: 'carbon_activity' },
-  { label: 'Non-Carbon ', value: 'user_activity' },
+  {label: 'Carbon', value: 'carbon_activity'},
+  {label: 'Non-Carbon ', value: 'user_activity'},
 ];
 const getActionsActivity = (t, styles, Colors) => [
   {
@@ -29,6 +29,18 @@ const getActionsProblemSupervisor = (t, styles, Colors) => [
     textStyle: styles.actionText,
     textBackground: '#ffffffff',
     icon: require('../Common/images/warning.png'),
+  },
+];
+
+const getActionsPostNewOutputFarmer = (t, styles, Colors) => [
+  {
+    text: t('Post New Produce'),
+    name: 'bt_add',
+    position: 1,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffffff',
+    icon: require('../Common/images/add-post.png'),
   },
 ];
 const getActionsDealerReportSupervisor = (t, styles, Colors) => [
@@ -73,7 +85,13 @@ const getActionsMapView = (t, styles, Colors) => [
     icon: <MaterialIcons name="public" size={26} color="#ffffff" />,
   },
 ];
-const getActionsPlot = (t, styles, Colors, isEnable = false, addPlot = false) => {
+const getActionsPlot = (
+  t,
+  styles,
+  Colors,
+  isEnable = false,
+  addPlot = false,
+) => {
   const actions = [
     {
       text: t('add_plot'),
@@ -83,7 +101,7 @@ const getActionsPlot = (t, styles, Colors, isEnable = false, addPlot = false) =>
       textStyle: styles.actionText,
       textBackground: '#ffffffff',
       icon: require('../Common/images/plotting.png'),
-    }
+    },
   ];
   if (isEnable || addPlot) {
     actions.push({
@@ -107,4 +125,5 @@ export {
   getActionsPlot,
   CARBON_TYPE,
   getActionsMapView,
+  getActionsPostNewOutputFarmer,
 };

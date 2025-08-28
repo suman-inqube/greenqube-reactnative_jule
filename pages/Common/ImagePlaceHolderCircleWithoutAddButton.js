@@ -14,16 +14,16 @@ export default ImagePlaceHolderCircleWithoutAddButton;
 
 const styles = StyleSheet.create({
   container: {
-    width: 80, // Adjust the container size as needed
-    height: 80,
+    width: 90, // Adjust the container size as needed
+    height: 90,
     position: 'relative', // Required for absolute positioning
     // borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width: '90%',
-    height: '90%',
+    width: '100%',
+    height: '100%',
     borderRadius: 75, // Half of the width or height to create a circle
   },
 });

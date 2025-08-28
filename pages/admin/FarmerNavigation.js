@@ -14,7 +14,7 @@ import FarmerUsefulInformationList from './Usefullinformation/FarmerUsefulInform
 import FarmerCreateProblem from './FarmerProblem/FarmerCrateProblem';
 import FarmerListProblem from './FarmerProblem/FarmerListProblem';
 import FarmerViewProblem from './FarmerProblem/FarmerViewProblem';
-import FarmerOutPut from './FarmerOutput/FarmerOutPut';
+// import FarmerOutPut from './FarmerOutput/FarmerOutPut';
 import FarmerPostNew from './FarmerOutput/FarmerPostNew';
 import FarmerViewPast from './FarmerOutput/FarmerViewPast';
 import FarmerLoanEnquiry from './FarmerLoan/FarmerLoanEnquiry';
@@ -81,7 +81,7 @@ const FarmerMainStack = () => (
     <Stack.Screen name="FarmerCreateProblem" component={FarmerCreateProblem} />
     <Stack.Screen name="FarmerListProblem" component={FarmerListProblem} />
     <Stack.Screen name="FarmerViewProblem" component={FarmerViewProblem} />
-    <Stack.Screen name="FarmerOutPutList" component={FarmerOutPut} />
+    {/* <Stack.Screen name="FarmerOutPutList" component={FarmerOutPut} /> */}
     <Stack.Screen name="FarmerPostNew" component={FarmerPostNew} />
     <Stack.Screen name="FarmerViewPast" component={FarmerViewPast} />
     <Stack.Screen name="FarmerLoan" component={FarmerLoanEnquiry} />

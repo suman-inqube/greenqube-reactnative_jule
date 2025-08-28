@@ -1,5 +1,12 @@
 // components/CarouselSlider.js
-import React, { useRef, useEffect, memo, useState, useCallback, useMemo } from 'react';
+import React, {
+  useRef,
+  useEffect,
+  memo,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   FlatList,
   Pressable,
@@ -8,17 +15,17 @@ import {
   Dimensions,
   Image,
   StyleSheet,
-  Platform
+  Platform,
 } from 'react-native';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 // Responsive breakpoints
 const getResponsiveConfig = () => {
   const isTablet = SCREEN_WIDTH >= 768;
   const isLargePhone = SCREEN_WIDTH >= 414;
-  
+
   return {
     itemWidth: isTablet ? 80 : isLargePhone ? 55 : 50,
     itemHeight: isTablet ? 80 : isLargePhone ? 55 : 50,
@@ -27,7 +34,7 @@ const getResponsiveConfig = () => {
     fontSize: isTablet ? 15 : 13,
     imageSize: isTablet ? 40 : 30,
     containerHeight: isTablet ? 140 : 120,
-    textContainerHeight: isTablet ? 32 : 27
+    textContainerHeight: isTablet ? 32 : 27,
   };
 };
 
@@ -43,14 +50,14 @@ const CarouselSlider = ({
   onItemPress,
   style,
   imageStyle,
-  textStyle
+  textStyle,
 }) => {
   const flatListRef = useRef(null);
   const autoScrollInterval = useRef(null);
   const scrollOffset = useRef(0);
   const isManualScrolling = useRef(false);
   const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
-  
+
   // Get responsive configuration
   const config = useMemo(() => {
     const responsive = getResponsiveConfig();
@@ -62,7 +69,7 @@ const CarouselSlider = ({
       fontSize: responsive.fontSize,
       imageSize: responsive.imageSize,
       containerHeight: responsive.containerHeight,
-      textContainerHeight: responsive.textContainerHeight
+      textContainerHeight: responsive.textContainerHeight,
     };
   }, [itemWidth, itemHeight, spacing, visibleItems, dimensions]);
 
@@ -77,7 +84,7 @@ const CarouselSlider = ({
 
   // Handle dimension changes (rotation, etc.)
   useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+    const subscription = Dimensions.addEventListener('change', ({window}) => {
       setDimensions(window);
     });
 
@@ -85,13 +92,13 @@ const CarouselSlider = ({
   }, []);
 
   // Optimized scroll functions
-  const scrollToOffset = useCallback((offset) => {
+  const scrollToOffset = useCallback(offset => {
     if (!flatListRef.current) return;
-    
+
     try {
-      flatListRef.current.scrollToOffset({ 
-        offset, 
-        animated: true 
+      flatListRef.current.scrollToOffset({
+        offset,
+        animated: true,
       });
       scrollOffset.current = offset;
     } catch (error) {
@@ -101,22 +108,30 @@ const CarouselSlider = ({
 
   const startAutoScroll = useCallback(() => {
     if (!autoScroll || loopItems.length === 0) return;
-    
+
     stopAutoScroll();
     autoScrollInterval.current = setInterval(() => {
       if (isManualScrolling.current) return;
-      
+
       const maxOffset = itemFullWidth * loopItems.length;
       let nextOffset = scrollOffset.current + itemFullWidth;
-      
+
       // Reset to beginning when reaching end
       if (nextOffset >= maxOffset - itemFullWidth * config.visibleItems) {
         nextOffset = itemFullWidth * items.length; // Reset to middle section
       }
-      
+
       scrollToOffset(nextOffset);
     }, scrollSpeed);
-  }, [autoScroll, loopItems.length, itemFullWidth, scrollSpeed, config.visibleItems, items.length, scrollToOffset]);
+  }, [
+    autoScroll,
+    loopItems.length,
+    itemFullWidth,
+    scrollSpeed,
+    config.visibleItems,
+    items.length,
+    scrollToOffset,
+  ]);
 
   const stopAutoScroll = useCallback(() => {
     if (autoScrollInterval.current) {
@@ -138,7 +153,7 @@ const CarouselSlider = ({
     };
   }, [stopAutoScroll]);
 
-  const handleScroll = useCallback((event) => {
+  const handleScroll = useCallback(event => {
     scrollOffset.current = event.nativeEvent.contentOffset.x;
   }, []);
 
@@ -155,88 +170,100 @@ const CarouselSlider = ({
     }, 500);
   }, [startAutoScroll]);
 
-  const handleItemPress = useCallback((item, index) => {
-    stopAutoScroll();
-    
-    // Call item's onpress or global onItemPress
-    if (item?.onpress) {
-      item.onpress(item, index);
-    } else if (onItemPress) {
-      onItemPress(item, index);
-    }
-    
-    // Resume auto scroll after a delay
-    setTimeout(() => {
-      startAutoScroll();
-    }, 1000);
-  }, [stopAutoScroll, startAutoScroll, onItemPress]);
+  const handleItemPress = useCallback(
+    (item, index) => {
+      stopAutoScroll();
 
-  const renderItem = useCallback(({ item, index }) => (
-    <Pressable
-      style={[
-        styles.carouselItem,
-        {
-          marginRight: config.spacing,
-          width: config.itemWidth,
-          height: config.containerHeight
-        }
-      ]}
-      onPress={() => handleItemPress(item, index)}
-      android_ripple={{ color: Colors.lightGreen, borderless: true }}
-    >
-      <View style={[
-        styles.carouselItemImg,
-        {
-          height: config.itemHeight,
-          width: config.itemHeight
-        },
-        imageStyle
-      ]}>
-        {item.imageurl && (
-          <Image
-            source={item.imageurl}
-            resizeMode="cover"
-            style={{
-              height: config.imageSize,
-              width: config.imageSize,
-              // borderRadius: config.imageSize / 2
-              // borderRadius: 10
-            }}
-          />
-        )}
-      </View>
-      
-      {showText && item.text && (
-        <View style={[
-          styles.carouselTextContainer,
+      // Call item's onpress or global onItemPress
+      if (item?.onpress) {
+        item.onpress(item, index);
+      } else if (onItemPress) {
+        onItemPress(item, index);
+      }
+
+      // Resume auto scroll after a delay
+      setTimeout(() => {
+        startAutoScroll();
+      }, 1000);
+    },
+    [stopAutoScroll, startAutoScroll, onItemPress],
+  );
+
+  const renderItem = useCallback(
+    ({item, index}) => (
+      <Pressable
+        style={[
+          styles.carouselItem,
           {
+            marginRight: config.spacing,
             width: config.itemWidth,
-            height: config.textContainerHeight
-          }
-        ]}>
-          <Text
-            style={[
-              styles.carouselText,
-              { fontSize: config.fontSize },
-              textStyle
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item.text}
-          </Text>
+            height: config.containerHeight,
+          },
+        ]}
+        onPress={() => handleItemPress(item, index)}
+        android_ripple={{color: Colors.lightGreen, borderless: true}}>
+        <View
+          style={[
+            styles.carouselItemImg,
+            {
+              height: config.itemHeight,
+              width: config.itemHeight,
+            },
+            imageStyle,
+          ]}>
+          {item.imageurl && (
+            <Image
+              source={item.imageurl}
+              resizeMode="cover"
+              style={{
+                height: config.imageSize,
+                width: config.imageSize,
+                // borderRadius: config.imageSize / 2
+                // borderRadius: 10
+              }}
+            />
+          )}
         </View>
-      )}
-    </Pressable>
-  ), [config, handleItemPress, showText, imageStyle, textStyle]);
 
-  const getItemLayout = useCallback((data, index) => ({
-    length: itemFullWidth,
-    offset: itemFullWidth * index,
-    index
-  }), [itemFullWidth]);
+        {showText && item.text && (
+          <View
+            style={[
+              styles.carouselTextContainer,
+              {
+                width: config.itemWidth,
+                height: config.textContainerHeight,
+              },
+            ]}>
+            <Text
+              style={[
+                styles.carouselText,
+                {fontSize: config.fontSize},
+                textStyle,
+              ]}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {item.text}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    ),
+    [config, handleItemPress, showText, imageStyle, textStyle],
+  );
 
-  const keyExtractor = useCallback((item, index) => `${item.id || index}-${index}`, []);
+  const getItemLayout = useCallback(
+    (data, index) => ({
+      length: itemFullWidth,
+      offset: itemFullWidth * index,
+      index,
+    }),
+    [itemFullWidth],
+  );
+
+  const keyExtractor = useCallback(
+    (item, index) => `${item.id || index}-${index}`,
+    [],
+  );
 
   if (items.length === 0) {
     return null;
@@ -249,7 +276,7 @@ const CarouselSlider = ({
       data={loopItems}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
-      style={[{ marginHorizontal: '2%' }, style]}
+      style={[{marginHorizontal: '2%'}, style]}
       showsHorizontalScrollIndicator={false}
       snapToInterval={itemFullWidth}
       snapToAlignment="start"
@@ -261,7 +288,10 @@ const CarouselSlider = ({
       onMomentumScrollEnd={handleScroll}
       scrollEventThrottle={16}
       contentContainerStyle={{
-        paddingHorizontal: Math.max(0, (dimensions.width - itemFullWidth * config.visibleItems) / 2)
+        paddingHorizontal: Math.max(
+          0,
+          (dimensions.width - itemFullWidth * config.visibleItems) / 2,
+        ),
       }}
       initialScrollIndex={items.length} // Start in middle section
       getItemLayout={getItemLayout}
@@ -293,7 +323,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: Colors.shadow || '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.1,
         shadowRadius: 4,
       },
@@ -314,7 +344,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: Colors.shadow || '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.1,
         shadowRadius: 2,
       },

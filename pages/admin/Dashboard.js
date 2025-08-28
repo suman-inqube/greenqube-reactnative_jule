@@ -24,17 +24,17 @@ import {
   InteractionManager,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { userCreateContext } from '../Context/usersCreateContext';
-import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
+import {userCreateContext} from '../Context/usersCreateContext';
+import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
 import CarouselSlider from '../Components/CarouselSlider';
 import TrackingInfromation from '../Components/TrackingInfromation';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
-import { Colors } from '../utils/Constants';
-import { axiosGet } from '../utils/api';
-import { ROUTES } from '../utils/Routes';
+import {Colors} from '../utils/Constants';
+import {axiosGet} from '../utils/api';
+import {ROUTES} from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
-import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
+import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import { getDashboardItems } from '../utils/dashboardItems';
@@ -149,7 +149,7 @@ const Dashboard = ({ navigation }) => {
       let defaultLand = false;
 
       const login = loginUser_data || {};
-      const { dbname, lan_id, token, agri_user_addresses, user_id } = login;
+      const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
 
       if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
         // parallel server requests
@@ -172,9 +172,8 @@ const Dashboard = ({ navigation }) => {
               newCropId: '',
             }),
             '',
-            { information: `${dbname},${lan_id}` },
+            {information: `${dbname},${lan_id}`},
           ),
-          // console.log('k', USEFULL_INFO_LIST),
           axiosGet(
             ROUTES.GET.LIST_USER_ACTIVITY({
               pageNO: 1,
@@ -185,7 +184,7 @@ const Dashboard = ({ navigation }) => {
               to_date: '',
             }),
             token,
-            { information: `${dbname},${lan_id},${user_id}` },
+            {information: `${dbname},${lan_id},${user_id}`},
           ),
         ]);
 
@@ -212,7 +211,6 @@ const Dashboard = ({ navigation }) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
         }
-        console.log('usefulInfoList', usefulInfoList);
         if (LIST_USER_ACTIVITY?.status === 200) {
           latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
         }
@@ -255,10 +253,10 @@ const Dashboard = ({ navigation }) => {
       `${t('app_name')}`,
       `${t('close_app')}`,
       [
-        { text: `${t('cancle')}`, onPress: () => { }, style: 'cancel' },
-        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
+        {text: `${t('cancle')}`, onPress: () => {}, style: 'cancel'},
+        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
     return true;
   }, [t]);
@@ -310,7 +308,7 @@ const Dashboard = ({ navigation }) => {
               onPress={CompanyWebsiteOpen}
               style={styles.bottomContainer}>
               <ImageForm
-                source={{ uri: uiState.bottomBanner }}
+                source={{uri: uiState.bottomBanner}}
                 resizeMode="cover"
                 height={220}
                 width={'100%'}
@@ -357,7 +355,7 @@ const Dashboard = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.header,
-                { transform: [{ translateY: headerTranslateY }] },
+                {transform: [{translateY: headerTranslateY}]},
               ]}>
               <CustomHeader
                 path="exit"
@@ -370,10 +368,10 @@ const Dashboard = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.filterBar,
-                { transform: [{ translateY: filterTranslateY }] },
+                {transform: [{translateY: filterTranslateY}]},
               ]}>
               <Animated.View
-                style={[styles.animatedHeaderImage, { height: imageHeight }]}>
+                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
                 <ImageBackground
                   source={{
                     uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
@@ -381,7 +379,7 @@ const Dashboard = ({ navigation }) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{ opacity: 0.6 }}>
+                  imageStyle={{opacity: 0.6}}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -415,7 +413,7 @@ const Dashboard = ({ navigation }) => {
                 contentContainerStyle={{
                   paddingTop: HEADER_HEIGHT + INITIAL_IMAGE_HEIGHT,
                   flexGrow: 1, // ensure pull works even when content small
-                  overflow: 'hidden'
+                  overflow: 'hidden',
                 }}
                 scrollEventThrottle={1}
                 showsVerticalScrollIndicator={false}
@@ -450,7 +448,7 @@ const Dashboard = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background_light },
+  container: {flex: 1, backgroundColor: Colors.background_light},
   header: {
     // height: 60 - 10,
     position: 'absolute',
@@ -463,7 +461,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     zIndex: 99999

@@ -39,9 +39,9 @@ const Colors = {
   error: "#EA4335",
 };
 import { Fonts } from "../utils/Constants";
-const SuggestiveSearchInput = ({ 
-  placeholder = "Search places...", 
-  onSelect, 
+const SuggestiveSearchInput = ({
+  placeholder = "Search places...",
+  onSelect,
   style,
   inputStyle,
   suggestionsStyle,
@@ -58,7 +58,7 @@ const SuggestiveSearchInput = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isFocused, setIsFocused] = useState(false);
-  
+
   const textInputRef = useRef(null);
   const debounceTimer = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -273,14 +273,16 @@ const SuggestiveSearchInput = ({
   });
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, style]}
     >
       <View style={styles.inputContainer}>
-        <Animated.View style={[styles.inputWrapper, 
+        <Animated.View style={[
+          styles.inputWrapper,
           // { borderColor }
-          ]}>
+          suggestions.length != 0 || !hideList && query.length >= minQueryLength && suggestions.length === 0 && !loading && !error ? { borderRadius: 0, borderTopRightRadius: 20, borderTopLeftRadius: 20, borderBottomWidth: 1, borderColor: Colors.border } : {}
+        ]}>
           <TextInput
             ref={textInputRef}
             placeholder={placeholder}
@@ -295,7 +297,7 @@ const SuggestiveSearchInput = ({
             returnKeyType="search"
             clearButtonMode="while-editing" // iOS only
           />
-          
+
           {loading && showLoader && (
             <View style={styles.loaderContainer}>
               <ActivityIndicator size="small" color={Colors.primary} />
@@ -318,9 +320,9 @@ const SuggestiveSearchInput = ({
 
         {/* Suggestions List */}
         {!hideList && suggestions.length > 0 && (
-          <Animated.View 
+          <Animated.View
             style={[
-              styles.suggestionBox, 
+              styles.suggestionBox,
               suggestionsStyle,
               { opacity: fadeAnim }
             ]}
@@ -335,11 +337,11 @@ const SuggestiveSearchInput = ({
               maxToRenderPerBatch={5}
               windowSize={10}
               removeClippedSubviews={true}
-              getItemLayout={(data, index) => ({
-                length: 60,
-                offset: 60 * index,
-                index,
-              })}
+              // getItemLayout={(data, index) => ({
+              //   length: 60,
+              //   offset: 60 * index,
+              //   index,
+              // })}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               ListFooterComponent={
                 suggestions.length >= maxSuggestions ? (
@@ -389,7 +391,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: 50,
+    height: 60,
     paddingHorizontal: 20,
     fontSize: 15,
     color: Colors.text,
@@ -399,7 +401,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   clearButton: {
-  paddingRight:15,
+    paddingRight: 15,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -419,12 +421,14 @@ const styles = StyleSheet.create({
   },
   suggestionBox: {
     position: "absolute",
-    top: 58,
+    top: 62,
     left: 0,
     right: 0,
     backgroundColor: Colors.surface,
-    borderRadius: 8,
-    elevation: 8,
+    // borderRadius: 8,
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    // elevation: 8,
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -479,13 +483,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.border,
     marginHorizontal: 20,
+    
   },
   footerContainer: {
     padding: 15,
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.background_light,
+    backgroundColor: Colors.white,
   },
   footerText: {
     fontSize: 12,
@@ -494,12 +499,13 @@ const styles = StyleSheet.create({
   },
   noResultsContainer: {
     position: "absolute",
-    top: 58,
+    top: 62,
     left: 0,
     right: 0,
     backgroundColor: Colors.surface,
-    borderRadius: 12,
-    elevation: 4,
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    // elevation: 4,
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

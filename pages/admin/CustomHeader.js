@@ -139,6 +139,12 @@ const CustomHeader = memo(
         CrateProblemUser: t('problem_reporting'),
         InputList: t('agri_inputs_ninquiry_far_dash'),
         PersonalInformation: t('personal_information'),
+        FarmerViewPast: t('view_output_nposted'),
+        FarmerPostNew: t('post_output_n'),
+        FarmerUsefulInformationList: t('dash_useful_information_list'),
+        FarmerUsefulInformation: t('dash_useful_information'),
+        FarmerTrainingList: t('training_support_list'),
+        FarmerTraining: t('training_support'),
       }),
       [t],
     );

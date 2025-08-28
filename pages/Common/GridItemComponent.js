@@ -1,10 +1,19 @@
-import React, { useEffect } from 'react';
-import { Animated, Image, StyleSheet, Text, TouchableOpacity, View, Easing } from 'react-native';
+import React, {useEffect} from 'react';
+import {
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Easing,
+} from 'react-native';
 import moment from 'moment';
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
-const GridItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => {
+const GridItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
   const animVal = getAnimationValue(item.fid);
   useEffect(() => {
     animVal.setValue(0);
@@ -29,12 +38,11 @@ const GridItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
   return (
     <AnimatedTouchableOpacity
       onPress={() => onPress(item.fid)}
-      style={[styles.gridItem, {  transform: [{ scale }] }]}
-      activeOpacity={0.7}
-    >
+      style={[styles.gridItem, {transform: [{scale}]}]}
+      activeOpacity={0.7}>
       <View style={styles.gridImageContainer}>
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.gridImage} />
+          <Image source={{uri: imageUri}} style={styles.gridImage} />
         ) : (
           <Image
             source={require('./images/greenqube_logo.png')}
@@ -57,18 +65,18 @@ const GridItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
 
 const styles = StyleSheet.create({
   gridItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#eaecedff',
     borderRadius: 12,
     // flex: 1,
     marginHorizontal: '2.5%',
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',
-    width: '45%'
+    width: '45%',
   },
   gridImageContainer: {
     width: '100%',

@@ -163,7 +163,7 @@ export default function Map({
     if (editing && !drawingReference) {
       (async () => {
         const { latitude, longitude } = coords || {};
-        if (fusedLocation != null) {
+        if (coords != null) {
           setDrawingReference({
             latitude,
             longitude,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   gpsButton: {
     position: 'absolute',
-    bottom: 150,
+    bottom: 30,
     right: 30,
     padding: 5,
     borderRadius: 100,

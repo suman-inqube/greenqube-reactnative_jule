@@ -136,19 +136,11 @@ export default PestisideCalculator;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background_light,
+     backgroundColor: 'white',
   },
 
   card: {
     backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 10,
-    marginVertical: '5%',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginHorizontal: '4%',
+    padding: 16,
   },
 });

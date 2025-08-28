@@ -146,7 +146,7 @@ const FarmerListProblem = ({navigation}) => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
-      await handleProblem(page);
+      // await handleProblem(page);
       setRefreshing(false);
     });
   }, []);

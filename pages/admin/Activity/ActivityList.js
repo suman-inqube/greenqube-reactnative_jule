@@ -1,10 +1,27 @@
 import {
-  StyleSheet, Text, View, FlatList, TouchableOpacity, Keyboard, Dimensions, SafeAreaView, Animated, RefreshControl
-} from 'react-native'
-import React, { useEffect, useState, useContext, useCallback, lazy, useRef, memo } from 'react';
-import { useIsFocused, useRoute } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { SPSheet,Toast } from 'react-native-popup-confirm-toast';
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  Keyboard,
+  Dimensions,
+  SafeAreaView,
+  Animated,
+  RefreshControl,
+} from 'react-native';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useCallback,
+  lazy,
+  useRef,
+  memo,
+} from 'react';
+import {useIsFocused, useRoute} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {SPSheet, Toast} from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import {
   OPTIONS_CARBON,
@@ -20,8 +37,8 @@ import {ROUTES} from '../../utils/Routes';
 import {getStatusColor, getProduceEmoji, formatDate} from '../../utils/helpers';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
 import PaginationNav from '../../Components/PaginationNav';
-import { AlertMesg } from '../../Common/ToastAlert';
-function ActivityList({ navigation }) {
+import {AlertMesg} from '../../Common/ToastAlert';
+function ActivityList({navigation}) {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -188,7 +205,7 @@ function ActivityList({ navigation }) {
         setIsLoading(false);
       }
       if (flatListRef.current) {
-        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+        flatListRef.current.scrollToOffset({offset: 0, animated: true});
       }
     } catch (error) {
       console.log(error);
@@ -203,8 +220,8 @@ function ActivityList({ navigation }) {
     await fatchActivityListAPI(1, '');
   }, []);
   useEffect(() => {
-    if (route?.params?.action === "addData") {
-      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
       setTotalPages(1);
       fatchActivityListAPI(1, '');
     }
@@ -389,16 +406,22 @@ function ActivityList({ navigation }) {
           <CustomHeader
             logoImage={logoImage}
             topBanner={topBanner}
-            filterOptionShow={filterOptionShow} t={t} />
+            filterOptionShow={filterOptionShow}
+            t={t}
+          />
           <FlatList
             ref={flatListRef}
-            data={isLoading ? Array.from({ length: 5 }) : activityAll}
+            data={isLoading ? Array.from({length: 5}) : activityAll}
             keyExtractor={(item, index) => index?.toString()}
-            renderItem={({ item, index }) =>
+            renderItem={({item, index}) =>
               isLoading ? (
                 <SkeletonCardActivityList />
               ) : (
-                <ActivityCard activity={item} index={index} navigation={navigation} />
+                <ActivityCard
+                  activity={item}
+                  index={index}
+                  navigation={navigation}
+                />
               )
             }
             refreshControl={
@@ -409,7 +432,7 @@ function ActivityList({ navigation }) {
                 tintColor="#4CAF50"
               />
             }
-            contentContainerStyle={{ padding: 20, paddingBottom: 50 }}
+            contentContainerStyle={{padding: 20, paddingBottom: 50}}
             showsVerticalScrollIndicator={false}
             initialNumToRender={5}
             windowSize={5}
@@ -419,21 +442,22 @@ function ActivityList({ navigation }) {
             isLoading={isLoading}
             page={page}
             totalPages={totalPages}
-            onPrev={() => setPage((p) => Math.max(1, p - 1))}
-            onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+            onPrev={() => setPage(p => Math.max(1, p - 1))}
+            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
             t={t}
           />
           <FloatingAction
             position="right"
             actions={getActionsActivity(t, styles, Colors)}
             color={Colors.useGreen}
-            onPressItem={(name) => {
+            onPressItem={name => {
               // SPSheet.hide();
               handleSPSheetShow();
             }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{ vertical: 80, horizontal: 25 }} />
+            distanceToEdge={{vertical: 80, horizontal: 25}}
+          />
         </SafeAreaView>
       </Root>
     </MyErrorBoundary>

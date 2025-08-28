@@ -33,8 +33,8 @@ const FertilizerCalculator = () => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.container}>
+        <View style={styles.container}>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.card}>
               <DropdownForm
                 label={t('select_crop_type')}
@@ -108,8 +108,8 @@ const FertilizerCalculator = () => {
                   </View>
                 </View>
               ))}
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
         <ButtonForm
           label={t('view_result')}
           onPress={() => ViewResult('FertilizerCalculator')}
@@ -156,19 +156,14 @@ export default FertilizerCalculator;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background_light,
+    backgroundColor: 'white',
+    flexGrow: 1,
   },
+
   card: {
     backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 10,
-    marginVertical: '5%',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginHorizontal: '4%',
+    padding: 16,
+    flexGrow: 1,
   },
 
   //////////////////////////////////////////////////////

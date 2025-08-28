@@ -523,7 +523,7 @@ export default FarmerActivityDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background_light,
+    backgroundColor: 'white',
   },
   titleContainer: {
     width: '95%',
@@ -537,21 +537,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   fromContainer: {
-    marginTop: 20,
-
-    marginHorizontal: '4%',
-    borderWidth: 1,
-    // paddingTop: 10,
-    // marginBottom: 30,
-
-    backgroundColor: 'white',
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    // elevation:1,
-    marginVertical: 10,
-    marginHorizontal: '4%',
+    padding: 16,
   },
   photoContainer: {
     flexDirection: 'row',

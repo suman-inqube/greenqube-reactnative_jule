@@ -52,6 +52,7 @@ import {
 import CarbonCertificate from '../../Common/CarbonCertificate';
 import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -1847,265 +1848,235 @@ const FarmerLiveHood = ({
     }
   }, [statuslevel.label, harvested]);
   return (
-    <>
-      <DatePickerComp
-        openDate={penCycleStart}
-        newDate={newDate}
-        setOpenDate={setopenCycleStart}
-        handleDatePicker={handleDatePicker}
-      />
-      <DatePickerComp
-        openDate={penCycleEnd}
-        newDate={
-          farmerData.cycleStartDate == ''
-            ? issuenewDate
-            : new Date(
-                `${new Date(farmerData.cycleStartDate).getFullYear()}-${
-                  new Date(farmerData.cycleStartDate).getMonth() + 1
-                }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-              )
-        }
-        minimumDate={
-          farmerData.cycleStartDate == ''
-            ? ''
-            : new Date(
-                `${new Date(farmerData.cycleStartDate).getFullYear()}-${
-                  new Date(farmerData.cycleStartDate).getMonth() + 1
-                }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-              )
-        }
-        setOpenDate={setopenCycleEnd}
-        handleDatePicker={handleDatePicker2}
-      />
-      {/* <CustomHeader
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <DatePickerComp
+          openDate={penCycleStart}
+          newDate={newDate}
+          setOpenDate={setopenCycleStart}
+          handleDatePicker={handleDatePicker}
+        />
+        <DatePickerComp
+          openDate={penCycleEnd}
+          newDate={
+            farmerData.cycleStartDate == ''
+              ? issuenewDate
+              : new Date(
+                  `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                    new Date(farmerData.cycleStartDate).getMonth() + 1
+                  }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+                )
+          }
+          minimumDate={
+            farmerData.cycleStartDate == ''
+              ? ''
+              : new Date(
+                  `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                    new Date(farmerData.cycleStartDate).getMonth() + 1
+                  }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+                )
+          }
+          setOpenDate={setopenCycleEnd}
+          handleDatePicker={handleDatePicker2}
+        />
+        {/* <CustomHeader
           path="FarmerDashboard"
           HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         /> */}
-      {/* <FormsTitle title={t('plot_and_crop_details')} /> */}
-      {isLoading ? (
-        <View style={styles.LoadingScreen}>
-          <LoadingScreen />
-        </View>
-      ) : null}
-      <HarvestedModel
-        setModalVisible={setModalVisible}
-        modalVisible={modalVisible}
-        handleHarvested={handleHarvested}
-      />
-      <ScrollView
-        style={{marginHorizontal: 30, marginVertical: 10}}
-        showsVerticalScrollIndicator={false}>
-        <View style={{marginBottom: 40}}>
-          {statuslevel.label == 'REJECTED' && (
-            <View
-              style={{
-                paddingVertical: 10,
-                backgroundColor: '#F8D7DA',
-                borderRadius: 5,
-                borderColor: '#F8D7DA',
-                borderWidth: 0.6,
-                marginVertical: 20,
-              }}>
-              <Text
+        {/* <FormsTitle title={t('plot_and_crop_details')} /> */}
+        {isLoading ? (
+          <View style={styles.LoadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : null}
+        <HarvestedModel
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          handleHarvested={handleHarvested}
+        />
+        <ScrollView
+          style={{marginHorizontal: 30, marginVertical: 10}}
+          showsVerticalScrollIndicator={false}>
+          <View style={{marginBottom: 40}}>
+            {statuslevel.label == 'REJECTED' && (
+              <View
                 style={{
-                  marginHorizontal: 5,
-                  color: '#721C24',
-                  fontFamily: 'Poppins-Regular',
-                  fontSize: 14,
+                  paddingVertical: 10,
+                  backgroundColor: '#F8D7DA',
+                  borderRadius: 5,
+                  borderColor: '#F8D7DA',
+                  borderWidth: 0.6,
+                  marginVertical: 20,
                 }}>
-                {dataProps?.comment}
-              </Text>
-            </View>
-          )}
-          {userData == 'addUserData' || addPlot == true ? (
-            <InputTextForm
-              label={t('addland_select_plot')}
-              color="red"
-              value={farmerData.plot_Site_Name}
-              onChangeText={text => handleAddUserData('plot_Site_Name', text)}
-            />
-          ) : dataProps?.plot_no != undefined ? (
-            <InputTextForm
-              label={t('addland_select_plot')}
-              color="red"
-              editable={false}
-              value={farmerData.plot_Site_Name}
-              onChangeText={text => handleAddUserData('plot_Site_Name', text)}
-            />
-          ) : (
-            <DropdownForm
-              label={t('addland_select_plot')}
-              color="red"
-              data={plotAll}
-              onChange={relId => handlePlot(relId)}
-              val={farmerData.plot_Site_Name}
-            />
-          )}
-
-          <InputTextForm
-            label={t('daag_no')}
-            value={farmerData.daag_no}
-            onChangeText={text => handleAddUserData('daag_no', text)}
-            editable={InputTextFormEdit}
-          />
-          <InputTextForm
-            label={t('khatian_no')}
-            value={farmerData.khatian_no}
-            onChangeText={text => handleAddUserData('khatian_no', text)}
-            editable={InputTextFormEdit}
-          />
-
-          <InputTextForm
-            label={t('no_of_plants')}
-            value={farmerData.plant_number}
-            onChangeText={text => handleAddUserData('plant_number', text)}
-            editable={InputTextFormEdit}
-          />
-
-          <DropdownForm
-            label={t('select_terrain_type')}
-            color="red"
-            data={terrainTypeAll}
-            val={farmerData.terrainType}
-            onChange={item => {
-              handleAddData(item, 'terrainType', 'terrainTypeValue');
-            }}
-          />
-          <DropdownForm
-            label={t('select_land_type')}
-            color="red"
-            data={landTypeAll}
-            onChange={item => {
-              handleAddData(item, 'landType', 'landTypeValue');
-            }}
-            val={farmerData.landType}
-          />
-          <DropdownForm
-            label={t('addland_soil_type_dv')}
-            color="red"
-            data={soilTypeAll}
-            onChange={item => {
-              handleAddData(item, 'soilType', 'soilTypeValue');
-            }}
-            val={farmerData.soilType}
-          />
-          <View style={styles.plotSiteUnit}>
-            <View style={{width: '45%'}}>
+                <Text
+                  style={{
+                    marginHorizontal: 5,
+                    color: '#721C24',
+                    fontFamily: 'Poppins-Regular',
+                    fontSize: 14,
+                  }}>
+                  {dataProps?.comment}
+                </Text>
+              </View>
+            )}
+            {userData == 'addUserData' || addPlot == true ? (
               <InputTextForm
-                label={t('pre_land_size')}
+                label={t('addland_select_plot')}
                 color="red"
-                value={farmerData.land_size}
-                onChangeText={text =>
-                  handleAddUserDataland_size('land_size', text)
-                }
-                editable={
-                  statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                    ? false
-                    : true
-                }
+                value={farmerData.plot_Site_Name}
+                onChangeText={text => handleAddUserData('plot_Site_Name', text)}
               />
-            </View>
-            <View style={{width: '45%'}}>
+            ) : dataProps?.plot_no != undefined ? (
+              <InputTextForm
+                label={t('addland_select_plot')}
+                color="red"
+                editable={false}
+                value={farmerData.plot_Site_Name}
+                onChangeText={text => handleAddUserData('plot_Site_Name', text)}
+              />
+            ) : (
               <DropdownForm
-                label={t('select_unit')}
+                label={t('addland_select_plot')}
                 color="red"
-                data={unitAll}
-                onChange={item => {
-                  handleAddData(item, 'unit', 'unitValue');
-                }}
-                val={farmerData.unit}
-                disable={
-                  statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                    ? true
-                    : false
-                }
+                data={plotAll}
+                onChange={relId => handlePlot(relId)}
+                val={farmerData.plot_Site_Name}
               />
-            </View>
-          </View>
-          {farmerData?.ConvertedreportedLandsize != 0 && area != null && (
-            <InputTextForm
-              label={
-                t('Converted reported Land size ') +
-                `${
-                  landAreaUnit?.[0]?.defined_unit_value
-                    ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                    : '(Square meter)'
-                }`
-              }
-              value={farmerData?.ConvertedreportedLandsize.toString()}
-              // onChangeText={text => handleAddUserData('daag_no', text)}
-              editable={false}
-            />
-          )}
-          <View style={{marginTop: 10}}>
-            <InputTextForm
-              label={t('Enter IOT Device Id')}
-              onChangeText={text => handleIOTId('IOTId', text)}
-              value={farmerData.IOTId}
-            />
-          </View>
-          <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
-            <View style={styles.latlongContainer}>
-              <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
-              <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
-            </View>
-            <View style={styles.latlongContainer}>
-              <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
-              <Image
-                source={require('../../Common/images/location.png')}
-                style={{width: 40, height: 40}}
-                resizeMode="contain"
-              />
-            </View>
-          </TouchableOpacity>
-          <ProofAndIdentityPropfComp
-            t={t}
-            title={t('address_proof')}
-            setStateValue={setAddressProof}
-            stateValue={addressProof}
-            status_level={statuslevel.label}
-            photoDeletedValue={photoDeletedValue}
-            setPhotoDeletedValue={setPhotoDeletedValue}
-            loginUser_data={loginUser_data}
-            disable={
-              statuslevel.label == 'APPROVED' ||
-              statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-              statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-              statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                ? false
-                : statuslevel.label == 'PENDING' ||
-                  statuslevel.label == 'REJECTED'
-                ? false
-                : true
-            }
-            InputTextFormEdit={InputTextFormEdit}
-          />
+            )}
 
-          <View style={{marginTop: 15}}>
+            <InputTextForm
+              label={t('daag_no')}
+              value={farmerData.daag_no}
+              onChangeText={text => handleAddUserData('daag_no', text)}
+              editable={InputTextFormEdit}
+            />
+            <InputTextForm
+              label={t('khatian_no')}
+              value={farmerData.khatian_no}
+              onChangeText={text => handleAddUserData('khatian_no', text)}
+              editable={InputTextFormEdit}
+            />
+
+            <InputTextForm
+              label={t('no_of_plants')}
+              value={farmerData.plant_number}
+              onChangeText={text => handleAddUserData('plant_number', text)}
+              editable={InputTextFormEdit}
+            />
+
+            <DropdownForm
+              label={t('select_terrain_type')}
+              color="red"
+              data={terrainTypeAll}
+              val={farmerData.terrainType}
+              onChange={item => {
+                handleAddData(item, 'terrainType', 'terrainTypeValue');
+              }}
+            />
+            <DropdownForm
+              label={t('select_land_type')}
+              color="red"
+              data={landTypeAll}
+              onChange={item => {
+                handleAddData(item, 'landType', 'landTypeValue');
+              }}
+              val={farmerData.landType}
+            />
+            <DropdownForm
+              label={t('addland_soil_type_dv')}
+              color="red"
+              data={soilTypeAll}
+              onChange={item => {
+                handleAddData(item, 'soilType', 'soilTypeValue');
+              }}
+              val={farmerData.soilType}
+            />
+            <View style={styles.plotSiteUnit}>
+              <View style={{width: '45%'}}>
+                <InputTextForm
+                  label={t('pre_land_size')}
+                  color="red"
+                  value={farmerData.land_size}
+                  onChangeText={text =>
+                    handleAddUserDataland_size('land_size', text)
+                  }
+                  editable={
+                    statuslevel.label == 'APPROVED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
+                />
+              </View>
+              <View style={{width: '45%'}}>
+                <DropdownForm
+                  label={t('select_unit')}
+                  color="red"
+                  data={unitAll}
+                  onChange={item => {
+                    handleAddData(item, 'unit', 'unitValue');
+                  }}
+                  val={farmerData.unit}
+                  disable={
+                    statuslevel.label == 'APPROVED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? true
+                      : false
+                  }
+                />
+              </View>
+            </View>
+            {farmerData?.ConvertedreportedLandsize != 0 && area != null && (
+              <InputTextForm
+                label={
+                  t('Converted reported Land size ') +
+                  `${
+                    landAreaUnit?.[0]?.defined_unit_value
+                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                      : '(Square meter)'
+                  }`
+                }
+                value={farmerData?.ConvertedreportedLandsize.toString()}
+                // onChangeText={text => handleAddUserData('daag_no', text)}
+                editable={false}
+              />
+            )}
+            <View style={{marginTop: 10}}>
+              <InputTextForm
+                label={t('Enter IOT Device Id')}
+                onChangeText={text => handleIOTId('IOTId', text)}
+                value={farmerData.IOTId}
+              />
+            </View>
+            <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
+              <View style={styles.latlongContainer}>
+                <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
+                <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
+              </View>
+              <View style={styles.latlongContainer}>
+                <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
+                <Image
+                  source={require('../../Common/images/location.png')}
+                  style={{width: 40, height: 40}}
+                  resizeMode="contain"
+                />
+              </View>
+            </TouchableOpacity>
             <ProofAndIdentityPropfComp
-              identityProofIdentityPropf={identityProofIdentityPropf}
               t={t}
-              title={t('address_proofAndIdentityPropf')}
-              setStateValue={setIdentityProofIdentityPropf}
-              stateValue={identityProofIdentityPropf}
-              photoDeletedValue={identityPhotoDeletedValue}
-              setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-              loginUser_data={loginUser_data}
+              title={t('address_proof')}
+              setStateValue={setAddressProof}
+              stateValue={addressProof}
               status_level={statuslevel.label}
-              InputTextFormEdit={
-                statuslevel.label == 'PENDING' ||
-                statuslevel.label == 'REJECTED'
-                  ? true
-                  : false
-              }
+              photoDeletedValue={photoDeletedValue}
+              setPhotoDeletedValue={setPhotoDeletedValue}
+              loginUser_data={loginUser_data}
               disable={
                 statuslevel.label == 'APPROVED' ||
                 statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
@@ -2117,321 +2088,357 @@ const FarmerLiveHood = ({
                   ? false
                   : true
               }
+              InputTextFormEdit={InputTextFormEdit}
             />
-          </View>
-          {area != 0 && area != null && (
-            <InputTextForm
-              label={
-                t('Calculated Map Area ') +
-                `${
-                  landAreaUnit?.[0]?.defined_unit_value
-                    ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                    : '(Square meter)'
-                }`
-              }
-              value={area.toString()}
-              onChangeText={text => handleAddUserData('daag_no', text)}
-              editable={false}
-            />
-          )}
 
-          <View style={styles.locationContainer}>
-            {location &&
-              location.map((data, index) => {
-                {
-                  /* if (data?.longitude.length> 2) { */
-                }
-
-                return (
-                  <View key={index}>
-                    <View style={styles.latlongContainer}>
-                      <Text style={styles.title}>
-                        {data?.latitude == '' ? '0.0' : data?.latitude}
-                      </Text>
-                      <Text style={styles.title}>
-                        {data?.longitude == '' ? '0.0' : data?.longitude}
-                      </Text>
-                    </View>
-                    <View style={styles.latlongContainer}>
-                      <Text style={styles.title}>
-                        {t('tap_to_get_latitude_and_longitude')}
-                      </Text>
-                      {/* // GRQ-1134 */}
-                      <TouchableOpacity
-                        onPress={() =>
-                          data?.latitude != 10 && data?.latitude.length != ''
-                            ? ''
-                            : statuslevel.label != 'APPROVED'
-                            ? handleCurrentLatLong(index)
-                            : ''
-                        }>
-                        <Image
-                          source={require('../../Common/images/location.png')}
-                          style={{width: 35, height: 35}}
-                          resizeMode="contain"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                );
-                {
-                  /* } */
-                }
-              })}
-          </View>
-          <DropdownForm
-            label={t('addcrop_select_cultivating_season')}
-            color="red"
-            data={productionSeason}
-            onChange={item => {
-              handleAddDataproductionSeason(
-                item,
-                'productionSeason',
-                'productionSeasonValue',
-              );
-            }}
-            val={farmerData.productionSeason}
-            disable={
-              edit == '' ? (harvested == 'same produce' ? true : false) : edit
-            }
-          />
-          <DropdownForm
-            label={t('addcrop_croptype')}
-            color="red"
-            data={livelihoodType}
-            onChange={item => {
-              handleAddDatalivelihoodType(
-                item,
-                'livelihoodType',
-                'livelihoodTypeValue',
-              );
-            }}
-            val={farmerData.livelihoodType}
-            disable={
-              edit == '' ? (harvested == 'same produce' ? true : false) : edit
-            }
-          />
-          <DropdownForm
-            label={t('crop_name')}
-            color="red"
-            data={produceName}
-            onChange={item => {
-              handleAddDataproduceName(item, 'produceName', 'produceNameValue');
-            }}
-            val={farmerData.produceName}
-            disable={
-              edit == '' ? (harvested == 'same produce' ? true : false) : edit
-            }
-          />
-          <DropdownForm
-            label={t('crop_veriety')}
-            color="red"
-            data={produceVariety}
-            onChange={item => {
-              handleAddData(item, 'produceVariety', 'produceVarietyValue');
-            }}
-            val={farmerData.produceVariety}
-            disable={
-              edit == '' ? (harvested == 'same produce' ? true : false) : edit
-            }
-          />
-          <DropdownForm
-            label={t('production_system')}
-            color="red"
-            data={productionProcess}
-            onChange={item => {
-              handleAddData(
-                item,
-                'productionProcess',
-                'productionProcessValue',
-              );
-            }}
-            val={farmerData.productionProcess}
-            disable={edit}
-          />
-          <View style={styles.plotSiteUnit}>
-            <View style={{width: '45%'}}>
-              <InputTextForm
-                label={`${t('expected_yield')}`}
-                color="red"
-                value={farmerData.expectedProduction}
-                onChangeText={text =>
-                  handleAddUserData('expectedProduction', text)
-                }
-                // editable={
-                //   edit == ''
-                //     ? harvested == 'same produce'
-                //       ? false
-                //       : true
-                //     : !edit
-                // }
-              />
-            </View>
-            <View style={{width: '45%'}}>
-              <DropdownForm
-                label={`${t('select_unit_input')}`}
-                color="red"
-                data={productionUnit}
-                onChange={item => {
-                  handleAddData(item, 'unitProduct', 'unitProductValue');
-                }}
-                val={farmerData.unitProduct}
-                // disable={
-                //   edit == ''
-                //     ? harvested == 'same produce'
-                //       ? true
-                //       : false
-                //     : edit
-                // }
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity
-            onPress={() =>
-              harvested != '' || userData == 'addUserData' || addPlot == true
-                ? setopenCycleStart(true)
-                : null
-            }
-            activeOpacity={9}>
-            <Text style={{marginBottom: 5, color: '#f40000'}}>
-              {t('showing_date')}
-            </Text>
-            <View style={styles.calenderContainer}>
-              <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
-              <Image
-                source={require('../../Common/images/calendar.png')}
-                style={{width: 20, height: 20}}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              harvested != '' || userData == 'addUserData' || addPlot == true
-                ? setopenCycleEnd(true)
-                : null
-            }
-            activeOpacity={9}>
-            <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
-              {t('harvesting_date_auto_calculated')}
-            </Text>
-            <View style={styles.calenderContainer}>
-              <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
-              <Image
-                source={require('../../Common/images/calendar.png')}
-                style={{width: 20, height: 20}}
-              />
-            </View>
-          </TouchableOpacity>
-          {(statuslevel.label == 'APPROVED' ||
-            statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-            statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-            statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
-            statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-          carbonFlag == true ? (
             <View style={{marginTop: 15}}>
-              <CarbonCertificate
-                identityProofIdentityPropf={carboncertificate}
+              <ProofAndIdentityPropfComp
+                identityProofIdentityPropf={identityProofIdentityPropf}
                 t={t}
-                title={t('Carbon certificate')}
-                setStateValue={setCarboncertificate}
-                stateValue={carboncertificate}
-                status_level={
-                  carboncertificate[0]?.uri?.startsWith('content://')
-                    ? ''
-                    : statuslevel.label
+                title={t('address_proofAndIdentityPropf')}
+                setStateValue={setIdentityProofIdentityPropf}
+                stateValue={identityProofIdentityPropf}
+                photoDeletedValue={identityPhotoDeletedValue}
+                setPhotoDeletedValue={setIdentityPhotoDeletedValue}
+                loginUser_data={loginUser_data}
+                status_level={statuslevel.label}
+                InputTextFormEdit={
+                  statuslevel.label == 'PENDING' ||
+                  statuslevel.label == 'REJECTED'
+                    ? true
+                    : false
                 }
                 disable={
-                  statuslevel.label == 'APPROVED'
-                    ? true
-                    : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    ? false
+                    : statuslevel.label == 'PENDING' ||
+                      statuslevel.label == 'REJECTED'
                     ? false
                     : true
                 }
-                InputTextFormEdit={
-                  statuslevel.label == 'APPROVED' ? true : false
-                }
-              />
-              <SignatureCapture
-                setSignatureVal={setSignature}
-                signatureVal={signature}
-                statuslevel={statuslevel?.label}
               />
             </View>
-          ) : (
-            <></>
-          )}
-          {addPlot == false ? (
-            userData != 'addUserData' ? (
-              <TouchableOpacity
-                style={styles.clickAddMorePlots}
-                onPress={() => handleUserData()}>
-                <Text style={styles.clickAddMorePlotsTitle}>
-                  {t('click_to_add_more_plot')}
-                </Text>
-              </TouchableOpacity>
-            ) : null
-          ) : null}
-        </View>
-      </ScrollView>
-      {/* <TouchableOpacity
+            {area != 0 && area != null && (
+              <InputTextForm
+                label={
+                  t('Calculated Map Area ') +
+                  `${
+                    landAreaUnit?.[0]?.defined_unit_value
+                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                      : '(Square meter)'
+                  }`
+                }
+                value={area.toString()}
+                onChangeText={text => handleAddUserData('daag_no', text)}
+                editable={false}
+              />
+            )}
+
+            <View style={styles.locationContainer}>
+              {location &&
+                location.map((data, index) => {
+                  {
+                    /* if (data?.longitude.length> 2) { */
+                  }
+
+                  return (
+                    <View key={index}>
+                      <View style={styles.latlongContainer}>
+                        <Text style={styles.title}>
+                          {data?.latitude == '' ? '0.0' : data?.latitude}
+                        </Text>
+                        <Text style={styles.title}>
+                          {data?.longitude == '' ? '0.0' : data?.longitude}
+                        </Text>
+                      </View>
+                      <View style={styles.latlongContainer}>
+                        <Text style={styles.title}>
+                          {t('tap_to_get_latitude_and_longitude')}
+                        </Text>
+                        {/* // GRQ-1134 */}
+                        <TouchableOpacity
+                          onPress={() =>
+                            data?.latitude != 10 && data?.latitude.length != ''
+                              ? ''
+                              : statuslevel.label != 'APPROVED'
+                              ? handleCurrentLatLong(index)
+                              : ''
+                          }>
+                          <Image
+                            source={require('../../Common/images/location.png')}
+                            style={{width: 35, height: 35}}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                  {
+                    /* } */
+                  }
+                })}
+            </View>
+            <DropdownForm
+              label={t('addcrop_select_cultivating_season')}
+              color="red"
+              data={productionSeason}
+              onChange={item => {
+                handleAddDataproductionSeason(
+                  item,
+                  'productionSeason',
+                  'productionSeasonValue',
+                );
+              }}
+              val={farmerData.productionSeason}
+              disable={
+                edit == '' ? (harvested == 'same produce' ? true : false) : edit
+              }
+            />
+            <DropdownForm
+              label={t('addcrop_croptype')}
+              color="red"
+              data={livelihoodType}
+              onChange={item => {
+                handleAddDatalivelihoodType(
+                  item,
+                  'livelihoodType',
+                  'livelihoodTypeValue',
+                );
+              }}
+              val={farmerData.livelihoodType}
+              disable={
+                edit == '' ? (harvested == 'same produce' ? true : false) : edit
+              }
+            />
+            <DropdownForm
+              label={t('crop_name')}
+              color="red"
+              data={produceName}
+              onChange={item => {
+                handleAddDataproduceName(
+                  item,
+                  'produceName',
+                  'produceNameValue',
+                );
+              }}
+              val={farmerData.produceName}
+              disable={
+                edit == '' ? (harvested == 'same produce' ? true : false) : edit
+              }
+            />
+            <DropdownForm
+              label={t('crop_veriety')}
+              color="red"
+              data={produceVariety}
+              onChange={item => {
+                handleAddData(item, 'produceVariety', 'produceVarietyValue');
+              }}
+              val={farmerData.produceVariety}
+              disable={
+                edit == '' ? (harvested == 'same produce' ? true : false) : edit
+              }
+            />
+            <DropdownForm
+              label={t('production_system')}
+              color="red"
+              data={productionProcess}
+              onChange={item => {
+                handleAddData(
+                  item,
+                  'productionProcess',
+                  'productionProcessValue',
+                );
+              }}
+              val={farmerData.productionProcess}
+              disable={edit}
+            />
+            <View style={styles.plotSiteUnit}>
+              <View style={{width: '45%'}}>
+                <InputTextForm
+                  label={`${t('expected_yield')}`}
+                  color="red"
+                  value={farmerData.expectedProduction}
+                  onChangeText={text =>
+                    handleAddUserData('expectedProduction', text)
+                  }
+                  // editable={
+                  //   edit == ''
+                  //     ? harvested == 'same produce'
+                  //       ? false
+                  //       : true
+                  //     : !edit
+                  // }
+                />
+              </View>
+              <View style={{width: '45%'}}>
+                <DropdownForm
+                  label={`${t('select_unit_input')}`}
+                  color="red"
+                  data={productionUnit}
+                  onChange={item => {
+                    handleAddData(item, 'unitProduct', 'unitProductValue');
+                  }}
+                  val={farmerData.unitProduct}
+                  // disable={
+                  //   edit == ''
+                  //     ? harvested == 'same produce'
+                  //       ? true
+                  //       : false
+                  //     : edit
+                  // }
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              onPress={() =>
+                harvested != '' || userData == 'addUserData' || addPlot == true
+                  ? setopenCycleStart(true)
+                  : null
+              }
+              activeOpacity={9}>
+              <Text style={{marginBottom: 5, color: '#f40000'}}>
+                {t('showing_date')}
+              </Text>
+              <View style={styles.calenderContainer}>
+                <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                harvested != '' || userData == 'addUserData' || addPlot == true
+                  ? setopenCycleEnd(true)
+                  : null
+              }
+              activeOpacity={9}>
+              <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
+                {t('harvesting_date_auto_calculated')}
+              </Text>
+              <View style={styles.calenderContainer}>
+                <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={{width: 20, height: 20}}
+                />
+              </View>
+            </TouchableOpacity>
+            {(statuslevel.label == 'APPROVED' ||
+              statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+              statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+              statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
+              statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
+            carbonFlag == true ? (
+              <View style={{marginTop: 15}}>
+                <CarbonCertificate
+                  identityProofIdentityPropf={carboncertificate}
+                  t={t}
+                  title={t('Carbon certificate')}
+                  setStateValue={setCarboncertificate}
+                  stateValue={carboncertificate}
+                  status_level={
+                    carboncertificate[0]?.uri?.startsWith('content://')
+                      ? ''
+                      : statuslevel.label
+                  }
+                  disable={
+                    statuslevel.label == 'APPROVED'
+                      ? true
+                      : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
+                  InputTextFormEdit={
+                    statuslevel.label == 'APPROVED' ? true : false
+                  }
+                />
+                <SignatureCapture
+                  setSignatureVal={setSignature}
+                  signatureVal={signature}
+                  statuslevel={statuslevel?.label}
+                />
+              </View>
+            ) : (
+              <></>
+            )}
+            {addPlot == false ? (
+              userData != 'addUserData' ? (
+                <TouchableOpacity
+                  style={styles.clickAddMorePlots}
+                  onPress={() => handleUserData()}>
+                  <Text style={styles.clickAddMorePlotsTitle}>
+                    {t('click_to_add_more_plot')}
+                  </Text>
+                </TouchableOpacity>
+              ) : null
+            ) : null}
+          </View>
+        </ScrollView>
+        {/* <TouchableOpacity
           style={styles.locationAddMoreContainer}
           onPress={addMoreLocation}>
           <Text style={{color: '#fff', marginRight: 15}}>
             {t('AddLocation')}
           </Text>
         </TouchableOpacity> */}
-      {plotEdit || addPlot == true ? (
-        <TouchableOpacity
-          style={[styles.locationAddMoreContainer, {bottom: 250}]}
-          onPress={() => setShowModal(!showModal)}>
-          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
-            {t('MapView')}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
-      <ButtonFormBottom
-        label={t('submit')}
-        onPress={() => handleUserListUpdate()}
-      />
-      {showModal && (
-        <Modal
-          animationIn="slideInLeft"
-          animationOut="slideOutRight"
-          animationInTiming={500}
-          animationOutTiming={750}
-          isVisible={showModal}
-          useNativeDriver={true}
-          onBackButtonPress={() => {
-            setShowModal(!showModal);
-          }}>
-          <Map
-            polygons={polygons}
-            newPolygon={newPolygon}
-            setEditing={setEditing}
-            editing={editing}
-            handleMapPress={handleMapPress}
-            finalizePolygon={finalizePolygon}
-            clearNewPolygon={clearNewPolygon}
-            setShowModal={setShowModal}
-            undoMark={undoMark}
-            landAreaUnit={landAreaUnit}
-            landUnitsquareMetre={landUnitsquareMetre}
-            area={area}
-            // basudev
-            // basudev
-            location={location}
-            statuslevel={statuslevel.label}
-            type="livehoood"
-            baselatLong={referencelatLong}
-            handleRegionChangeComplete={handleRegionChangeComplete}
-            isLoading={isLoading}
-          />
-        </Modal>
-      )}
-    </>
+        {plotEdit || addPlot == true ? (
+          <TouchableOpacity
+            style={[styles.locationAddMoreContainer, {bottom: 250}]}
+            onPress={() => setShowModal(!showModal)}>
+            <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+              {t('MapView')}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+        <ButtonFormBottom
+          label={t('submit')}
+          onPress={() => handleUserListUpdate()}
+        />
+        {showModal && (
+          <Modal
+            animationIn="slideInLeft"
+            animationOut="slideOutRight"
+            animationInTiming={500}
+            animationOutTiming={750}
+            isVisible={showModal}
+            useNativeDriver={true}
+            onBackButtonPress={() => {
+              setShowModal(!showModal);
+            }}>
+            <Map
+              polygons={polygons}
+              newPolygon={newPolygon}
+              setEditing={setEditing}
+              editing={editing}
+              handleMapPress={handleMapPress}
+              finalizePolygon={finalizePolygon}
+              clearNewPolygon={clearNewPolygon}
+              setShowModal={setShowModal}
+              undoMark={undoMark}
+              landAreaUnit={landAreaUnit}
+              landUnitsquareMetre={landUnitsquareMetre}
+              area={area}
+              // basudev
+              // basudev
+              location={location}
+              statuslevel={statuslevel.label}
+              type="livehoood"
+              baselatLong={referencelatLong}
+              handleRegionChangeComplete={handleRegionChangeComplete}
+              isLoading={isLoading}
+            />
+          </Modal>
+        )}
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

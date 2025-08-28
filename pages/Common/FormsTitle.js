@@ -16,18 +16,20 @@ const styles = StyleSheet.create({
   titleContainer: {
     width: '100%',
     alignItems: 'center',
-    backgroundColor: Colors.useGreen,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    height: '8%',
+    // backgroundColor: '#1c571cff',
+    // borderBottomLeftRadius: 20,
+    // borderBottomRightRadius: 20,
+    height: 40,
+    marginVertical: 10,
+
     justifyContent: 'center',
   },
   title: {
-    color: 'white',
+    color: '#1c571cff',
     fontFamily: 'Poppins-SemiBold',
     // paddingBottom: 8,
     // paddingTop: 4,
-    fontSize: 22,
-    paddingTop: 20,
+    fontSize: 21,
+    // paddingTop: 20,
   },
 });

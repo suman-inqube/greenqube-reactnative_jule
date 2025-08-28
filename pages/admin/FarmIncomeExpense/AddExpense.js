@@ -319,7 +319,7 @@ const AddExpense = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: Colors.pageBackground}}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
           <DatePickerComp
             openDate={openFromDate}
             newDate={newFromDate}
@@ -502,8 +502,7 @@ export default AddExpense;
 const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
-    marginTop: 20,
-    backgroundColor: Colors.background_light,
+    marginTop: 10,
   },
   iconView: {
     alignSelf: 'center',
@@ -524,23 +523,18 @@ const styles = StyleSheet.create({
     //   width: '90%',
     flex: 1,
     backgroundColor: Colors.background,
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    // elevation:1,
-    // marginVertical: 10,
-    marginHorizontal: '2.5%',
+    padding: 16,
+
     marginBottom: 30,
   },
   AddExpenseContainer: {
     flex: 1,
-    marginVertical: 30,
+    marginVertical: 10,
     padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#F7FCFF',
-    elevation: 5,
-    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: '#ecf8ffff',
+    elevation: 3,
+    // marginBottom: 10,
   },
   card: {
     width: '100%',
