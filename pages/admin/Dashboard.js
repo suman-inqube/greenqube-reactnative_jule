@@ -207,49 +207,107 @@ const Dashboard = ({ navigation }) => {
       {/* <BackGroundLocation /> */}
       <ForegroundLocationService />
       <ForegroundHandler />
-      <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-        <CustomHeader path="exit" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} show={true} />
+      <View style={{flex: 1, backgroundColor: '#f9f9f9'}}>
+        <CustomHeader
+          path="exit"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
+          show={true}
+        />
         <View name="name">
           <View style={styles.containerimg}>
-            {profileImg ?
-              <ImagePlaceHolderCircleWithoutAddButton imageurl={{ uri: profileImg }} /> : <ImagePlaceHolderCircleWithoutAddButton imageurl={require('../Common/images/avatar.png')} />
-            }
+            {profileImg ? (
+              <ImagePlaceHolderCircleWithoutAddButton
+                imageurl={{uri: profileImg}}
+              />
+            ) : (
+              <ImagePlaceHolderCircleWithoutAddButton
+                imageurl={require('../Common/images/avatar.png')}
+              />
+            )}
           </View>
-          <Text style={styles.userTitle}>{t('farmerdashboard_welcome_text')} {userName}</Text>
+          <Text style={styles.userTitle}>
+            {t('farmerdashboard_welcome_text')} {userName}
+          </Text>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View >
+          <View>
             <View style={styles.container}>
-              <BoxDisplay text={t('register_nfarmer')} imageurl={require('../Common/images/register_farmer.png')} onpress={() => navigateToPages('PersonalInformation')} />
-              <BoxDisplay text={t('farmer_list')} imageurl={require('../Common/images/farmer_list.png')} onpress={() => navigateToPages('userList')} />
+              <BoxDisplay
+                text={t('register_nfarmer')}
+                imageurl={require('../Common/images/register_farmer.png')}
+                onpress={() => navigateToPages('PersonalInformation')}
+              />
+              <BoxDisplay
+                text={t('farmer_list')}
+                imageurl={require('../Common/images/farmer_list.png')}
+                onpress={() => navigateToPages('userList')}
+              />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('crop_prob_far_dash')} imageurl={require('../Common/images/raise_problem_only.png')} onpress={() => navigateToPages('ProblemList')} />
-              <BoxDisplay text={t('acti_report_far_dash')} imageurl={require('../Common/images/activity_report_only.png')} onpress={() => navigateToPages('activityList')} />
+              <BoxDisplay
+                text={t('crop_prob_far_dash')}
+                imageurl={require('../Common/images/raise_problem_only.png')}
+                onpress={() => navigateToPages('ProblemList')}
+              />
+              <BoxDisplay
+                text={t('acti_report_far_dash')}
+                imageurl={require('../Common/images/activity_report_only.png')}
+                onpress={() => navigateToPages('activityList')}
+              />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('agri_inputs_ninquiry_far_dash')} imageurl={require('../Common/images/input_inqu_only.png')} onpress={() => navigateToPages('InputList')} />
-              <BoxDisplay text={t('agri_output_far_dash')} imageurl={require('../Common/images/dash_sale_your_product.png')} onpress={() => navigateToPages('OutPutList')} />
+              <BoxDisplay
+                text={t('agri_inputs_ninquiry_far_dash')}
+                imageurl={require('../Common/images/input_inqu_only.png')}
+                onpress={() => navigateToPages('InputList')}
+              />
+              <BoxDisplay
+                text={t('agri_output_far_dash')}
+                imageurl={require('../Common/images/dash_sale_your_product.png')}
+                onpress={() => navigateToPages('OutPutList')}
+              />
             </View>
             <View style={styles.container}>
-              <BoxDisplay text={t('market_information')} imageurl={require('../Common/images/market_information_only.png')} />
-              <BoxDisplay text={t('useful_ninformation_dash')} imageurl={require('../Common/images/dash_useful_information.png')} onpress={() => navigateToPages('UsefulInformationList')} />
+              <BoxDisplay
+                text={t('plot_status')}
+                imageurl={require('../Common/images/lot.png')}
+                onpress={() => navigateToPages('Market')}
+              />
+              <BoxDisplay
+                text={t('useful_ninformation_dash')}
+                imageurl={require('../Common/images/dash_useful_information.png')}
+                onpress={() => navigateToPages('UsefulInformationList')}
+              />
             </View>
-            <View style={{ marginTop: 16, elevation: 5 }}>
-              {bottomBanner ?
+            <View style={{marginTop: 16, elevation: 5}}>
+              {bottomBanner ? (
                 <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm source={{ uri: bottomBanner }} resizeMode="cover" height={200} width={'100%'} />
+                  <ImageForm
+                    source={{uri: bottomBanner}}
+                    resizeMode="cover"
+                    height={200}
+                    width={'100%'}
+                  />
                 </TouchableOpacity>
-                : <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
-                  <ImageForm source={require('../Common/images/ad_banner_space.jpg')} resizeMode="cover" height={200} width={'100%'} />
-                </TouchableOpacity>}
+              ) : (
+                <TouchableOpacity onPress={() => CompanyWebsiteOpen()}>
+                  <ImageForm
+                    source={require('../Common/images/ad_banner_space.jpg')}
+                    resizeMode="cover"
+                    height={200}
+                    width={'100%'}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </ScrollView>
       </View>
       <Root></Root>
     </>
-  )
+  );
 }
 
 export default Dashboard

@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 const HarvestedModel = ({
     setModalVisible,
     modalVisible,
-    handleHarvested
+    handleHarvested,
+    status
 }) => {
     const { t } = useTranslation();
     return (
@@ -24,9 +25,11 @@ const HarvestedModel = ({
                         <TouchableOpacity style={styles.item} onPress={() => { handleHarvested("same produce"); setModalVisible(!modalVisible) }}>
                             <Text style={styles.title}>{t('same_crop_continue')}</Text>
                         </TouchableOpacity>
+                        {status !== "CARBON_DOCUMENTS_APPROVED" && (
                         <TouchableOpacity style={styles.item} onPress={() => { handleHarvested("add new Produce"); setModalVisible(!modalVisible) }}>
                             <Text style={styles.title}>{t('new_crop_continue')}</Text>
                         </TouchableOpacity>
+                        )}
                     </View>
                 </View>
             </Modal>

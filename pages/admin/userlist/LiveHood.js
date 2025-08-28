@@ -679,7 +679,6 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
     if (plotSiteUserLandDetails.length != 0) {
       if (dataProps?.plot_no != undefined) {
         handlePlot({ label: dataProps?.plot_no, value: dataProps?.rel_id, latitude: dataProps?.latitude, longitude: dataProps?.longitude });
-
         setupdateRelId(dataProps?.rel_id);
       }
     }
@@ -1695,17 +1694,19 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             farmerData.cycleStartDate == ''
               ? issuenewDate
               : new Date(
-                `${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1
-                }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-              )
+                  `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                    new Date(farmerData.cycleStartDate).getMonth() + 1
+                  }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+                )
           }
           minimumDate={
             farmerData.cycleStartDate == ''
               ? ''
               : new Date(
-                `${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1
-                }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-              )
+                  `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                    new Date(farmerData.cycleStartDate).getMonth() + 1
+                  }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+                )
           }
           setOpenDate={setopenCycleEnd}
           handleDatePicker={handleDatePicker2}
@@ -1727,13 +1728,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             setModalVisible={setModalVisible}
             modalVisible={modalVisible}
             handleHarvested={handleHarvested}
+            status={statuslevel.label}
           />
         )}
 
         <ScrollView
-          style={{ marginHorizontal: 30, marginVertical: 10 }}
+          style={{marginHorizontal: 30, marginVertical: 10}}
           showsVerticalScrollIndicator={false}>
-          <View style={{ marginBottom: 40 }}>
+          <View style={{marginBottom: 40}}>
             {statuslevel.label == 'REJECTED' && (
               <View
                 style={{
@@ -1807,7 +1809,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               onChange={item => {
                 handleAddData(item, 'terrainType', 'terrainTypeValue');
               }}
-            // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+              // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
             />
             <DropdownForm
               label={t('select_land_type')}
@@ -1817,7 +1819,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 handleAddData(item, 'landType', 'landTypeValue');
               }}
               val={farmerData.landType}
-            // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+              // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
             />
             <DropdownForm
               label={t('addland_soil_type_dv')}
@@ -1827,10 +1829,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 handleAddData(item, 'soilType', 'soilTypeValue');
               }}
               val={farmerData.soilType}
-            // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+              // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
             />
             <View style={styles.plotSiteUnit}>
-              <View style={{ width: '45%' }}>
+              <View style={{width: '45%'}}>
                 <InputTextForm
                   label={t('pre_land_size')}
                   color="red"
@@ -1841,15 +1843,15 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                   // editable={InputTextFormEdit}
                   editable={
                     statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                       ? false
                       : true
                   }
                 />
               </View>
-              <View style={{ width: '45%' }}>
+              <View style={{width: '45%'}}>
                 {/* /// size */}
                 <DropdownForm
                   label={t('select_unit')}
@@ -1861,9 +1863,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                   val={farmerData.unit}
                   disable={
                     statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                       ? true
                       : false
                   }
@@ -1874,9 +1876,10 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               <InputTextForm
                 label={
                   t('Converted reported Land size ') +
-                  `${landAreaUnit?.[0]?.defined_unit_value
-                    ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                    : '(Square meter)'
+                  `${
+                    landAreaUnit?.[0]?.defined_unit_value
+                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                      : '(Square meter)'
                   }`
                 }
                 value={farmerData?.ConvertedreportedLandsize.toString()}
@@ -1897,18 +1900,18 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               loginUser_data={loginUser_data}
               disable={
                 statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                   ? false
                   : statuslevel.label == 'PENDING' ||
                     statuslevel.label == 'REJECTED'
-                    ? false
-                    : true
+                  ? false
+                  : true
               }
               InputTextFormEdit={InputTextFormEdit}
             />
-            <View style={{ marginTop: 15 }}>
+            <View style={{marginTop: 15}}>
               <ProofAndIdentityPropfComp
                 identityProofIdentityPropf={identityProofIdentityPropf}
                 t={t}
@@ -1919,31 +1922,33 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 setPhotoDeletedValue={setIdentityPhotoDeletedValue}
                 loginUser_data={loginUser_data}
                 status_level={statuslevel.label}
-                InputTextFormEdit={statuslevel.label == 'PENDING' ||
+                InputTextFormEdit={
+                  statuslevel.label == 'PENDING' ||
                   statuslevel.label == 'REJECTED'
-                  ? true
-                  : false}
+                    ? true
+                    : false
+                }
                 disable={
                   statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? false
                     : statuslevel.label == 'PENDING' ||
                       statuslevel.label == 'REJECTED'
-                      ? false
-                      : true
+                    ? false
+                    : true
                 }
-
               />
             </View>
             {area != 0 && area != null && (
               <InputTextForm
                 label={
                   t('Calculated Map Area ') +
-                  `${landAreaUnit?.[0]?.defined_unit_value
-                    ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                    : '(Square meter)'
+                  `${
+                    landAreaUnit?.[0]?.defined_unit_value
+                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                      : '(Square meter)'
                   }`
                 }
                 value={area.toString()}
@@ -1967,13 +1972,13 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 editable={false}
               />
             )} */}
-            <View style={{ marginTop: 10 }}>
+            <View style={{marginTop: 10}}>
               <InputTextForm
                 label={t('Enter IOT Id')}
                 onChangeText={text => handleIOTId('IOTId', text)}
                 value={farmerData.IOTId}
-              // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
-              // editable={InputTextFormEdit}
+                // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
+                // editable={InputTextFormEdit}
               />
             </View>
             <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
@@ -1987,7 +1992,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                 </Text>
                 <Image
                   source={require('../../Common/images/location.png')}
-                  style={{ width: 40, height: 40 }}
+                  style={{width: 40, height: 40}}
                   resizeMode="contain"
                 />
               </View>
@@ -2001,8 +2006,8 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                       data?.latitude != 10 && data?.latitude.length != ''
                         ? ''
                         : dataProps?.status_level != 'APPROVED'
-                          ? handleCurrentLatLong(index)
-                          : ''
+                        ? handleCurrentLatLong(index)
+                        : ''
                     }>
                     <View style={styles.latlongContainer}>
                       <Text style={styles.title}>
@@ -2023,7 +2028,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                       {/* <TouchableOpacity onPress={() => handleCurrentLatLong(index)}> */}
                       <Image
                         source={require('../../Common/images/location.png')}
-                        style={{ width: 40, height: 40 }}
+                        style={{width: 40, height: 40}}
                         resizeMode="contain"
                       />
                       {/* </TouchableOpacity> */}
@@ -2109,7 +2114,7 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               }
             />
             <View style={styles.plotSiteUnit}>
-              <View style={{ width: '45%' }}>
+              <View style={{width: '45%'}}>
                 <InputTextForm
                   label={t('expected_yield')}
                   keyboardType="number-pad"
@@ -2118,16 +2123,16 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                   onChangeText={text =>
                     handleAddUserData('expectedProduction', text)
                   }
-                // editable={
-                //   edit == ''
-                //     ? harvested == 'same produce'
-                //       ? false
-                //       : true
-                //     : !edit
-                // }
+                  // editable={
+                  //   edit == ''
+                  //     ? harvested == 'same produce'
+                  //       ? false
+                  //       : true
+                  //     : !edit
+                  // }
                 />
               </View>
-              <View style={{ width: '45%' }}>
+              <View style={{width: '45%'}}>
                 <DropdownForm
                   label={`${t('select_unit_input')}`}
                   color="red"
@@ -2136,14 +2141,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                     handleAddData(item, 'unitProduct', 'unitProductValue');
                   }}
                   val={farmerData.unitProduct}
-                // disable={edit}
-                // disable={
-                //   edit == ''
-                //     ? harvested == 'same produce'
-                //       ? true
-                //       : false
-                //     : edit
-                // }
+                  // disable={edit}
+                  // disable={
+                  //   edit == ''
+                  //     ? harvested == 'same produce'
+                  //       ? true
+                  //       : false
+                  //     : edit
+                  // }
                 />
               </View>
             </View>
@@ -2154,14 +2159,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                   : null
               }
               activeOpacity={9}>
-              <Text style={{ marginBottom: 5, color: '#f40000' }}>
+              <Text style={{marginBottom: 5, color: '#f40000'}}>
                 {t('showing_date')}
               </Text>
               <View style={styles.calenderContainer}>
-                <Text style={{ color: '#000' }}>{farmerData.cycleStartDate}</Text>
+                <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
+                  style={{width: 20, height: 20}}
                 />
               </View>
             </TouchableOpacity>
@@ -2172,14 +2177,14 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                   : null
               }
               activeOpacity={9}>
-              <Text style={{ marginBottom: 5, color: '#f40000', marginTop: 10 }}>
+              <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
                 {t('harvesting_date_auto_calculated')}
               </Text>
               <View style={styles.calenderContainer}>
-                <Text style={{ color: '#000' }}>{farmerData.cycleEndDate}</Text>
+                <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
                 <Image
                   source={require('../../Common/images/calendar.png')}
-                  style={{ width: 20, height: 20 }}
+                  style={{width: 20, height: 20}}
                 />
               </View>
             </TouchableOpacity>
@@ -2188,8 +2193,8 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
               statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
               statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-              carbonFlag == true ? (
-              <View style={{ marginTop: 15 }}>
+            carbonFlag == true ? (
+              <View style={{marginTop: 15}}>
                 <CarbonCertificate
                   identityProofIdentityPropf={carboncertificate}
                   t={t}
@@ -2207,8 +2212,8 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
                       : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                         statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                        ? false
-                        : true
+                      ? false
+                      : true
                   }
                   InputTextFormEdit={
                     statuslevel.label == 'APPROVED' ? true : false
@@ -2223,16 +2228,18 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
             ) : (
               <></>
             )}
-            {
-              (addPlot == false ? (userData != 'addUserData' ?
+            {addPlot == false ? (
+              userData != 'addUserData' ? (
                 <TouchableOpacity
                   style={styles.clickAddMorePlots}
                   onPress={() => handleUserData()}>
                   <Text style={styles.clickAddMorePlotsTitle}>
-                    {t('click_to_add_more_plot')}{addPlot}
+                    {t('click_to_add_more_plot')}
+                    {addPlot}
                   </Text>
-                </TouchableOpacity> : null) : null)
-            }
+                </TouchableOpacity>
+              ) : null
+            ) : null}
           </View>
         </ScrollView>
         {/* <TouchableOpacity
@@ -2244,9 +2251,9 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
         </TouchableOpacity> */}
         {plotEdit || addPlot == true ? (
           <TouchableOpacity
-            style={[styles.locationAddMoreContainer, { bottom: 250 }]}
+            style={[styles.locationAddMoreContainer, {bottom: 250}]}
             onPress={() => setShowModal(!showModal)}>
-            <Text style={[styles.title, { color: '#FFF', marginRight: 20 }]}>
+            <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
               {t('MapView')}
             </Text>
           </TouchableOpacity>

@@ -943,7 +943,7 @@
   "days": "Days",
   "add_income_head": "Add Income Head",
   "past_enq": "Past Enquiries",
-  "address_proof": "Attach  Land Record",
+  "address_proof": "Attach Land Record",
   "land_records": "Attach Supporting Documents",
   "identity_proof": "Attach Identity Proof",
   "take_file": "Take File",
@@ -1045,8 +1045,9 @@
   "view_document": "View Document",
   "instrument_name": "Instrument Name",
   "activity_description1": "Activity \n Description",
-  "instrument_Wise_Activity_View":"Instrument Wise Activity View",
-  "activity_Pipe_Images":"Activity Pipe Images",
-  "please_update_both_image":"Please update both image.",
-  "activity_Pipe_List":"Activity Pipe List"
+  "instrument_Wise_Activity_View": "Instrument Wise Activity View",
+  "activity_Pipe_Images": "Activity Pipe Images",
+  "please_update_both_image": "Please update both image.",
+  "activity_Pipe_List": "Activity Pipe List",
+  "plot_status": "Plot Status"
 }

@@ -168,6 +168,7 @@ const Login = ({ route }) => {
     return true;
   };
   const saveHandle = async () => {
+    console.log("sub111")
     const [fcmToken_res, remData] = await Promise.all([
       getItem('fcmToken'),
       getItem('rememberData'),
@@ -216,6 +217,7 @@ const Login = ({ route }) => {
             loginUserdata?.db_company_id,
           );
           if (details_company_res?.status == 200) {
+            console.log(details_company_res?.data?.data[0]?.unitStatus);
 
             if (details_company_res?.data?.data[0]?.unitStatus == false){
               setIsLoading(false);

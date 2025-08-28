@@ -331,7 +331,7 @@ const ProofAndIdentityPropfComp = ({
                  source={require('../Common/images/scan.png')}
                  style={{width: 30, height: 30}}
                />
-               <Text style={styles.title}>Scanner</Text>
+               <Text style={styles.title}>Scan</Text>
              </TouchableOpacity>}
              {status_level!="APPROVED" && <TouchableOpacity
                onPress={() => {
