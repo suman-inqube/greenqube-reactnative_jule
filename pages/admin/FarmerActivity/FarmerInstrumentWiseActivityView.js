@@ -19,6 +19,8 @@ import {useIsFocused, useRoute} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import CollapsibleCard from '../../Common/CollapsibleCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors} from '../../utils/Constants';
+import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 const FarmerInstrumentWiseActivityView = ({navigation}) => {
   //GQR-67
   const {
@@ -315,7 +317,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, backgroundColor: '#e2e2e2ff'}}>
           {openFromDate && (
             <DatePickerComp
               openDate={openFromDate}
@@ -341,28 +343,30 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
               }
             />
           )}
-          <FarmerFilter
-            filterItem={filterItem}
-            filterOption={filterOption}
-            setOpenToDate={setOpenToDate}
-            fromDate={fromDate}
-            newToDate={toDate}
-            setOpenFromDate={setOpenFromDate}
-            filterOptionShow={filterOptionShow}
-            onchangeFilterItem={onchangeFilterItem}
-            onChangeText={item => handleFilter(item)}
-            title={t('activity_Pipe_List')}
-            // filterItem={'Date'}
-            onlyDate={true}
-            filterDataRemove={filterDataRemove}
-            carbonFlag={false}
-            onChangeCarbonType={onChangeCarbonType}
-            carbonTypeVal={carbonType}
-            dataActivity={[
-              {label: 'Carbon ', value: 'carbon_activity'},
-              {label: 'Non-Carbon ', value: 'user_activity'},
-            ]}
-          />
+          <View style={{marginVertical: 10}}>
+            <FarmerFilter
+              filterItem={filterItem}
+              filterOption={filterOption}
+              setOpenToDate={setOpenToDate}
+              fromDate={fromDate}
+              newToDate={toDate}
+              setOpenFromDate={setOpenFromDate}
+              filterOptionShow={filterOptionShow}
+              onchangeFilterItem={onchangeFilterItem}
+              onChangeText={item => handleFilter(item)}
+              // title={t('activity_Pipe_List')}
+              // filterItem={'Date'}
+              onlyDate={true}
+              filterDataRemove={filterDataRemove}
+              carbonFlag={false}
+              onChangeCarbonType={onChangeCarbonType}
+              carbonTypeVal={carbonType}
+              dataActivity={[
+                {label: 'Carbon ', value: 'carbon_activity'},
+                {label: 'Non-Carbon ', value: 'user_activity'},
+              ]}
+            />
+          </View>
           <>
             {searchResultsList && searchResultsList ? (
               <View
@@ -391,21 +395,19 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
               ''
             )}
           </>
-          {isLoading && (
-            <View style={styles.loadingScreen}>
-              <LoadingScreen />
-            </View>
-          )}
+
           <FlatList
-            data={activityAll}
+            data={isLoading ? Array.from({length: 5}) : activityAll}
             keyExtractor={(item, index) =>
               item?.id?.toString() || index.toString()
             }
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             style={{padding: 10}}
-            renderItem={({item, index}) => {
-              return (
+            renderItem={({item, index}) =>
+              isLoading ? (
+                <PlotStatusSkeletonScreen />
+              ) : (
                 <TouchableOpacity
                   onPress={() =>
                     navigation.navigate(
@@ -417,7 +419,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
                     width="100%"
                     header={
                       <View style={{height: 30}}>
-                        <Text style={[styles.title, {fontSize: 15}]}>
+                        <Text style={[styles.titleHeader, {fontSize: 15}]}>
                           {item?.pipe_name}
                         </Text>
                       </View>
@@ -460,7 +462,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
                             </Text>
                           </View>
                           <View style={{marginLeft: 10}}>
-                            <Text style={styles.title}>
+                            <Text style={styles.titleVal}>
                               : {item?.pipeUser?.userName}
                             </Text>
                             <Text style={styles.title}>
@@ -726,8 +728,8 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
                     }
                   />
                 </TouchableOpacity>
-              );
-            }}
+              )
+            }
           />
 
           <View style={styles.prevNextPage}>
@@ -772,6 +774,18 @@ const styles = StyleSheet.create({
     color: '#000',
     lineHeight: 25,
     fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+  },
+  titleVal: {
+    color: '#000',
+    lineHeight: 25,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+  },
+  titleHeader: {
+    color: '#256c07ff',
+    fontFamily: 'Poppins-SemiBold',
+    lineHeight: 25,
     fontSize: 14,
   },
   prevNextPage: {

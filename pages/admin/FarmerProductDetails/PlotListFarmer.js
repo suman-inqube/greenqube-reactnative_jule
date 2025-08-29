@@ -26,6 +26,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {AlertMesg} from '../../Common/ToastAlert';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
+import {Colors} from '../../utils/Constants';
 
 const PlotListFarmer = () => {
   const navigation = useNavigation();
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
     width,
     flex: 1,
     // backgroundColor: '#E9EAEC',
-    backgroundColor: '#f5f6fb',
+    backgroundColor: Colors.background_light,
     // padding: 10,
   },
   item: {
@@ -546,7 +547,7 @@ const styles = StyleSheet.create({
   },
   textHeader: {
     fontSize: 14,
-    color: '#ffffffff',
+    color: '#256c07ff',
     fontFamily: 'Poppins-SemiBold',
     marginVertical: 3,
   },

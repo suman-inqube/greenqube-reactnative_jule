@@ -1,11 +1,19 @@
-import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native';
-import React, { memo } from 'react';
-import { Fonts } from '../utils/Constants';
+import {StyleSheet, View, TouchableOpacity, Image, Text} from 'react-native';
+import React, {memo} from 'react';
+import {Fonts} from '../utils/Constants';
 
-const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color }) => {
+const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
   return (
     <>
-      <Text style={(styles.title, { color: color ?? 'black' })}>
+      <Text
+        style={
+          (styles.title,
+          {
+            color: color ?? 'black',
+            fontSize: 15,
+            fontFamily: 'Poppins-Regular',
+          })
+        }>
         {title ? title : 'Default'}
       </Text>
       <View style={styles.container}>
@@ -15,14 +23,19 @@ const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color }) => {
           {selectedImage.firstItem == '' ? (
             <Image
               source={require('../Common/images/camera.jpeg')}
-              style={{ width: 40, height: 40, opacity: 0.7 }}
-
+              style={{width: 40, height: 40, opacity: 0.7}}
             />
           ) : (
             <Image
-              source={{ uri: `${selectedImage.firstItem}` }}
+              source={{uri: `${selectedImage.firstItem}`}}
               // style={styles.image}
-              style={{ width: '100%', height: 100 }}
+              style={{
+                width: '100%',
+                height: 100,
+                borderRadius: 8,
+                borderWidth: 8,
+                borderColor: 'white',
+              }}
               resizeMode="contain"
             />
           )}
@@ -33,13 +46,19 @@ const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color }) => {
           {selectedImage.secondItem == '' ? (
             <Image
               source={require('../Common/images/camera.jpeg')}
-              style={{ width: 40, height: 40, opacity: 0.7 }}
+              style={{width: 40, height: 40, opacity: 0.7, borderRadius: 8}}
             />
           ) : (
             <Image
-              source={{ uri: `${selectedImage.secondItem}` }}
+              source={{uri: `${selectedImage.secondItem}`}}
               // style={styles.image}
-              style={{ width: '100%', height: 100 }}
+              style={{
+                width: '100%',
+                height: 100,
+                borderRadius: 8,
+                borderWidth: 8,
+                borderColor: 'white',
+              }}
               resizeMode="contain"
             />
           )}
@@ -70,18 +89,20 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-between',
     paddingBottom: 10,
     gap: 15,
+    marginTop: 10,
   },
   item: {
     // backgroundColor: '#e9e9e9',
     width: '30%',
-    paddingVertical: 10,
-    borderRadius: 6,
+    // paddingVertical: 10,
+    // borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
     TouchableOpacityAlign: 'center',
   },
   title: {
     color: '#000',
-    fontFamily: Fonts.Medium
+    fontFamily: Fonts.Medium,
+    fontSize: 16,
   },
 });

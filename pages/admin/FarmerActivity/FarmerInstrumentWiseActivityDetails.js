@@ -12,6 +12,7 @@ import Marker, {Position} from 'react-native-image-marker';
 import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
 import useLocationTracking from '../../Common/useLocationTracking';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const FarmerInstrumentWiseActivityDetails = ({navigation}) => {
   const location = useLocationTracking();
   const {
@@ -252,33 +253,44 @@ const FarmerInstrumentWiseActivityDetails = ({navigation}) => {
     });
   };
   return (
-    <Root>
-      <View style={{flex: 1}}>
-        {isLoading ? (
-          <View style={styles.LoadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <FormsTitle title={t('activity_Pipe_Images')} />
-        <View style={{backgroundColor: '#FFF', padding: 10, borderRadius: 10}}>
-          <TakePhotoPipe
-            openImagePicker={openImagePickerPipe}
-            selectedImage={selectedImagePipe}
-            title={`${pipeName}`}
-            color="black"
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
+          {isLoading ? (
+            <View style={styles.LoadingScreen}>
+              <LoadingScreen />
+            </View>
+          ) : null}
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
           />
+          <FormsTitle title={t('activity_Pipe_Images')} />
+          <View
+            style={{
+              backgroundColor: '#e5ecf7ff',
+              padding: 10,
+              borderRadius: 8,
+              margin: 20,
+            }}>
+            <TakePhotoPipe
+              openImagePicker={openImagePickerPipe}
+              selectedImage={selectedImagePipe}
+              title={`${pipeName}`}
+              color="black"
+            />
+          </View>
+          {params?.status_label == 'REJECTED' && (
+            <ButtonFormBottom
+              label="Update"
+              onPress={() => handleImgUpdate()}
+            />
+          )}
         </View>
-        {params?.status_label == 'REJECTED' && (
-          <ButtonFormBottom label="Update" onPress={() => handleImgUpdate()} />
-        )}
-      </View>
-    </Root>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

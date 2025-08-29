@@ -56,6 +56,7 @@ import SampleReport from './SoilHealth/SampleReport';
 import AudioPlayerView from '../Common/AudioPlayerView';
 import {Colors} from '../utils/Constants';
 import FarmerInstrumentWiseActivityView from './FarmerActivity/FarmerInstrumentWiseActivityView';
+import FarmerInstrumentWiseActivityDetails from './FarmerActivity/FarmerInstrumentWiseActivityDetails';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -152,6 +153,10 @@ const FarmerMainStack = () => (
     <Stack.Screen
       name="FarmerInstrumentWiseActivityView"
       component={FarmerInstrumentWiseActivityView}
+    />
+    <Stack.Screen
+      name="FarmerInstrumentWiseActivityDetails"
+      component={FarmerInstrumentWiseActivityDetails}
     />
 
     <Stack.Screen name="PackageOfPractices" component={PackageOfPractices} />
