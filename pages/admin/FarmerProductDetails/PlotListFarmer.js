@@ -27,6 +27,9 @@ import {AlertMesg} from '../../Common/ToastAlert';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 import {Colors} from '../../utils/Constants';
+import TabBar from '../../Components/TabBar';
+import FloatingActionButton from '../../Components/FloatingActionButton';
+import {getActionsPlot} from '../../utils/options';
 
 const PlotListFarmer = () => {
   const navigation = useNavigation();
@@ -149,39 +152,16 @@ const PlotListFarmer = () => {
               <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
             </View>
             {/* Tab Bar */}
-            <View style={styles.tabBar}>
-              <TouchableOpacity
-                style={styles.tab}
-                onPress={() => onTabPress(0)}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === 0 && styles.activeTabText,
-                  ]}>
-                  Plot Status
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.tab}
-                onPress={() => onTabPress(1)}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === 1 && styles.activeTabText,
-                  ]}>
-                  Plot Add and Edit
-                </Text>
-              </TouchableOpacity>
 
-              {/* Animated Tab Indicator */}
-              <Animated.View
-                style={[
-                  styles.indicator,
-                  {transform: [{translateX: indicatorPosition}]},
-                ]}
-              />
-            </View>
-
+            <TabBar
+              tabs={['Plot Status', 'Plot Add and Edit']}
+              activeTab={activeTab}
+              onTabPress={ix => onTabPress(ix)}
+              indicatorColor={Colors.useGreen}
+              height={65}
+              backgroundColor={'#e2e2e2ff'}
+              colors={Colors.primary}
+            />
             {/* Swipeable Content */}
             <ScrollView
               ref={scrollRef}
@@ -474,18 +454,28 @@ const PlotListFarmer = () => {
               </View>
             </ScrollView>
             {activeTab == 0 ? (
-              <TouchableOpacity
-                style={[styles.locationAddMoreContainer, {bottom: 250}]}
-                onPress={() => {
-                  onTabPress(1);
-                  setDataProps({});
-                  setAddPlot(true);
-                }}>
-                <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
-                  {t('Add Plot')}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
+              <>
+                <FloatingActionButton
+                  position="right"
+                  actions={getActionsPlot(t, styles, Colors)}
+                  color={Colors.useGreen}
+                  onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
+                  overlayColor="rgba(22, 17, 17, 0.35)"
+                  distanceToEdge={{vertical: 80, horizontal: 25}}
+                />
+              </>
+            ) : // <TouchableOpacity
+            //   style={[styles.locationAddMoreContainer, {bottom: 250}]}
+            //   onPress={() => {
+            //     onTabPress(1);
+            //     setDataProps({});
+            //     setAddPlot(true);
+            //   }}>
+            //   <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+            //     {t('Add Plot')}
+            //   </Text>
+            // </TouchableOpacity>
+            null}
           </View>
         </Root>
       </>
