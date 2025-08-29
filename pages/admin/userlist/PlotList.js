@@ -34,8 +34,8 @@ import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkelet
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const PlotList = () => {
-  const navigation = useNavigation();
   const route = useRoute();
   const {farmeruserID} = route.params;
   const [activeTab, setActiveTab] = useState(0);
@@ -98,6 +98,7 @@ const PlotList = () => {
   const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
   return (
     <Root>
+      <FarmerDrawerScreenWrapper1>
       <View style={styles.container}>
         {renderCustomHeader}
         <TabBar
@@ -174,6 +175,7 @@ const PlotList = () => {
           </>
         )}
       </View>
+      </FarmerDrawerScreenWrapper1>
     </Root>
   );
 };

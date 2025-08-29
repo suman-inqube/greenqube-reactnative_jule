@@ -9,6 +9,7 @@ import {
   Easing,
 } from 'react-native';
 import moment from 'moment';
+import { Colors } from '../utils/Constants';
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -65,18 +66,20 @@ const GridItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
 
 const styles = StyleSheet.create({
   gridItem: {
-    backgroundColor: '#eaecedff',
+    backgroundColor: Colors.background,
     borderRadius: 12,
     // flex: 1,
     marginHorizontal: '2.5%',
     marginBottom: 12,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    // elevation: 3,
+    // shadowColor: '#000',
+    // shadowOffset: {width: 0, height: 2},
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
     overflow: 'hidden',
     width: '45%',
+    borderWidth: 0.5,
+    borderColor: Colors.border,
   },
   gridImageContainer: {
     width: '100%',

@@ -22,6 +22,7 @@ import ImageForm from '../../Common/ImageForm';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
 import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
+import HeaderWithSearchAndToggle from '../../Components/HeaderWithSearchAndToggle';
 const TrainingList = () => {
   //GQR-67
   const { loginUser_data, CustomHeader, t, AlertMesg, onBackPress, getItem, setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
@@ -49,7 +50,6 @@ const TrainingList = () => {
     await setItem("userNoticeId", itemId);
     navigation.navigate('Training', { pagename: 'Training', noticeId: itemId });
   }
-
   const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id) => {
     setLoading(true);
     let response = await trainingListAPI(
@@ -81,17 +81,8 @@ const TrainingList = () => {
   };
 
   useEffect(() => {
-    if (isFocused) {
-      if (currentRoute.params != undefined) {
-        onPageLoad();
-      }
-      onBackPress(() => {
-        setTrainingList([]);
-        setTitleSearch('');
-        navigation.navigate('Dashboard'); return true;
-      })
-    }
-  }, [isFocused]);
+    onPageLoad();
+  }, []);
   const HandlerGoBack = () => {
     setTrainingList([]);
     setTitleSearch('');
@@ -118,51 +109,13 @@ const TrainingList = () => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-
-        {/* Header with Title and Toggle Button */}
-        <View style={styles.headerContainer}>
-          <View style={styles.titleContainer}>
-            <FormsTitle title={t('training_support')} />
-          </View>
-          <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
-            {isGridView ? (
-              <Image
-                source={require('../../Common/images/view_list.png')}
-                style={styles.toggleIcon}
-              />
-            ) : (
-              <Image
-                source={require('../../Common/images/view_grid.png')}
-                style={styles.toggleIcon}
-              />
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Container */}
-        <View style={styles.searchContainer}>
-          <View style={styles.textInputContainer}>
-            <TextInput
-              placeholder={'Search...'}
-              placeholderTextColor={'#999'}
-              style={styles.textInput}
-              value={titleSearch}
-              onChangeText={setTitleSearch}
-              onSubmitEditing={searchByTitle}
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-              autoCorrect={false}
-            />
-          </View>
-          <TouchableOpacity onPress={searchByTitle} style={styles.searchIcon}>
-            <ImageForm
-              source={require('../../Common/images/search.png')}
-              resizeMode="cover"
-              height={24}
-              width={24}
-            />
-          </TouchableOpacity>
-        </View>
+        <HeaderWithSearchAndToggle
+          titleSearch={titleSearch}
+          setTitleSearch={setTitleSearch}
+          onSearch={searchByTitle}
+          isGridView={isGridView}
+          onToggleView={toggleView}
+        />
 
         {/* FlatList Container */}
         <View style={styles.flatListContainer}>
@@ -359,11 +312,11 @@ const styles = StyleSheet.create({
     color: '#666',
     fontFamily: 'Poppins-Regular',
   },
-    loaderContainer: {
-  flex: 1,
-  alignItems: 'center',
-  paddingVertical: 40,
-},
+  loaderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
 });
 
 export default TrainingList

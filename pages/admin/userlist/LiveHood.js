@@ -7,8 +7,7 @@ import {
   Image,
   Keyboard,
   Modal,
-  Alert,
-  Linking, InteractionManager, TouchableWithoutFeedback, KeyboardAvoidingView
+  Alert, InteractionManager,
 } from 'react-native';
 import React, {
   useState,

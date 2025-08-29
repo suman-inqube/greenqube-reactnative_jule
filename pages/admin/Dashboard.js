@@ -153,6 +153,7 @@ const Dashboard = ({navigation}) => {
 
       if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
         // parallel server requests
+        console.log(`${dbname},${lan_id}`, '********');
         const [
           UnitConversonToDefault_res,
           LandUnitArea_res,
@@ -164,9 +165,9 @@ const Dashboard = ({navigation}) => {
           axiosGet(
             ROUTES.GET.USEFULL_INFO_LIST({
               userId: user_id,
-              titleSearch: '',
               userType: 'supervisor',
               post: 'general_info',
+              titleSearch: '',
               state_id: agri_user_addresses[0].agri_state.fid,
               district_id: agri_user_addresses[0].agri_district.fid,
               subdiv_id: agri_user_addresses[0].agri_subdivision.fid,
@@ -187,8 +188,6 @@ const Dashboard = ({navigation}) => {
             {information: `${dbname},${lan_id},${user_id}`},
           ),
         ]);
-
-        // compute convertionLUState locally
         let missingCount = 0;
         if (UnitConversonToDefault_res?.status === 200) {
           const rows = UnitConversonToDefault_res.data?.data?.rows || [];
@@ -198,12 +197,12 @@ const Dashboard = ({navigation}) => {
           }
           if (missingCount > 0) convertionLUState = true;
         }
-
         if (LandUnitArea_res?.status === 200) {
           const rows = LandUnitArea_res.data?.data?.rows || [];
           for (let r of rows) {
             if (r.defined_unit_value?.length > 0) {
               defaultLand = true;
+
               break;
             }
           }
@@ -213,7 +212,6 @@ const Dashboard = ({navigation}) => {
           FARMER_USEFULL_INFO_LIST.data.rows,
         );
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-          console.log('ggg');
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
         }
         console.log('usefulInfoList', usefulInfoList);

@@ -173,17 +173,6 @@ const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => 
                 {activity?.typeActivity?.categoryName || "Not specified"}
               </Text>
             </View>
-
-            <Text
-              style={{
-                marginTop: 10,
-                color: Colors.pending,
-                textAlign: "right",
-                fontFamily: Fonts.Medium,
-              }}
-            >
-              👉 Tap for full details
-            </Text>
           </TouchableOpacity>
         </Animated.View>
       )}

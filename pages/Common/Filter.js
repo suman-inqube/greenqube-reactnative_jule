@@ -1,9 +1,18 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native'
-import React, { memo } from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  TextInput,
+} from 'react-native';
+import React, {memo} from 'react';
 import RadioForm from './RadioForm';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import DropdownForm from './DropdownForm';
-import { Dropdown } from 'react-native-element-dropdown'
+import {Dropdown} from 'react-native-element-dropdown';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const Filter = ({
   filterItem,
   filterOption,
@@ -24,19 +33,32 @@ const Filter = ({
   onChangeCarbonType,
   carbonFlag,
   dataActivity,
-  carbonTypeVal
+  carbonTypeVal,
 }) => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   return (
     <>
       <View style={styles.filterContainer}>
-        <View>{title != undefined ? <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 18, color: '#000' }}>{title}</Text> : ""}
+        <View>
+          {title != undefined ? (
+            <Text
+              style={{
+                fontFamily: 'Poppins-SemiBold',
+                fontSize: 14,
+                color: '#4e4e4e',
+              }}>
+              {title}
+            </Text>
+          ) : (
+            ''
+          )}
         </View>
         <View style={styles.filterItem}>
-          {filterItem === 'Farmer/Product Name' ?
+          {filterItem === 'Farmer/Product Name' ? (
             <View style={styles.searchSection}>
               <TouchableOpacity onPress={filterDataRemove}>
-                <Image source={require('./images/cross100.png')}
+                <Image
+                  source={require('./images/cross100.png')}
                   style={styles.searchIcon}
                 />
               </TouchableOpacity>
@@ -49,11 +71,14 @@ const Filter = ({
                 underlineColorAndroid="transparent"
               />
             </View>
-            : ""}
-          {filterItem === 'PhoneNumber' ?
+          ) : (
+            ''
+          )}
+          {filterItem === 'PhoneNumber' ? (
             <View style={styles.searchSection}>
               <TouchableOpacity onPress={filterDataRemove}>
-                <Image source={require('./images/cross100.png')}
+                <Image
+                  source={require('./images/cross100.png')}
                   style={styles.searchIcon}
                 />
               </TouchableOpacity>
@@ -66,19 +91,24 @@ const Filter = ({
                 keyboardType="numeric"
               />
             </View>
-            : ""}
-          {filterItem === 'Category' ?
+          ) : (
+            ''
+          )}
+          {filterItem === 'Category' ? (
             <TextInput
               style={styles.filterInput}
               placeholder={t('category')}
               placeholderTextColor="#000"
               onChangeText={onChangeText}
             />
-            : ""}
-          {filterItem === 'statusFilter' ?
+          ) : (
+            ''
+          )}
+          {filterItem === 'statusFilter' ? (
             <View style={styles.searchSection}>
               <TouchableOpacity onPress={filterDataRemove}>
-                <Image source={require('./images/cross100.png')}
+                <Image
+                  source={require('./images/cross100.png')}
                   style={styles.searchIcon}
                 />
               </TouchableOpacity>
@@ -91,29 +121,49 @@ const Filter = ({
                 underlineColorAndroid="transparent"
               />
             </View>
-            : ""}
-          {filterItem === 'Date' ?
+          ) : (
+            ''
+          )}
+          {filterItem === 'Date' ? (
             <>
               <View style={styles.dataSearchContainer}>
-                <TouchableOpacity onPress={setOpenFromDate} style={styles.dateContainer}>
-                  <Text style={[styles.title, { marginLeft: 5 }]}>
-                    {fromDate == "" ? t('from_date') : `${fromDate}`}
+                <TouchableOpacity
+                  onPress={setOpenFromDate}
+                  style={styles.dateContainer}>
+                  <Text style={[styles.title, {marginLeft: 5}]}>
+                    {fromDate == '' ? t('from_date') : `${fromDate}`}
                   </Text>
-                  <Image source={require('./images/calendar.png')}
-                    style={{ width: 20, height: 20, marginLeft: 5 }}
+                  <MaterialIcons
+                    name="calendar-month"
+                    size={25}
+                    color="#1d3122"
                   />
+                  {/* <Image
+                    source={require('./images/calendar.png')}
+                    style={{width: 20, height: 20, marginLeft: 5}}
+                  /> */}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setOpenToDate(true)} style={styles.dateContainer}>
+                <TouchableOpacity
+                  onPress={() => setOpenToDate(true)}
+                  style={styles.dateContainer}>
                   <Text style={styles.title}>
-                    {newToDate == "" ? t('to_date') : `${newToDate}`}</Text>
-                  <Image source={require('./images/calendar.png')}
-                    style={{ width: 20, height: 20, marginLeft: 5 }}
+                    {newToDate == '' ? t('to_date') : `${newToDate}`}
+                  </Text>
+                  <MaterialIcons
+                    name="calendar-month"
+                    size={25}
+                    color="#1d3122"
                   />
+                  {/* <Image
+                    source={require('./images/calendar.png')}
+                    style={{width: 20, height: 20, marginLeft: 5}}
+                  /> */}
                 </TouchableOpacity>
               </View>
               <View style={styles.searchSection}>
                 <TouchableOpacity onPress={filterDataRemove}>
-                  <Image source={require('./images/cross100.png')}
+                  <Image
+                    source={require('./images/cross100.png')}
                     style={styles.searchIcon}
                   />
                 </TouchableOpacity>
@@ -124,32 +174,52 @@ const Filter = ({
                   onChangeText={onChangeText}
                   value={FarmerProductPhoneValue}
                 /> */}
-                <TouchableOpacity onPress={() => setOpenFromDate(true)} style={styles.dateContainer}>
-                  <Text style={[styles.title, { marginLeft: 5 }]}>
-                    {fromDate == "" ?  t('from_date') : `${fromDate}`}
+                <TouchableOpacity
+                  onPress={() => setOpenFromDate(true)}
+                  style={styles.dateContainer}>
+                  <Text style={[styles.title, {marginLeft: 5}]}>
+                    {fromDate == '' ? t('from_date') : `${fromDate}`}
                   </Text>
-                  <Image source={require('./images/calendar.png')}
-                    style={{ width: 20, height: 20, marginLeft: 5 }}
+                  <MaterialIcons
+                    name="calendar-month"
+                    size={25}
+                    color="#1d3122"
                   />
+                  {/* <Image
+                    source={require('./images/calendar.png')}
+                    style={{width: 20, height: 20, marginLeft: 5}}
+                  /> */}
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setOpenToDate(true)} style={styles.dateContainer}>
+                <TouchableOpacity
+                  onPress={() => setOpenToDate(true)}
+                  style={styles.dateContainer}>
                   <Text style={styles.title}>
-                    {newToDate == "" ?  t('to_date') : `${newToDate}`}</Text>
-                  <Image source={require('./images/calendar.png')}
-                    style={{ width: 20, height: 20, marginLeft: 5 }}
+                    {newToDate == '' ? t('to_date') : `${newToDate}`}
+                  </Text>
+                  <Image
+                    source={require('./images/calendar.png')}
+                    style={{width: 20, height: 20, marginLeft: 5}}
                   />
                 </TouchableOpacity>
               </View>
             </>
-            : ""}
-          {filterItem === 'Carbon' ? <View style={[styles.searchSection, { alignItems: 'flex-start', overflow: 'hidden' }]}>
-            <TouchableOpacity onPress={filterDataRemove}>
-              <Image source={require('./images/cross100.png')}
-                style={[styles.searchIcon, { marginTop: 6 }]}
-              />
-            </TouchableOpacity>
-            <View style={{ width: '80%' }}>
-              {/* <DropdownForm data={dataActivity}
+          ) : (
+            ''
+          )}
+          {filterItem === 'Carbon' ? (
+            <View
+              style={[
+                styles.searchSection,
+                {alignItems: 'flex-start', overflow: 'hidden'},
+              ]}>
+              <TouchableOpacity onPress={filterDataRemove}>
+                <Image
+                  source={require('./images/cross100.png')}
+                  style={[styles.searchIcon, {marginTop: 6}]}
+                />
+              </TouchableOpacity>
+              <View style={{width: '80%'}}>
+                {/* <DropdownForm data={dataActivity}
                 label={''}
                 borderRadiusProps={50} placeholder={'Select Carbon'}
                 onChange={onChangeCarbonType}
@@ -165,69 +235,83 @@ const Filter = ({
                 }}
                 val={carbonTypeVal}
               /> */}
-              <Dropdown
-                style={{
-                  borderColor: 'transparent',
-                  borderWidth: 1.3,
-                  borderRadius: 8,
-                  paddingHorizontal: 8,
-                  backgroundColor: '#FFFFFF',
-                  width: '100%',
-                  elevation: 0,
-                  height: 45
-                }}
-                placeholderStyle={{
-                  color: '#000',
-                  fontFamily: 'Poppins-Regular',
-                  fontSize: 14
-                }}
-                selectedTextStyle={{
-                  color: '#000',
-                  fontFamily: 'Poppins-Regular',
-                  fontSize: 14
-                }}
-                inputSearchStyle={{
-                  color: '#000',
-                  fontFamily: 'Poppins-Regular'
-                }}
-                itemTextStyle={{
-                  color: '#000',
-                  fontFamily: 'Poppins-Regular'
-                }}
-                data={dataActivity}
-                labelField="label"
-                valueField="value"
-                placeholder={'Select Carbon Type'}
-                value={carbonTypeVal}
-                onChange={onChangeCarbonType}
-              />
+                <Dropdown
+                  style={{
+                    borderColor: 'transparent',
+                    borderWidth: 1.3,
+                    borderRadius: 8,
+                    paddingHorizontal: 8,
+                    backgroundColor: '#FFFFFF',
+                    width: '100%',
+                    elevation: 0,
+                    height: 45,
+                  }}
+                  placeholderStyle={{
+                    color: '#000',
+                    fontFamily: 'Poppins-Regular',
+                    fontSize: 14,
+                  }}
+                  selectedTextStyle={{
+                    color: '#000',
+                    fontFamily: 'Poppins-Regular',
+                    fontSize: 14,
+                  }}
+                  inputSearchStyle={{
+                    color: '#000',
+                    fontFamily: 'Poppins-Regular',
+                  }}
+                  itemTextStyle={{
+                    color: '#000',
+                    fontFamily: 'Poppins-Regular',
+                  }}
+                  data={dataActivity}
+                  labelField="label"
+                  valueField="value"
+                  placeholder={'Select Carbon Type'}
+                  value={carbonTypeVal}
+                  onChange={onChangeCarbonType}
+                />
+              </View>
             </View>
-          </View> : ""}
-          <TouchableOpacity onPress={filterOptionShow} >
-            <Image
-              source={require('../Common/images/filter100.png')}
-              resizeMode="cover" style={styles.filterIcon}
+          ) : (
+            ''
+          )}
+          <TouchableOpacity onPress={filterOptionShow}>
+            <MaterialIcons
+              name="tune"
+              size={25}
+              color="#1d3122"
+              style={styles.filterIcon}
             />
+            {/* <Image
+              source={require('../Common/images/filter100.png')}
+              resizeMode="cover"
+              style={styles.filterIcon}
+            /> */}
           </TouchableOpacity>
         </View>
       </View>
-      {filterOption && filterOption == true ?
+      {filterOption && filterOption == true ? (
         <TouchableOpacity style={styles.OptionWrapper}>
-          <RadioForm label={t('farmer_name')}
+          <RadioForm
+            label={t('farmer_name')}
             selected={filterItem === 'Farmer/Product Name'}
             onSelect={() => onchangeFilterItem('Farmer/Product Name')}
           />
-          <RadioForm label={t('farmer_number')}
+          <RadioForm
+            label={t('farmer_number')}
             selected={filterItem === 'PhoneNumber'}
             onSelect={() => onchangeFilterItem('PhoneNumber')}
           />
-          {category == true ?
-            <RadioForm label={t('category')}
+          {category == true ? (
+            <RadioForm
+              label={t('category')}
               selected={filterItem === 'Category'}
               onSelect={() => onchangeFilterItem('Category')}
             />
-            : ""
-          }
+          ) : (
+            ''
+          )}
           {/* {statusFilter == true ?
             <RadioForm label={t('sta_')}
               selected={filterItem === 'statusFilter'}
@@ -235,23 +319,27 @@ const Filter = ({
             />
             : ""
           } */}
-          <RadioForm label={t('date')}
+          <RadioForm
+            label={t('date')}
             selected={filterItem === 'Date'}
             onSelect={() => onchangeFilterItem('Date')}
           />
-          {
-            carbonFlag == true && <RadioForm label={t('Carbon/NonCarbon')}
+          {carbonFlag == true && (
+            <RadioForm
+              label={t('Carbon/NonCarbon')}
               selected={filterItem === 'Carbon'}
               onSelect={() => onchangeFilterItem('Carbon')}
             />
-          }
-        </TouchableOpacity> : ""
-      }
+          )}
+        </TouchableOpacity>
+      ) : (
+        ''
+      )}
     </>
-  )
-}
+  );
+};
 
-export default memo(Filter)
+export default memo(Filter);
 
 const styles = StyleSheet.create({
   filterContainer: {
@@ -264,17 +352,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 15,
     position: 'relative',
-    bottom: 0
+    bottom: 0,
   },
   title: {
     color: '#000',
     fontSize: 15,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
   OptionWrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,
@@ -286,10 +374,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   filterItem: {
-    color: "#000",
+    color: '#000',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   filterInput: {
     backgroundColor: '#FFF',
@@ -297,18 +385,18 @@ const styles = StyleSheet.create({
     marginHorizontal: '2.5%',
     borderRadius: 30,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     elevation: 3,
     paddingHorizontal: 20,
     height: 45,
-    color: "#000",
-    fontFamily: 'Poppins-Regular'
+    color: '#000',
+    fontFamily: 'Poppins-Regular',
   },
   filterIcon: {
     width: 23,
-    height: 23
+    height: 23,
   },
   dataSearchContainer: {
     flexDirection: 'row',
@@ -319,7 +407,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '1%',
     borderRadius: 30,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     elevation: 3,
@@ -330,7 +418,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'space-between',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   searchSection: {
     // flex: 1,
@@ -342,7 +430,7 @@ const styles = StyleSheet.create({
     height: 45,
     marginRight: 10,
     width: '90%',
-    marginHorizontal: '5%'
+    marginHorizontal: '5%',
   },
   searchIcon: {
     // marginHorizontal:10
@@ -363,6 +451,6 @@ const styles = StyleSheet.create({
     color: '#424242',
     borderRadius: 30,
     paddingHorizontal: 20,
-    fontFamily: 'Poppins-Regular'
+    fontFamily: 'Poppins-Regular',
   },
-})
+});

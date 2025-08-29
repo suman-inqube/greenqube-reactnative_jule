@@ -109,11 +109,7 @@ const FarmerInstrumentWiseActivityDetails = ({navigation}) => {
   };
   useEffect(() => {
     onPageLoad();
-    onBackPress(() => {
-      navigation.navigate('FarmerInstrumentWiseActivityView');
-      return true;
-    });
-  }, [isFocused]);
+  }, []);
   const handleImgUpdate = async () => {
     setIsLoading(true);
     var imgCount = 0;
@@ -267,7 +263,7 @@ const FarmerInstrumentWiseActivityDetails = ({navigation}) => {
             logoImage={logoImage}
             topBanner={topBanner}
           />
-          <FormsTitle title={t('activity_Pipe_Images')} />
+          {/* <FormsTitle title={t('activity_Pipe_Images')} /> */}
           <View
             style={{
               backgroundColor: '#e5ecf7ff',
