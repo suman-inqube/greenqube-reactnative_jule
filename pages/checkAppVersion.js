@@ -6,13 +6,23 @@ export const checkAppVersion = async () => {
         const currentVersion = VersionCheck.getCurrentVersion();
         if(!__DEV__) {
         if (latestVersion > currentVersion) {
-            Alert.alert(
-                'Update Required', 'A new version of the app is available. Please update to continue using the app.',
-                [{ text: 'Update Now', onPress: () => { Linking.openURL('https://play.google.com/store/apps/details?id=com.inqube.greenqube') } }],
-                { cancelable: false },
-            );
+          Alert.alert(
+            'Update Required',
+            'A new version of the app is available. Please update to continue using the app.',
+            [
+              {
+                text: 'Update Now',
+                onPress: () => {
+                  Linking.openURL(
+                    'https://play.google.com/store/apps/details?id=com.inqube.greenqube',
+                  );
+                },
+              },
+            ],
+            {cancelable: false},
+          );
         }
-    }
+     }
     } catch (error) {
         console.error('Error checking app version:', error);
     }

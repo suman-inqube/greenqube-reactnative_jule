@@ -337,10 +337,10 @@ export const activityListAPI = async (
     },
   };
   try {
-    let resultJson = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-      axiosHeaders,
-    );
+    // let resultJson = await axios.get(
+    //   `${config.BASE_URL}inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    //   axiosHeaders,
+    // );
     // console.log(
     //   `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
     //   {
@@ -350,21 +350,21 @@ export const activityListAPI = async (
     //     },
     //   },
     // );
-    // const instance = await getAxiosInstance();
-    // let response = await instance.get(
-    //   `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-    //   {
-    //     headers: {
-    //       authorization: `${token}`,
-    //       information: `${dbName},${languageID},${userID}`,
-    //     },
-    //   },
-    // );
+    const instance = await getAxiosInstance();
+    let response = await instance.get(
+      `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      {
+        headers: {
+          authorization: `${token}`,
+          information: `${dbName},${languageID},${userID}`,
+        },
+      },
+    );
     // console.log('response',response);
-    // const resultJson = {
-    //   data: response,
-    //   status: 200,
-    // };
+    const resultJson = {
+      data: response,
+      status: 200,
+    };
 
     return resultJson;
   } catch (error) {
@@ -3374,7 +3374,7 @@ export const Fenced_Rejected_Plot_List = async (
   
   try {
     let response = await axios.get(
-      `${config.BASE_URL}landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+      `${config.BASE_URL}landRoute/plotNotification/1/${page}/3?supervisor=${userId}&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
       axiosHeaders,
     );
     return response;

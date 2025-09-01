@@ -559,12 +559,15 @@ const PlotStatusUpdate = () => {
            }
            setIsLoading(false);
            // setArea(data.land_info?.google_area);
-           if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+           if (LandUnitsquare_metre_res?.data?.data?.rows[0]?.defined_unit_value) {
+            //  console.log('1');
              setArea(
-               Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                 Number(data.land_info?.google_area),
+               Number(
+                 LandUnitsquare_metre_res?.data?.data?.rows[0]?.defined_unit_value,
+               ) * Number(data.land_info?.google_area),
              );
            } else {
+            //  console.log('2');
              setArea(data.land_info?.google_area);
            }
            setfarmerData({

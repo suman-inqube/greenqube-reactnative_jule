@@ -40,6 +40,7 @@ const Market = () => {
      const [searchBy, setSearchBy] = useState('');
     const [page, setPage] = useState(1);
     useEffect(() => {
+      setPlotList([]);
         const fetchData = async () => {
             setLoading(true);
             const response = await Fenced_Rejected_Plot_List(
@@ -53,8 +54,17 @@ const Market = () => {
               searchBy,
             );
             if (response?.status === 200) {
-              // console.log(JSON.stringify(response?.data?.data));
+              //  console.log(JSON.stringify(response?.data?.data));
+              if ((response?.data?.data?.rows?.length || 0) > 0) {
                 setPlotList(response?.data?.data?.rows);
+              }else{
+                setPlotList([]);
+                Toast.show({
+                  time: 2,
+                  text: `${t('no_data_found')}`,
+                  ...AlertMesg[0],
+                });
+              }
             }
             setLoading(false);
         };
@@ -95,173 +105,187 @@ const Market = () => {
 
     const HandlerGoBack = () => navigation.navigate('Dashboard');
     return (
-      <View style={styles.container}>
-        <CustomHeader
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <View style={styles.searchContainer}>
-          <View style={styles.textInputContainer}>
-            <TextInput
-              placeholder={t('search by number')}
-              placeholderTextColor={'#000'}
-              style={styles.textInput}
-              onChangeText={num => setSearchBy(num)}
-              value={searchBy}
-            />
-          </View>
-        </View>
-        <View style={styles.tabBar}>
-          <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>
-            <Text
-              style={[styles.tabText, activeTab === 0 && styles.activeTabText]}>
-              Rejected Plots
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tab} onPress={() => onTabPress(1)}>
-            <Text
-              style={[styles.tabText, activeTab === 1 && styles.activeTabText]}>
-              Non-Geo Fenced Plots
-            </Text>
-          </TouchableOpacity>
-          <Animated.View
-            style={[
-              styles.indicator,
-              {transform: [{translateX: indicatorPosition}]},
-            ]}
+      <Root>
+        <View style={styles.container}>
+          <CustomHeader
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
           />
-        </View>
-        <ScrollView
-          ref={scrollRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={onScroll}
-          onMomentumScrollEnd={event => {
-            const index = Math.round(event.nativeEvent.contentOffset.x / width);
-            setActiveTab(index);
-          }}
-          //basudev
-          scrollEnabled={false}
-          scrollEventThrottle={16}>
-          <View style={styles.page}>
-            {loading ? (
-              <View style={styles.LoadingScreen}>
-                <LoadingScreen />
-              </View>
-            ) : null}
-            <FlatList
-              data={plotList}
-              keyExtractor={(item, index) =>
-                item?.id?.toString() || index.toString()
-              }
-              showsVerticalScrollIndicator={false} // Hides vertical scrollbar
-              showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-              style={{padding: 10}}
-              renderItem={({_index, item}) => {
-                const {farmer_data, plot_no} = item || {};
-                return (
-                  <TouchableOpacity
-                    style={styles.item}
-                    onPress={() => detailItem(item)}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                      }}>
-                      <View
-                        style={{
-                          flex: 2,
-                        }}>
-                        <Text style={styles.text}>Farmer Name</Text>
-                        <Text style={styles.text}>Phone Number</Text>
-                        <Text style={styles.text}>Plot Name</Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 3,
-                        }}>
-                        <Text style={styles.text}>
-                          :{farmer_data?.userName}
-                        </Text>
-                        <Text style={styles.text}>
-                          :{farmer_data?.contactNumber}
-                        </Text>
-                        <Text style={styles.text}>:{plot_no}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
-            />
-            <View style={styles.prevNextPage}>
-              <TouchableOpacity onPress={() => setPage(page - 1)}>
-                <Text style={styles.title}>{t('prev_page')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setPage(page + 1)}>
-                <Text style={styles.title}>{t('next_page')}</Text>
-              </TouchableOpacity>
+          <View style={styles.searchContainer}>
+            <View style={styles.textInputContainer}>
+              <TextInput
+                placeholder={t('search by number')}
+                placeholderTextColor={'#000'}
+                style={styles.textInput}
+                onChangeText={num => setSearchBy(num)}
+                value={searchBy}
+              />
             </View>
           </View>
+          <View style={styles.tabBar}>
+            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 0 && styles.activeTabText,
+                ]}>
+                Rejected Plots
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.tab} onPress={() => onTabPress(1)}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 1 && styles.activeTabText,
+                ]}>
+                Non-Geo Fenced Plots
+              </Text>
+            </TouchableOpacity>
+            <Animated.View
+              style={[
+                styles.indicator,
+                {transform: [{translateX: indicatorPosition}]},
+              ]}
+            />
+          </View>
+          <ScrollView
+            ref={scrollRef}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={onScroll}
+            onMomentumScrollEnd={event => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x / width,
+              );
+              setActiveTab(index);
+            }}
+            //basudev
+            scrollEnabled={false}
+            scrollEventThrottle={16}>
+            <View style={styles.page}>
+              {loading ? (
+                <View style={styles.LoadingScreen}>
+                  <LoadingScreen />
+                </View>
+              ) : null}
+              <FlatList
+                data={plotList}
+                keyExtractor={(item, index) =>
+                  item?.id?.toString() || index.toString()
+                }
+                showsVerticalScrollIndicator={false} // Hides vertical scrollbar
+                showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
+                style={{padding: 10}}
+                renderItem={({_index, item}) => {
+                  const {farmer_data, plot_no, comment} = item || {};
+                  return (
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => detailItem(item)}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                        }}>
+                        <View
+                          style={{
+                            flex: 2,
+                          }}>
+                          <Text style={styles.text}>Farmer Name</Text>
+                          <Text style={styles.text}>Phone Number</Text>
+                          <Text style={styles.text}>Plot Name</Text>
+                          <Text style={styles.text}>Reason</Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 3,
+                          }}>
+                          <Text style={styles.text}>
+                            :{farmer_data?.userName}
+                          </Text>
+                          <Text style={styles.text}>
+                            :{farmer_data?.contactNumber}
+                          </Text>
+                          <Text style={styles.text}>:{plot_no}</Text>
+                          <Text style={styles.text}>:{comment}</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+              <View style={styles.prevNextPage}>
+                <TouchableOpacity onPress={() => setPage(page - 1)}>
+                  <Text style={styles.title}>{t('prev_page')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setPage(page + 1)}>
+                  <Text style={styles.title}>{t('next_page')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
 
-          <View style={styles.page}>
-            {loading ? (
-              <View style={styles.LoadingScreen}>
-                <LoadingScreen />
+            <View style={styles.page}>
+              {loading ? (
+                <View style={styles.LoadingScreen}>
+                  <LoadingScreen />
+                </View>
+              ) : null}
+              <FlatList
+                data={plotList}
+                keyExtractor={(item, index) =>
+                  item?.id?.toString() || index.toString()
+                }
+                showsVerticalScrollIndicator={false} // Hides vertical scrollbar
+                showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
+                style={{padding: 10}}
+                renderItem={({_index, item}) => {
+                  const {farmer_data, plot_no} = item || {};
+                  return (
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => detailItem(item)}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                        }}>
+                        <View
+                          style={{
+                            flex: 2,
+                          }}>
+                          <Text style={styles.text}>Farmer Name</Text>
+                          <Text style={styles.text}>Phone Number</Text>
+                          <Text style={styles.text}>Plot Name</Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 3,
+                          }}>
+                          <Text style={styles.text}>
+                            :{farmer_data?.userName}
+                          </Text>
+                          <Text style={styles.text}>
+                            :{farmer_data?.contactNumber}
+                          </Text>
+                          <Text style={styles.text}>:{plot_no}</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+              <View style={styles.prevNextPage}>
+                <TouchableOpacity onPress={() => setPage(page - 1)}>
+                  <Text style={styles.title}>{t('prev_page')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setPage(page + 1)}>
+                  <Text style={styles.title}>{t('next_page')}</Text>
+                </TouchableOpacity>
               </View>
-            ) : null}
-            <FlatList
-              data={plotList}
-              keyExtractor={(item, index) =>
-                item?.id?.toString() || index.toString()
-              }
-              showsVerticalScrollIndicator={false} // Hides vertical scrollbar
-              showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-              style={{padding: 10}}
-              renderItem={({_index, item}) => {
-                const {farmer_data, plot_no} = item || {};
-                return (
-                  <TouchableOpacity
-                    style={styles.item}
-                    onPress={() => detailItem(item)}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                      }}>
-                      <View
-                        style={{
-                          flex: 2,
-                        }}>
-                        <Text style={styles.text}>Farmer Name</Text>
-                        <Text style={styles.text}>Phone Number</Text>
-                        <Text style={styles.text}>Plot Name</Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 3,
-                        }}>
-                        <Text style={styles.text}>:{farmer_data?.userName}</Text>
-                        <Text style={styles.text}>
-                          :{farmer_data?.contactNumber}
-                        </Text>
-                        <Text style={styles.text}>:{plot_no}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
-            />
-            <View style={styles.prevNextPage}>
-              <TouchableOpacity onPress={() => setPage(page - 1)}>
-                <Text style={styles.title}>{t('prev_page')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setPage(page + 1)}>
-                <Text style={styles.title}>{t('next_page')}</Text>
-              </TouchableOpacity>
             </View>
-          </View>
-        </ScrollView>
-      </View>
+          </ScrollView>
+        </View>
+      </Root>
     );
 }
 
