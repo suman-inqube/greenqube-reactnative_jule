@@ -19,6 +19,8 @@ import {useIsFocused, useRoute, useNavigation} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import CollapsibleCard from '../../Common/CollapsibleCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {Colors} from '../../utils/Constants';
+import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 const InstrumentWiseActivityView = () => {
   const navigation = useNavigation();
   //GQR-67
@@ -319,7 +321,7 @@ const InstrumentWiseActivityView = () => {
           width="100%"
           header={
             <View style={{height: 30}}>
-              <Text style={[styles.title, {fontSize: 15}]}>
+              <Text style={[styles.titleHeader, {fontSize: 15}]}>
                 {item?.pipe_name}
               </Text>
             </View>
@@ -597,7 +599,7 @@ const InstrumentWiseActivityView = () => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, backgroundColor: '#e2e2e2ff'}}>
           {openFromDate && (
             <DatePickerComp
               openDate={openFromDate}
@@ -633,7 +635,7 @@ const InstrumentWiseActivityView = () => {
             filterOptionShow={filterOptionShow}
             onchangeFilterItem={onchangeFilterItem}
             onChangeText={item => handleFilterList(item)}
-            title={t('activity_Pipe_List')}
+            // title={t('activity_Pipe_List')}
             filterDataRemove={filterDataRemove}
             FarmerProductNameValue={searchFarmerName}
             FarmerProductPhoneValue={searchFarmerPhone}
@@ -810,5 +812,11 @@ const styles = StyleSheet.create({
     color: '#000',
     marginVertical: 6,
     fontFamily: 'Poppins-Regular',
+  },
+  titleHeader: {
+    color: '#256c07ff',
+    fontFamily: 'Poppins-SemiBold',
+    lineHeight: 25,
+    fontSize: 14,
   },
 });

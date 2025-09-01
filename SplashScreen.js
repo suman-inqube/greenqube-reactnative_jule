@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback,  useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
   Dimensions,
   StatusBar,
   Animated,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,13 +22,19 @@ import { Root, Toast } from 'react-native-popup-confirm-toast';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
 import { NativeModules } from 'react-native';
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 const SplashScreen = ({ navigation }) => {
   const { ConfigModule } = NativeModules;
   const insets = useSafeAreaInsets();
+  
+  // Refs for cleanup tracking
   const isMountedRef = useRef(true);
   const animationRefs = useRef([]);
   const navigationTimeoutRef = useRef(null);
+  
+  // Animated values with proper refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -49,18 +56,27 @@ const SplashScreen = ({ navigation }) => {
     },
     animationCompleted: false,
   });
+
+  // Cleanup function to stop all animations
   const stopAllAnimations = useCallback(() => {
     try {
+      // Stop all running animations
       animationRefs.current.forEach(animation => {
         if (animation && typeof animation.stop === 'function') {
           animation.stop();
         }
       });
+      
+      // Clear animation refs
       animationRefs.current = [];
+      
+      // Clear navigation timeout
       if (navigationTimeoutRef.current) {
         clearTimeout(navigationTimeoutRef.current);
         navigationTimeoutRef.current = null;
       }
+      
+      // Reset animation values to prevent flickering
       fadeAnim.setValue(1);
       scaleAnim.setValue(1);
       slideAnim.setValue(0);
@@ -70,15 +86,23 @@ const SplashScreen = ({ navigation }) => {
       console.warn('Error stopping animations:', error);
     }
   }, [fadeAnim, scaleAnim, slideAnim, pulseAnim]);
+
+  // Component cleanup on unmount
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
       stopAllAnimations();
     };
   }, [stopAllAnimations]);
+
+  // Safe navigation function that stops animations first
   const safeNavigate = useCallback((routeName, params = {}) => {
     if (!isMountedRef.current) return;
+    
+    // Stop animations first
     stopAllAnimations();
+    
+    // Small delay to ensure animations are stopped
     navigationTimeoutRef.current = setTimeout(() => {
       if (isMountedRef.current && navigation) {
         try {
@@ -158,6 +182,8 @@ const SplashScreen = ({ navigation }) => {
         setItem('companyLanguage_data', companyLanguageData),
         setItem('companyFirstEntry', 1),
       ]);
+
+      // Use safe navigation
       safeNavigate('Login');
     } catch (error) {
       CrashlyticsRecordError(error, 'SplashScreen', 'handleLanguageSelection');
@@ -223,6 +249,8 @@ const SplashScreen = ({ navigation }) => {
       CrashlyticsRecordError(error, 'SplashScreen', 'onPageLoad');
     }
   }, [safeNavigate, fetchDatabaseList]);
+
+  // Search functionality with safety checks
   const searchCompanyByName = useCallback((text) => {
     if (!isMountedRef.current) return;
     
@@ -241,8 +269,12 @@ const SplashScreen = ({ navigation }) => {
       setState(prev => ({ ...prev, companyData: filteredResults }));
     }
   }, [state.companyDataRaw]);
+
+  // Optimized animation sequence with cleanup tracking
   const startAnimation = useCallback(() => {
     if (!isMountedRef.current) return;
+    
+    // Create loading pulse animation
     const pulseAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -257,6 +289,8 @@ const SplashScreen = ({ navigation }) => {
         }),
       ])
     );
+    
+    // Main entry animation
     const mainAnimation = Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -275,7 +309,11 @@ const SplashScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]);
+
+    // Store animation references for cleanup
     animationRefs.current = [pulseAnimation, mainAnimation];
+    
+    // Start animations
     pulseAnimation.start();
     mainAnimation.start(({ finished }) => {
       if (finished && isMountedRef.current) {
@@ -283,14 +321,18 @@ const SplashScreen = ({ navigation }) => {
       }
     });
   }, [fadeAnim, scaleAnim, slideAnim, pulseAnim]);
+
+  // Safe state update function
   const safeSetState = useCallback((updater) => {
     if (isMountedRef.current) {
       setState(updater);
     }
   }, []);
 
+  // Effects with proper cleanup
   useEffect(() => {
     let mounted = true;
+    
     const initializeApp = async () => {
       if (mounted && isMountedRef.current) {
         await handlePageLoad();
@@ -306,6 +348,8 @@ const SplashScreen = ({ navigation }) => {
       mounted = false;
     };
   }, [handlePageLoad, startAnimation]);
+
+  // Memoized modal visibility handlers
   const setModalVisible = useCallback((visible) => {
     safeSetState(prev => ({ ...prev, modalVisible: visible }));
   }, [safeSetState]);

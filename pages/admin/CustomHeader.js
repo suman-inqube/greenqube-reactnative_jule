@@ -152,6 +152,8 @@ const CustomHeader = memo(
         SoilHealthManagement: t('soil_health_management'),
         PostRequest: t('request_soil_testing'),
         MySoil: t('my_soil'),
+        InstrumentWiseActivityDetails: t('activity_Pipe_Images'),
+        FarmerInstrumentWiseActivityDetails: t('activity_Pipe_Images'),
       }),
       [t],
     );

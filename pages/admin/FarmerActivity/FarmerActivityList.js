@@ -33,6 +33,8 @@ import PaginationNav from '../../Components/PaginationNav';
 import {FloatingAction} from 'react-native-floating-action';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {Colors, Fonts} from '../../utils/Constants';
+import ActivityCard from '../../Components/ActivityCard';
+
 import {
   OPTIONS_CARBON,
   getActionsActivity,
@@ -219,15 +221,9 @@ const FarmerActivityList = ({navigation}) => {
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1);
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('FarmerDashboard');
-        return true;
-      });
-    }, [netConnection]),
-  );
+  useEffect(() => {
+    onPageLoad();
+  }, []);
 
   const filterDataRemove = async () => {
     setFilterItem('');
@@ -272,153 +268,7 @@ const FarmerActivityList = ({navigation}) => {
     setCarbonType(value);
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
   };
-  const ActivityCard = useCallback(
-    memo(({activity, index, navigation}) => {
-      const status = activity?.deviation > 0 ? 'active' : 'pending';
-      const statusColor = getStatusColor(status);
-      const cardAnimation = useRef(new Animated.Value(0)).current;
-      useEffect(() => {
-        Animated.timing(cardAnimation, {
-          toValue: 1,
-          duration: 500,
-          delay: index * 150,
-          useNativeDriver: true,
-        }).start();
-      }, [cardAnimation, index]);
-      // const handlePress = () => {
-      //   navigation.navigate('FarmerActivityDetail', {
-      //     // item.uact_id, item
-      //     uact_id: activity.uact_id,
-      //     item: activity,
-      //   });
-      // };
-      return (
-        <Animated.View
-          style={[
-            styles.activityCard,
-            {
-              opacity: cardAnimation,
-              transform: [
-                {
-                  translateY: cardAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50, 0],
-                  }),
-                },
-              ],
-              borderLeftColor: statusColor,
-            },
-          ]}>
-          <TouchableOpacity
-            style={styles.cardContent}
-            activeOpacity={0.8}
-            onPress={() =>
-              navigation.navigate('FarmerActivityDetail', activity)
-            }>
-            {/* Header with Produce and Status */}
-            <View style={styles.cardHeader}>
-              <View style={styles.produceSection}>
-                <View
-                  style={[
-                    styles.produceIcon,
-                    {backgroundColor: statusColor + '15'},
-                  ]}>
-                  <Text style={styles.emoji}>
-                    {getProduceEmoji(activity?.cropName?.name)}
-                  </Text>
-                </View>
-                <View style={styles.produceInfo}>
-                  <Text style={styles.produceName}>
-                    {activity?.cropName?.name}
-                  </Text>
-                  <Text style={styles.plotSite}>
-                    {activity?.land_info?.plot_no}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.statusBadge,
-                  {backgroundColor: statusColor + '15'},
-                ]}>
-                <Text style={[styles.statusText, {color: statusColor}]}>
-                  {status?.toUpperCase()}
-                </Text>
-              </View>
-            </View>
 
-            {/* Farmer Information */}
-            <View style={styles.farmerSection}>
-              <View style={styles.infoRow}>
-                <Text style={styles.label} numberOfLines={1}>
-                  {t('farmer_name')}:
-                </Text>
-                <Text style={styles.value}>
-                  {activity?.agri_user?.userName}
-                </Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>{t('farmer_number')}:</Text>
-                <Text style={[styles.value]}>
-                  {activity?.agri_user?.contactNumber}
-                </Text>
-              </View>
-            </View>
-
-            {/* Dates Section */}
-            <View style={styles.datesSection}>
-              <View style={styles.dateGrid}>
-                <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('Sowing')}</Text>
-                  <Text style={styles.dateValue}>
-                    {formatDate(activity?.actCurel?.sowing_date)}
-                  </Text>
-                </View>
-                <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('perf_date')}</Text>
-                  <Text style={styles.dateValue}>
-                    {formatDate(activity?.act_perform_date)}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.harvestSection}>
-                <Text style={styles.label}>{t('Harvesting')}:</Text>
-                <Text style={styles.harvestValue}>
-                  {effective_dates(activity?.actCurel?.harvesting_date)}
-                </Text>
-              </View>
-            </View>
-
-            {/* Additional Info */}
-            <View style={styles.additionalInfo}>
-              <View style={styles.deviationRow}>
-                <Text style={styles.label}>{t('deviation')}:</Text>
-                <Text
-                  style={[
-                    styles.deviationValue,
-                    {color: activity?.deviation > 0 ? '#EF4444' : '#10B981'},
-                  ]}>
-                  {activity?.deviation}
-                  {t('days')}
-                </Text>
-              </View>
-            </View>
-
-            {/* Activity Type */}
-            <View style={styles.activityTypeRow}>
-              <Text style={styles.label}>{t('activity_type')}:</Text>
-              <Text style={styles.value}>
-                {activity?.typeActivity
-                  ? activity?.typeActivity?.categoryName
-                  : 'Not specified'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-      );
-    }),
-    [],
-  );
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -492,6 +342,9 @@ const FarmerActivityList = ({navigation}) => {
                         activity={item}
                         index={index}
                         navigation={navigation}
+                        t={t}
+                        effective_dates={effective_dates}
+                        path={'activityDetail'}
                       />
                     )
                   }

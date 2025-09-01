@@ -2,8 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
-import { Colors } from '../utils/Constants';
-
+import {Colors} from '../utils/Constants';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,25 +34,52 @@ const LoanEnquiryDetail = lazy(() => import('./Loan/LoanEnquiryDetail'));
 const LoanRequest = lazy(() => import('./Loan/LoanRequest'));
 const Training = lazy(() => import('./Training/Training'));
 const TrainingList = lazy(() => import('./Training/TrainingList'));
-const UsefulInformation = lazy(() => import('./Usefullinformation/UsefulInformation'));
-const UsefulInformationList = lazy(() => import('./Usefullinformation/UsefulInformationList'));
+const UsefulInformation = lazy(() =>
+  import('./Usefullinformation/UsefulInformation'),
+);
+const UsefulInformationList = lazy(() =>
+  import('./Usefullinformation/UsefulInformationList'),
+);
 const InsuranceEnquiry = lazy(() => import('./Insurance/InsuranceEnquiry'));
-const InsuranceViewPastRequested = lazy(() => import('./Insurance/ViewPastRequested'));
-const RequestForInsurance = lazy(() => import('./Insurance/RequestForInsurance'));
-const DailySalesReport = lazy(() => import('./DailySalesReport/DailySalesReport'));
+const InsuranceViewPastRequested = lazy(() =>
+  import('./Insurance/ViewPastRequested'),
+);
+const RequestForInsurance = lazy(() =>
+  import('./Insurance/RequestForInsurance'),
+);
+const DailySalesReport = lazy(() =>
+  import('./DailySalesReport/DailySalesReport'),
+);
 const SalesDetail = lazy(() => import('./DailySalesReport/SalesDetail'));
 const DealerReport = lazy(() => import('./DailySalesReport/DealerReport'));
 const FarmerReport = lazy(() => import('./DailySalesReport/FarmerReport'));
-const FarmIncomeExpenseList = lazy(() => import('./FarmIncomeExpense/FarmIncomeExpenseList'));
-const FarmIncomeExpenseView = lazy(() => import('./FarmIncomeExpense/FarmIncomeExpenseView'));
+const FarmIncomeExpenseList = lazy(() =>
+  import('./FarmIncomeExpense/FarmIncomeExpenseList'),
+);
+const FarmIncomeExpenseView = lazy(() =>
+  import('./FarmIncomeExpense/FarmIncomeExpenseView'),
+);
 const AddIcome = lazy(() => import('./FarmIncomeExpense/AddIcome'));
 const AddExpense = lazy(() => import('./FarmIncomeExpense/AddExpense'));
-const PersonalInformation = lazy(() => import('./UserRegistation/PersonalInformation'));
-const FinancialInformation = lazy(() => import('./UserRegistation/FinancialInformation'));
-const PlotSiteProduceInformation = lazy(() => import('./UserRegistation/PlotSiteProduceInformation'));
-const RegistationSignUpViwer = lazy(() => import('./UserRegistation/RegistationSignUpViwer'));
+const PersonalInformation = lazy(() =>
+  import('./UserRegistation/PersonalInformation'),
+);
+const FinancialInformation = lazy(() =>
+  import('./UserRegistation/FinancialInformation'),
+);
+const PlotSiteProduceInformation = lazy(() =>
+  import('./UserRegistation/PlotSiteProduceInformation'),
+);
+const RegistationSignUpViwer = lazy(() =>
+  import('./UserRegistation/RegistationSignUpViwer'),
+);
 const ChangePassword = lazy(() => import('./ChangePassword/ChangePassword'));
-const InstrumentWiseActivityView = lazy(() => import('./Activity/InstrumentWiseActivityView'));
+const InstrumentWiseActivityView = lazy(() =>
+  import('./Activity/InstrumentWiseActivityView'),
+);
+const InstrumentWiseActivityDetails = lazy(() =>
+  import('./Activity/InstrumentWiseActivityDetails'),
+);
 const Business = lazy(() => import('./Business/Business'));
 
 function AdminStack() {
@@ -186,7 +212,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}
-        options={{ title: 'Admin Dashboard' }}
+        options={{title: 'Admin Dashboard'}}
       />
     </Drawer.Navigator>
   );

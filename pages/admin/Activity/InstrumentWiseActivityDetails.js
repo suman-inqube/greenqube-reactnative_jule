@@ -13,6 +13,7 @@ import Marker, {Position} from 'react-native-image-marker';
 import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
 import useLocationTracking from '../../Common/useLocationTracking';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const InstrumentWiseActivityDetails = ({navigation}) => {
   const location = useLocationTracking();
   const {
@@ -115,14 +116,8 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
     }
   };
   useEffect(() => {
-    if (isFocused) {
-      onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('InstrumentWiseActivityView');
-        return true;
-      });
-    }
-  }, [isFocused]);
+    onPageLoad();
+  }, []);
   const handleImgUpdate = async () => {
     setIsLoading(true);
     var imgCount = 0;
@@ -265,21 +260,22 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
     });
   };
   return (
-    <Root>
-      <View style={{flex: 1}}>
-        {isLoading ? (
-          <View style={styles.LoadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <FormsTitle title={t('activity_Pipe_Images')} />
-        <View style={{padding: 10, height: 200}}>
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
+          {isLoading ? (
+            <View style={styles.LoadingScreen}>
+              <LoadingScreen />
+            </View>
+          ) : null}
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          {/* <FormsTitle title={t('activity_Pipe_Images')} /> */}
+
           {/* APPROVED */}
           {/* <ProofAndIdentityPropfComp
                         title={t('Activity Pipe')}
@@ -291,7 +287,12 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
                         setPhotoDeletedValue={setPhotoDeletedValue}
                     /> */}
           <View
-            style={{backgroundColor: '#FFF', padding: 10, borderRadius: 10}}>
+            style={{
+              backgroundColor: '#e5ecf7ff',
+              padding: 10,
+              borderRadius: 8,
+              margin: 20,
+            }}>
             <TakePhotoPipe
               openImagePicker={openImagePickerPipe}
               selectedImage={selectedImagePipe}
@@ -299,12 +300,16 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
               color="black"
             />
           </View>
+
+          {params?.status_label == 'REJECTED' && (
+            <ButtonFormBottom
+              label="Update"
+              onPress={() => handleImgUpdate()}
+            />
+          )}
         </View>
-        {params?.status_label == 'REJECTED' && (
-          <ButtonFormBottom label="Update" onPress={() => handleImgUpdate()} />
-        )}
-      </View>
-    </Root>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 
