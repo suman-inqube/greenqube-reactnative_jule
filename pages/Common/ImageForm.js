@@ -1,7 +1,5 @@
 import React from 'react';
 import FastImage from 'react-native-fast-image';
-import { StyleSheet } from 'react-native';
-
 const ImageForm = ({ source, width, height, resizeMode, borderRadius, style }) => {
   return (
     <FastImage
