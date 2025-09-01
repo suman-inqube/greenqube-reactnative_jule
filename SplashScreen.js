@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback,  useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,7 +9,6 @@ import {
   Dimensions,
   StatusBar,
   Animated,
-  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,10 +18,6 @@ import SplashScreenModal from './SplashScreenModal';
 import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 import i18next from 'i18next';
 import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from './pages/Common/ToastAlert';
-import CustomAlert from './pages/Common/CustomAlert';
-import NotificationServices from './pages/PushNotification/NotificationServices';
-import JailMonkey from 'jail-monkey';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
 import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
 import { NativeModules } from 'react-native';
@@ -30,9 +25,14 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SplashScreen = ({ navigation }) => {
   const { ConfigModule } = NativeModules;
   const insets = useSafeAreaInsets();
-  const fadeAnim = useMemo(() => new Animated.Value(0), []);
-  const scaleAnim = useMemo(() => new Animated.Value(0.8), []);
-  const slideAnim = useMemo(() => new Animated.Value(50), []);
+  const isMountedRef = useRef(true);
+  const animationRefs = useRef([]);
+  const navigationTimeoutRef = useRef(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  
   const [state, setState] = useState({
     companyData: [],
     companyDataRaw: [],
@@ -47,12 +47,59 @@ const SplashScreen = ({ navigation }) => {
       country_id: '',
       company_name: '',
     },
+    animationCompleted: false,
   });
+  const stopAllAnimations = useCallback(() => {
+    try {
+      animationRefs.current.forEach(animation => {
+        if (animation && typeof animation.stop === 'function') {
+          animation.stop();
+        }
+      });
+      animationRefs.current = [];
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = null;
+      }
+      fadeAnim.setValue(1);
+      scaleAnim.setValue(1);
+      slideAnim.setValue(0);
+      pulseAnim.stopAnimation();
+      
+    } catch (error) {
+      console.warn('Error stopping animations:', error);
+    }
+  }, [fadeAnim, scaleAnim, slideAnim, pulseAnim]);
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      stopAllAnimations();
+    };
+  }, [stopAllAnimations]);
+  const safeNavigate = useCallback((routeName, params = {}) => {
+    if (!isMountedRef.current) return;
+    stopAllAnimations();
+    navigationTimeoutRef.current = setTimeout(() => {
+      if (isMountedRef.current && navigation) {
+        try {
+          navigation.replace(routeName, params);
+        } catch (error) {
+          console.warn('Navigation error:', error);
+          CrashlyticsRecordError(error, 'SplashScreen', 'safeNavigate');
+        }
+      }
+    }, 100);
+  }, [navigation, stopAllAnimations]);
 
   const fetchDatabaseList = useCallback(async () => {
+    if (!isMountedRef.current) return;
+    
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       const company_res = await databaseListAPI();
+      
+      if (!isMountedRef.current) return;
+      
       if (company_res?.status === 200 && company_res?.data?.data) {
         setState(prev => ({
           ...prev,
@@ -62,32 +109,42 @@ const SplashScreen = ({ navigation }) => {
         }));
       }
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
-      CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
-      console.error('Company API error:', error);
+      if (isMountedRef.current) {
+        setState(prev => ({ ...prev, isLoading: false }));
+        CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
+        console.error('Company API error:', error);
+      }
     }
   }, []);
+
   const handleCompanySelection = useCallback(async (
     dbName,
     company_id,
     company_name,
     country_id,
   ) => {
+    if (!isMountedRef.current) return;
+    
     const newCompanyLanguage = {
       company: dbName,
       company_id,
       company_name,
       country_id,
     };
+    
     setState(prev => ({
       ...prev,
       companyLanguage: { ...prev.companyLanguage, ...newCompanyLanguage },
       modalVisible: false,
       isLoading: true,
     }));
+    
     await fetchLanguageData(dbName);
   }, []);
+
   const handleLanguageSelection = useCallback(async (item) => {
+    if (!isMountedRef.current) return;
+    
     try {
       const companyLanguageData = {
         language: item,
@@ -96,19 +153,24 @@ const SplashScreen = ({ navigation }) => {
         company_name: state.companyLanguage.company_name,
         country_id: state.companyLanguage.country_id,
       };
+      
       await Promise.all([
         setItem('companyLanguage_data', companyLanguageData),
         setItem('companyFirstEntry', 1),
       ]);
-
-      navigation.replace('Login');
+      safeNavigate('Login');
     } catch (error) {
       CrashlyticsRecordError(error, 'SplashScreen', 'handleLanguageSelection');
     }
-  }, [state.companyLanguage, navigation]);
+  }, [state.companyLanguage, safeNavigate]);
+
   const fetchLanguageData = useCallback(async (dbName) => {
+    if (!isMountedRef.current) return;
+    
     try {
       const language_res = await firstLanguageListAPI(dbName);
+
+      if (!isMountedRef.current) return;
 
       if (language_res?.data?.data) {
         setState(prev => ({
@@ -119,39 +181,51 @@ const SplashScreen = ({ navigation }) => {
         }));
       }
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
-      console.error('Language API error:', error.response);
+      if (isMountedRef.current) {
+        setState(prev => ({ ...prev, isLoading: false }));
+        console.error('Language API error:', error.response);
+      }
     }
   }, []);
+
   const handlePageLoad = useCallback(async () => {
+    if (!isMountedRef.current) return;
+    
     try {
       const [companyLanguage_data, loginUser_data] = await Promise.all([
         getItem('companyLanguage_data'),
         getItem('loginUser_data'),
       ]);
+      
+      if (!isMountedRef.current) return;
+      
       if (loginUser_data) {
         i18next.changeLanguage(`${loginUser_data.lan_id}`);
         const userType = await getItem('userType');
+        
+        if (!isMountedRef.current) return;
+        
         const navigationTarget = userType === 3
           ? 'AdminNavigation'
           : userType === 2
             ? 'FarmerNavigation'
             : null;
+            
         if (navigationTarget) {
-          navigation.navigate(navigationTarget);
+          safeNavigate(navigationTarget);
         }
       } else if (companyLanguage_data) {
-        navigation.replace('Login');
+        safeNavigate('Login');
       } else {
         await fetchDatabaseList();
       }
     } catch (error) {
       CrashlyticsRecordError(error, 'SplashScreen', 'onPageLoad');
     }
-  }, []);
-
-  // Search functionality
+  }, [safeNavigate, fetchDatabaseList]);
   const searchCompanyByName = useCallback((text) => {
+    if (!isMountedRef.current) return;
+    
     if (!text || text.length === 0) {
       setState(prev => ({ ...prev, companyData: [] }));
       return;
@@ -163,12 +237,27 @@ const SplashScreen = ({ navigation }) => {
         .includes(text.toLowerCase())
     );
 
-    setState(prev => ({ ...prev, companyData: filteredResults }));
+    if (isMountedRef.current) {
+      setState(prev => ({ ...prev, companyData: filteredResults }));
+    }
   }, [state.companyDataRaw]);
-
-  // Animation sequence
   const startAnimation = useCallback(() => {
-    Animated.parallel([
+    if (!isMountedRef.current) return;
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    const mainAnimation = Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
@@ -185,23 +274,54 @@ const SplashScreen = ({ navigation }) => {
         duration: 800,
         useNativeDriver: true,
       }),
-    ]).start();
-  }, [fadeAnim, scaleAnim, slideAnim]);
+    ]);
+    animationRefs.current = [pulseAnimation, mainAnimation];
+    pulseAnimation.start();
+    mainAnimation.start(({ finished }) => {
+      if (finished && isMountedRef.current) {
+        setState(prev => ({ ...prev, animationCompleted: true }));
+      }
+    });
+  }, [fadeAnim, scaleAnim, slideAnim, pulseAnim]);
+  const safeSetState = useCallback((updater) => {
+    if (isMountedRef.current) {
+      setState(updater);
+    }
+  }, []);
 
-  // Effects
   useEffect(() => {
-    handlePageLoad();
-    startAnimation();
+    let mounted = true;
+    const initializeApp = async () => {
+      if (mounted && isMountedRef.current) {
+        await handlePageLoad();
+        if (mounted && isMountedRef.current) {
+          startAnimation();
+        }
+      }
+    };
+    
+    initializeApp();
+    
+    return () => {
+      mounted = false;
+    };
   }, [handlePageLoad, startAnimation]);
+  const setModalVisible = useCallback((visible) => {
+    safeSetState(prev => ({ ...prev, modalVisible: visible }));
+  }, [safeSetState]);
+
+  const setModalVisibleLan = useCallback((visible) => {
+    safeSetState(prev => ({ ...prev, modalVisibleLan: visible }));
+  }, [safeSetState]);
 
   return (
     <MyErrorBoundary>
       <Root>
-        {/* <StatusBar
+        <StatusBar
           barStyle="light-content"
           backgroundColor="transparent"
           translucent
-        /> */}
+        />
         <ImageBackground
           source={require('./pages/Common/images/crystal_splash_screen.jpg')}
           style={styles.backgroundImage}
@@ -215,9 +335,7 @@ const SplashScreen = ({ navigation }) => {
               {/* Modals */}
               <SplashScreenModal
                 height={SCREEN_HEIGHT}
-                setModalVisible={(visible) =>
-                  setState(prev => ({ ...prev, modalVisible: visible }))
-                }
+                setModalVisible={setModalVisible}
                 modalVisible={state.modalVisible}
                 companyData={state.companyData}
                 sendDataToParent={handleCompanySelection}
@@ -226,9 +344,7 @@ const SplashScreen = ({ navigation }) => {
               />
 
               <SplashScreenModalLanguage
-                setModalVisibleLan={(visible) =>
-                  setState(prev => ({ ...prev, modalVisibleLan: visible }))
-                }
+                setModalVisibleLan={setModalVisibleLan}
                 modalVisibleLan={state.modalVisibleLan}
                 companyData={state.languageData}
                 sendDataToParentLan={handleLanguageSelection}
@@ -248,13 +364,18 @@ const SplashScreen = ({ navigation }) => {
                   }
                 ]}
               >
-                <View style={styles.logoContainer}>
+                <Animated.View 
+                  style={[
+                    styles.logoContainer,
+                    { transform: [{ scale: state.isLoading ? pulseAnim : 1 }] }
+                  ]}
+                >
                   <Image
                     source={require('./pages/Common/images/greenqube_logo.png')}
                     style={styles.logo}
                     resizeMode="contain"
                   />
-                </View>
+                </Animated.View>
 
                 {/* App Title */}
                 <Animated.View style={[styles.titleContainer, { opacity: fadeAnim }]}>

@@ -21,334 +21,17 @@ import {
   Platform,
 } from 'react-native';
 import SkeletonUserCard from '../../Components/Skeleton/SkeletonUserCard';
-// Components
-import ImageForm from '../../Common/ImageForm';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import PaginationNav from '../../Components/PaginationNav';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import { Colors, Fonts } from '../../utils/Constants';
-import { Image } from 'moti';
 import { axiosGet } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import ModernUserCard from '../../Components/ModernUserCard';
 
-const MENU_ITEMS = [
-  {
-    key: 'password',
-    icon: require('../../Common/images/change_password_green.png'),
-    labelKey: 'forgot_password',
-    gradient: ['#FF6B6B', '#FF8E8E'],
-    iconBg: '#FFE5E5',
-  },
-  {
-    key: 'information',
-    icon: require('../../Common/images/add_info_plus.png'),
-    labelKey: 'far_list_information',
-    gradient: ['#4ECDC4', '#7FDBDA'],
-    iconBg: '#E5F9F8',
-  },
-  {
-    key: 'livehood',
-    icon: require('../../Common/images/add_plot_plus.png'),
-    labelKey: 'farming_details',
-    gradient: ['#45B7D1', '#74C7E3'],
-    iconBg: '#E5F4FA',
-  },
-  {
-    key: 'CrateProblemUser',
-    icon: require('../../Common/images/add_qust_plus.png'),
-    labelKey: 'q_a',
-    gradient: ['#F9CA24', '#F0B90B'],
-    iconBg: '#FEF5D3',
-  },
-];
-
-// Modern Menu Button - Only animate menu buttons when expanded
-const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
-  const buttonAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (isExpanded) {
-      const delay = index * 50;
-      Animated.spring(buttonAnim, {
-        toValue: 1,
-        delay,
-        tension: 120,
-        friction: 7,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      buttonAnim.setValue(0);
-    }
-  }, [isExpanded, index]);
-
-  const handlePress = useCallback(() => {
-    Animated.sequence([
-      Animated.timing(buttonAnim, {
-        toValue: 0.9,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-      Animated.timing(buttonAnim, {
-        toValue: 1,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onPress(item.key);
-    });
-  }, [onPress, item.key]);
-
-  if (!isExpanded) return null;
-
-  return (
-    <Animated.View
-      style={[
-        styles.modernMenuButton,
-        {
-          opacity: buttonAnim,
-          transform: [
-            { scale: buttonAnim },
-            {
-              translateY: buttonAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [15, 0],
-              }),
-            },
-          ],
-        },
-      ]}>
-      <TouchableOpacity
-        style={[styles.menuButtonTouchable, { backgroundColor: item.iconBg }]}
-        onPress={handlePress}
-        activeOpacity={0.8}>
-        <View style={styles.modernIconContainer}>
-          <ImageForm
-            source={item.icon}
-            resizeMode="cover"
-            height={24}
-            width={24}
-          />
-        </View>
-        <Text style={styles.modernMenuText} numberOfLines={2}>
-          {t(item.labelKey)}
-        </Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-});
-const ModernUserCard = memo(
-  ({
-    item,
-    isExpanded,
-    onToggle,
-    onMenuPress,
-    t,
-    index,
-    animationsEnabled,
-    expandedItem,
-    setState,
-    state,
-  }) => {
-    const cardAnim = useRef(
-      new Animated.Value(animationsEnabled ? 0 : 1),
-    ).current;
-    const expandAnim = useRef(new Animated.Value(0)).current;
-    const rotateAnim = useRef(new Animated.Value(0)).current;
-    const hasAnimated = useRef(false);
-    useEffect(() => {
-      const delay = index * 100;
-      Animated.spring(cardAnim, {
-        toValue: 1,
-        delay,
-        tension: 80,
-        friction: 8,
-        useNativeDriver: true,
-      }).start(() => {
-        hasAnimated.current = true;
-      });
-    }, []);
-    useEffect(() => {
-      Animated.parallel([
-        Animated.timing(expandAnim, {
-          toValue: isExpanded ? 1 : 0,
-          duration: 300,
-          easing: Easing.bezier(0.4, 0.0, 0.2, 1),
-          useNativeDriver: false,
-        }),
-        Animated.timing(rotateAnim, {
-          toValue: isExpanded ? 1 : 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }, [isExpanded]);
-
-    const handleMenuPress = useCallback(
-      menuKey => {
-        const plotData =
-          item.agri_land_user_rels?.map(data => ({
-            value: data.rel_id,
-            label: data.plot_no,
-          })) || [];
-        const filePath = item.agri_files?.[0]?.file_path || '';
-        onMenuPress(menuKey, {
-          farmeruserID: item.user_id,
-          agri_land_user_rels: plotData,
-          userName: item.userName,
-          contactNumber: item.contactNumber,
-          profileImage: filePath,
-          gender: item.gender,
-          farmer_type: item.farmer_type,
-        });
-      },
-      [item, onMenuPress],
-    );
-
-    const handleCardPress = useCallback(() => {
-      onToggle(item.user_id);
-      setState(prev => ({ ...prev, onPageLoad: true }));
-    }, [onToggle, item.user_id]);
-    const cardStyle =
-      state.onPageLoad == false
-        ? [
-          styles.modernUserCard,
-          {
-            opacity: cardAnim,
-            transform: [
-              { scale: cardAnim },
-              {
-                translateX: cardAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [SCREEN_WIDTH * 0.3, 0],
-                }),
-              },
-            ],
-          },
-        ]
-        : [styles.modernUserCard];
-    return (
-      <Animated.View style={cardStyle}>
-        <TouchableOpacity
-          onPress={handleCardPress}
-          activeOpacity={0.95}
-          style={styles.cardTouchable}>
-          {/* Card Header */}
-          <View style={styles.cardHeader}>
-            <View style={styles.userAvatar}>
-              {item.agri_files.length > 0 ? (
-                <Image
-                  source={{ uri: item.agri_files[0].file_path }} // adjust key based on your data
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 30,
-                    backgroundColor: '#ccc',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                  }}
-                />
-              ) : (
-                <Text style={styles.avatarText}>
-                  {item.userName?.charAt(0)?.toUpperCase() || 'U'}
-                </Text>
-              )}
-            </View>
-
-            <View style={styles.userDetails}>
-              <Text style={styles.modernUserName} numberOfLines={1}>
-                {item.userName}
-              </Text>
-              <View style={styles.contactRow}>
-                <Text style={styles.phoneText}>{item.contactNumber}</Text>
-              </View>
-              <View style={styles.dateRow}>
-                <Text style={styles.dateText}>
-                  {item.CreateDateTime?.substring(0, 10)}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.cardActions}>
-              <View style={styles.plotsBadge}>
-                <Text style={styles.plotsCount}>
-                  {item.agri_land_user_rels?.length || 0}
-                </Text>
-                <Text style={styles.plotsLabel}>{t('plots')}</Text>
-              </View>
-              {/* <Animated.View
-                            style={[
-                                styles.expandButton,
-                                {
-                                    transform: [
-                                        {
-                                            rotate: rotateAnim.interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: ['0deg', '180deg'],
-                                            }),
-                                        },
-                                    ],
-                                },
-                            ]}
-                        >
-                            <Text style={styles.expandButtonText}>▼</Text>
-                        </Animated.View> */}
-            </View>
-          </View>
-        </TouchableOpacity>
-
-        {/* Fixed height container to prevent FlatList jumps */}
-        <View
-          style={[
-            styles.menuPositionContainer,
-            {
-              height: isExpanded ? 120 : 0,
-              borderTopWidth: isExpanded ? 1.5 : 0,
-              borderColor: Colors.border,
-              borderStyle: 'dotted',
-            },
-          ]}>
-          <Animated.View
-            style={[
-              styles.modernMenuContainer,
-              {
-                opacity: expandAnim,
-                transform: [
-                  {
-                    translateY: expandAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [-120, 0],
-                    }),
-                  },
-                  {
-                    scaleY: expandAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.8, 1],
-                    }),
-                  },
-                ],
-              },
-            ]}>
-            <View style={styles.modernMenuGrid}>
-              {MENU_ITEMS.map((menuItem, menuIndex) => (
-                <ModernMenuButton
-                  key={menuItem.key}
-                  item={menuItem}
-                  onPress={handleMenuPress}
-                  t={t}
-                  index={menuIndex}
-                  isExpanded={isExpanded}
-                />
-              ))}
-            </View>
-          </Animated.View>
-        </View>
-      </Animated.View>
-    );
-  },
-);
 const UserList = ({ navigation }) => {
   const {
     dbLanTokUsr,
@@ -445,6 +128,7 @@ const UserList = ({ navigation }) => {
     setState(prev => ({ ...prev, refreshing: true, expandedItem: null }));
     await fetchUserList(1, '');
     setState(prev => ({ ...prev, refreshing: false }));
+    setPage(1);
   }, []);
 
   useEffect(() => {
@@ -504,6 +188,7 @@ const UserList = ({ navigation }) => {
         value: farmerPhone?.value,
       });
       fetchUserList(1, farmerPhone?.label);
+      setPage(1);
     },
     [],
   );
@@ -563,10 +248,11 @@ const UserList = ({ navigation }) => {
               contentContainerStyle={styles.listContent}
               // onScrollBeginDrag={handleScrollBeginDrag}
               removeClippedSubviews={true}
-              maxToRenderPerBatch={10}
-              windowSize={10}
-              initialNumToRender={8}
               scrollEventThrottle={16}
+              maxToRenderPerBatch={8}
+              windowSize={5}
+              initialNumToRender={6}
+              updateCellsBatchingPeriod={50}
               // Prevent layout jumps with maintainVisibleContentPosition
               maintainVisibleContentPosition={{
                 minIndexForVisible: 0,

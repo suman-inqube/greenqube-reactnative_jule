@@ -95,15 +95,8 @@ const InputList = ({ navigation }) => {
   }, [dbname, lan_id, token, user_id]);
 
   const navigateToPages = useCallback(async index => {
-    // if (!scaleAnims.current[index]) scaleAnims.current[index] = new Animated.Value(1);
-    // Animated.sequence([
-    //   Animated.timing(scaleAnims.current[index], { toValue: 0.98, duration: 100, useNativeDriver: true }),
-    //   Animated.timing(scaleAnims.current[index], { toValue: 1, duration: 100, useNativeDriver: true }),
-    // ]).start();
-
-    // await setItem('input_single_data', inputListAll[index]);
     setInputSingle(inputListAll[index]);
-    setModalVisible(true);
+    setModalVisible(!modalVisible);
   }, [navigateToPages, inputListAll]);
   useEffect(() => { onPageLoad(); }, [onPageLoad]);
 

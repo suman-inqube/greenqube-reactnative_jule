@@ -83,5 +83,34 @@ const getDashboardFarmerItems = (t, navigateToPages) => [
     onpress: () => {},
   },
 ];
-
-export {getDashboardItems, getDashboardFarmerItems};
+const MENU_ITEMS = [
+  {
+    key: 'password',
+    icon: require('../Common/images/change_password_green.png'),
+    labelKey: 'forgot_password',
+    gradient: ['#FF6B6B', '#FF8E8E'],
+    iconBg: '#FFE5E5',
+  },
+  {
+    key: 'information',
+    icon: require('../Common/images/add_info_plus.png'),
+    labelKey: 'far_list_information',
+    gradient: ['#4ECDC4', '#7FDBDA'],
+    iconBg: '#E5F9F8',
+  },
+  {
+    key: 'livehood',
+    icon: require('../Common/images/add_plot_plus.png'),
+    labelKey: 'farming_details',
+    gradient: ['#45B7D1', '#74C7E3'],
+    iconBg: '#E5F4FA',
+  },
+  {
+    key: 'CrateProblemUser',
+    icon: require('../Common/images/add_qust_plus.png'),
+    labelKey: 'q_a',
+    gradient: ['#F9CA24', '#F0B90B'],
+    iconBg: '#FEF5D3',
+  },
+];
+export {getDashboardItems, getDashboardFarmerItems,MENU_ITEMS};

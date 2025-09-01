@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import moment from 'moment';
 import { Colors } from '../utils/Constants';
-
+import ImageForm from './ImageForm';
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -43,9 +43,9 @@ const GridItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
       activeOpacity={0.7}>
       <View style={styles.gridImageContainer}>
         {imageUri ? (
-          <Image source={{uri: imageUri}} style={styles.gridImage} />
+          <ImageForm source={{uri: imageUri}} style={styles.gridImage} />
         ) : (
-          <Image
+          <ImageForm
             source={require('./images/greenqube_logo.png')}
             style={styles.gridImage}
           />

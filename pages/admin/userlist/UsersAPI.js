@@ -80,7 +80,7 @@ export const fetchDistrictAPI = async (dbName, languageID, stateID) => {
     return district_res;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error with district api' + error.response);
+    // return console.log('error with district api' + error.response?.data);
   }
 };
 

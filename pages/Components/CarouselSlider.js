@@ -18,7 +18,7 @@ import {
   Platform,
 } from 'react-native';
 import {Colors, Fonts} from '../utils/Constants';
-
+import ImageForm from '../Common/ImageForm';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 // Responsive breakpoints
@@ -212,7 +212,7 @@ const CarouselSlider = ({
             imageStyle,
           ]}>
           {item.imageurl && (
-            <Image
+            <ImageForm
               source={item.imageurl}
               resizeMode="cover"
               style={{

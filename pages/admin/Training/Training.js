@@ -10,9 +10,13 @@ import {
 import React, { useState, useEffect, useContext } from 'react';
 import { noticeDetailsAPI } from '../../../config/apiHere';
 import { WebView } from 'react-native-webview';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import {
+  useNavigation,
+  useIsFocused,
+} from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import FormsTitle from '../../Common/FormsTitle';
+import { Colors } from '../../utils/Constants';
 
 const head = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -22,14 +26,7 @@ const head = `
 `;
 
 const Training = () => {
-  const {
-    loginUser_data,
-    CustomHeader,
-    onBackPress,
-    getItem,
-    logoImage,
-    topBanner,
-  } = useContext(userCreateContext);
+  const { loginUser_data, CustomHeader, onBackPress, getItem, logoImage, topBanner } = useContext(userCreateContext);
   const { dbname, lan_id, token } = loginUser_data;
 
   const isFocused = useIsFocused();
@@ -81,53 +78,49 @@ const Training = () => {
   };
 
   useEffect(() => {
-    if (isFocused) {
       onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('TraingList');
-        return true;
-      });
-    }
-  }, [isFocused]);
+  }, []);
 
   const HandlerGoBack = () => navigation.navigate('TraingList');
 
+  return (
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <CustomHeader path="Dashboard" HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+      {/* Horizontal File Viewer */}
+      <View style={{ width: '100%', alignItems: 'center', paddingHorizontal: 7 }}>
+        <FlatList
+          data={noticeFiles}
+          keyExtractor={(item) => item.file_id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 10 }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={{
+                width: 200,
+                margin: 10,
+                backgroundColor: '#FFF',
+                padding: 10,
+                elevation: 5,
+                borderRadius: 10,
+                justifyContent: 'center'
+              }}
+              onPress={() => detailItem(item.file_path)}>
+              <TouchableOpacity onPress={() => detailItem(item.file_path)}>
+                <DocumentDisplay item={item.file_path} file_ext={item.file_ext} />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
 
-  {/* Horizontal File Viewer */ }
-  <View style={{ width: '100%', alignItems: 'center', paddingHorizontal: 7 }}>
-    <FlatList
-      data={noticeFiles}
-      keyExtractor={(item) => item.file_id}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingVertical: 10 }}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={{
-            width: 200,
-            margin: 10,
-            backgroundColor: '#FFF',
-            padding: 10,
-            elevation: 5,
-            borderRadius: 10,
-            justifyContent: 'center'
-          }}
-          onPress={() => detailItem(item.file_path)}>
-          <TouchableOpacity onPress={() => detailItem(item.file_path)}>
-            <DocumentDisplay item={item.file_path} file_ext={item.file_ext} />
-          </TouchableOpacity>
-        </TouchableOpacity>
-      )}
-    />
-  </View >
-
-  {/* WebView Section */ }
-  < View style={{ flex: 1, paddingHorizontal: 7 }}>
-    <WebView
-      style={{ flex: 1 }}
-      originWhitelist={['*']}
-      source={{
-        html: `
+      {/* WebView Section */}
+      <View style={{ flex: 1, paddingHorizontal: 7 }}>
+        <WebView
+          style={{ flex: 1 }}
+          originWhitelist={['*']}
+          source={{
+            html: `
               <!DOCTYPE html>
               <html>
                 <head>${head}</head>
@@ -136,14 +129,16 @@ const Training = () => {
                 </body>
               </html>
             `,
-      }}
-      allowsFullscreenVideo
-      javaScriptEnabled
-      domStorageEnabled
-      automaticallyAdjustContentInsets={false}
-    />
-  </View >
-  
+          }}
+          allowsFullscreenVideo
+          javaScriptEnabled
+          domStorageEnabled
+          automaticallyAdjustContentInsets={false}
+        />
+      </View>
+    </View>
+  );
 };
 
 export default Training;
+

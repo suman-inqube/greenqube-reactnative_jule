@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo,memo } from "react";
 import {
   StyleSheet,
   View,
@@ -19,9 +19,25 @@ import { getMapLocation } from "../../../config/apiHere";
 import LoadingScreen from "../../Common/LoadingScreen";
 import { Colors } from "../../utils/Constants";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-const screenWidth = Dimensions.get("window").width;
 import FloatingActionButton from "../../Components/FloatingActionButton";
-export default function Map({
+
+const DEFAULT_REGION = {
+  latitude: 0,
+  longitude: 0,
+  latitudeDelta: 0.05,
+  longitudeDelta: 0.05,
+};
+
+const ANIMATION_CONFIG = {
+  latitudeDelta: 0.001,
+  longitudeDelta: 0.001,
+};
+
+const DISTANCE_THRESHOLD = 20;
+const ANIMATION_DELAY = 100;
+const ANIMATION_DURATION = 1000;
+
+const Map = ({
   polygons,
   newPolygon,
   handleMapPress,
@@ -41,222 +57,370 @@ export default function Map({
   handleRegionChangeComplete,
   isLoading,
   coords
-}) {
+}) =>{
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
   const [selectedArea, setSelectedArea] = useState(0);
   const [coordinatesCurrent, setCoordinatesCurrent] = useState([]);
   const [marker, setMarker] = useState({ lat: 0, lng: 0 });
 
-  const distanceThreshold = 20;
+  // Refs to track mounted state and prevent memory leaks
+  const isMountedRef = useRef(true);
   const mapRef = useRef(null);
+  const animationTimeoutRef = useRef(null);
 
-  /** Animate to location */
-  const animateToLocation = useCallback((latitude, longitude) => {
-    if (!mapRef.current || isNaN(latitude) || isNaN(longitude)) {
-      console.warn("Invalid coordinates for animateToLocation");
-      return;
-    }
-    setTimeout(() => {
-      mapRef.current.animateToRegion(
-        {
-          latitude,
-          longitude,
-          latitudeDelta: 0.001,
-          longitudeDelta: 0.001,
-        },
-        1000
-      );
-    }, 100);
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+        animationTimeoutRef.current = null;
+      }
+    };
   }, []);
 
-  /** Floating actions */
-  const actions = useMemo(
-    () =>
-      [
+  /** Memoized coordinate validation */
+  const isValidCoordinate = useCallback((latitude, longitude) => {
+    return (
+      typeof latitude === 'number' && 
+      typeof longitude === 'number' && 
+      !isNaN(latitude) && 
+      !isNaN(longitude) &&
+      latitude >= -90 && 
+      latitude <= 90 && 
+      longitude >= -180 && 
+      longitude <= 180
+    );
+  }, []);
+
+  /** Optimized animate to location with cleanup */
+  const animateToLocation = useCallback((latitude, longitude) => {
+    if (!isMountedRef.current || !mapRef.current || !isValidCoordinate(latitude, longitude)) {
+      console.warn("Invalid coordinates for animateToLocation or component unmounted");
+      return;
+    }
+
+    // Clear existing timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
+    animationTimeoutRef.current = setTimeout(() => {
+      if (isMountedRef.current && mapRef.current) {
+        try {
+          mapRef.current.animateToRegion(
+            {
+              latitude,
+              longitude,
+              ...ANIMATION_CONFIG,
+            },
+            ANIMATION_DURATION
+          );
+        } catch (error) {
+          console.warn("Animation error:", error);
+        }
+      }
+      animationTimeoutRef.current = null;
+    }, ANIMATION_DELAY);
+  }, [isValidCoordinate]);
+
+  /** Memoized floating actions with stable references */
+  const actions = useMemo(() => {
+    const baseActions = [
+      {
+        text: editing ? "Stop Editing" : "Start Editing",
+        icon: require("../../Common/images/editing.png"),
+        name: "toggleEdit",
+        position: 1,
+        color: Colors.useGreen,
+      },
+    ];
+
+    if (editing) {
+      baseActions.push(
         {
-          text: editing ? "Stop Editing" : "Start Editing",
-          icon: require("../../Common/images/editing.png"),
-          name: "toggleEdit",
-          position: 1,
-          color: Colors.useGreen,
-        },
-        editing && {
           text: "Finalize Polygon",
           icon: require("../../Common/images/check.png"),
           name: "finalizePolygon",
           position: 2,
           color: Colors.useGreen,
         },
-        editing && {
+        {
           text: "Clear",
           icon: require("../../Common/images/bin.png"),
           name: "clear",
           position: 3,
           color: Colors.useGreen,
         },
-        editing && {
+        {
           text: "Undo Mark",
           icon: require("../../Common/images/undo.png"),
           name: "undoMark",
           position: 4,
           color: Colors.useGreen,
-        },
-      ].filter(Boolean),
-    [editing]
-  );
+        }
+      );
+    }
 
-  /** Init load */
+    return baseActions;
+  }, [editing]);
+
+  /** Optimized initialization with proper error handling */
   useEffect(() => {
+    let isEffectActive = true;
+
     const init = async () => {
       try {
-        if (location?.[0]?.latitude && location?.[0]?.longitude) {
-          animateToLocation(+location[0].latitude, +location[0].longitude);
-        } else {
+        if (!isMountedRef.current || !isEffectActive) return;
+
+        const hasLocationData = location?.[0]?.latitude && location?.[0]?.longitude;
+        
+        if (hasLocationData) {
+          const lat = Number(location[0].latitude);
+          const lng = Number(location[0].longitude);
+          if (isValidCoordinate(lat, lng)) {
+            animateToLocation(lat, lng);
+          }
+        } else if (baselatLong && isValidCoordinate(baselatLong.latitude, baselatLong.longitude)) {
           animateToLocation(baselatLong.latitude, baselatLong.longitude);
-          if (polygons.length === 0) {
+          
+          if (polygons.length === 0 && isMountedRef.current) {
             setCurrentLocation({
+              ...baselatLong,
+              ...DEFAULT_REGION,
               latitude: baselatLong.latitude,
               longitude: baselatLong.longitude,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
             });
           }
         }
       } catch (err) {
-        console.log("Init error:", err);
+        console.warn("Init error:", err);
       }
     };
-    init();
-  }, []);
 
-  /** Polygon area calculation */
-  useEffect(() => {
-    if (newPolygon.length > 2) {
+    init();
+
+    return () => {
+      isEffectActive = false;
+    };
+  }, [location, baselatLong, polygons.length, animateToLocation, isValidCoordinate]);
+
+  /** Memoized area calculation with error handling */
+  const calculatedArea = useMemo(() => {
+    if (newPolygon.length <= 2) return 0;
+    
+    try {
       const base = landUnitsquareMetre?.[0]?.defined_unit_value || 1;
-      setSelectedArea(base * geolib.getAreaOfPolygon(newPolygon));
-    } else {
-      setSelectedArea(0);
+      const polygonArea = geolib.getAreaOfPolygon(newPolygon);
+      return base * polygonArea;
+    } catch (error) {
+      console.warn("Area calculation error:", error);
+      return 0;
     }
   }, [newPolygon, landUnitsquareMetre]);
 
-  /** Keep track of coordinates for filled polygon */
+  /** Update selected area only when calculated area changes */
   useEffect(() => {
-    const cleaned = location
-      ?.filter(
-        (c) =>
-          c?.latitude != null &&
-          c?.longitude != null &&
-          c.latitude !== "" &&
-          c.longitude !== ""
-      )
-      ?.map((c) => ({
-        latitude: typeof c.latitude === "string" ? +c.latitude : c.latitude,
-        longitude: typeof c.longitude === "string" ? +c.longitude : c.longitude,
-      }));
-    setCoordinatesCurrent(cleaned);
-  }, [location]);
-
-  /** Setup drawing reference if editing */
-  useEffect(() => {
-    if (editing && !drawingReference) {
-      (async () => {
-        const { latitude, longitude } = coords || {};
-        if (coords != null) {
-          setDrawingReference({
-            latitude,
-            longitude,
-          });
-        }
-      })();
+    if (isMountedRef.current) {
+      setSelectedArea(calculatedArea);
     }
-  }, [editing, drawingReference]);
+  }, [calculatedArea]);
 
-  /** Clear polygon with distance check */
+  /** Memoized coordinate processing with validation */
+  const processedCoordinates = useMemo(() => {
+    if (!location || !Array.isArray(location)) return [];
+    
+    return location
+      .filter(coord => 
+        coord?.latitude != null && 
+        coord?.longitude != null && 
+        coord.latitude !== "" && 
+        coord.longitude !== ""
+      )
+      .map(coord => {
+        const latitude = typeof coord.latitude === "string" ? Number(coord.latitude) : coord.latitude;
+        const longitude = typeof coord.longitude === "string" ? Number(coord.longitude) : coord.longitude;
+        
+        return isValidCoordinate(latitude, longitude) ? { latitude, longitude } : null;
+      })
+      .filter(Boolean);
+  }, [location, isValidCoordinate]);
+
+  /** Update coordinates only when processed coordinates change */
+  useEffect(() => {
+    if (isMountedRef.current) {
+      setCoordinatesCurrent(processedCoordinates);
+    }
+  }, [processedCoordinates]);
+
+  /** Optimized drawing reference setup */
+  useEffect(() => {
+    if (!editing || drawingReference || !coords) return;
+
+    const { latitude, longitude } = coords;
+    if (isValidCoordinate(latitude, longitude) && isMountedRef.current) {
+      setDrawingReference({ latitude, longitude });
+    }
+  }, [editing, drawingReference, coords, isValidCoordinate]);
+
+  /** Memoized clear function with error handling */
   const clearMapGetDistance = useCallback(() => {
+    if (!isMountedRef.current) return;
+
     try {
-      if (type === "livehoood") return clearNewPolygon();
+      if (type === "livehoood") {
+        clearNewPolygon();
+        return;
+      }
+
+      if (!location || location.length <= 1) {
+        clearNewPolygon();
+        return;
+      }
+
       const dist = isWithin20Meters(drawingReference, location, 20);
-      if (location.length <= 1 || dist.length !== 0) {
+      if (dist.length !== 0) {
         clearNewPolygon();
       } else {
         Alert.alert("❌ Out of Range", "Plot location and current location not same!");
       }
     } catch (err) {
-      console.log("Clear error:", err);
+      console.warn("Clear error:", err);
+      // Fallback to clear anyway if there's an error
+      clearNewPolygon();
     }
   }, [drawingReference, location, type, clearNewPolygon]);
 
-  /** Handle map press */
-  const handleMapPressGetDistance = useCallback(
-    (event) => {
-      try {
-        const { latitude, longitude } = event.nativeEvent.coordinate;
-        const pressedPoint = { latitude, longitude };
+  /** Optimized map press handler with memoized dependencies */
+  const handleMapPressGetDistance = useCallback((event) => {
+    if (!isMountedRef.current || !event?.nativeEvent?.coordinate) return;
 
-        if (type === "livehoood") return handleMapPress(event);
+    try {
+      const { latitude, longitude } = event.nativeEvent.coordinate;
+      
+      if (!isValidCoordinate(latitude, longitude)) {
+        console.warn("Invalid coordinates from map press");
+        return;
+      }
 
-        const reference = editing ? drawingReference || currentLocation : currentLocation;
-        if (!reference) return;
+      const pressedPoint = { latitude, longitude };
 
-        if (newPolygon.length === 0) {
-          const dist = getDistance({ latitude, longitude }, reference);
-          if (dist <= distanceThreshold) {
-            handleMapPress(event);
-          } else if (editing) {
-            Alert.alert("❌ Out of Range", "Plot location and current location not same!");
-          }
-        } else {
-          const dist = isWithin20Meters(pressedPoint, newPolygon, 40);
-          if (dist !== 0) handleMapPress(event);
+      if (type === "livehoood") {
+        handleMapPress(event);
+        return;
+      }
+
+      const reference = editing ? drawingReference || currentLocation : currentLocation;
+      if (!reference) return;
+
+      if (newPolygon.length === 0) {
+        const dist = getDistance(pressedPoint, reference);
+        if (dist <= DISTANCE_THRESHOLD) {
+          handleMapPress(event);
+        } else if (editing) {
+          Alert.alert("❌ Out of Range", "Plot location and current location not same!");
         }
-      } catch (err) {
-        console.log("Press error:", err);
+      } else {
+        const dist = isWithin20Meters(pressedPoint, newPolygon, 40);
+        if (dist !== 0) {
+          handleMapPress(event);
+        }
       }
-    },
-    [type, editing, drawingReference, currentLocation, newPolygon, handleMapPress]
-  );
+    } catch (err) {
+      console.warn("Press error:", err);
+    }
+  }, [type, editing, drawingReference, currentLocation, newPolygon, handleMapPress, isValidCoordinate]);
 
+  /** Optimized select handler with validation */
+  const handleSelect = useCallback((item) => {
+    if (!isMountedRef.current || !item) return;
 
-  const handleSelect = useCallback(
-    (item) => {
-      const { lat, lng } = item || {};
-      if (lat && lng) {
-        setMarker({ lat, lng });
-        animateToLocation(lat, lng);
-      }
-    },
-    []
-  );
+    const { lat, lng } = item;
+    if (isValidCoordinate(lat, lng)) {
+      setMarker({ lat, lng });
+      animateToLocation(lat, lng);
+    } else {
+      console.warn("Invalid coordinates from search selection");
+    }
+  }, [animateToLocation, isValidCoordinate]);
 
-  const handleActionPress = useCallback(
-    (name) => {
-      switch (name) {
-        case "toggleEdit":
-          setEditing(!editing);
-          break;
-        case "finalizePolygon":
-          finalizePolygon();
-          break;
-        case "clear":
-          clearMapGetDistance();
-          break;
-        case "undoMark":
-          undoMark();
-          break;
-        case "MapView":
-          setShowModal((prev) => !prev);
-          break;
-        default:
-          console.log("Unhandled action:", name);
-      }
-    },
-    [editing, setEditing, finalizePolygon, clearMapGetDistance, undoMark, setShowModal]
-  );
+  /** Memoized action handler */
+  const handleActionPress = useCallback((name) => {
+    if (!isMountedRef.current) return;
+
+    switch (name) {
+      case "toggleEdit":
+        setEditing(!editing);
+        break;
+      case "finalizePolygon":
+        finalizePolygon();
+        break;
+      case "clear":
+        clearMapGetDistance();
+        break;
+      case "undoMark":
+        undoMark();
+        break;
+      case "MapView":
+        setShowModal(prev => !prev);
+        break;
+      default:
+        console.log("Unhandled action:", name);
+    }
+  }, [editing, setEditing, finalizePolygon, clearMapGetDistance, undoMark, setShowModal]);
+
+  /** GPS button handler with validation */
   const handleGpsButtonPress = useCallback(() => {
-    const { latitude, longitude } = coords || {};
-    animateToLocation(latitude, longitude);
-  }, []);
+    if (!isMountedRef.current || !coords) return;
+
+    const { latitude, longitude } = coords;
+    if (isValidCoordinate(latitude, longitude)) {
+      animateToLocation(latitude, longitude);
+    } else {
+      console.warn("Invalid GPS coordinates");
+    }
+  }, [coords, animateToLocation, isValidCoordinate]);
+
+  /** Memoized marker component */
+  const searchMarker = useMemo(() => {
+    if (marker.lat === 0 || marker.lng === 0 || !isValidCoordinate(marker.lat, marker.lng)) {
+      return null;
+    }
+    return <Marker coordinate={{ latitude: marker.lat, longitude: marker.lng }} />;
+  }, [marker.lat, marker.lng, isValidCoordinate]);
+
+  /** Memoized polygon components */
+  const polygonComponents = useMemo(() => {
+    return polygons.map((polygon, idx) => {
+      if (!Array.isArray(polygon) || polygon.length < 3) return null;
+      
+      // Validate all coordinates in polygon
+      const validPolygon = polygon.every(coord => 
+        isValidCoordinate(coord.latitude, coord.longitude)
+      );
+      
+      if (!validPolygon) return null;
+
+      return (
+        <Polygon
+          key={`existing-polygon-${idx}`}
+          coordinates={polygon}
+          fillColor="rgba(167, 3, 3, 0.66)"
+          strokeColor="rgb(240, 9, 9)"
+          strokeWidth={2}
+        />
+      );
+    });
+  }, [polygons, isValidCoordinate]);
+
+  /** Memoized new polygon markers */
+  const newPolygonMarkers = useMemo(() => {
+    return newPolygon.map((coord, idx) => {
+      if (!isValidCoordinate(coord.latitude, coord.longitude)) return null;
+      return <Marker key={`new-polygon-marker-${idx}`} coordinate={coord} />;
+    });
+  }, [newPolygon, isValidCoordinate]);
 
   return (
     <View style={styles.container}>
@@ -265,12 +429,13 @@ export default function Map({
           <LoadingScreen />
         </View>
       )}
+      
       <MapView
         ref={mapRef}
         style={styles.map}
         mapType="hybrid"
         provider={PROVIDER_GOOGLE}
-        onRegionChangeComplete={(newRegion) => handleRegionChangeComplete(newRegion)}
+        onRegionChangeComplete={handleRegionChangeComplete}
         onPress={handleMapPressGetDistance}
         showsUserLocation
         followsUserLocation
@@ -284,38 +449,37 @@ export default function Map({
         loadingEnabled
         showsMyLocationButton
         zoomEnabled
-        // zoomControlEnabled
         pitchEnabled
-
       >
-        {polygons.map((polygon, idx) =>
-          polygon.length >= 3 ? (
-            <Polygon
-              key={idx}
-              coordinates={polygon}
-              fillColor="rgba(167, 3, 3, 0.66)"
-              strokeColor="rgb(240, 9, 9)"
-              strokeWidth={2}
-            />
-          ) : null
-        )}
+        {polygonComponents}
+        
         {coordinatesCurrent.length > 0 && (
-          <Polygon coordinates={coordinatesCurrent} fillColor="rgba(139, 236, 11, 0.73)" strokeColor="rgb(1, 255, 1)" strokeWidth={2} />
+          <Polygon 
+            coordinates={coordinatesCurrent} 
+            fillColor="rgba(139, 236, 11, 0.73)" 
+            strokeColor="rgb(1, 255, 1)" 
+            strokeWidth={2} 
+          />
         )}
+        
         {newPolygon.length > 0 && (
-          <Polygon coordinates={newPolygon} fillColor="rgba(0, 200, 200, 0.5)" strokeColor="rgb(0, 200, 200)" strokeWidth={2} />
+          <Polygon 
+            coordinates={newPolygon} 
+            fillColor="rgba(0, 200, 200, 0.5)" 
+            strokeColor="rgb(0, 200, 200)" 
+            strokeWidth={2} 
+          />
         )}
-        {newPolygon.map((coord, idx) => (
-          <Marker key={idx} coordinate={coord} />
-        ))}
-        {marker.lat !== 0 && marker.lng !== 0 && <Marker coordinate={{ latitude: marker.lat, longitude: marker.lng }} />}
+        
+        {newPolygonMarkers}
+        {searchMarker}
       </MapView>
 
       {selectedArea !== 0 && (
         <View style={styles.areaBox}>
           <Text style={styles.areaText}>
-            Selected Area: {selectedArea}{" "}
-            {landAreaUnit?.[0]?.defined_unit_value ? landAreaUnit?.[0]?.unit_name : "Square meter"}
+            Selected Area: {selectedArea.toFixed(2)}{" "}
+            {landAreaUnit?.[0]?.defined_unit_value ? landAreaUnit[0].unit_name : "Square meter"}
           </Text>
         </View>
       )}
@@ -327,29 +491,20 @@ export default function Map({
         overlayColor="rgba(22, 17, 17, 0.35)"
         distanceToEdge={{ vertical: 80, horizontal: 25 }}
         onPressItem={handleActionPress}
-        openOnMount={editing === true ? true : false}
+        openOnMount={editing}
       />
 
       <View style={styles.searchBox}>
-        {/* <SuggestiveSearchInput fetchSuggestions={fetchSearchSuggestions} onSelect={handleSelect} /> */}
         <SuggestiveSearchInput
           placeholder="Search places..."
-          onSelect={(place) => {
-            handleSelect(place)
-          }}
+          onSelect={handleSelect}
           maxSuggestions={50}
           minQueryLength={2}
         />
-
       </View>
-      <TouchableOpacity
-        style={styles.gpsButton}
-        onPress={handleGpsButtonPress}>
-        <MaterialCommunityIcons
-          name="crosshairs-gps"
-          size={30}
-          color="#3C75BE"
-        />
+      
+      <TouchableOpacity style={styles.gpsButton} onPress={handleGpsButtonPress}>
+        <MaterialCommunityIcons name="crosshairs-gps" size={30} color="#3C75BE" />
       </TouchableOpacity>
     </View>
   );
@@ -407,3 +562,4 @@ const styles = StyleSheet.create({
     elevation: 10
   },
 });
+export default memo(Map);

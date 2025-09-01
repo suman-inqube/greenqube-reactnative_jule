@@ -18,7 +18,7 @@ const DropdownForm = ({
   const labelString = label
     ? label.charAt(0).toUpperCase() + label.slice(1)
     : '';
-console.log('DropdownForm rendered', label||'');
+// console.log('DropdownForm rendered', label||'');
   return (
     <View>
       <View style={styles.labelContainer}>
