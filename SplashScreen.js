@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,23 +12,23 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { databaseListAPI, firstLanguageListAPI } from './config/apiHere';
-import { getItem, removeItem, setItem } from './config/getDataFromStorage';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {databaseListAPI, firstLanguageListAPI} from './config/apiHere';
+import {getItem, removeItem, setItem} from './config/getDataFromStorage';
 import SplashScreenModal from './SplashScreenModal';
 import SplashScreenModalLanguage from './SplashScreenModalLanguage';
 import i18next from 'i18next';
-import { Root, Toast } from 'react-native-popup-confirm-toast';
-import { AlertMesg } from './pages/Common/ToastAlert';
+import {Root, Toast} from 'react-native-popup-confirm-toast';
+import {AlertMesg} from './pages/Common/ToastAlert';
 import CustomAlert from './pages/Common/CustomAlert';
 import NotificationServices from './pages/PushNotification/NotificationServices';
 import JailMonkey from 'jail-monkey';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
-import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
-import { NativeModules } from 'react-native';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const SplashScreen = ({ navigation }) => {
-  const { ConfigModule } = NativeModules;
+import {CrashlyticsRecordError} from './pages/Crashlytics/CrashlyticsRecordError';
+import {NativeModules} from 'react-native';
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
+const SplashScreen = ({navigation}) => {
+  const {ConfigModule} = NativeModules;
   const insets = useSafeAreaInsets();
   const fadeAnim = useMemo(() => new Animated.Value(0), []);
   const scaleAnim = useMemo(() => new Animated.Value(0.8), []);
@@ -51,7 +51,7 @@ const SplashScreen = ({ navigation }) => {
 
   const fetchDatabaseList = useCallback(async () => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      setState(prev => ({...prev, isLoading: true}));
       const company_res = await databaseListAPI();
       if (company_res?.status === 200 && company_res?.data?.data) {
         setState(prev => ({
@@ -62,51 +62,56 @@ const SplashScreen = ({ navigation }) => {
         }));
       }
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setState(prev => ({...prev, isLoading: false}));
       CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
       console.error('Company API error:', error);
     }
   }, []);
-  const handleCompanySelection = useCallback(async (
-    dbName,
-    company_id,
-    company_name,
-    country_id,
-  ) => {
-    const newCompanyLanguage = {
-      company: dbName,
-      company_id,
-      company_name,
-      country_id,
-    };
-    setState(prev => ({
-      ...prev,
-      companyLanguage: { ...prev.companyLanguage, ...newCompanyLanguage },
-      modalVisible: false,
-      isLoading: true,
-    }));
-    await fetchLanguageData(dbName);
-  }, []);
-  const handleLanguageSelection = useCallback(async (item) => {
-    try {
-      const companyLanguageData = {
-        language: item,
-        company: state.companyLanguage.company,
-        company_id: state.companyLanguage.company_id,
-        company_name: state.companyLanguage.company_name,
-        country_id: state.companyLanguage.country_id,
+  const handleCompanySelection = useCallback(
+    async (dbName, company_id, company_name, country_id) => {
+      const newCompanyLanguage = {
+        company: dbName,
+        company_id,
+        company_name,
+        country_id,
       };
-      await Promise.all([
-        setItem('companyLanguage_data', companyLanguageData),
-        setItem('companyFirstEntry', 1),
-      ]);
+      setState(prev => ({
+        ...prev,
+        companyLanguage: {...prev.companyLanguage, ...newCompanyLanguage},
+        modalVisible: false,
+        isLoading: true,
+      }));
+      await fetchLanguageData(dbName);
+    },
+    [],
+  );
+  const handleLanguageSelection = useCallback(
+    async item => {
+      try {
+        const companyLanguageData = {
+          language: item,
+          company: state.companyLanguage.company,
+          company_id: state.companyLanguage.company_id,
+          company_name: state.companyLanguage.company_name,
+          country_id: state.companyLanguage.country_id,
+        };
+        await Promise.all([
+          setItem('companyLanguage_data', companyLanguageData),
+          setItem('companyFirstEntry', 1),
+        ]);
 
-      navigation.replace('Login');
-    } catch (error) {
-      CrashlyticsRecordError(error, 'SplashScreen', 'handleLanguageSelection');
-    }
-  }, [state.companyLanguage, navigation]);
-  const fetchLanguageData = useCallback(async (dbName) => {
+        navigation.replace('Login');
+      } catch (error) {
+        CrashlyticsRecordError(
+          error,
+          'SplashScreen',
+          'handleLanguageSelection',
+        );
+      }
+    },
+    [state.companyLanguage, navigation],
+  );
+  const fetchLanguageData = useCallback(async dbName => {
     try {
       const language_res = await firstLanguageListAPI(dbName);
 
@@ -119,7 +124,7 @@ const SplashScreen = ({ navigation }) => {
         }));
       }
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setState(prev => ({...prev, isLoading: false}));
       console.error('Language API error:', error.response);
     }
   }, []);
@@ -132,9 +137,10 @@ const SplashScreen = ({ navigation }) => {
       if (loginUser_data) {
         i18next.changeLanguage(`${loginUser_data.lan_id}`);
         const userType = await getItem('userType');
-        const navigationTarget = userType === 3
-          ? 'AdminNavigation'
-          : userType === 2
+        const navigationTarget =
+          userType === 3
+            ? 'AdminNavigation'
+            : userType === 2
             ? 'FarmerNavigation'
             : null;
         if (navigationTarget) {
@@ -151,20 +157,23 @@ const SplashScreen = ({ navigation }) => {
   }, []);
 
   // Search functionality
-  const searchCompanyByName = useCallback((text) => {
-    if (!text || text.length === 0) {
-      setState(prev => ({ ...prev, companyData: [] }));
-      return;
-    }
+  const searchCompanyByName = useCallback(
+    text => {
+      if (!text || text.length === 0) {
+        setState(prev => ({...prev, companyData: []}));
+        return;
+      }
 
-    const filteredResults = state.companyDataRaw.filter(item =>
-      item?.agri_company?.company_display_name
-        ?.toLowerCase()
-        .includes(text.toLowerCase())
-    );
+      const filteredResults = state.companyDataRaw.filter(item =>
+        item?.agri_company?.company_display_name
+          ?.toLowerCase()
+          .includes(text.toLowerCase()),
+      );
 
-    setState(prev => ({ ...prev, companyData: filteredResults }));
-  }, [state.companyDataRaw]);
+      setState(prev => ({...prev, companyData: filteredResults}));
+    },
+    [state.companyDataRaw],
+  );
 
   // Animation sequence
   const startAnimation = useCallback(() => {
@@ -205,18 +214,20 @@ const SplashScreen = ({ navigation }) => {
         <ImageBackground
           source={require('./pages/Common/images/crystal_splash_screen.jpg')}
           style={styles.backgroundImage}
-          imageStyle={styles.backgroundImageStyle}
-        >
+          imageStyle={styles.backgroundImageStyle}>
           <LinearGradient
-            colors={['rgba(0,50,100,0.7)', 'rgba(0,30,60,0.8)', 'rgba(0,10,30,0.9)']}
-            style={styles.gradientOverlay}
-          >
-            <View style={[styles.container, { paddingTop: insets.top }]}>
+            colors={[
+              'rgba(0,50,100,0.7)',
+              'rgba(0,30,60,0.8)',
+              'rgba(0,10,30,0.9)',
+            ]}
+            style={styles.gradientOverlay}>
+            <View style={[styles.container, {paddingTop: insets.top}]}>
               {/* Modals */}
               <SplashScreenModal
                 height={SCREEN_HEIGHT}
-                setModalVisible={(visible) =>
-                  setState(prev => ({ ...prev, modalVisible: visible }))
+                setModalVisible={visible =>
+                  setState(prev => ({...prev, modalVisible: visible}))
                 }
                 modalVisible={state.modalVisible}
                 companyData={state.companyData}
@@ -226,8 +237,8 @@ const SplashScreen = ({ navigation }) => {
               />
 
               <SplashScreenModalLanguage
-                setModalVisibleLan={(visible) =>
-                  setState(prev => ({ ...prev, modalVisibleLan: visible }))
+                setModalVisibleLan={visible =>
+                  setState(prev => ({...prev, modalVisibleLan: visible}))
                 }
                 modalVisibleLan={state.modalVisibleLan}
                 companyData={state.languageData}
@@ -241,13 +252,9 @@ const SplashScreen = ({ navigation }) => {
                   styles.content,
                   {
                     opacity: fadeAnim,
-                    transform: [
-                      { scale: scaleAnim },
-                      { translateY: slideAnim }
-                    ]
-                  }
-                ]}
-              >
+                    transform: [{scale: scaleAnim}, {translateY: slideAnim}],
+                  },
+                ]}>
                 <View style={styles.logoContainer}>
                   <Image
                     source={require('./pages/Common/images/greenqube_logo.png')}
@@ -257,7 +264,8 @@ const SplashScreen = ({ navigation }) => {
                 </View>
 
                 {/* App Title */}
-                <Animated.View style={[styles.titleContainer, { opacity: fadeAnim }]}>
+                <Animated.View
+                  style={[styles.titleContainer, {opacity: fadeAnim}]}>
                   <Text style={styles.appTitle}>GreenQube</Text>
                   <Text style={styles.appSubtitle}>Agricultural Solutions</Text>
                 </Animated.View>
@@ -265,7 +273,8 @@ const SplashScreen = ({ navigation }) => {
 
               {/* Loading Indicator */}
               {state.isLoading && (
-                <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
+                <Animated.View
+                  style={[styles.loadingContainer, {opacity: fadeAnim}]}>
                   <ActivityIndicator
                     size="large"
                     color="#4CAF50"
@@ -276,7 +285,8 @@ const SplashScreen = ({ navigation }) => {
               )}
 
               {/* Version Info */}
-              <Animated.View style={[styles.versionContainer, { opacity: fadeAnim }]}>
+              <Animated.View
+                style={[styles.versionContainer, {opacity: fadeAnim}]}>
                 <Text style={styles.versionText}>Version 1.0.0</Text>
               </Animated.View>
             </View>
@@ -316,7 +326,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 10,
@@ -337,7 +347,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 2,
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 2 },
+    textShadowOffset: {width: 0, height: 2},
     textShadowRadius: 4,
   },
   appSubtitle: {
@@ -362,7 +372,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 1 },
+    textShadowOffset: {width: 0, height: 1},
     textShadowRadius: 3,
   },
   versionContainer: {
