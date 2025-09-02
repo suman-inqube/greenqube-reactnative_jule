@@ -47,8 +47,7 @@ const TrainingList = () => {
     return animationValues.current[fid];
   };
   const detailItem = async (itemId) => {
-    await setItem("userNoticeId", itemId);
-    navigation.navigate('Training', { pagename: 'Training', noticeId: itemId });
+    navigation.navigate('Training', itemId);
   }
   const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id) => {
     setLoading(true);

@@ -13,8 +13,7 @@ export const ROUTES = {
       searchItem = '',
       from_date = '',
       to_date = '',
-    }) =>
-      `inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    }) =>`inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
 
     USER_ACTIVITY: ({
       pageNO,

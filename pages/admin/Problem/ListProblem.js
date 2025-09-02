@@ -166,6 +166,7 @@ const ListProblem = ({ navigation }) => {
         t: t,
         dropdownData: farmerData,
         filterItem: filterItem,
+        setFilterItem: setFilterItem,
         setSearchFarmerName: setSearchFarmerName,
         setSearchFarmerPhone: setSearchFarmerPhone,
         searchFarmerName: searchFarmerName,
@@ -181,6 +182,7 @@ const ListProblem = ({ navigation }) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
+        height: 200
       });
     } catch (error) { }
   };
@@ -230,7 +232,7 @@ const ListProblem = ({ navigation }) => {
     setItem('problem_id_data', fid);
     navigation.navigate(pageName);
   }, []);
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>

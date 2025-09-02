@@ -39,8 +39,6 @@ import ActivityCard from '../../Components/ActivityCard';
 function ActivityList({ navigation }) {
   //GQR-67
   const {
-    dbLanTokUsr,
-    setdbLanTokUsr,
     loginUser_data,
     CustomHeader,
     t,
@@ -60,7 +58,7 @@ function ActivityList({ navigation }) {
   const route = useRoute();
   const flatListRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activityAll, setactivityAll] = useState([]);
+  const [activityAll, setActivityAll] = useState([]);
   const [filterItem, setFilterItem] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -83,6 +81,7 @@ function ActivityList({ navigation }) {
       t: t,
       dropdownData: farmerData,
       filterItem: filterItem,
+      setFilterItem: setFilterItem,
       setSearchFarmerName: setSearchFarmerName,
       setSearchFarmerPhone: setSearchFarmerPhone,
       searchFarmerName: searchFarmerName,
@@ -99,8 +98,9 @@ function ActivityList({ navigation }) {
       CARBON_TYPE: CARBON_TYPE,
       carbonType: carbonType,
       navigationBarHeight: navigationBarHeight,
+      height: 200,
     });
-  };
+  }
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
@@ -135,10 +135,10 @@ function ActivityList({ navigation }) {
           filter,
         );
       } catch (error) {
- 
+
       }
     },
-    [],
+    [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone, carbonType],
   );
   const handleFilterRemove = () => {
     try {
@@ -196,10 +196,8 @@ function ActivityList({ navigation }) {
         var response = await getItem('activityList');
       }
       if (response?.status == 200) {
-        const totalPage = Math.ceil(response.data.count / 20);
         setTotalPages(Math.ceil(response.data.count / 20));
-        setdbLanTokUsr({ ...dbLanTokUsr, totalPage: totalPage });
-        setactivityAll(response?.data?.rows);
+        setActivityAll(response?.data?.rows);
         setIsLoading(false);
       }
       if (flatListRef.current) {
@@ -254,18 +252,18 @@ function ActivityList({ navigation }) {
       CrashlyticsRecordError(error, 'ActivityList', 'handleSPSheetShow');
     }
   };
-
   const renderCustomHeader = useMemo(() => <CustomHeader
     logoImage={logoImage}
     topBanner={topBanner}
     filterOptionShow={filterOptionShow}
     t={t}
-  />, []);
+  />, [filterOptionShow]);
   return (
     <MyErrorBoundary>
       <Root>
         <SafeAreaView style={styles.container}>
           {renderCustomHeader}
+
           <FlatList
             ref={flatListRef}
             data={isLoading ? Array.from({ length: 5 }) : activityAll}

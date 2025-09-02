@@ -12,8 +12,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import {noticeDetailsAPI} from '../../../config/apiHere';
 import {WebView} from 'react-native-webview';
 import {getItem} from '../../../config/getDataFromStorage';
-import {useNavigation} from '@react-navigation/native';
-import CustomHeader from '../CustomHeader';
+import {useNavigation,useRoute} from '@react-navigation/native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
@@ -29,15 +28,12 @@ const FarmerTraining = () => {
   const {
     loginUser_data,
     t,
-    FormsTitle,
-    getItem,
     logoImage,
     topBanner,
-    onBackPress,
-    setItem,
     CustomHeader,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
+   const route = useRoute();
   const navigation = useNavigation();
 
   const [noticeDetails, setNoticeDetails] = useState([]);
@@ -75,9 +71,8 @@ const FarmerTraining = () => {
       </View>
     );
   };
-
   const onPageLoad = async () => {
-    const noticeId = await getItem('userNoticeId');
+   const noticeId = route.params;
     if (noticeId) {
       const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
       if (response?.status === 200) {
@@ -86,29 +81,16 @@ const FarmerTraining = () => {
       }
     }
   };
-
-  const handleBackPress = () => {
-    navigation.navigate('FarmerTrainingList');
-    return true;
-  };
-
   useEffect(() => {
     onPageLoad();
-    onBackPress(handleBackPress);
   }, []);
-
-  const HandlerGoBack = () => navigation.navigate('FarmerTrainingList');
-
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <CustomHeader
-          HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <FormsTitle title={noticeDetails.post_name} />
-
         {/* Horizontal scroll file list */}
         <View style={{width: '100%', alignItems: 'center'}}>
           <ScrollView
@@ -154,7 +136,7 @@ const FarmerTraining = () => {
             <html>
               <head>${head}</head> 
               <body style="margin:0;padding:10px;">
-                ${noticeDetails.post_desc}
+                ${noticeDetails?.post_desc}
               </body>
             </html>
           `,

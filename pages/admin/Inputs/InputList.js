@@ -42,8 +42,6 @@ const InputList = ({ navigation }) => {
   const fadeAnims = useRef([]);
   const slideAnims = useRef([]);
   const scaleAnims = useRef([]);
-
-  // ------------------- FUNCTIONS -------------------
   const onPageLoad = useCallback(async () => {
     setIsLoading(true);
     const currency_res = await getItem('currency');
@@ -101,20 +99,28 @@ const InputList = ({ navigation }) => {
   useEffect(() => { onPageLoad(); }, [onPageLoad]);
 
   useEffect(() => {
-    // Initialize animations
+    const timeouts = [];
+
     inputListAll.forEach((_, index) => {
       if (!fadeAnims.current[index]) fadeAnims.current[index] = new Animated.Value(0);
       if (!slideAnims.current[index]) slideAnims.current[index] = new Animated.Value(30);
       if (!scaleAnims.current[index]) scaleAnims.current[index] = new Animated.Value(1);
 
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         Animated.parallel([
           Animated.timing(fadeAnims.current[index], { toValue: 1, duration: 500, useNativeDriver: true }),
           Animated.timing(slideAnims.current[index], { toValue: 0, duration: 500, useNativeDriver: true }),
         ]).start();
       }, index * 100);
+
+      timeouts.push(timeoutId);
     });
+
+    return () => {
+      timeouts.forEach(clearTimeout); // ✅ cleanup all timeouts
+    };
   }, [inputListAll]);
+
   const renderItem = useCallback(({ item, index }) => <InputProductCard product={item} index={index} currency={currency} fadeAnims={fadeAnims} Colors={Colors} slideAnims={slideAnims} scaleAnims={scaleAnims} navigateToPages={navigateToPages} />, [InputProductCard, navigateToPages]);
 
   return (
@@ -174,8 +180,6 @@ const InputList = ({ navigation }) => {
 };
 
 export default InputList;
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

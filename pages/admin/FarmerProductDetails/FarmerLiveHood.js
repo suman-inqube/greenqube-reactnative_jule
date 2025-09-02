@@ -83,7 +83,7 @@ const FarmerLiveHood = ({
     Toast,
     AlertMesg,
     ButtonFormBottom,
-    ButtonForm,
+    ButtonForm,coords
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner, carbonFlag} = loginUser_data;
   //GQR-67
@@ -242,8 +242,7 @@ const FarmerLiveHood = ({
   const onPageLoad = async () => {
     try {
       setIsLoading(true);
-      const fusedLocation = await getItem('fusedLocation');
-      const {latitude, longitude} = fusedLocation;
+      const {latitude, longitude} = coords;
       let groupedData;
       const axiosConfig = {
         headers: {
@@ -480,15 +479,12 @@ const FarmerLiveHood = ({
     }
   };
   const handleCurrentLatLong = async index => {
-    const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const {latitude, longitude} = coords;
     const values = [...location];
     if (
-      fusedLocation != null &&
-      longitude?.toString().length == 10 &&
-      latitude?.toString().length == 10 &&
-      latitude > 0 &&
-      longitude > 0
+      coords != null &&
+      longitude &&
+      latitude
     ) {
       values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
@@ -746,8 +742,7 @@ const FarmerLiveHood = ({
       const locationArry = [];
       const latlongArr = [];
       if (location?.[0]?.editing == true && statuslevel.label != '') {
-        const fusedLocation = await getItem('fusedLocation');
-        const {latitude, longitude} = fusedLocation;
+        const {latitude, longitude} = coords;
         const distances = previousPlotLatlong.map(p =>
           getDistance(p, {latitude, longitude}),
         );
@@ -1147,13 +1142,11 @@ const FarmerLiveHood = ({
       productSeasonresRes,
       cropAndPlotDetails,
       getPlotDoc,
-      fusedLocation,
       nearestLatLong_res,
     ] = await Promise.all([
       ProductionSeasonAndApi(dbname, lan_id, ''),
       livelihoodCropAndPlotDetailsAPI(dbname, lan_id, user_id, findData.value),
       getPlotDocAPI(dbname, lan_id, token, user_id, findData.value),
-      getItem('fusedLocation'),
       nearestLatLong(
         dbname,
         lan_id,
@@ -1445,7 +1438,7 @@ const FarmerLiveHood = ({
       }
       //basudev out of range
       if (agri_land_user_latlongs.length > 1) {
-        const {latitude, longitude} = fusedLocation;
+        const {latitude, longitude} = coords;
         const is20Meters = isWithin20Meters(
           {latitude, longitude},
           agri_land_user_latlongs,
@@ -1744,8 +1737,7 @@ const FarmerLiveHood = ({
   };
   const handleCurrentLatLongIOT = async () => {
     try {
-      const fusedLocation = await getItem('fusedLocation');
-      const {latitude, longitude} = fusedLocation;
+      const {latitude, longitude} = coords;
       setfarmerData({
         ...farmerData,
         IOTLatlat: latitude,
@@ -1757,7 +1749,14 @@ const FarmerLiveHood = ({
   };
   const regionRef = useRef(null); // stores the current map region
   const timeoutRef = useRef(null); // timeout controller
-
+  const isEqualCoordinatesArray = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every(
+      (coord, index) =>
+        coord.latitude === arr2[index].latitude &&
+        coord.longitude === arr2[index].longitude,
+    );
+  };
   const handleRegionChangeComplete = async newRegion => {
     const {latitude, longitude} = newRegion;
     regionRef.current = newRegion;

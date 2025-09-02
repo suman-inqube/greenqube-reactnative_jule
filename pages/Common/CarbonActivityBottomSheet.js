@@ -31,7 +31,7 @@ const RadioGroup = ({ navigation, spSheet, options }) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.cardRow}>
-        {options.map((item) => (
+        {options?.map((item) => (
           <RadioButton
             key={item.id}
             item={item}

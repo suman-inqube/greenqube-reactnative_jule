@@ -4,6 +4,14 @@ const OPTIONS_CARBON = [
   {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
   {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
 ];
+const OPTIONS_CARBON_FARMER= [
+  { id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD' },
+  {
+    id: 'Conventional',
+    title: 'Non-Carbon',
+    navigation: 'FarmerActivityReport',
+  },
+];
 const CARBON_TYPE = [
   {label: 'Carbon', value: 'carbon_activity'},
   {label: 'Non-Carbon ', value: 'user_activity'},
@@ -126,4 +134,5 @@ export {
   CARBON_TYPE,
   getActionsMapView,
   getActionsPostNewOutputFarmer,
+  OPTIONS_CARBON_FARMER
 };

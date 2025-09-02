@@ -28,18 +28,18 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SplashScreen = ({ navigation }) => {
   const { ConfigModule } = NativeModules;
   const insets = useSafeAreaInsets();
-  
+
   // Refs for cleanup tracking
   const isMountedRef = useRef(true);
   const animationRefs = useRef([]);
   const navigationTimeoutRef = useRef(null);
-  
+
   // Animated values with proper refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  
+
   const [state, setState] = useState({
     companyData: [],
     companyDataRaw: [],
@@ -66,22 +66,22 @@ const SplashScreen = ({ navigation }) => {
           animation.stop();
         }
       });
-      
+
       // Clear animation refs
       animationRefs.current = [];
-      
+
       // Clear navigation timeout
       if (navigationTimeoutRef.current) {
         clearTimeout(navigationTimeoutRef.current);
         navigationTimeoutRef.current = null;
       }
-      
+
       // Reset animation values to prevent flickering
       fadeAnim.setValue(1);
       scaleAnim.setValue(1);
       slideAnim.setValue(0);
       pulseAnim.stopAnimation();
-      
+
     } catch (error) {
       console.warn('Error stopping animations:', error);
     }
@@ -98,10 +98,10 @@ const SplashScreen = ({ navigation }) => {
   // Safe navigation function that stops animations first
   const safeNavigate = useCallback((routeName, params = {}) => {
     if (!isMountedRef.current) return;
-    
+
     // Stop animations first
     stopAllAnimations();
-    
+
     // Small delay to ensure animations are stopped
     navigationTimeoutRef.current = setTimeout(() => {
       if (isMountedRef.current && navigation) {
@@ -117,13 +117,13 @@ const SplashScreen = ({ navigation }) => {
 
   const fetchDatabaseList = useCallback(async () => {
     if (!isMountedRef.current) return;
-    
+
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       const company_res = await databaseListAPI();
-      
+
       if (!isMountedRef.current) return;
-      
+
       if (company_res?.status === 200 && company_res?.data?.data) {
         setState(prev => ({
           ...prev,
@@ -148,27 +148,27 @@ const SplashScreen = ({ navigation }) => {
     country_id,
   ) => {
     if (!isMountedRef.current) return;
-    
+
     const newCompanyLanguage = {
       company: dbName,
       company_id,
       company_name,
       country_id,
     };
-    
+
     setState(prev => ({
       ...prev,
       companyLanguage: { ...prev.companyLanguage, ...newCompanyLanguage },
       modalVisible: false,
       isLoading: true,
     }));
-    
+
     await fetchLanguageData(dbName);
   }, []);
 
   const handleLanguageSelection = useCallback(async (item) => {
     if (!isMountedRef.current) return;
-    
+
     try {
       const companyLanguageData = {
         language: item,
@@ -177,7 +177,7 @@ const SplashScreen = ({ navigation }) => {
         company_name: state.companyLanguage.company_name,
         country_id: state.companyLanguage.country_id,
       };
-      
+
       await Promise.all([
         setItem('companyLanguage_data', companyLanguageData),
         setItem('companyFirstEntry', 1),
@@ -192,7 +192,7 @@ const SplashScreen = ({ navigation }) => {
 
   const fetchLanguageData = useCallback(async (dbName) => {
     if (!isMountedRef.current) return;
-    
+
     try {
       const language_res = await firstLanguageListAPI(dbName);
 
@@ -216,27 +216,27 @@ const SplashScreen = ({ navigation }) => {
 
   const handlePageLoad = useCallback(async () => {
     if (!isMountedRef.current) return;
-    
+
     try {
       const [companyLanguage_data, loginUser_data] = await Promise.all([
         getItem('companyLanguage_data'),
         getItem('loginUser_data'),
       ]);
-      
+
       if (!isMountedRef.current) return;
-      
+
       if (loginUser_data) {
         i18next.changeLanguage(`${loginUser_data.lan_id}`);
         const userType = await getItem('userType');
-        
+
         if (!isMountedRef.current) return;
-        
+
         const navigationTarget = userType === 3
           ? 'AdminNavigation'
           : userType === 2
             ? 'FarmerNavigation'
             : null;
-            
+
         if (navigationTarget) {
           safeNavigate(navigationTarget);
         }
@@ -253,7 +253,7 @@ const SplashScreen = ({ navigation }) => {
   // Search functionality with safety checks
   const searchCompanyByName = useCallback((text) => {
     if (!isMountedRef.current) return;
-    
+
     if (!text || text.length === 0) {
       setState(prev => ({ ...prev, companyData: [] }));
       return;
@@ -273,7 +273,7 @@ const SplashScreen = ({ navigation }) => {
   // Optimized animation sequence with cleanup tracking
   const startAnimation = useCallback(() => {
     if (!isMountedRef.current) return;
-    
+
     // Create loading pulse animation
     const pulseAnimation = Animated.loop(
       Animated.sequence([
@@ -289,7 +289,7 @@ const SplashScreen = ({ navigation }) => {
         }),
       ])
     );
-    
+
     // Main entry animation
     const mainAnimation = Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -312,7 +312,7 @@ const SplashScreen = ({ navigation }) => {
 
     // Store animation references for cleanup
     animationRefs.current = [pulseAnimation, mainAnimation];
-    
+
     // Start animations
     pulseAnimation.start();
     mainAnimation.start(({ finished }) => {
@@ -332,7 +332,7 @@ const SplashScreen = ({ navigation }) => {
   // Effects with proper cleanup
   useEffect(() => {
     let mounted = true;
-    
+
     const initializeApp = async () => {
       if (mounted && isMountedRef.current) {
         await handlePageLoad();
@@ -341,9 +341,9 @@ const SplashScreen = ({ navigation }) => {
         }
       }
     };
-    
+
     initializeApp();
-    
+
     return () => {
       mounted = false;
     };
@@ -361,11 +361,7 @@ const SplashScreen = ({ navigation }) => {
   return (
     <MyErrorBoundary>
       <Root>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent
-        />
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         <ImageBackground
           source={require('./pages/Common/images/crystal_splash_screen.jpg')}
           style={styles.backgroundImage}
@@ -408,7 +404,7 @@ const SplashScreen = ({ navigation }) => {
                   }
                 ]}
               >
-                <Animated.View 
+                <Animated.View
                   style={[
                     styles.logoContainer,
                     { transform: [{ scale: state.isLoading ? pulseAnim : 1 }] }

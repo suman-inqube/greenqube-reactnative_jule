@@ -11,7 +11,7 @@ const FarmerWantToBuy = ({ navigation }) => {
     //GQR-67
     const { loginUser_data, Root, Toast, InputTextForm,
         DropdownForm, ButtonForm, AlertMesg, DatePickerComp,
-        CustomHeader, t, onBackPress, getItem, logoImage, topBanner, FormsTitle, effective_dates, isOnline } = useContext(userCreateContext);
+        CustomHeader, t, onBackPress, getItem, logoImage, topBanner,  effective_dates, isOnline } = useContext(userCreateContext);
     const { dbname, lan_id, token, user_id } = loginUser_data;
     const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(dbname, lan_id, token, user_id, isOnline);
     //GQR-67
@@ -311,7 +311,6 @@ const FarmerWantToBuy = ({ navigation }) => {
         <View style={{ flex: 1 }}>
             <DatePickerComp openDate={openDatePicker} newDate={newDate} setOpenDate={setOpenDatePicker} handleDatePicker={handleDatePicker} />
             <CustomHeader path={'FarmerInputList'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
-            <FormsTitle title={t('want_to_buy_seed_de')} />
             {modalVisible && <HarvestedModel setModalVisible={setModalVisible} modalVisible={modalVisible} handleHarvested={handleHarvested} />}
             <ScrollView>
                 <View style={styles.formContainer}>

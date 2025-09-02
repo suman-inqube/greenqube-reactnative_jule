@@ -9,24 +9,24 @@ import {
   Dimensions,
 } from 'react-native';
 import ViewModalPast from './ViewModalPast';
-import React, {useState, useEffect, useContext, useCallback,useMemo} from 'react';
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import {
   outputListAPI,
   SupervisoroutputEnquiryViewAPI,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import MessageDialog from '../../Common/MessageDialog';
-import {useRoute, useIsFocused} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
+import { useRoute, useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {getActionsPostNew} from '../../utils/options';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { getActionsPostNew } from '../../utils/options';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-const OutPut = ({navigation}) => {
+const OutPut = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -41,7 +41,7 @@ const OutPut = ({navigation}) => {
     farmerData,
     CustomHeader,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const route = useRoute();
   const isFocused = useIsFocused();
@@ -65,7 +65,7 @@ const OutPut = ({navigation}) => {
   const [outputListAllRaw, setOutputListRaw] = useState([]);
   const [outputSingle, setOutputSingle] = useState();
   const [pastEnquiryView, setPastEnquiryView] = useState([]);
-  const [result, setresult] = useState({qty: '', total: ''});
+  const [result, setresult] = useState({ qty: '', total: '' });
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const onchangeFilterItem = value => {
@@ -103,14 +103,14 @@ const OutPut = ({navigation}) => {
       );
       if (outputList.status === 200) {
         if (outputList.data.data.rows.length === 0) {
-          Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
+          Toast.show({ text: t('no_data_found'), ...AlertMesg[0] });
         }
         setOutputListAll(outputList.data.data.rows);
         setItem('output_data', outputList.data.data.rows);
       }
     } else {
       // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-      Toast.show({text: 'Please Select First data.', ...AlertMesg[0]});
+      Toast.show({ text: 'Please Select First data.', ...AlertMesg[0] });
     }
   };
   const navigateToPages = async (fid, dbname, lan_id, token, user_id) => {
@@ -133,7 +133,7 @@ const OutPut = ({navigation}) => {
         qty = qty + parseFloat(data.pro_qty);
         total = total + parseFloat(data.grand_total);
       });
-      setresult({...result, qty: qty, total: total});
+      setresult({ ...result, qty: qty, total: total });
     }
     setModalVisible(true);
   };
@@ -202,7 +202,7 @@ const OutPut = ({navigation}) => {
         farmer_mobile: farmer_mobile,
       }),
       token,
-      {information: `${dbname},${lan_id},${user_id}`},
+      { information: `${dbname},${lan_id},${user_id}` },
     );
     if (outputList?.status == 200) {
       setOutputListAll(outputList.data.data.rows);
@@ -212,10 +212,10 @@ const OutPut = ({navigation}) => {
     setIsLoading(false);
   };
   useEffect(() => {
-      setFilterName('');
-      setFilterItem('');
-      setFilterOption(false);
-      onPageLoad();
+    setFilterName('');
+    setFilterItem('');
+    setFilterOption(false);
+    onPageLoad();
   }, []);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -226,13 +226,14 @@ const OutPut = ({navigation}) => {
   }, []);
   const filterOptionShow = async () => {
     try {
-      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      const { openFilterSheet } = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['farmer', 'phone', 'date', ''],
         // onchangeFilterItem: onchangeFilterItem,
         t: t,
         dropdownData: farmerData,
         filterItem: filterItem,
+        setFilterItem: setFilterItem,
         setSearchFarmerName: setSearchFarmerName,
         setSearchFarmerPhone: setSearchFarmerPhone,
         searchFarmerName: searchFarmerName,
@@ -248,13 +249,14 @@ const OutPut = ({navigation}) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
+        height: 200
       });
     } catch (error) {
       console.log(error);
     }
   };
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -282,7 +284,7 @@ const OutPut = ({navigation}) => {
     [],
   );
   const handleFilterRemove = () => {
-     try {
+    try {
       setFromDate('');
       setToDate('');
       setSearchFarmerName({ label: '', value: '' });
@@ -298,11 +300,11 @@ const OutPut = ({navigation}) => {
   const handleSPSheetShow = useCallback(() => {
     navigation.navigate('PostNew');
   }, []);
-    const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
           {renderCustomHeader}
 
           <ViewModalPast
@@ -320,8 +322,8 @@ const OutPut = ({navigation}) => {
           />
 
           <FlatList
-            data={isLoading ? Array.from({length: 5}) : outputListAll}
-            renderItem={({item, index}) =>
+            data={isLoading ? Array.from({ length: 5 }) : outputListAll}
+            renderItem={({ item, index }) =>
               isLoading ? (
                 <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
               ) : (
@@ -346,7 +348,7 @@ const OutPut = ({navigation}) => {
                           {item.io_crop_name &&
                             item.io_crop_name.name.substring(0, 5)}
                           {item.io_crop_name &&
-                          item.io_crop_name.name.length > 6
+                            item.io_crop_name.name.length > 6
                             ? '...'
                             : null}
                         </Text>
@@ -367,7 +369,7 @@ const OutPut = ({navigation}) => {
                             {item.io_crop_variety &&
                               item.io_crop_variety.name.substring(0, 10)}
                             {item.io_crop_variety &&
-                            item.io_crop_variety.name.length > 14
+                              item.io_crop_variety.name.length > 14
                               ? '...'
                               : null}
                           </Text>
@@ -411,7 +413,7 @@ const OutPut = ({navigation}) => {
             }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
+            distanceToEdge={{ vertical: 80, horizontal: 25 }}
           />
         </View>
       </Root>
@@ -487,7 +489,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

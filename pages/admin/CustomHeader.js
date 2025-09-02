@@ -154,13 +154,12 @@ const CustomHeader = memo(
         MySoil: t('my_soil'),
         InstrumentWiseActivityDetails: t('activity_Pipe_Images'),
         FarmerInstrumentWiseActivityDetails: t('activity_Pipe_Images'),
+        FarmerInputList: t('products'),    
+        FarmerDashboard:'',    
       }),
       [t],
     );
-    const title = useMemo(
-      () => titleMap[route.name] ?? route.name,
-      [titleMap, route.name],
-    );
+    const title = useMemo(() => titleMap[route.name] ?? route.name,[titleMap, route.name]);
     console.log('Screen-', route.name);
     const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
     const showFilter = useMemo(

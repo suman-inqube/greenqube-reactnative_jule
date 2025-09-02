@@ -6,9 +6,19 @@ import React, {
   useMemo,
   lazy,
 } from "react";
-import { getItem, setItem, removeItem } from "../../config/getDataFromStorage";
-import { InteractionManager, PermissionsAndroid, Platform } from "react-native";
+import {
+  Alert,
+  InteractionManager,
+  PermissionsAndroid,
+  Platform,
+} from "react-native";
 import Geolocation from "@react-native-community/geolocation";
+import {
+  isLocationEnabled,
+  promptForEnableLocationIfNeeded,
+} from "react-native-android-location-enabler";
+
+import { getItem, setItem, removeItem } from "../../config/getDataFromStorage";
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
@@ -16,12 +26,7 @@ import {
 } from "../../config/apiHere";
 import { useTranslation } from "react-i18next";
 import { AlertMesg } from "../Common/ToastAlert";
-import {
-  Root,
-  Toast,
-  Popup,
-  SPSheet,
-} from "react-native-popup-confirm-toast";
+import { Root, Toast, Popup, SPSheet } from "react-native-popup-confirm-toast";
 import { onBackPress } from "../Common/BackPressHandler";
 import DeviceInfo from "../DeviceInfo";
 import i18next from "i18next";
@@ -38,11 +43,8 @@ const ButtonForm = lazy(() => import("../Common/ButtonForm"));
 const DropdownForm = lazy(() => import("../Common/DropdownForm"));
 const CustomHeader = lazy(() => import("../admin/CustomHeader"));
 const LoadingScreen = lazy(() => import("../Common/LoadingScreen"));
-const FormsTitle = lazy(() => import("../Common/FormsTitle"));
 const DatePickerComp = lazy(() => import("../Common/DatePickerComp"));
-const ButtonFormBottom = lazy(() =>
-  import("../Common/ButtonFormBottom")
-);
+const ButtonFormBottom = lazy(() => import("../Common/ButtonFormBottom"));
 const Filter = lazy(() => import("../Common/Filter"));
 const DatePicker = lazy(() => import("react-native-date-picker"));
 const config = lazy(() => import("../../config"));
@@ -54,8 +56,6 @@ const userListContext = createContext("adduser");
 const UserCreateContextProvider = (props) => {
   const { netConnection } = DeviceInfo();
   const { t } = useTranslation();
-
-  // ---------- APP STATES ----------
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
   const [loginUser_data, setloginUser_data] = useState({});
@@ -63,18 +63,13 @@ const UserCreateContextProvider = (props) => {
   const [topBanner, settopBanner] = useState("");
   const [plotAll, setplotAll] = useState([]);
   const [navigationBarHeight, setNavigationBarHeight] = useState(0);
-
-  // ---------- LOCATION STATE ----------
   const [coords, setCoords] = useState({
     latitude: "",
     longitude: "",
     accuracy: "",
     timestamp: "",
   });
-
   const watchIdRef = useRef(null);
-
-  // ---------- LOCATION SETUP ----------
   useEffect(() => {
     const requestPermission = async () => {
       if (Platform.OS === "android") {
@@ -93,6 +88,24 @@ const UserCreateContextProvider = (props) => {
       return true;
     };
 
+    const ensureGpsEnabled = async () => {
+      try {
+        const enabled = await isLocationEnabled();
+        if (!enabled) {
+          const result = await promptForEnableLocationIfNeeded({
+            interval: 10000,
+            fastInterval: 5000,
+          });
+          console.log("GPS enable result:", result);
+          return result === "enabled" || result === "already-enabled";
+        }
+        return true;
+      } catch (err) {
+        // console.warn("Error checking GPS:", err);
+        return false;
+      }
+    };
+
     const startWatching = async () => {
       const hasPermission = await requestPermission();
       if (!hasPermission) {
@@ -100,10 +113,31 @@ const UserCreateContextProvider = (props) => {
         return;
       }
 
+      const gpsEnabled = await ensureGpsEnabled();
+      if (!gpsEnabled) {
+        Alert.alert(
+          "Enable GPS",
+          "Please enable GPS to use location services.",
+          [
+            {
+              text: "Enable",
+              onPress: async () => {
+                try {
+                  const enableResult = await promptForEnableLocationIfNeeded();
+                  console.log("enableResult:", enableResult);
+                } catch (err) {
+                  console.warn("GPS enable request failed", err);
+                }
+              },
+            },
+          ]
+        )
+        return;
+      }
+
       watchIdRef.current = Geolocation.watchPosition(
         (pos) => {
           setCoords((prev) => {
-            // ✅ only update if different (prevents useless rerenders)
             if (
               prev.latitude === pos.coords.latitude &&
               prev.longitude === pos.coords.longitude &&
@@ -112,7 +146,6 @@ const UserCreateContextProvider = (props) => {
               return prev;
             }
             return {
-              ...prev,
               latitude: pos.coords.latitude,
               longitude: pos.coords.longitude,
               accuracy: pos.coords.accuracy,
@@ -121,11 +154,15 @@ const UserCreateContextProvider = (props) => {
           });
         },
         (err) => {
-          console.log("Location error:", err);
+          console.error("Location error:", err);
+          if (err.code === 2) {
+            // POSITION_UNAVAILABLE → GPS turned off
+            Alert.alert("GPS is turned off. Please enable it.");
+          }
         },
         {
           enableHighAccuracy: true,
-          distanceFilter: 10, // ✅ only update after 10m movement
+          distanceFilter: 10, // update after 10m movement
           interval: 5000,
           fastestInterval: 2000,
           timeout: 20000,
@@ -229,7 +266,7 @@ const UserCreateContextProvider = (props) => {
           dbName: loginUser_data?.dbname,
           languageId: loginUser_data?.lan_id,
           token: loginUser_data?.token,
-          supervisorId: supervisorId,
+          supervisorId,
           farmerId: loginUser_data?.user_id,
           agri_user_addresses: loginUser_data?.agri_user_addresses,
           country: loginUser_data?.agri_user_addresses?.[0]?.country,
@@ -288,7 +325,7 @@ const UserCreateContextProvider = (props) => {
     return dt.toISOString().split("T")[0];
   };
 
-  // ---------- PROVIDER VALUE (Memoized) ----------
+  // ---------- PROVIDER VALUE ----------
   const contextValue = useMemo(
     () => ({
       dbLanTokUsr,
@@ -297,7 +334,7 @@ const UserCreateContextProvider = (props) => {
       farmerData,
       loginUser_data,
       isOnline: netConnection,
-      coords, // ✅ only rerenders when coords actually change
+      coords,
       t,
       AlertMesg,
       onBackPress,
@@ -317,7 +354,6 @@ const UserCreateContextProvider = (props) => {
       Popup,
       SPSheet,
       CustomHeader,
-      FormsTitle,
       ImagePlaceHolderCircle,
       logoImage,
       topBanner,
