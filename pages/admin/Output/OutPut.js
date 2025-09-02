@@ -9,7 +9,13 @@ import {
   Dimensions,
 } from 'react-native';
 import ViewModalPast from './ViewModalPast';
-import React, {useState, useEffect, useContext, useCallback,useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   outputListAPI,
   SupervisoroutputEnquiryViewAPI,
@@ -212,10 +218,10 @@ const OutPut = ({navigation}) => {
     setIsLoading(false);
   };
   useEffect(() => {
-      setFilterName('');
-      setFilterItem('');
-      setFilterOption(false);
-      onPageLoad();
+    setFilterName('');
+    setFilterItem('');
+    setFilterOption(false);
+    onPageLoad();
   }, []);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -282,12 +288,12 @@ const OutPut = ({navigation}) => {
     [],
   );
   const handleFilterRemove = () => {
-     try {
+    try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
-      setCarbonType({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
+      setCarbonType({label: '', value: ''});
       setFilterItem('');
       onPageLoad();
       setPage(1);
@@ -298,7 +304,10 @@ const OutPut = ({navigation}) => {
   const handleSPSheetShow = useCallback(() => {
     navigation.navigate('PostNew');
   }, []);
-    const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>

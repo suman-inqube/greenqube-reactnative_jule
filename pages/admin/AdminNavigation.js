@@ -1,6 +1,6 @@
-import React, { Suspense, lazy } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import React, {Suspense, lazy} from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
 import {Colors} from '../utils/Constants';
 
@@ -87,23 +87,23 @@ function AdminStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: 'transparent' },
+        contentStyle: {backgroundColor: 'transparent'},
 
         // 🔄 Screen transition
-        animation: 'slide_from_bottom',   // others: 'fade', 'slide_from_left', 'slide_from_bottom', 'simple_push'
+        animation: 'slide_from_bottom', // others: 'fade', 'slide_from_left', 'slide_from_bottom', 'simple_push'
 
         // 📱 iOS swipe back gesture
         gestureEnabled: true,
-        gestureDirection: 'horizontal',  // or 'vertical'
+        gestureDirection: 'horizontal', // or 'vertical'
 
         // 🎨 Card presentation
-        presentation: 'modal',           // others: 'card', 'transparentModal'
+        presentation: 'modal', // others: 'card', 'transparentModal'
 
         // ⏱️ Transition timing
         animationDuration: 300,
 
         // 🔙 Replace behavior
-        animationTypeForReplace: 'pop',  // or 'push'
+        animationTypeForReplace: 'pop', // or 'push'
 
         // ⬅️ Swipe sensitivity (iOS)
         gestureResponseDistance: {
@@ -112,7 +112,7 @@ function AdminStack() {
         },
 
         // 🎬 Custom transition interpolator (advanced)
-        cardStyleInterpolator: ({ current, layouts }) => ({
+        cardStyleInterpolator: ({current, layouts}) => ({
           cardStyle: {
             transform: [
               {
@@ -124,16 +124,22 @@ function AdminStack() {
             ],
           },
         }),
-      }}
-    >
+      }}>
       <Stack.Screen name="Dashboard" component={Dashboard} />
-      <Stack.Screen name="Training" component={Training} options={{
-        animation: 'slide_from_bottom',
-        presentation: 'modal',
-      }} />
+      <Stack.Screen
+        name="Training"
+        component={Training}
+        options={{
+          animation: 'slide_from_bottom',
+          presentation: 'modal',
+        }}
+      />
       <Stack.Screen name="TraingList" component={TrainingList} />
       <Stack.Screen name="UsefulInformation" component={UsefulInformation} />
-      <Stack.Screen name="UsefulInformationList" component={UsefulInformationList} />
+      <Stack.Screen
+        name="UsefulInformationList"
+        component={UsefulInformationList}
+      />
       <Stack.Screen name="ProblemCreate" component={CreateProblem} />
       <Stack.Screen name="ProblemList" component={ListProblem} />
       <Stack.Screen name="ProblemView" component={ViewProblem} />
@@ -142,7 +148,10 @@ function AdminStack() {
       <Stack.Screen name="ViewPast" component={ViewPast} />
       <Stack.Screen name="Loan" component={LoanEnquiry} />
       <Stack.Screen name="LoanEnquiryDetail" component={LoanEnquiryDetail} />
-      <Stack.Screen name="LoanViewPastRequested" component={LoanViewPastRequested} />
+      <Stack.Screen
+        name="LoanViewPastRequested"
+        component={LoanViewPastRequested}
+      />
       <Stack.Screen name="LoanRequest" component={LoanRequest} />
       <Stack.Screen name="InputList" component={InputList} />
       <Stack.Screen name="WantToBuy" component={WantToBuy} />
@@ -158,23 +167,54 @@ function AdminStack() {
       <Stack.Screen name="livehood" component={PlotList} />
       <Stack.Screen name="CrateProblemUser" component={CrateProblemUser} />
       <Stack.Screen name="InsuranceEnquiry" component={InsuranceEnquiry} />
-      <Stack.Screen name="InsuranceViewPastRequested" component={InsuranceViewPastRequested} />
-      <Stack.Screen name="RequestForInsurance" component={RequestForInsurance} />
+      <Stack.Screen
+        name="InsuranceViewPastRequested"
+        component={InsuranceViewPastRequested}
+      />
+      <Stack.Screen
+        name="RequestForInsurance"
+        component={RequestForInsurance}
+      />
       <Stack.Screen name="DailySalesReport" component={DailySalesReport} />
       <Stack.Screen name="SalesDetail" component={SalesDetail} />
       <Stack.Screen name="DealerReport" component={DealerReport} />
       <Stack.Screen name="FarmerReport" component={FarmerReport} />
-      <Stack.Screen name="FarmIncomeExpenseList" component={FarmIncomeExpenseList} />
-      <Stack.Screen name="FarmIncomeExpenseView" component={FarmIncomeExpenseView} />
+      <Stack.Screen
+        name="FarmIncomeExpenseList"
+        component={FarmIncomeExpenseList}
+      />
+      <Stack.Screen
+        name="FarmIncomeExpenseView"
+        component={FarmIncomeExpenseView}
+      />
       <Stack.Screen name="AddIcome" component={AddIcome} />
       <Stack.Screen name="AddExpense" component={AddExpense} />
-      <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
-      <Stack.Screen name="FinancialInformation" component={FinancialInformation} />
-      <Stack.Screen name="PlotSiteProduceInformation" component={PlotSiteProduceInformation} />
-      <Stack.Screen name="RegistationSignUpViwer" component={RegistationSignUpViwer} />
+      <Stack.Screen
+        name="PersonalInformation"
+        component={PersonalInformation}
+      />
+      <Stack.Screen
+        name="FinancialInformation"
+        component={FinancialInformation}
+      />
+      <Stack.Screen
+        name="PlotSiteProduceInformation"
+        component={PlotSiteProduceInformation}
+      />
+      <Stack.Screen
+        name="RegistationSignUpViwer"
+        component={RegistationSignUpViwer}
+      />
       <Stack.Screen name="ChangePassword" component={ChangePassword} />
       <Stack.Screen name="Business" component={Business} />
-      <Stack.Screen name="InstrumentWiseActivityView" component={InstrumentWiseActivityView} />
+      <Stack.Screen
+        name="InstrumentWiseActivityView"
+        component={InstrumentWiseActivityView}
+      />
+      <Stack.Screen
+        name="InstrumentWiseActivityDetails"
+        component={InstrumentWiseActivityDetails}
+      />
     </Stack.Navigator>
   );
 }
@@ -196,19 +236,18 @@ const AdminNavigation = () => {
       borderBottomColor: '#baffa0',
       marginHorizontal: 20,
     },
-    drawerLabelStyle: { marginLeft: -20 },
+    drawerLabelStyle: {marginLeft: -20},
     drawerStyle: {
       backgroundColor: Colors.drawer,
       width: '65%',
       marginLeft: -0.2,
     },
-    sceneContainerStyle: { backgroundColor: Colors.drawer, zIndex: 100 },
+    sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
   };
   return (
     <Drawer.Navigator
-      drawerContent={(props) => <CustomDrawer {...props} />}
-      screenOptions={drawerScreenOptions}
-    >
+      drawerContent={props => <CustomDrawer {...props} />}
+      screenOptions={drawerScreenOptions}>
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}

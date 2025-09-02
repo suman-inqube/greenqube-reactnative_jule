@@ -24,6 +24,8 @@ import {Colors, Fonts} from '../../utils/Constants';
 import {FloatingAction} from 'react-native-floating-action';
 import {getActionsDealerReportSupervisor} from '../../utils/options';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+
 const DailySalesReport = ({navigation}) => {
   //GQR-67
   const {
@@ -97,7 +99,7 @@ const DailySalesReport = ({navigation}) => {
         ]}>
         <TouchableOpacity
           style={styles.problemCard}
-          onPress={() => navigateToPages('ProblemView', item.fid)}
+          onPress={() => navigation.navigate('SalesDetail', item)}
           activeOpacity={0.7}>
           <View style={styles.cardHeader}>
             <Text style={styles.problemTitle} numberOfLines={2}>
@@ -141,56 +143,58 @@ const DailySalesReport = ({navigation}) => {
     );
   }, []);
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
-      <View style={{flex: 1}}>
-        <CustomHeader
-          path="Dashboard"
-          logoImage={logoImage}
-          topBanner={topBanner}
+    <FarmerDrawerScreenWrapper1>
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <View style={{flex: 1}}>
+          <CustomHeader
+            path="Dashboard"
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={isLoading ? Array.from({length: 5}) : dailySalesReportData}
+            renderItem={({item, index}) =>
+              isLoading ? (
+                <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+              ) : (
+                <CardItem item={item} index={index} navigation={navigation} />
+              )
+            }
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.green]}
+                tintColor={Colors.green}
+              />
+            }
+            keyExtractor={(item, index) => index}
+            onEndReachedThreshold={0.5}
+            contentContainerStyle={styles.listContainer}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={5}
+            updateCellsBatchingPeriod={20}
+            windowSize={5}
+          />
+        </View>
+        <FloatingAction
+          position="right"
+          actions={getActionsDealerReportSupervisor(t, styles, Colors)}
+          color={Colors.useGreen}
+          onPressItem={name => {
+            if (name == 'dealer_report') {
+              navigation.navigate('DealerReport');
+            } else {
+              navigation.navigate('FarmerReport');
+            }
+          }}
+          showBackground={true}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{vertical: 80, horizontal: 25}}
         />
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={isLoading ? Array.from({length: 5}) : dailySalesReportData}
-          renderItem={({item, index}) =>
-            isLoading ? (
-              <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
-            ) : (
-              <CardItem item={item} index={index} navigation={navigation} />
-            )
-          }
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[Colors.green]}
-              tintColor={Colors.green}
-            />
-          }
-          keyExtractor={(item, index) => index}
-          onEndReachedThreshold={0.5}
-          contentContainerStyle={styles.listContainer}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={5}
-          updateCellsBatchingPeriod={20}
-          windowSize={5}
-        />
-      </View>
-      <FloatingAction
-        position="right"
-        actions={getActionsDealerReportSupervisor(t, styles, Colors)}
-        color={Colors.useGreen}
-        onPressItem={name => {
-          if (name == 'dealer_report') {
-            navigation.navigate('DealerReport');
-          } else {
-            navigation.navigate('FarmerReport');
-          }
-        }}
-        showBackground={true}
-        overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{vertical: 80, horizontal: 25}}
-      />
-    </SafeAreaView>
+      </SafeAreaView>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 export default DailySalesReport;

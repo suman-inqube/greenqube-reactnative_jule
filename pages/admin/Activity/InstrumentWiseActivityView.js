@@ -599,7 +599,7 @@ const InstrumentWiseActivityView = () => {
           logoImage={logoImage}
           topBanner={topBanner}
         />
-        <View style={{flex: 1, backgroundColor: '#e2e2e2ff'}}>
+        <View style={{flex: 1, backgroundColor: Colors.background_light}}>
           {openFromDate && (
             <DatePickerComp
               openDate={openFromDate}

@@ -1,4 +1,13 @@
-import React, { useState, useEffect, useContext, useCallback, useRef, lazy, memo, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+  lazy,
+  memo,
+  useMemo,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,22 +19,35 @@ import {
   StatusBar,
 } from 'react-native';
 import ModalCompProduct from './ModalCompProduct';
-import { inputCategoryAPI, inputListAPI, inputSubCategoryAPI } from '../../../config/apiHere';
-import { useIsFocused } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {
+  inputCategoryAPI,
+  inputListAPI,
+  inputSubCategoryAPI,
+} from '../../../config/apiHere';
+import {useIsFocused} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import LinearGradient from 'react-native-linear-gradient';
-import { Colors } from '../../utils/Constants';
-import { FloatingAction } from 'react-native-floating-action';
-import { getActionsActivity } from '../../utils/options';
+import {Colors} from '../../utils/Constants';
+import {FloatingAction} from 'react-native-floating-action';
+import {inputViewPast} from '../../utils/options';
 import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
 import DropdownForm from '../../Common/DropdownForm';
 const SearchBy = lazy(() => import('./SearchBy'));
 const SearchSubBy = lazy(() => import('./SearchSubBy'));
 import InputProductCard from '../../Components/InputProductCard';
-const InputList = ({ navigation }) => {
-  const { loginUser_data, LoadingScreen, CustomHeader, t, getItem, setItem, logoImage, topBanner } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+const InputList = ({navigation}) => {
+  const {
+    loginUser_data,
+    LoadingScreen,
+    CustomHeader,
+    t,
+    getItem,
+    setItem,
+    logoImage,
+    topBanner,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   const isFocused = useIsFocused();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +72,7 @@ const InputList = ({ navigation }) => {
     setCurrencyt(currency_res);
     const [inputListRes, inputCategoryList] = await Promise.all([
       inputListAPI(dbname, lan_id, token, user_id, ''),
-      inputCategoryAPI(dbname, lan_id, token, user_id)
+      inputCategoryAPI(dbname, lan_id, token, user_id),
     ]);
     if (inputListRes?.status === 200) {
       setInputListAll(inputListRes?.data?.data?.rows);
@@ -58,8 +80,11 @@ const InputList = ({ navigation }) => {
       setItem('input_data', inputListRes?.data?.data?.rows);
     }
     if (inputCategoryList) {
-      const dataArray = [{ value: '0', label: t('All') }].concat(
-        inputCategoryList.data.data.rows.map(e => ({ value: e.fid, label: e.name }))
+      const dataArray = [{value: '0', label: t('All')}].concat(
+        inputCategoryList.data.data.rows.map(e => ({
+          value: e.fid,
+          label: e.name,
+        })),
       );
       setInputCategory(dataArray);
       setInputSubCategory([]);
@@ -68,60 +93,108 @@ const InputList = ({ navigation }) => {
     setIsLoading(false);
   }, [dbname, lan_id, token, user_id, getItem, setItem, t]);
 
-  const handleCategory = useCallback(async search => {
-    if (search.value === '0') {
-      setInputListAll(inputListAllRaw);
-      setInputSubCategory([]);
-    } else {
-      const [inputFound, inputSubCategoryList] = await Promise.all([
-        inputListAPI(dbname, lan_id, token, user_id, search.value),
-        inputSubCategoryAPI(dbname, lan_id, token, user_id, search.value),
-      ]);
-      if (inputFound?.status === 200) setInputListAll(inputFound?.data?.data?.rows);
+  const handleCategory = useCallback(
+    async search => {
+      if (search.value === '0') {
+        setInputListAll(inputListAllRaw);
+        setInputSubCategory([]);
+      } else {
+        const [inputFound, inputSubCategoryList] = await Promise.all([
+          inputListAPI(dbname, lan_id, token, user_id, search.value),
+          inputSubCategoryAPI(dbname, lan_id, token, user_id, search.value),
+        ]);
+        if (inputFound?.status === 200)
+          setInputListAll(inputFound?.data?.data?.rows);
 
-      if (inputSubCategoryList) {
-        const subCatData = inputSubCategoryList.data.data.rows.map(d => ({
-          value: d.entity_name.fid,
-          label: d.entity_name.name,
-        }));
-        setInputSubCategory(subCatData);
+        if (inputSubCategoryList) {
+          const subCatData = inputSubCategoryList.data.data.rows.map(d => ({
+            value: d.entity_name.fid,
+            label: d.entity_name.name,
+          }));
+          setInputSubCategory(subCatData);
+        }
       }
-    }
-  }, [inputListAllRaw, dbname, lan_id, token, user_id]);
+    },
+    [inputListAllRaw, dbname, lan_id, token, user_id],
+  );
 
-  const handleSubCategory = useCallback(async search => {
-    const inputList = await inputListAPI(dbname, lan_id, token, user_id, search.value);
-    if (inputList?.status === 200) setInputListAll(inputList?.data?.data?.rows);
-  }, [dbname, lan_id, token, user_id]);
+  const handleSubCategory = useCallback(
+    async search => {
+      const inputList = await inputListAPI(
+        dbname,
+        lan_id,
+        token,
+        user_id,
+        search.value,
+      );
+      if (inputList?.status === 200)
+        setInputListAll(inputList?.data?.data?.rows);
+    },
+    [dbname, lan_id, token, user_id],
+  );
 
-  const navigateToPages = useCallback(async index => {
-    setInputSingle(inputListAll[index]);
-    setModalVisible(!modalVisible);
-  }, [navigateToPages, inputListAll]);
-  useEffect(() => { onPageLoad(); }, [onPageLoad]);
+  const navigateToPages = useCallback(
+    async index => {
+      setInputSingle(inputListAll[index]);
+      setModalVisible(!modalVisible);
+    },
+    [navigateToPages, inputListAll],
+  );
+  useEffect(() => {
+    onPageLoad();
+  }, [onPageLoad]);
 
   useEffect(() => {
     // Initialize animations
     inputListAll.forEach((_, index) => {
-      if (!fadeAnims.current[index]) fadeAnims.current[index] = new Animated.Value(0);
-      if (!slideAnims.current[index]) slideAnims.current[index] = new Animated.Value(30);
-      if (!scaleAnims.current[index]) scaleAnims.current[index] = new Animated.Value(1);
+      if (!fadeAnims.current[index])
+        fadeAnims.current[index] = new Animated.Value(0);
+      if (!slideAnims.current[index])
+        slideAnims.current[index] = new Animated.Value(30);
+      if (!scaleAnims.current[index])
+        scaleAnims.current[index] = new Animated.Value(1);
 
       setTimeout(() => {
         Animated.parallel([
-          Animated.timing(fadeAnims.current[index], { toValue: 1, duration: 500, useNativeDriver: true }),
-          Animated.timing(slideAnims.current[index], { toValue: 0, duration: 500, useNativeDriver: true }),
+          Animated.timing(fadeAnims.current[index], {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnims.current[index], {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
         ]).start();
       }, index * 100);
     });
   }, [inputListAll]);
-  const renderItem = useCallback(({ item, index }) => <InputProductCard product={item} index={index} currency={currency} fadeAnims={fadeAnims} Colors={Colors} slideAnims={slideAnims} scaleAnims={scaleAnims} navigateToPages={navigateToPages} />, [InputProductCard, navigateToPages]);
+  const renderItem = useCallback(
+    ({item, index}) => (
+      <InputProductCard
+        product={item}
+        index={index}
+        currency={currency}
+        fadeAnims={fadeAnims}
+        Colors={Colors}
+        slideAnims={slideAnims}
+        scaleAnims={scaleAnims}
+        navigateToPages={navigateToPages}
+      />
+    ),
+    [InputProductCard, navigateToPages],
+  );
 
   return (
     <FarmerDrawerScreenWrapper1>
       <StatusBar barStyle="light-content" backgroundColor="#059669" />
-      <View style={{ flex: 1 }}>
-        <CustomHeader path="Dashboard" logoImage={logoImage} topBanner={topBanner} />
+      <View style={{flex: 1}}>
+        <CustomHeader
+          path="Dashboard"
+          logoImage={logoImage}
+          topBanner={topBanner}
+        />
         <View style={styles.container}>
           {/* Search Section */}
           <View style={styles.searchSection}>
@@ -145,9 +218,18 @@ const InputList = ({ navigation }) => {
             </View>
           </View>
 
-          <ModalCompProduct setModalVisible={setModalVisible} modalVisible={modalVisible} inputSigle={inputSingle} style={styles.modalStyle} />
+          <ModalCompProduct
+            setModalVisible={setModalVisible}
+            modalVisible={modalVisible}
+            inputSigle={inputSingle}
+            style={styles.modalStyle}
+          />
 
-          {isLoading && <View style={styles.loadingScreen}><LoadingScreen /></View>}
+          {isLoading && (
+            <View style={styles.loadingScreen}>
+              <LoadingScreen />
+            </View>
+          )}
 
           <FlatList
             data={inputListAll}
@@ -163,20 +245,48 @@ const InputList = ({ navigation }) => {
           />
         </View>
       </View>
-      {/* <FloatingAction
-       position="right"
-        actions={getActionsActivity(t, styles, Colors)}
+      <FloatingAction
+        position="right"
+        actions={inputViewPast(t, styles, Colors)}
         color={Colors.useGreen}
-        showBackground overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{ vertical: 80, horizontal: 25 }} /> */}
+        showBackground
+        overlayColor="rgba(22, 17, 17, 0.35)"
+        distanceToEdge={{vertical: 80, horizontal: 25}}
+        onPressItem={name => {
+          navigation.navigate('PastEnquiry');
+        }}
+      />
+      {/* <View style={styles.viewPastBtn}>
+        <TouchableOpacity onPress={() => navigation.navigate('PastEnquiry')}>
+          <Text style={styles.viewPastBtnText}>
+            {t('view_input_requested')}
+          </Text>
+        </TouchableOpacity>
+      </View> */}
     </FarmerDrawerScreenWrapper1>
   );
 };
 
 export default InputList;
 
-
 const styles = StyleSheet.create({
+  viewPastBtn: {
+    position: 'absolute',
+    right: '-6%',
+    top: '70%',
+    backgroundColor: '#009200',
+    paddingLeft: 10,
+    paddingRight: 25,
+    paddingVertical: 2,
+    borderTopLeftRadius: 25,
+    borderBottomLeftRadius: 25,
+    zIndex: 99,
+  },
+  viewPastBtnText: {
+    color: '#ffff',
+    paddingLeft: 20,
+    fontFamily: 'Poppins-Regular',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f0f2f5', // Facebook's background color
@@ -188,7 +298,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
@@ -215,7 +325,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     borderColor: Colors.border,
-    borderStyle: 'dotted'
+    borderStyle: 'dotted',
   },
   cardContainer: {
     flex: 1,
@@ -336,7 +446,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 25,
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     zIndex: 99,
@@ -355,7 +465,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
+    transform: [{translateX: -25}, {translateY: -25}],
     zIndex: 100,
   },
   modalStyle: {

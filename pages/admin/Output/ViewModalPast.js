@@ -60,9 +60,9 @@ const ViewModalPast = props => {
                   {props.outputSingle.inout_plot_rel == null ? (
                     <View style={styles.detailRow}>
                       <View style={styles.textContainer}>
-                        <Text style={styles.valueText}>{t('name')}</Text>
+                        <Text style={styles.valueText}>{t('name')} :</Text>
                         <Text style={styles.labelText}>
-                          : {props.outputSingle.others}
+                          {props.outputSingle.others}
                         </Text>
                       </View>
                     </View>
@@ -194,7 +194,11 @@ const ViewModalPast = props => {
                         }}></View>
                       <View style={styles.detailRow}>
                         <View style={styles.iconContainer}>
-                          <MaterialIcons name="map" size={20} color="#165A2B" />
+                          <MaterialIcons
+                            name="donut-large"
+                            size={20}
+                            color="#165A2B"
+                          />
                         </View>
                         <View style={styles.textContainer}>
                           <Text style={styles.valueText}>
@@ -205,7 +209,11 @@ const ViewModalPast = props => {
                       </View>
                       <View style={styles.detailRow}>
                         <View style={styles.iconContainer}>
-                          <MaterialIcons name="map" size={20} color="#165A2B" />
+                          <MaterialIcons
+                            name="production-quantity-limits"
+                            size={20}
+                            color="#165A2B"
+                          />
                         </View>
                         <View style={styles.textContainer}>
                           <Text style={styles.valueText}>
@@ -219,7 +227,7 @@ const ViewModalPast = props => {
                       <View style={styles.detailRow}>
                         <View style={styles.iconContainer}>
                           <MaterialIcons
-                            name="production-quantity-limits"
+                            name="currency-rupee"
                             size={20}
                             color="#165A2B"
                           />
@@ -236,7 +244,7 @@ const ViewModalPast = props => {
                       <View style={styles.detailRow}>
                         <View style={styles.iconContainer}>
                           <MaterialIcons
-                            name="production-quantity-limits"
+                            name="calendar-month"
                             size={20}
                             color="#165A2B"
                           />
@@ -255,7 +263,7 @@ const ViewModalPast = props => {
                       <View style={styles.detailRow}>
                         <View style={styles.iconContainer}>
                           <MaterialIcons
-                            name="production-quantity-limits"
+                            name="cached"
                             size={20}
                             color="#165A2B"
                           />

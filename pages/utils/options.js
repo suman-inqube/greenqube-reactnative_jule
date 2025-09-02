@@ -116,6 +116,19 @@ const getActionsPlot = (
   }
   return actions;
 };
+
+const inputViewPast = (t, styles, Colors) => [
+  {
+    text: t('view_input_requested'),
+    name: 'bt_add',
+    position: 2,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffffff',
+    icon: <MaterialIcons name="list-alt" size={26} color="#ffffff" />,
+  },
+];
+
 export {
   OPTIONS_CARBON,
   getActionsActivity,
@@ -126,4 +139,5 @@ export {
   CARBON_TYPE,
   getActionsMapView,
   getActionsPostNewOutputFarmer,
+  inputViewPast,
 };

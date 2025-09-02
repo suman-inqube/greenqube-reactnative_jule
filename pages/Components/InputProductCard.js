@@ -1,36 +1,102 @@
-import React, { memo,useMemo } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image,Animated } from "react-native";
-import DropdownForm from "../Common/DropdownForm";
-import { Colors } from "../utils/Constants";
-  const InputProductCard = memo(({ product, index,currency,fadeAnims,Colors,slideAnims,scaleAnims,navigateToPages }) => {
-    const productPrices = useMemo(() =>
-      product?.agri_product_prices?.map(element => ({
-        value: element.prod_price_id,
-        label: !element.discounted_price || element.discounted_price === '0'
-          ? `${currency} ${element.sales_price}/${element.agri_unit?.unit_name?.substring(0, 7)}..`
-          : `${currency} ${element.discounted_price}/${element.agri_unit?.unit_name?.substring(0, 7)}..`,
-      })),
-      [product.agri_product_prices, currency]);
+import React, {memo, useMemo} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Animated,
+} from 'react-native';
+import DropdownForm from '../Common/DropdownForm';
+import {Colors} from '../utils/Constants';
+const InputProductCard = memo(
+  ({
+    product,
+    index,
+    currency,
+    fadeAnims,
+    Colors,
+    slideAnims,
+    scaleAnims,
+    navigateToPages,
+  }) => {
+    const productPrices = useMemo(
+      () =>
+        product?.agri_product_prices?.map(element => ({
+          value: element.prod_price_id,
+          label:
+            !element.discounted_price || element.discounted_price === '0'
+              ? `${currency} ${
+                  element.sales_price
+                }/${element.agri_unit?.unit_name?.substring(0, 7)}..`
+              : `${currency} ${
+                  element.discounted_price
+                }/${element.agri_unit?.unit_name?.substring(0, 7)}..`,
+        })),
+      [product.agri_product_prices, currency],
+    );
 
-    if (!fadeAnims.current[index]) fadeAnims.current[index] = new Animated.Value(0);
-    if (!slideAnims.current[index]) slideAnims.current[index] = new Animated.Value(30);
-    if (!scaleAnims.current[index]) scaleAnims.current[index] = new Animated.Value(1);
+    if (!fadeAnims.current[index])
+      fadeAnims.current[index] = new Animated.Value(0);
+    if (!slideAnims.current[index])
+      slideAnims.current[index] = new Animated.Value(30);
+    if (!scaleAnims.current[index])
+      scaleAnims.current[index] = new Animated.Value(1);
 
     return (
-      <Animated.View style={[styles.productCard, { opacity: fadeAnims.current[index], transform: [{ translateY: slideAnims.current[index] }, { scale: scaleAnims.current[index] }] }]}>
-        <TouchableOpacity onPress={() => navigateToPages(index)} activeOpacity={0.95} style={styles.cardContainer}>
+      <Animated.View
+        style={[
+          styles.productCard,
+          {
+            opacity: fadeAnims.current[index],
+            transform: [
+              {translateY: slideAnims.current[index]},
+              {scale: scaleAnims.current[index]},
+            ],
+          },
+        ]}>
+        <TouchableOpacity
+          onPress={() => navigateToPages(index)}
+          activeOpacity={0.95}
+          style={styles.cardContainer}>
           <View style={styles.imageContainer}>
             {product.agri_files?.length > 0 ? (
-              <Image source={{ uri: product.agri_files[0].file_path }} style={styles.productImage} />
-            ) : <Image source={require('../Common/images/logo.png')} style={styles.productImage} />}
-            {product?.trending && <View style={styles.trendingBadge}><Text style={styles.trendingText}>🔥 New</Text></View>}
+              <Image
+                source={{uri: product.agri_files[0].file_path}}
+                style={styles.productImage}
+              />
+            ) : (
+              <Image
+                source={require('../Common/images/logo.png')}
+                style={styles.productImage}
+              />
+            )}
+            {product?.trending && (
+              <View style={styles.trendingBadge}>
+                <Text style={styles.trendingText}>🔥 New</Text>
+              </View>
+            )}
           </View>
           <View style={styles.contentSection}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={styles.productName} numberOfLines={2}>{product.product_name}</Text>
-              <View style={styles.categoryBadge}><Text style={styles.categoryBadgeText}>{product.productCategories[0]?.productCategory?.name || 'N/A'}</Text></View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text style={styles.productName} numberOfLines={2}>
+                {product.product_name}
+              </Text>
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryBadgeText}>
+                  {product.productCategories[0]?.productCategory?.name || 'N/A'}
+                </Text>
+              </View>
             </View>
-            <Text style={styles.descriptionText} numberOfLines={2}>{product.description || 'Premium quality product for your agricultural needs'}</Text>
+            <Text style={styles.descriptionText} numberOfLines={2}>
+              {product.description ||
+                'Premium quality product for your agricultural needs'}
+            </Text>
             <DropdownForm
               label={''}
               data={productPrices}
@@ -41,7 +107,8 @@ import { Colors } from "../utils/Constants";
         </TouchableOpacity>
       </Animated.View>
     );
-  });
+  },
+);
 
 export default memo(InputProductCard);
 
@@ -55,11 +122,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     marginBottom: 8,
     margin: 16,
-        borderRadius: 8,
+    borderRadius: 8,
   },
   cardContainer: {
     flex: 1,
-        borderWidth: 0.5,
+    borderWidth: 0.5,
     borderRadius: 8,
     borderColor: Colors.border,
     // borderStyle: 'dotted'
@@ -180,7 +247,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 25,
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 4,
     zIndex: 99,
@@ -199,7 +266,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -25 }, { translateY: -25 }],
+    transform: [{translateX: -25}, {translateY: -25}],
     zIndex: 100,
   },
   modalStyle: {

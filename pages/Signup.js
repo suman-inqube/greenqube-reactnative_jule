@@ -558,21 +558,18 @@ const styles = StyleSheet.create({
   ////////////////////////////////////////////////////
   container: {
     flex: 1,
-    backgroundColor: Colors.pageBackground,
+    backgroundColor: 'white',
     // marginBottom: 50,
   },
 
   formContainer: {
-    marginBottom: 30,
-    marginHorizontal: '4%',
-    paddingHorizontal: '5%',
-    paddingTop: '6%',
-    // paddingBottom: '4%',
-    backgroundColor: Colors.containerGreen,
-    borderRadius: 30,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: Colors.borderGreen,
+    backgroundColor: 'white',
+    padding: 16,
+    // borderRadius: 8,
+    // borderWidth: 1,
+    // borderColor: Colors.border,
+    // // elevation:1,
+    marginVertical: 10,
   },
   formMargin: {
     marginHorizontal: 10,

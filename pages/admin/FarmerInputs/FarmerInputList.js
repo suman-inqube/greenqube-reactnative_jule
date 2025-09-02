@@ -19,6 +19,7 @@ import FarmerSearchBy from './FarmerSearchBy';
 import FarmerSearchSubBy from './FarmerSearchSubBy';
 import {useIsFocused} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const FarmerInputList = ({navigation}) => {
   //GQR-67
   const {
@@ -89,61 +90,64 @@ const FarmerInputList = ({navigation}) => {
     if (inputList.status == 200) {
       setInputListAll(inputList.data.data.rows);
     }
-    const onPageLoad = async () => {
-      const currency_res = await getItem('currency');
-      setCurrencyt(currency_res);
-      const [inputList, inputCategoryList] = await Promise.all([
-        inputListAPI(dbname, lan_id, token, user_id, ''),
-        inputCategoryAPI(dbname, lan_id, token, user_id),
-      ]);
-      if (inputList.status == 200) {
-        setInputListAll(inputList.data.data.rows);
-        setInputListAllRaw(inputList.data.data.rows);
-        setItem('input_data', inputList.data.data.rows);
-        setIsLoading(false);
-      }
-      if (inputCategoryList) {
-        const dataArray1 = [
-          {
-            value: '0',
-            label: t('All'),
-          },
-        ];
-        inputCategoryList.data.data.rows.forEach(element => {
-          dataArray1.push({
-            value: element.fid,
-            label: element.name,
-          });
-        });
-        setInputCategory(dataArray1);
-        setInputSubCategory([]);
-        setIsLoading(false);
-      }
-    };
-
-    function handleBackPress() {
-      navigation.navigate('FarmerDashboard');
-      return true;
+  };
+  const onPageLoad = async () => {
+    setIsLoading(true);
+    const currency_res = await getItem('currency');
+    setCurrencyt(currency_res);
+    const [inputList, inputCategoryList] = await Promise.all([
+      inputListAPI(dbname, lan_id, token, user_id, ''),
+      inputCategoryAPI(dbname, lan_id, token, user_id),
+    ]);
+    if (inputList.status == 200) {
+      setInputListAll(inputList.data.data.rows);
+      setInputListAllRaw(inputList.data.data.rows);
+      setItem('input_data', inputList.data.data.rows);
+      setIsLoading(false);
     }
-    useEffect(() => {
-      onBackPress(handleBackPress);
-    }, []);
+    if (inputCategoryList) {
+      const dataArray1 = [
+        {
+          value: '0',
+          label: t('All'),
+        },
+      ];
+      inputCategoryList.data.data.rows.forEach(element => {
+        dataArray1.push({
+          value: element.fid,
+          label: element.name,
+        });
+      });
+      setInputCategory(dataArray1);
+      setInputSubCategory([]);
+      // setIsLoading(false);
+    }
+  };
 
-    useFocusEffect(
-      React.useCallback(() => {
-        if (isFocused) {
-          setIsLoading(true);
-          setModalVisible(false);
-        } else {
-          setIsLoading(true);
-          setModalVisible(false);
-        }
-        onPageLoad();
-      }, []),
-    );
-    const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
-    return (
-      <View style={{flex: 1}}>
+  function handleBackPress() {
+    navigation.navigate('FarmerDashboard');
+    return true;
+  }
+  useEffect(() => {
+    onBackPress(handleBackPress);
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (isFocused) {
+        setIsLoading(true);
+        setModalVisible(false);
+      } else {
+        setIsLoading(true);
+        setModalVisible(false);
+      }
+      onPageLoad();
+    }, []),
+  );
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+  return (
+    <FarmerDrawerScreenWrapper1>
+      <View style={{flex: 1, backgroundColor: '#f5f7ffff'}}>
         <CustomHeader
           path="FarmerDashboard"
           HandlerGoBack={HandlerGoBack}
@@ -274,8 +278,8 @@ const FarmerInputList = ({navigation}) => {
           </View>
         </View>
       </View>
-    );
-  };
+    </FarmerDrawerScreenWrapper1>
+  );
 };
 export default FarmerInputList;
 
