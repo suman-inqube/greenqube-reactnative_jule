@@ -64,8 +64,6 @@ const InputList = ({navigation}) => {
   const fadeAnims = useRef([]);
   const slideAnims = useRef([]);
   const scaleAnims = useRef([]);
-
-  // ------------------- FUNCTIONS -------------------
   const onPageLoad = useCallback(async () => {
     setIsLoading(true);
     const currency_res = await getItem('currency');
@@ -145,7 +143,8 @@ const InputList = ({navigation}) => {
   }, [onPageLoad]);
 
   useEffect(() => {
-    // Initialize animations
+    const timeouts = [];
+
     inputListAll.forEach((_, index) => {
       if (!fadeAnims.current[index])
         fadeAnims.current[index] = new Animated.Value(0);
@@ -154,7 +153,7 @@ const InputList = ({navigation}) => {
       if (!scaleAnims.current[index])
         scaleAnims.current[index] = new Animated.Value(1);
 
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         Animated.parallel([
           Animated.timing(fadeAnims.current[index], {
             toValue: 1,
@@ -168,8 +167,15 @@ const InputList = ({navigation}) => {
           }),
         ]).start();
       }, index * 100);
+
+      timeouts.push(timeoutId);
     });
+
+    return () => {
+      timeouts.forEach(clearTimeout); // ✅ cleanup all timeouts
+    };
   }, [inputListAll]);
+
   const renderItem = useCallback(
     ({item, index}) => (
       <InputProductCard
@@ -268,7 +274,6 @@ const InputList = ({navigation}) => {
 };
 
 export default InputList;
-
 const styles = StyleSheet.create({
   viewPastBtn: {
     position: 'absolute',

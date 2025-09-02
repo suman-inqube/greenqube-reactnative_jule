@@ -12,7 +12,6 @@ import React, {useState, useCallback, useContext, useEffect} from 'react';
 import {WebView} from 'react-native-webview';
 import {noticeDetailsAPI} from '../../../config/apiHere';
 import {
-  useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';

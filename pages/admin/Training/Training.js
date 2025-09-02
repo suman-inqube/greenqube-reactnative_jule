@@ -12,7 +12,7 @@ import { noticeDetailsAPI } from '../../../config/apiHere';
 import { WebView } from 'react-native-webview';
 import {
   useNavigation,
-  useIsFocused,
+  useIsFocused, useRoute
 } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import FormsTitle from '../../Common/FormsTitle';
@@ -30,6 +30,7 @@ const Training = () => {
   const { dbname, lan_id, token } = loginUser_data;
 
   const isFocused = useIsFocused();
+  const route = useRoute();
   const navigation = useNavigation();
   const [noticeDetails, setNoticeDetails] = useState([]);
   const [noticeFiles, setNoticeFiles] = useState([]);
@@ -67,7 +68,7 @@ const Training = () => {
   };
 
   const onPageLoad = async () => {
-    const noticeId = await getItem('userNoticeId');
+    const noticeId = route.params;
     if (noticeId) {
       const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
       if (response) {
@@ -78,7 +79,7 @@ const Training = () => {
   };
 
   useEffect(() => {
-      onPageLoad();
+    onPageLoad();
   }, []);
 
   const HandlerGoBack = () => navigation.navigate('TraingList');

@@ -163,6 +163,8 @@ const CustomHeader = memo(
         DealerReport: t('dealer_report'),
         FarmerReport: t('farmer_report'),
         SalesDetail: t('sales_detail'),
+        FarmerInputList: t('products'),
+        FarmerDashboard: '',
       }),
       [t],
     );

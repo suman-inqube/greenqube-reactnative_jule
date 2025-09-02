@@ -17,17 +17,19 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import {cropListApi} from '../../../config/apiHere';
-import {farmerUsefulInfoListAPI} from '../../../config/apiHere';
+import { cropListApi } from '../../../config/apiHere';
+import { farmerUsefulInfoListAPI } from '../../../config/apiHere';
 import moment from 'moment';
 // import { useNavigation } from '@react-navigation/native';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import ImageForm from '../../Common/ImageForm';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
-import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
+import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import HeaderWithSearchAndToggle from '../../Components/HeaderWithSearchAndToggle';
+import { Colors } from '../../utils/Constants';
 const FarmerUsefulInformationList = () => {
   //GQR-67
   const {
@@ -42,11 +44,11 @@ const FarmerUsefulInformationList = () => {
     setItem,
     CustomHeader,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
+  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const navigation = useNavigation();
-  const {currentRoute, previousRoute} = useCurrentAndPreviousRoute();
+  const { currentRoute, previousRoute } = useCurrentAndPreviousRoute();
   const [noticeList, setNoticeList] = useState([]);
   const [isGridView, setIsGridView] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ const FarmerUsefulInformationList = () => {
   };
 
   const renderItem = useCallback(
-    ({item}) =>
+    ({ item }) =>
       isGridView ? (
         <GridItemComponent
           item={item}
@@ -140,12 +142,6 @@ const FarmerUsefulInformationList = () => {
   useEffect(() => {
     onPageLoad();
   }, []);
-
-  const HandlerGoBack = () => {
-    setNoticeList([]);
-    setTitleSearch('');
-    navigation.navigate('FarmerDashboard');
-  };
   const searchByTitle = async () => {
     Keyboard.dismiss();
     usefulInfoList(
@@ -164,81 +160,16 @@ const FarmerUsefulInformationList = () => {
         <View style={styles.container}>
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
-
-          {/* Header with Title and Toggle Button */}
-
-          {/* <View style={styles.titleContainer}>
-              <FormsTitle title={t('dash_useful_information')} />
-            </View> */}
-          {/* <TouchableOpacity onPress={toggleView} style={styles.toggleButton}>
-              {isGridView ? (
-                <Image
-                  source={require('../../Common/images/view_list.png')}
-                  style={styles.toggleIcon}
-                />
-              ) : (
-                <Image
-                  source={require('../../Common/images/view_grid.png')}
-                  style={styles.toggleIcon}
-                />
-              )}
-            </TouchableOpacity> */}
-
-          {/* Search Container */}
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              alignSelf: 'center',
-            }}>
-            <View style={styles.searchContainer}>
-              <View style={styles.textInputContainer}>
-                <TextInput
-                  placeholder={'Search...'}
-                  placeholderTextColor={'#999'}
-                  style={styles.textInput}
-                  value={titleSearch}
-                  onChangeText={setTitleSearch}
-                  onSubmitEditing={searchByTitle}
-                  returnKeyType="search"
-                  clearButtonMode="while-editing"
-                  autoCorrect={false}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={searchByTitle}
-                style={styles.searchIcon}>
-                <ImageForm
-                  source={require('../../Common/images/search.png')}
-                  resizeMode="cover"
-                  height={24}
-                  width={24}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.headerContainer}>
-              <TouchableOpacity
-                onPress={toggleView}
-                style={styles.toggleButton}>
-                {isGridView ? (
-                  <Image
-                    source={require('../../Common/images/view_list.png')}
-                    style={styles.toggleIcon}
-                  />
-                ) : (
-                  <Image
-                    source={require('../../Common/images/view_grid.png')}
-                    style={styles.toggleIcon}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
+          <HeaderWithSearchAndToggle
+            titleSearch={titleSearch}
+            setTitleSearch={setTitleSearch}
+            onSearch={searchByTitle}
+            isGridView={isGridView}
+            onToggleView={toggleView}
+          />
           {/* FlatList Container */}
           <View style={styles.flatListContainer}>
             {loading ? (
@@ -275,7 +206,7 @@ const FarmerUsefulInformationList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.background_light,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -313,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
@@ -350,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -395,7 +326,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

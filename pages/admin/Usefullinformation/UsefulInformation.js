@@ -2,7 +2,7 @@ import { FlatList, TouchableOpacity, View, Linking, Image, ScrollView } from 're
 import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { WebView } from 'react-native-webview';
 import { noticeDetailsAPI } from '../../../config/apiHere';
-import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { Colors } from '../../utils/Constants';
 const head = `
@@ -16,6 +16,7 @@ const head = `
 const UsefulInformation = () => {
   const { loginUser_data, CustomHeader, getItem, logoImage, topBanner, } = useContext(userCreateContext);
   const { dbname, lan_id, token } = loginUser_data;
+  const route = useRoute();
   const [noticeDetails, setNoticeDetails] = useState([]);
   const [noticeFiles, setNoticeFiles] = useState([]);
   const detailItem = (path, file_ext) => {
@@ -51,7 +52,7 @@ const UsefulInformation = () => {
   };
 
   const onPageLoad = async () => {
-    const noticeId = await getItem('userNoticeId');
+    const noticeId = route.params;
     if (noticeId) {
       const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
       if (response?.status === 200 && response.data.data.length > 0) {

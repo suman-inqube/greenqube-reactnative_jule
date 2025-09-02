@@ -17,18 +17,20 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import {useNavigation, useIsFocused} from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import {
   faremerTrainingListAPI,
   cropListApi,
   addModuleForView,
 } from '../../../config/apiHere';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import ImageForm from '../../Common/ImageForm';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
-import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
+import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import HeaderWithSearchAndToggle from '../../Components/HeaderWithSearchAndToggle';
+import { Colors } from '../../utils/Constants';
 const FarmerTrainingList = () => {
   //GQR-67
   const {
@@ -43,9 +45,9 @@ const FarmerTrainingList = () => {
     CustomHeader,
     Root,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
+  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
   //GQR-67
-  const {currentRoute, previousRoute} = useCurrentAndPreviousRoute();
+  const { currentRoute, previousRoute } = useCurrentAndPreviousRoute();
   const isFocused = useIsFocused();
   const navigation = useNavigation();
   const [noticeList, setTrainingList] = useState([]);
@@ -56,16 +58,10 @@ const FarmerTrainingList = () => {
     setIsGridView(!isGridView);
   };
   const detailItem = async itemId => {
-    await setItem('userNoticeId', itemId);
-    const userNoticeListData = await getItem('userNoticeId');
-    navigation.navigate('FarmerTraining', {
-      pagename: 'FarmerTraining',
-      noticeId: itemId,
-    });
+    navigation.navigate('FarmerTraining',  itemId);
   };
 
   const animationValues = useRef({}).current;
-  const numColumns = isGridView ? 1 : 2;
   const getAnimationValue = id => {
     if (!animationValues[id]) {
       animationValues[id] = new Animated.Value(0);
@@ -73,7 +69,7 @@ const FarmerTrainingList = () => {
     return animationValues[id];
   };
   const renderItem = useCallback(
-    ({item}) =>
+    ({ item }) =>
       isGridView ? (
         <GridItemComponent
           item={item}
@@ -147,11 +143,6 @@ const FarmerTrainingList = () => {
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => {
-    setTrainingList([]);
-    setTitleSearch('');
-    navigation.navigate('FarmerDashboard');
-  };
   const searchByTitle = async () => {
     Keyboard.dismiss();
     trainingList(
@@ -170,69 +161,16 @@ const FarmerTrainingList = () => {
         <View style={styles.container}>
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
-
-          {/* Header with Title and Toggle Button */}
-
-          {/* <View style={styles.titleContainer}>
-              <FormsTitle title={t('training_support')} />
-            </View> */}
-
-          {/* Search Container */}
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              alignSelf: 'center',
-            }}>
-            <View style={styles.searchContainer}>
-              <View style={styles.textInputContainer}>
-                <TextInput
-                  placeholder={'Search...'}
-                  placeholderTextColor={'#999'}
-                  style={styles.textInput}
-                  value={titleSearch}
-                  onChangeText={setTitleSearch}
-                  onSubmitEditing={searchByTitle}
-                  returnKeyType="search"
-                  clearButtonMode="while-editing"
-                  autoCorrect={false}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={searchByTitle}
-                style={styles.searchIcon}>
-                <ImageForm
-                  source={require('../../Common/images/search.png')}
-                  resizeMode="cover"
-                  height={24}
-                  width={24}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.headerContainer}>
-              <TouchableOpacity
-                onPress={toggleView}
-                style={styles.toggleButton}>
-                {isGridView ? (
-                  <Image
-                    source={require('../../Common/images/view_list.png')}
-                    style={styles.toggleIcon}
-                  />
-                ) : (
-                  <Image
-                    source={require('../../Common/images/view_grid.png')}
-                    style={styles.toggleIcon}
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-          {/* FlatList Container */}
+          <HeaderWithSearchAndToggle
+            titleSearch={titleSearch}
+            setTitleSearch={setTitleSearch}
+            onSearch={searchByTitle}
+            isGridView={isGridView}
+            onToggleView={toggleView}
+          />
           <View style={styles.flatListContainer}>
             {loading ? (
               <View style={styles.loaderContainer}>
@@ -249,7 +187,7 @@ const FarmerTrainingList = () => {
                 contentContainerStyle={styles.flatListContent}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 // columnWrapperStyle={isGridView ? { ...styles.gridRow, gap: 4 } : null}
-                removeClippedSubviews={true} // performance optimization
+                removeClippedSubviews={true}
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={10}
@@ -268,7 +206,7 @@ const FarmerTrainingList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.background_light,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -306,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
@@ -343,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -388,7 +326,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

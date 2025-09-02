@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useState, useMemo, useContext} from 'react';
+import React, { memo, useCallback, useState, useMemo, useContext } from 'react';
 import {
   Alert,
   ScrollView,
@@ -7,20 +7,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {removeItem} from '../../config/getDataFromStorage';
-import {StackActions, useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { removeItem } from '../../config/getDataFromStorage';
+import { StackActions, useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fonts} from '../utils/Constants';
-import {userCreateContext} from '../Context/usersCreateContext';
-// Constants for better performance and maintainability
+import { Colors, Fonts } from '../utils/Constants';
+import { userCreateContext } from '../Context/usersCreateContext';
 const MENU_TYPES = {
   PROFILE: 'profile',
   BUSINESS: 'business',
   FARM_ACCOUNT: 'farmAccount',
   FINANCE: 'finance',
 };
-
 const STORAGE_KEYS = [
   'logoImageData',
   'loginUser_data',
@@ -32,9 +30,7 @@ const STORAGE_KEYS = [
   'currency',
   'fcmToken',
   'company_website',
-];
-
-// Extracted menu item component for better performance
+]
 const MenuItem = memo(
   ({
     iconName,
@@ -55,18 +51,16 @@ const MenuItem = memo(
             name={isExpanded ? 'expand-less' : 'expand-more'}
             size={22}
             color="#d5dbd7"
-            style={{marginRight: expandIconMarginRight}}
+            style={{ marginRight: expandIconMarginRight }}
           />
         )}
       </View>
     </TouchableOpacity>
   ),
 );
-
-// Extracted submenu item component
-const SubMenuItem = memo(({iconName, title, onPress}) => (
+const SubMenuItem = memo(({ iconName, title, onPress }) => (
   <TouchableOpacity
-    style={[styles.subMenu, {paddingLeft: 30}]}
+    style={[styles.subMenu, { paddingLeft: 30 }]}
     onPress={onPress}>
     <View style={styles.subMenuItem}>
       <MaterialIcons name={iconName} size={22} color="#eaf3ee" />
@@ -74,28 +68,20 @@ const SubMenuItem = memo(({iconName, title, onPress}) => (
     </View>
   </TouchableOpacity>
 ));
-
-const CustomDrawer = memo(({state}) => {
-  const {DeviceInfo} = useContext(userCreateContext) || {};
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+const CustomDrawer = memo(({ state }) => {
+  const { isOnline } = useContext(userCreateContext) || {};
+  const { t } = useTranslation();
   const navigation = useNavigation();
-
-  // Memoize active route name calculation
   const activeRouteName = useMemo(
     () => state?.routes[state.index]?.name,
     [state],
   );
-
-  // Consolidated expanded state
   const [expandedMenus, setExpandedMenus] = useState({
     profile: false,
     business: false,
     farmAccount: false,
     finance: false,
   });
-
-  // Memoized handlers
   const handleLogout = useCallback(() => {
     Alert.alert(
       t('app_name'),
@@ -110,38 +96,33 @@ const CustomDrawer = memo(({state}) => {
           onPress: removeData,
         },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   }, [t]);
 
   const removeData = useCallback(async () => {
-    console.log(netConnection);
-    // console.log('Logout');
-    if (!netConnection) {
+    if (!isOnline) {
       Alert.alert('You are offline hence cannot proceed');
       return;
     }
-
     try {
-      // Use Promise.all for better performance
       await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
-
-      const popAction = StackActions.pop(1);
-      navigation.dispatch(popAction);
-      navigation.navigate('Login');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
     } catch (error) {
       console.error('Error during logout:', error);
       Alert.alert('Error occurred during logout');
     }
-  }, [netConnection, navigation]);
-
+  }, [isOnline, navigation, navigateToPages]);
   const navigateToPages = useCallback(
     pageName => {
-      if (netConnection) {
+      if (isOnline) {
         navigation.navigate(pageName);
       }
     },
-    [netConnection, navigation],
+    [isOnline, navigation],
   );
 
   const handleMenuExpand = useCallback(menuName => {

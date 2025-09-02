@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo,memo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import {
   StyleSheet,
   View,
@@ -57,7 +57,7 @@ const Map = ({
   handleRegionChangeComplete,
   isLoading,
   coords
-}) =>{
+}) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
   const [selectedArea, setSelectedArea] = useState(0);
@@ -83,23 +83,24 @@ const Map = ({
   /** Memoized coordinate validation */
   const isValidCoordinate = useCallback((latitude, longitude) => {
     return (
-      typeof latitude === 'number' && 
-      typeof longitude === 'number' && 
-      !isNaN(latitude) && 
+      typeof latitude === 'number' &&
+      typeof longitude === 'number' &&
+      !isNaN(latitude) &&
       !isNaN(longitude) &&
-      latitude >= -90 && 
-      latitude <= 90 && 
-      longitude >= -180 && 
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
       longitude <= 180
     );
   }, []);
 
   /** Optimized animate to location with cleanup */
   const animateToLocation = useCallback((latitude, longitude) => {
-    if (!isMountedRef.current || !mapRef.current || !isValidCoordinate(latitude, longitude)) {
-      console.warn("Invalid coordinates for animateToLocation or component unmounted");
-      return;
-    }
+
+    // if (!isMountedRef.current || !mapRef.current || !isValidCoordinate(latitude, longitude)) {
+    //   console.warn("Invalid coordinates for animateToLocation or component unmounted");
+    //   return;
+    // }
 
     // Clear existing timeout
     if (animationTimeoutRef.current) {
@@ -169,13 +170,12 @@ const Map = ({
   /** Optimized initialization with proper error handling */
   useEffect(() => {
     let isEffectActive = true;
-
     const init = async () => {
       try {
         if (!isMountedRef.current || !isEffectActive) return;
 
         const hasLocationData = location?.[0]?.latitude && location?.[0]?.longitude;
-        
+
         if (hasLocationData) {
           const lat = Number(location[0].latitude);
           const lng = Number(location[0].longitude);
@@ -184,7 +184,7 @@ const Map = ({
           }
         } else if (baselatLong && isValidCoordinate(baselatLong.latitude, baselatLong.longitude)) {
           animateToLocation(baselatLong.latitude, baselatLong.longitude);
-          
+
           if (polygons.length === 0 && isMountedRef.current) {
             setCurrentLocation({
               ...baselatLong,
@@ -204,12 +204,12 @@ const Map = ({
     return () => {
       isEffectActive = false;
     };
-  }, [location, baselatLong, polygons.length, animateToLocation, isValidCoordinate]);
+  }, [location, baselatLong, animateToLocation, isValidCoordinate]);
 
   /** Memoized area calculation with error handling */
   const calculatedArea = useMemo(() => {
     if (newPolygon.length <= 2) return 0;
-    
+
     try {
       const base = landUnitsquareMetre?.[0]?.defined_unit_value || 1;
       const polygonArea = geolib.getAreaOfPolygon(newPolygon);
@@ -230,18 +230,18 @@ const Map = ({
   /** Memoized coordinate processing with validation */
   const processedCoordinates = useMemo(() => {
     if (!location || !Array.isArray(location)) return [];
-    
+
     return location
-      .filter(coord => 
-        coord?.latitude != null && 
-        coord?.longitude != null && 
-        coord.latitude !== "" && 
+      .filter(coord =>
+        coord?.latitude != null &&
+        coord?.longitude != null &&
+        coord.latitude !== "" &&
         coord.longitude !== ""
       )
       .map(coord => {
         const latitude = typeof coord.latitude === "string" ? Number(coord.latitude) : coord.latitude;
         const longitude = typeof coord.longitude === "string" ? Number(coord.longitude) : coord.longitude;
-        
+
         return isValidCoordinate(latitude, longitude) ? { latitude, longitude } : null;
       })
       .filter(Boolean);
@@ -298,7 +298,7 @@ const Map = ({
 
     try {
       const { latitude, longitude } = event.nativeEvent.coordinate;
-      
+
       if (!isValidCoordinate(latitude, longitude)) {
         console.warn("Invalid coordinates from map press");
         return;
@@ -334,8 +334,8 @@ const Map = ({
 
   /** Optimized select handler with validation */
   const handleSelect = useCallback((item) => {
-    if (!isMountedRef.current || !item) return;
-
+    // if (!isMountedRef.current || !item) return;
+    // console.log(item)
     const { lat, lng } = item;
     if (isValidCoordinate(lat, lng)) {
       setMarker({ lat, lng });
@@ -347,7 +347,7 @@ const Map = ({
 
   /** Memoized action handler */
   const handleActionPress = useCallback((name) => {
-    if (!isMountedRef.current) return;
+    // if (!isMountedRef.current) return;
 
     switch (name) {
       case "toggleEdit":
@@ -372,7 +372,7 @@ const Map = ({
 
   /** GPS button handler with validation */
   const handleGpsButtonPress = useCallback(() => {
-    if (!isMountedRef.current || !coords) return;
+    // if (!isMountedRef.current || !coords) return;
 
     const { latitude, longitude } = coords;
     if (isValidCoordinate(latitude, longitude)) {
@@ -394,12 +394,12 @@ const Map = ({
   const polygonComponents = useMemo(() => {
     return polygons.map((polygon, idx) => {
       if (!Array.isArray(polygon) || polygon.length < 3) return null;
-      
+
       // Validate all coordinates in polygon
-      const validPolygon = polygon.every(coord => 
+      const validPolygon = polygon.every(coord =>
         isValidCoordinate(coord.latitude, coord.longitude)
       );
-      
+
       if (!validPolygon) return null;
 
       return (
@@ -429,13 +429,13 @@ const Map = ({
           <LoadingScreen />
         </View>
       )}
-      
+
       <MapView
         ref={mapRef}
         style={styles.map}
         mapType="hybrid"
         provider={PROVIDER_GOOGLE}
-        onRegionChangeComplete={handleRegionChangeComplete}
+        onRegionChangeComplete={(newRegion) => handleRegionChangeComplete(newRegion)}
         onPress={handleMapPressGetDistance}
         showsUserLocation
         followsUserLocation
@@ -452,25 +452,25 @@ const Map = ({
         pitchEnabled
       >
         {polygonComponents}
-        
+
         {coordinatesCurrent.length > 0 && (
-          <Polygon 
-            coordinates={coordinatesCurrent} 
-            fillColor="rgba(139, 236, 11, 0.73)" 
-            strokeColor="rgb(1, 255, 1)" 
-            strokeWidth={2} 
+          <Polygon
+            coordinates={coordinatesCurrent}
+            fillColor="rgba(139, 236, 11, 0.73)"
+            strokeColor="rgb(1, 255, 1)"
+            strokeWidth={2}
           />
         )}
-        
+
         {newPolygon.length > 0 && (
-          <Polygon 
-            coordinates={newPolygon} 
-            fillColor="rgba(0, 200, 200, 0.5)" 
-            strokeColor="rgb(0, 200, 200)" 
-            strokeWidth={2} 
+          <Polygon
+            coordinates={newPolygon}
+            fillColor="rgba(0, 200, 200, 0.5)"
+            strokeColor="rgb(0, 200, 200)"
+            strokeWidth={2}
           />
         )}
-        
+
         {newPolygonMarkers}
         {searchMarker}
       </MapView>
@@ -502,7 +502,7 @@ const Map = ({
           minQueryLength={2}
         />
       </View>
-      
+
       <TouchableOpacity style={styles.gpsButton} onPress={handleGpsButtonPress}>
         <MaterialCommunityIcons name="crosshairs-gps" size={30} color="#3C75BE" />
       </TouchableOpacity>

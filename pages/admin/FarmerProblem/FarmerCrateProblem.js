@@ -7,13 +7,13 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import {launchCamera} from 'react-native-image-picker';
-import Marker, {Position} from 'react-native-image-marker';
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from 'react-native-image-marker';
 import {
   problemPlotAgainstFarmerAPI,
   problemProduceAgainstPlotAPI,
@@ -26,17 +26,17 @@ import {
 import MessageDialog from '../../Common/MessageDialog';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
-import {useIsFocused} from '@react-navigation/native';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import { useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {plotHook} from '../../hooks/plotHook';
-import {Colors, Fronts} from '../../utils/Constants';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { plotHook } from '../../hooks/plotHook';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-const FarmerCreateProblem = ({navigation}) => {
+const FarmerCreateProblem = ({ navigation }) => {
   //GQR-67
   const {
     FormsTitle,
@@ -62,17 +62,17 @@ const FarmerCreateProblem = ({navigation}) => {
     effective_dates,
     isOnline,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, owner, FcmUserToken} = loginUser_data;
-  const {farmerId, supervisorId} = dbLanTokUsr;
+  const { dbname, lan_id, token, user_id, owner, FcmUserToken } = loginUser_data;
+  const { farmerId, supervisorId } = dbLanTokUsr;
   //GQR-67
-  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
+  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(
     dbname,
     lan_id,
     token,
     user_id,
     isOnline,
   );
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [farmerID, setfarmerID] = useState();
@@ -200,15 +200,15 @@ const FarmerCreateProblem = ({navigation}) => {
           );
           await setItem(
             'problemProductionStage' +
-              response?.data?.data?.crop_type_id +
-              response?.data?.data?.crop_name_id,
+            response?.data?.data?.crop_type_id +
+            response?.data?.data?.crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'problemProductionStage' +
-              response?.data?.data?.crop_type_id +
-              response?.data?.data?.crop_name_id,
+            response?.data?.data?.crop_type_id +
+            response?.data?.data?.crop_name_id,
           );
         }
         if (productionStage_res?.status == 200) {
@@ -256,22 +256,21 @@ const FarmerCreateProblem = ({navigation}) => {
           },
           watermarkTexts: [
             {
-              text: `${saveData.latitude},${
-                saveData.longitude
-              },${new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              }).format(timestamp)}`,
-              positionOptions: {position: Position.bottomLeft},
+              text: `${saveData.latitude},${saveData.longitude
+                },${new Intl.DateTimeFormat('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                }).format(timestamp)}`,
+              positionOptions: { position: Position.bottomLeft },
               style: {
                 color: '#df2020',
                 fontSize: 2,
                 fontName: 'Arial',
-                textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
+                textBackgroundStyle: { padding: '10% 10%', color: '#00000000' },
               },
             },
           ],
@@ -282,7 +281,7 @@ const FarmerCreateProblem = ({navigation}) => {
           maxSize: 1000,
         };
         let path = await Marker.markText(options);
-        setSelectedImage({...selectedImage, [item]: `file://${path}`});
+        setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
         const newPhoto = {
           uri: `file://${path}`,
           type: 'image/jpeg',
@@ -303,10 +302,10 @@ const FarmerCreateProblem = ({navigation}) => {
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData({...saveData, affected_date: effective_date});
+    setSaveData({ ...saveData, affected_date: effective_date });
   };
   const handleProblemType = problem_type => {
-    setSaveData({...saveData, problem_type_id: problem_type.value});
+    setSaveData({ ...saveData, problem_type_id: problem_type.value });
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
       question_title1: problem_type.label,
@@ -448,7 +447,7 @@ const FarmerCreateProblem = ({navigation}) => {
   };
   const validateForm = () => {
     if (!saveData.plot_id) {
-      Toast.show({time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0]});
+      Toast.show({ time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0] });
       return false;
     }
     if (!saveData.growth_stage) {
@@ -468,11 +467,11 @@ const FarmerCreateProblem = ({navigation}) => {
       return false;
     }
     if (!saveData.problem_name_id) {
-      Toast.show({time: 2, text: t('please_select_problem'), ...AlertMesg[0]});
+      Toast.show({ time: 2, text: t('please_select_problem'), ...AlertMesg[0] });
       return false;
     }
     if (!saveData.severity_id) {
-      Toast.show({time: 2, text: t('please_select_severity'), ...AlertMesg[0]});
+      Toast.show({ time: 2, text: t('please_select_severity'), ...AlertMesg[0] });
       return false;
     }
     if (!saveData.affected_date) {
@@ -484,7 +483,7 @@ const FarmerCreateProblem = ({navigation}) => {
       return false;
     }
     if (!saveData.latitude) {
-      Toast.show({time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]});
+      Toast.show({ time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0] });
       return false;
     }
     return true;
@@ -562,7 +561,7 @@ const FarmerCreateProblem = ({navigation}) => {
             'problem_user',
             1,
           );
-          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
             handleClear();
             navigation.navigate('FarmerListProblem');
@@ -661,7 +660,7 @@ const FarmerCreateProblem = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -670,7 +669,7 @@ const FarmerCreateProblem = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
+      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -680,33 +679,8 @@ const FarmerCreateProblem = ({navigation}) => {
     return true;
   };
   useEffect(() => {
-    setSoundRecordFirstItem({
-      item: '1',
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-      result: '',
-    });
-    setSoundRecordSecoundItem({
-      item: '2',
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-      result: '',
-    });
-    setSoundRecordThirdItem({
-      item: '3',
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-      result: '',
-    });
-    if (isFocused) {
-      onPageLoad();
-
-      onBackPress(handleBackPress);
-    }
-  }, [isFocused, netConnection]);
+    onPageLoad();
+  }, [netConnection]);
 
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
@@ -748,8 +722,8 @@ const FarmerCreateProblem = ({navigation}) => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
       dragFromTopOnly: true,
-      onCloseComplete: () => {},
-      onOpenComplete: () => {},
+      onCloseComplete: () => { },
+      onOpenComplete: () => { },
       height: 260,
     });
   };
@@ -868,7 +842,7 @@ const FarmerCreateProblem = ({navigation}) => {
                 required={true}
                 data={severityAll}
                 onChange={item =>
-                  setSaveData({...saveData, severity_id: item.value})
+                  setSaveData({ ...saveData, severity_id: item.value })
                 }
               />
               <InputTextForm
@@ -901,21 +875,21 @@ const FarmerCreateProblem = ({navigation}) => {
                   </Text>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
+                    style={{ width: 20, height: 20 }}
                   />
                 </TouchableOpacity>
               </View>
               <InputTextForm
                 label={t('enter_problem_title')}
                 onChangeText={item =>
-                  setSaveData({...saveData, question_title: item})
+                  setSaveData({ ...saveData, question_title: item })
                 }
                 value={saveData.question_title}
               />
               <InputTextForm
                 label={t('enter_problem_description')}
                 onChangeText={item =>
-                  setSaveData({...saveData, question_desc: item})
+                  setSaveData({ ...saveData, question_desc: item })
                 }
                 value={saveData.question_desc}
               />
@@ -942,7 +916,7 @@ const FarmerCreateProblem = ({navigation}) => {
             </View>
           </View>
         </ScrollView>
-        <View style={{marginTop: 10}}>
+        <View style={{ marginTop: 10 }}>
           <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
         <Root></Root>
@@ -1001,7 +975,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

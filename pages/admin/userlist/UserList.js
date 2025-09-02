@@ -171,12 +171,14 @@ const UserList = ({ navigation }) => {
       t: t,
       dropdownData: farmerData,
       filterItem: filterItem,
+      setFilterItem: setFilterItem,
       setSearchFarmerPhone: setSearchFarmerPhone,
       searchFarmerPhone: searchFarmerPhone,
       title: 'Choose Status',
       handleFilterResult: handleFilterResult,
       handleFilterRemove: handleFilterRemove,
       navigationBarHeight: navigationBarHeight,
+      height: 100
     });
   };
 
@@ -198,7 +200,7 @@ const UserList = ({ navigation }) => {
     fetchUserList(1, '', '', '', '', '');
     setPage(1);
   }, []);
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>

@@ -78,8 +78,8 @@ const CreateProblem = ({ navigation }) => {
   const [searchFarmerPhone, setSearchFarmerPhone] = useState();
   const [searchResultsList, setSearchResultsList] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
-  const [farmerID, setfarmerID] = useState();
-  const [plotAll, setplotAll] = useState([]);
+  const [farmerID, setFarmerID] = useState();
+  const [plotAll, setPlotAll] = useState([]);
   const [productionStageAll, setproductionStageAll] = useState([]);
   const [problemAll, setProblemAll] = useState([]);
   const [problemTypeAll, setProblemTypeAll] = useState([]);
@@ -159,7 +159,7 @@ const CreateProblem = ({ navigation }) => {
     setSearchFarmerName(name);
     setShowingMenu(false);
     setSearchResults([]);
-    setfarmerID(currentfarmerId);
+    setFarmerID(currentfarmerId);
     setSaveData(prev => ({ ...prev, farmer_fcm: FcmUserToken }));
     if (isOnline) {
       var response = await problemPlotAgainstFarmerAPI(
@@ -181,7 +181,7 @@ const CreateProblem = ({ navigation }) => {
         label: data.plot_no,
       }));
       //GQR-65
-      setplotAll(dataArray);
+      setPlotAll(dataArray);
     }
   }, []);
   const handlePlot = useCallback(async relId => {
@@ -263,7 +263,7 @@ const CreateProblem = ({ navigation }) => {
         setModalVisible(true);
         setSearchFarmerName('');
         setSearchFarmerPhone('');
-        setplotAll([]);
+        setPlotAll([]);
       }
     }
   }, []);

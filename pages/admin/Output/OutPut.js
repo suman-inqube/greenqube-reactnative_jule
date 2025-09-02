@@ -239,6 +239,7 @@ const OutPut = ({navigation}) => {
         t: t,
         dropdownData: farmerData,
         filterItem: filterItem,
+        setFilterItem: setFilterItem,
         setSearchFarmerName: setSearchFarmerName,
         setSearchFarmerPhone: setSearchFarmerPhone,
         searchFarmerName: searchFarmerName,
@@ -254,6 +255,7 @@ const OutPut = ({navigation}) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
+        height: 200,
       });
     } catch (error) {
       console.log(error);
@@ -306,7 +308,7 @@ const OutPut = ({navigation}) => {
   }, []);
   const renderCustomHeader = useMemo(
     () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
-    [],
+    [filterOptionShow],
   );
   return (
     <FarmerDrawerScreenWrapper1>
