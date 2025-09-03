@@ -161,7 +161,7 @@ const ModalCompProduct = props => {
                 <TouchableOpacity
                   onPress={() => {
                     props.setModalVisible(!props.modalVisible);
-                    navigation.navigate('WantToBuy');
+                    navigation.navigate('WantToBuy',props.inputSigle);
                   }}>
                   <Text style={styles.btnTitle}>{t('buy_lease_request')}</Text>
                 </TouchableOpacity>

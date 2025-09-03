@@ -27,15 +27,12 @@ import {
 import {useIsFocused} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import LinearGradient from 'react-native-linear-gradient';
 import {Colors} from '../../utils/Constants';
-import {FloatingAction} from 'react-native-floating-action';
 import {inputViewPast} from '../../utils/options';
-import ProductOptionDropDown from '../../Common/ProductOptionDropDown';
-import DropdownForm from '../../Common/DropdownForm';
 const SearchBy = lazy(() => import('./SearchBy'));
 const SearchSubBy = lazy(() => import('./SearchSubBy'));
 import InputProductCard from '../../Components/InputProductCard';
+import FloatingActionButton from '../../Components/FloatingActionButton';
 const InputList = ({navigation}) => {
   const {
     loginUser_data,
@@ -251,7 +248,7 @@ const InputList = ({navigation}) => {
           />
         </View>
       </View>
-      <FloatingAction
+      <FloatingActionButton
         position="right"
         actions={inputViewPast(t, styles, Colors)}
         color={Colors.useGreen}
@@ -262,13 +259,6 @@ const InputList = ({navigation}) => {
           navigation.navigate('PastEnquiry');
         }}
       />
-      {/* <View style={styles.viewPastBtn}>
-        <TouchableOpacity onPress={() => navigation.navigate('PastEnquiry')}>
-          <Text style={styles.viewPastBtnText}>
-            {t('view_input_requested')}
-          </Text>
-        </TouchableOpacity>
-      </View> */}
     </FarmerDrawerScreenWrapper1>
   );
 };

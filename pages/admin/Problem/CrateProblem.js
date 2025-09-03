@@ -325,7 +325,7 @@ const CreateProblem = ({ navigation }) => {
         addTitle(newTitle);
       }
     });
-  }, []);
+  }, [myphotoAll]);
   const addPhoto = newPhoto => {
     setmyPhotoAll([...myphotoAll, newPhoto]);
   };
@@ -549,11 +549,7 @@ const CreateProblem = ({ navigation }) => {
           formData,
         );
         if (database_res.status === 200) {
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-          const timer = setTimeout(() => {
-            navigation.navigate('ProblemList');
-          }, 1200);
-          return () => clearTimeout(timer);
+          navigation.navigate('ProblemList', { action: "addData" });
         }
       } else {
         formData.append('farmerID', farmerID);
@@ -568,11 +564,7 @@ const CreateProblem = ({ navigation }) => {
         } else {
           await setItem('offlineSupervisorProblemData', 'off' + timeStamp);
         }
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-        const timer = setTimeout(() => {
-          navigation.navigate('ProblemList');
-        }, 1200);
-        return () => clearTimeout(timer);
+        navigation.navigate('ProblemList', { action: "addData" });
       }
     }
   }, [myphotoAll, saveData, soundRecordFirstItem, soundRecordSecoundItem, soundRecordThirdItem]);

@@ -15,7 +15,6 @@ import RecordComp from '../Activity/RecordComp';
 import { launchCamera } from 'react-native-image-picker';
 import Marker, { Position } from 'react-native-image-marker';
 import {
-  problemPlotAgainstFarmerAPI,
   problemProduceAgainstPlotAPI,
   problemProductionStageAPI,
   problemSaveAPI,
@@ -23,7 +22,6 @@ import {
   problemTypeNameAPI,
   addModuleForView,
 } from '../../../config/apiHere';
-import MessageDialog from '../../Common/MessageDialog';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
@@ -35,17 +33,15 @@ import { userCreateContext } from '../../Context/usersCreateContext';
 import { plotHook } from '../../hooks/plotHook';
 import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import DatePickerField from '../../Common/DatePickerField';
 const FarmerCreateProblem = ({ navigation }) => {
   //GQR-67
   const {
-    FormsTitle,
     dbLanTokUsr,
     loginUser_data,
     LoadingScreen,
     CustomHeader,
     t,
-    onBackPress,
     getItem,
     setItem,
     logoImage,
@@ -60,7 +56,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     DatePickerComp,
     ButtonForm,
     effective_dates,
-    isOnline,
+    isOnline, coords
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, owner, FcmUserToken } = loginUser_data;
   const { farmerId, supervisorId } = dbLanTokUsr;
@@ -146,7 +142,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     recordTime: '00:00:00',
     result: '',
   });
-  const handlePlot = async relId => {
+  const handlePlot = useCallback(async relId => {
     setShowingMenu(false);
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
@@ -178,8 +174,8 @@ const FarmerCreateProblem = ({ navigation }) => {
       });
       if (new Date() < new Date(response?.data?.data?.harvesting_date)) {
         setShowingMenu(true);
-        setSaveData({
-          ...saveData,
+        setSaveData(prev => ({
+          ...prev,
           crop_season_id: response?.data?.data?.crop_season_id,
           crop_type_id: response?.data?.data?.crop_type_id,
           crop_variety_id: response?.data?.data?.crop_variety_id,
@@ -190,7 +186,7 @@ const FarmerCreateProblem = ({ navigation }) => {
           production_system:
             response?.data?.data?.farmer_production_system.fa_id,
           agent_id: supervisorId,
-        });
+        }));
         if (netConnection) {
           var productionStage_res = await problemProductionStageAPI(
             dbLanTokUsr.dbName,
@@ -233,8 +229,8 @@ const FarmerCreateProblem = ({ navigation }) => {
         }, 1300);
       }
     }
-  };
-  const openImagePicker = item => {
+  }, []);
+  const openImagePicker = useCallback(item => {
     const options = {
       mediaType: 'photo',
       includeBase64: true,
@@ -287,43 +283,46 @@ const FarmerCreateProblem = ({ navigation }) => {
           type: 'image/jpeg',
           name: `file://${path}`,
         };
-        addPhoto(newPhoto);
-        const newTitle = {};
-        addTitle(newTitle);
+        setmyPhotoAll([...myphotoAll, newPhoto]);
+        setMyTitleAll([...myTitleAll, {}]);
       }
     });
-  };
-  const addPhoto = newPhoto => {
-    setmyPhotoAll([...myphotoAll, newPhoto]);
-  };
-  const addTitle = newTitle => {
-    setMyTitleAll([...myTitleAll, newTitle]);
-  };
+  }, [myphotoAll, myTitleAll]);
+
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData({ ...saveData, affected_date: effective_date });
+    setSaveData(prev => ({ ...prev, affected_date: effective_date }));
   };
-  const handleProblemType = problem_type => {
-    setSaveData({ ...saveData, problem_type_id: problem_type.value });
-    setNameVarityStartEnd({
-      ...nameVarityStartEnd,
-      question_title1: problem_type.label,
-    });
-    const problemNameFound = problemAll.find(
-      user => user.fid === problem_type.value,
-    );
-    if (problemNameFound) {
-      const dataArray = problemNameFound.problem_type.map(data => ({
-        value: data.problem_name.fid,
-        label: data.problem_name.name,
+  const handleProblemType = useCallback(
+    problem_type => {
+      setSaveData(prev => ({
+        ...prev,
+        problem_type_id: problem_type.value,
       }));
-      setProblemNameAll(dataArray);
-    }
-  };
-  const handleProblemName = problem_name => {
-    setSaveData({
-      ...saveData,
+
+      setNameVarityStartEnd(prev => ({
+        ...prev,
+        question_title1: problem_type.label, // only update this key, keep all others
+      }));
+
+      const problemNameFound = problemAll.find(
+        user => user.fid === problem_type.value
+      );
+
+      if (problemNameFound) {
+        const dataArray = problemNameFound?.problem_type.map(data => ({
+          value: data.problem_name.fid,
+          label: data.problem_name.name,
+        }));
+        setProblemNameAll(dataArray);
+      }
+    },
+    [problemAll]
+  );
+  const handleProblemName = useCallback(problem_name => {
+    setSaveData(prev => ({
+      ...prev,
       problem_name_id: problem_name.value,
       question_title:
         nameVarityStartEnd.name +
@@ -331,92 +330,13 @@ const FarmerCreateProblem = ({ navigation }) => {
         nameVarityStartEnd.question_title1 +
         ',' +
         problem_name.label,
-    });
-  };
-  const requestLivePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        Geolocation.getCurrentPosition(data =>
-          setSaveData({
-            ...saveData,
-            latitude: data.coords.latitude,
-            longitude: data.coords.longitude,
-          }),
-        );
-      } else {
-        console.log('Location permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-  function handleClear() {
-    setSaveData({
-      ...saveData,
-      agent_fcm: '',
-      farmer_fcm: '',
-      latitude: '',
-      longitude: '',
-      question_type: 'crop_problem',
-      land_unit_id: '',
-      affected_area: '',
-      category_id: '',
-      affected_date: '',
-      question_title: '',
-      question_desc: '',
-      production_process: '',
-      severity_id: '',
-    });
-    setaffectedDate('');
-    setShowingMenu(false);
-    setplotAll([]);
-    setproductionStageAll([]);
-    setProblemAll([]);
-    setProblemTypeAll([]);
-    setProblemNameAll([]);
-    setSeverityAll([]);
-    setSelectedImage({
-      firstItem: '',
-      secondItem: '',
-      thirdItem: '',
-    });
-    setNameVarityStartEnd({
-      ...nameVarityStartEnd,
-      name: '',
-      varity: '',
-      cycleStarts: '',
-      cycleEnd: '',
-      production_process: '',
-    });
-    setSoundRecordFirstItem({
-      item: '1',
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-      result: '',
-    });
-    setSoundRecordSecoundItem({
-      item: '2',
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-      result: '',
-    });
-    setSoundRecordThirdItem({
-      item: '3',
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-      result: '',
-    });
-  }
+    }));
+  }, []);
   const onPageLoad = async () => {
-    requestLivePermission();
+    const { latitude, longitude } = coords || {};
     setfarmerID(user_id);
     problemPlotAgainstFarmer(dbname, lan_id, token, user_id, isOnline);
+    setSaveData(prev => ({ ...prev, latitude: latitude, longitude: longitude }));
     if (netConnection) {
       var [problemName_res, severity_res] = await Promise.all([
         problemTypeNameAPI(dbname, lan_id, token),
@@ -563,7 +483,6 @@ const FarmerCreateProblem = ({ navigation }) => {
           );
           Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
-            handleClear();
             navigation.navigate('FarmerListProblem');
           }, 1000);
         }
@@ -580,7 +499,6 @@ const FarmerCreateProblem = ({ navigation }) => {
           await setItem('offlineFarmerProblemData', '00,off' + timeStamp);
         }
         setTimeout(() => {
-          handleClear();
           navigation.navigate('FarmerListProblem');
         }, 1000);
       }
@@ -710,7 +628,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       });
     }
   };
-  const soundPlay = async item => {
+  const soundPlay = useCallback(async item => {
     let path;
     if (item == 'firstItem') {
       path = `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
@@ -726,7 +644,12 @@ const FarmerCreateProblem = ({ navigation }) => {
       onOpenComplete: () => { },
       height: 260,
     });
-  };
+  }, []);
+  const handleGrowthStage = useCallback((item) => setSaveData((saveData) => ({ ...saveData, growth_stage: item.value })), []);
+  const handleChangeQuestionTitle = useCallback((item) => setSaveData((saveData) => ({ ...saveData, question_title: item.value })), []);
+  const handleChangeQuestionDescription = useCallback((item) => setSaveData((saveData) => ({ ...saveData, question_desc: item.value })), []);
+  const handleSeverityChange = useCallback((item) => setSaveData((saveData) => ({ ...saveData, severity_id: item.value })), []);
+  const handleActivityPerFromDate = useCallback(() => { setaddAffectedDate(true) }, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={styles.container}>
@@ -781,7 +704,7 @@ const FarmerCreateProblem = ({ navigation }) => {
                 label={t('plot')}
                 data={plotAll}
                 required={true}
-                onChange={relId => handlePlot(relId)}
+                onChange={handlePlot}
               />
               {showingMenu ? (
                 <View style={styles.plotSiteContainer}>
@@ -818,18 +741,13 @@ const FarmerCreateProblem = ({ navigation }) => {
                 label={t('growth_stage')}
                 required={true}
                 data={productionStageAll}
-                onChange={production_stage =>
-                  setSaveData({
-                    ...saveData,
-                    growth_stage: production_stage.value,
-                  })
-                }
+                onChange={handleGrowthStage}
               />
               <DropdownForm
                 label={t('problem_type')}
                 required={true}
                 data={problemTypeAll}
-                onChange={item => handleProblemType(item)}
+                onChange={handleProblemType}
               />
               <DropdownForm
                 label={t('select_problem')}
@@ -841,56 +759,26 @@ const FarmerCreateProblem = ({ navigation }) => {
                 label={t('select_severity')}
                 required={true}
                 data={severityAll}
-                onChange={item =>
-                  setSaveData({ ...saveData, severity_id: item.value })
-                }
+                onChange={handleSeverityChange}
               />
               <InputTextForm
                 label={t('production_system')}
                 value={nameVarityStartEnd.production_process}
                 editable={false}
               />
-              <View>
-                <View style={styles.labelContainer}>
-                  <Text
-                    style={{
-                      color: '#4e4e4e',
-                      fontFamily: 'Poppins-Regular',
-                      fontSize: 15,
-                    }}>
-                    {t('agent_crop_problem_affected_date')}
-                  </Text>
-                  <Text style={styles.requiredStar}> *</Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.activityPerFromDate}
-                  onPress={() => setaddAffectedDate(true)}>
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontFamily: 'Poppins-Regular',
-                      fontSize: 15,
-                    }}>
-                    {affectedDate}
-                  </Text>
-                  <Image
-                    source={require('../../Common/images/calendar.png')}
-                    style={{ width: 20, height: 20 }}
-                  />
-                </TouchableOpacity>
-              </View>
+              <DatePickerField
+                label={t('agent_crop_problem_affected_date')}
+                value={affectedDate}
+                onPress={handleActivityPerFromDate}
+              />
               <InputTextForm
                 label={t('enter_problem_title')}
-                onChangeText={item =>
-                  setSaveData({ ...saveData, question_title: item })
-                }
+                onChangeText={handleChangeQuestionTitle}
                 value={saveData.question_title}
               />
               <InputTextForm
                 label={t('enter_problem_description')}
-                onChangeText={item =>
-                  setSaveData({ ...saveData, question_desc: item })
-                }
+                onChangeText={handleChangeQuestionDescription}
                 value={saveData.question_desc}
               />
               <TakePhoto

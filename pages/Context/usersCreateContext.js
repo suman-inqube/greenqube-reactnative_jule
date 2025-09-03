@@ -134,7 +134,6 @@ const UserCreateContextProvider = (props) => {
         )
         return;
       }
-
       watchIdRef.current = Geolocation.watchPosition(
         (pos) => {
           setCoords((prev) => {
@@ -162,11 +161,11 @@ const UserCreateContextProvider = (props) => {
         },
         {
           enableHighAccuracy: true,
-          distanceFilter: 10, // update after 10m movement
+          distanceFilter: 0, // update after 10m movement
           interval: 5000,
           fastestInterval: 2000,
-          timeout: 20000,
-          maximumAge: 1000,
+          timeout: 30000,
+          maximumAge: 0,
         }
       );
     };

@@ -6,14 +6,11 @@ import {
   Image,
   ScrollView,
   BackHandler,
-  FlatList,
-  SafeAreaView,
   Dimensions,
   Keyboard,
-  Alert,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
-import {launchCamera} from 'react-native-image-picker';
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import { launchCamera } from 'react-native-image-picker';
 import {
   farmerAgainstSupervisorAPI,
   farmerByNameAPI,
@@ -22,15 +19,16 @@ import {
   problemPlotAgainstFarmerAPI,
   unitByListAPI,
 } from '../../../config/apiHere';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {FloatingAction} from 'react-native-floating-action';
-import {getActionsPostNew} from '../../utils/options';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { FloatingAction } from 'react-native-floating-action';
+import { getActionsPostNew } from '../../utils/options';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import DatePickerField from '../../Common/DatePickerField';
 const PostNew = props => {
   //GQR-67
   const {
@@ -48,7 +46,7 @@ const PostNew = props => {
     effective_dates,
     CustomHeader,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const unitFarm = [
     {
@@ -60,18 +58,15 @@ const PostNew = props => {
       label: `${t('part')}`,
     },
   ];
-  const [searchResultsList, setSearchResultsList] = useState(false);
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-  const [saveData, setSaveData] = useState({plot_name: '', created_at: ''});
+  const [saveData, setSaveData] = useState({ plot_name: '', created_at: '' });
   const [farmerID, setfarmerID] = useState();
-  const [searchResults, setSearchResults] = useState([]);
   const [plotAll, setplotAll] = useState([]);
   const [liveliHoodType, setLiveliHoodType] = useState([]);
   const [produceName, setProduceName] = useState([]);
   const [produceVariety, setProduceVariety] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const [nameVarityLivelihood, setNameVarityLivelihood] = useState({
     name: '',
     varity: '',
@@ -88,42 +83,26 @@ const PostNew = props => {
     district: '',
     block: '',
   });
-  const handleSearch = text => {
-    setSearchFarmerName(text);
-    setSearchFarmerPhone('');
-    // console.log('farmerData', farmerData);
-    // console.log('text', text);
-    if (farmerData[0]) {
-      const result = farmerData[0].filter(item =>
-        item.label.toLowerCase().includes(text.toLowerCase()),
-      );
-      if (result) {
-        setSearchResultsList(true);
-        setSearchResults(result);
-      }
-    }
-  };
-  const handleResultSelect = async item => {
-    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
+  const handleResultSelect = useCallback(async item => {
+    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
     const min = 1000000000000;
     const max = 9999999999999;
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    setSaveData({
-      ...saveData,
+    setSaveData(prev => ({
+      ...prev,
       user_name: name,
       user_contact_number: phone,
       ref_code: randomNumber,
       plot_name: '',
-    });
-    setNameVarityLivelihood({
-      ...nameVarityLivelihood,
+    }));
+    setNameVarityLivelihood(prev => ({
+      ...prev,
       name: '',
       varity: '',
       livelihood: '',
-    });
+    }));
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
-    setSearchResults([]);
     setfarmerID(currentfarmerId);
     const response = await problemPlotAgainstFarmerAPI(
       dbname,
@@ -150,8 +129,9 @@ const PostNew = props => {
       });
       setplotAll(dataArray);
     }
-  };
-  const handlePlot = async (relId, plot) => {
+  });
+  const handlePlot = async (relId) => {
+    setIsLoading(true);
     if (relId.label == 'other') {
       setIsOther(true);
       const farmer_all = await farmerAgainstSupervisorAPI(
@@ -228,14 +208,14 @@ const PostNew = props => {
               label: livelyhoodNameVerity?.data?.data?.crop_type?.name,
             },
           ]);
-          setNameVarityLivelihood({
-            ...nameVarityLivelihood,
+          setNameVarityLivelihood(prev => ({
+            ...prev,
             name: livelyhoodNameVerity?.data?.data?.crop_name?.fid,
             varity: livelyhoodNameVerity?.data?.data?.crop_variety?.fid,
             livelihood: livelyhoodNameVerity?.data?.data?.crop_type?.fid,
-          });
-          setSaveData({
-            ...saveData,
+          }));
+          setSaveData(prev => ({
+            ...prev,
             type: '',
             farmer_id: relId.user_id,
             land_rel_id: relId.value,
@@ -259,10 +239,11 @@ const PostNew = props => {
             entity_variety_id:
               livelyhoodNameVerity?.data?.data?.crop_variety?.fid,
             others: '',
-          });
+          }));
         }
       }
     }
+    setIsLoading(false)
   };
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
@@ -274,21 +255,23 @@ const PostNew = props => {
       return true;
     }
   };
-  const handleUnit = async item => {
+  const handleUnit = useCallback(async item => {
+    setIsLoading(true)
     const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
     if (unitRes?.status == 200) {
       const rows = unitRes?.data?.data?.rows[0];
-      setSaveData({
-        ...saveData,
+      setSaveData(prev => ({
+        ...prev,
         unit_id: item?.label,
         unit_fid: item?.value,
         unit_sname: item?.unit_sname,
         unit_sub_type: item?.sub_type,
         defined_unit_value: item?.defined_unit_value,
         filter_unit_fid: rows?.fid,
-      });
+      }));
     }
-  };
+    setIsLoading(false)
+  });
 
   const openImagePicker = item => {
     const options = {
@@ -304,7 +287,7 @@ const PostNew = props => {
         console.log('Camera Error: ', response.error);
       } else {
         let imageUri = response.uri || response.assets?.[0]?.uri;
-        const newPhoto = {uri: imageUri, type: 'image/jpeg', name: imageUri};
+        const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri };
       }
     });
   };
@@ -314,12 +297,12 @@ const PostNew = props => {
       getItem('district'),
       getItem('block'),
     ]);
-    setregionaldatas({
-      ...regionaldatas,
+    setregionaldatas(prev => ({
+      ...prev,
       state: state,
       district: district,
       block: block,
-    });
+    }));
     const unitByList = await unitByListAPI(dbname, lan_id);
     if (unitByList.status === 200) {
       const dataArray = unitByList?.data?.data?.rows.map(data => ({
@@ -336,19 +319,19 @@ const PostNew = props => {
   const validationData = () => {
     Keyboard.dismiss();
     if (searchFarmerName == '') {
-      Toast.show({text: `${t('please_enter_first_name')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_first_name')}`, ...AlertMesg[0] });
       return false;
     } else if (saveData.plot_name == '' && saveData.plot_name != 'other') {
-      Toast.show({text: `${t('please_select_plot')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_plot')}`, ...AlertMesg[0] });
       return false;
     } else if (saveData.quantity == '' && saveData.plot_name != 'other') {
-      Toast.show({text: `${t('select_quantity_input')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_quantity_input')}`, ...AlertMesg[0] });
       return false;
     } else if (saveData.unit_id == '') {
-      Toast.show({text: `${t('select_unit_input')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_unit_input')}`, ...AlertMesg[0] });
       return false;
     } else if (approximateDate == '' && nextpage == 2) {
-      Toast.show({text: `${t('approximate_date')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('approximate_date')}`, ...AlertMesg[0] });
       return false;
     } else {
       return true;
@@ -411,7 +394,7 @@ const PostNew = props => {
         );
         console.log('database_res', database_res);
         if (database_res?.status === 200) {
-          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
 
           setTimeout(() => {
             props.sendDataToParent(2);
@@ -431,11 +414,20 @@ const PostNew = props => {
       );
     };
   }, [nextpage]);
+  const handleActivityPerFromDate = useCallback(() => {
+    setOpenDatePicker(!openDatePicker)
+  }, [])
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader t={t} />
+    ),
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-          <CustomHeader t={t} />
+        <View style={{ flex: 1, backgroundColor: Colors.background }}>
+          {renderCustomHeader}
           <DatePickerComp
             openDate={openDatePicker}
             newDate={newDate}
@@ -445,53 +437,23 @@ const PostNew = props => {
               saveData.created_at == ''
                 ? ''
                 : new Date(
-                    `${new Date(saveData.created_at).getFullYear()}-${
-                      new Date(saveData.created_at).getMonth() + 1
-                    }-${new Date(saveData.created_at).getDate() + 1}`,
-                  )
+                  `${new Date(saveData.created_at).getFullYear()}-${new Date(saveData.created_at).getMonth() + 1
+                  }-${new Date(saveData.created_at).getDate() + 1}`,
+                )
             }
           />
 
-          <SafeAreaView>
-            {searchResultsList && searchResultsList ? (
-              <View style={styles.flatContainer}>
-                <FlatList
-                  style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                  data={searchResults}
-                  renderItem={({item}) => (
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleResultSelect(item.label, item.value, item.phone)
-                      }
-                      style={styles.flatlistitem}>
-                      <Text style={styles.flatlisttitle}>{item.label}</Text>
-                    </TouchableOpacity>
-                  )}
-                  keyExtractor={(item, index) => index}
-                />
-              </View>
-            ) : (
-              ''
-            )}
-          </SafeAreaView>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.fromContainer}>
-              <View style={{padding: 16}}>
+              <View style={{ padding: 16 }}>
                 {nextpage == 1 ? (
                   <>
                     <DropdownForm
                       label={t('farmer_name')}
                       data={farmerData?.[0]}
                       required={true}
-                      onChange={item => handleResultSelect(item)}
+                      onChange={handleResultSelect}
                     />
-                    {/* <DropdownForm
-                      label={t('farmer_name')}
-                      color="black"
-                      val={searchFarmerName}
-                      onChange={farmerName => handleSearch(farmerName)}
-                      data={farmerData[0]}
-                    /> */}
                     <InputTextForm
                       label={t('farmer_number')}
                       value={searchFarmerPhone}
@@ -501,14 +463,14 @@ const PostNew = props => {
                       label={t('addland_select_plot')}
                       data={plotAll}
                       required={true}
-                      onChange={relId => handlePlot(relId, 'plot')}
+                      onChange={handlePlot}
                       val={saveData.plot_name}
                     />
                     {isOther ? (
                       <InputTextForm
                         label={t('other')}
                         onChangeText={item =>
-                          setSaveData({...saveData, others: item})
+                          setSaveData(prev => ({ ...prev, others: item }))
                         }
                       />
                     ) : (
@@ -517,21 +479,18 @@ const PostNew = props => {
                           label={t('addcrop_croptype')}
                           data={liveliHoodType}
                           required={true}
-                          onChange={relId => handlePlot(relId)}
                           val={nameVarityLivelihood.livelihood}
                         />
                         <DropdownForm
                           label={t('crop_name')}
                           data={produceName}
                           required={true}
-                          onChange={relId => handlePlot(relId)}
                           val={nameVarityLivelihood.name}
                         />
                         <DropdownForm
                           label={t('crop_veriety')}
                           data={produceVariety}
                           required={true}
-                          onChange={relId => handlePlot(relId)}
                           val={nameVarityLivelihood.varity}
                         />
                       </>
@@ -547,17 +506,17 @@ const PostNew = props => {
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                       }}>
-                      <View style={{width: '45%'}}>
+                      <View style={{ width: '45%' }}>
                         <InputTextForm
                           label={t('quantity')}
                           keyboardType="number-pad"
                           onChangeText={item =>
-                            setSaveData({...saveData, quantity: item})
+                            setSaveData(prev => ({ ...prev, quantity: item }))
                           }
                           value={saveData.quantity}
                         />
                       </View>
-                      <View style={{width: '45%'}}>
+                      <View style={{ width: '45%' }}>
                         <DropdownForm
                           label={t('select_unit_input')}
                           data={unitData}
@@ -593,18 +552,12 @@ const PostNew = props => {
                       }
                       value={saveData.subdiv_name}
                     />
-                    <View>
-                      <Text style={{color: '#000'}}>
-                        {t('approximate_date')}
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.appromimateContainer}
-                        onPress={() => setOpenDatePicker(!openDatePicker)}>
-                        <Text style={{color: '#000'}}>{approximateDate}</Text>
-                        {/* <Image source={require('../../Common/images/calendar.png')} style={{ width: 30, height: 30 }} /> */}
-                      </TouchableOpacity>
-                    </View>
-                    <View>
+                    <DatePickerField
+                      label={t('approximate_date')}
+                      value={approximateDate}
+                      onPress={handleActivityPerFromDate}
+                    />
+                    {/* <View>
                       <Text style={{color: '#000'}}>{t('add_picture')}</Text>
                       <TouchableOpacity
                         style={styles.takePhotoContainer}
@@ -614,7 +567,7 @@ const PostNew = props => {
                           style={{width: 30, height: 30}}
                         />
                       </TouchableOpacity>
-                    </View>
+                    </View> */}
                   </>
                 )}
               </View>
@@ -652,15 +605,6 @@ const styles = StyleSheet.create({
   },
   fromContainer: {
     flex: 1,
-    backgroundColor: 'white',
-    // padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    // marginVertical: 10,
-
-    // zIndex: 999,
-    // position: 'absolute',
   },
   takePhotoContainer: {
     borderWidth: 0.5,

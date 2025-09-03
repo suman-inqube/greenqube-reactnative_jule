@@ -16,7 +16,12 @@ import {useDrawerStatus} from '@react-navigation/drawer';
 import {useTranslation} from 'react-i18next';
 const DASHBOARD_TITLE = 'Dashboard';
 const DAILY_SALES_TITLE = 'Daily Sales Report';
-const TITLES_WITHOUT_FILTER = [DASHBOARD_TITLE, DAILY_SALES_TITLE];
+const FARMER_DASHBOARD_TITLE = 'FarmerDashboard';
+const TITLES_WITHOUT_FILTER = [
+  DASHBOARD_TITLE,
+  DAILY_SALES_TITLE,
+  FARMER_DASHBOARD_TITLE,
+];
 const IMAGES = {
   back: require('../Common/images/back.png'),
   logo: require('../Common/images/logo.png'),
@@ -164,7 +169,7 @@ const CustomHeader = memo(
         FarmerReport: t('farmer_report'),
         SalesDetail: t('sales_detail'),
         FarmerInputList: t('products'),
-        FarmerDashboard: '',
+        FarmerDashboard: 'FarmerDashboard',
         FarmerProfile: t('farmer_profile'),
       }),
       [t],
@@ -174,7 +179,10 @@ const CustomHeader = memo(
       [titleMap, route.name],
     );
     console.log('Screen-', route.name);
-    const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
+    const isDashboard = useMemo(
+      () => title === DASHBOARD_TITLE || title === FARMER_DASHBOARD_TITLE,
+      [title],
+    );
     const showFilter = useMemo(
       () => !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
       [title, filterOptionShow],

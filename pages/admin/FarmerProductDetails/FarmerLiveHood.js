@@ -9,7 +9,13 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, {useState, useEffect, useContext, useRef} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from 'react';
 import {
   problemPlotAgainstFarmerAPI,
   ProductionSeasonAndApi,
@@ -54,8 +60,6 @@ import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -94,7 +98,7 @@ const FarmerLiveHood = ({
   const [plotAll, setplotAll] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statuslevel, setstatuslevel] = useState({label: '', value: ''});
-  const [farmerData, setfarmerData] = useState({
+  const [farmerData, setFarmerData] = useState({
     createdBy: '',
     plot_no: '',
     cu_rel_id: '',
@@ -354,29 +358,10 @@ const FarmerLiveHood = ({
     return true;
   };
   useEffect(() => {
-    RemoveFarmerData();
-    setPolygons([]);
-    if (isFocused) {
-      setUserData('');
-      onPageLoad();
-      onBackPress(handleBackPress);
-      setLocation([
-        {latitude: '', longitude: ''},
-        // {latitude: '', longitude: ''},
-        // {latitude: '', longitude: ''},
-      ]);
-      setAddressProof([
-        {uri: '', name: '', type: '', fileName: '', id: ''},
-        {uri: '', name: '', type: '', fileName: '', id: ''},
-        {uri: '', name: '', type: '', fileName: '', id: ''},
-        {uri: '', name: '', type: '', fileName: '', id: ''},
-        {uri: '', name: '', type: '', fileName: '', id: ''},
-      ]);
-      setPhotoDeletedValue([]);
-    }
-  }, [isFocused]);
+    onPageLoad();
+  }, []);
   const RemoveFarmerData = () => {
-    setfarmerData({
+    setFarmerData({
       ...farmerData,
       createdBy: '',
       plot_no: '',
@@ -432,9 +417,9 @@ const FarmerLiveHood = ({
     setHarvested(data);
     setEdit('');
     if (data === 'same produce') {
-      setfarmerData({...farmerData, cycleStartDate: '', cycleEndDate: ''});
+      setFarmerData({...farmerData, cycleStartDate: '', cycleEndDate: ''});
     } else {
-      setfarmerData({
+      setFarmerData({
         ...farmerData,
         productionSeason: '',
         productionSeasonValue: '',
@@ -461,11 +446,11 @@ const FarmerLiveHood = ({
   };
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
-    setfarmerData({...farmerData, cycleStartDate: effective_date});
+    setFarmerData({...farmerData, cycleStartDate: effective_date});
   };
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
-    setfarmerData({...farmerData, cycleEndDate: effective_date});
+    setFarmerData({...farmerData, cycleEndDate: effective_date});
   };
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
@@ -493,7 +478,7 @@ const FarmerLiveHood = ({
       if (filteredDatalatLong.length >= 3) {
         setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
         // setArea(calculatePolygonArea(filteredDatalatLong).toFixed(3));
-        setfarmerData({
+        setFarmerData({
           ...farmerData,
           google_area: geolib.getAreaOfPolygon(filteredDatalatLong),
         });
@@ -525,7 +510,7 @@ const FarmerLiveHood = ({
           }
         });
       }
-      setfarmerData({
+      setFarmerData({
         ...farmerData,
         [name]: item.label,
         [value]: item.value,
@@ -534,7 +519,7 @@ const FarmerLiveHood = ({
           Number(selectUnitValue) * Number(farmerData.land_size),
       });
     } else {
-      setfarmerData({...farmerData, [name]: item.label, [value]: item.value});
+      setFarmerData({...farmerData, [name]: item.label, [value]: item.value});
       if (name === 'terrainType') {
         livelihoodTypeAPI(dbname, lan_id, item.value, '');
       }
@@ -546,11 +531,11 @@ const FarmerLiveHood = ({
       }
     }
   };
-  const handleAddDataproductionSeason = (item, name, value) => {
-    setfarmerData({
-      ...farmerData,
-      [name]: item.label,
-      [value]: item.value,
+  const handleAddDataproductionSeason = useCallback(item => {
+    setFarmerData(prev => ({
+      ...prev,
+      productionSeason: item.label,
+      productionSeasonValue: item.value,
       livelihoodType: '',
       livelihoodTypeValue: '',
       produceName: '',
@@ -559,39 +544,61 @@ const FarmerLiveHood = ({
       produceVarietyValue: '',
       productionProcess: '',
       productionProcessValue: '',
-    });
-  };
-  const handleAddDatalivelihoodType = async (item, name, value) => {
-    setfarmerData({
-      ...farmerData,
-      [name]: item.label,
-      [value]: item.value,
+    }));
+  }, []);
+  const handleAddDatalivelihoodType = useCallback(async item => {
+    setFarmerData(prev => ({
+      ...prev,
+      livelihoodType: item.label,
+      livelihoodTypeValue: item.value,
       produceName: '',
       produceNameValue: '',
       produceVariety: '',
       produceVarietyValue: '',
-    });
+    }));
     if (name === 'livelihoodType') {
       livelihoodTypeAPI(dbname, lan_id, item.value, '');
     }
-  };
-  const handleAddDataproduceName = async (item, name, value) => {
-    setfarmerData({
-      ...farmerData,
-      [name]: item.label,
-      [value]: item.value,
+  }, []);
+  const handleAddDataproduceName = useCallback(item => {
+    setFarmerData(prev => ({
+      ...prev,
+      produceName: item.label,
+      produceNameValue: item.value,
       produceVariety: '',
       produceVarietyValue: '',
-    });
-    if (name === 'produceName') {
-      produceNameAPI(
-        dbname,
-        lan_id,
-        farmerData.livelihoodTypeValue,
-        item.value,
-      );
-    }
-  };
+    }));
+    // if (name === 'produceName') {
+    produceNameAPI(dbname, lan_id, farmerData.livelihoodTypeValue, item.value);
+    // }
+  }, []);
+  const handleAddDataproduceVariety = useCallback(item => {
+    setFarmerData(prev => ({
+      ...prev,
+      produceVariety: item.label,
+      produceVarietyValue: item.value,
+    }));
+    produceVarietyAPI(dbname, lan_id);
+  }, []);
+  const handleAddDataProductionProcess = useCallback(item => {
+    setFarmerData(prev => ({
+      ...prev,
+      productionProcess: item.label,
+      productionProcessValue: item.value,
+    }));
+    productionProcessAPI(dbname, lan_id);
+  }, []);
+  const handleAddUserDataExpected = useCallback(text => {
+    setFarmerData(prev => ({...prev, expectedProduction: text}));
+  }, []);
+  const handleAddDataUnitProduct = useCallback(item => {
+    const {label, value} = item;
+    setFarmerData(prev => ({
+      ...prev,
+      unitProduct: label,
+      unitProductValue: value,
+    }));
+  }, []);
   const terraintype_resAPI = async axiosConfig => {
     try {
       let terraintype_res = await axios.get(config.terraintypeAPI, axiosConfig);
@@ -639,7 +646,7 @@ const FarmerLiveHood = ({
       let landunitAPI = await axios.get(config.landunitAPI, axiosConfig);
       if (landunitAPI?.status == 200) {
         if (landunitAPI.data.data.count > 0) {
-          setfarmerData({
+          setFarmerData({
             ...farmerData,
             unit_valueArr: JSON.stringify(landunitAPI.data.data.rows),
           });
@@ -1131,7 +1138,7 @@ const FarmerLiveHood = ({
       }
     }
   }, [plotSiteUserLandDetails]);
-  const handlePlot = async findData => {
+  const handlePlot = useCallback(async findData => {
     setIsLoading(true);
     setHarvested('');
     setPhotoDeletedValue([]);
@@ -1173,13 +1180,14 @@ const FarmerLiveHood = ({
       );
 
       if (filteredSignature.length > 0) {
-        setSignature({
+        setSignature(prev => ({
+          ...prev,
           uri: filteredSignature[filteredSignature.length - 1]?.file_path,
           name: filteredSignature[filteredSignature.length - 1]?.file_name,
           type: filteredSignature[filteredSignature.length - 1]?.file_ext,
           fileName: filteredSignature[filteredSignature.length - 1]?.file_name,
           id: filteredSignature[filteredSignature.length - 1]?.file_id,
-        });
+        }));
       }
       addressProof.map((_data, _index) => {
         if (filteredPlotImages[_index] !== undefined && count > 0) {
@@ -1291,8 +1299,8 @@ const FarmerLiveHood = ({
           } else {
             setArea(data.land_info?.google_area);
           }
-          setfarmerData({
-            ...farmerData,
+          setFarmerData(prev => ({
+            ...prev,
             createdBy: owner?.user_id,
             plot_no: data?.land_info?.plot_no,
             cu_rel_id: data?.cu_rel_id,
@@ -1335,7 +1343,7 @@ const FarmerLiveHood = ({
             ConvertedreportedLandsize:
               Number(dataLandDetails?.land_unit?.defined_unit_value) *
               Number(dataLandDetails?.land_size),
-          });
+          }));
           return;
         }
       });
@@ -1470,7 +1478,7 @@ const FarmerLiveHood = ({
       setProductionSeason(productSeasonresResArr);
       setLivelihoodType(livelihoodTypeArr);
     }
-  };
+  }, []);
   const handleUserData = async () => {
     setOutofRange(false);
     setUserData('addUserData');
@@ -1486,15 +1494,77 @@ const FarmerLiveHood = ({
     setstatuslevel({label: '', value: ''});
   };
   const handleAddUserData = (name, data) => {
-    setfarmerData({...farmerData, [`${name}`]: data});
+    setFarmerData(prev => ({...prev, [`${name}`]: data}));
   };
-  const handleAddUserDataland_size = (name, data) => {
-    setfarmerData({
-      ...farmerData,
-      [`${name}`]: data,
-      ConvertedreportedLandsize: Number(farmerData.unit_value) * Number(data),
-    });
-  };
+  const handleAddUserDataland_size = useCallback(
+    text => {
+      setFarmerData(prev => ({
+        ...prev,
+        land_size: text,
+        ConvertedreportedLandsize: Number(prev.unit_value) * Number(text),
+      }));
+    },
+    [farmerData.unit],
+  );
+  const handleAddDataUnit = useCallback(
+    item => {
+      const {label, value} = item;
+      let selectUnitValue = '';
+      if (farmerData.unit_valueArr != '') {
+        JSON.parse(farmerData.unit_valueArr).map((data, index) => {
+          if (item.value === data?.fid) {
+            selectUnitValue = data.unit_value;
+          }
+        });
+      }
+      setFarmerData(prev => ({
+        ...prev,
+        unitProduct: label,
+        unitProductValue: value,
+        ['unit_value']: selectUnitValue,
+        ConvertedreportedLandsize:
+          Number(selectUnitValue) * Number(farmerData.land_size),
+      }));
+    },
+    [farmerData.land_size],
+  );
+  const handleAddUserDataPlot = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['plot_Site_Name']: text}));
+  }, []);
+  const handleAddUserDataDaag = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['daag_no']: text}));
+  }, []);
+  const handleAddUserDataKKhatian = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['khatian_no']: text}));
+  }, []);
+  const handleAddUserDataPlanNumber = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['plant_number']: text}));
+  }, []);
+  const handleAddDataTerrainType = useCallback(item => {
+    const {label, value} = item;
+    setFarmerData(prev => ({
+      ...prev,
+      terrainType: label,
+      terrainTypeValue: value,
+    }));
+    livelihoodTypeAPI(dbname, lan_id, value, '');
+  }, []);
+  const handleAddDataLandType = useCallback(item => {
+    const {label, value} = item;
+    setFarmerData(prev => ({
+      ...prev,
+      landType: label,
+      landTypeValue: value,
+    }));
+  }, []);
+  const handleAddDataSoilType = useCallback(item => {
+    const {label, value} = item;
+    setFarmerData(prev => ({
+      ...prev,
+      soilType: label,
+      soilTypeValue: value,
+    }));
+  }, []);
   const HandlerGoBack = () => {
     navigation.navigate('FarmerDashboard');
   };
@@ -1556,7 +1626,7 @@ const FarmerLiveHood = ({
       setEditing(false);
       setShowModal(false);
       // setArea(calculatePolygonArea(newPolygon).toFixed(3));
-      setfarmerData({
+      setFarmerData({
         ...farmerData,
         google_area: geolib.getAreaOfPolygon(newPolygon),
       });
@@ -1575,7 +1645,7 @@ const FarmerLiveHood = ({
       setEditing(false);
       setShowModal(false);
       // setArea(calculatePolygonArea(newPolygon).toFixed(3));
-      setfarmerData({
+      setFarmerData({
         ...farmerData,
         google_area: geolib.getAreaOfPolygon(newPolygon),
       });
@@ -1614,7 +1684,7 @@ const FarmerLiveHood = ({
     }
   };
   const clearNewPolygon = () => {
-    setfarmerData({...farmerData, google_area: 0});
+    setFarmerData({...farmerData, google_area: 0});
     if (userData == 'addUserData' || addPlot == true) {
       setNewPolygon([]);
       // setPolygons([]);
@@ -1705,47 +1775,26 @@ const FarmerLiveHood = ({
       console.error(err);
     }
   };
-  const handleDocumentSelectionRemove = async index => {
-    const values = [...addressProof];
-    const photoId = values[index]?.id;
-    values[index]['uri'] = '';
-    values[index]['name'] = '';
-    values[index]['type'] = '';
-    values[index]['fileName'] = '';
-    values[index]['value'] = '1';
-    values[index]['id'] = '';
-    values[index]['file_path'] = '';
-    values[index]['file_name'] = '';
-    setAddressProof(values);
-    if (photoId && photoId !== undefined && photoId !== '') {
-      // setPhotoDeletedValue(prev => [...prev, photoId]);
-      let formDataDelete = qs.stringify({
-        file_delete_ids: photoId?.toString(),
-      });
-      const [deletePlotImageAPIRes] = await Promise.all([
-        deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
-      ]);
-    }
-  };
-  const handleIOTId = async (itemName, text) => {
+
+  const handleIOTId = useCallback(async text => {
     try {
-      setfarmerData({...farmerData, IOTId: text});
+      setFarmerData(prev => ({...prev, IOTId: text}));
     } catch (error) {
       console.log('Error in handleIOTId', error);
     }
-  };
-  const handleCurrentLatLongIOT = async () => {
+  }, []);
+  const handleCurrentLatLongIOT = useCallback(async () => {
     try {
-      const {latitude, longitude} = coords;
-      setfarmerData({
-        ...farmerData,
-        IOTLatlat: latitude,
-        IOTLatLong: longitude,
-      });
+      const {latitude, longitude} = coords || {};
+      setFarmerData(prev => ({
+        ...prev,
+        IOTLatlat: longitude,
+        IOTLatLong: latitude,
+      }));
     } catch (error) {
       console.log('Error in handleCurrentLatLongIOT', error);
     }
-  };
+  }, []);
   const regionRef = useRef(null); // stores the current map region
   const timeoutRef = useRef(null); // timeout controller
   const isEqualCoordinatesArray = (arr1, arr2) => {
@@ -1928,7 +1977,7 @@ const FarmerLiveHood = ({
               label={t('addland_select_plot')}
               required={true}
               value={farmerData.plot_Site_Name}
-              onChangeText={text => handleAddUserData('plot_Site_Name', text)}
+              onChangeText={handleAddUserDataPlot}
             />
           ) : dataProps?.plot_no != undefined ? (
             <InputTextForm
@@ -1936,14 +1985,14 @@ const FarmerLiveHood = ({
               required={true}
               editable={false}
               value={farmerData.plot_Site_Name}
-              onChangeText={text => handleAddUserData('plot_Site_Name', text)}
+              onChangeText={handleAddUserDataPlot}
             />
           ) : (
             <DropdownForm
               label={t('addland_select_plot')}
               required={true}
               data={plotAll}
-              onChange={relId => handlePlot(relId)}
+              onChange={handlePlot}
               val={farmerData.plot_Site_Name}
             />
           )}
@@ -1951,20 +2000,20 @@ const FarmerLiveHood = ({
           <InputTextForm
             label={t('daag_no')}
             value={farmerData.daag_no}
-            onChangeText={text => handleAddUserData('daag_no', text)}
+            onChangeText={handleAddUserDataDaag}
             editable={InputTextFormEdit}
           />
           <InputTextForm
             label={t('khatian_no')}
             value={farmerData.khatian_no}
-            onChangeText={text => handleAddUserData('khatian_no', text)}
+            onChangeText={handleAddUserDataKKhatian}
             editable={InputTextFormEdit}
           />
 
           <InputTextForm
             label={t('no_of_plants')}
             value={farmerData.plant_number}
-            onChangeText={text => handleAddUserData('plant_number', text)}
+            onChangeText={handleAddUserDataPlanNumber}
             editable={InputTextFormEdit}
           />
 
@@ -1973,26 +2022,20 @@ const FarmerLiveHood = ({
             required={true}
             data={terrainTypeAll}
             val={farmerData.terrainType}
-            onChange={item => {
-              handleAddData(item, 'terrainType', 'terrainTypeValue');
-            }}
+            onChange={handleAddDataTerrainType}
           />
           <DropdownForm
             label={t('select_land_type')}
             required={true}
             data={landTypeAll}
-            onChange={item => {
-              handleAddData(item, 'landType', 'landTypeValue');
-            }}
+            onChange={handleAddDataLandType}
             val={farmerData.landType}
           />
           <DropdownForm
             label={t('addland_soil_type_dv')}
             required={true}
             data={soilTypeAll}
-            onChange={item => {
-              handleAddData(item, 'soilType', 'soilTypeValue');
-            }}
+            onChange={handleAddDataSoilType}
             val={farmerData.soilType}
           />
           <View style={styles.plotSiteUnit}>
@@ -2001,9 +2044,7 @@ const FarmerLiveHood = ({
                 label={t('pre_land_size')}
                 required={true}
                 value={farmerData.land_size}
-                onChangeText={text =>
-                  handleAddUserDataland_size('land_size', text)
-                }
+                onChangeText={handleAddUserDataland_size}
                 editable={
                   statuslevel.label == 'APPROVED' ||
                   statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
@@ -2019,9 +2060,7 @@ const FarmerLiveHood = ({
                 label={t('select_unit')}
                 required={true}
                 data={unitAll}
-                onChange={item => {
-                  handleAddData(item, 'unit', 'unitValue');
-                }}
+                onChange={handleAddDataUnit}
                 val={farmerData.unit}
                 disable={
                   statuslevel.label == 'APPROVED' ||
@@ -2052,7 +2091,7 @@ const FarmerLiveHood = ({
           <View style={{marginTop: 10}}>
             <InputTextForm
               label={t('Enter IOT Device Id')}
-              onChangeText={text => handleIOTId('IOTId', text)}
+              onChangeText={handleIOTId}
               value={farmerData.IOTId}
             />
           </View>
@@ -2096,7 +2135,7 @@ const FarmerLiveHood = ({
               <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
               <Image
                 source={require('../../Common/images/location.png')}
-                style={{width: 40, height: 40}}
+                style={{ width: 40, height: 40 }}
                 resizeMode="contain"
               />
             </View>
@@ -2218,13 +2257,7 @@ const FarmerLiveHood = ({
             label={t('addcrop_select_cultivating_season')}
             required={true}
             data={productionSeason}
-            onChange={item => {
-              handleAddDataproductionSeason(
-                item,
-                'productionSeason',
-                'productionSeasonValue',
-              );
-            }}
+            onChange={handleAddDataproductionSeason}
             val={farmerData.productionSeason}
             disable={
               edit == '' ? (harvested == 'same produce' ? true : false) : edit
@@ -2234,13 +2267,7 @@ const FarmerLiveHood = ({
             label={t('addcrop_croptype')}
             required={true}
             data={livelihoodType}
-            onChange={item => {
-              handleAddDatalivelihoodType(
-                item,
-                'livelihoodType',
-                'livelihoodTypeValue',
-              );
-            }}
+            onChange={handleAddDatalivelihoodType}
             val={farmerData.livelihoodType}
             disable={
               edit == '' ? (harvested == 'same produce' ? true : false) : edit
@@ -2250,9 +2277,7 @@ const FarmerLiveHood = ({
             label={t('crop_name')}
             required={true}
             data={produceName}
-            onChange={item => {
-              handleAddDataproduceName(item, 'produceName', 'produceNameValue');
-            }}
+            onChange={handleAddDataproduceName}
             val={farmerData.produceName}
             disable={
               edit == '' ? (harvested == 'same produce' ? true : false) : edit
@@ -2262,9 +2287,7 @@ const FarmerLiveHood = ({
             label={t('crop_veriety')}
             required={true}
             data={produceVariety}
-            onChange={item => {
-              handleAddData(item, 'produceVariety', 'produceVarietyValue');
-            }}
+            onChange={handleAddDataproduceVariety}
             val={farmerData.produceVariety}
             disable={
               edit == '' ? (harvested == 'same produce' ? true : false) : edit
@@ -2274,13 +2297,7 @@ const FarmerLiveHood = ({
             label={t('production_system')}
             required={true}
             data={productionProcess}
-            onChange={item => {
-              handleAddData(
-                item,
-                'productionProcess',
-                'productionProcessValue',
-              );
-            }}
+            onChange={handleAddDataProductionProcess}
             val={farmerData.productionProcess}
             disable={edit}
           />
@@ -2290,9 +2307,7 @@ const FarmerLiveHood = ({
                 label={`${t('expected_yield')}`}
                 required={true}
                 value={farmerData.expectedProduction}
-                onChangeText={text =>
-                  handleAddUserData('expectedProduction', text)
-                }
+                onChangeText={handleAddUserDataExpected}
                 // editable={
                 //   edit == ''
                 //     ? harvested == 'same produce'
@@ -2307,9 +2322,7 @@ const FarmerLiveHood = ({
                 label={`${t('select_unit_input')}`}
                 required={true}
                 data={productionUnit}
-                onChange={item => {
-                  handleAddData(item, 'unitProduct', 'unitProductValue');
-                }}
+                onChange={handleAddDataUnitProduct}
                 val={farmerData.unitProduct}
                 // disable={
                 //   edit == ''

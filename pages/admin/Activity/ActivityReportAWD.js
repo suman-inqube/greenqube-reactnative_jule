@@ -1217,46 +1217,13 @@ const ActivityReportAWD = ({ navigation }) => {
     const { pipeFiles, pipeLatLong, label, value } = _item || {};
     setselectPipeList(prev => ({ ...prev, label, value }));
   }, []);
-  const requestLivePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        Geolocation.getCurrentPosition(data =>
-          setSaveData({
-            ...saveData,
-            latitude: data.coords.latitude,
-            longitude: data.coords.longitude,
-          }),
-        );
-      } else {
-        console.log('Location permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
   const onPageLoad = async () => {
     try {
-      setSaveData({ ...saveData, act_pattern: 'schedule' });
+      setSaveData(prev => ({
+        ...prev, act_pattern: 'schedule', latitude: coords.latitude,
+        longitude: coords.longitude,
+      }));
       setisActiveMenu(true);
-      requestLivePermission();
-      // if (isOnline) {
-      //   var response = await farmerByNameAPI(dbname, lan_id, token, user_id);
-      //   await setItem('farmerByNameAPI', response);
-      // } else {
-      //   var response = await getItem('farmerByNameAPI');
-      // }
-      // if (response) {
-      //   setIsLoading(false);
-      //   const dataArray = response?.data?.data?.rows.map(data => ({
-      //     value: data.user_id,
-      //     label: data.userName,
-      //     phone: data.contactNumber,
-      //   }));
-      //   setfarmerData(dataArray);
-      // }
     } catch (error) {
       CrashlyticsRecordError(
         error,
@@ -1673,11 +1640,11 @@ const ActivityReportAWD = ({ navigation }) => {
                   handleHarvested={handleHarvested}
                 />
               )}
-                {isLoading && (
-                  <View style={styles.loadingScreen}>
-                    <LoadingScreen />
-                  </View>
-                )}
+              {isLoading && (
+                <View style={styles.loadingScreen}>
+                  <LoadingScreen />
+                </View>
+              )}
               <ScrollView>
                 <View style={styles.fromContainer}>
                   <DropdownForm
@@ -1871,9 +1838,9 @@ const ActivityReportAWD = ({ navigation }) => {
                         </View>
                       ) : null}
                       {saveData.field_type != '' &&
-                      // activityPattern
+                        // activityPattern
                         saveData.field_type != null && (
-                          <View style={{borderWidth:0.5, borderColor:Colors.useGreen, borderRadius:8, padding:10,}}>
+                          <View style={{ borderWidth: 0.5, borderColor: Colors.useGreen, borderRadius: 8, padding: 10, }}>
                             <Text
                               style={[
                                 styles.title,

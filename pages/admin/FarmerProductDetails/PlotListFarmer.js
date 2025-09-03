@@ -8,9 +8,9 @@ import {
   Image,
   Animated,
   Dimensions,
-  Modal,InteractionManager,BackHandler
+  Modal, InteractionManager, BackHandler
 } from 'react-native';
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
 const { width } = Dimensions.get('window');
 import CollapsibleCard from '../../Common/CollapsibleCard';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -126,16 +126,20 @@ const PlotListFarmer = () => {
       setRefreshing(false);
     }, 2000);
   };
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        t={t}
+      />
+    ),
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <>
         <Root>
           <View style={styles.container}>
-            <View style={{ width: '100%' }}>
-              <CustomHeader path="userList" HandlerGoBack={HandlerGoBack} />
-            </View>
-            {/* Tab Bar */}
-
+            {renderCustomHeader}
             <TabBar
               tabs={['Plot Status', 'Plot Add and Edit']}
               activeTab={activeTab}
@@ -151,10 +155,10 @@ const PlotListFarmer = () => {
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
-               onScroll={Animated.event(
-                        [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-                        {useNativeDriver: false},
-                      )}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
+                { useNativeDriver: false },
+              )}
               onMomentumScrollEnd={event => {
                 const index = Math.round(
                   event.nativeEvent.contentOffset.x / width,
@@ -213,7 +217,7 @@ const PlotListFarmer = () => {
                   distanceToEdge={{ vertical: 80, horizontal: 25 }}
                 />
               </>
-            ) :  null}
+            ) : null}
           </View>
         </Root>
       </>

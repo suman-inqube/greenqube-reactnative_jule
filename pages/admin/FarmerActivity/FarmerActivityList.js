@@ -59,7 +59,7 @@ const FarmerActivityList = ({ navigation }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const [filterItem, setFilterItem] = useState('');
-  const filterOptionShow = async () => {
+  const filterOptionShow = useCallback(async () => {
     const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['', '', 'date', 'carbon'],
@@ -81,7 +81,7 @@ const FarmerActivityList = ({ navigation }) => {
       navigationBarHeight: navigationBarHeight,
       height: 150,
     });
-  };
+  }, [fromDate, toDate, filterItem]);
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
