@@ -1,4 +1,4 @@
-import React, {lazy, useEffect, memo, useCallback, useMemo} from 'react';
+import React, { lazy, useEffect, memo, useCallback, useMemo } from 'react';
 import {
   TouchableOpacity,
   Image,
@@ -9,14 +9,15 @@ import {
   Platform,
 } from 'react-native';
 const ImageForm = lazy(() => import('../Common/ImageForm'));
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {goBack} from '../utils/NavigationUtils';
-import {Colors, Fonts} from '../utils/Constants';
-import {useDrawerStatus} from '@react-navigation/drawer';
-import {useTranslation} from 'react-i18next';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { goBack } from '../utils/NavigationUtils';
+import { Colors, Fonts } from '../utils/Constants';
+import { useDrawerStatus } from '@react-navigation/drawer';
+import { useTranslation } from 'react-i18next';
 const DASHBOARD_TITLE = 'Dashboard';
 const DAILY_SALES_TITLE = 'Daily Sales Report';
-const TITLES_WITHOUT_FILTER = [DASHBOARD_TITLE, DAILY_SALES_TITLE];
+const FARMER_DASHBOARD_TITLE = 'FarmerDashboard';
+const TITLES_WITHOUT_FILTER = [DASHBOARD_TITLE, DAILY_SALES_TITLE, FARMER_DASHBOARD_TITLE];
 const IMAGES = {
   back: require('../Common/images/back.png'),
   logo: require('../Common/images/logo.png'),
@@ -25,13 +26,13 @@ const IMAGES = {
   fourDot: require('../Common/images/4dot.png'),
   dashboard: require('../Common/images/dashboard.jpeg'),
 };
-const BackButton = memo(({onPress}) => (
+const BackButton = memo(({ onPress }) => (
   <TouchableOpacity onPress={onPress}>
     <Image source={IMAGES.back} resizeMode="contain" style={styles.backIcon} />
   </TouchableOpacity>
 ));
 
-const LogoImage = memo(({isDashboard}) => (
+const LogoImage = memo(({ isDashboard }) => (
   <Image
     source={isDashboard ? IMAGES.logo : IMAGES.logoIcon}
     style={isDashboard ? styles.dashboardLogo : styles.regularLogo}
@@ -39,16 +40,16 @@ const LogoImage = memo(({isDashboard}) => (
   />
 ));
 
-const RoundButton = memo(({onPress, imageSource, style}) => (
+const RoundButton = memo(({ onPress, imageSource, style }) => (
   <TouchableOpacity style={[styles.roundButton, style]} onPress={onPress}>
     <Image source={imageSource} style={styles.buttonIcon} />
   </TouchableOpacity>
 ));
 
-const CompanyLogo = memo(({logoImage}) => (
+const CompanyLogo = memo(({ logoImage }) => (
   <View style={styles.companyLogoContainer}>
     <ImageForm
-      source={{uri: logoImage}}
+      source={{ uri: logoImage }}
       resizeMode="contain"
       height={50}
       width={50}
@@ -56,10 +57,10 @@ const CompanyLogo = memo(({logoImage}) => (
   </View>
 ));
 
-const BannerImage = memo(({topBanner}) =>
+const BannerImage = memo(({ topBanner }) =>
   topBanner ? (
     <ImageForm
-      source={{uri: topBanner}}
+      source={{ uri: topBanner }}
       resizeMode="cover"
       height={200}
       width="100%"
@@ -80,7 +81,7 @@ const CustomHeader = memo(
     filterOptionShow,
   }) => {
     const drawerStatus = useDrawerStatus();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
     const navigation = useNavigation();
     const route = useRoute();
     const titleMap = useMemo(
@@ -164,7 +165,7 @@ const CustomHeader = memo(
         FarmerReport: t('farmer_report'),
         SalesDetail: t('sales_detail'),
         FarmerInputList: t('products'),
-        FarmerDashboard: '',
+        FarmerDashboard: 'FarmerDashboard',
       }),
       [t],
     );
@@ -173,7 +174,7 @@ const CustomHeader = memo(
       [titleMap, route.name],
     );
     console.log('Screen-', route.name);
-    const isDashboard = useMemo(() => title === DASHBOARD_TITLE, [title]);
+    const isDashboard = useMemo(() => title === DASHBOARD_TITLE || title === FARMER_DASHBOARD_TITLE, [title]);
     const showFilter = useMemo(
       () => !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
       [title, filterOptionShow],
@@ -225,7 +226,9 @@ const CustomHeader = memo(
             {!isDashboard && <Text style={styles.titleText}>{title}</Text>}
           </View>
           <View style={styles.rightSection}>
-            {logoImage && isDashboard && <CompanyLogo logoImage={logoImage} />}
+            {logoImage && isDashboard &&
+              <CompanyLogo logoImage={logoImage} />
+            }
 
             {showFilter && (
               <RoundButton

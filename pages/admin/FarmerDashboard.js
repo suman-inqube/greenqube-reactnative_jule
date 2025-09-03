@@ -17,10 +17,8 @@ import {
   InteractionManager,
   SafeAreaView,
   Animated,
-  RefreshControl,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import {userCreateContext} from '../Context/usersCreateContext';
 import {addModuleForView} from '../../config/apiHere';
@@ -35,10 +33,8 @@ import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import TrackingInfromation from '../Components/TrackingInfromation';
-// import DeviceInfo from 'react-native-device-info';
 const HEADER_HEIGHT = 60;
 const FarmerDashboard = ({navigation}) => {
-  //GQR-65
   const {
     getItem,
     t,
@@ -46,14 +42,10 @@ const FarmerDashboard = ({navigation}) => {
     DeviceInfo,
     logoImage,
     topBanner,
-    loginUser_data,
-    setItem,
+    loginUser_data
   } = useContext(userCreateContext) || {};
-  const {dbname, lan_id, token, user_id, agri_user_addresses} =
-    loginUser_data || {};
-
+  const {dbname, lan_id, token, user_id, agri_user_addresses} =loginUser_data || {};
   const [refreshing, setRefreshing] = useState(false);
-
   const [isLoading, setIsLoading] = useState(true);
   const {
     headerTranslateY,
@@ -261,10 +253,8 @@ const FarmerDashboard = ({navigation}) => {
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
     });
-    return () => task.cancel(); // cleanup
+    return () => task.cancel();
   }, []);
-
-  const HandlerGoBack = () => exit();
   const exit = () => {
     Alert.alert(
       `${t('app_name')}`,
@@ -286,10 +276,6 @@ const FarmerDashboard = ({navigation}) => {
     } else {
       Alert.alert('Company website not found');
     }
-  };
-
-  const handleInfoPress = itemId => {
-    navigation.navigate('FarmerActivityDetail', itemId);
   };
 
   const [uiState, setUiState] = useState({
@@ -379,6 +365,17 @@ const FarmerDashboard = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
+    const renderCustomHeader = useMemo(
+      () => (
+        <CustomHeader
+          path="exit"
+          HandlerGoBack={exit}
+          logoImage={uiState.logoImg}
+          t={t}
+        />
+      ),
+      [],
+    );
   return (
     <FarmerDrawerScreenWrapper1>
       <SafeAreaView style={styles.container}>
@@ -391,12 +388,7 @@ const FarmerDashboard = ({navigation}) => {
                 styles.header,
                 {transform: [{translateY: headerTranslateY}]},
               ]}>
-              <CustomHeader
-                path="exit"
-                HandlerGoBack={exit}
-                // logoImage={uiState.logoImg}
-                t={t}
-              />
+              {renderCustomHeader}
             </Animated.View>
 
             <Animated.View
@@ -453,18 +445,6 @@ const FarmerDashboard = ({navigation}) => {
                 data={[]} // everything in header
                 keyExtractor={(item, index) => index.toString()}
                 alwaysBounceVertical={true}
-                // refreshControl={
-                //   <RefreshControl
-                //     refreshing={refreshing}
-                //     onRefresh={onRefresh}
-                //     colors={['#003c04']}
-                //     tintColor={'#003c04'}
-                //     // progressViewOffset={50} // push down if header exists
-                //     progressViewOffset={
-                //       Platform.OS === 'android' ? HEADER_HEIGHT + 200 : 100
-                //     }
-                //   />
-                // }
                 removeClippedSubviews={true}
                 initialNumToRender={1}
                 maxToRenderPerBatch={2}

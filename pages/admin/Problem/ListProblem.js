@@ -3,14 +3,8 @@ import {
   Text,
   View,
   FlatList,
-  Image,
   TouchableOpacity,
   SafeAreaView,
-  Animated,
-  Easing,
-  Dimensions,
-  Keyboard,
-  BackHandler,
   RefreshControl,
 } from 'react-native';
 import React, {
@@ -18,11 +12,9 @@ import React, {
   useEffect,
   useContext,
   useCallback,
-  useRef,
-  memo,
-  useMemo
+  useMemo, useRef
 } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { Colors, Fonts } from '../../utils/Constants';
 import { ROUTES } from '../../utils/Routes';
@@ -33,49 +25,33 @@ import { getActionsProblemSupervisor } from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import FloatingActionButton from '../../Components/FloatingActionButton';
+import { AlertMesg } from '../../Common/ToastAlert';
 const ListProblem = ({ navigation }) => {
   //GQR-67
   const {
     dbLanTokUsr,
-    setdbLanTokUsr,
     loginUser_data,
     CustomHeader,
     t,
     getItem,
     setItem,
-    logoImage,
-    topBanner,
     Root,
     DeviceInfo,
     effective_dates,
     navigationBarHeight,
-    DatePickerComp,
-    Filter,
-    handleFilter,
-    handleResultSelect,
-    handlePageList,
     farmerData,
-    isOnline,
+    isOnline, Toast
   } = useContext(userCreateContext);
+  const route = useRoute();
+  const flatListRef = useRef(null);
   const { dbname, lan_id, token, user_id } = loginUser_data;
-  const { pageNo } = dbLanTokUsr;
   //GQR-67
-  const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [problemAll, setProblemAll] = useState([]);
-  const [problemAllRaw, setProblemAllRaw] = useState([]);
   const [filterItem, setFilterItem] = useState('');
-  const [filterOption, setFilterOption] = useState(false);
-  const [newFromDate, setnewFromDate] = useState(new Date());
-  const [newToDate, setnewToDate] = useState(new Date());
-  const [openFromDate, setOpenFromDate] = useState(false);
-  const [openToDate, setOpenToDate] = useState(false);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [fromDateFilter, setFromDateFilter] = useState('');
-  const [searchResultsList, setSearchResultsList] = useState(false);
   const [searchFarmerName, setSearchFarmerName] = useState({
     label: '',
     value: '',
@@ -84,8 +60,6 @@ const ListProblem = ({ navigation }) => {
     label: '',
     value: '',
   });
-  const [searchResults, setSearchResults] = useState([]);
-  const [filterName, setFilterName] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
@@ -132,21 +106,22 @@ const ListProblem = ({ navigation }) => {
       setProblemAll(rows);
       await setItem('problem_Data', response?.data);
       setIsLoading(false);
+      if (flatListRef.current) {
+        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
     } catch (error) {
       console.error('handleProblem error:', error);
     } finally {
       setIsLoading(false);
     }
   };
-  const filterDataRemove = () => {
-    setSearchFarmerPhone('');
-    setSearchFarmerName('');
-    setFilterItem('');
-    setFilterOption(false);
-    setProblemAll(problemAllRaw);
-    setSearchResultsList(false);
-  };
-
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+      setTotalPages(1);
+      handleProblem(1);
+    }
+  }, [route?.params]);
   useEffect(() => {
     handleProblem(page);
   }, [page]);
@@ -242,6 +217,7 @@ const ListProblem = ({ navigation }) => {
             {renderCustomHeader}
 
             <FlatList
+              ref={flatListRef}
               nestedScrollEnabled={true}
               data={isLoading ? Array.from({ length: 5 }) : problemAll}
               renderItem={({ item, index }) =>

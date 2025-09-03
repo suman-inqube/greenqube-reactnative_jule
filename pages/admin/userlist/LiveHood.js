@@ -1051,8 +1051,7 @@ const LiveHood = ({
     const locationArry = [];
     const latlongArr = [];
     if (location?.[0]?.editing == true && statuslevel.label != '') {
-      const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
+      const { latitude, longitude } = coords;
       const distances = previousPlotLatlong.map(p =>
         getDistance(p, { latitude, longitude }),
       );
@@ -1086,7 +1085,6 @@ const LiveHood = ({
       } else {
       }
     }
-    console.log(farmerData.plot_Site_Name, 'farmerDatafarmerDatafarmerData');
     location.map((data, index) => {
       if (data?.latitude != '' && data?.latitude != undefined) {
         locationArry.push('latitude');

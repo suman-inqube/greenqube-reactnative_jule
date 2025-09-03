@@ -23,7 +23,6 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
 import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const FarmerPostNew = props => {
   //GQR-67
   const {

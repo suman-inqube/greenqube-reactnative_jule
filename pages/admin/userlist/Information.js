@@ -609,7 +609,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
     setFarmerData(prev => ({ ...prev, pension_amount: pensionAmount }));
   }, []);
   const handleFrequencyChange = useCallback((frequency) => {
-    setFarmerData(prev => ({ ...prev, frequency: frequency }));
+    setFarmerData(prev => ({ ...prev, frequency: frequency.value }));
   }, []);
   const handleCompanyNameChange = useCallback((companyName) => {
     setFarmerData(prev => ({ ...prev, company_name: companyName }));

@@ -11,7 +11,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import {
   farmerAgainstSupervisorAPI,
@@ -21,33 +21,30 @@ import {
   problemProduceAgainstPlotAPI,
   unitByListAPI,
 } from '../../../config/apiHere';
-import {useFocusEffect} from '@react-navigation/native';
-import {useIsFocused} from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import HarvestedModel from '../../Common/HarvestedModel';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 
-const WantToBuy = ({navigation}) => {
+const WantToBuy = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
     CustomHeader,
     t,
     AlertMesg,
-    onBackPress,
-    getItem,
     logoImage,
     topBanner,
     Root,
     Toast,
-    FormsTitle,
     effective_dates,
     InputTextForm,
     DropdownForm,
     ButtonFormBottom,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const unitFarm = [
     {
@@ -76,7 +73,7 @@ const WantToBuy = ({navigation}) => {
   });
   const [unitData, setUnitData] = useState([]);
   const [inputSingle, setInputSingle] = useState({});
-  const [saveData, setSaveData] = useState({created_at: ''});
+  const [saveData, setSaveData] = useState({ created_at: '' });
   const [searchResultsList, setSearchResultsList] = useState(false);
   const [formStep, setFormStep] = useState(1);
   const [farmerID, setfarmerID] = useState();
@@ -86,45 +83,29 @@ const WantToBuy = ({navigation}) => {
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleSearch = text => {
-    // console.log(text);
-    setShowingMenu(false);
-    setSearchFarmerName(text);
-    setSearchFarmerPhone('');
-    if (farmerData.length > 0) {
-      const result = farmerData.filter(item =>
-        item.label.toLowerCase().includes(text.toLowerCase()),
-      );
-      if (result) {
-        setSearchResultsList(true);
-        setSearchResults(result);
-      }
-    }
-  };
-
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
+  const handleResultSelect = useCallback(async (item) => {
+    const { label, phone, value } = item;
     setSearchResultsList(false);
     const min = 1000000000000;
     const max = 9999999999999;
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    setSaveData({
-      ...saveData,
-      user_name: name,
+    setSaveData(prev => ({
+      ...prev,
+      user_name: label,
       user_contact_number: phone,
       ref_code: randomNumber,
       land_rel_id_label: '',
       // created_at: ""
-    });
+    }));
     setSearchFarmerPhone(phone);
-    setSearchFarmerName(name);
+    setSearchFarmerName(label);
     setSearchResults([]);
-    setfarmerID(currentfarmerId);
+    setfarmerID(value);
     const response = await problemPlotAgainstFarmerAPI(
       dbname,
       lan_id,
       token,
-      currentfarmerId,
+      value,
     );
     if (response?.status == 200) {
       const dataArray = response.data.data.map(data => ({
@@ -135,8 +116,8 @@ const WantToBuy = ({navigation}) => {
       }));
       setplotAll(dataArray);
     }
-  };
-  const handlePlot = async relId => {
+  }, []);
+  const handlePlot = useCallback(async relId => {
     const farmer_all = await farmerAgainstSupervisorAPI(
       dbname,
       lan_id,
@@ -145,8 +126,8 @@ const WantToBuy = ({navigation}) => {
     const problemNameFound = farmer_all.data.data.rows.find(
       user => user.user_id === relId.user_id,
     );
-    setSaveData({
-      ...saveData,
+    setSaveData(prev => ({
+      ...prev,
       type: '',
       farmer_id: relId.user_id,
       land_rel_id: relId.value,
@@ -163,7 +144,7 @@ const WantToBuy = ({navigation}) => {
       state_id: problemNameFound?.agri_user_addresses[0]?.state,
       district_id: problemNameFound?.agri_user_addresses[0]?.district,
       subdiv_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
-    });
+    }));
     const response = await problemProduceAgainstPlotAPI(
       dbname,
       lan_id,
@@ -193,10 +174,10 @@ const WantToBuy = ({navigation}) => {
         // navigation.navigate('Dashboard');
       }
     }
-  };
+  }, []);
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
-    setSaveData({...saveData, date: effective_date});
+    setSaveData(prev => ({ ...prev, date: effective_date }));
     setApproximateDate(effective_date);
   };
   const handleBackButtonClick = () => {
@@ -217,11 +198,11 @@ const WantToBuy = ({navigation}) => {
     return `${month}-${day}-${year}`;
   }
 
-  const handleUnitFarm = item => {
+  const handleUnitFarm = useCallback(item => {
     // console.log(item);
     // onChange={(item) =>setSaveData({...saveData,io_prod_id: item.value,unit_id:item.label})}
-  };
-  const handleUnit = async item => {
+  }, []);
+  const handleUnit = useCallback(async item => {
     let entity_type_id = '';
     let entity_name_id = '';
     let io_prod_id = inputSingle.fid;
@@ -231,7 +212,7 @@ const WantToBuy = ({navigation}) => {
     const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
     if (unitRes?.status == 200) {
       const rows = unitRes?.data?.data?.rows[0];
-      const defined_unit_value = inputSingle.agri_product_prices.filter(
+      const defined_unit_value = inputSingle.agri_product_prices?.filter(
         function (v, i) {
           return v.prod_price_id == item.value;
         },
@@ -244,8 +225,8 @@ const WantToBuy = ({navigation}) => {
           entity_type_id = element.productCategory.ioname.entity_type_id;
           entity_name_id = element.productCategory.ioname.entity_name_id;
         }
-        setSaveData({
-          ...saveData,
+        setSaveData(prev => ({
+          ...prev,
           entity_type_id: entity_type_id,
           entity_name_id: entity_name_id,
           entity_variety_id: entity_variety_id,
@@ -259,10 +240,10 @@ const WantToBuy = ({navigation}) => {
           defined_unit_value: item?.defined_unit_value,
           filter_unit_fid: rows?.fid,
           pp_qty: pp_qty,
-        });
+        }));
       });
     }
-  };
+  },[]);
 
   const validationData = () => {
     if (!saveData.land_rel_id) {
@@ -363,10 +344,10 @@ const WantToBuy = ({navigation}) => {
       }
     }
   };
+  const route = useRoute();
   const onPageLoad = async () => {
-    // handleClear()
     setIsLoading(true);
-    const inputSingleData = await getItem('input_single_data');
+    const inputSingleData = route?.params;
     if (inputSingleData) {
       setInputSingle(inputSingleData);
       let category = '';
@@ -374,21 +355,21 @@ const WantToBuy = ({navigation}) => {
       if (
         inputSingleData?.productCategories[0]?.productCategory?.iotype != null
       ) {
-        const {entity_type, entity_name} =
+        const { entity_type, entity_name } =
           inputSingleData?.productCategories[0]?.productCategory?.iotype;
         category = entity_type.name;
         sub_category = entity_name.name;
       } else {
-        const {entity_type, entity_name} =
+        const { entity_type, entity_name } =
           inputSingleData?.productCategories[0]?.productCategory?.ioname;
         category = entity_type.name;
         sub_category = entity_name.name;
       }
-      setSaveData({
-        ...saveData,
+      setSaveData(prev => ({
+        ...prev,
         sub_category: sub_category,
         category: category,
-      });
+      }));
       const dataArray = inputSingleData.agri_product_prices.map(data => ({
         value: data.prod_price_id,
         // label: data.agri_unit.unit_name,
@@ -412,52 +393,7 @@ const WantToBuy = ({navigation}) => {
       setIsLoading(false);
     }
   };
-  function handleClear() {
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setApproximateDate('');
-    setSaveData({
-      ...saveData,
-      district_id: '',
-      entity_name_id: '',
-      entity_type_id: '',
-      entity_variety_id: '',
-      farmer_id: '',
-      fulfill_status: '',
-      land_rel_id: '',
-      district_id: '',
-      entity_name_id: '',
-      unit_id: '',
-      io_prod_id: '',
-      user_name: '',
-      user_contact_number: '',
-      type: '',
-      transaction_type: '',
-      block_id: '',
-      ref_code: '',
-      land_rel_id: '',
-      date: '',
-      pp_qty: '',
-      created_at: '',
-    });
 
-    setFormStep(1);
-    setShowingMenu(false);
-    // setdbLanTokUsr({})
-
-    setFarmerData([]);
-    setSearchResults([]);
-    setplotAll([]);
-    setNameVarityStartEnd({
-      name: '',
-      varity: '',
-      cycleStarts: '',
-      cycleEnd: '',
-      production_process: '',
-    });
-    setUnitData([]);
-    setInputSingle({});
-  }
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
     return () => {
@@ -468,14 +404,9 @@ const WantToBuy = ({navigation}) => {
     };
   }, [formStep]);
 
-  const handleBackPress = () => {
-    navigation.navigate('InputList');
-    return true;
-  };
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => navigation.navigate('InputList');
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('Dashboard');
@@ -483,9 +414,22 @@ const WantToBuy = ({navigation}) => {
       navigation.navigate('Dashboard');
     }
   };
+  const handleQut = (text) => {
+    setSaveData(prev => ({ ...prev, quantity: text }))
+  }
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        path={'InputList'}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+    ),
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         {newDate && (
           <DatePickerComp
             openDate={openDatePicker}
@@ -496,42 +440,13 @@ const WantToBuy = ({navigation}) => {
               saveData.created_at == ''
                 ? ''
                 : new Date(
-                    `${new Date(saveData.created_at).getFullYear()}-${
-                      new Date(saveData.created_at).getMonth() + 1
-                    }-${new Date(saveData.created_at).getDate() + 1}`,
-                  )
+                  `${new Date(saveData.created_at).getFullYear()}-${new Date(saveData.created_at).getMonth() + 1
+                  }-${new Date(saveData.created_at).getDate() + 1}`,
+                )
             }
           />
         )}
-        <CustomHeader
-          path={'InputList'}
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        {/* <FormsTitle title={t('want_to_buy_seed_de')} /> */}
-        <SafeAreaView>
-          {searchResultsList && searchResultsList ? (
-            <View style={styles.flatContainer}>
-              <FlatList
-                style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                data={searchResults}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    onPress={() =>
-                      handleResultSelect(item.label, item.value, item.phone)
-                    }
-                    style={styles.flatlistitem}>
-                    <Text style={styles.flatlisttitle}>{item.label}</Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
-              />
-            </View>
-          ) : (
-            ''
-          )}
-        </SafeAreaView>
+        {renderCustomHeader}
         {modalVisible && (
           <HarvestedModel
             setModalVisible={setModalVisible}
@@ -539,17 +454,16 @@ const WantToBuy = ({navigation}) => {
             handleHarvested={handleHarvested}
           />
         )}
-        <ScrollView style={{marginBottom: 10}}>
+        <ScrollView style={{ marginBottom: 10 }}>
           <View style={styles.formContainer}>
             {formStep === 1 ? (
               <>
-                <InputTextForm
+                <DropdownForm
                   label={t('farmer_name')}
-                  required={true}
+                  data={farmerData}
+                  onChange={handleResultSelect}
                   value={searchFarmerName}
-                  onChangeText={farmerName => handleSearch(farmerName)}
                 />
-
                 <InputTextForm
                   label={t('farmer_number')}
                   required={true}
@@ -559,7 +473,7 @@ const WantToBuy = ({navigation}) => {
                   label={t('addland_select_plot')}
                   data={plotAll}
                   required={true}
-                  onChange={relId => handlePlot(relId)}
+                  onChange={handlePlot}
                   val={saveData.land_rel_id_label}
                 />
                 {showingMenu ? (
@@ -614,7 +528,7 @@ const WantToBuy = ({navigation}) => {
                 <DropdownForm
                   label={t('requirement_status')}
                   data={unitFarm}
-                  onChange={item => handleUnitFarm(item)}
+                  onChange={handleUnitFarm}
                   val={1}
                 />
 
@@ -623,9 +537,7 @@ const WantToBuy = ({navigation}) => {
                     <InputTextForm
                       label={t('select_quantity_input')}
                       required={true}
-                      onChangeText={item =>
-                        setSaveData({...saveData, quantity: item})
-                      }
+                      onChangeText={handleQut}
                       value={saveData.quantity}
                     />
                   </View>
@@ -634,7 +546,7 @@ const WantToBuy = ({navigation}) => {
                       label={t('select_unit_input')}
                       required={true}
                       data={unitData}
-                      onChange={item => handleUnit(item)}
+                      onChange={handleUnit}
                       val={saveData.unit_id}
                     />
                   </View>
@@ -655,14 +567,14 @@ const WantToBuy = ({navigation}) => {
                   value={saveData.subdiv_name}
                 />
                 <View>
-                  <Text style={{color: '#000'}}>{t('approximate_date')}</Text>
+                  <Text style={{ color: '#000' }}>{t('approximate_date')}</Text>
                   <TouchableOpacity
                     style={styles.appromimateContainer}
                     onPress={() => setOpenDatePicker(!openDatePicker)}>
-                    <Text style={{color: '#000'}}>{approximateDate}</Text>
+                    <Text style={{ color: '#000' }}>{approximateDate}</Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}
-                      style={{width: 30, height: 30}}
+                      style={{ width: 30, height: 30 }}
                     />
                   </TouchableOpacity>
                 </View>
@@ -753,17 +665,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderLeftWidth: 3,
     borderLeftColor: Colors.borderGreen,
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // marginBottom: 8,
-    // paddingHorizontal: 15,
-    // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    // elevation: 4,
     borderRightWidth: 1,
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -775,11 +681,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 2,
-    // paddingHorizontal: 5,
     paddingHorizontal: 10,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // backgroundColor: 'red',
     width: '100%',
     marginTop: 5,
   },
@@ -787,14 +689,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.text,
     fontFamily: 'Poppins-SemiBold',
-    // flex: 1,
     marginBottom: 5,
   },
   value: {
     fontSize: 13,
     color: Colors.text,
     fontFamily: 'Poppins-Regular',
-    // flex: 1,
-    // textAlign: 'right',
   },
 });

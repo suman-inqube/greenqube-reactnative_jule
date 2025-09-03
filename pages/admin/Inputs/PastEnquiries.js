@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext, lazy} from 'react';
+import React, {useState, useEffect, useCallback, useContext, lazy, useMemo} from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import {
   inputEnquiryViewAPI,
@@ -79,14 +79,6 @@ const PastEnquiries = ({navigation}) => {
     disTotal: '',
   });
   const [currency, setcurrency] = useState('');
-  const filterOptionShow = () => {
-    setSearchResultsList(false);
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
   const onchangeFilterItem = value => {
     setInputPastEnquiryAll(inputPastEnquiryRaw);
     setSearchFarmerPhone('');
@@ -253,17 +245,21 @@ const PastEnquiries = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
+  const filterOptionShow=()=>{
+
+  }
+    const renderCustomHeader = useMemo(() => <CustomHeader
+      logoImage={logoImage}
+      topBanner={topBanner}
+      filterOptionShow={filterOptionShow}
+      t={t}
+    />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <>
         <Root>
           <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-            <CustomHeader
-              path="InputList"
-              HandlerGoBack={HandlerGoBack}
-              logoImage={logoImage}
-              topBanner={topBanner}
-            />
+       {renderCustomHeader}
             {openFromDate && (
               <DatePickerComp
                 openDate={openFromDate}

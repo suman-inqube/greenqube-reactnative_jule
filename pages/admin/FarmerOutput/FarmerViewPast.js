@@ -11,23 +11,24 @@ import {
 } from 'react-native';
 import Filter from '../../Common/FarmerFilter';
 import ViewModalPast from './FarmerViewModalPast';
-import React, {useState, useContext, useCallback} from 'react';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
+import React, { useState, useContext, useCallback, useMemo, useEffect } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   FarmeroutputListAPI,
   outputEnquiryViewAPI,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import MessageDialog from '../../Common/MessageDialog';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {getActionsPostNewOutputFarmer} from '../../utils/options';
+import { getActionsPostNewOutputFarmer } from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
-import {FloatingAction} from 'react-native-floating-action';
+import { FloatingAction } from 'react-native-floating-action';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-const FarmerViewPast = ({navigation}) => {
+import FloatingActionButton from '../../Components/FloatingActionButton';
+const FarmerViewPast = ({ navigation }) => {
   //GQR-67
   const {
     CustomHeader,
@@ -43,7 +44,7 @@ const FarmerViewPast = ({navigation}) => {
     Toast,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const route = useRoute();
   const [farmerData, setFarmerData] = useState([]);
@@ -70,7 +71,6 @@ const FarmerViewPast = ({navigation}) => {
     total: '',
   });
   const [outputListAll, setOutputListAll] = useState([]);
-  const [outputListAllRaw, setOutputListRaw] = useState([]);
   const [outputSingle, setOutputSingle] = useState();
   const [pastEnquiryView, setPastEnquiryView] = useState([]);
 
@@ -111,7 +111,7 @@ const FarmerViewPast = ({navigation}) => {
     } else {
       ///basudev
       // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-      Toast.show({time: 3, text: 'Please Select First data.', ...AlertMesg[0]});
+      Toast.show({ time: 3, text: 'Please Select First data.', ...AlertMesg[0] });
     }
   };
   const navigateToPages = async (fid, dbname, lan_id, token, user_id) => {
@@ -135,23 +135,20 @@ const FarmerViewPast = ({navigation}) => {
         qty = qty + parseFloat(data.pro_qty);
         total = total + parseFloat(data.grand_total);
       });
-      setresult({...result, qty: qty, total: total});
+      setresult({ ...result, qty: qty, total: total });
     }
     setModalVisible(true);
   };
   const filterOptionShow = async () => {
     try {
-      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      const { openFilterSheet } = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['', '', 'date', ''],
         // onchangeFilterItem: onchangeFilterItem,
         t: t,
-        // dropdownData: farmerData,
+        dropdownData: [],
         filterItem: filterItem,
-        // setSearchFarmerName: setSearchFarmerName,
-        // setSearchFarmerPhone: setSearchFarmerPhone,
-        // searchFarmerName: searchFarmerName,
-        // searchFarmerPhone: searchFarmerPhone,
+        setFilterItem: setFilterItem,
         title: 'Choose Status',
         handleFilterResult: handleFilterResult,
         handleFilterRemove: handleFilterRemove,
@@ -163,14 +160,14 @@ const FarmerViewPast = ({navigation}) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
+        height: 140,
       });
     } catch (error) {
       console.log(error);
     }
   };
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
-      console.log('fromDate', fromDate);
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -187,7 +184,7 @@ const FarmerViewPast = ({navigation}) => {
     },
     [],
   );
-  const handleFilterRemove = () => {};
+  const handleFilterRemove = () => { };
   // const handleFilter = async search => {
   //   if (filterName === 'Farmer/Product Name') {
   //     setSearchFarmerPhone('');
@@ -247,7 +244,6 @@ const FarmerViewPast = ({navigation}) => {
     );
     if (outputList?.status == 200) {
       setOutputListAll(outputList?.data?.data?.rows);
-      setOutputListRaw(outputList?.data?.data?.rows);
       setItem('output_data', outputList?.data?.data?.rows);
     }
     setIsLoading(false);
@@ -267,16 +263,13 @@ const FarmerViewPast = ({navigation}) => {
     );
     if (outputList?.status == 200) {
       setOutputListAll(outputList?.data?.data?.rows);
-      setOutputListRaw(outputList?.data?.data?.rows);
       setItem('output_data', outputList?.data?.data?.rows);
     }
     setIsLoading(false);
   };
-  useFocusEffect(
-    React.useCallback(() => {
-      onPageLoad();
-    }, []),
-  );
+  useEffect(() => {
+    onPageLoad();
+  }, [])
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
@@ -284,6 +277,7 @@ const FarmerViewPast = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -293,32 +287,8 @@ const FarmerViewPast = ({navigation}) => {
             backgroundColor: Colors.background_light,
             marginBottom: 10,
           }}>
-          <CustomHeader t={t} filterOptionShow={filterOptionShow} />
-          {/* {isLoading ? (
-            <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
-          ) : ( */}
-          <View style={{marginBottom: 100}}>
-            {/* <DatePickerComp
-                openDate={openFromDate}
-                newDate={newFromDate}
-                setOpenDate={setOpenFromDate}
-                handleDatePicker={handleDatePicker}
-              />
-              <DatePickerComp
-                openDate={openToDate}
-                newDate={newToDate}
-                setOpenDate={setOpenToDate}
-                handleDatePicker={handleDatePicker2}
-                minimumDate={
-                  fromDate == ''
-                    ? ''
-                    : new Date(
-                        `${new Date(fromDate).getFullYear()}-${
-                          new Date(fromDate).getMonth() + 1
-                        }-${new Date(fromDate).getDate() + 1}`,
-                      )
-                }
-              /> */}
+          {renderCustomHeader}
+          <View>
             {modalVisible && (
               <ViewModalPast
                 setModalVisible={setModalVisible}
@@ -334,25 +304,9 @@ const FarmerViewPast = ({navigation}) => {
                 }}
               />
             )}
-            {/* <Filter
-                filterItem={filterItem}
-                filterOption={filterOption}
-                setOpenToDate={setOpenToDate}
-                fromDate={fromDate}
-                newToDate={toDate}
-                setOpenFromDate={setOpenFromDate}
-                filterOptionShow={filterOptionShow}
-                onchangeFilterItem={onchangeFilterItem}
-                onChangeText={item => handleFilter(item)}
-                FarmerProductNameValue={searchFarmerName}
-                FarmerProductPhoneValue={searchFarmerPhone}
-                filterDataRemove={filterDataRemove}
-                onlyDate={true}
-              /> */}
-
             <FlatList
-              data={isLoading ? Array.from({length: 5}) : outputListAll}
-              renderItem={({item, index}) =>
+              data={isLoading ? Array.from({ length: 5 }) : outputListAll}
+              renderItem={({ item, index }) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -377,7 +331,7 @@ const FarmerViewPast = ({navigation}) => {
                             {item.io_crop_name &&
                               item.io_crop_name.name.substring(0, 5)}
                             {item.io_crop_name &&
-                            item.io_crop_name.name.length > 6
+                              item.io_crop_name.name.length > 6
                               ? '...'
                               : null}
                           </Text>
@@ -401,7 +355,7 @@ const FarmerViewPast = ({navigation}) => {
                                 {item.io_crop_variety &&
                                   item.io_crop_variety.name.substring(0, 14)}
                                 {item.io_crop_variety &&
-                                item.io_crop_variety.name.length > 14
+                                  item.io_crop_variety.name.length > 14
                                   ? '...'
                                   : null}
                               </Text>
@@ -440,7 +394,7 @@ const FarmerViewPast = ({navigation}) => {
             />
           </View>
           {/* )} */}
-          <FloatingAction
+          <FloatingActionButton
             position="right"
             actions={getActionsPostNewOutputFarmer(t, styles, Colors)}
             color={Colors.useGreen}
@@ -450,7 +404,7 @@ const FarmerViewPast = ({navigation}) => {
             }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
+            distanceToEdge={{ vertical: 80, horizontal: 25 }}
           />
         </SafeAreaView>
       </Root>
@@ -532,7 +486,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',
