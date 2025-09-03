@@ -394,7 +394,7 @@ const FarmerDashboard = ({navigation}) => {
               <CustomHeader
                 path="exit"
                 HandlerGoBack={exit}
-                // logoImage={uiState.logoImg}
+                logoImage={uiState.logoImg}
                 t={t}
               />
             </Animated.View>

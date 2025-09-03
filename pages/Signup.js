@@ -48,6 +48,8 @@ const Signup = () => {
   const {t} = useTranslation();
   const navigation = useNavigation();
   const language_id = 1;
+  const [isLoading, setIsLoading] = useState(false);
+
   const [storeSignup, setstoreSignup] = useState({
     country: '',
     company: '',
@@ -383,12 +385,12 @@ const Signup = () => {
     <>
       <Root>
         {/* <StatusBar barStyle="light-content" backgroundColor={"#003c04"} /> */}
-        <StatusBar barStyle="light-content" backgroundColor={Colors.useGreen} />
+        <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
         <View style={styles.container}>
           <View
             style={{
-              height: 100,
-              backgroundColor: Colors.useGreen,
+              // height: 100,
+              backgroundColor: Colors.green,
               borderBottomLeftRadius: 30,
               borderBottomRightRadius: 30,
               justifyContent: 'flex-end',
@@ -415,7 +417,7 @@ const Signup = () => {
                   marginTop: 20,
                   borderRadius: 40,
                   width: '10%',
-                  height: 30,
+                  // height: 30,
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginRight: 20,
@@ -470,7 +472,6 @@ const Signup = () => {
                   // color="red"
                   required={true}
                   value={storeSignup.phone}
-                  iconName="phone"
                   onChangeText={phone => {
                     const numericPhone = phone.replace(/[^0-9]/g, ''); // Allow only digits
                     setstoreSignup({...storeSignup, phone: numericPhone});
@@ -488,7 +489,6 @@ const Signup = () => {
                   onChangeText={value => handleAddData('password', value)}
                   value={storeSignup.password}
                   required={true}
-                  iconName="lock"
                 />
                 <PasswordComp
                   setPasswordVisibility={setcPasswordVisibility}
@@ -497,7 +497,6 @@ const Signup = () => {
                   onChangeText={value => handleAddData('cpassword', value)}
                   value={storeSignup.cpassword}
                   required={true}
-                  iconName="assignment-turned-in"
                 />
                 <View style={styles.backLogin}>
                   <Text style={styles.allReady}>Already have an account ?</Text>
@@ -516,6 +515,7 @@ const Signup = () => {
               iconName="arrow-forward"
               iconColor="#fff"
               iconSize={25}
+              loading={isLoading}
             />
             {/* </KeyboardAvoidingView>
              */}
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // borderColor: Colors.border,
     // // elevation:1,
-    marginVertical: 10,
+    // marginVertical: 10,
   },
   formMargin: {
     marginHorizontal: 10,
@@ -593,8 +593,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     resizeMode: 'contain',
     alignItems: 'center',
   },

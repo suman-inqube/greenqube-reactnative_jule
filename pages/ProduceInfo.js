@@ -39,6 +39,10 @@ import {
   nearestLatLong,
 } from '../config/apiHere';
 import * as turf from '@turf/turf';
+import {Colors, Fonts} from './utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {getActionsMapView} from './utils/options';
+import FloatingActionButton from './Components/FloatingActionButton';
 const ProduceInfo = () => {
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
@@ -111,6 +115,61 @@ const ProduceInfo = () => {
     latitude: 0,
     longitude: 0,
   });
+  const renderLocationTags = () => {
+    return location.map((data, index) => (
+      <View key={index} style={styles.locationContainer}>
+        <View style={styles.locationHeader}>
+          <Text style={styles.locationTitle}>
+            {t('location_point')} {index + 1}
+          </Text>
+          {data.latitude ? (
+            <TouchableOpacity
+              onPress={() =>
+                locationType === 'location_tap' && handleCurrentLatLong(index)
+              }
+              style={styles.locationStatusActive}>
+              <MaterialIcons name="check-circle" size={20} color="#4CAF50" />
+              <Text style={styles.locationStatusText}>{t('captured')}</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() =>
+                locationType === 'location_tap' && handleCurrentLatLong(index)
+              }
+              style={styles.locationStatusInactive}>
+              <MaterialIcons name="location-on" size={20} color="#F44336" />
+              <Text style={styles.locationStatusText}>{t('tap_to_tag')}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {data.latitude ? (
+          <View style={styles.coordinatesContainer}>
+            <View style={styles.coordinateItem}>
+              <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
+              <Text style={styles.coordinateText}>
+                {t('lat')}: {parseFloat(data.latitude).toFixed(7)}
+              </Text>
+            </View>
+            <View style={styles.coordinateItem}>
+              <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
+              <Text style={styles.coordinateText}>
+                {t('long')}: {parseFloat(data.longitude).toFixed(7)}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.coordinatesContainer}>
+            <View style={styles.coordinatePlaceholder}>
+              <Text style={styles.placeholderText}>
+                {t('not_captured_yet')}
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+    ));
+  };
   const groupByRelId = data => {
     const grouped = data.reduce((result, item) => {
       const newItem = {
@@ -1133,426 +1192,548 @@ const ProduceInfo = () => {
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
-      {isLoading ? (
-        <View style={styles.loadingScreen}>
-          <LoadingScreen />
+      <View style={styles.mainContainer}>
+        <View
+          style={{
+            width: '100%',
+            height: 60,
+            backgroundColor: Colors.green,
+            borderBottomLeftRadius: 25,
+            borderBottomRightRadius: 25,
+            justifyContent: 'flex-end',
+          }}>
+          <View style={styles.headersContainer}>
+            <Text style={styles.headersTitle}>
+              {t('reg_land_crop_information')}
+            </Text>
+          </View>
         </View>
-      ) : null}
-      <View style={styles.container}>
-        <View style={{height: 60, backgroundColor: '#003c04'}}></View>
-        <Text style={styles.headersTitle}>
-          {t('reg_land_crop_information')}
-        </Text>
+        {isLoading ? (
+          <View style={styles.loadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : null}
+
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.formContainer}>
-            <View style={{paddingHorizontal: 20}}>
-              <View>
+            <View
+              style={{
+                backgroundColor: 'green',
+                alignSelf: 'flex-end',
+                marginTop: 5,
+                borderRadius: 10,
+                width: '10%',
+                height: '1%',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 20,
+              }}>
+              <Text
+                style={{
+                  color: 'white',
+                }}>
+                4/4
+              </Text>
+            </View>
+            <View style={styles.firatFormContainer}>
+              <View style={{alignItems: 'center'}}>
                 <Image
                   source={require('../pages/Common/images/logo.png')}
                   style={styles.logo}
                 />
               </View>
-              <InputTextForm
-                label={t('pre_plot_name')}
-                color="red"
-                onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, plotSiteName: item})
-                }
-                value={storeProduceInfo.plotSiteName}
-              />
-              <InputTextForm
-                label={t('daag_no')}
-                onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, daagNo: item})
-                }
-                value={storeProduceInfo.daagNo}
-              />
-              <InputTextForm
-                label={t('khatian_no')}
-                onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
-                }
-                value={storeProduceInfo.khatianNo}
-              />
-              <InputTextForm
-                label={t('no_of_plants')}
-                onChangeText={item =>
-                  setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
-                }
-                value={storeProduceInfo.noOfPlants}
-              />
-              <DropdownForm
-                label={t('addland_terrain_type')}
-                color="red"
-                data={terrainTypeData}
-                onChange={item =>
-                  setstoreProduceInfo({...storeProduceInfo, terrainType: item})
-                }
-                val={storeProduceInfo.terrainType.label}
-              />
-              <DropdownForm
-                label={t('select_land_type')}
-                color="red"
-                data={landTypeData}
-                onChange={item => {
-                  setstoreProduceInfo({...storeProduceInfo, landType: item});
-                }}
-                val={storeProduceInfo.landType.label}
-              />
-              <DropdownForm
-                label={t('select_soil_type')}
-                color="red"
-                data={soilTypeData}
-                onChange={item => {
-                  setstoreProduceInfo({...storeProduceInfo, soilType: item});
-                }}
-                val={storeProduceInfo.soilType.label}
-              />
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{width: '45%'}}>
+              <View style={{paddingHorizontal: 10}}>
+                <InputTextForm
+                  label={t('pre_plot_name')}
+                  required={true}
+                  onChangeText={item =>
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      plotSiteName: item,
+                    })
+                  }
+                  value={storeProduceInfo.plotSiteName}
+                />
+                <InputTextForm
+                  label={t('daag_no')}
+                  onChangeText={item =>
+                    setstoreProduceInfo({...storeProduceInfo, daagNo: item})
+                  }
+                  value={storeProduceInfo.daagNo}
+                />
+                <InputTextForm
+                  label={t('khatian_no')}
+                  onChangeText={item =>
+                    setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
+                  }
+                  value={storeProduceInfo.khatianNo}
+                />
+                <InputTextForm
+                  label={t('no_of_plants')}
+                  onChangeText={item =>
+                    setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
+                  }
+                  value={storeProduceInfo.noOfPlants}
+                />
+                <DropdownForm
+                  label={t('addland_terrain_type')}
+                  required={true}
+                  data={terrainTypeData}
+                  onChange={item =>
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      terrainType: item,
+                    })
+                  }
+                  val={storeProduceInfo.terrainType.label}
+                />
+                <DropdownForm
+                  label={t('select_land_type')}
+                  required={true}
+                  data={landTypeData}
+                  onChange={item => {
+                    setstoreProduceInfo({...storeProduceInfo, landType: item});
+                  }}
+                  val={storeProduceInfo.landType.label}
+                />
+                <DropdownForm
+                  label={t('select_soil_type')}
+                  required={true}
+                  data={soilTypeData}
+                  onChange={item => {
+                    setstoreProduceInfo({...storeProduceInfo, soilType: item});
+                  }}
+                  val={storeProduceInfo.soilType.label}
+                />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <View style={{width: '45%'}}>
+                    <InputTextForm
+                      label={t('addland_landsize')}
+                      required={true}
+                      onChangeText={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          plotSize: item,
+                          ConvertedreportedLandsize:
+                            Number(storeProduceInfo?.sizevalue) * Number(item),
+                          cycleEnds: '',
+                        })
+                      }
+                      value={storeProduceInfo.plotSize}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={{width: '45%'}}>
+                    {/* <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} /> */}
+                    <DropdownForm
+                      label={t('addland_unit')}
+                      required={true}
+                      data={landUnitData}
+                      onChange={item => handleLandUnit(item)}
+                      val={storeProduceInfo?.landUnitName}
+                    />
+                  </View>
+                </View>
+                {!isNaN(Number(storeProduceInfo?.ConvertedreportedLandsize)) &&
+                  storeProduceInfo?.ConvertedreportedLandsize !== 0 &&
+                  area != null && (
+                    <InputTextForm
+                      label={
+                        t('Converted reported Land size ') +
+                        `${
+                          landAreaUnit?.[0]?.defined_unit_value
+                            ? `(${landAreaUnit?.[0]?.unit_name})`
+                            : '(Square meter)'
+                        }`
+                      }
+                      value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
+                      editable={false}
+                    />
+                  )}
+                <View style={{marginTop: 10}}>
                   <InputTextForm
-                    label={t('addland_landsize')}
-                    color="red"
+                    label={t('Enter IOT Device Id')}
                     onChangeText={item =>
-                      setstoreProduceInfo({
-                        ...storeProduceInfo,
-                        plotSize: item,
-                        ConvertedreportedLandsize:
-                          Number(storeProduceInfo?.sizevalue) * Number(item),
-                        cycleEnds: '',
-                      })
+                      setstoreProduceInfo({...storeProduceInfo, IOTId: item})
                     }
-                    value={storeProduceInfo.plotSize}
-                    keyboardType="numeric"
+                    value={storeProduceInfo.IOTId}
                   />
                 </View>
-                <View style={{width: '45%'}}>
-                  {/* <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} /> */}
-                  <DropdownForm
-                    label={t('addland_unit')}
-                    color="red"
-                    data={landUnitData}
-                    onChange={item => handleLandUnit(item)}
-                    val={storeProduceInfo?.landUnitName}
-                  />
+                <View style={styles.locationContainer}>
+                  <View style={styles.locationHeader}>
+                    <Text style={styles.locationTitle}>
+                      {t('Geo tag IOT Device')}
+                    </Text>
+
+                    <TouchableOpacity
+                      onPress={() => handleCurrentLatLongIOT()}
+                      style={styles.locationStatusInactive}>
+                      <MaterialIcons
+                        name="location-on"
+                        size={20}
+                        color="#F44336"
+                      />
+                      <Text style={styles.locationStatusText}>
+                        {t('tap_to_tag')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.coordinatesContainer}>
+                    <View style={styles.coordinateItem}>
+                      <MaterialIcons
+                        name="pin-drop"
+                        size={16}
+                        color="#2196F3"
+                      />
+                      <Text style={styles.coordinateText}>
+                        {t('lat')}: {storeProduceInfo.IOTLatlat}
+                      </Text>
+                    </View>
+                    <View style={styles.coordinateItem}>
+                      <MaterialIcons
+                        name="pin-drop"
+                        size={16}
+                        color="#2196F3"
+                      />
+                      <Text style={styles.coordinateText}>
+                        {t('long')}:{storeProduceInfo.IOTLatLong}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              {!isNaN(Number(storeProduceInfo?.ConvertedreportedLandsize)) &&
-                storeProduceInfo?.ConvertedreportedLandsize !== 0 &&
-                area != null && (
+
+                <ProofAndIdentityPropfComp
+                  identityProofIdentityPropf={landProof}
+                  t={t}
+                  title={t('address_proof')}
+                  setStateValue={setLandProof}
+                  stateValue={landProof}
+                  disable={true}
+                  InputTextFormEdit={true}
+                  // photoDeletedValue={photoDeletedValue}
+                  // setPhotoDeletedValue={setPhotoDeletedValue}
+                  // loginUser_data={loginUser_data}
+                />
+                {area != 0 && area != null && (
                   <InputTextForm
                     label={
-                      t('Converted reported Land size ') +
+                      t('Calculated Map Area ') +
                       `${
                         landAreaUnit?.[0]?.defined_unit_value
-                          ? `(${landAreaUnit?.[0]?.unit_name})`
+                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
                           : '(Square meter)'
                       }`
                     }
-                    value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
+                    value={area.toString()}
+                    onChangeText={text => handleAddUserData('daag_no', text)}
                     editable={false}
                   />
                 )}
-              <View style={{marginTop: 10}}>
-                <InputTextForm
-                  label={t('Enter IOT Device Id')}
-                  onChangeText={item =>
-                    setstoreProduceInfo({...storeProduceInfo, IOTId: item})
-                  }
-                  value={storeProduceInfo.IOTId}
-                />
-              </View>
-              <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
-                <View style={styles.latlongContainer}>
-                  <Text style={styles.title}>{storeProduceInfo.IOTLatlat}</Text>
-                  <Text style={styles.title}>
-                    {storeProduceInfo.IOTLatLong}
+                <View style={styles.labelContainer}>
+                  <Text style={styles.sectionTitle}>
+                    {t('plot_location_points')}
                   </Text>
                 </View>
-                <View style={styles.latlongContainer}>
-                  <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
-                  <Image
-                    source={require('./Common/images/map.png')}
-                    style={{width: 50, height: 50}}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              <ProofAndIdentityPropfComp
-                identityProofIdentityPropf={landProof}
-                t={t}
-                title={t('address_proof')}
-                setStateValue={setLandProof}
-                stateValue={landProof}
-                disable={true}
-                InputTextFormEdit={true}
-                // photoDeletedValue={photoDeletedValue}
-                // setPhotoDeletedValue={setPhotoDeletedValue}
-                // loginUser_data={loginUser_data}
-              />
-              {area != 0 && area != null && (
-                <InputTextForm
-                  label={
-                    t('Calculated Map Area ') +
-                    `${
-                      landAreaUnit?.[0]?.defined_unit_value
-                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                        : '(Square meter)'
-                    }`
-                  }
-                  value={area.toString()}
-                  onChangeText={text => handleAddUserData('daag_no', text)}
-                  editable={false}
-                />
-              )}
-
-              {location &&
-                location.map((data, index) => {
-                  return (
-                    // GRQ-1134
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() =>
-                        data.latitude != 10 && data.latitude.length != ''
-                          ? ''
-                          : handleCurrentLatLong(index)
-                      }>
-                      <View style={styles.latlongContainer}>
-                        <Text style={styles.title}>
-                          {data && data.latitude && data.latitude == ''
-                            ? '0.0'
-                            : data.latitude}
-                        </Text>
-                        <Text style={styles.title}>
-                          {data && data.longitude && data.longitude == ''
-                            ? '0.0'
-                            : data.longitude}
-                        </Text>
-                      </View>
-                      <View style={styles.latlongContainer}>
-                        <Text style={styles.title}>
-                          {t('tap_to_get_latitude_and_longitude')}
-                        </Text>
-                        <Image
-                          source={require('./Common/images/map.png')}
-                          style={{width: 50, height: 50}}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-
-              <DropdownForm
-                label={t('addcrop_cultivating_season')}
-                color="red"
-                data={prodctionSeasionData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    prodctionSeasion: item,
-                    livelihoodType: '',
-                    produceName: '',
-                    produceVariety: '',
-                  });
-                }}
-                val={storeProduceInfo.prodctionSeasion.label}
-              />
-              <DropdownForm
-                label={t('addcrop_croptype')}
-                color="red"
-                data={livelihoodTypeData}
-                onChange={item => HandlelivehoodType(item)}
-                val={storeProduceInfo.livelihoodType.label}
-              />
-              <DropdownForm
-                label={t('select_crop_name')}
-                color="red"
-                data={produceNameData}
-                onChange={item => HandleproduceName(item)}
-                val={storeProduceInfo.produceName.label}
-              />
-              <DropdownForm
-                label={t('select_crop_variety')}
-                color="red"
-                data={produceVarietyData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    produceVariety: item,
-                  });
-                }}
-                val={storeProduceInfo.produceVariety.label}
-              />
-              <DropdownForm
-                label={t('production_system')}
-                color="red"
-                data={productionProcessData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    productionProcess: item,
-                  });
-                }}
-                val={storeProduceInfo.productionProcess.label}
-              />
-              <InputTextForm
-                label={t('expected_yield')}
-                color="red"
-                onChangeText={item =>
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    expectedProduction: item,
-                  })
-                }
-                value={storeProduceInfo.expectedProduction}
-                keyboardType="numeric"
-              />
-              <DropdownForm
-                label={t('select_unit')}
-                color="red"
-                data={produceProductionUnitData}
-                onChange={item => {
-                  setstoreProduceInfo({
-                    ...storeProduceInfo,
-                    produceProductionUnit: item,
-                  });
-                }}
-                val={storeProduceInfo.produceProductionUnit.label}
-              />
-              <View>
-                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
-                  {t('showing_date')}
-                </Text>
-                <View style={styles.passwordMainContainer}>
-                  <View style={styles.passwordContainer}>
-                    <Text
-                      style={styles.inputTextStyle}
-                      onPress={() => setOpencycleStarts(true)}>
-                      {storeProduceInfo.cycleStarts}
-                    </Text>
-                    <TouchableOpacity onPress={() => setOpencycleStarts(true)}>
-                      <ImageForm
-                        source={require('./Common/images/date.png')}
-                        resizeMode="cover"
-                        height={30}
-                        width={30}
-                      />
-                    </TouchableOpacity>
-                    <DatePicker
-                      modal
-                      mode="date"
-                      open={opencycleStarts}
-                      date={newdate}
-                      onConfirm={item => {
-                        handlecycleStart(item);
-                        setOpencycleStarts(false);
-                      }}
-                      onCancel={() => {
-                        setOpencycleStarts(false);
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-              <View>
-                <Text style={{marginBottom: 5, marginLeft: 5, color: 'red'}}>
-                  {t('harvesting_date')}
-                </Text>
-                <View style={styles.passwordMainContainer}>
-                  <View style={styles.passwordContainer}>
-                    <Text
-                      style={styles.inputTextStyle}
-                      onTouchStart={() => handleOpencycleEnds()}></Text>
-                    <TouchableOpacity onPress={() => handleOpencycleEnds()}>
-                      <ImageForm
-                        source={require('./Common/images/date.png')}
-                        resizeMode="cover"
-                        height={30}
-                        width={30}
-                      />
-                    </TouchableOpacity>
-                    <DatePicker
-                      modal
-                      mode="date"
-                      format="YYYY-MM-DD"
-                      open={opencycleEnds}
-                      date={
-                        storeProduceInfo.cycleStarts == ''
-                          ? newdate
-                          : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleStarts,
-                              ).getFullYear()}-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getMonth() + 1
-                              }-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getDate() + 1
-                              }`,
-                            )
-                      }
-                      minimumDate={
-                        storeProduceInfo.cycleStarts == ''
-                          ? ''
-                          : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleStarts,
-                              ).getFullYear()}-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getMonth() + 1
-                              }-${
-                                new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getDate() + 1
-                              }`,
-                            )
-                      }
-                      onConfirm={item => {
-                        handlecycleEnd(item);
-                        setOpencycleEnds(false);
-                      }}
-                      onCancel={() => {
-                        setOpencycleEnds(false);
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-              <TouchableOpacity
-                onPress={saveInObject}
-                style={{alignItems: 'center'}}
-                activeOpacity={0.7}>
-                <Text style={styles.addBtn}>{t('click_to_add_more_plot')}</Text>
-              </TouchableOpacity>
-              <View style={{marginBottom: 10}}>
-                {storeProduceInfoInArray.map((data, index) => {
-                  return (
-                    <View style={styles.moreContainer} key={index}>
-                      <View style={styles.moreTextContainer}>
-                        <Text style={styles.moreText}>
-                          {data.storeProduceInfo.plotSiteName}
-                        </Text>
-                        <Text style={styles.moreText}>
-                          {data.storeProduceInfo.produceName.label}
-                        </Text>
-                        <Text style={styles.moreText}>
-                          {data.storeProduceInfo.produceVariety.label}
-                        </Text>
-                      </View>
+                {renderLocationTags()}
+                {/* {location &&
+                  location.map((data, index) => {
+                    return (
+                      // GRQ-1134
                       <TouchableOpacity
-                        onPress={() => produceRemoveDetails(index)}>
-                        <Image
-                          source={require('./Common/images/x-mark.png')}
-                          style={styles.xMarkImage}
+                        key={index}
+                        onPress={() =>
+                          data.latitude != 10 && data.latitude.length != ''
+                            ? ''
+                            : handleCurrentLatLong(index)
+                        }>
+                        <View style={styles.latlongContainer}>
+                          <Text style={styles.title}>
+                            {data && data.latitude && data.latitude == ''
+                              ? '0.0'
+                              : data.latitude}
+                          </Text>
+                          <Text style={styles.title}>
+                            {data && data.longitude && data.longitude == ''
+                              ? '0.0'
+                              : data.longitude}
+                          </Text>
+                        </View>
+                        <View style={styles.latlongContainer}>
+                          <Text style={styles.title}>
+                            {t('tap_to_get_latitude_and_longitude')}
+                          </Text>
+                          <Image
+                            source={require('./Common/images/map.png')}
+                            style={{width: 50, height: 50}}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })} */}
+
+                <DropdownForm
+                  label={t('addcrop_cultivating_season')}
+                  required={true}
+                  data={prodctionSeasionData}
+                  onChange={item => {
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      prodctionSeasion: item,
+                      livelihoodType: '',
+                      produceName: '',
+                      produceVariety: '',
+                    });
+                  }}
+                  val={storeProduceInfo.prodctionSeasion.label}
+                />
+                <DropdownForm
+                  label={t('addcrop_croptype')}
+                  required={true}
+                  data={livelihoodTypeData}
+                  onChange={item => HandlelivehoodType(item)}
+                  val={storeProduceInfo.livelihoodType.label}
+                />
+                <DropdownForm
+                  label={t('select_crop_name')}
+                  required={true}
+                  data={produceNameData}
+                  onChange={item => HandleproduceName(item)}
+                  val={storeProduceInfo.produceName.label}
+                />
+                <DropdownForm
+                  label={t('select_crop_variety')}
+                  required={true}
+                  data={produceVarietyData}
+                  onChange={item => {
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      produceVariety: item,
+                    });
+                  }}
+                  val={storeProduceInfo.produceVariety.label}
+                />
+                <DropdownForm
+                  label={t('production_system')}
+                  required={true}
+                  data={productionProcessData}
+                  onChange={item => {
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      productionProcess: item,
+                    });
+                  }}
+                  val={storeProduceInfo.productionProcess.label}
+                />
+                <InputTextForm
+                  label={t('expected_yield')}
+                  required={true}
+                  onChangeText={item =>
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      expectedProduction: item,
+                    })
+                  }
+                  value={storeProduceInfo.expectedProduction}
+                  keyboardType="numeric"
+                />
+                <DropdownForm
+                  label={t('select_unit')}
+                  required={true}
+                  data={produceProductionUnitData}
+                  onChange={item => {
+                    setstoreProduceInfo({
+                      ...storeProduceInfo,
+                      produceProductionUnit: item,
+                    });
+                  }}
+                  val={storeProduceInfo.produceProductionUnit.label}
+                />
+                <View style={{marginVertical: 10}}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginBottom: 5,
+                    }}>
+                    <Text
+                      style={{
+                        marginBottom: 5,
+                        marginLeft: 5,
+                        fontFamily: 'Poppins-Regular',
+                        fontSize: 15,
+                        color: '#4e4e4e',
+                      }}>
+                      {t('showing_date')}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'red',
+                        fontFamily: Fonts.Medium,
+                        fontSize: 16,
+                      }}>
+                      *
+                    </Text>
+                  </View>
+                  <View style={styles.passwordMainContainer}>
+                    <View style={styles.passwordContainer}>
+                      <Text
+                        style={styles.inputTextStyle}
+                        onPress={() => setOpencycleStarts(true)}>
+                        {storeProduceInfo.cycleStarts}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setOpencycleStarts(true)}>
+                        <ImageForm
+                          source={require('./Common/images/date.png')}
+                          resizeMode="cover"
+                          height={30}
+                          width={30}
                         />
                       </TouchableOpacity>
+                      <DatePicker
+                        modal
+                        mode="date"
+                        open={opencycleStarts}
+                        date={newdate}
+                        onConfirm={item => {
+                          handlecycleStart(item);
+                          setOpencycleStarts(false);
+                        }}
+                        onCancel={() => {
+                          setOpencycleStarts(false);
+                        }}
+                      />
                     </View>
-                  );
-                })}
+                  </View>
+                </View>
+                <View style={{marginVertical: 10}}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginBottom: 5,
+                    }}>
+                    <Text
+                      style={{
+                        marginBottom: 5,
+                        marginLeft: 5,
+                        fontFamily: 'Poppins-Regular',
+                        fontSize: 15,
+                        color: '#4e4e4e',
+                      }}>
+                      {t('harvesting_date')}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'red',
+                        fontFamily: Fonts.Medium,
+                        fontSize: 16,
+                      }}>
+                      *
+                    </Text>
+                  </View>
+                  <View style={styles.passwordMainContainer}>
+                    <View style={styles.passwordContainer}>
+                      <Text
+                        style={styles.inputTextStyle}
+                        onTouchStart={() => handleOpencycleEnds()}></Text>
+                      <TouchableOpacity onPress={() => handleOpencycleEnds()}>
+                        <ImageForm
+                          source={require('./Common/images/date.png')}
+                          resizeMode="cover"
+                          height={30}
+                          width={30}
+                        />
+                      </TouchableOpacity>
+                      <DatePicker
+                        modal
+                        mode="date"
+                        format="YYYY-MM-DD"
+                        open={opencycleEnds}
+                        date={
+                          storeProduceInfo.cycleStarts == ''
+                            ? newdate
+                            : new Date(
+                                `${new Date(
+                                  storeProduceInfo.cycleStarts,
+                                ).getFullYear()}-${
+                                  new Date(
+                                    storeProduceInfo.cycleStarts,
+                                  ).getMonth() + 1
+                                }-${
+                                  new Date(
+                                    storeProduceInfo.cycleStarts,
+                                  ).getDate() + 1
+                                }`,
+                              )
+                        }
+                        minimumDate={
+                          storeProduceInfo.cycleStarts == ''
+                            ? ''
+                            : new Date(
+                                `${new Date(
+                                  storeProduceInfo.cycleStarts,
+                                ).getFullYear()}-${
+                                  new Date(
+                                    storeProduceInfo.cycleStarts,
+                                  ).getMonth() + 1
+                                }-${
+                                  new Date(
+                                    storeProduceInfo.cycleStarts,
+                                  ).getDate() + 1
+                                }`,
+                              )
+                        }
+                        onConfirm={item => {
+                          handlecycleEnd(item);
+                          setOpencycleEnds(false);
+                        }}
+                        onCancel={() => {
+                          setOpencycleEnds(false);
+                        }}
+                      />
+                    </View>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  onPress={saveInObject}
+                  style={{alignItems: 'center'}}
+                  activeOpacity={0.7}>
+                  <Text style={styles.addBtn}>
+                    {t('click_to_add_more_plot')}
+                  </Text>
+                </TouchableOpacity>
+                <View style={{marginBottom: 10}}>
+                  {storeProduceInfoInArray.map((data, index) => {
+                    return (
+                      <View style={styles.moreContainer} key={index}>
+                        <View style={styles.moreTextContainer}>
+                          <Text style={styles.moreText}>
+                            {data.storeProduceInfo.plotSiteName}
+                          </Text>
+                          <Text style={styles.moreText}>
+                            {data.storeProduceInfo.produceName.label}
+                          </Text>
+                          <Text style={styles.moreText}>
+                            {data.storeProduceInfo.produceVariety.label}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => produceRemoveDetails(index)}>
+                          <Image
+                            source={require('./Common/images/x-mark.png')}
+                            style={styles.xMarkImage}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
               </View>
             </View>
           </View>
@@ -1564,13 +1745,32 @@ const ProduceInfo = () => {
             {t('AddLocation')}
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.locationAddMoreContainer, {bottom: 250}]}
           onPress={() => setShowModal(!showModal)}>
           <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
             {t('MapView')}
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
+        <FloatingActionButton
+          position="right"
+          actions={getActionsMapView(t, styles, Colors)}
+          color={Colors.useGreen}
+          onPressItem={() => setShowModal(!showModal)}
+          showBackground={true}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{vertical: 80, horizontal: 25}}
+        />
+
+        <ButtonForm
+          label={t('next')}
+          onPress={() => handleSave('SignUpViwer')}
+          loading={isLoading}
+          iconName="arrow-forward"
+          iconColor="#fff"
+          iconSize={25}
+        />
       </View>
       {showModal && (
         <Modal
@@ -1606,32 +1806,70 @@ const ProduceInfo = () => {
           />
         </Modal>
       )}
-      <ButtonForm label={t('next')} onPress={() => handleSave('SignUpViwer')} />
+
       <Root></Root>
     </>
   );
 };
 export default ProduceInfo;
-export const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
+const styles = StyleSheet.create({
+  headersContainer: {
+    // marginHorizontal: '5%',
+
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  headersTitle: {
+    paddingVertical: 5,
+    // fontWeight: 'bold',
+    fontSize: 18,
+    color: 'white',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  mainContainer: {flex: 1, backgroundColor: 'white'},
+
   formContainer: {
-    backgroundColor: '#ffffff',
-    marginBottom: 60,
+    // backgroundColor: Colors.background, // marginTop: 30,
+    // borderRadius: 8,
+    // borderWidth: 1,
+    // borderColor: Colors.border,
+    // marginHorizontal: '4%',
+    // marginBottom: 15,
+    // marginTop: 10,
+  },
+  fromContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    // paddingHorizontal: 16,
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  headersTitle: {
-    fontSize: 19,
-    fontWeight: 'bold',
-    textAlign: 'right',
-    marginRight: '2.5%',
-    color: '#000',
+  firatFormContainer: {
+    // marginTop: 50,
+
+    // marginHorizontal: '4%',
+    // borderWidth: 1,
+    // paddingTop: 10,
+    // marginBottom: 30,
+
+    backgroundColor: 'white',
+    padding: 16,
+    // borderRadius: 8,
+    // borderWidth: 1,
+    // borderColor: Colors.border,
+    // // elevation:1,
+
+    // marginHorizontal: '4%',
   },
+  // headersTitle: {
+  //   fontSize: 19,
+  //   fontWeight: 'bold',
+  //   textAlign: 'right',
+  //   marginRight: '2.5%',
+  //   color: '#000',
+  // },
   checkbox: {
     width: 20,
     height: 20,
@@ -1650,22 +1888,24 @@ export const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#f3ecec',
-    borderWidth: 1.5,
-    borderRadius: 8,
-    width: '100%',
-    paddingEnd: 8,
-    backgroundColor: 'white',
-    height: 50,
-    marginBottom: 15,
+    height: 48,
+    borderWidth: 0.5,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    color: '#000000',
+    //  borderColor: '#d1d5db',
+    borderColor: Colors.borderGreen,
   },
   inputTextStyle: {
     flex: 1,
     height: 50,
-    marginTop: 23,
     marginHorizontal: 10,
     borderColor: 'gray',
-    color: '#000',
+    fontSize: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
   moreContainer: {
     flexDirection: 'row',
@@ -1685,30 +1925,38 @@ export const styles = StyleSheet.create({
   },
   moreText: {
     color: '#000',
-    fontSize: 10,
+    fontSize: 14,
   },
   addBtn: {
     backgroundColor: 'green',
-    paddingVertical: 10,
+    paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
     color: '#FFFFFF',
     elevation: 5,
+    fontFamily: 'Poppins-SemiBold',
   },
   logo: {
-    width: 250,
-    height: 100,
+    width: 80,
+    height: 80,
     resizeMode: 'contain',
     alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
-    marginLeft: 60,
+    // marginTop: 30,
+    // marginBottom: 20,
+    // marginLeft: 60,
+  },
+  text: {
+    color: '#000',
   },
   loadingScreen: {
     position: 'absolute',
-    top: 250,
+    top: 100,
     zIndex: 999,
-    left: '45%',
+    left: '40%',
+  },
+  text: {
+    fontFamily: 'Poppins-Regular',
+    color: '#000',
   },
   locationAddMoreContainer: {
     position: 'absolute',
@@ -1732,21 +1980,93 @@ export const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
   },
-  idcontainer: {
-    marginVertical: 10,
+  locationContainer: {
+    backgroundColor: '#f6f7ffff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+
+    marginTop: 10,
+    borderWidth: 2,
+    borderStyle: 'dotted',
+    borderColor: Colors.border,
   },
-  idItemContainer: {
+  locationHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  idItem: {
-    padding: 10,
-    width: '30%',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   },
-  idImage: {
-    width: 60,
-    height: 60,
+  locationTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    fontFamily: 'Poppins-Medium',
+  },
+  locationStatusActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  locationStatusInactive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  locationStatusText: {
+    marginLeft: 5,
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: 'black',
+  },
+  coordinatesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  coordinateItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    padding: 8,
+    borderRadius: 5,
+    width: '48%',
+  },
+  coordinateText: {
+    marginLeft: 2,
+    fontSize: 12,
+    color: '#0D47A1',
+    fontFamily: 'Poppins-Regular',
+  },
+  coordinatePlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    borderRadius: 5,
+    backgroundColor: '#F5F5F5',
+  },
+  placeholderText: {
+    fontSize: 13,
+    color: '#757575',
+    fontFamily: 'Poppins-Regular',
+  },
+  sectionTitle: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
+    color: '#4e4e4e',
+    // marginBottom: 15,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginBottom: -20,
+    // marginLeft: 20,
+    marginTop: 10,
   },
 });

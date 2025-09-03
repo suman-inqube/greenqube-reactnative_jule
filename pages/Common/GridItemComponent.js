@@ -9,7 +9,7 @@ import {
   Easing,
 } from 'react-native';
 import moment from 'moment';
-import { Colors } from '../utils/Constants';
+import {Colors} from '../utils/Constants';
 import ImageForm from './ImageForm';
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
   },
   gridContent: {
     padding: 8,
+    // backgroundColor: '',
   },
   gridTitle: {
     fontSize: 14,

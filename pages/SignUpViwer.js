@@ -20,6 +20,8 @@ import DeviceInfo from './DeviceInfo';
 import FormsTitle from './Common/FormsTitle';
 import {userCreateContext} from './Context/usersCreateContext';
 import LoadingScreen from './Common/LoadingScreen';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Colors, Fonts} from './utils/Constants';
 const SignUpViwer = () => {
   //GQR-65
   const {AllFarmerList, Toast, Root, AlertMesg, t} =
@@ -363,157 +365,157 @@ const SignUpViwer = () => {
     return true;
   }
   useEffect(() => {
-    onBackPress(handleBackPress);
+    onPageLoad();
   }, []);
-  useFocusEffect(
-    React.useCallback(() => {
-      onPageLoad();
-    }, []),
-  );
+
   return (
     <Root>
-      <View style={{flex: 1}}>
-        <View style={{height: 60, backgroundColor: '#003c04'}}></View>
-        <FormsTitle title={t('preview_information')} />
+      <View style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <View
+          style={{
+            // height: 100,
+            backgroundColor: Colors.green,
+            borderBottomLeftRadius: 25,
+            borderBottomRightRadius: 25,
+            justifyContent: 'flex-end',
+          }}>
+          <View style={styles.headersContainer}>
+            <Text style={styles.headersTitle}>{t('preview_information')}</Text>
+          </View>
+        </View>
+
         <ScrollView>
-          <View
-            style={{
-              margin: 10,
-              elevation: 3,
-              borderRadius: 30,
-              paddingHorizontal: 10,
-              paddingVertical: 10,
-              backgroundColor: '#D5FFD0',
-              marginTop: 15,
-            }}>
-            <TouchableOpacity onPress={togglestorePersnolInfo}>
-              <View style={styles.headerStyle}>
-                <Text style={[styles.title, {fontFamily: 'Poppins-SemiBold'}]}>
-                  {isstorePersnolInfo
-                    ? `${t('personal_information')}`
-                    : `${t('personal_information')}`}
-                </Text>
-                {isstorePersnolInfo ? (
-                  <Image
-                    source={require('./Common/images/sub.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                ) : (
-                  <Image
-                    source={require('./Common/images/add.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-            {isLoading && (
-              <View style={styles.loadingScreen}>
-                <LoadingScreen />
-              </View>
-            )}
-            {isstorePersnolInfo && (
-              <>
-                {storePersnolInfo ? (
-                  storePersnolInfo.block ? (
-                    <View style={{margin: 10}}>
-                      <View style={styles.bodyContainer}>
-                        <View style={{alignItems: 'flex-end'}}>
-                          <TouchableOpacity
-                            onPress={() =>
-                              navigation.navigate('PersnolUpdate', {
-                                pagename: 'SignUpViwer',
-                              })
-                            }>
-                            <Image
-                              source={require('./Common/images/edit.png')}
-                              style={{width: 30, height: 30}}
-                            />
-                          </TouchableOpacity>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}> {t('name')} </Text>
+          <View style={{paddingHorizontal: 20, marginTop: 50}}>
+            <View
+              style={{
+                marginTop: 10,
+                padding: 17,
+                borderWidth: 0,
+                borderColor: '#ddd',
+                backgroundColor: '#d3ced7',
+                borderRadius: 20,
+                marginVertical: 20,
+                elevation: 3,
+                // height: 55,
+                borderWidth: 0.5,
+                borderColor: 'black',
+                // alignItems: 'center',
+              }}>
+              <TouchableOpacity onPress={togglestorePersnolInfo}>
+                <View style={styles.headerStyle}>
+                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <MaterialIcons
+                      name="account-circle"
+                      size={28}
+                      color="#113fac"
+                      style={styles.icon}
+                    />
+                  </View>
+                  <Text style={styles.toggleText}>
+                    {isstorePersnolInfo
+                      ? `${t('personal_information')}`
+                      : `${t('personal_information')}`}
+                  </Text>
+                  <Text style={styles.toggleText}>
+                    {isstorePersnolInfo ? (
+                      <MaterialIcons
+                        name="do-not-disturb-on"
+                        size={25}
+                        color="red"
+                        style={styles.icon}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="add-circle"
+                        size={25}
+                        color="green"
+                        style={styles.icon}
+                      />
+                    )}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              {isLoading && (
+                <View style={styles.loadingScreen}>
+                  <LoadingScreen />
+                </View>
+              )}
+              {isstorePersnolInfo && (
+                <>
+                  {storePersnolInfo ? (
+                    storePersnolInfo.block ? (
+                      <View style={{margin: 10}}>
+                        <View style={styles.bodyContainer}>
+                          <View style={{alignItems: 'flex-end'}}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                navigation.navigate('PersnolUpdate', {
+                                  pagename: 'SignUpViwer',
+                                })
+                              }>
+                              <Image
+                                source={require('./Common/images/edit.png')}
+                                style={{width: 25, height: 25}}
+                              />
+                            </TouchableOpacity>
                           </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>{t('name')} </Text>
+
+                            <Text style={styles.value}>
                               {storePersnolInfo.name}
                             </Text>
                           </View>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {' '}
-                              {t('new_reg_phone_number')}{' '}
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>
+                              {t('new_reg_phone_number')}
                             </Text>
-                          </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
+
+                            <Text style={styles.value}>
                               {storeSignup.phone}
                             </Text>
                           </View>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {' '}
-                              {t('age')} {t('fin_year')}
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>{t('age')}</Text>
+                            <Text style={styles.value}>
+                              {storePersnolInfo.age} {t('fin_year')}
                             </Text>
                           </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
-                              {storePersnolInfo.age}
-                            </Text>
-                          </View>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}> {t('language')} </Text>
-                          </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>{t('language')} </Text>
+
+                            <Text style={styles.value}>
                               {storePersnolInfo.language.label}
                             </Text>
                           </View>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {' '}
-                              {t('farmer_reg_state')}{' '}
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>
+                              {t('farmer_reg_state')}
                             </Text>
-                          </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
+
+                            <Text style={styles.value}>
                               {storePersnolInfo.stateInfo.label}
                             </Text>
                           </View>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {' '}
-                              {t('select_district_county')}{' '}
+
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>
+                              {t('select_district_county')}
                             </Text>
-                          </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
+
+                            <Text style={styles.value}>
                               {storePersnolInfo.district.label}
                             </Text>
                           </View>
-                        </View>
-                        <View style={styles.mainContainer}>
-                          <View style={styles.leftSection}>
-                            <Text style={styles.title}>
-                              {' '}
+                          <View style={styles.mainContainer}>
+                            <Text style={styles.label}>
                               {t('select_block_sub_county_upzila').substring(
                                 0,
                                 17,
-                              )}{' '}
+                              )}
                             </Text>
-                          </View>
-                          <View style={styles.rightSection}>
-                            <Text style={styles.title}>
+
+                            <Text style={styles.value}>
                               {storePersnolInfo
                                 ? storePersnolInfo.block.label
                                 : ''}
@@ -521,286 +523,284 @@ const SignUpViwer = () => {
                           </View>
                         </View>
                       </View>
-                    </View>
+                    ) : (
+                      ''
+                    )
                   ) : (
                     ''
-                  )
-                ) : (
-                  ''
-                )}
-              </>
-            )}
-          </View>
-          <View
-            style={{
-              margin: 10,
-              elevation: 3,
-              borderRadius: 30,
-              paddingHorizontal: 10,
-              paddingVertical: 10,
-              backgroundColor: '#D5FFD0',
-            }}>
-            <TouchableOpacity onPress={togglestoreFinancial}>
-              <View style={styles.headerStyle}>
-                <Text style={[styles.title, {fontFamily: 'Poppins-SemiBold'}]}>
-                  {isstoreFinancial
-                    ? `${t('financial_information')}`
-                    : `${t('financial_information')}`}
-                </Text>
-                {isstoreFinancial ? (
-                  <Image
-                    source={require('./Common/images/sub.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                ) : (
-                  <Image
-                    source={require('./Common/images/add.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-            {isstoreFinancial && (
-              <>
-                {storeFinancial ? (
-                  <View style={{margin: 10}}>
-                    <View style={styles.bodyContainer}>
-                      <View style={{alignItems: 'flex-end'}}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            navigation.navigate('FinancialUpdate', {
-                              pagename: 'SignUpViwer',
-                            })
-                          }>
-                          <Image
-                            source={require('./Common/images/edit.png')}
-                            style={{width: 30, height: 30}}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.mainContainer}>
-                        <View style={styles.leftSection}>
-                          <Text style={styles.title}>
-                            {' '}
+                  )}
+                </>
+              )}
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                padding: 17,
+                borderWidth: 0,
+                borderColor: '#ddd',
+                backgroundColor: '#d3ced7',
+                borderRadius: 20,
+                marginVertical: 20,
+                elevation: 3,
+                // height: 55,
+                borderWidth: 0.5,
+                borderColor: 'black',
+              }}>
+              <TouchableOpacity onPress={togglestoreFinancial}>
+                <View style={styles.headerStyle}>
+                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <MaterialIcons
+                      name="badge"
+                      size={28}
+                      color="#113fac"
+                      style={styles.icon}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      {fontFamily: 'Poppins-SemiBold'},
+                    ]}>
+                    {isstoreFinancial
+                      ? `${t('financial_information')}`
+                      : `${t('financial_information')}`}
+                  </Text>
+                  <Text style={styles.toggleText}>
+                    {isstoreFinancial ? (
+                      <MaterialIcons
+                        name="do-not-disturb-on"
+                        size={25}
+                        color="red"
+                        style={styles.icon}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="add-circle"
+                        size={25}
+                        color="green"
+                        style={styles.icon}
+                      />
+                    )}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              {isstoreFinancial && (
+                <>
+                  {storeFinancial ? (
+                    <View style={{margin: 10}}>
+                      <View style={styles.bodyContainer}>
+                        <View style={{alignItems: 'flex-end'}}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              navigation.navigate('FinancialUpdate', {
+                                pagename: 'SignUpViwer',
+                              })
+                            }>
+                            <Image
+                              source={require('./Common/images/edit.png')}
+                              style={{width: 25, height: 25}}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.mainContainer}>
+                          <Text style={styles.label}>
                             {t('account_holder_name')}{' '}
                           </Text>
-                        </View>
-                        <View style={styles.rightSection}>
-                          <Text style={styles.title}>
+
+                          <Text style={styles.value}>
                             {storeFinancial.accountHolderName}
                           </Text>
                         </View>
-                      </View>
-                      <View style={styles.mainContainer}>
-                        <View style={styles.leftSection}>
-                          <Text style={styles.title}> {t('adhar_no')} </Text>
-                        </View>
-                        <View style={styles.rightSection}>
-                          <Text style={styles.title}>
+                        <View style={styles.mainContainer}>
+                          <Text style={styles.label}> {t('adhar_no')} </Text>
+
+                          <Text style={styles.value}>
                             {storeFinancial.adharCard}
                           </Text>
                         </View>
-                      </View>
-                      <View style={styles.mainContainer}>
-                        <View style={styles.leftSection}>
-                          <Text style={styles.title}>
-                            {' '}
-                            {t('lic_name_of_company')}{' '}
+                        <View style={styles.mainContainer}>
+                          <Text style={styles.label}>
+                            {t('lic_name_of_company')}
                           </Text>
-                        </View>
-                        <View style={styles.rightSection}>
-                          <Text style={styles.title}>
+
+                          <Text style={styles.value}>
                             {storeFinancial.ifscCode}
                           </Text>
                         </View>
-                      </View>
-                      <View style={styles.mainContainer}>
-                        <View style={styles.leftSection}>
-                          <Text style={styles.title}>
-                            {t('pension_providing_authority')}{' '}
+                        <View style={styles.mainContainer}>
+                          <Text style={styles.label}>
+                            {t('pension_providing_authority')}
                           </Text>
-                        </View>
-                        <View style={styles.rightSection}>
-                          <Text style={styles.title}>
+
+                          <Text style={styles.value}>
                             {storeFinancial.pensionProvidingAuthority}
                           </Text>
                         </View>
                       </View>
                     </View>
+                  ) : (
+                    ''
+                  )}
+                </>
+              )}
+            </View>
+            <View
+              style={{
+                marginTop: 10,
+                padding: 17,
+                borderWidth: 0,
+                borderColor: '#ddd',
+                backgroundColor: '#d3ced7',
+                borderRadius: 20,
+                marginVertical: 20,
+                elevation: 3,
+                // height: 55,
+                borderWidth: 0.5,
+                borderColor: 'black',
+              }}>
+              <TouchableOpacity onPress={togglestoreProduceInfo}>
+                <View style={styles.headerStyle}>
+                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <MaterialIcons
+                      name="article"
+                      size={28}
+                      color="#113fac"
+                      style={styles.icon}
+                    />
                   </View>
-                ) : (
-                  ''
-                )}
-              </>
-            )}
-          </View>
-          <View
-            style={{
-              margin: 10,
-              elevation: 3,
-              borderRadius: 30,
-              paddingHorizontal: 10,
-              paddingVertical: 10,
-              backgroundColor: '#D5FFD0',
-              marginBottom: 100,
-              zIndex: -1,
-            }}>
-            <TouchableOpacity onPress={togglestoreProduceInfo}>
-              <View style={styles.headerStyle}>
-                <Text style={[styles.title, {fontFamily: 'Poppins-SemiBold'}]}>
-                  {isstoreProduceInfo
-                    ? `${t('crop_information')}`
-                    : `${t('crop_information')}`}
-                </Text>
-
-                {isstoreProduceInfo ? (
-                  <Image
-                    source={require('./Common/images/sub.png')}
-                    style={{width: 20, height: 20}}
-                  />
-                ) : (
-                  <Image
-                    source={require('./Common/images/add.png')}
-                    style={{width: 20, height: 20, resizeMode: 'cover'}}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-            {isstoreProduceInfo && (
-              <>
-                {storeProduceInfo ? (
-                  <View style={{marginTop: 10, marginBottom: 30}}>
-                    {storeProduceInfo.map((item, index) => {
-                      return item.storeProduceInfo ? (
-                        <View style={styles.bodyContainer} key={index}>
-                          <View style={{alignItems: 'flex-end'}}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                navigation.navigate('ProduceInfoUpdate', {
-                                  pagename: 'SignUpViwer',
-                                  arrayIndex: index,
-                                })
-                              }>
-                              <Image
-                                source={require('./Common/images/edit.png')}
-                                style={{width: 30, height: 30}}
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          <View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {' '}
-                                  {t('pre_plot_name')}{' '}
+                  <Text style={styles.toggleText}>
+                    {isstoreProduceInfo
+                      ? `${t('crop_information')}`
+                      : `${t('crop_information')}`}
+                  </Text>
+                  <Text style={styles.toggleText}>
+                    {isstoreProduceInfo ? (
+                      <MaterialIcons
+                        name="do-not-disturb-on"
+                        size={25}
+                        color="red"
+                        style={styles.icon}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="add-circle"
+                        size={25}
+                        color="green"
+                        style={styles.icon}
+                      />
+                    )}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              {isstoreProduceInfo && (
+                <>
+                  {storeProduceInfo ? (
+                    <View style={{marginTop: 10}}>
+                      {storeProduceInfo.map((item, index) => {
+                        return item.storeProduceInfo ? (
+                          <View style={styles.bodyContainer} key={index}>
+                            <View style={{alignItems: 'flex-end'}}>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  navigation.navigate('ProduceInfoUpdate', {
+                                    pagename: 'SignUpViwer',
+                                    arrayIndex: index,
+                                  })
+                                }>
+                                <Image
+                                  source={require('./Common/images/edit.png')}
+                                  style={{width: 25, height: 25}}
+                                />
+                              </TouchableOpacity>
+                            </View>
+                            <View>
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
+                                  {t('pre_plot_name')}
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.plotSiteName}
                                 </Text>
                               </View>
-                            </View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {' '}
-                                  {t('pre_land_size')}{' '}
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
+                                  {t('pre_land_size')}
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.plotSize}
                                 </Text>
                               </View>
-                            </View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {' '}
-                                  {t('addland_unit')}
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
+                                  {t('addland_unit')}:
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.landUnitName}
                                 </Text>
                               </View>
-                            </View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {t('select_crop_name')}{' '}
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
+                                  {t('select_crop_name')}
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.produceName &&
                                     item.storeProduceInfo &&
                                     item.storeProduceInfo.produceName.label}
                                 </Text>
                               </View>
-                            </View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {' '}
-                                  {t('select_crop_variety')}{' '}
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
+                                  {t('select_crop_variety')}
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.produceVariety &&
                                     item.storeProduceInfo &&
                                     item.storeProduceInfo.produceVariety.label}
                                 </Text>
                               </View>
-                            </View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {' '}
-                                  {t('showing_date')}{' '}
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
+                                  {t('showing_date')}
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.cycleStarts}
                                 </Text>
                               </View>
-                            </View>
-                            <View style={styles.mainContainer}>
-                              <View style={styles.leftSection}>
-                                <Text style={styles.title}>
-                                  {' '}
+                              <View style={styles.mainContainer}>
+                                <Text style={styles.label}>
                                   {t('harvesting_date_auto_calculated')}{' '}
                                 </Text>
-                              </View>
-                              <View style={styles.rightSection}>
-                                <Text style={styles.title}>
+
+                                <Text style={styles.value}>
                                   {item.storeProduceInfo &&
                                     item.storeProduceInfo.cycleEnds}
                                 </Text>
                               </View>
                             </View>
                           </View>
-                        </View>
-                      ) : (
-                        ''
-                      );
-                    })}
-                  </View>
-                ) : (
-                  ''
-                )}
-              </>
-            )}
+                        ) : (
+                          ''
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    ''
+                  )}
+                </>
+              )}
+            </View>
           </View>
         </ScrollView>
         <View style={{marginTop: 10, backgroundColor: '#D5FFD0'}}>
@@ -815,38 +815,86 @@ export default SignUpViwer;
 
 const styles = StyleSheet.create({
   headerStyle: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: '#ffffffff',
+    height: 35,
+    width: '100%',
+    marginLeft: -5,
+    borderRadius: 8,
+    marginTop: -3,
+    borderRadius: 5,
+  },
+  headersContainer: {
+    marginHorizontal: '5%',
+
+    justifyContent: 'center',
     alignItems: 'center',
-    // borderColor: 'gray',
-    // borderWidth: 0.5,
-    padding: 5,
-    // backgroundColor: 'white',
+  },
+  headersTitle: {
+    paddingVertical: 5,
+    // fontWeight: 'bold',
+    fontSize: 18,
+    color: 'white',
+    fontFamily: 'Poppins-SemiBold',
   },
   bodyContainer: {
+    // backgroundColor: '#DAC0A3',
     backgroundColor: '#FFF',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-    zIndex: 1,
-    // borderWidth: 2,
-    // borderColor: 'black',
+    padding: 5,
+    // paddingHorizontal: 12,
+    borderRadius: 8,
+    // borderWidth:1,
+    borderColor: '#00000065',
+    justifyContent: 'center',
+    // elevation:5
   },
-
+  bodyContainerMarginBottom: {
+    // backgroundColor: '#DAC0A3',
+    backgroundColor: '#FFF',
+    padding: 5,
+    // paddingHorizontal: 12,
+    borderRadius: 8,
+    // borderWidth: 3,
+    // borderColor: '#00000065',
+    // elevation:5,
+  },
   viewText: {
     marginTop: 15,
   },
   mainContainer: {
-    flex: 1,
     flexDirection: 'row',
-    marginBottom: 15, // Display children in a row horizontally
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 5,
+    marginTop: 8, // Display children in a row horizontally
+  },
+  label: {
+    fontSize: 13.5,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+    flex: 1,
+  },
+  value: {
+    fontSize: 13.5,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    flex: 1,
+    textAlign: 'right',
   },
   leftSection: {
     flex: 1, // Take 50% of the available horizontal space
   },
   rightSection: {
     flex: 1, // Take 50% of the available horizontal space
+  },
+  toggleText: {
+    fontSize: 16,
+    color: 'black',
+    fontFamily: 'Poppins-SemiBold',
+    marginLeft: 15,
+    marginTop: 2,
   },
   title: {
     color: '#000',

@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, {useEffect, memo} from 'react';
 import {
   Animated,
   Image,
@@ -9,12 +9,12 @@ import {
   Easing,
 } from 'react-native';
 import moment from 'moment';
-import { Colors } from '../utils/Constants';
+import {Colors} from '../utils/Constants';
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
-const ListItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => {
+const ListItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
   const animVal = getAnimationValue(item.fid);
 
   useEffect(() => {
@@ -40,11 +40,11 @@ const ListItemComponent = ({ item, onPress, getAnimationValue, noticeList }) => 
   return (
     <AnimatedTouchableOpacity
       onPress={() => onPress(item.fid)}
-      style={[styles.listItem, { transform: [{ scale }] }]}
+      style={[styles.listItem, {transform: [{scale}]}]}
       activeOpacity={0.7}>
       <View style={styles.listImageContainer}>
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.listImage} />
+          <Image source={{uri: imageUri}} style={styles.listImage} />
         ) : (
           <Image
             source={require('./images/greenqube_logo.png')}

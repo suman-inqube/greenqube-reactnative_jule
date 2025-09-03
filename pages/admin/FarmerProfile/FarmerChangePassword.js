@@ -102,10 +102,15 @@ const FarmerChangePassword = ({navigation}) => {
               topBanner={topBanner}
             />
             {/* <FormsTitle title={t('change_password')} /> */}
-            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: 50,
+              }}>
               <Image
                 source={require('../../Common/images/changepass.png')}
-                style={{width: '80%', height: 180}}
+                style={{width: '80%', height: 150}}
               />
             </View>
             <View style={styles.forgotContainer}>
@@ -205,7 +210,7 @@ export default FarmerChangePassword;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.pageBackground,
+    backgroundColor: 'white',
     // height: '100%',
     flex: 1,
   },
@@ -214,8 +219,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: 'white',
     marginHorizontal: '4%',
-    borderWidth: 0.5,
-    borderColor: Colors.borderGreen,
+    // borderWidth: 0.5,
+    // borderColor: Colors.borderGreen,
     // paddingTop: 10,
     // marginBottom: 30,
     height: '30%',
@@ -262,7 +267,9 @@ const styles = StyleSheet.create({
     color: '#037e03',
   },
   formMargin: {
-    color: '#000',
+    color: '#4e4e4e',
     fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
   },
 });

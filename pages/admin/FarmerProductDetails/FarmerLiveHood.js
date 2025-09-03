@@ -54,6 +54,8 @@ import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -83,7 +85,8 @@ const FarmerLiveHood = ({
     Toast,
     AlertMesg,
     ButtonFormBottom,
-    ButtonForm,coords
+    ButtonForm,
+    coords,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner, carbonFlag} = loginUser_data;
   //GQR-67
@@ -481,11 +484,7 @@ const FarmerLiveHood = ({
   const handleCurrentLatLong = async index => {
     const {latitude, longitude} = coords;
     const values = [...location];
-    if (
-      coords != null &&
-      longitude &&
-      latitude
-    ) {
+    if (coords != null && longitude && latitude) {
       values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(
@@ -2057,7 +2056,38 @@ const FarmerLiveHood = ({
               value={farmerData.IOTId}
             />
           </View>
-          <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
+
+          <View style={styles.locationContainer}>
+            <View style={styles.locationHeader}>
+              <Text style={styles.locationTitle}>
+                {t('Geo tag IOT Device')}
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => handleCurrentLatLongIOT()}
+                style={styles.locationStatusInactive}>
+                <MaterialIcons name="location-on" size={20} color="#F44336" />
+                <Text style={styles.locationStatusText}>{t('tap_to_tag')}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.coordinatesContainer}>
+              <View style={styles.coordinateItem}>
+                <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
+                <Text style={styles.coordinateText}>
+                  {t('lat')}: {farmerData.IOTLatlat}
+                </Text>
+              </View>
+              <View style={styles.coordinateItem}>
+                <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
+                <Text style={styles.coordinateText}>
+                  {t('long')}:{farmerData.IOTLatLong}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
             <View style={styles.latlongContainer}>
               <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
               <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
@@ -2070,7 +2100,7 @@ const FarmerLiveHood = ({
                 resizeMode="contain"
               />
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <ProofAndIdentityPropfComp
             t={t}
             title={t('address_proof')}
@@ -2552,5 +2582,76 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
+  },
+  locationContainer: {
+    backgroundColor: '#f6f7ffff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+
+    marginTop: 10,
+    borderWidth: 2,
+    borderStyle: 'dotted',
+    borderColor: Colors.border,
+  },
+  locationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  locationTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    fontFamily: 'Poppins-Medium',
+  },
+  locationStatusActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  locationStatusInactive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  locationStatusText: {
+    marginLeft: 5,
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: 'black',
+  },
+  coordinatesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  coordinateItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    padding: 8,
+    borderRadius: 5,
+    width: '48%',
+  },
+  coordinateText: {
+    marginLeft: 2,
+    fontSize: 12,
+    color: '#0D47A1',
+    fontFamily: 'Poppins-Regular',
+  },
+  coordinatePlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    borderRadius: 5,
+    backgroundColor: '#F5F5F5',
   },
 });

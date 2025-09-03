@@ -1067,7 +1067,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     backgroundColor: Colors.background, // marginTop: 30,
-    borderRadius: 8,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: Colors.border,
     marginHorizontal: '4%',

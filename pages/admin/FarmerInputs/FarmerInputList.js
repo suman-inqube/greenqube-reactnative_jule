@@ -28,6 +28,8 @@ import InputProductCard from '../../Components/InputProductCard';
 import {Colors} from '../../utils/Constants';
 import SearchBy from '../Inputs/SearchBy';
 import SearchSubBy from '../Inputs/SearchSubBy';
+import {FloatingAction} from 'react-native-floating-action';
+import {inputViewPast} from '../../utils/options';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const FarmerInputList = ({navigation}) => {
   const {
@@ -227,15 +229,25 @@ const FarmerInputList = ({navigation}) => {
               keyExtractor={(item, index) => index}
             />
           )}
-
-          <View style={styles.viewPastBtn}>
+          <FloatingAction
+            position="right"
+            actions={inputViewPast(t, styles, Colors)}
+            color={Colors.useGreen}
+            showBackground
+            overlayColor="rgba(22, 17, 17, 0.35)"
+            distanceToEdge={{vertical: 80, horizontal: 25}}
+            onPressItem={name => {
+              navigation.navigate('FarmerPastEnquiry');
+            }}
+          />
+          {/* <View style={styles.viewPastBtn}>
             <TouchableOpacity
               onPress={() => navigation.navigate('FarmerPastEnquiry')}>
               <Text style={styles.viewPastBtnText}>
                 {t('view_input_requested')}
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </View>
     </FarmerDrawerScreenWrapper1>

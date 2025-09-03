@@ -512,7 +512,7 @@ const FarmerLoanEnquiryDetail = () => {
                 <MaterialIcons name="money-off" size={20} color="#4a8c29" />
                 <View style={styles.infoTextContainer}>
                   <Text style={styles.infoLabel}>
-                    {t('existing_loan_amount') + ` (${currency})`} ({currency})
+                    {t('existing_loan_amount') + ` (${currency})`}
                   </Text>
                   <Text style={styles.infoValue}>{existing_loan_amount}</Text>
                 </View>
