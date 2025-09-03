@@ -171,6 +171,8 @@ const CustomHeader = memo(
         FarmerInputList: t('products'),
         FarmerDashboard: 'FarmerDashboard',
         FarmerProfile: t('farmer_profile'),
+        UsefulInformationList: t('dash_useful_information_list'),
+        UsefulInformation: t('dash_useful_information'),
       }),
       [t],
     );

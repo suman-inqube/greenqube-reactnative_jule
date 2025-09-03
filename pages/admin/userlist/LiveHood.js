@@ -2216,9 +2216,17 @@ const LiveHood = ({
                   : null
               }
               activeOpacity={9}>
-              <Text style={{marginBottom: 5, color: '#f40000', marginTop: 10}}>
-                {t('harvesting_date_auto_calculated')}
-              </Text>
+              <View style={styles.labelContainer2}>
+                <Text
+                  style={{
+                    color: '#4e4e4e',
+                    fontFamily: Fonts.Regular,
+                    fontSize: 15,
+                  }}>
+                  {t('harvesting_date_auto_calculated')}
+                </Text>
+                <Text style={styles.requiredStar}> *</Text>
+              </View>
               <View style={styles.calenderContainer}>
                 <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
                 <Image

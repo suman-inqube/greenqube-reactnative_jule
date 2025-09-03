@@ -549,7 +549,7 @@
   "select_district_first": "Please Select District First",
   "add_plot": "Add Plot/Site",
   "click_to_add_more_plot": "Click to add more plots/sites",
-  "register_nfarmer": "UserRegistration",
+  "register_nfarmer": "Registration",
   "farmer_nlist": " User\nList",
   "land_ndetails": "Plot/Site\nDetails",
   "crop_ndetails": "Produce\nDetails",
@@ -1078,13 +1078,14 @@
              "not_captured_yet": "Not Captured Yet",
              "Registation_SignUp_Viwer":"Registation SignUp Viwer",
              "Post_New":"Post New",
-             "Attached_land_records": "Attached Supporting Documents",
+  "Attached_land_records": "Attached Supporting Documents",
   "Attached_address_proof": "Attached  Land Record",
     "Attched_identity_proof": "Attached Identity Proof",
     "dash_useful_information_list":"Useful Information List",
     "training_support_list":"Training List",
     " Farmer_LiveHood":"Livelihood",
-    "Package_Item_Details":"Package Item Details"
+    "Package_Item_Details":"Package Item Details",
+    "Finance":"Finance"
 
 
 
