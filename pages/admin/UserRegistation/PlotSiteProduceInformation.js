@@ -1001,16 +1001,18 @@ const PlotSiteProduceInformation = () => {
           overlapFound = true;
         }
       });
-      if (!overlapFound) {
-      } else {
-        Alert.alert(
-          'Overlap Detected',
-          'Coordinates are overlapping',
-          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          {cancelable: false},
-        );
-        return;
-      }
+      // stop
+      // if (!overlapFound) {
+      // } else {
+      //   Alert.alert(
+      //     'Overlap Detected',
+      //     'Coordinates are overlapping',
+      //     [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+      //     {cancelable: false},
+      //   );
+      //   return;
+      // }
+      // stop
       // setPolygons([newPolygon]);
       // setPolygons(nearPolSet);
       if (route?.params?.editItem) {

@@ -106,7 +106,7 @@ const SplashScreen = ({ navigation }) => {
     navigationTimeoutRef.current = setTimeout(() => {
       if (isMountedRef.current && navigation) {
         try {
-          navigation.replace(routeName, params);
+          navigation.replace(routeName);
         } catch (error) {
           console.warn('Navigation error:', error);
           CrashlyticsRecordError(error, 'SplashScreen', 'safeNavigate');
@@ -241,6 +241,7 @@ const SplashScreen = ({ navigation }) => {
           safeNavigate(navigationTarget);
         }
       } else if (companyLanguage_data) {
+        i18next.changeLanguage('1');
         safeNavigate('Login');
       } else {
         await fetchDatabaseList();

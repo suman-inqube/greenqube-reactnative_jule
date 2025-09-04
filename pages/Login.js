@@ -12,14 +12,14 @@ import {
   StatusBar,
   Modal,
 } from 'react-native';
-import React, {useEffect, useState, useContext} from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import FilterDropDownForm from './Common/FilterDropDownForm';
 import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
-import {getItem, removeItem, setItem} from '../config/getDataFromStorage';
+import { getItem, removeItem, setItem } from '../config/getDataFromStorage';
 import {
   databaseListAPI,
   fpodetailsDataListAPI,
@@ -30,11 +30,11 @@ import {
 } from '../config/apiHere';
 import MessageDialog from './Common/MessageDialog';
 import i18next from './services/i18next';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
-import {Root, Popup, Toast} from 'react-native-popup-confirm-toast';
+import { Root, Popup, Toast } from 'react-native-popup-confirm-toast';
 import Checkbox from './Common/CheckboxCom';
-import {AlertMesg} from './Common/ToastAlert';
+import { AlertMesg } from './Common/ToastAlert';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {
@@ -42,28 +42,28 @@ import {
   useIsFocused,
   StackActions,
 } from '@react-navigation/native';
-import {Permission, PERMISSIONS_TYPE} from './AppPermission/AppPermission';
+import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
-import {userCreateContext} from './Context/usersCreateContext';
+import { userCreateContext } from './Context/usersCreateContext';
 import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
-import {axiosPost} from './utils/api';
-import {ROUTES} from './utils/Routes';
+import { axiosPost } from './utils/api';
+import { ROUTES } from './utils/Routes';
 
-const Login = ({route}) => {
-  const {setlogoImage, settopBanner, AllFarmerList, t} =
+const Login = ({ route }) => {
+  const { setlogoImage, settopBanner, AllFarmerList, t } =
     useContext(userCreateContext);
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const roleData = [
-    {label: t('login_farmer'), value: '2'},
-    {label: t('retailer'), value: '3'},
+    { label: t('login_farmer'), value: '2' },
+    { label: t('retailer'), value: '3' },
   ];
   const [checked, setChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   // const { fusedLocationData } = ForegroundLocationService();
-  const {requestUserPermission, notificationListener} = NotificationServices();
+  const { requestUserPermission, notificationListener } = NotificationServices();
   const [isLoading, setIsLoading] = useState(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -294,8 +294,9 @@ const Login = ({route}) => {
             }
           }
           if (fpoDetailsList_res?.status === 200) {
-            // i18next.changeLanguage(loginUserdata?.lan_id.toString());
-            const {company_website} = fpoDetailsList_res.data.data[0];
+
+            //   i18next.changeLanguage(`${loginUserdata?.lan_id}`);
+            const { company_website } = fpoDetailsList_res.data.data[0];
             var url_regex = /^(http|https)/;
             if (url_regex.test(String(company_website).toLowerCase()) == true) {
               await setItem('company_website', company_website);
@@ -436,7 +437,7 @@ const Login = ({route}) => {
     // }
     if (companyLanguage_data != '' && companyLanguage_data != null) {
       setcompanyLanguage(companyLanguage_data);
-      const {country_id, company, language} = companyLanguage_data;
+      const { country_id, company, language } = companyLanguage_data;
       checkPhoneNumber(country_id, company, language);
 
       if (companyFirstEntry == 1) {
@@ -480,7 +481,7 @@ const Login = ({route}) => {
     if (company_res.status == 200) {
       let companyArray = [];
       company_res?.data?.data?.map((data, index) => {
-        const {company_id, agri_company, db_name} = data;
+        const { company_id, agri_company, db_name } = data;
         companyArray.push({
           value: company_id,
           label: agri_company.company_name,
@@ -493,10 +494,8 @@ const Login = ({route}) => {
   };
   useEffect(() => {
     try {
-      if (isFocused) {
-        onPageLoad();
-        // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
-      }
+      onPageLoad();
+      // PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
       if (route.params === undefined) {
         i18next.changeLanguage('1');
       } else {
@@ -505,16 +504,19 @@ const Login = ({route}) => {
     } catch (err) {
       console.error(err);
     }
-  }, [isFocused, netConnection]);
+  }, [netConnection]);
+  useEffect(() => {
+
+  }, [])
   const onChangeConpany = async item => {
     // db_name:dbname, company_id:value, agri_company.country_id:country_id
-    const {country_id, dbname, value, label} = item;
-    const {language} = companyLanguage;
-    setstoreLoginUser({
-      ...storeLoginUser,
+    const { country_id, dbname, value, label } = item;
+    const { language } = companyLanguage;
+    setstoreLoginUser(prev => ({
+      ...prev,
       company: value,
       company_lable: label,
-    });
+    }));
     checkPhoneNumber(country_id, dbname, language);
   };
   const checkPhoneNumber = async (country_id, company, language) => {
@@ -524,7 +526,7 @@ const Login = ({route}) => {
       language,
     );
     if (checkPhoneNumber.status == 200) {
-      const {contact_no_digits} = checkPhoneNumber.data?.data;
+      const { contact_no_digits } = checkPhoneNumber.data?.data;
       setcontact_no_digits(contact_no_digits);
     }
   };
@@ -567,7 +569,7 @@ const Login = ({route}) => {
                 keyboardType="numeric"
                 value={storeLoginUser.phone}
                 onChangeText={phone =>
-                  setstoreLoginUser({...storeLoginUser, phone: phone})
+                  setstoreLoginUser({ ...storeLoginUser, phone: phone })
                 }
                 maxLength={contact_no_digits}
               />
@@ -586,7 +588,7 @@ const Login = ({route}) => {
                 placeholder={t('enter_your_Password')}
                 secureTextEntry={!showPassword}
                 onChangeText={password =>
-                  setstoreLoginUser({...storeLoginUser, password: password})
+                  setstoreLoginUser({ ...storeLoginUser, password: password })
                 }
                 value={storeLoginUser.password}
               />
@@ -599,13 +601,13 @@ const Login = ({route}) => {
               </TouchableOpacity>
             </View>
 
-            <View style={{marginTop: 20}}>
+            <View style={{ marginTop: 20 }}>
               <DropdownForm11
                 data={roleData}
                 label={t('select_role')}
                 searchPlaceholder="Search by role"
                 onChange={role =>
-                  setstoreLoginUser({...storeLoginUser, role: role.value})
+                  setstoreLoginUser({ ...storeLoginUser, role: role.value })
                 }
                 val={storeLoginUser.role}
                 dropdownStyle={{
@@ -616,7 +618,7 @@ const Login = ({route}) => {
               />
             </View>
 
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <CompanyDropdown
                 data={companyData}
                 label={t('select_company')}
@@ -642,7 +644,7 @@ const Login = ({route}) => {
                       name="check"
                       size={16}
                       color="white"
-                      style={{position: 'absolute'}}
+                      style={{ position: 'absolute' }}
                     />
                   )}
                 </TouchableOpacity>

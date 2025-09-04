@@ -1036,6 +1036,7 @@ const LiveHood = ({
     }
   };
   const handleUserListUpdate = useCallback(async () => {
+   
     Keyboard.dismiss();
     const locationArry = [];
     const latlongArr = [];
@@ -1388,7 +1389,7 @@ const LiveHood = ({
         setIsLoading(false);
       }
     }
-  }, [farmerData]);
+  }, [farmerData,location]);
   const handleUserData = async () => {
     setOutofRange(false);
     setAddPlot(true);

@@ -178,7 +178,7 @@ const UserList = ({ navigation }) => {
       handleFilterResult: handleFilterResult,
       handleFilterRemove: handleFilterRemove,
       navigationBarHeight: navigationBarHeight,
-      height: 100
+      height: 125
     });
   };
 
