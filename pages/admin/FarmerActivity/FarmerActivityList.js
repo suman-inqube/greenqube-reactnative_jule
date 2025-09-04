@@ -3,7 +3,8 @@ import {
   View,
   FlatList,
   SafeAreaView,
-  InteractionManager, RefreshControl
+  InteractionManager,
+  RefreshControl,
 } from 'react-native';
 import React, {
   useEffect,
@@ -12,26 +13,28 @@ import React, {
   useCallback,
   lazy,
   useRef,
-  memo, useMemo
+  memo,
+  useMemo,
 } from 'react';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { SPSheet } from 'react-native-popup-confirm-toast';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {SPSheet} from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
 import PaginationNav from '../../Components/PaginationNav';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import ActivityCard from '../../Components/ActivityCard';
 import {
   getActionsActivity,
-  CARBON_TYPE, OPTIONS_CARBON_FARMER
+  CARBON_TYPE,
+  OPTIONS_CARBON_FARMER,
 } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-import { useIsFocused } from '@react-navigation/native';
-const FarmerActivityList = ({ navigation }) => {
+import {useIsFocused} from '@react-navigation/native';
+const FarmerActivityList = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -43,24 +46,25 @@ const FarmerActivityList = ({ navigation }) => {
     logoImage,
     topBanner,
     DeviceInfo,
-    Root, navigationBarHeight
+    Root,
+    navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
+  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   const isFocused = useIsFocused();
   const flatListRef = useRef(null);
   //GQR-67
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const [isLoading, setIsLoading] = useState(true);
   const [activityAll, setActivityAll] = useState([]);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [carbonType, setCarbonType] = useState({ label: '', value: '' });
+  const [carbonType, setCarbonType] = useState({label: '', value: ''});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const [filterItem, setFilterItem] = useState('');
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['', '', 'date', 'carbon'],
       t: t,
@@ -83,7 +87,7 @@ const FarmerActivityList = ({ navigation }) => {
     });
   }, [fromDate, toDate, filterItem]);
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -101,9 +105,7 @@ const FarmerActivityList = ({ navigation }) => {
           sheetCarbonType?.value,
           filter,
         );
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
     [],
   );
@@ -112,7 +114,7 @@ const FarmerActivityList = ({ navigation }) => {
       setFilterItem('');
       setFromDate('');
       setToDate('');
-      setCarbonType({ label: "", value: "" });
+      setCarbonType({label: '', value: ''});
       fetchActivityListAPI(1, '', '', '', '', '');
       setPage(1);
     } catch (error) {
@@ -131,21 +133,21 @@ const FarmerActivityList = ({ navigation }) => {
       var response = await axiosGet(
         ROUTES.GET.USER_ACTIVITY({
           pageNO: pageNo,
-          carbonType: carbonTypeParams == undefined
-            ? carbonType.value
-            : carbonTypeParams,
-          userID: "",
+          carbonType:
+            carbonTypeParams == undefined ? carbonType.value : carbonTypeParams,
+          userID: '',
           searchItem: searchItem,
           from_date: fromDateParams == undefined ? fromDate : fromDateParams,
           to_date: toDateParams == undefined ? toDate : toDateParams,
         }),
         token,
-        { information: `${dbname},${lan_id},${user_id}` },
+        {information: `${dbname},${lan_id},${user_id}`},
       );
       await setItem('farmerActivityList' + user_id, response);
     } else {
       var response = await getItem('farmerActivityList' + user_id);
     }
+    // console.log('response', response.status);
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response?.data?.data.count / 20));
       setActivityAll(response?.data?.data.rows);
@@ -154,9 +156,8 @@ const FarmerActivityList = ({ navigation }) => {
     }
     setIsLoading(false);
     if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+      flatListRef.current.scrollToOffset({offset: 0, animated: true});
     }
-
   };
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -190,24 +191,29 @@ const FarmerActivityList = ({ navigation }) => {
       navigation.navigate('FarmerActivityReport');
     }
   };
-  const renderCustomHeader = useMemo(() => <CustomHeader
-    logoImage={logoImage}
-    topBanner={topBanner}
-    filterOptionShow={filterOptionShow}
-    t={t}
-  />, [filterOptionShow]);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+        t={t}
+      />
+    ),
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
           <SafeAreaView style={styles.container}>
             {renderCustomHeader}
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
               <>
                 <FlatList
                   ref={flatListRef}
-                  data={isLoading ? Array.from({ length: 5 }) : activityAll}
-                  renderItem={({ item, index }) =>
+                  data={isLoading ? Array.from({length: 5}) : activityAll}
+                  renderItem={({item, index}) =>
                     isLoading ? (
                       <SkeletonCardActivityList />
                     ) : (
@@ -229,7 +235,7 @@ const FarmerActivityList = ({ navigation }) => {
                       tintColor="#4CAF50"
                     />
                   }
-                  contentContainerStyle={{ padding: 20, paddingBottom: 50 }}
+                  contentContainerStyle={{padding: 20, paddingBottom: 50}}
                   showsVerticalScrollIndicator={false}
                   initialNumToRender={5}
                   windowSize={5}
@@ -253,7 +259,7 @@ const FarmerActivityList = ({ navigation }) => {
                   }}
                   showBackground={true}
                   overlayColor="rgba(22, 17, 17, 0.35)"
-                  distanceToEdge={{ vertical: 80, horizontal: 25 }}
+                  distanceToEdge={{vertical: 80, horizontal: 25}}
                 />
               </>
             </View>
@@ -277,7 +283,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -447,7 +453,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,

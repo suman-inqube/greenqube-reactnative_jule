@@ -1,11 +1,11 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Keyboard,
-} from 'react-native';
-import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
+import {StyleSheet, Text, View, ScrollView, Keyboard} from 'react-native';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 import ImageForm from '../../Common/ImageForm';
 import {
   fetchBlockAPI,
@@ -13,7 +13,7 @@ import {
   fetchStateAPI,
   UserInformationUpdate,
 } from './UsersAPI';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import config from '../../../config';
 import {
@@ -23,18 +23,18 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import LoadingScreen from '../../Common/LoadingScreen';
-import { addIdAddressImgs, onlyUpdateIdAddrFile } from '../../../config/apiHere';
-import { deletePlotImageAPI } from '../Loan/LoanAPI';
-import { Colors } from '../../utils/Constants';
+import {addIdAddressImgs, onlyUpdateIdAddrFile} from '../../../config/apiHere';
+import {deletePlotImageAPI} from '../Loan/LoanAPI';
+import {Colors} from '../../utils/Constants';
 const qs = require('qs');
 import DatePickerField from '../../Common/DatePickerField';
 import DatePickerComp from '../../Common/DatePickerComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const Information = ({ sendDataToParent, farmerID }) => {
+const Information = ({sendDataToParent, farmerID}) => {
   //GQR-66
   const {
     t,
@@ -55,7 +55,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
     effective_dates,
     loginUser_data,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
+  const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
   //GQR-66
   const navigation = useNavigation();
   const route = useRoute();
@@ -74,7 +74,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
   const [districtAll, setdistrictAll] = useState([]);
   const [blockAll, setblockAll] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [myphoto, setmyPhoto] = useState({ uri: '', type: '', name: '' });
+  const [myphoto, setmyPhoto] = useState({uri: '', type: '', name: ''});
   const [farmerData, setFarmerData] = useState({
     userName: '',
     contactNumber: '',
@@ -188,8 +188,8 @@ const Information = ({ sendDataToParent, farmerID }) => {
     }
   };
 
-  const handleState = useCallback((item) => {
-    const { value, label } = item || {};
+  const handleState = useCallback(item => {
+    const {value, label} = item || {};
     setIsLoading(true);
     setFarmerData(prev => ({
       ...prev,
@@ -203,8 +203,8 @@ const Information = ({ sendDataToParent, farmerID }) => {
     getDistrict(dbname, lan_id, value);
     setIsLoading(false);
   }, []);
-  const handleDistrict = useCallback((item) => {
-    const { value, label } = item || {};
+  const handleDistrict = useCallback(item => {
+    const {value, label} = item || {};
     setIsLoading(true);
     setFarmerData(prev => ({
       ...prev,
@@ -220,7 +220,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
     setOpen(true);
   }, []);
   const handleEffectFrom = useCallback(async item => {
-    setFarmerData(prev => ({ ...prev, effective_from: effective_dates(item) }));
+    setFarmerData(prev => ({...prev, effective_from: effective_dates(item)}));
   }, []);
   const onPageLoad = async () => {
     setIsLoading(true);
@@ -233,7 +233,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
     ]);
     if (loginUser_data) {
       setcurrency(curr);
-      const { dbname, lan_id, token, user_id } = loginUser_data;
+      const {dbname, lan_id, token, user_id} = loginUser_data;
       setregionaldatas(prev => ({
         ...prev,
         state: state,
@@ -241,7 +241,9 @@ const Information = ({ sendDataToParent, farmerID }) => {
         block: block,
       }));
       if (userListData) {
-        const farmerFound = userListData?.find(user => user.user_id === farmeruserID);
+        const farmerFound = userListData?.find(
+          user => user.user_id === farmeruserID,
+        );
         if (farmerFound) {
           const dob = new Date(farmerFound.date_of_birth);
           const currentDate = new Date();
@@ -273,8 +275,8 @@ const Information = ({ sendDataToParent, farmerID }) => {
 
             // Update address proof in the same object
             farmerFound.agri_files
-              .filter((file) => file.term_type === 'farmer_address')
-              .map((_file) => {
+              .filter(file => file.term_type === 'farmer_address')
+              .map(_file => {
                 values_adress[0] = {
                   ...values_adress[0], // Keep other properties intact
                   uri: _file.file_path,
@@ -289,8 +291,8 @@ const Information = ({ sendDataToParent, farmerID }) => {
 
             // Update identity proof in the same object
             farmerFound.agri_files
-              .filter((file) => file.term_type === 'farmer_identity')
-              .map((_file) => {
+              .filter(file => file.term_type === 'farmer_identity')
+              .map(_file => {
                 values_adress[1] = {
                   ...values_adress[1], // Keep other properties intact
                   uri: _file.file_path,
@@ -305,7 +307,6 @@ const Information = ({ sendDataToParent, farmerID }) => {
 
             // Update the state with modified objects
             setIdentityProofIdentityPropf(values_adress);
-
           }
           setFarmerData(prev => ({
             ...prev,
@@ -324,7 +325,8 @@ const Information = ({ sendDataToParent, farmerID }) => {
               farmerFound?.agri_user_addresses[0]?.agri_district?.district_name,
             block: farmerFound?.agri_user_addresses[0]?.agri_subdivision?.fid,
             blockName:
-              farmerFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
+              farmerFound?.agri_user_addresses[0]?.agri_subdivision
+                ?.subdiv_name,
             aadhar_number: farmerFound?.aadhar_number,
             pan_number: farmerFound?.pan_number,
             voter_card_number: farmerFound?.voter_card_number,
@@ -355,12 +357,18 @@ const Information = ({ sendDataToParent, farmerID }) => {
     onPageLoad();
   }, []);
   const handleUserListUpdate = async () => {
-    if (farmerData?.stateName == "" || farmerData?.stateName == undefined) {
-      Toast.show({ text: t('select_state_first'), ...AlertMesg[0] });
-    } else if (farmerData?.districtName == "" || farmerData?.districtName == undefined) {
-      Toast.show({ text: t('select_district_first'), ...AlertMesg[0] });
-    } else if (farmerData?.blockName == "" || farmerData?.blockName == undefined) {
-      Toast.show({ text: t('select_block_first'), ...AlertMesg[0] });
+    if (farmerData?.stateName == '' || farmerData?.stateName == undefined) {
+      Toast.show({text: t('select_state_first'), ...AlertMesg[0]});
+    } else if (
+      farmerData?.districtName == '' ||
+      farmerData?.districtName == undefined
+    ) {
+      Toast.show({text: t('select_district_first'), ...AlertMesg[0]});
+    } else if (
+      farmerData?.blockName == '' ||
+      farmerData?.blockName == undefined
+    ) {
+      Toast.show({text: t('select_block_first'), ...AlertMesg[0]});
     } else {
       try {
         setIsLoading(true);
@@ -447,7 +455,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
           identityProofIdentityPropf[0]?.fileName != '' &&
           identityProofIdentityPropf[0]?.fileName != ''
         ) {
-          const { uri, type, name } = identityProofIdentityPropf[0];
+          const {uri, type, name} = identityProofIdentityPropf[0];
           formDataPlotImg.append('farmer_address', {
             uri: uri,
             type: type,
@@ -458,7 +466,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
           identityProofIdentityPropf[1]?.fileName != '' &&
           identityProofIdentityPropf[1]?.fileName != ''
         ) {
-          const { uri, type, name } = identityProofIdentityPropf[1];
+          const {uri, type, name} = identityProofIdentityPropf[1];
           formDataPlotImg.append('farmer_identity', {
             uri: uri,
             type: type,
@@ -499,10 +507,10 @@ const Information = ({ sendDataToParent, farmerID }) => {
               CommonActions.reset({
                 index: 1,
                 routes: [
-                  { name: 'Dashboard' },
+                  {name: 'Dashboard'},
                   {
                     name: 'Dashboard',
-                    params: { pagename: 'Dashboard' },
+                    params: {pagename: 'Dashboard'},
                   },
                 ],
               }),
@@ -563,74 +571,95 @@ const Information = ({ sendDataToParent, farmerID }) => {
           file_delete_ids: photoId?.toString(),
         });
         const [deletePlotImageAPIRes] = await Promise.all([
-          deletePlotImageAPI(
-            dbname,
-            lan_id,
-            token,
-            formDataDelete,
-          ),
+          deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
         ]);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  const handleUserNameChange = useCallback((userName) => {
-    setFarmerData(prev => ({ ...prev, userName }));
+  const handleUserNameChange = useCallback(userName => {
+    setFarmerData(prev => ({...prev, userName}));
   }, []);
-  const handleVoterCardChange = useCallback((voterCardNumber) => {
-    setFarmerData(prev => ({ ...prev, voter_card_number: voterCardNumber }));
+  const handleVoterCardChange = useCallback(voterCardNumber => {
+    setFarmerData(prev => ({...prev, voter_card_number: voterCardNumber}));
   }, []);
-  const handleKccNoChange = useCallback((kccNumber) => {
-    setFarmerData(prev => ({ ...prev, kcc_number: kccNumber }));
+  const handleKccNoChange = useCallback(kccNumber => {
+    setFarmerData(prev => ({...prev, kcc_number: kccNumber}));
   }, []);
-  const handleUserBankAccountHolderChange = useCallback((userBankAccountHolder) => {
-    setFarmerData(prev => ({ ...prev, user_bank_account_holder: userBankAccountHolder }));
+  const handleUserBankAccountHolderChange = useCallback(
+    userBankAccountHolder => {
+      setFarmerData(prev => ({
+        ...prev,
+        user_bank_account_holder: userBankAccountHolder,
+      }));
+    },
+    [],
+  );
+  const handleUserBankAccountNameChange = useCallback(userBankAccountName => {
+    setFarmerData(prev => ({
+      ...prev,
+      user_bank_account_name: userBankAccountName,
+    }));
   }, []);
-  const handleUserBankAccountNameChange = useCallback((userBankAccountName) => {
-    setFarmerData(prev => ({ ...prev, user_bank_account_name: userBankAccountName }));
+  const handleUserBankBranchNameChange = useCallback(userBankBranchName => {
+    setFarmerData(prev => ({
+      ...prev,
+      user_bank_branch_name: userBankBranchName,
+    }));
   }, []);
-  const handleUserBankBranchNameChange = useCallback((userBankBranchName) => {
-    setFarmerData(prev => ({ ...prev, user_bank_branch_name: userBankBranchName }));
+  const handleUserBankAccountNumberChange = useCallback(
+    userBankAccountNumber => {
+      setFarmerData(prev => ({
+        ...prev,
+        user_bank_account_number: userBankAccountNumber,
+      }));
+    },
+    [],
+  );
+  const handleUserBankIfscCodeChange = useCallback(userBankIfscCode => {
+    setFarmerData(prev => ({...prev, user_bank_ifsc_code: userBankIfscCode}));
   }, []);
-  const handleUserBankAccountNumberChange = useCallback((userBankAccountNumber) => {
-    setFarmerData(prev => ({ ...prev, user_bank_account_number: userBankAccountNumber }));
+  const handlePensionAuthorityChange = useCallback(pensionAuthority => {
+    setFarmerData(prev => ({...prev, pension_authority: pensionAuthority}));
   }, []);
-  const handleUserBankIfscCodeChange = useCallback((userBankIfscCode) => {
-    setFarmerData(prev => ({ ...prev, user_bank_ifsc_code: userBankIfscCode }));
+  const handlePensionAccountNumberChange = useCallback(pensionAccountNumber => {
+    setFarmerData(prev => ({
+      ...prev,
+      pension_account_no: pensionAccountNumber,
+    }));
   }, []);
-  const handlePensionAuthorityChange = useCallback((pensionAuthority) => {
-    setFarmerData(prev => ({ ...prev, pension_authority: pensionAuthority }));
+  const handlePensionAmountChange = useCallback(pensionAmount => {
+    setFarmerData(prev => ({...prev, pension_amount: pensionAmount}));
   }, []);
-  const handlePensionAccountNumberChange = useCallback((pensionAccountNumber) => {
-    setFarmerData(prev => ({ ...prev, pension_account_no: pensionAccountNumber }));
+  const handleFrequencyChange = useCallback(frequency => {
+    setFarmerData(prev => ({...prev, frequency: frequency.value}));
   }, []);
-  const handlePensionAmountChange = useCallback((pensionAmount) => {
-    setFarmerData(prev => ({ ...prev, pension_amount: pensionAmount }));
+  const handleCompanyNameChange = useCallback(companyName => {
+    setFarmerData(prev => ({...prev, company_name: companyName}));
   }, []);
-  const handleFrequencyChange = useCallback((frequency) => {
-    setFarmerData(prev => ({ ...prev, frequency: frequency.value }));
+  const handlePolicyNumberChange = useCallback(policyNumber => {
+    setFarmerData(prev => ({...prev, policy_no: policyNumber}));
   }, []);
-  const handleCompanyNameChange = useCallback((companyName) => {
-    setFarmerData(prev => ({ ...prev, company_name: companyName }));
+  const handleSumInsuredChange = useCallback(sumInsured => {
+    setFarmerData(prev => ({...prev, sum_insured: sumInsured}));
   }, []);
-  const handlePolicyNumberChange = useCallback((policyNumber) => {
-    setFarmerData(prev => ({ ...prev, policy_no: policyNumber }));
+  const handleAadharNumberChange = useCallback(aadharNumber => {
+    setFarmerData(prev => ({...prev, aadhar_number: aadharNumber}));
   }, []);
-  const handleSumInsuredChange = useCallback((sumInsured) => {
-    setFarmerData(prev => ({ ...prev, sum_insured: sumInsured }));
+  const handlePanNumberChange = useCallback(panNumber => {
+    setFarmerData(prev => ({...prev, pan_number: panNumber}));
   }, []);
-  const handleAadharNumberChange = useCallback((aadharNumber) => {
-    setFarmerData(prev => ({ ...prev, aadhar_number: aadharNumber }));
-  }, []);
-  const handlePanNumberChange = useCallback((panNumber) => {
-    setFarmerData(prev => ({ ...prev, pan_number: panNumber }));
-  }, []);
-  const renderCustomHeader = useMemo(() => <CustomHeader
-    path="userList"
-    logoImage={logoImage}
-    topBanner={topBanner}
-  />, []);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        path="userList"
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+    ),
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -648,8 +677,9 @@ const Information = ({ sendDataToParent, farmerID }) => {
           </View>
         ) : null}
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{ backgroundColor: Colors.background, flex: 1, padding: 16 }}>
-            <View style={{ alignItems: 'center' }}>
+          <View
+            style={{backgroundColor: Colors.background, flex: 1, padding: 16}}>
+            <View style={{alignItems: 'center'}}>
               <ImagePlaceHolderCircle
                 openImagePicker={openImagePicker}
                 selectedImage={selectedImage}
@@ -657,16 +687,14 @@ const Information = ({ sendDataToParent, farmerID }) => {
             </View>
             <InputTextForm
               label={t('name')}
-              color="red"
-              value={
-                farmerData.userName == '' ? userName : farmerData.userName
-              }
+              required={true}
+              value={farmerData.userName == '' ? userName : farmerData.userName}
               onChangeText={handleUserNameChange}
               editable={false}
             />
             <InputTextForm
               label={t('new_reg_phone_number')}
-              color="red"
+              required={true}
               value={
                 farmerData.contactNumber == ''
                   ? contactNumber
@@ -675,7 +703,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
               editable={false}
             />
             <View>
-              <Text style={{ fontSize: 16, color: '#000' }}>
+              <Text style={{fontSize: 16, color: '#000'}}>
                 {t('farmer_reg_gnd')}
               </Text>
               <RadioForm
@@ -685,7 +713,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
                     ? gender === '1'
                     : farmerData.gender == '1'
                 }
-                onSelect={() => setFarmerData({ ...farmerData, gender: '1' })}
+                onSelect={() => setFarmerData({...farmerData, gender: '1'})}
               />
               <RadioForm
                 label={t('farmer_reg_female')}
@@ -694,11 +722,11 @@ const Information = ({ sendDataToParent, farmerID }) => {
                     ? gender === '2'
                     : farmerData.gender == '2'
                 }
-                onSelect={() => setFarmerData({ ...farmerData, gender: '2' })}
+                onSelect={() => setFarmerData({...farmerData, gender: '2'})}
               />
             </View>
-            <View style={{ marginBottom: 15 }}>
-              <Text style={{ fontSize: 16, marginTop: 15, color: '#000' }}>
+            <View style={{marginBottom: 15}}>
+              <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
                 {t('far_reg_far_type')}
               </Text>
               <RadioForm
@@ -709,7 +737,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
                     : farmerData.farmer_type === '1'
                 }
                 onSelect={() =>
-                  setFarmerData({ ...farmerData, farmer_type: '1' })
+                  setFarmerData({...farmerData, farmer_type: '1'})
                 }
               />
               <RadioForm
@@ -720,7 +748,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
                     : farmerData.farmer_type === '2'
                 }
                 onSelect={() =>
-                  setFarmerData({ ...farmerData, farmer_type: '2' })
+                  setFarmerData({...farmerData, farmer_type: '2'})
                 }
               />
               <RadioForm
@@ -731,7 +759,7 @@ const Information = ({ sendDataToParent, farmerID }) => {
                     : farmerData.farmer_type === '3'
                 }
                 onSelect={() =>
-                  setFarmerData({ ...farmerData, farmer_type: '3' })
+                  setFarmerData({...farmerData, farmer_type: '3'})
                 }
               />
             </View>
@@ -751,7 +779,11 @@ const Information = ({ sendDataToParent, farmerID }) => {
               val={farmerData.stateName}
             />
             <DropdownForm
-              label={regionaldatas.state == '' ? t('pre_district_county') : t(`${regionaldatas.district}`)}
+              label={
+                regionaldatas.state == ''
+                  ? t('pre_district_county')
+                  : t(`${regionaldatas.district}`)
+              }
               data={districtAll}
               onChange={handleDistrict}
               val={farmerData.districtName}
@@ -764,7 +796,11 @@ const Information = ({ sendDataToParent, farmerID }) => {
               }
               data={blockAll}
               onChange={item => {
-                setFarmerData(prev => ({ ...prev, block: item.value, blockName: item.label }));
+                setFarmerData(prev => ({
+                  ...prev,
+                  block: item.value,
+                  blockName: item.label,
+                }));
               }}
               val={farmerData.blockName}
             />
@@ -782,13 +818,19 @@ const Information = ({ sendDataToParent, farmerID }) => {
               InputTextFormEdit={true}
             />
 
-            <View style={{ borderWidth: 1, borderColor: Colors.border, borderRadius: 8, marginTop: 10 }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.border,
+                borderRadius: 8,
+                marginTop: 10,
+              }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>
                     {t('different_identity_number')}
                   </Text>
-                  <View style={{ marginTop: 10 }}>
+                  <View style={{marginTop: 10}}>
                     <InputTextForm
                       label={t('adhar_no')}
                       onChangeText={handleAadharNumberChange}
@@ -815,11 +857,17 @@ const Information = ({ sendDataToParent, farmerID }) => {
               </View>
             </View>
 
-            <View style={{ borderWidth: 1, borderColor: Colors.border, borderRadius: 8, marginTop: 10 }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.border,
+                borderRadius: 8,
+                marginTop: 10,
+              }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>{t('bank_account_details')}</Text>
-                  <View style={{ marginTop: 10 }}>
+                  <View style={{marginTop: 10}}>
                     <InputTextForm
                       label={t('account_holder_name')}
                       onChangeText={handleUserBankAccountHolderChange}
@@ -853,11 +901,17 @@ const Information = ({ sendDataToParent, farmerID }) => {
                 </>
               </View>
             </View>
-            <View style={{ borderWidth: 1, borderColor: Colors.border, borderRadius: 8, marginTop: 10 }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.border,
+                borderRadius: 8,
+                marginTop: 10,
+              }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>{t('pension_details')}</Text>
-                  <View style={{ marginTop: 10 }}>
+                  <View style={{marginTop: 10}}>
                     <InputTextForm
                       label={t('pension_providing_authority')}
                       onChangeText={handlePensionAuthorityChange}
@@ -893,13 +947,19 @@ const Information = ({ sendDataToParent, farmerID }) => {
                 </>
               </View>
             </View>
-            <View style={{ borderWidth: 1, borderColor: Colors.border, borderRadius: 8, marginTop: 10 }}>
-              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.border,
+                borderRadius: 8,
+                marginTop: 10,
+              }}>
+              <View style={{marginTop: 20, marginHorizontal: 15}}>
                 <>
                   <Text style={styles.title}>
                     {t('life_insurance_details')}
                   </Text>
-                  <View style={{ marginTop: 10 }}>
+                  <View style={{marginTop: 10}}>
                     <InputTextForm
                       label={t('lic_name_of_company')}
                       onChangeText={handleCompanyNameChange}

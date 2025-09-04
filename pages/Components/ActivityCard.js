@@ -1,11 +1,22 @@
+import React, {useState, useEffect, useRef, memo, useCallback} from 'react';
+import {View, Text, TouchableOpacity, Animated, StyleSheet} from 'react-native';
+import {
+  getStatusColor,
+  getProduceEmoji,
+  formatDate,
+  effective_dates,
+} from '../utils/helpers';
+import {Colors, Fonts} from '../utils/Constants';
 
-import React, { useState, useEffect, useRef, memo, useCallback } from "react";
-import { View, Text, TouchableOpacity, Animated, StyleSheet } from "react-native";
-import { getStatusColor, getProduceEmoji, formatDate, effective_dates } from "../utils/helpers";
-import { Colors, Fonts } from "../utils/Constants";
-
-const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => {
-  const status = activity?.deviation > 0 ? "active" : "pending";
+const ActivityCard = ({
+  activity,
+  index,
+  t,
+  effective_dates,
+  navigation,
+  path,
+}) => {
+  const status = activity?.deviation > 0 ? 'active' : 'pending';
   const statusColor = getStatusColor(status);
   const cardAnimation = useRef(new Animated.Value(0)).current;
   const expandAnim = useRef(new Animated.Value(0)).current;
@@ -63,38 +74,33 @@ const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => 
           ],
           borderLeftColor: statusColor,
         },
-      ]}
-    >
+      ]}>
       {/* Header → Expand/Collapse only */}
       <TouchableOpacity
         style={styles.cardContent}
         activeOpacity={0.8}
-        onPress={toggleExpand}
-      >
+        onPress={toggleExpand}>
         <View style={styles.cardHeader}>
           <View style={styles.produceSection}>
             <View
               style={[
                 styles.produceIcon,
-                { backgroundColor: statusColor + "15" },
-              ]}
-            >
+                {backgroundColor: statusColor + '15'},
+              ]}>
               <Text style={styles.emoji}>
                 {getProduceEmoji(activity?.cropName?.name)}
               </Text>
             </View>
             <View style={styles.produceInfo}>
               <Text style={styles.produceName}>{activity?.cropName?.name}</Text>
-              <Text style={styles.plotSite}>{activity?.land_info?.plot_no}</Text>
+              <Text style={styles.plotSite}>
+                {activity?.land_info?.plot_no}
+              </Text>
             </View>
           </View>
           <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: statusColor + "15" },
-            ]}
-          >
-            <Text style={[styles.statusText, { color: statusColor }]}>
+            style={[styles.statusBadge, {backgroundColor: statusColor + '15'}]}>
+            <Text style={[styles.statusText, {color: statusColor}]}>
               {status?.toUpperCase()}
             </Text>
           </View>
@@ -107,24 +113,22 @@ const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => 
           style={{
             height: animatedHeight,
             opacity: animatedOpacity,
-            overflow: "hidden",
+            overflow: 'hidden',
             paddingHorizontal: 16,
-          }}
-        >
+          }}>
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() =>  navigation.navigate(path, activity)} 
-            style={{ paddingVertical: 10 }}
-          >
+            onPress={() => navigation.navigate(path, activity)}
+            style={{paddingVertical: 10}}>
             <View style={styles.farmerSection}>
               <View style={styles.infoRow}>
-                <Text style={styles.label}>{t("farmer_name")}:</Text>
+                <Text style={styles.label}>{t('farmer_name')}:</Text>
                 <Text style={styles.value}>
                   {activity?.agri_user?.userName}
                 </Text>
               </View>
               <View style={styles.infoRow}>
-                <Text style={styles.label}>{t("farmer_number")}:</Text>
+                <Text style={styles.label}>{t('farmer_number')}:</Text>
                 <Text style={styles.value}>
                   {activity?.agri_user?.contactNumber}
                 </Text>
@@ -134,20 +138,20 @@ const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => 
             <View style={styles.datesSection}>
               <View style={styles.dateGrid}>
                 <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t("Sowing")}</Text>
+                  <Text style={styles.dateLabel}>{t('Sowing')}</Text>
                   <Text style={styles.dateValue}>
                     {formatDate(activity?.actCurel?.sowing_date)}
                   </Text>
                 </View>
                 <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t("perf_date")}</Text>
+                  <Text style={styles.dateLabel}>{t('perf_date')}</Text>
                   <Text style={styles.dateValue}>
                     {formatDate(activity?.act_perform_date)}
                   </Text>
                 </View>
               </View>
               <View style={styles.harvestSection}>
-                <Text style={styles.label}>{t("Harvesting")}:</Text>
+                <Text style={styles.label}>{t('Harvesting')}:</Text>
                 <Text style={styles.harvestValue}>
                   {effective_dates(activity?.actCurel?.harvesting_date)}
                 </Text>
@@ -155,22 +159,21 @@ const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => 
             </View>
 
             <View style={styles.deviationRow}>
-              <Text style={styles.label}>{t("deviation")}:</Text>
+              <Text style={styles.label}>{t('deviation')}:</Text>
               <Text
                 style={[
                   styles.deviationValue,
-                  { color: activity?.deviation > 0 ? "#EF4444" : "#10B981" },
-                ]}
-              >
+                  {color: activity?.deviation > 0 ? '#EF4444' : '#10B981'},
+                ]}>
                 {activity?.deviation}
-                {t("days")}
+                {t('days')}
               </Text>
             </View>
 
             <View style={styles.activityTypeRow}>
-              <Text style={styles.label}>{t("activity_type")}:</Text>
+              <Text style={styles.label}>{t('activity_type')}:</Text>
               <Text style={styles.value}>
-                {activity?.typeActivity?.categoryName || "Not specified"}
+                {activity?.typeActivity?.categoryName || 'Not specified'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -179,8 +182,6 @@ const ActivityCard = ({ activity, index,t,effective_dates,navigation,path }) => 
     </Animated.View>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -363,7 +364,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,

@@ -60,6 +60,10 @@ import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {getActionsPlot} from '../../utils/options';
+import FloatingActionButton from '../../Components/FloatingActionButton';
+
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -2427,7 +2431,7 @@ const FarmerLiveHood = ({
           ) : (
             <></>
           )}
-          {addPlot == false ? (
+          {/* {addPlot == false ? (
             userData != 'addUserData' ? (
               <TouchableOpacity
                 style={styles.clickAddMorePlots}
@@ -2437,7 +2441,7 @@ const FarmerLiveHood = ({
                 </Text>
               </TouchableOpacity>
             ) : null
-          ) : null}
+          ) : null} */}
         </View>
       </ScrollView>
       <ButtonForm
@@ -2453,14 +2457,28 @@ const FarmerLiveHood = ({
           </Text>
         </TouchableOpacity> */}
       {plotEdit || addPlot == true ? (
-        <TouchableOpacity
-          style={[styles.locationAddMoreContainer, {bottom: 250}]}
-          onPress={() => setShowModal(!showModal)}>
-          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
-            {t('MapView')}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
+        <FloatingActionButton
+          position="right"
+          actions={getActionsPlot(t, styles, Colors, plotEdit, addPlot)}
+          color={Colors.useGreen}
+          onPressItem={name => {
+            if (name == 'MapView') {
+              setShowModal(!showModal);
+            } else {
+              handleUserData();
+            }
+          }}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{vertical: 80, horizontal: 25}}
+        />
+      ) : // <TouchableOpacity
+      //   style={[styles.locationAddMoreContainer, {bottom: 250}]}
+      //   onPress={() => setShowModal(!showModal)}>
+      //   <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+      //     {t('MapView')}
+      //   </Text>
+      // </TouchableOpacity>
+      null}
 
       {showModal && (
         <Modal

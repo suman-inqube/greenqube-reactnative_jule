@@ -10,11 +10,17 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
@@ -26,20 +32,20 @@ import {
 } from '../../../config/apiHere';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useIsFocused } from '@react-navigation/native';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import HarvestedModel from '../../Common/HarvestedModel';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 // audioRecorderPlayer.setSubscriptionDuration(0.09);
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import axios from 'axios';
-import { Colors, Fronts } from '../../utils/Constants';
+import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DatePickerField from '../../Common/DatePickerField';
-const CreateProblem = ({ navigation }) => {
+const CreateProblem = ({navigation}) => {
   //GQR-65
   const {
     dbLanTokUsr,
@@ -66,11 +72,11 @@ const CreateProblem = ({ navigation }) => {
     ButtonForm,
     isOnline,
     farmerData,
-    coords
+    coords,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
+  const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
   //GQR-65
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const isFocused = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -152,7 +158,7 @@ const CreateProblem = ({ navigation }) => {
     result: '',
   });
   const handleResultSelect = useCallback(async item => {
-    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     // setSelectedName(name);
@@ -160,7 +166,7 @@ const CreateProblem = ({ navigation }) => {
     setShowingMenu(false);
     setSearchResults([]);
     setFarmerID(currentfarmerId);
-    setSaveData(prev => ({ ...prev, farmer_fcm: FcmUserToken }));
+    setSaveData(prev => ({...prev, farmer_fcm: FcmUserToken}));
     if (isOnline) {
       var response = await problemPlotAgainstFarmerAPI(
         dbname,
@@ -237,15 +243,15 @@ const CreateProblem = ({ navigation }) => {
           );
           await setItem(
             'problemProductionStage' +
-            response?.data?.data?.crop_type_id +
-            response?.data?.data?.crop_name_id,
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'problemProductionStage' +
-            response?.data?.data?.crop_type_id +
-            response?.data?.data?.crop_name_id,
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
           );
         }
         if (productionStage_res) {
@@ -267,26 +273,28 @@ const CreateProblem = ({ navigation }) => {
       }
     }
   }, []);
-  const openImagePicker = useCallback(item => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    launchCamera(options, async response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.error) {
-        console.log('Camera Error: ', response.error);
-      } else {
-        const timestamp = Date.now();
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        const options = {
-          backgroundImage: { src: imageUri, scale: 1 },
-          watermarkTexts: [
-            {
-              text: `${saveData.latitude},${saveData.longitude
+  const openImagePicker = useCallback(
+    item => {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 200,
+        maxWidth: 200,
+      };
+      launchCamera(options, async response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+        } else {
+          const timestamp = Date.now();
+          let imageUri = response.uri || response.assets?.[0]?.uri;
+          const options = {
+            backgroundImage: {src: imageUri, scale: 1},
+            watermarkTexts: [
+              {
+                text: `${saveData.latitude},${
+                  saveData.longitude
                 },${new Intl.DateTimeFormat('en-US', {
                   year: 'numeric',
                   month: '2-digit',
@@ -295,37 +303,39 @@ const CreateProblem = ({ navigation }) => {
                   minute: '2-digit',
                   second: '2-digit',
                 }).format(timestamp)}`,
-              positionOptions: { position: Position.bottomLeft },
-              style: {
-                color: '#df2020',
-                fontSize: 2,
-                fontName: 'Arial',
-                textBackgroundStyle: { padding: '10% 10%', color: '#00000000' },
+                positionOptions: {position: Position.bottomLeft},
+                style: {
+                  color: '#df2020',
+                  fontSize: 2,
+                  fontName: 'Arial',
+                  textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
+                },
               },
-            },
-          ],
-          scale: 1,
-          quality: 100,
-          filename: `${response.assets[0].fileName}`,
-          saveFormat: `${response.assets[0].type}`,
-          maxSize: 1000,
-        };
-        let path = await Marker.markText(options);
-        setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
-        const newPhoto = {
-          uri: `file://${path}`,
-          type: 'image/jpeg',
-          name: `file://${path}`,
-        };
-        addPhoto(prev => ({
-          ...prev,
-          newPhoto
-        }));
-        const newTitle = {};
-        addTitle(newTitle);
-      }
-    });
-  }, [myphotoAll]);
+            ],
+            scale: 1,
+            quality: 100,
+            filename: `${response.assets[0].fileName}`,
+            saveFormat: `${response.assets[0].type}`,
+            maxSize: 1000,
+          };
+          let path = await Marker.markText(options);
+          setSelectedImage({...selectedImage, [item]: `file://${path}`});
+          const newPhoto = {
+            uri: `file://${path}`,
+            type: 'image/jpeg',
+            name: `file://${path}`,
+          };
+          addPhoto(prev => ({
+            ...prev,
+            newPhoto,
+          }));
+          const newTitle = {};
+          addTitle(newTitle);
+        }
+      });
+    },
+    [myphotoAll],
+  );
   const addPhoto = newPhoto => {
     setmyPhotoAll([...myphotoAll, newPhoto]);
   };
@@ -335,7 +345,7 @@ const CreateProblem = ({ navigation }) => {
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData({ ...saveData, affected_date: effective_date });
+    setSaveData({...saveData, affected_date: effective_date});
   };
   const handleProblemType = useCallback(
     problem_type => {
@@ -350,7 +360,7 @@ const CreateProblem = ({ navigation }) => {
       }));
 
       const problemNameFound = problemAll.find(
-        user => user.fid === problem_type.value
+        user => user.fid === problem_type.value,
       );
 
       if (problemNameFound) {
@@ -361,7 +371,7 @@ const CreateProblem = ({ navigation }) => {
         setProblemNameAll(dataArray);
       }
     },
-    [problemAll]
+    [problemAll],
   );
 
   const handleProblemName = useCallback(problem_name => {
@@ -377,8 +387,8 @@ const CreateProblem = ({ navigation }) => {
     }));
   }, []);
   const onPageLoad = async () => {
-    const { latitude, longitude } = coords || {};
-    setSaveData({ ...saveData, latitude: latitude, longitude: longitude });
+    const {latitude, longitude} = coords || {};
+    setSaveData({...saveData, latitude: latitude, longitude: longitude});
     setdbLanTokUsr({
       ...dbLanTokUsr,
       FcmUserToken: FcmUserToken,
@@ -417,7 +427,7 @@ const CreateProblem = ({ navigation }) => {
       }));
       setSeverityAll(dataArray);
     }
-  }
+  };
   const validateForm = () => {
     if (!farmerID) {
       Toast.show({
@@ -549,7 +559,7 @@ const CreateProblem = ({ navigation }) => {
           formData,
         );
         if (database_res.status === 200) {
-          navigation.navigate('ProblemList', { action: "addData" });
+          navigation.navigate('ProblemList', {action: 'addData'});
         }
       } else {
         formData.append('farmerID', farmerID);
@@ -564,10 +574,16 @@ const CreateProblem = ({ navigation }) => {
         } else {
           await setItem('offlineSupervisorProblemData', 'off' + timeStamp);
         }
-        navigation.navigate('ProblemList', { action: "addData" });
+        navigation.navigate('ProblemList', {action: 'addData'});
       }
     }
-  }, [myphotoAll, saveData, soundRecordFirstItem, soundRecordSecoundItem, soundRecordThirdItem]);
+  }, [
+    myphotoAll,
+    saveData,
+    soundRecordFirstItem,
+    soundRecordSecoundItem,
+    soundRecordThirdItem,
+  ]);
   const onStartRecordFirstItem = async () => {
     const path = RNFS.DocumentDirectoryPath + '/firstItem.mp3';
     await RNFS.mkdir(RNFS.DocumentDirectoryPath);
@@ -642,7 +658,7 @@ const CreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -651,7 +667,7 @@ const CreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -715,17 +731,37 @@ const CreateProblem = ({ navigation }) => {
       height: 260,
     });
   }, []);
-  const handleGrowthStage = useCallback((item) => setSaveData((saveData) => ({ ...saveData, growth_stage: item.value })), []);
-  const handleChangeQuestionTitle = useCallback((item) => setSaveData((saveData) => ({ ...saveData, question_title: item.value })), []);
-  const handleChangeQuestionDescription = useCallback((item) => setSaveData((saveData) => ({ ...saveData, question_desc: item.value })), []);
-  const handleSeverityChange = useCallback((item) => setSaveData((saveData) => ({ ...saveData, severity_id: item.value })), []);
-  const handleActivityPerFromDate = useCallback(() => { setaddAffectedDate(true) }, []);
+  const handleGrowthStage = useCallback(
+    item => setSaveData(saveData => ({...saveData, growth_stage: item.value})),
+    [],
+  );
+  const handleChangeQuestionTitle = useCallback(
+    item =>
+      setSaveData(saveData => ({...saveData, question_title: item.value})),
+    [],
+  );
+  const handleChangeQuestionDescription = useCallback(
+    item => setSaveData(saveData => ({...saveData, question_desc: item.value})),
+    [],
+  );
+  const handleSeverityChange = useCallback(
+    item => setSaveData(saveData => ({...saveData, severity_id: item.value})),
+    [],
+  );
+  const handleActivityPerFromDate = useCallback(() => {
+    setaddAffectedDate(true);
+  }, []);
 
-  const renderCustomHeader = useMemo(() => <CustomHeader
-    path="ProblemList"
-    logoImage={logoImage}
-    topBanner={topBanner}
-  />, []);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        path="ProblemList"
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+    ),
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -871,6 +907,7 @@ const CreateProblem = ({ navigation }) => {
                 label={t('agent_crop_problem_affected_date')}
                 value={affectedDate}
                 onPress={handleActivityPerFromDate}
+                required={true}
               />
               <InputTextForm
                 label={t('enter_problem_title')}
@@ -961,7 +998,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

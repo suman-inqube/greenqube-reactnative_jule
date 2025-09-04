@@ -9,8 +9,14 @@ import {
   Dimensions,
   Keyboard,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
-import { launchCamera } from 'react-native-image-picker';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
+import {launchCamera} from 'react-native-image-picker';
 import {
   farmerAgainstSupervisorAPI,
   farmerByNameAPI,
@@ -19,15 +25,15 @@ import {
   problemPlotAgainstFarmerAPI,
   unitByListAPI,
 } from '../../../config/apiHere';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import { FloatingAction } from 'react-native-floating-action';
-import { getActionsPostNew } from '../../utils/options';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {FloatingAction} from 'react-native-floating-action';
+import {getActionsPostNew} from '../../utils/options';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import DatePickerField from '../../Common/DatePickerField';
 const PostNew = props => {
   //GQR-67
@@ -46,7 +52,7 @@ const PostNew = props => {
     effective_dates,
     CustomHeader,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const unitFarm = [
     {
@@ -60,7 +66,7 @@ const PostNew = props => {
   ];
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-  const [saveData, setSaveData] = useState({ plot_name: '', created_at: '' });
+  const [saveData, setSaveData] = useState({plot_name: '', created_at: ''});
   const [farmerID, setfarmerID] = useState();
   const [plotAll, setplotAll] = useState([]);
   const [liveliHoodType, setLiveliHoodType] = useState([]);
@@ -84,7 +90,7 @@ const PostNew = props => {
     block: '',
   });
   const handleResultSelect = useCallback(async item => {
-    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
+    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
     const min = 1000000000000;
     const max = 9999999999999;
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -130,7 +136,7 @@ const PostNew = props => {
       setplotAll(dataArray);
     }
   });
-  const handlePlot = async (relId) => {
+  const handlePlot = async relId => {
     setIsLoading(true);
     if (relId.label == 'other') {
       setIsOther(true);
@@ -243,7 +249,7 @@ const PostNew = props => {
         }
       }
     }
-    setIsLoading(false)
+    setIsLoading(false);
   };
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
@@ -256,7 +262,7 @@ const PostNew = props => {
     }
   };
   const handleUnit = useCallback(async item => {
-    setIsLoading(true)
+    setIsLoading(true);
     const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
     if (unitRes?.status == 200) {
       const rows = unitRes?.data?.data?.rows[0];
@@ -270,7 +276,7 @@ const PostNew = props => {
         filter_unit_fid: rows?.fid,
       }));
     }
-    setIsLoading(false)
+    setIsLoading(false);
   });
 
   const openImagePicker = item => {
@@ -287,7 +293,7 @@ const PostNew = props => {
         console.log('Camera Error: ', response.error);
       } else {
         let imageUri = response.uri || response.assets?.[0]?.uri;
-        const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri };
+        const newPhoto = {uri: imageUri, type: 'image/jpeg', name: imageUri};
       }
     });
   };
@@ -319,19 +325,19 @@ const PostNew = props => {
   const validationData = () => {
     Keyboard.dismiss();
     if (searchFarmerName == '') {
-      Toast.show({ text: `${t('please_enter_first_name')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_first_name')}`, ...AlertMesg[0]});
       return false;
     } else if (saveData.plot_name == '' && saveData.plot_name != 'other') {
-      Toast.show({ text: `${t('please_select_plot')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_plot')}`, ...AlertMesg[0]});
       return false;
     } else if (saveData.quantity == '' && saveData.plot_name != 'other') {
-      Toast.show({ text: `${t('select_quantity_input')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_quantity_input')}`, ...AlertMesg[0]});
       return false;
     } else if (saveData.unit_id == '') {
-      Toast.show({ text: `${t('select_unit_input')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_unit_input')}`, ...AlertMesg[0]});
       return false;
     } else if (approximateDate == '' && nextpage == 2) {
-      Toast.show({ text: `${t('approximate_date')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('approximate_date')}`, ...AlertMesg[0]});
       return false;
     } else {
       return true;
@@ -394,7 +400,7 @@ const PostNew = props => {
         );
         console.log('database_res', database_res);
         if (database_res?.status === 200) {
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
 
           setTimeout(() => {
             props.sendDataToParent(2);
@@ -415,18 +421,13 @@ const PostNew = props => {
     };
   }, [nextpage]);
   const handleActivityPerFromDate = useCallback(() => {
-    setOpenDatePicker(!openDatePicker)
-  }, [])
-  const renderCustomHeader = useMemo(
-    () => (
-      <CustomHeader t={t} />
-    ),
-    [],
-  );
+    setOpenDatePicker(!openDatePicker);
+  }, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{ flex: 1, backgroundColor: Colors.background }}>
+        <View style={{flex: 1, backgroundColor: Colors.background}}>
           {renderCustomHeader}
           <DatePickerComp
             openDate={openDatePicker}
@@ -437,15 +438,16 @@ const PostNew = props => {
               saveData.created_at == ''
                 ? ''
                 : new Date(
-                  `${new Date(saveData.created_at).getFullYear()}-${new Date(saveData.created_at).getMonth() + 1
-                  }-${new Date(saveData.created_at).getDate() + 1}`,
-                )
+                    `${new Date(saveData.created_at).getFullYear()}-${
+                      new Date(saveData.created_at).getMonth() + 1
+                    }-${new Date(saveData.created_at).getDate() + 1}`,
+                  )
             }
           />
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.fromContainer}>
-              <View style={{ padding: 16 }}>
+              <View style={{padding: 16}}>
                 {nextpage == 1 ? (
                   <>
                     <DropdownForm
@@ -470,7 +472,7 @@ const PostNew = props => {
                       <InputTextForm
                         label={t('other')}
                         onChangeText={item =>
-                          setSaveData(prev => ({ ...prev, others: item }))
+                          setSaveData(prev => ({...prev, others: item}))
                         }
                       />
                     ) : (
@@ -506,22 +508,23 @@ const PostNew = props => {
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                       }}>
-                      <View style={{ width: '45%' }}>
+                      <View style={{width: '45%'}}>
                         <InputTextForm
                           label={t('quantity')}
                           keyboardType="number-pad"
                           onChangeText={item =>
-                            setSaveData(prev => ({ ...prev, quantity: item }))
+                            setSaveData(prev => ({...prev, quantity: item}))
                           }
                           value={saveData.quantity}
                         />
                       </View>
-                      <View style={{ width: '45%' }}>
+                      <View style={{width: '45%'}}>
                         <DropdownForm
                           label={t('select_unit_input')}
                           data={unitData}
                           onChange={item => handleUnit(item)}
                           val={saveData.unit_id}
+                          required={true}
                         />
                       </View>
                     </View>

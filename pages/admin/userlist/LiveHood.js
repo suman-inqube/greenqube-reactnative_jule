@@ -67,6 +67,7 @@ import SignatureCapture from '../../Common/SignaturePad';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {groupByRelId} from '../../utils/helpers';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
@@ -807,6 +808,8 @@ const LiveHood = ({
   const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
     const {latitude, longitude} = coords || {};
+    // console.log('Current coordinates:', coords);
+    // console.log('Latitude:', latitude, 'Longitude:', longitude);
     if (
       coords != null &&
       // longitude.toString().length == 10 &&
@@ -1639,6 +1642,7 @@ const LiveHood = ({
     }
   }, []);
   const handleCurrentLatLongIOT = useCallback(async () => {
+    console.log('iot', coords);
     try {
       const {latitude, longitude} = coords || {};
       setFarmerData(prev => ({
@@ -2039,12 +2043,41 @@ const LiveHood = ({
                 // editable={InputTextFormEdit}
               />
             </View>
-            <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
-              <View style={styles.latlongContainer}>
-                <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
-                <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
+            <View style={styles.locationContainer}>
+              <View style={styles.locationHeader}>
+                <Text style={styles.locationTitle}>
+                  {t('Geo tag IOT Device')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleCurrentLatLongIOT()}
+                  style={styles.locationStatusInactive}>
+                  <MaterialIcons name="location-on" size={20} color="#F44336" />
+                  <Text style={styles.locationStatusText}>
+                    {t('tap_to_tag')}
+                  </Text>
+                </TouchableOpacity>
               </View>
-              <View style={styles.latlongContainer}>
+              <View style={styles.coordinatesContainer}>
+                <View style={styles.coordinateItem}>
+                  <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
+                  <Text style={styles.coordinateText}>
+                    {t('lat')}: {farmerData.IOTLatlat}
+                  </Text>
+                </View>
+
+                <View style={styles.coordinateItem}>
+                  <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
+                  <Text style={styles.coordinateText}>
+                    {t('long')}:{farmerData.IOTLatLong}
+                  </Text>
+                </View>
+                {/* <View style={styles.latlongContainer}>
+                  <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
+                  <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
+                </View> */}
+              </View>
+
+              {/* <View style={styles.latlongContainer}>
                 <Text style={styles.title}>
                   {t('Tap to take IOT lat long')}
                 </Text>
@@ -2053,47 +2086,95 @@ const LiveHood = ({
                   style={{width: 40, height: 40}}
                   resizeMode="contain"
                 />
-              </View>
-            </TouchableOpacity>
-            <View style={styles.locationContainer}>
-              {location &&
-                location.map((data, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() =>
-                      data?.latitude != 10 && data?.latitude.length != ''
-                        ? ''
-                        : dataProps?.status_level != 'APPROVED'
-                        ? handleCurrentLatLong(index)
-                        : ''
-                    }>
-                    <View style={styles.latlongContainer}>
-                      <Text style={styles.title}>
+              </View> */}
+            </View>
+            <View style={styles.labelContainer}>
+              <Text style={styles.sectionTitle}>
+                {t('plot_location_points')}
+              </Text>
+            </View>
+            {location &&
+              location.map((data, index) => (
+                <View key={index} style={styles.locationContainer}>
+                  <View style={styles.locationHeader}>
+                    <Text style={styles.locationTitle}>
+                      {t('location_point')} {index + 1}
+                    </Text>
+
+                    {data.latitude ? (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() =>
+                          data?.latitude != 10 && data?.latitude.length != ''
+                            ? ''
+                            : dataProps?.status_level != 'APPROVED'
+                            ? handleCurrentLatLong(index)
+                            : ''
+                        }
+                        style={styles.locationStatusInactive}>
+                        <MaterialIcons
+                          name="check-circle"
+                          size={20}
+                          color="#4CAF50"
+                        />
+                        <Text style={styles.locationStatusText}>
+                          {t('captured')}
+                        </Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() =>
+                          data?.latitude != 10 && data?.latitude.length != ''
+                            ? ''
+                            : dataProps?.status_level != 'APPROVED'
+                            ? handleCurrentLatLong(index)
+                            : ''
+                        }
+                        style={styles.locationStatusInactive}>
+                        <MaterialIcons
+                          name="location-on"
+                          size={20}
+                          color="#F44336"
+                        />
+                        <Text style={styles.locationStatusText}>
+                          {t('tap_to_tag')}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+
+                  <View style={styles.latlongContainer}>
+                    <View style={styles.coordinateItem}>
+                      <MaterialIcons
+                        name="pin-drop"
+                        size={16}
+                        color="#2196F3"
+                      />
+                      <Text style={styles.coordinateText}>
+                        {t('lat')}:{' '}
                         {data && data?.latitude && data?.latitude == ''
                           ? '0.0'
                           : data?.latitude}
                       </Text>
-                      <Text style={styles.title}>
+                    </View>
+                    <View style={styles.coordinateItem}>
+                      <MaterialIcons
+                        name="pin-drop"
+                        size={16}
+                        color="#2196F3"
+                      />
+                      <Text style={styles.coordinateText}>
+                        {t('long')}:{' '}
                         {data && data?.longitude && data?.longitude == ''
                           ? '0.0'
                           : data?.longitude}
                       </Text>
                     </View>
-                    <View style={styles.latlongContainer}>
-                      <Text style={styles.title}>
-                        {t('tap_to_get_latitude_and_longitude')}
-                      </Text>
-                      {/* <TouchableOpacity onPress={() => handleCurrentLatLong(index)}> */}
-                      <Image
-                        source={require('../../Common/images/location.png')}
-                        style={{width: 40, height: 40}}
-                        resizeMode="contain"
-                      />
-                      {/* </TouchableOpacity> */}
-                    </View>
-                  </TouchableOpacity>
-                ))}
-            </View>
+                  </View>
+                </View>
+              ))}
+
             <DropdownForm
               label={t('addcrop_select_cultivating_season')}
               required={true}
@@ -2487,5 +2568,94 @@ const styles = StyleSheet.create({
     color: 'red',
     fontFamily: Fonts.Medium,
     fontSize: 16,
+  },
+  locationContainer: {
+    backgroundColor: '#f6f7ffff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+
+    marginTop: 10,
+    borderWidth: 2,
+    borderStyle: 'dotted',
+    borderColor: Colors.border,
+  },
+  locationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  locationTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    fontFamily: 'Poppins-Medium',
+  },
+  locationStatusActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  locationStatusInactive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  locationStatusText: {
+    marginLeft: 5,
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: 'black',
+  },
+  coordinatesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  coordinateItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    padding: 8,
+    borderRadius: 5,
+    width: '48%',
+  },
+  coordinateText: {
+    marginLeft: 2,
+    fontSize: 12,
+    color: '#0D47A1',
+    fontFamily: 'Poppins-Regular',
+  },
+  coordinatePlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    borderRadius: 5,
+    backgroundColor: '#F5F5F5',
+  },
+  placeholderText: {
+    fontSize: 13,
+    color: '#757575',
+    fontFamily: 'Poppins-Regular',
+  },
+  sectionTitle: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
+    color: '#4e4e4e',
+    // marginBottom: 15,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginBottom: -20,
+    // marginLeft: 20,
+    marginTop: 10,
   },
 });

@@ -1,16 +1,32 @@
-import React,{memo} from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { Colors, Fonts } from '../utils/Constants';
+import React, {memo} from 'react';
+import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
+import {Colors, Fonts} from '../utils/Constants';
 const DatePickerField = ({
   label,
   value,
   onPress,
+  color = '#4e4e4e',
   labelColor = 'red',
   icon = require('./images/calendar.png'),
+  required = false,
+  iconName = null,
+  iconSize = 20,
+  iconColor = null,
 }) => {
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+      <View style={styles.labelContainer}>
+        {iconName && (
+          <MaterialIcons
+            name={iconName}
+            size={iconSize}
+            color={iconColor || color}
+            style={styles.labelIcon}
+          />
+        )}
+        <Text style={[styles.title, {color}]}>{label}</Text>
+        {required && <Text style={styles.requiredStar}> *</Text>}
+      </View>
 
       <TouchableOpacity style={styles.inputContainer} onPress={onPress}>
         <Text style={styles.valueText}>{value}</Text>
@@ -23,12 +39,17 @@ const DatePickerField = ({
 export default memo(DatePickerField);
 
 const styles = StyleSheet.create({
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   container: {
     marginBottom: 12,
   },
   label: {
     fontFamily: Fonts.Regular,
-    fontSize: 15
+    fontSize: 15,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -49,5 +70,15 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     tintColor: Colors.borderGreen,
+  },
+  title: {
+    color: Colors.black,
+    fontFamily: Fonts.Regular,
+    fontSize: 15,
+  },
+  requiredStar: {
+    color: 'red',
+    fontFamily: Fonts.Medium,
+    fontSize: 16,
   },
 });
