@@ -74,7 +74,7 @@ function ActivityList({ navigation }) {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
-  const filterOptionShow = async () => {
+  const filterOptionShow = useCallback(async () => {
     const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', 'carbon'],
@@ -100,7 +100,7 @@ function ActivityList({ navigation }) {
       navigationBarHeight: navigationBarHeight,
       height: 200,
     });
-  }
+  },[filterItem,searchFarmerName,searchFarmerPhone,fromDate,toDate])
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
@@ -154,7 +154,7 @@ function ActivityList({ navigation }) {
       console.log(error);
     }
   };
-  const fetchActivityListAPI = async (
+  const fetchActivityListAPI = useCallback(async (
     pageNo,
     fromDateParams,
     toDateParams,
@@ -207,7 +207,7 @@ function ActivityList({ navigation }) {
       console.log(error);
       CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
     }
-  };
+  },[page]);
   const handleRefresh = useCallback(async () => {
     setTotalPages(1);
     await fetchActivityListAPI(1, '');

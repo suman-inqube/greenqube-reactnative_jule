@@ -17,7 +17,6 @@ import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
 } from "react-native-android-location-enabler";
-
 import { getItem, setItem, removeItem } from "../../config/getDataFromStorage";
 import {
   farmerByNameAPI,
@@ -31,11 +30,7 @@ import { onBackPress } from "../Common/BackPressHandler";
 import DeviceInfo from "../DeviceInfo";
 import i18next from "i18next";
 import { getNavigationBarHeight } from "react-native-android-navbar-height";
-
-// Lazy imports
-const ImagePlaceHolderCircle = lazy(() =>
-  import("../Common/ImagePlaceHolderCircle")
-);
+const ImagePlaceHolderCircle = lazy(() =>import("../Common/ImagePlaceHolderCircle"));
 const InputTextForm = lazy(() => import("../Common/InputTextForm"));
 const RadioForm = lazy(() => import("../Common/RadioForm"));
 const PasswordComp = lazy(() => import("../Common/PasswordComp"));
@@ -49,10 +44,8 @@ const Filter = lazy(() => import("../Common/Filter"));
 const DatePicker = lazy(() => import("react-native-date-picker"));
 const config = lazy(() => import("../../config"));
 const axios = lazy(() => import("axios"));
-
 const userCreateContext = createContext();
 const userListContext = createContext("adduser");
-
 const UserCreateContextProvider = (props) => {
   const { netConnection } = DeviceInfo();
   const { t } = useTranslation();
@@ -199,7 +192,6 @@ const UserCreateContextProvider = (props) => {
         getItem("companyLanguage_data"),
         getNavigationBarHeight(),
       ]);
-
       setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id?.toString());
       if (netConnection && loginUser_data?.token) {
