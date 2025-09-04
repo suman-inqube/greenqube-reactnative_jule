@@ -1447,7 +1447,10 @@ export const usefulInfoListAPI = async (
       `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    console.log('API response:', `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`);
+    console.log(
+      'API response:',
+      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+    );
     // console.log('Complete response:', response);
     const resultJson = {
       data: response,
@@ -3377,6 +3380,34 @@ export const onlyUpdateIdAddrFile = async (
     );
     return response;
   } catch (error) {
+    return error.response;
+  }
+};
+export const Fenced_Rejected_Plot_List = async (
+  token,
+  dbName,
+  language,
+  userId,
+  status_level,
+  geo_type,
+  page,
+  searchBy,
+) => {
+  const axiosHeaders = {
+    headers: {
+      authorization: `${token}`,
+      information: `${dbName},${language},${userId}`,
+    },
+  };
+
+  try {
+    let response = await axios.get(
+      `${config.BASE_URL}landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+      axiosHeaders,
+    );
+    return response;
+  } catch (error) {
+    CrashlyticsRecordError(error.response);
     return error.response;
   }
 };

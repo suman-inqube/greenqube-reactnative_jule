@@ -8,12 +8,14 @@ import {
   Image,
   Animated,
   Dimensions,
-  Modal, InteractionManager, BackHandler
+  Modal,
+  InteractionManager,
+  BackHandler,
 } from 'react-native';
-import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
-const { width } = Dimensions.get('window');
+import React, {useEffect, useState, useRef, useContext, useMemo} from 'react';
+const {width} = Dimensions.get('window');
 import CollapsibleCard from '../../Common/CollapsibleCard';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {
   plotListApproval,
   LandUnitArea,
@@ -22,14 +24,14 @@ import {
 const qs = require('qs');
 import FarmerLiveHood from './FarmerLiveHood';
 //GQR-65
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AlertMesg } from '../../Common/ToastAlert';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {AlertMesg} from '../../Common/ToastAlert';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
-import { Colors } from '../../utils/Constants';
+import {Colors} from '../../utils/Constants';
 import TabBar from '../../Components/TabBar';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-import { getActionsPlot } from '../../utils/options';
+import {getActionsPlot} from '../../utils/options';
 import PlotCard from '../../Components/PlotCard';
 const PlotListFarmer = () => {
   const navigation = useNavigation();
@@ -51,16 +53,11 @@ const PlotListFarmer = () => {
     } else {
       setDataProps({});
     }
-    scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
+    scrollRef.current?.scrollTo({x: Number(index) * width, animated: true});
   };
-  const {
-    loginUser_data,
-    t,
-    Root,
-    CustomHeader,
-    effective_dates,
-  } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {loginUser_data, t, Root, CustomHeader, effective_dates} =
+    useContext(userCreateContext);
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-65
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
@@ -97,7 +94,7 @@ const PlotListFarmer = () => {
         setplotList(plotListApprovalRes?.data);
       }
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -105,7 +102,7 @@ const PlotListFarmer = () => {
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -126,14 +123,7 @@ const PlotListFarmer = () => {
       setRefreshing(false);
     }, 2000);
   };
-  const renderCustomHeader = useMemo(
-    () => (
-      <CustomHeader
-        t={t}
-      />
-    ),
-    [],
-  );
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <>
@@ -156,8 +146,8 @@ const PlotListFarmer = () => {
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
-                { useNativeDriver: false },
+                [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+                {useNativeDriver: false},
               )}
               onMomentumScrollEnd={event => {
                 const index = Math.round(
@@ -171,7 +161,7 @@ const PlotListFarmer = () => {
               {/* Tab 1 */}
               <View style={styles.page}>
                 <FlatList
-                  data={isLoading ? Array.from({ length: 5 }) : plotList}
+                  data={isLoading ? Array.from({length: 5}) : plotList}
                   keyExtractor={(item, index) =>
                     item?.id?.toString() || index.toString()
                   }
@@ -179,8 +169,8 @@ const PlotListFarmer = () => {
                   onRefresh={onRefresh}
                   showsVerticalScrollIndicator={false}
                   showsHorizontalScrollIndicator={false}
-                  style={{ padding: 10 }}
-                  renderItem={({ item, index }) =>
+                  style={{padding: 10}}
+                  renderItem={({item, index}) =>
                     isLoading ? (
                       <PlotStatusSkeletonScreen />
                     ) : (
@@ -214,7 +204,7 @@ const PlotListFarmer = () => {
                   color={Colors.useGreen}
                   onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
                   overlayColor="rgba(22, 17, 17, 0.35)"
-                  distanceToEdge={{ vertical: 80, horizontal: 25 }}
+                  distanceToEdge={{vertical: 80, horizontal: 25}}
                 />
               </>
             ) : null}
@@ -228,7 +218,7 @@ const PlotListFarmer = () => {
 export default PlotListFarmer;
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -236,7 +226,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // elevation: 3,
@@ -249,8 +239,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#e4e4e4ff',
   },
-  tabText: { fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold' },
-  activeTabText: { fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold' },
+  tabText: {fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold'},
+  activeTabText: {fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold'},
   indicator: {
     position: 'absolute',
     bottom: 0,

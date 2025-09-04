@@ -173,7 +173,9 @@ const CustomHeader = memo(
         FarmerProfile: t('farmer_profile'),
         UsefulInformationList: t('dash_useful_information_list'),
         UsefulInformation: t('dash_useful_information'),
-        livehood: t('LiveHood'),
+        livehood: t('Livelihood'),
+        PlotStatusUpdate: t('PlotStatusUpdate'),
+        Market: t('Plot Status'),
       }),
 
       [t],
