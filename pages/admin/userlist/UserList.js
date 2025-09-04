@@ -164,7 +164,7 @@ const UserList = ({ navigation }) => {
     return item?.user_id ? item.user_id.toString() : index.toString();
   }, []);
 
-  const filterOptionShow = async () => {
+  const filterOptionShow = useCallback(async () => {
     const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['', 'phone', '', ''],
@@ -180,7 +180,7 @@ const UserList = ({ navigation }) => {
       navigationBarHeight: navigationBarHeight,
       height: 125
     });
-  };
+  },[filterItem,searchFarmerPhone]);
 
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {

@@ -50,7 +50,7 @@ const ActivityCard = ({
 
   const animatedHeight = expandAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 340],
+    outputRange: [0, 360],
   });
 
   const animatedOpacity = expandAnim.interpolate({
@@ -72,7 +72,7 @@ const ActivityCard = ({
               }),
             },
           ],
-          borderLeftColor: statusColor,
+          // borderLeftColor: statusColor,
         },
       ]}>
       {/* Header → Expand/Collapse only */}
@@ -98,12 +98,12 @@ const ActivityCard = ({
               </Text>
             </View>
           </View>
-          <View
+          {/* <View
             style={[styles.statusBadge, {backgroundColor: statusColor + '15'}]}>
             <Text style={[styles.statusText, {color: statusColor}]}>
               {status?.toUpperCase()}
             </Text>
-          </View>
+          </View> */}
         </View>
       </TouchableOpacity>
 
@@ -144,18 +144,34 @@ const ActivityCard = ({
                   </Text>
                 </View>
                 <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('perf_date')}</Text>
+                  <Text style={styles.dateLabel}>{t('Harvesting')}</Text>
                   <Text style={styles.dateValue}>
-                    {formatDate(activity?.act_perform_date)}
+                    {effective_dates(activity?.actCurel?.harvesting_date)}
                   </Text>
                 </View>
               </View>
+
+
               <View style={styles.harvestSection}>
-                <Text style={styles.label}>{t('Harvesting')}:</Text>
-                <Text style={styles.harvestValue}>
-                  {effective_dates(activity?.actCurel?.harvesting_date)}
-                </Text>
+                <View style={styles.dateItem}>
+                  <Text style={styles.dateLabel}>{t('cycle_start_date')}</Text>
+                  <Text style={styles.dateValue}>
+                    {formatDate(activity?.cycle_start_date)}
+                  </Text>
+                </View>
+                <View style={styles.dateItem}>
+                  <Text style={styles.dateLabel}>{t('perf_date')}</Text>
+                  <Text style={styles.dateValue}>
+                    {effective_dates(activity?.act_perform_date)}
+                  </Text>
+                </View>
               </View>
+              {/* <View style={styles.harvestSection}>
+                <Text style={styles.label}>{t('perf_date')}:</Text>
+                <Text style={styles.harvestValue}>
+                    {formatDate(activity?.act_perform_date)}
+                </Text>
+              </View> */}
             </View>
 
             <View style={styles.deviationRow}>
@@ -190,7 +206,7 @@ const styles = StyleSheet.create({
   },
 
   activityCard: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.background,
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
@@ -198,13 +214,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
-    borderRightWidth: 1,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderRightColor: Colors.border,
-    borderTopColor: Colors.border,
-    borderBottomColor: Colors.border,
-    borderLeftWidth: 4,
+    // borderRightWidth: 1,
+    // borderTopWidth: 1,
+    // borderBottomWidth: 1,
+    // borderRightColor: Colors.border,
+    // borderTopColor: Colors.border,
+    // borderBottomColor: Colors.border,
+    // borderLeftWidth: 4,
+    borderWidth:1,
+    borderColor:Colors.border,
   },
   cardContent: {
     padding: 20,
@@ -213,7 +231,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   produceSection: {
     flexDirection: 'row',

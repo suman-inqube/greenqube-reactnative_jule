@@ -9,7 +9,7 @@ import {
   BackHandler,
   Keyboard,
 } from 'react-native';
-import React, {useEffect, useState, useCallback, useContext} from 'react';
+import React, { useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import ImageForm from '../../Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
 import {
@@ -18,10 +18,10 @@ import {
   useIsFocused,
   useFocusEffect,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import config from '../../../config';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fonts, Fronts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const FinancialInformation = () => {
@@ -44,7 +44,7 @@ const FinancialInformation = () => {
   const route = useRoute();
   const isFocused = useIsFocused();
   const [remove, setRemove] = useState('');
-  const [storeFinancial, setstoreFinancial] = useState({
+  const [storeFinancial, setStoreFinancial] = useState({
     adharCard: '',
     panNo: '',
     voterCard: '',
@@ -74,7 +74,7 @@ const FinancialInformation = () => {
   const [currency, setCurrencyt] = useState('');
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
-    setstoreFinancial({
+    setStoreFinancial({
       ...storeFinancial,
       pensionEffectiveFrom: effective_date,
     });
@@ -122,7 +122,7 @@ const FinancialInformation = () => {
     });
   }, [isFocused]);
   const emptyData = () => {
-    setstoreFinancial({
+    setStoreFinancial({
       adharCard: '',
       panNo: '',
       voterCard: '',
@@ -146,10 +146,10 @@ const FinancialInformation = () => {
     Keyboard.dismiss();
     if (path != '') {
       await setItem('storeFinancial_data', storeFinancial);
-      navigation.navigate(route.params.pagename, {data: remove});
+      navigation.navigate(route.params.pagename, { data: remove });
     } else {
       await setItem('storeFinancial_data', storeFinancial);
-      navigation.navigate('PlotSiteProduceInformation', {data: remove});
+      navigation.navigate('PlotSiteProduceInformation', { data: remove });
     }
   };
   const HandlerGoBack = () => {
@@ -159,40 +159,113 @@ const FinancialInformation = () => {
       navigation.navigate('PersonalInformation');
     }
   };
+  const handleChangeAadhar = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      adharCard: text,
+    }))
+  }, [])
+  const handleChangePan = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      panNo: text,
+    }))
+  }, [])
+  const handleChangeVot = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      voterCard: text,
+    }))
+  }, [])
+  const handleChangeKcc = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      farmarLoanNo: text,
+    }))
+  }, [])
+  const handleChangeAccountHolderName = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      accountHolderName: text,
+    }))
+  }, [])
+  const handleChangeFarmerRegIfsc = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      bankName: text,
+    }))
+  }, [])
+  const handleChangeBranchName = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      branchName: text,
+    }))
+  }, [])
+  const handleChangeBankAccNo = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      bankAccountNo: text,
+    }))
+  }, [])
+  const handleChangeFarmerRegIfscNo = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      ifscCode: text,
+    }))
+  }, [])
+  const handleChangePensionAuth = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      pensionProvidingAuthority: text,
+    }))
+  }, [])
+  const handleChangePensionsAccNo = useCallback((text) => {
+    setStoreFinancial(prev => ({
+      ...prev,
+      pensionAccountNo: text,
+    }))
+  }, [])
+
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        path={path != '' ? path : 'PersonalInformation'}
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+      />
+    ),
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <>
         <Root>
           <View style={styles.mainConatiner}>
-            <CustomHeader
-              path={path != '' ? path : 'PersonalInformation'}
-              HandlerGoBack={HandlerGoBack}
-              logoImage={logoImage}
-              topBanner={topBanner}
-            />
+            {renderCustomHeader}
             {/* <FormsTitle title={t('financial_information')} /> */}
-            <ScrollView>
-              <View
-                style={{
-                  backgroundColor: 'green',
-                  alignSelf: 'flex-end',
-                  marginTop: 20,
-                  borderRadius: 10,
-                  width: '10%',
+            <View
+              style={{
+                backgroundColor: 'green',
+                alignSelf: 'flex-end',
+                marginTop: 20,
+                borderRadius: 10,
+                width: '10%',
 
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginRight: 20,
-                  marginBottom: 15,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 20,
+                marginBottom: 15,
+              }}>
+              <Text
+                style={{
+                  color: 'white',
                 }}>
-                <Text
-                  style={{
-                    color: 'white',
-                  }}>
-                  2/3
-                </Text>
-              </View>
-              <View style={{paddingHorizontal: 20}}>
+                2/3
+              </Text>
+            </View>
+            <ScrollView>
+              <View style={{ paddingHorizontal: 20 }}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={toggleIdentity}>
                     <View style={styles.headerStyle}>
@@ -230,16 +303,11 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isIdentity && (
                     <>
-                      <View style={{marginTop: 10}}>
+                      <View style={{ marginTop: 10 }}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('adhar_no')}
-                            onChangeText={adharCard =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                adharCard: adharCard,
-                              })
-                            }
+                            onChangeText={handleChangeAadhar}
                             keyboardType="numeric"
                             value={storeFinancial.adharCard}
                           />
@@ -247,31 +315,16 @@ const FinancialInformation = () => {
                           <InputTextForm
                             label={t('pan_no')}
                             value={storeFinancial.panNo}
-                            onChangeText={panNo =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                panNo: panNo,
-                              })
-                            }
+                            onChangeText={handleChangePan}
                           />
                           <InputTextForm
                             label={t('voter_card_no')}
                             value={storeFinancial.voterCard}
-                            onChangeText={voterCard =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                voterCard: voterCard,
-                              })
-                            }
+                            onChangeText={handleChangeVot}
                           />
                           <InputTextForm
                             label={t('kcc_no')}
-                            onChangeText={farmarLoanNo =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                farmarLoanNo: farmarLoanNo,
-                              })
-                            }
+                            onChangeText={handleChangeKcc}
                             value={storeFinancial.farmarLoanNo}
                           />
                         </View>
@@ -280,7 +333,7 @@ const FinancialInformation = () => {
                   )}
                 </View>
               </View>
-              <View style={{paddingHorizontal: 20}}>
+              <View style={{ paddingHorizontal: 20 }}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={toggleBank}>
                     <View style={styles.headerStyle}>
@@ -318,58 +371,33 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isBank && (
                     <>
-                      <View style={{marginTop: 10}}>
+                      <View style={{ marginTop: 10 }}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('account_holder_name')}
-                            onChangeText={accountHolderName =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                accountHolderName: accountHolderName,
-                              })
-                            }
+                            onChangeText={handleChangeAccountHolderName}
                             value={storeFinancial.accountHolderName}
                           />
 
                           <InputTextForm
                             label={t('farmer_reg_bankifsc')}
-                            onChangeText={bankName =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                bankName: bankName,
-                              })
-                            }
+                            onChangeText={handleChangeFarmerRegIfsc}
                             value={storeFinancial.bankName}
                           />
                           <InputTextForm
                             label={t('branch_name')}
-                            onChangeText={branchName =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                branchName: branchName,
-                              })
-                            }
+                            onChangeText={handleChangeBranchName}
                             value={storeFinancial.branchName}
                           />
                           <InputTextForm
                             label={t('bank_account')}
-                            onChangeText={bankAccountNo =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                bankAccountNo: bankAccountNo,
-                              })
-                            }
+                            onChangeText={handleChangeBankAccNo}
                             value={storeFinancial.bankAccountNo}
                             keyboardType="numeric"
                           />
                           <InputTextForm
                             label={t('ifsc_no')}
-                            onChangeText={ifscCode =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                ifscCode: ifscCode,
-                              })
-                            }
+                            onChangeText={handleChangeFarmerRegIfscNo}
                             value={storeFinancial.ifscCode}
                           />
                         </View>
@@ -378,7 +406,7 @@ const FinancialInformation = () => {
                   )}
                 </View>
               </View>
-              <View style={{paddingHorizontal: 20}}>
+              <View style={{ paddingHorizontal: 20 }}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={() => togglePension()}>
                     <View style={styles.headerStyle}>
@@ -416,28 +444,17 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isPension && (
                     <>
-                      <View style={{marginTop: 10}}>
+                      <View style={{ marginTop: 10 }}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('pension_providing_authority')}
-                            onChangeText={pensionProvidingAuthority =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                pensionProvidingAuthority:
-                                  pensionProvidingAuthority,
-                              })
-                            }
+                            onChangeText={handleChangePensionAuth}
                             value={storeFinancial.pensionProvidingAuthority}
                           />
 
                           <InputTextForm
                             label={t('pension_account_number')}
-                            onChangeText={pensionAccountNo =>
-                              setstoreFinancial({
-                                ...storeFinancial,
-                                pensionAccountNo: pensionAccountNo,
-                              })
-                            }
+                            onChangeText={handleChangePensionsAccNo}
                             value={storeFinancial.pensionAccountNo}
                             keyboardType="numeric"
                           />
@@ -488,11 +505,11 @@ const FinancialInformation = () => {
                               t('pension_amount_currency') + ` (${currency})`
                             }
                             onChangeText={pensionAmount =>
-                              setstoreFinancial({
-                                ...storeFinancial,
+                              setStoreFinancial(prev => ({ ...prev,
                                 pensionAmount: pensionAmount,
-                              })
+                              }))
                             }
+
                             value={storeFinancial.pensionAmount}
                             keyboardType="numeric"
                           />
@@ -500,10 +517,9 @@ const FinancialInformation = () => {
                             label={t('per_month_quarter_year')}
                             data={config?.pensionParMonthData}
                             onChange={pensionPerMonth =>
-                              setstoreFinancial({
-                                ...storeFinancial,
+                              setStoreFinancial(prev => ({ ...prev,
                                 pensionPerMonth: pensionPerMonth,
-                              })
+                              }))
                             }
                             val={storeFinancial.pensionPerMonth}
                           />
@@ -513,7 +529,7 @@ const FinancialInformation = () => {
                   )}
                 </View>
               </View>
-              <View style={{paddingHorizontal: 20}}>
+              <View style={{ paddingHorizontal: 20 }}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={toggleLifeInsurance}>
                     <View style={styles.headerStyle}>
@@ -551,15 +567,14 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isLifeInsurance && (
                     <>
-                      <View style={{marginTop: 10}}>
+                      <View style={{ marginTop: 10 }}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('lic_name_of_company')}
                             onChangeText={nameOfCompany =>
-                              setstoreFinancial({
-                                ...storeFinancial,
+                              setStoreFinancial(prev => ({ ...prev,
                                 nameOfCompany: nameOfCompany,
-                              })
+                              }))
                             }
                             value={storeFinancial.nameOfCompany}
                           />
@@ -567,10 +582,9 @@ const FinancialInformation = () => {
                           <InputTextForm
                             label={t('policy_number')}
                             onChangeText={policyNumber =>
-                              setstoreFinancial({
-                                ...storeFinancial,
+                              setStoreFinancial(prev => ({ ...prev,
                                 policyNumber: policyNumber,
-                              })
+                              }))
                             }
                             value={storeFinancial.policyNumber}
                             keyboardType="numeric"
@@ -578,10 +592,9 @@ const FinancialInformation = () => {
                           <InputTextForm
                             label={t('sum_insured_currency')}
                             onChangeText={sumInsured =>
-                              setstoreFinancial({
-                                ...storeFinancial,
+                              setStoreFinancial(prev => ({ ...prev,
                                 sumInsured: sumInsured,
-                              })
+                              }))
                             }
                             value={storeFinancial.sumInsured}
                             keyboardType="numeric"
@@ -593,7 +606,7 @@ const FinancialInformation = () => {
                 </View>
               </View>
             </ScrollView>
-            <View style={{backgroundColor: '#D5FFD0'}}>
+            <View style={{ backgroundColor: '#D5FFD0' }}>
               <ButtonForm label={t('skip_next')} onPress={handleNavigate} />
             </View>
           </View>
@@ -606,7 +619,7 @@ const FinancialInformation = () => {
 export default FinancialInformation;
 
 const styles = StyleSheet.create({
-  mainConatiner: {flex: 1, backgroundColor: Colors.background_light},
+  mainConatiner: { flex: 1, backgroundColor: Colors.background },
   headerStyle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -632,20 +645,18 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     padding: 17,
-    borderWidth: 0,
-    borderColor: '#ddd',
-    backgroundColor: '#e2dce7ff',
+    backgroundColor: Colors.background,
     borderRadius: 8,
     marginVertical: 20,
-    elevation: 3,
+    // elevation: 3,
     // height: 55,
     borderWidth: 0.5,
-    borderColor: 'black',
+    borderColor: Colors.border
   },
   toggleText: {
     fontSize: 16,
     color: 'black',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.Medium,
     marginLeft: 15,
     marginTop: 2,
   },

@@ -1207,7 +1207,7 @@ const ActivityReportAWD = ({ navigation }) => {
     } catch (error) {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityInfo');
     }
-  }, []);
+  }, [saveData.plot_id,saveData.cu_rel_id]);
   //basudev
   const [selectPipeList, setselectPipeList] = useState({
     label: '',

@@ -42,22 +42,26 @@ const InputTextForm = ({
       </View>
 
       {/* Input Field */}
-      <TextInput
-        style={[
-          styles.inputField,
-          !editable && styles.disabledInput,
-          { borderColor: Colors.borderGreen },
-        ]}
-        onChangeText={text => onChangeText(sanitizeInput(text))}
-        onBlur={onBlur}
-        value={value}
-        keyboardType={keyboardType}
-        ref={refname}
-        maxLength={maxLength}
-        editable={editable}
-        placeholder={placeholder}
-        placeholderTextColor={scheme === 'dark' ? '#9ca3af' : '#808080'}
-      />
+   <TextInput
+  style={[
+    styles.inputField,
+    !editable && styles.disabledInput,
+    { borderColor: Colors.borderGreen },
+  ]}
+  onChangeText={onChangeText} // <-- update instantly
+  onBlur={() => {
+    if (onBlur) onBlur();
+    onChangeText(sanitizeInput(value)); // sanitize only when leaving input
+  }}
+  value={value}
+  keyboardType={keyboardType}
+  ref={refname}
+  maxLength={maxLength}
+  editable={editable}
+  placeholder={placeholder}
+  placeholderTextColor={scheme === 'dark' ? '#9ca3af' : '#808080'}
+/>
+
     </View>
   );
 };

@@ -8,18 +8,18 @@ import {
   TextInput,
   BackHandler,
 } from 'react-native';
-import React, {useEffect, useState, useContext} from 'react';
-import {UserRegisterAPI} from './UserRegistationAPI';
+import React, { useEffect, useState, useContext, useMemo, useCallback } from 'react';
+import { UserRegisterAPI } from './UserRegistationAPI';
 import {
   useFocusEffect,
   useNavigation,
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
 const RegistationSignUpViwer = () => {
@@ -40,7 +40,7 @@ const RegistationSignUpViwer = () => {
     AlertMesg,
   } = useContext(userCreateContext);
   //GQR-65
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
@@ -164,8 +164,8 @@ const RegistationSignUpViwer = () => {
       device_long: item.storeProduceInfo.IOTLatLong,
       land_convert_size:
         item.storeProduceInfo.sizevalue == '' ||
-        item.storeProduceInfo.sizevalue == undefined ||
-        item.storeProduceInfo.sizevalue == null
+          item.storeProduceInfo.sizevalue == undefined ||
+          item.storeProduceInfo.sizevalue == null
           ? item.storeProduceInfo.plotSize * 1
           : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
       latitude: item.location[0].latitude.toString(),
@@ -212,7 +212,7 @@ const RegistationSignUpViwer = () => {
     // farmer_details['latlong_data'] = JSON.stringify(latlongArr);
     const filteredFiles = storeProduceInfo[0].landProof.map((data, index) => {
       if (data.name != '') {
-        return {uri: data?.uri, type: data?.type, name: data?.name};
+        return { uri: data?.uri, type: data?.type, name: data?.name };
       }
     });
     const landProofData = storeProduceInfo.map(item => ({
@@ -235,7 +235,7 @@ const RegistationSignUpViwer = () => {
       storePersnolInfo.identityProofIdentityPropf[0]?.fileName != '' &&
       storePersnolInfo.identityProofIdentityPropf[0]?.fileName != ''
     ) {
-      const {uri, type, name} = storePersnolInfo.identityProofIdentityPropf[0];
+      const { uri, type, name } = storePersnolInfo.identityProofIdentityPropf[0];
       formData.append('farmer_address', {
         uri: uri,
         type: type,
@@ -246,14 +246,13 @@ const RegistationSignUpViwer = () => {
       storePersnolInfo.identityProofIdentityPropf[1]?.fileName != '' &&
       storePersnolInfo.identityProofIdentityPropf[1]?.fileName != ''
     ) {
-      const {uri, type, name} = storePersnolInfo.identityProofIdentityPropf[1];
+      const { uri, type, name } = storePersnolInfo.identityProofIdentityPropf[1];
       formData.append('farmer_identity', {
         uri: uri,
         type: type,
         name: name,
       });
     }
-    console.log(formData);
     if (netConnection) {
       const database_res = await UserRegisterAPI(
         dbLanTokUsr.dbName,
@@ -264,12 +263,12 @@ const RegistationSignUpViwer = () => {
         landProofData.length,
       );
       if (database_res.status === 200) {
-        Toast.show({text: t('farmer_reg_successfully'), ...AlertMesg[0]});
+        Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
         setTimeout(() => {
           navigation.dispatch({
             ...CommonActions.reset({
               index: 0,
-              routes: [{name: 'AdminNavigation'}],
+              routes: [{ name: 'AdminNavigation' }],
             }),
           });
         }, 2000);
@@ -282,19 +281,19 @@ const RegistationSignUpViwer = () => {
       } else {
         await setItem('offlineUserRegistrationData', [formData]);
       }
-      Toast.show({text: t('farmer_reg_successfully'), ...AlertMesg[0]});
+      Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
       setTimeout(() => {
         navigation.dispatch({
           ...CommonActions.reset({
             index: 0,
-            routes: [{name: 'AdminNavigation'}],
+            routes: [{ name: 'AdminNavigation' }],
           }),
         });
       }, 2000);
     }
     setIsLoading(false);
   };
-  const onPageLoad = async () => {
+  const onPageLoad = useCallback(async () => {
     const [
       storeSignup_data,
       storePersnolInfo_data,
@@ -312,7 +311,7 @@ const RegistationSignUpViwer = () => {
       setstoreFinancial(storeFinancial_data),
       setstoreProduceInfo(storeProduceInfo_data),
     ]);
-  };
+  },[]);
   const handleBackPress = () => {
     navigation.navigate('RegistationSignUpViwer');
     return true;
@@ -323,42 +322,48 @@ const RegistationSignUpViwer = () => {
     }
     onBackPress(handleBackPress);
   }, [isFocused]);
-  const HandlerGoBack = () => {};
-  return (
-    <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-        <Root>
-          <CustomHeader
+  const HandlerGoBack = () => { };
+   const renderCustomHeader = useMemo(
+      () => (
+        <CustomHeader
             path="RegistationSignUpViwer"
             HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />
+      ),
+      [],
+    );
+  return (
+    <FarmerDrawerScreenWrapper1>
+      <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+        <Root>
+          {renderCustomHeader}
           {isLoading && (
             <View style={styles.loadingScreen}>
               <LoadingScreen />
             </View>
           )}
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{paddingHorizontal: 20, marginTop: 50}}>
+            <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
               <View
                 style={{
                   marginTop: 10,
                   padding: 17,
                   borderWidth: 0,
-                  borderColor: '#ddd',
-                  backgroundColor: '#d3ced7',
-                  borderRadius: 20,
+                  // borderColor: '#ddd',
+                  backgroundColor: Colors.background,
+                  borderRadius: 12,
                   marginVertical: 20,
-                  elevation: 3,
+                  // elevation: 3,
                   // height: 55,
-                  borderWidth: 0.5,
-                  borderColor: 'black',
+                  borderWidth: 1,
+                  borderColor: Colors.border,
                   // alignItems: 'center',
                 }}>
                 <TouchableOpacity onPress={togglestorePersnolInfo}>
                   <View style={styles.headerStyle}>
-                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                       <MaterialIcons
                         name="account-circle"
                         size={28}
@@ -392,12 +397,13 @@ const RegistationSignUpViwer = () => {
                 </TouchableOpacity>
                 {isstorePersnolInfo && (
                   <>
+                    <View style={styles.divider} />
                     {storePersnolInfo ? (
                       storePersnolInfo ? (
                         // storePersnolInfo.block ?
-                        <View style={{marginTop: 10}}>
+                        <View style={{ marginTop: 20 }}>
                           <View style={styles.bodyContainer}>
-                            <View style={{alignItems: 'flex-end'}}>
+                            <View style={{ alignItems: 'flex-end' }}>
                               <TouchableOpacity
                                 onPress={() =>
                                   navigation.navigate('PersonalInformation', {
@@ -406,7 +412,7 @@ const RegistationSignUpViwer = () => {
                                 }>
                                 <Image
                                   source={require('../../Common/images/edit.png')}
-                                  style={{width: 25, height: 25}}
+                                  style={{ width: 25, height: 25 }}
                                 />
                               </TouchableOpacity>
                             </View>
@@ -482,19 +488,15 @@ const RegistationSignUpViwer = () => {
                   marginTop: 10,
                   padding: 17,
                   borderWidth: 0,
-                  borderColor: '#ddd',
-                  backgroundColor: '#d3ced7',
-                  borderRadius: 20,
+                  backgroundColor: Colors.background,
+                  borderRadius: 12,
                   marginVertical: 20,
-                  elevation: 3,
-                  // height: 55,
-                  borderWidth: 0.5,
-                  borderColor: 'black',
-                  // alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: Colors.border,
                 }}>
                 <TouchableOpacity onPress={togglestoreFinancial}>
                   <View style={styles.headerStyle}>
-                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                       <MaterialIcons
                         name="badge"
                         size={28}
@@ -505,7 +507,7 @@ const RegistationSignUpViwer = () => {
                     <Text
                       style={[
                         styles.toggleText,
-                        {fontFamily: 'Poppins-SemiBold'},
+                        { fontFamily: 'Poppins-SemiBold' },
                       ]}>
                       {isstoreFinancial
                         ? `${t('financial_information')}`
@@ -532,10 +534,11 @@ const RegistationSignUpViwer = () => {
                 </TouchableOpacity>
                 {isstoreFinancial && (
                   <>
+                    <View style={styles.divider} />
                     {storeFinancial ? (
-                      <View style={{marginTop: 10}}>
+                      <View style={{ marginTop: 20 }}>
                         <View style={styles.bodyContainer}>
-                          <View style={{alignItems: 'flex-end'}}>
+                          <View style={{ alignItems: 'flex-end' }}>
                             <TouchableOpacity
                               onPress={() =>
                                 navigation.navigate('FinancialInformation', {
@@ -545,7 +548,7 @@ const RegistationSignUpViwer = () => {
                               }>
                               <Image
                                 source={require('../../Common/images/edit.png')}
-                                style={{width: 25, height: 25}}
+                                style={{ width: 25, height: 25 }}
                               />
                             </TouchableOpacity>
                           </View>
@@ -708,19 +711,15 @@ const RegistationSignUpViwer = () => {
                   marginTop: 10,
                   padding: 17,
                   borderWidth: 0,
-                  borderColor: '#ddd',
-                  backgroundColor: '#d3ced7',
-                  borderRadius: 20,
+                  backgroundColor: Colors.background,
+                  borderRadius: 12,
                   marginVertical: 20,
-                  elevation: 3,
-                  // height: 55,
-                  borderWidth: 0.5,
-                  borderColor: 'black',
-                  // alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: Colors.border,
                 }}>
                 <TouchableOpacity onPress={togglestoreProduceInfo}>
                   <View style={styles.headerStyle}>
-                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                       <MaterialIcons
                         name="article"
                         size={28}
@@ -754,11 +753,12 @@ const RegistationSignUpViwer = () => {
                 </TouchableOpacity>
                 {isstoreProduceInfo && (
                   <>
+                    <View style={styles.divider} />
                     {storeProduceInfo ? (
                       <View
                         style={[
-                          styles.bodyContainerMarginBottom,
-                          {marginTop: 10},
+                          // styles.bodyContainerMarginBottom,
+                          { marginTop: 20 },
                         ]}>
                         {storeProduceInfo?.map((item, index) => {
                           const {
@@ -774,10 +774,11 @@ const RegistationSignUpViwer = () => {
                             <View
                               style={{
                                 borderBottomWidth: 2,
-                                borderColor: '#050505',
+                                borderColor: Colors.border,
+                                // borderRadius:8,
                               }}
                               key={index}>
-                              <View style={{alignItems: 'flex-end'}}>
+                              <View style={{ alignItems: 'flex-end' }}>
                                 <TouchableOpacity
                                   onPress={() =>
                                     navigation.navigate(
@@ -791,7 +792,7 @@ const RegistationSignUpViwer = () => {
                                   }>
                                   <Image
                                     source={require('../../Common/images/edit.png')}
-                                    style={{width: 25, height: 25}}
+                                    style={{ width: 25, height: 25 }}
                                   />
                                 </TouchableOpacity>
                               </View>
@@ -893,13 +894,22 @@ const styles = StyleSheet.create({
   headerStyle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#ffffffff',
     height: 35,
     width: '100%',
     marginLeft: -5,
     borderRadius: 8,
     marginTop: -3,
     borderRadius: 5,
+    position: 'relative'
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    position: 'absolute',
+    width: '112%',
+    top: 60,
+    zIndex: 99,
+    right: 0,
   },
   bodyContainer: {
     // backgroundColor: '#DAC0A3',
@@ -913,14 +923,8 @@ const styles = StyleSheet.create({
     // elevation:5
   },
   bodyContainerMarginBottom: {
-    // backgroundColor: '#DAC0A3',
-    backgroundColor: '#FFF',
-    padding: 5,
-    // paddingHorizontal: 12,
-    borderRadius: 8,
-    // borderWidth: 3,
-    // borderColor: '#00000065',
-    // elevation:5,
+    // borderBottomWidth: 1,
+    // borderColor: Colors.border
   },
   viewText: {
     marginTop: 15,

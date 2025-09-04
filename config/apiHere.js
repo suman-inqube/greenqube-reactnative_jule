@@ -3064,10 +3064,10 @@ export const getUniquePipeNames = async (
       `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
       axiosHeaders,
     );
-    // console.log(
-    //   `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
-    //   axiosHeaders,
-    // );
+    console.log(
+      `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
+      axiosHeaders,
+    );
     // console.log(response);
     return response;
   } catch (error) {
@@ -3290,10 +3290,6 @@ export const ActivityPipeImages = async (
       information: `${dbName},${language},${userId}`,
     },
   };
-  console.log(
-    `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
-    axiosHeaders,
-  );
   try {
     let response = await axios.get(
       `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
