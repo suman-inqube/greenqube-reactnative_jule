@@ -1185,7 +1185,6 @@ const ActivityReportAWD = ({ navigation }) => {
         item?.act_master_id,
         saveData.cu_rel_id,
       );
-      console.log(PipeListDetailsRes.data.data.length)
       if (PipeListDetailsRes?.status == 200) {
         const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
           (_data, _index) => ({

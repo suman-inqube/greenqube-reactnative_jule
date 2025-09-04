@@ -6,11 +6,11 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import React, { useState, useEffect,  useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
-import {  useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { formatDateToDateName } from '../../Common/DateChanger';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import { userCreateContext } from '../../Context/usersCreateContext';
@@ -59,7 +59,7 @@ const ActivityDetail = () => {
   });
   const [carbonActivity, setCarbonActivity] = useState([]);
   const openImagePicker = item => { };
-    const getFilePaths = (files, ext, max = 3) => {
+  const getFilePaths = (files, ext, max = 3) => {
     if (!files) return Array(max).fill('');
     return files
       .filter(f => f.file_ext === ext)
@@ -182,11 +182,13 @@ const ActivityDetail = () => {
                         }
                         editable={false}
                       />
+                      <Text>{farmerActivity?.cropActivitycategoryName?.activity
+                        ?.categoryName}</Text>
                       {farmerActivity?.cropActivitycategoryName != null ? (
                         <InputTextForm
                           label={t('activity_name')}
                           value={`${farmerActivity?.cropActivitycategoryName?.activity
-                              ?.categoryName
+                            ?.categoryName
                             } ${formatDateToDateName(
                               farmerActivity?.act_start_date,
                             )} - ${formatDateToDateName(
@@ -507,7 +509,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3, // For Android shadow
   },
-    loadingScreen: {
+  loadingScreen: {
     position: 'absolute',
     top: '45%',
     zIndex: 999,
