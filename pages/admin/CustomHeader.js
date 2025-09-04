@@ -55,8 +55,8 @@ const CompanyLogo = memo(({logoImage}) => (
     <ImageForm
       source={{uri: logoImage}}
       resizeMode="contain"
-      height={50}
-      width={50}
+      height={45}
+      width={45}
     />
   </View>
 ));
@@ -173,7 +173,9 @@ const CustomHeader = memo(
         FarmerProfile: t('farmer_profile'),
         UsefulInformationList: t('dash_useful_information_list'),
         UsefulInformation: t('dash_useful_information'),
+        livehood: t('LiveHood'),
       }),
+
       [t],
     );
     const title = useMemo(
@@ -323,10 +325,10 @@ const styles = StyleSheet.create({
     height: 25,
   },
   companyLogoContainer: {
-    width: 32,
+    width: 35,
     backgroundColor: 'white',
-    height: 32,
-    borderRadius: 16,
+    height: 35,
+    borderRadius: 30,
     marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',

@@ -179,7 +179,7 @@ const FarmerViewModalPast = props => {
                           {t('required_date')} :
                         </Text>
                         <Text style={styles.labelText}>
-                          : {formatDateToMMDDYYYY(props.outputSingle.date)}
+                          {formatDateToMMDDYYYY(props.outputSingle.date)}
                         </Text>
                       </View>
                     </View>

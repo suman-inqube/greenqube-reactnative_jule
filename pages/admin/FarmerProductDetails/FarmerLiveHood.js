@@ -60,6 +60,10 @@ import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {getActionsPlot} from '../../utils/options';
+import FloatingActionButton from '../../Components/FloatingActionButton';
+
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -2208,29 +2212,24 @@ const FarmerLiveHood = ({
               editable={false}
             />
           )}
+          <View style={styles.labelContainer}>
+            <Text style={styles.sectionTitle}>{t('plot_location_points')}</Text>
+          </View>
 
-          <View style={styles.locationContainer}>
-            {location &&
-              location.map((data, index) => {
-                {
-                  /* if (data?.longitude.length> 2) { */
-                }
+          {location &&
+            location.map((data, index) => {
+              {
+                /* if (data?.longitude.length> 2) { */
+              }
 
-                return (
-                  <View key={index}>
-                    <View style={styles.latlongContainer}>
-                      <Text style={styles.title}>
-                        {data?.latitude == '' ? '0.0' : data?.latitude}
-                      </Text>
-                      <Text style={styles.title}>
-                        {data?.longitude == '' ? '0.0' : data?.longitude}
-                      </Text>
-                    </View>
-                    <View style={styles.latlongContainer}>
-                      <Text style={styles.title}>
-                        {t('tap_to_get_latitude_and_longitude')}
-                      </Text>
-                      {/* // GRQ-1134 */}
+              return (
+                <View key={index} style={styles.locationContainer}>
+                  <View style={styles.latlongContainer}>
+                    <Text style={styles.locationTitle}>
+                      {t('location_point')} {index + 1}
+                    </Text>
+
+                    {data.latitude ? (
                       <TouchableOpacity
                         onPress={() =>
                           data?.latitude != 10 && data?.latitude.length != ''
@@ -2238,21 +2237,71 @@ const FarmerLiveHood = ({
                             : statuslevel.label != 'APPROVED'
                             ? handleCurrentLatLong(index)
                             : ''
-                        }>
-                        <Image
-                          source={require('../../Common/images/location.png')}
-                          style={{width: 35, height: 35}}
-                          resizeMode="contain"
+                        }
+                        style={styles.locationStatusInactive}>
+                        <MaterialIcons
+                          name="check-circle"
+                          size={20}
+                          color="#4CAF50"
                         />
+                        <Text style={styles.locationStatusText}>
+                          {t('captured')}
+                        </Text>
                       </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() =>
+                          data?.latitude != 10 && data?.latitude.length != ''
+                            ? ''
+                            : statuslevel.label != 'APPROVED'
+                            ? handleCurrentLatLong(index)
+                            : ''
+                        }
+                        style={styles.locationStatusInactive}>
+                        <MaterialIcons
+                          name="location-on"
+                          size={20}
+                          color="#F44336"
+                        />
+                        <Text style={styles.locationStatusText}>
+                          {t('tap_to_tag')}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  <View style={styles.latlongContainer}>
+                    <View style={styles.coordinateItem}>
+                      <MaterialIcons
+                        name="pin-drop"
+                        size={16}
+                        color="#2196F3"
+                      />
+                      <Text style={styles.coordinateText}>
+                        {' '}
+                        {t('lat')}:
+                        {data?.latitude == '' ? '0.0' : data?.latitude}
+                      </Text>
+                    </View>
+                    <View style={styles.coordinateItem}>
+                      <MaterialIcons
+                        name="pin-drop"
+                        size={16}
+                        color="#2196F3"
+                      />
+                      <Text style={styles.coordinateText}>
+                        {' '}
+                        {t('long')}:
+                        {data?.longitude == '' ? '0.0' : data?.longitude}
+                      </Text>
                     </View>
                   </View>
-                );
-                {
-                  /* } */
-                }
-              })}
-          </View>
+                </View>
+              );
+              {
+                /* } */
+              }
+            })}
+
           <DropdownForm
             label={t('addcrop_select_cultivating_season')}
             required={true}
@@ -2427,7 +2476,7 @@ const FarmerLiveHood = ({
           ) : (
             <></>
           )}
-          {addPlot == false ? (
+          {/* {addPlot == false ? (
             userData != 'addUserData' ? (
               <TouchableOpacity
                 style={styles.clickAddMorePlots}
@@ -2437,7 +2486,7 @@ const FarmerLiveHood = ({
                 </Text>
               </TouchableOpacity>
             ) : null
-          ) : null}
+          ) : null} */}
         </View>
       </ScrollView>
       <ButtonForm
@@ -2453,14 +2502,28 @@ const FarmerLiveHood = ({
           </Text>
         </TouchableOpacity> */}
       {plotEdit || addPlot == true ? (
-        <TouchableOpacity
-          style={[styles.locationAddMoreContainer, {bottom: 250}]}
-          onPress={() => setShowModal(!showModal)}>
-          <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
-            {t('MapView')}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
+        <FloatingActionButton
+          position="right"
+          actions={getActionsPlot(t, styles, Colors, plotEdit, addPlot)}
+          color={Colors.useGreen}
+          onPressItem={name => {
+            if (name == 'MapView') {
+              setShowModal(!showModal);
+            } else {
+              handleUserData();
+            }
+          }}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{vertical: 80, horizontal: 25}}
+        />
+      ) : // <TouchableOpacity
+      //   style={[styles.locationAddMoreContainer, {bottom: 250}]}
+      //   onPress={() => setShowModal(!showModal)}>
+      //   <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
+      //     {t('MapView')}
+      //   </Text>
+      // </TouchableOpacity>
+      null}
 
       {showModal && (
         <Modal
@@ -2654,10 +2717,12 @@ const styles = StyleSheet.create({
     width: '48%',
   },
   coordinateText: {
-    marginLeft: 2,
+    marginLeft: 5,
     fontSize: 12,
     color: '#0D47A1',
     fontFamily: 'Poppins-Regular',
+    flexWrap: 'wrap', // Add this
+    flexShrink: 1,
   },
   coordinatePlaceholder: {
     flex: 1,
@@ -2666,5 +2731,18 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 5,
     backgroundColor: '#F5F5F5',
+  },
+  sectionTitle: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 15,
+    color: '#4e4e4e',
+    // marginBottom: 15,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginBottom: -20,
+    // marginLeft: 20,
+    marginTop: 15,
   },
 });

@@ -1049,6 +1049,10 @@
   "activity_Pipe_Images":"Activity Pipe Images",
   "please_update_both_image":"Please update both image.",
   "activity_Pipe_List":"Activity Pipe List",
+
+
+
+
   "tirthooooo":"Tirthoooo",
     "Remember_me":"Remember me",
     "Visit_Company_Website":"Visit Us",
@@ -1064,8 +1068,7 @@
     "select_plot":"Select Plot/Site",
     "farmer_pastEnq_details":"Enquiry Details",
     "L_view_loan_nrequested":"Loan Past Requested",
-  
-    "Insu_enquiry_detail": "Insurance Past Reque...",
+    "Insu_enquiry_detail": "Insurance Past Requested",
     "farmer_information":"Farmer Information",
     "income_expense_View": "Income Expense View",
     "ActivityReportAWD":"Activity Report AWD",
@@ -1077,7 +1080,7 @@
          "tap_to_tag":"Tap to tag",
              "not_captured_yet": "Not Captured Yet",
              "Registation_SignUp_Viwer":"Registation SignUp Viwer",
-             "Post_New":"Post New",
+  "Post_New":"Post New",
   "Attached_land_records": "Attached Supporting Documents",
   "Attached_address_proof": "Attached  Land Record",
     "Attched_identity_proof": "Attached Identity Proof",
@@ -1085,7 +1088,8 @@
     "training_support_list":"Training List",
     " Farmer_LiveHood":"Livelihood",
     "Package_Item_Details":"Package Item Details",
-    "Finance":"Finance"
+    "Finance":"Finance",
+    "LiveHood":"LiveHood"
 
 
 

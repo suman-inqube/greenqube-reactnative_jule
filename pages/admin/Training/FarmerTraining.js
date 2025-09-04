@@ -12,10 +12,11 @@ import React, {useState, useEffect, useContext} from 'react';
 import {noticeDetailsAPI} from '../../../config/apiHere';
 import {WebView} from 'react-native-webview';
 import {getItem} from '../../../config/getDataFromStorage';
-import {useNavigation,useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import FormsTitle from '../../Common/FormsTitle';
 
 const head = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -25,15 +26,10 @@ const head = `
 `;
 
 const FarmerTraining = () => {
-  const {
-    loginUser_data,
-    t,
-    logoImage,
-    topBanner,
-    CustomHeader,
-  } = useContext(userCreateContext);
+  const {loginUser_data, t, logoImage, topBanner, CustomHeader} =
+    useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
-   const route = useRoute();
+  const route = useRoute();
   const navigation = useNavigation();
 
   const [noticeDetails, setNoticeDetails] = useState([]);
@@ -72,7 +68,7 @@ const FarmerTraining = () => {
     );
   };
   const onPageLoad = async () => {
-   const noticeId = route.params;
+    const noticeId = route.params;
     if (noticeId) {
       const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
       if (response?.status === 200) {
@@ -87,10 +83,8 @@ const FarmerTraining = () => {
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={{flex: 1, backgroundColor: 'white'}}>
-        <CustomHeader
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
+        <CustomHeader logoImage={logoImage} topBanner={topBanner} />
+        <FormsTitle title={noticeDetails.post_name} />
         {/* Horizontal scroll file list */}
         <View style={{width: '100%', alignItems: 'center'}}>
           <ScrollView
