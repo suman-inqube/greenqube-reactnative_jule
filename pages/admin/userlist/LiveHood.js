@@ -808,8 +808,6 @@ const LiveHood = ({
   const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
     const {latitude, longitude} = coords || {};
-    // console.log('Current coordinates:', coords);
-    // console.log('Latitude:', latitude, 'Longitude:', longitude);
     if (
       coords != null &&
       // longitude.toString().length == 10 &&
@@ -1392,7 +1390,7 @@ const LiveHood = ({
         setIsLoading(false);
       }
     }
-  }, [farmerData,location,carboncertificate,signature]);
+  }, [farmerData,location,carboncertificate,signature,addressProof,identityProofIdentityPropf]);
   const handleUserData = async () => {
     setOutofRange(false);
     setAddPlot(true);
@@ -1643,7 +1641,6 @@ const LiveHood = ({
     }
   }, []);
   const handleCurrentLatLongIOT = useCallback(async () => {
-    console.log('iot', coords);
     try {
       const {latitude, longitude} = coords || {};
       setFarmerData(prev => ({

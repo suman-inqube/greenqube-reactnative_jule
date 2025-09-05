@@ -42,25 +42,35 @@ const InputTextForm = ({
       </View>
 
       {/* Input Field */}
-   <TextInput
-  style={[
-    styles.inputField,
-    !editable && styles.disabledInput,
-    { borderColor: Colors.borderGreen },
-  ]}
-  onChangeText={onChangeText} // <-- update instantly
-  onBlur={() => {
-    if (onBlur) onBlur();
-    onChangeText(sanitizeInput(value)); // sanitize only when leaving input
-  }}
-  value={value}
-  keyboardType={keyboardType}
-  ref={refname}
-  maxLength={maxLength}
-  editable={editable}
-  placeholder={placeholder}
-  placeholderTextColor={scheme === 'dark' ? '#9ca3af' : '#808080'}
-/>
+      <TextInput
+        style={[
+          styles.inputField,
+          !editable && styles.disabledInput,
+          { borderColor: Colors.borderGreen, minHeight: 48, textAlignVertical: 'top' },
+        ]}
+        onChangeText={onChangeText}
+        onBlur={() => {
+          if (onBlur) onBlur();
+          onChangeText(sanitizeInput(value));
+        }}
+        value={value}
+        keyboardType={keyboardType}
+        ref={refname}
+        maxLength={maxLength}
+        editable={editable}
+        placeholder={placeholder}
+        placeholderTextColor={scheme === 'dark' ? '#9ca3af' : '#808080'}
+        multiline={true}
+        scrollEnabled={true}
+        numberOfLines={2}
+        onContentSizeChange={e =>
+          e.nativeEvent.contentSize.height > 48 &&
+          (e.target.setNativeProps({
+            style: { height: e.nativeEvent.contentSize.height },
+          }))
+        }
+      />
+
 
     </View>
   );
@@ -78,8 +88,8 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   title: {
-    color:Colors.black,
-    fontFamily:Fonts.Regular,
+    color: Colors.black,
+    fontFamily: Fonts.Regular,
     fontSize: 15,
   },
   requiredStar: {
@@ -95,7 +105,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: Colors.text,
     //  borderColor: '#d1d5db',
-    borderColor:Colors.borderGreen
+    borderColor: Colors.borderGreen
   },
   disabledInput: {
     backgroundColor: '#f3f4f6',
