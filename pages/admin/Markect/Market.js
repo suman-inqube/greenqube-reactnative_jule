@@ -36,10 +36,11 @@ const Market = () => {
     Toast,
     AlertMesg,
     loginUser_data,
+    LoadingScreen,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const [plotList, setPlotList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [rejection, setRejection] = useState('REJECTED');
   const [nonGeofenced, setNonGeofenced] = useState('');
   const [searchBy, setSearchBy] = useState('');
@@ -225,7 +226,9 @@ const Market = () => {
               <View style={styles.LoadingScreen}>
                 <LoadingScreen />
               </View>
-            ) : null}
+            ) : (
+              ''
+            )}
             <FlatList
               data={plotList}
               keyExtractor={(item, index) =>
@@ -240,7 +243,7 @@ const Market = () => {
                   <TouchableOpacity
                     style={styles.flatListContainer}
                     onPress={() => detailItem(item)}>
-                    <View style={styles.flatListItem}>
+                    <View style={styles.flatListItemGeo}>
                       <View style={styles.cardHeader}>
                         <View style={styles.marqueeContainer}>
                           <Text style={styles.cardTitleRe}>
@@ -557,7 +560,7 @@ const styles = StyleSheet.create({
     padding: 15,
     position: 'relative',
     bottom: 0,
-    backgroundColor: '#FFFFFFFF',
+    backgroundColor: Colors.background_light,
   },
   searchContainer: {
     marginHorizontal: '5%',
@@ -587,7 +590,7 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     marginHorizontal: '2%',
-    // marginBottom: 5,
+    marginBottom: 5,
   },
   flatListItem: {
     backgroundColor: 'white',
@@ -599,8 +602,33 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     // alignItems: 'center',
     // marginBottom: 8,
-    paddingHorizontal: 15,
-    marginHorizontal: '2.5%',
+    paddingHorizontal: 16,
+
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // elevation: 4,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightColor: Colors.border,
+    borderTopColor: Colors.border,
+    borderBottomColor: Colors.border,
+  },
+  flatListItemGeo: {
+    backgroundColor: 'white',
+
+    marginVertical: 8,
+    borderRadius: 20,
+    borderLeftWidth: 5,
+    borderLeftColor: '#206708ff',
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // marginBottom: 8,
+    paddingHorizontal: 16,
+
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},

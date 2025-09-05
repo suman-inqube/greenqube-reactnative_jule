@@ -79,7 +79,7 @@ const Dashboard = ({navigation}) => {
 
   // Batch data coming from server into one object
   const [dataState, setDataState] = useState({
-    latestActivities: [],
+    plotStatus: [],
     usefulInfoList: [],
   });
 
@@ -145,7 +145,7 @@ const Dashboard = ({navigation}) => {
       const logoImgToSet = logoImage || logoImageData || null;
       const topBannerToSet = topBanner || topBannerData || null;
 
-      let latestActivities = [];
+      let plotStatus = [];
       var usefulInfoList = [];
       let convertionLUState = false;
       let defaultLand = false;
@@ -158,7 +158,7 @@ const Dashboard = ({navigation}) => {
           UnitConversonToDefault_res,
           LandUnitArea_res,
           FARMER_USEFULL_INFO_LIST,
-          LIST_USER_ACTIVITY,
+          PLOT_STATUS,
         ] = await Promise.all([
           UnitConversonToDefault(dbname, lan_id, token),
           LandUnitArea(dbname, lan_id, token),
@@ -221,11 +221,11 @@ const Dashboard = ({navigation}) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
         }
-        console.log('Plot status', LIST_USER_ACTIVITY.data.data);
-        if (LIST_USER_ACTIVITY?.status === 200) {
-          latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
+        console.log('Plot status', PLOT_STATUS.data.data);
+        if (PLOT_STATUS?.status === 200) {
+          plotStatus = PLOT_STATUS.data?.data?.rows || [];
         }
-        console.log('latestActivities', latestActivities);
+        console.log('latestActivities', plotStatus);
       }
 
       // single batched state updates
@@ -242,7 +242,7 @@ const Dashboard = ({navigation}) => {
       }));
 
       setDataState({
-        latestActivities,
+        plotStatus,
         usefulInfoList,
       });
 
@@ -300,12 +300,14 @@ const Dashboard = ({navigation}) => {
       <>
         <UpcomingActivities t={t} uiState={uiState} />
         <TrackingInfromation
-          latestActivities={dataState.latestActivities}
+          plotStatus={dataState.plotStatus}
           t={t}
           usefulInfoList={dataState.usefulInfoList}
           navigation={navigation}
           trackingNavigationPath="Market"
           informationNavigationPath="UsefulInformationList"
+          leftButtonText="Plot Status"
+          dashboardType="admin"
         />
         <View
           style={{
@@ -343,7 +345,7 @@ const Dashboard = ({navigation}) => {
     [
       uiState.bottomBanner,
       uiState.profileImg,
-      dataState.latestActivities,
+      dataState.plotStatus,
       dataState.usefulInfoList,
       t,
       CompanyWebsiteOpen,

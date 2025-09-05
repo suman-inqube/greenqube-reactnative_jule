@@ -1991,6 +1991,8 @@ const PlotStatusUpdate = () => {
                         color: '#da0000ff',
                         fontFamily: 'Poppins-SemiBold',
                         fontSize: 14,
+                        flexShrink: 1,
+                        flexWrap: 'wrap',
                       }}>
                       {comment}
                     </Text>

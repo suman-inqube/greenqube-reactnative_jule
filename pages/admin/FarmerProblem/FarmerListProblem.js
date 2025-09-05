@@ -9,22 +9,22 @@ import {
   Dimensions,
   RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { farmerProblemListAPI } from '../../../config/apiHere';
-import { useIsFocused } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {farmerProblemListAPI} from '../../../config/apiHere';
+import {useIsFocused} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { ROUTES } from '../../utils/Routes';
-import { axiosGet } from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
+import {axiosGet} from '../../utils/api';
 import PaginationNav from '../../Components/PaginationNav';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import { getActionsProblemSupervisor } from '../../utils/options';
+import {getActionsProblemSupervisor} from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-const FarmerListProblem = ({ navigation }) => {
+const FarmerListProblem = ({navigation}) => {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -38,10 +38,10 @@ const FarmerListProblem = ({ navigation }) => {
     topBanner,
     DeviceInfo,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
-  const { farmerId, pageNo } = dbLanTokUsr;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const {farmerId, pageNo} = dbLanTokUsr;
   //GQR-67
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [activeBtn, setActiveBtn] = useState(1);
@@ -55,7 +55,7 @@ const FarmerListProblem = ({ navigation }) => {
   };
   const myProblemList = async () => {
     setActiveBtn(1);
-    setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
+    setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
     if (netConnection) {
       var response = await farmerProblemListAPI(
         dbname,
@@ -91,12 +91,13 @@ const FarmerListProblem = ({ navigation }) => {
     } else {
       var response = await getItem('otherFarmerProblemList');
     }
+    // console.log('problem', response);
     if (response?.status == 200) {
       setProblemAll(response.data.data.rows);
       setItem('problem_Data', response.data.data);
     }
   };
-  const onPageLoad = async (page) => {
+  const onPageLoad = async page => {
     setActiveBtn(1);
     if (netConnection) {
       var response = await farmerProblemListAPI(
@@ -113,7 +114,7 @@ const FarmerListProblem = ({ navigation }) => {
       var response = await getItem('farmerProblemList');
     }
     if (response?.status == 200) {
-      setTotalPages(Math.ceil(response.data.data.count / 20))
+      setTotalPages(Math.ceil(response.data.data.count / 20));
       setProblemAll(response.data.data.rows);
       setItem('problem_Data', response.data.data);
       setIsLoading(false);
@@ -128,21 +129,17 @@ const FarmerListProblem = ({ navigation }) => {
   }, []);
   useEffect(() => {
     onPageLoad(page);
-  }, [page])
+  }, [page]);
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background_light }}>
-        <CustomHeader
-          logoImage={logoImage}
-          topBanner={topBanner}
-          t={t}
-        />
+      <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <CustomHeader logoImage={logoImage} topBanner={topBanner} t={t} />
         {problemAll?.length > 0 ? (
           <>
             <FlatList
               nestedScrollEnabled={true}
-              data={isLoading ? Array.from({ length: 5 }) : problemAll}
-              renderItem={({ item, index }) =>
+              data={isLoading ? Array.from({length: 5}) : problemAll}
+              renderItem={({item, index}) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -156,9 +153,7 @@ const FarmerListProblem = ({ navigation }) => {
                         }
                         activeOpacity={0.7}>
                         <View style={styles.cardHeader}>
-                          <Text
-                            style={styles.problemTitle}
-                            numberOfLines={2}>
+                          <Text style={styles.problemTitle} numberOfLines={2}>
                             {t('problem_title')} :{' '}
                             {item.question_title?.length > 30
                               ? `${item.question_title.substring(0, 30)}...`
@@ -167,12 +162,8 @@ const FarmerListProblem = ({ navigation }) => {
                         </View>
                         <View style={styles.cardContent}>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>
-                              {t('date')} :
-                            </Text>
-                            <Text
-                              style={styles.infoValue}
-                              numberOfLines={1}>
+                            <Text style={styles.infoLabel}>{t('date')} :</Text>
+                            <Text style={styles.infoValue} numberOfLines={1}>
                               {formatDateToMMDDYYYY(item.updated_at)}
                             </Text>
                           </View>
@@ -198,13 +189,13 @@ const FarmerListProblem = ({ navigation }) => {
               maxToRenderPerBatch={5}
               updateCellsBatchingPeriod={20}
               windowSize={5}
-              contentContainerStyle={{ padding: 16, paddingBottom: 10 }}
+              contentContainerStyle={{padding: 16, paddingBottom: 10}}
             />
             <PaginationNav
               page={page}
               totalPages={totalPages}
-              onPrev={() => setPage((p) => Math.max(1, p - 1))}
-              onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onPrev={() => setPage(p => Math.max(1, p - 1))}
+              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
               t={t}
             />
           </>
@@ -216,13 +207,10 @@ const FarmerListProblem = ({ navigation }) => {
               color="#767676ff"
             />
             <Text style={styles.noDataText}>
-              {activeBtn === 1
-                ? t('no_my_questions')
-                : t('no_other_questions')}
+              {activeBtn === 1 ? t('no_my_questions') : t('no_other_questions')}
             </Text>
           </View>
         )}
-
 
         <FloatingActionButton
           position="right"
@@ -258,9 +246,8 @@ const FarmerListProblem = ({ navigation }) => {
           }}
           showBackground={true}
           overlayColor="rgba(22, 17, 17, 0.35)"
-          distanceToEdge={{ vertical: 80, horizontal: 25 }}
+          distanceToEdge={{vertical: 80, horizontal: 25}}
         />
-
       </SafeAreaView>
     </FarmerDrawerScreenWrapper1>
   );
@@ -340,7 +327,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

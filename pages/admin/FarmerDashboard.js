@@ -221,6 +221,10 @@ const FarmerDashboard = ({navigation}) => {
           '',
           {information: `${dbname},${lan_id}`},
         ),
+        console.log(
+          'dashboard USER_ACTIVITY',
+          ROUTES.GET.FARMER_USEFULL_INFO_LIST,
+        ),
       ]);
       const logoImgToSet = logoImage || logoImageData || null;
       const topBannerToSet = topBanner || topBannerData || null;
@@ -238,6 +242,7 @@ const FarmerDashboard = ({navigation}) => {
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
+
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }
@@ -315,6 +320,8 @@ const FarmerDashboard = ({navigation}) => {
           information_path={'FarmerUsefulInformation'}
           trackingNavigationPath="FarmerActivityList"
           informationNavigationPath="FarmerUsefulInformationList"
+          leftButtonText="Activity"
+          dashboardType="farmer"
         />
         <View
           style={{

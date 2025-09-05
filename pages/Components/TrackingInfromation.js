@@ -12,6 +12,7 @@ import moment from 'moment';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const TrackingInformation = ({
+  plotStatus,
   latestActivities,
   t,
   usefulInfoList,
@@ -24,6 +25,8 @@ const TrackingInformation = ({
   // Optional: Add props for navigation parameters
   trackingNavigationParams,
   informationNavigationParams,
+  leftButtonText,
+  dashboardType = 'admin',
 }) => {
   const [activeTab, setActiveTab] = useState('tracking');
   const trackingScale = useRef(new Animated.Value(1)).current;
@@ -77,7 +80,91 @@ const TrackingInformation = ({
   //     navigation.navigate('UsefulInformationList');
   //   }
   // };
+  const renderAdminTrackingContent = () => (
+    <FlatList
+      scrollEnabled={false}
+      data={plotStatus.slice(0, 3)}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={{paddingBottom: 16, height: 218}}
+      renderItem={({item, index}) => {
+        const isLastItem = index === plotStatus.slice(0, 3).length - 1;
+        const {farmer_data, plot_no} = item || {};
+        return (
+          <TouchableOpacity
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderBottomWidth: isLastItem ? 0 : 1,
+              borderColor: Colors.border || '#ccc',
+              backgroundColor: '#fff',
+            }}
+            onPress={() =>
+              navigation.navigate(activity_path || 'PlotStatusUpdate', item)
+            }>
+            <Text
+              style={[
+                styles.text,
+                {color: Colors.text, fontFamily: Fonts.Medium},
+              ]}>
+              {item?.farmer_data?.userName || 'Activity Name: Nill'}
+            </Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={[styles.text, {color: '#ff0101ff'}]}>
+                {t('Rejected Plot')}:{' '}
+              </Text>
+              <Text style={[styles.text, {color: Colors.text}]}>{plot_no}</Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }}
+      maxToRenderPerBatch={8}
+      windowSize={5}
+      initialNumToRender={6}
+      updateCellsBatchingPeriod={50}
+    />
+  );
 
+  // Render farmer dashboard tracking content
+  const renderFarmerTrackingContent = () => (
+    <FlatList
+      scrollEnabled={false}
+      data={latestActivities.slice(0, 3)}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={{paddingBottom: 16, height: 218}}
+      renderItem={({item, index}) => {
+        const isLastItem = index === latestActivities.slice(0, 3).length - 1;
+        return (
+          <TouchableOpacity
+            style={{
+              paddingVertical: 10,
+              paddingHorizontal: 16,
+              borderBottomWidth: isLastItem ? 0 : 1,
+              borderColor: Colors.border || '#ccc',
+              backgroundColor: '#fff',
+            }}
+            onPress={() =>
+              navigation.navigate(activity_path || 'FarmerActivityDetail', item)
+            }>
+            <Text
+              style={[
+                styles.text,
+                {color: Colors.text, fontFamily: Fonts.Medium},
+              ]}>
+              {item?.typeActivity?.categoryName || 'Activity Name: Nill'}
+            </Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={[styles.text, {color: Colors.text}]}>
+                {t('perf_date')}:{' '}
+              </Text>
+              <Text style={[styles.text, {color: Colors.text}]}>
+                {moment(item.act_perform_date).utc().format('YYYY-MM-DD')}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        );
+      }}
+    />
+  );
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -105,7 +192,7 @@ const TrackingInformation = ({
                         : Colors.text,
                   },
                 ]}>
-                Plot Status
+                {leftButtonText}
               </Text>
             </TouchableOpacity>
           </Animated.View>
@@ -154,53 +241,11 @@ const TrackingInformation = ({
       {/* Content area */}
       <View>
         {activeTab === 'tracking' ? (
-          <FlatList
-            scrollEnabled={false}
-            data={latestActivities.slice(0, 3)}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{paddingBottom: 16, height: 218}}
-            renderItem={({item, index}) => {
-              const isLastItem =
-                index === latestActivities.slice(0, 3).length - 1;
-              const {farmer_data, plot_no} = item || {};
-              return (
-                <TouchableOpacity
-                  style={{
-                    paddingVertical: 10,
-                    paddingHorizontal: 16,
-                    borderBottomWidth: isLastItem ? 0 : 1, // 👈 hide border if last
-                    borderColor: Colors.border || '#ccc',
-                    backgroundColor: '#fff',
-                  }}
-                  onPress={() =>
-                    navigation.navigate(
-                      activity_path || 'PlotStatusUpdate',
-                      item,
-                    )
-                  }>
-                  <Text
-                    style={[
-                      styles.text,
-                      {color: Colors.text, fontFamily: Fonts.Medium},
-                    ]}>
-                    {item?.farmer_data?.userName || 'Activity Name: Nill'}
-                  </Text>
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={[styles.text, {color: '#ff0101ff'}]}>
-                      {t('Rejected Plot')}:{' '}
-                    </Text>
-                    <Text style={[styles.text, {color: Colors.text}]}>
-                      {plot_no}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-            maxToRenderPerBatch={8}
-            windowSize={5}
-            initialNumToRender={6}
-            updateCellsBatchingPeriod={50}
-          />
+          dashboardType === 'admin' ? (
+            renderAdminTrackingContent()
+          ) : (
+            renderFarmerTrackingContent()
+          )
         ) : (
           <FlatList
             scrollEnabled={false}
@@ -210,6 +255,7 @@ const TrackingInformation = ({
             renderItem={({item, index}) => {
               const isLastItem =
                 index === usefulInfoList.slice(0, 3).length - 1;
+
               return (
                 <TouchableOpacity
                   style={{
@@ -232,6 +278,7 @@ const TrackingInformation = ({
                     ]}>
                     {item?.post_name || 'Information Name: Nill'}
                   </Text>
+
                   <View style={{flexDirection: 'row'}}>
                     <Text style={[styles.text, {color: Colors.text}]}>
                       {t('perf_date')}:{' '}

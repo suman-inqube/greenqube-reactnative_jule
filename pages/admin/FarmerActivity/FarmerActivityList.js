@@ -135,7 +135,7 @@ const FarmerActivityList = ({navigation}) => {
           pageNO: pageNo,
           carbonType:
             carbonTypeParams == undefined ? carbonType.value : carbonTypeParams,
-          userID: '',
+          userID: user_id,
           searchItem: searchItem,
           from_date: fromDateParams == undefined ? fromDate : fromDateParams,
           to_date: toDateParams == undefined ? toDate : toDateParams,
@@ -147,7 +147,7 @@ const FarmerActivityList = ({navigation}) => {
     } else {
       var response = await getItem('farmerActivityList' + user_id);
     }
-    // console.log('response', response.status);
+    console.log('response', response.data);
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response?.data?.data.count / 20));
       setActivityAll(response?.data?.data.rows);
