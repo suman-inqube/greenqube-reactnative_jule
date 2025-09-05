@@ -6,14 +6,15 @@ export const ROUTES = {
   },
 
   GET: {
-    LIST_USER_ACTIVITY: ({
-      pageNO,
-      carbonType,
-      userID,
-      searchItem = '',
-      from_date = '',
-      to_date = '',
-    }) =>`inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    // LIST_USER_ACTIVITY: ({
+    //   pageNO,
+    //   carbonType,
+    //   userID,
+    //   searchItem = '',
+    //   from_date = '',
+    //   to_date = '',
+    // }) =>
+    //   `inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
 
     USER_ACTIVITY: ({
       pageNO,
@@ -94,7 +95,11 @@ export const ROUTES = {
       `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
     AGENT_ROUTE: ({page = 1, search_key = ''}) =>
       `agentRoute/listFarmer_e/1/${page}/2?search_key=${search_key}`,
+
+    Fenced_Rejected_Plot_List: ({page, status_level, geo_type, searchBy}) =>
+      `landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
   },
+
   PUT: {
     USER_PROFILE_UPDATE: ({user_id}) => `loginSignupRoute/update/${user_id}`,
   },

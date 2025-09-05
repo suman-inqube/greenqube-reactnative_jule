@@ -1971,7 +1971,7 @@ const PlotStatusUpdate = () => {
                   <View
                     style={{
                       paddingVertical: 10,
-                      backgroundColor: '#F8D7DA',
+                      backgroundColor: '#ffeaecff',
                       borderRadius: 5,
                       borderColor: '#F8D7DA',
                       borderWidth: 0.6,
@@ -1983,12 +1983,12 @@ const PlotStatusUpdate = () => {
                     <MaterialIcons
                       name="dangerous"
                       size={22}
-                      color="#c00000ff"
+                      color="#da0000ff"
                     />
                     <Text
                       style={{
                         marginHorizontal: 5,
-                        color: '#c00000ff',
+                        color: '#da0000ff',
                         fontFamily: 'Poppins-SemiBold',
                         fontSize: 14,
                       }}>

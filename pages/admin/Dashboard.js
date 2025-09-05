@@ -38,6 +38,8 @@ import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
+import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
+
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
   useDoubleBackToExit();
@@ -173,18 +175,29 @@ const Dashboard = ({navigation}) => {
             '',
             {information: `${dbname},${lan_id}`},
           ),
+
           axiosGet(
-            ROUTES.GET.LIST_USER_ACTIVITY({
-              pageNO: 1,
-              carbonType: '',
-              userID: '',
-              searchItem: '',
-              from_date: '',
-              to_date: '',
+            ROUTES.GET.Fenced_Rejected_Plot_List({
+              page: 1,
+              status_level: 'REJECTED',
+              geo_type: '',
+              searchBy: '',
             }),
             token,
             {information: `${dbname},${lan_id},${user_id}`},
           ),
+          // axiosGet(
+          //   ROUTES.GET.LIST_USER_ACTIVITY({
+          //     pageNO: 1,
+          //     carbonType: '',
+          //     userID: '',
+          //     searchItem: '',
+          //     from_date: '',
+          //     to_date: '',
+          //   }),
+          //   token,
+          //   {information: `${dbname},${lan_id},${user_id}`},
+          // ),
         ]);
         let missingCount = 0;
         if (UnitConversonToDefault_res?.status === 200) {
@@ -208,10 +221,11 @@ const Dashboard = ({navigation}) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
         }
+        console.log('Plot status', LIST_USER_ACTIVITY.data.data);
         if (LIST_USER_ACTIVITY?.status === 200) {
           latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
         }
-        // console.log('latestActivities', latestActivities);
+        console.log('latestActivities', latestActivities);
       }
 
       // single batched state updates
@@ -290,7 +304,7 @@ const Dashboard = ({navigation}) => {
           t={t}
           usefulInfoList={dataState.usefulInfoList}
           navigation={navigation}
-          trackingNavigationPath="activityList"
+          trackingNavigationPath="Market"
           informationNavigationPath="UsefulInformationList"
         />
         <View

@@ -99,7 +99,10 @@ const Market = () => {
   };
 
   const HandlerGoBack = () => navigation.navigate('Dashboard');
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
+    [],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={styles.container}>
@@ -587,7 +590,7 @@ const styles = StyleSheet.create({
     // marginBottom: 5,
   },
   flatListItem: {
-    backgroundColor: '#fff4f8ff',
+    backgroundColor: 'white',
 
     marginVertical: 8,
     borderRadius: 20,

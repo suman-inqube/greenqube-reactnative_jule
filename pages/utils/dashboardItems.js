@@ -1,22 +1,26 @@
 const getDashboardItems = (t, navigateToPages) => [
   {
     text: t('register_nfarmer'),
-    imageurl: require('../Common/images/register_farmer.png'),
+    // imageurl: require('../Common/images/register_farmer.png'),
+    imageurl: require('../Common/images/f_registration.png'),
     onpress: () => navigateToPages('PersonalInformation'),
   },
   {
     text: t('farmer_list'),
-    imageurl: require('../Common/images/farmer_list.png'),
+    // imageurl: require('../Common/images/farmer_list.png'),
+    imageurl: require('../Common/images/user_list.png'),
     onpress: () => navigateToPages('userList'),
   },
   {
     text: t('crop_prob_far_dash'),
-    imageurl: require('../Common/images/raise_problem_only.png'),
+    // imageurl: require('../Common/images/raise_problem_only.png'),
+    imageurl: require('../Common/images/problem1.png'),
     onpress: () => navigateToPages('ProblemList'),
   },
   {
     text: t('acti_report_far_dash'),
-    imageurl: require('../Common/images/activity_report_only.png'),
+    // imageurl: require('../Common/images/activity_report_only.png'),
+    imageurl: require('../Common/images/activity2.png'),
     onpress: () => navigateToPages('activityList'),
   },
   {
@@ -26,17 +30,20 @@ const getDashboardItems = (t, navigateToPages) => [
   },
   {
     text: t('agri_output_far_dash'),
-    imageurl: require('../Common/images/dash_sale_your_product.png'),
+    // imageurl: require('../Common/images/dash_sale_your_product.png'),
+    imageurl: require('../Common/images/output1.png'),
     onpress: () => navigateToPages('OutPutList'),
   },
   {
-    text: t('market_information'),
-    imageurl: require('../Common/images/market_information_only.png'),
+    text: t('Plot Status'),
+    imageurl: require('../Common/images/plot_status1.png'),
     onpress: () => navigateToPages('Market'),
   },
   {
     text: t('useful_ninformation_dash'),
-    imageurl: require('../Common/images/dash_useful_information.png'),
+    // imageurl: require('../Common/images/dash_useful_information.png'),
+    imageurl: require('../Common/images/information1.png'),
+
     onpress: () => navigateToPages('UsefulInformationList'),
   },
 ];

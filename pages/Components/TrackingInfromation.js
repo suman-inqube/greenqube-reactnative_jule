@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, {useState, useRef, useEffect, memo} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,7 @@ import {
   Animated,
   FlatList,
 } from 'react-native';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
 import moment from 'moment';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -83,7 +83,7 @@ const TrackingInformation = ({
       <View style={styles.headerContainer}>
         <View style={styles.toggleWrapper}>
           {/* Tracking Button */}
-          <Animated.View style={{ transform: [{ scale: trackingScale }], flex: 1 }}>
+          <Animated.View style={{transform: [{scale: trackingScale}], flex: 1}}>
             <TouchableOpacity
               style={[
                 styles.toggleButton,
@@ -105,13 +105,13 @@ const TrackingInformation = ({
                         : Colors.text,
                   },
                 ]}>
-                Tracking
+                Plot Status
               </Text>
             </TouchableOpacity>
           </Animated.View>
 
           {/* Information Button */}
-          <Animated.View style={{ transform: [{ scale: infoScale }], flex: 1 }}>
+          <Animated.View style={{transform: [{scale: infoScale}], flex: 1}}>
             <TouchableOpacity
               style={[
                 styles.toggleButton,
@@ -158,10 +158,11 @@ const TrackingInformation = ({
             scrollEnabled={false}
             data={latestActivities.slice(0, 3)}
             keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{ paddingBottom: 16, height: 218 }}
-            renderItem={({ item, index }) => {
+            contentContainerStyle={{paddingBottom: 16, height: 218}}
+            renderItem={({item, index}) => {
               const isLastItem =
                 index === latestActivities.slice(0, 3).length - 1;
+              const {farmer_data, plot_no} = item || {};
               return (
                 <TouchableOpacity
                   style={{
@@ -172,21 +173,24 @@ const TrackingInformation = ({
                     backgroundColor: '#fff',
                   }}
                   onPress={() =>
-                    navigation.navigate(activity_path || 'activityDetail', item)
+                    navigation.navigate(
+                      activity_path || 'PlotStatusUpdate',
+                      item,
+                    )
                   }>
                   <Text
                     style={[
                       styles.text,
-                      { color: Colors.text, fontFamily: Fonts.Medium },
+                      {color: Colors.text, fontFamily: Fonts.Medium},
                     ]}>
-                    {item?.typeActivity?.categoryName || 'Activity Name: Nill'}
+                    {item?.farmer_data?.userName || 'Activity Name: Nill'}
                   </Text>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={[styles.text, { color: Colors.text }]}>
-                      {t('perf_date')}:{' '}
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={[styles.text, {color: '#ff0101ff'}]}>
+                      {t('Rejected Plot')}:{' '}
                     </Text>
-                    <Text style={[styles.text, { color: Colors.text }]}>
-                      {moment(item.act_perform_date).utc().format('YYYY-MM-DD')}
+                    <Text style={[styles.text, {color: Colors.text}]}>
+                      {plot_no}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -202,8 +206,8 @@ const TrackingInformation = ({
             scrollEnabled={false}
             data={usefulInfoList.slice(0, 3)}
             keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{ paddingBottom: 16, height: 218 }}
-            renderItem={({ item, index }) => {
+            contentContainerStyle={{paddingBottom: 16, height: 218}}
+            renderItem={({item, index}) => {
               const isLastItem =
                 index === usefulInfoList.slice(0, 3).length - 1;
               return (
@@ -224,15 +228,15 @@ const TrackingInformation = ({
                   <Text
                     style={[
                       styles.text,
-                      { color: Colors.text, fontFamily: Fonts.Medium },
+                      {color: Colors.text, fontFamily: Fonts.Medium},
                     ]}>
                     {item?.post_name || 'Information Name: Nill'}
                   </Text>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={[styles.text, { color: Colors.text }]}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={[styles.text, {color: Colors.text}]}>
                       {t('perf_date')}:{' '}
                     </Text>
-                    <Text style={[styles.text, { color: Colors.text }]}>
+                    <Text style={[styles.text, {color: Colors.text}]}>
                       {moment(item.updated_at).utc().format('YYYY-MM-DD')}
                     </Text>
                   </View>
