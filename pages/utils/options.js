@@ -101,15 +101,15 @@ const getActionsPlot = (
   addPlot = false,
 ) => {
   const actions = [
-    {
-      text: t('add_plot'),
-      name: 'bt_add',
-      position: 1,
-      color: Colors.useGreen,
-      textStyle: styles.actionText,
-      textBackground: '#ffffffff',
-      icon: require('../Common/images/plotting.png'),
-    },
+    // {
+    //   text: t('add_plot'),
+    //   name: 'bt_add',
+    //   position: 1,
+    //   color: Colors.useGreen,
+    //   textStyle: styles.actionText,
+    //   textBackground: '#ffffffff',
+    //   icon: require('../Common/images/plotting.png'),
+    // },
   ];
   if (isEnable || addPlot) {
     actions.push({

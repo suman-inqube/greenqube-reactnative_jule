@@ -60,10 +60,21 @@ const InputTextForm = ({
         editable={editable}
         placeholder={placeholder}
         placeholderTextColor={scheme === 'dark' ? '#9ca3af' : '#808080'}
-        multiline={true}
-        scrollEnabled={true}
-        numberOfLines={2}
-        onContentSizeChange={e =>
+        // multiline={true}
+        // scrollEnabled={true}
+        // numberOfLines={2}
+        // onContentSizeChange={e =>
+        //   e.nativeEvent.contentSize.height > 48 &&
+        //   (e.target.setNativeProps({
+        //     style: { height: e.nativeEvent.contentSize.height },
+        //   }))
+        // }
+         {...(!editable && {
+    multiline: true,
+    scrollEnabled: true,
+    numberOfLines: 3,
+  })}
+    onContentSizeChange={e =>
           e.nativeEvent.contentSize.height > 48 &&
           (e.target.setNativeProps({
             style: { height: e.nativeEvent.contentSize.height },

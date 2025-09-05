@@ -221,11 +221,9 @@ const Dashboard = ({navigation}) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
         }
-        console.log('Plot status', LIST_USER_ACTIVITY.data.data);
         if (LIST_USER_ACTIVITY?.status === 200) {
           latestActivities = LIST_USER_ACTIVITY.data?.data?.rows || [];
         }
-        console.log('latestActivities', latestActivities);
       }
 
       // single batched state updates

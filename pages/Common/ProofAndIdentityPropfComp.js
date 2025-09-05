@@ -48,7 +48,7 @@ const ProofAndIdentityPropfComp = ({
         'JPEG',
         quality,
       );
-      await logFileSize(resized.uri, 'Resized Image');
+      // await logFileSize(resized.uri, 'Resized Image');
       return resized.uri;
     } catch (err) {
       console.error('Resize failed:', err);

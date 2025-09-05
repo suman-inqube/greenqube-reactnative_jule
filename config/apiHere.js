@@ -3266,7 +3266,7 @@ export const landRouteApi = async (dbName, language, type) => {
   try {
     let response = await axios.get(
       `${config.BASE_URL}landRoute/list/1/0/1?type=${type}&search_key=`,
-      {...axiosHeaders, ...timeoutConfig},
+      {...axiosHeaders},
     );
     return response;
   } catch (error) {
