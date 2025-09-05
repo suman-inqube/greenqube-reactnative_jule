@@ -1089,7 +1089,9 @@
     " Farmer_LiveHood":"Livelihood",
     "Package_Item_Details":"Package Item Details",
     "Finance":"Finance",
-    "LiveHood":"LiveHood"
+    "LiveHood":"LiveHood",
+    "PlotStatusUpdate":"Plot Status Update",
+    "Plot Status":"Plot Status"
 
 
 

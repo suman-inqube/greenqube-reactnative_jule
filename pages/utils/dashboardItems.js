@@ -32,7 +32,7 @@ const getDashboardItems = (t, navigateToPages) => [
   {
     text: t('market_information'),
     imageurl: require('../Common/images/market_information_only.png'),
-    onpress: () => navigateToPages('ListProblem'),
+    onpress: () => navigateToPages('Market'),
   },
   {
     text: t('useful_ninformation_dash'),
@@ -113,4 +113,4 @@ const MENU_ITEMS = [
     iconBg: '#FEF5D3',
   },
 ];
-export {getDashboardItems, getDashboardFarmerItems,MENU_ITEMS};
+export {getDashboardItems, getDashboardFarmerItems, MENU_ITEMS};

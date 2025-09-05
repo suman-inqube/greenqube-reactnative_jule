@@ -74,14 +74,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#606d5eff',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 15.5,
+    fontSize: 14.5,
     // padding: 10,
   },
   activeTabText: {
     textAlign: 'center',
     color: '#0d4b01ff',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
+    fontSize: 15,
   },
   indicator: {
     height: 3,
