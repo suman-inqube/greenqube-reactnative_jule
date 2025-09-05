@@ -18,16 +18,15 @@ const DropdownForm = ({
   const labelString = label
     ? label.charAt(0).toUpperCase() + label.slice(1)
     : '';
-
+// console.log('DropdownForm rendered', label||'');
   return (
     <View>
-      {/* Label */}
       <View style={styles.labelContainer}>
+        {/* Label */}
         {labelString ? (
           <>
             <Text
-              style={[styles.labelText, { color: color ?? 'black' }, labelStyle]}
-            >
+              style={[styles.labelText, { color: color ?? 'black' }, labelStyle]}>
               {labelString}
             </Text>
             {required && <Text style={styles.requiredStar}> *</Text>}
@@ -60,22 +59,6 @@ const DropdownForm = ({
           showsVerticalScrollIndicator={false}
           iconColor={Colors.borderGreen}
           activeColor={Colors.containerGreen}
-          renderItem={(item) => (
-            <View style={styles.item}>
-              <Text
-                style={styles.itemText}
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
-                {item.label}
-              </Text>
-            </View>
-          )}
-          renderSelectedItem={(item) => (
-            <Text style={styles.selectedText} numberOfLines={2}>
-              {item.label}
-            </Text>
-          )}
         />
       </View>
     </View>
@@ -83,18 +66,24 @@ const DropdownForm = ({
 };
 
 const styles = StyleSheet.create({
+  label: {
+    marginHorizontal: 5,
+    marginBottom: 5,
+    fontFamily: Fonts.Regular,
+    fontSize: 14,
+  },
   container: {
     alignItems: 'center',
     marginBottom: 15,
     borderRadius: 10,
   },
   dropdown: {
-    minHeight: 48, // ✅ allow dynamic height
+    height: 48,
     borderColor: Colors.borderGreen,
     borderWidth: 0.5,
     borderRadius: 5,
     paddingHorizontal: 8,
-    backgroundColor: Colors.background,
+    backgroundColor:Colors.background,
     width: '100%',
   },
   placeholderStyle: {
@@ -106,12 +95,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: Fonts.Regular,
     fontSize: 14,
-    flexWrap: 'wrap',
-  },
-  selectedText: {
-    fontSize: 14,
-    color: Colors.text,
-    flexWrap: 'wrap', // ✅ wraps if long
   },
   iconStyle: {
     width: 20,
@@ -121,24 +104,15 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: Fonts.Regular,
   },
-  item: {
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-  },
   itemTextStyle: {
-    color: Colors.black,
+    color: Colors.text,
     fontFamily: Fonts.Regular,
-  },
-  itemText: {
-    fontSize: 14,
-    flexWrap: 'wrap', // ✅ wrap item text
-    color: Colors.black,
   },
   dropdownContainerStyle: {
     borderWidth: 0.5,
     borderColor: Colors.borderGreen,
     borderRadius: 5,
-    backgroundColor: Colors.background,
+    backgroundColor:Colors.background,
     padding: 4,
   },
   labelContainer: {
@@ -157,5 +131,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
 export default memo(DropdownForm);
+
