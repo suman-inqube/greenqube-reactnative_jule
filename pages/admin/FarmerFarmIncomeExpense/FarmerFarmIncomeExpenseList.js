@@ -6,7 +6,13 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import {farmerFarmaccountsListAPI} from '../../../config/apiHere';
 import {formatDateToDateName} from '../../Common/DateChanger';
@@ -39,6 +45,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
     Toast,
     AlertMesg,
     FormsTitle,
+    navigationBarHeight,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const {pageNo} = dbLanTokUsr;
@@ -57,25 +64,70 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
+  const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+  // const filterOptionShow = () => {
+  //   if (!filterOption) {
+  //     setFilterOption(true);
+  //   } else {
+  //     setFilterOption(false);
+  //   }
+  // };
   const onchangeFilterItem = value => {
     setFilterName(value);
     setFilterItem(value);
     setFilterOption(false);
   };
-  const onPageLoad = async () => {
+  const filterOptionShow = async () => {
+    try {
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      openFilterSheet({
+        options: ['', '', 'date', ''],
+        // onchangeFilterItem: onchangeFilterItem,
+        t: t,
+        dropdownData: [],
+        filterItem: filterItem,
+        setFilterItem: setFilterItem,
+        title: 'Choose Status',
+        handleFilterResult: handleFilterResult,
+        handleFilterRemove: handleFilterRemove,
+        setFromDate: setFromDate,
+        setToDate: setToDate,
+        fromDate: fromDate,
+        toDate: toDate,
+        effective_dates: effective_dates,
+        carbonFlag: false,
+        CARBON_TYPE: [],
+        navigationBarHeight: navigationBarHeight,
+        height: 140,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleFilterResult = useCallback(
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
+
+        onPageLoad(
+          fromDate,
+          toDate,
+          // filter,
+        );
+      } catch (error) {
+        console.log(error, 'error');
+      }
+    },
+    [],
+  );
+  const handleFilterRemove = () => {};
+  const onPageLoad = async (fromDate = '', toDate = '') => {
     const curr = await getItem('currency');
     setcurrency(curr);
-    const fromDate = '';
-    const toDate = '';
+
     const response = await farmerFarmaccountsListAPI(
       dbname,
       lan_id,
@@ -232,24 +284,27 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
     setItem('farm_in_ex_id', farmAccount[index]);
     navigation.navigate(pageName);
   };
-  useFocusEffect(
-    React.useCallback(() => {
-      onPageLoad();
-    }, []),
+  useEffect(() => {
+    onPageLoad();
+  }, []);
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
+    [filterOptionShow],
   );
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <View style={styles.mainContainer}>
-          <CustomHeader
+          {/* <CustomHeader
             path="FarmerDashboard"
             HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
-          />
+          /> */}
+          {renderCustomHeader}
           {/* <FormsTitle title={t('income_expense_list')} /> */}
-          <View style={{marginVertical: 10}}>
+          {/* <View style={{marginVertical: 10}}>
             <DatePickerComp
               openDate={openFromDate}
               newDate={newFromDate}
@@ -286,7 +341,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
               //   title={t('Filter')}
               filterDataRemove={filterDataRemove}
             />
-          </View>
+          </View> */}
           {isLoading ? (
             <LoadingScreen />
           ) : (

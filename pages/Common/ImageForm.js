@@ -10,7 +10,7 @@ const ImageForm = ({ source, width, height, resizeMode, borderRadius, style }) =
           height,
           borderRadius,
         },
-        style, // merge external styles
+        style, 
       ]}
       resizeMode={
         resizeMode

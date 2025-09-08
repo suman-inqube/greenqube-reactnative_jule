@@ -1,5 +1,5 @@
-// const BASE_URL = 'http://34.87.10.106:4003/';
 const BASE_URL = 'http://134.209.155.11:4003/';
+
 // const BASE_URL = 'https://mygreenqube.com:4003/';
 
 // import { BASE_URL } from "@env"

@@ -363,10 +363,8 @@ const FarmerPostNew = props => {
             1,
           );
           Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
-          setTimeout(() => {
-            props.sendDataToParent(2);
-            navigation.navigate('FarmerViewPast');
-          }, 1500);
+          console.log('Toast ');
+          navigation.navigate('FarmerViewPast');
         }
       }
     }

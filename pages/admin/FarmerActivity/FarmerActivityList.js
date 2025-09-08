@@ -48,12 +48,12 @@ const FarmerActivityList = ({navigation}) => {
     DeviceInfo,
     Root,
     navigationBarHeight,
+    isOnline,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   const isFocused = useIsFocused();
   const flatListRef = useRef(null);
   //GQR-67
-  const {netConnection} = DeviceInfo();
   const [isLoading, setIsLoading] = useState(true);
   const [activityAll, setActivityAll] = useState([]);
   const [fromDate, setFromDate] = useState('');
@@ -129,7 +129,7 @@ const FarmerActivityList = ({navigation}) => {
     carbonTypeParams,
   ) => {
     setIsLoading(true);
-    if (netConnection) {
+    if (isOnline) {
       var response = await axiosGet(
         ROUTES.GET.USER_ACTIVITY({
           pageNO: pageNo,
@@ -143,6 +143,7 @@ const FarmerActivityList = ({navigation}) => {
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
+      console.log('response', response);
       await setItem('farmerActivityList' + user_id, response);
     } else {
       var response = await getItem('farmerActivityList' + user_id);

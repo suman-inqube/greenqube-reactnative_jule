@@ -37,12 +37,11 @@ const FarmerListProblem = ({navigation}) => {
     logoImage,
     topBanner,
     DeviceInfo,
+    isOnline
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const {farmerId, pageNo} = dbLanTokUsr;
   //GQR-67
-  const {netConnection} = DeviceInfo();
-  const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [activeBtn, setActiveBtn] = useState(1);
   const [problemAll, setProblemAll] = useState([]);
@@ -56,7 +55,7 @@ const FarmerListProblem = ({navigation}) => {
   const myProblemList = async () => {
     setActiveBtn(1);
     setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
-    if (netConnection) {
+    if (isOnline) {
       var response = await farmerProblemListAPI(
         dbname,
         lan_id,
@@ -78,7 +77,7 @@ const FarmerListProblem = ({navigation}) => {
   };
   const otherProblemList = async () => {
     setActiveBtn(2);
-    if (netConnection) {
+    if (isOnline) {
       var response = await farmerProblemListAPI(
         dbname,
         lan_id,
@@ -100,14 +99,15 @@ const FarmerListProblem = ({navigation}) => {
   };
   const onPageLoad = async page => {
     setActiveBtn(1);
-    if (netConnection) {
+    setIsLoading(true);
+    if (isOnline) {
       var response = await farmerProblemListAPI(
         dbname,
         lan_id,
         token,
         farmerId,
         1,
-        1,
+        page,
         'crop_problem',
       );
 

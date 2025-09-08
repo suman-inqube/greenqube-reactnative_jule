@@ -148,7 +148,6 @@ const SplashScreen = ({ navigation }) => {
     country_id,
   ) => {
     if (!isMountedRef.current) return;
-
     const newCompanyLanguage = {
       company: dbName,
       company_id,
@@ -374,7 +373,7 @@ const SplashScreen = ({ navigation }) => {
           >
             <View style={[styles.container, { paddingTop: insets.top }]}>
               {/* Modals */}
-              <SplashScreenModal
+              {state.modalVisible&&<SplashScreenModal
                 height={SCREEN_HEIGHT}
                 setModalVisible={setModalVisible}
                 modalVisible={state.modalVisible}
@@ -382,16 +381,16 @@ const SplashScreen = ({ navigation }) => {
                 sendDataToParent={handleCompanySelection}
                 searchTextData={searchCompanyByName}
                 style={styles.modalStyle}
-              />
+              />}
 
-              <SplashScreenModalLanguage
+              {state.modalVisibleLan&&<SplashScreenModalLanguage
                 setModalVisibleLan={setModalVisibleLan}
                 modalVisibleLan={state.modalVisibleLan}
                 companyData={state.languageData}
                 sendDataToParentLan={handleLanguageSelection}
                 style={styles.modalStyle}
               />
-
+              }
               {/* Main Content */}
               <Animated.View
                 style={[
