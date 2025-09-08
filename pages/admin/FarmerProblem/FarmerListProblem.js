@@ -70,6 +70,7 @@ const FarmerListProblem = ({navigation}) => {
     } else {
       var response = await getItem('farmerProblemList');
     }
+    console.log('farmerProblemListAPI', farmerProblemListAPI);
     if (response?.status == 200) {
       setProblemAll(response.data.data.rows);
       setItem('problem_Data', response.data.data);
@@ -109,10 +110,12 @@ const FarmerListProblem = ({navigation}) => {
         1,
         'crop_problem',
       );
+
       await setItem('farmerProblemList', response);
     } else {
       var response = await getItem('farmerProblemList');
     }
+    console.log('farmerProblemListAPI', response);
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response.data.data.count / 20));
       setProblemAll(response.data.data.rows);

@@ -2870,6 +2870,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#0D47A1',
     fontFamily: 'Poppins-Regular',
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   coordinatePlaceholder: {
     flex: 1,

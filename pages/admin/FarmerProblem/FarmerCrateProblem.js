@@ -7,13 +7,13 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
 import {
   problemProduceAgainstPlotAPI,
   problemProductionStageAPI,
@@ -24,17 +24,17 @@ import {
 } from '../../../config/apiHere';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useIsFocused } from '@react-navigation/native';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { plotHook } from '../../hooks/plotHook';
-import { Colors, Fronts } from '../../utils/Constants';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {plotHook} from '../../hooks/plotHook';
+import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import DatePickerField from '../../Common/DatePickerField';
-const FarmerCreateProblem = ({ navigation }) => {
+const FarmerCreateProblem = ({navigation}) => {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -56,19 +56,20 @@ const FarmerCreateProblem = ({ navigation }) => {
     DatePickerComp,
     ButtonForm,
     effective_dates,
-    isOnline, coords
+    isOnline,
+    coords,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, owner, FcmUserToken } = loginUser_data;
-  const { farmerId, supervisorId } = dbLanTokUsr;
+  const {dbname, lan_id, token, user_id, owner, FcmUserToken} = loginUser_data;
+  const {farmerId, supervisorId} = dbLanTokUsr;
   //GQR-67
-  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(
+  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
     token,
     user_id,
     isOnline,
   );
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [farmerID, setfarmerID] = useState();
@@ -196,17 +197,18 @@ const FarmerCreateProblem = ({ navigation }) => {
           );
           await setItem(
             'problemProductionStage' +
-            response?.data?.data?.crop_type_id +
-            response?.data?.data?.crop_name_id,
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'problemProductionStage' +
-            response?.data?.data?.crop_type_id +
-            response?.data?.data?.crop_name_id,
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
           );
         }
+
         if (productionStage_res?.status == 200) {
           const dataArray = productionStage_res?.data?.data?.growth_stage.map(
             data => ({
@@ -214,6 +216,7 @@ const FarmerCreateProblem = ({ navigation }) => {
               label: data.growth_stage.name,
             }),
           );
+
           setproductionStageAll(dataArray);
         }
       } else {
@@ -230,29 +233,31 @@ const FarmerCreateProblem = ({ navigation }) => {
       }
     }
   }, []);
-  const openImagePicker = useCallback(item => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    launchCamera(options, async response => {
-      if (response?.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response?.error) {
-        console.log('Camera Error: ', response?.error);
-      } else {
-        const timestamp = Date.now();
-        let imageUri = response?.uri || response?.assets?.[0]?.uri;
-        const options = {
-          backgroundImage: {
-            src: imageUri,
-            scale: 1,
-          },
-          watermarkTexts: [
-            {
-              text: `${saveData.latitude},${saveData.longitude
+  const openImagePicker = useCallback(
+    item => {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 200,
+        maxWidth: 200,
+      };
+      launchCamera(options, async response => {
+        if (response?.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response?.error) {
+          console.log('Camera Error: ', response?.error);
+        } else {
+          const timestamp = Date.now();
+          let imageUri = response?.uri || response?.assets?.[0]?.uri;
+          const options = {
+            backgroundImage: {
+              src: imageUri,
+              scale: 1,
+            },
+            watermarkTexts: [
+              {
+                text: `${saveData.latitude},${
+                  saveData.longitude
                 },${new Intl.DateTimeFormat('en-US', {
                   year: 'numeric',
                   month: '2-digit',
@@ -261,38 +266,40 @@ const FarmerCreateProblem = ({ navigation }) => {
                   minute: '2-digit',
                   second: '2-digit',
                 }).format(timestamp)}`,
-              positionOptions: { position: Position.bottomLeft },
-              style: {
-                color: '#df2020',
-                fontSize: 2,
-                fontName: 'Arial',
-                textBackgroundStyle: { padding: '10% 10%', color: '#00000000' },
+                positionOptions: {position: Position.bottomLeft},
+                style: {
+                  color: '#df2020',
+                  fontSize: 2,
+                  fontName: 'Arial',
+                  textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
+                },
               },
-            },
-          ],
-          scale: 1,
-          quality: 100,
-          filename: `${response?.assets[0].fileName}`,
-          saveFormat: `${response?.assets[0].type}`,
-          maxSize: 1000,
-        };
-        let path = await Marker.markText(options);
-        setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
-        const newPhoto = {
-          uri: `file://${path}`,
-          type: 'image/jpeg',
-          name: `file://${path}`,
-        };
-        setmyPhotoAll([...myphotoAll, newPhoto]);
-        setMyTitleAll([...myTitleAll, {}]);
-      }
-    });
-  }, [myphotoAll, myTitleAll]);
+            ],
+            scale: 1,
+            quality: 100,
+            filename: `${response?.assets[0].fileName}`,
+            saveFormat: `${response?.assets[0].type}`,
+            maxSize: 1000,
+          };
+          let path = await Marker.markText(options);
+          setSelectedImage({...selectedImage, [item]: `file://${path}`});
+          const newPhoto = {
+            uri: `file://${path}`,
+            type: 'image/jpeg',
+            name: `file://${path}`,
+          };
+          setmyPhotoAll([...myphotoAll, newPhoto]);
+          setMyTitleAll([...myTitleAll, {}]);
+        }
+      });
+    },
+    [myphotoAll, myTitleAll],
+  );
 
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData(prev => ({ ...prev, affected_date: effective_date }));
+    setSaveData(prev => ({...prev, affected_date: effective_date}));
   };
   const handleProblemType = useCallback(
     problem_type => {
@@ -307,7 +314,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       }));
 
       const problemNameFound = problemAll.find(
-        user => user.fid === problem_type.value
+        user => user.fid === problem_type.value,
       );
 
       if (problemNameFound) {
@@ -318,7 +325,7 @@ const FarmerCreateProblem = ({ navigation }) => {
         setProblemNameAll(dataArray);
       }
     },
-    [problemAll]
+    [problemAll],
   );
   const handleProblemName = useCallback(problem_name => {
     setSaveData(prev => ({
@@ -333,10 +340,10 @@ const FarmerCreateProblem = ({ navigation }) => {
     }));
   }, []);
   const onPageLoad = async () => {
-    const { latitude, longitude } = coords || {};
+    const {latitude, longitude} = coords || {};
     setfarmerID(user_id);
     problemPlotAgainstFarmer(dbname, lan_id, token, user_id, isOnline);
-    setSaveData(prev => ({ ...prev, latitude: latitude, longitude: longitude }));
+    setSaveData(prev => ({...prev, latitude: latitude, longitude: longitude}));
     if (netConnection) {
       var [problemName_res, severity_res] = await Promise.all([
         problemTypeNameAPI(dbname, lan_id, token),
@@ -367,7 +374,7 @@ const FarmerCreateProblem = ({ navigation }) => {
   };
   const validateForm = () => {
     if (!saveData.plot_id) {
-      Toast.show({ time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.growth_stage) {
@@ -387,11 +394,11 @@ const FarmerCreateProblem = ({ navigation }) => {
       return false;
     }
     if (!saveData.problem_name_id) {
-      Toast.show({ time: 2, text: t('please_select_problem'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('please_select_problem'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.severity_id) {
-      Toast.show({ time: 2, text: t('please_select_severity'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('please_select_severity'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.affected_date) {
@@ -403,7 +410,7 @@ const FarmerCreateProblem = ({ navigation }) => {
       return false;
     }
     if (!saveData.latitude) {
-      Toast.show({ time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('gpsalertdialogmessage'), ...AlertMesg[0]});
       return false;
     }
     return true;
@@ -481,7 +488,7 @@ const FarmerCreateProblem = ({ navigation }) => {
             'problem_user',
             1,
           );
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             navigation.navigate('FarmerListProblem');
           }, 1000);
@@ -578,7 +585,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -587,7 +594,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -640,16 +647,31 @@ const FarmerCreateProblem = ({ navigation }) => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
       dragFromTopOnly: true,
-      onCloseComplete: () => { },
-      onOpenComplete: () => { },
+      onCloseComplete: () => {},
+      onOpenComplete: () => {},
       height: 260,
     });
   }, []);
-  const handleGrowthStage = useCallback((item) => setSaveData((saveData) => ({ ...saveData, growth_stage: item.value })), []);
-  const handleChangeQuestionTitle = useCallback((item) => setSaveData((saveData) => ({ ...saveData, question_title: item.value })), []);
-  const handleChangeQuestionDescription = useCallback((item) => setSaveData((saveData) => ({ ...saveData, question_desc: item.value })), []);
-  const handleSeverityChange = useCallback((item) => setSaveData((saveData) => ({ ...saveData, severity_id: item.value })), []);
-  const handleActivityPerFromDate = useCallback(() => { setaddAffectedDate(true) }, []);
+  const handleGrowthStage = useCallback(
+    item => setSaveData(saveData => ({...saveData, growth_stage: item.value})),
+    [],
+  );
+  const handleChangeQuestionTitle = useCallback(
+    item =>
+      setSaveData(saveData => ({...saveData, question_title: item.value})),
+    [],
+  );
+  const handleChangeQuestionDescription = useCallback(
+    item => setSaveData(saveData => ({...saveData, question_desc: item.value})),
+    [],
+  );
+  const handleSeverityChange = useCallback(
+    item => setSaveData(saveData => ({...saveData, severity_id: item.value})),
+    [],
+  );
+  const handleActivityPerFromDate = useCallback(() => {
+    setaddAffectedDate(true);
+  }, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={styles.container}>
@@ -804,7 +826,7 @@ const FarmerCreateProblem = ({ navigation }) => {
             </View>
           </View>
         </ScrollView>
-        <View style={{ marginTop: 10 }}>
+        <View style={{marginTop: 10}}>
           <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
         <Root></Root>
@@ -863,7 +885,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

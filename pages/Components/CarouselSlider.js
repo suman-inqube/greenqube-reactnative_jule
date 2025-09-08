@@ -218,8 +218,9 @@ const CarouselSlider = ({
               style={{
                 height: config.imageSize,
                 width: config.imageSize,
+                tintColor: 'red',
                 // borderRadius: config.imageSize / 2
-                // borderRadius: 10
+                // borderRadius: 10,
               }}
             />
           )}

@@ -485,7 +485,10 @@ const CreateProblem = ({navigation}) => {
       });
       return false;
     }
+
     if (!saveData.latitude) {
+      console.log('Latitude value:', saveData.latitude);
+      console.log('Full saveData object:', saveData);
       Toast.show({
         time: 2,
         text: `${t('gpsalertdialogmessage')}`,
