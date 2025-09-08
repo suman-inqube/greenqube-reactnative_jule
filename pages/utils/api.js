@@ -4,7 +4,7 @@ import {Alert, NativeModules} from 'react-native';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
 const instance = axios.create({
-  baseURL: 'http://34.87.10.106:4003/',
+  baseURL: 'http://134.209.155.11:4003/',
   // baseURL: 'https://mygreenqube.com:4003/',
 
   timeout: 10000,

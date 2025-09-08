@@ -51,7 +51,9 @@ const InputTextForm = ({
         onChangeText={onChangeText}
         onBlur={() => {
           if (onBlur) onBlur();
-          onChangeText(sanitizeInput(value));
+          if(value!=undefined){
+            onChangeText(sanitizeInput(value));
+          }
         }}
         value={value}
         keyboardType={keyboardType}
