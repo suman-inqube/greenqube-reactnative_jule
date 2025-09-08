@@ -19,6 +19,7 @@ const DropdownForm = ({
     ? label.charAt(0).toUpperCase() + label.slice(1)
     : '';
 // console.log('DropdownForm rendered', label||'');
+const safeData = Array.isArray(data) ? data : [];
   return (
     <View>
       <View style={styles.labelContainer}>
@@ -45,7 +46,7 @@ const DropdownForm = ({
           inputSearchStyle={styles.inputSearchStyle}
           itemTextStyle={styles.itemTextStyle}
           iconStyle={styles.iconStyle}
-          data={data}
+          data={safeData}
           search
           maxHeight={250}
           labelField="label"

@@ -92,12 +92,11 @@ const UserList = ({ navigation }) => {
             ...prev,
             userList: rows,
             isLoading: false,
-            expandedItem: null, // Reset expanded item on new data
+            expandedItem: null,
           }));
           if (flatListRef.current) {
             flatListRef.current.scrollToOffset({ offset: 0, animated: true });
           }
-          // Mark initial load complete after first successful fetch
           if (!initialLoadComplete) {
             setInitialLoadComplete(true);
           }

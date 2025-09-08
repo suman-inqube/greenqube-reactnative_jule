@@ -367,10 +367,10 @@ const SplashScreen = ({ navigation }) => {
           style={styles.backgroundImage}
           imageStyle={styles.backgroundImageStyle}
         >
-          <LinearGradient
+          {/* <LinearGradient
             colors={['rgba(0,50,100,0.7)', 'rgba(0,30,60,0.8)', 'rgba(0,10,30,0.9)']}
             style={styles.gradientOverlay}
-          >
+          > */}
             <View style={[styles.container, { paddingTop: insets.top }]}>
               {/* Modals */}
               {state.modalVisible&&<SplashScreenModal
@@ -441,7 +441,7 @@ const SplashScreen = ({ navigation }) => {
                 <Text style={styles.versionText}>Version 1.0.0</Text>
               </Animated.View>
             </View>
-          </LinearGradient>
+          {/* </LinearGradient> */}
         </ImageBackground>
       </Root>
     </MyErrorBoundary>

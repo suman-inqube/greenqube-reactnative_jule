@@ -58,10 +58,9 @@ const PersonalInformation = () => {
     FormsTitle,
     ImagePlaceHolderCircle,
     logoImage,
-    topBanner,
+    topBanner, isOnline
   } = useContext(userCreateContext);
   //GQR-65
-  const { netConnection } = DeviceInfo();
   const navigation = useNavigation();
   const route = useRoute();
   const isFocused = useIsFocused();
@@ -92,313 +91,304 @@ const PersonalInformation = () => {
     password: '',
     cpassword: '',
   });
-  const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-    { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
-    { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
-  ]);
-  const [path, setPath] = useState('');
-  const [regionaldatas, setregionaldatas] = useState({
-    state: '',
-    district: '',
-    block: '',
-  });
-  const [contact_no_digits, setcontact_no_digits] = useState(11);
-  const openImagePicker = useCallback(() => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('Image picker error: ', response.error);
-      } else {
-        let imageUri = response.uri || response.assets[0].base64;
-        // setmyPhoto([...myphoto,]);
-        setFarmerData({
-          ...farmerData,
-          userImg: {
-            uri: response.assets[0].uri,
-            type: response.assets[0].type,
-            name: response.assets[0].fileName,
-          },
-        });
-        setSelectedImage(imageUri);
-      }
-    });
-  }, []);
-  const getState = async (dbName, languageID) => {
-    var dataArray = [];
-    if (netConnection) {
-      const response = await fetchStateAPI(dbName, languageID);
-      if (response.status == 200) {
-        dataArray = response?.data?.data?.rows?.map(data => ({
-          value: data.fid,
-          label: data.state_name,
-        }));
-        await setItem('fetchStateAPI', dataArray);
-      }
+const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
+  { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
+  { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
+]);
+const [path, setPath] = useState('');
+const [regionaldatas, setregionaldatas] = useState({
+  state: '',
+  district: '',
+  block: '',
+});
+const [contact_no_digits, setcontact_no_digits] = useState(11);
+const openImagePicker = useCallback(() => {
+  const options = {
+    mediaType: 'photo',
+    includeBase64: true,
+    maxHeight: 200,
+    maxWidth: 200,
+  };
+  launchImageLibrary(options, response => {
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('Image picker error: ', response.error);
     } else {
-      var fetchState_local_data = await getItem('fetchStateAPI');
-      if (fetchState_local_data) {
-        dataArray = fetchState_local_data;
-      }
+      let imageUri = response.uri || response.assets[0].base64;
+      // setmyPhoto([...myphoto,]);
+      setFarmerData({
+        ...farmerData,
+        userImg: {
+          uri: response.assets[0].uri,
+          type: response.assets[0].type,
+          name: response.assets[0].fileName,
+        },
+      });
+      setSelectedImage(imageUri);
     }
-    setstateAll(dataArray);
-  };
-  const onPageLoad = async () => {
-    setIsLoading(true);
-    const [state, district, block] = await Promise.all([
-      getItem('state'),
-      getItem('district'),
-      getItem('block'),
-    ]);
-    setregionaldatas({
-      ...regionaldatas,
-      state: state,
-      district: district,
-      block: block,
-    });
-    //GQR-65
-    const {
-      dbName,
-      languageId,
-      token,
-      supervisorId,
-      company,
-      country,
-      languageConpany,
-      country_id,
-    } = dbLanTokUsr;
-    //GQR-65
-    const [checkPhoneNumberDigit] = await Promise.all([
-      checkPhoneDigitAPI(country_id, languageConpany, languageId),
-      getState(dbName, languageId),
-    ]);
-    if (checkPhoneNumberDigit?.status == 200) {
-      const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
-      setcontact_no_digits(contact_no_digits);
+  });
+}, []);
+const getState = async (dbName, languageID) => {
+  var dataArray = [];
+  if (isOnline) {
+    const response = await fetchStateAPI(dbName, languageID);
+    if (response.status == 200) {
+      dataArray = response?.data?.data?.rows?.map(data => ({
+        value: data.fid,
+        label: data.state_name,
+      }));
+      await setItem('fetchStateAPI', dataArray);
     }
-    setIsLoading(false);
-  };
-  useEffect(() => {
-    if (isFocused) {
-      if (typeof route.params != 'undefined') {
-        if (route.params.data === 'remove') {
-          if (remove == 'remove') {
-            setRemove('');
-            setSelectedImage(null);
-          } else {
-            setRemove('remove');
-            setSelectedImage(null);
-          }
-          emptyData();
-        }
-        if (typeof route.params.pagename != 'undefined') {
-          setPath(route.params.pagename);
+  } else {
+    var fetchState_local_data = await getItem('fetchStateAPI');
+    if (fetchState_local_data) {
+      dataArray = fetchState_local_data;
+    }
+  }
+  setstateAll(dataArray);
+};
+const onPageLoad = async () => {
+  setIsLoading(true);
+  const [state, district, block] = await Promise.all([
+    getItem('state'),
+    getItem('district'),
+    getItem('block'),
+  ]);
+  setregionaldatas({
+    ...regionaldatas,
+    state: state,
+    district: district,
+    block: block,
+  });
+  //GQR-65
+  const {
+    dbName,
+    languageId,
+    token,
+    supervisorId,
+    company,
+    country,
+    languageConpany,
+    country_id,
+  } = dbLanTokUsr;
+  //GQR-65
+  const [checkPhoneNumberDigit] = await Promise.all([
+    checkPhoneDigitAPI(country_id, languageConpany, languageId),
+    getState(dbName, languageId),
+  ]);
+  if (checkPhoneNumberDigit?.status == 200) {
+    const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
+    setcontact_no_digits(contact_no_digits);
+  }
+  setIsLoading(false);
+};
+useEffect(() => {
+  if (isFocused) {
+    if (typeof route.params != 'undefined') {
+      if (route.params.data === 'remove') {
+        if (remove == 'remove') {
+          setRemove('');
+          setSelectedImage(null);
         } else {
-          setPath('');
+          setRemove('remove');
+          setSelectedImage(null);
         }
+        emptyData();
+      }
+      if (typeof route.params.pagename != 'undefined') {
+        setPath(route.params.pagename);
       } else {
         setPath('');
-        setRemove('');
-      }
-      onPageLoad();
-    }
-  }, [isFocused, netConnection]);
-  const handleBackPress = () => {
-    navigation.navigate(path != '' ? path : 'Dashboard');
-    return true; // disable normal behaviour
-  };
-  useFocusEffect(
-    useCallback(() => {
-      onBackPress(handleBackPress);
-    }),
-  );
-  const emptyData = () => {
-    setFarmerData({
-      userImg: {},
-      address: '',
-      district: '',
-      districtValue: '',
-      stateValue: '',
-      state: '',
-      block: '',
-      age: '',
-      pin: '',
-      name: '',
-      phone: '',
-      gender: '1',
-      userType: '1',
-      password: '',
-      cpassword: '',
-    });
-  };
-
-  const handleStateInfo = useCallback(async (item) => {
-    setIsLoading(true);
-    setFarmerData(prev => ({
-      ...prev,
-      state: item.label,
-      stateValue: item.value,
-      ['district']: '',
-      ['block']: '',
-    }));
-    var dataArray = [];
-    var distric_list_arr = [];
-    let fetchDistrict_local_data = await getItem('fetchDistrictAPI');
-    if (netConnection) {
-      const response = await fetchDistrictAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        item.value,
-      );
-      if (response?.status === 200) {
-        dataArray = response?.data?.data?.rows.map(data => ({
-          value: data.fid,
-          label: data.district_name,
-        }));
-        if (
-          fetchDistrict_local_data != null &&
-          fetchDistrict_local_data.length > 0
-        ) {
-          if (fetchDistrict_local_data[0][item.value] != undefined) {
-            JSON.parse(fetchDistrict_local_data[0][item.value]).push({
-              [item.value]: JSON.stringify(dataArray),
-            });
-          } else {
-            fetchDistrict_local_data.push({
-              [item.value]: JSON.stringify(dataArray),
-            });
-          }
-        } else {
-          distric_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
-          fetchDistrict_local_data = distric_list_arr;
-        }
-        await setItem('fetchDistrictAPI', fetchDistrict_local_data);
       }
     } else {
-      var fetchDistrict_local_arr = [];
-      if (fetchDistrict_local_data) {
-        fetchDistrict_local_arr = fetchDistrict_local_data.filter(function (
-          v,
-          i,
-        ) {
-          return fetchDistrict_local_data[i][item.value] != undefined;
-        });
-        if (fetchDistrict_local_arr.length != 0) {
-          dataArray = JSON.parse(fetchDistrict_local_arr[0][item.value]);
-        } else {
-          dataArray = [];
-        }
-      }
+      setPath('');
+      setRemove('');
     }
-    setBlockAll([]);
-    setdistrictAll(dataArray);
-    setIsLoading(false);
-  }, []);
-  const handleDistrictInfo = useCallback(async (item, name, value) => {
-    setIsLoading(true);
-    setFarmerData(prev => ({
-      ...prev,
-      district: item.label,
-      districtValue: item.value,
-      ['block']: '',
-    }));
-    var dataArray = [];
-    var dlock_list_arr = [];
-    let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
-    if (netConnection) {
-      const response = await fetchBlockAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        item.value,
-      );
+    onPageLoad();
+  }
+}, [isFocused, isOnline]);
+const handleBackPress = () => {
+  navigation.navigate(path != '' ? path : 'Dashboard');
+  return true; // disable normal behaviour
+};
+useFocusEffect(
+  useCallback(() => {
+    onBackPress(handleBackPress);
+  }),
+);
+const emptyData = () => {
+  setFarmerData({
+    userImg: {},
+    address: '',
+    district: '',
+    districtValue: '',
+    stateValue: '',
+    state: '',
+    block: '',
+    age: '',
+    pin: '',
+    name: '',
+    phone: '',
+    gender: '1',
+    userType: '1',
+    password: '',
+    cpassword: '',
+  });
+};
+
+const handleStateInfo = useCallback(async (item) => {
+  setIsLoading(true);
+  setFarmerData(prev => ({
+    ...prev,
+    state: item.label,
+    stateValue: item.value,
+    ['district']: '',
+    ['block']: '',
+  }));
+  var dataArray = [];
+  var distric_list_arr = [];
+  let fetchDistrict_local_data = await getItem('fetchDistrictAPI');
+  if (isOnline) {
+    const response = await fetchDistrictAPI(
+      dbLanTokUsr.dbName,
+      dbLanTokUsr.languageId,
+      item.value,
+    );
+    if (response?.status === 200) {
       dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
-        label: data.subdiv_name,
+        label: data.district_name,
       }));
       if (
-        fetchBlockAPI_local_data != null &&
-        fetchBlockAPI_local_data.length > 0
+        fetchDistrict_local_data != null &&
+        fetchDistrict_local_data.length > 0
       ) {
-        if (fetchBlockAPI_local_data[0][item.value] != undefined) {
-          JSON.parse(fetchBlockAPI_local_data[0][item.value]).push({
+        if (fetchDistrict_local_data[0][item.value] != undefined) {
+          JSON.parse(fetchDistrict_local_data[0][item.value]).push({
             [item.value]: JSON.stringify(dataArray),
           });
         } else {
-          fetchBlockAPI_local_data.push({
+          fetchDistrict_local_data.push({
             [item.value]: JSON.stringify(dataArray),
           });
         }
       } else {
-        dlock_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
-        fetchBlockAPI_local_data = dlock_list_arr;
+        distric_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
+        fetchDistrict_local_data = distric_list_arr;
       }
-      await setItem('fetchBlockAPI', fetchBlockAPI_local_data);
-    } else {
-      dataArray = await getItem('fetchBlockAPI');
-      fetchDistrict_local_data = await getItem('fetchDistrictAPI');
-      const fetchBlockAPI_local_arr = fetchBlockAPI_local_data.filter(function (
+      await setItem('fetchDistrictAPI', fetchDistrict_local_data);
+    }
+  } else {
+    var fetchDistrict_local_arr = [];
+    if (fetchDistrict_local_data) {
+      fetchDistrict_local_arr = fetchDistrict_local_data.filter(function (
         v,
         i,
       ) {
-        return fetchBlockAPI_local_data[i][item.value] != undefined;
+        return fetchDistrict_local_data[i][item.value] != undefined;
       });
-      if (fetchBlockAPI_local_arr.length != 0) {
-        dataArray = JSON.parse(fetchBlockAPI_local_arr[0][item.value]);
+      if (fetchDistrict_local_arr.length != 0) {
+        dataArray = JSON.parse(fetchDistrict_local_arr[0][item.value]);
       } else {
         dataArray = [];
       }
     }
-    setBlockAll(dataArray);
-    setIsLoading(false);
-  }, [farmerData.state]);
-  const handleAddDataBlock = useCallback((item) => {
-    setFarmerData(prev => ({ ...prev, block: item.label, bloctValue: item.value }));
-  }, []);
-  const checkPhone = async () => {
-    if (netConnection) {
-      const check_phone_digit_res = await checkPhoneDigitAPI(
-        dbLanTokUsr.country_id,
-        dbLanTokUsr.languageConpany,
-        dbLanTokUsr.languageId,
-      );
-      if (check_phone_digit_res?.status == 200) {
-        if (check_phone_digit_res.data.data.contact_no_digits) {
-          let require_digit = check_phone_digit_res.data.data.contact_no_digits;
-          if (farmerData.phone.length === require_digit) {
+  }
+  setBlockAll([]);
+  setdistrictAll(dataArray);
+  setIsLoading(false);
+}, []);
+const handleDistrictInfo = useCallback(async (item, name, value) => {
+  setIsLoading(true);
+  setFarmerData(prev => ({
+    ...prev,
+    district: item.label,
+    districtValue: item.value,
+    ['block']: '',
+  }));
+  var dataArray = [];
+  var dlock_list_arr = [];
+  let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
+  if (isOnline) {
+    const response = await fetchBlockAPI(
+      dbLanTokUsr.dbName,
+      dbLanTokUsr.languageId,
+      item.value,
+    );
+    dataArray = response?.data?.data?.rows.map(data => ({
+      value: data.fid,
+      label: data.subdiv_name,
+    }));
+    if (
+      fetchBlockAPI_local_data != null &&
+      fetchBlockAPI_local_data.length > 0
+    ) {
+      if (fetchBlockAPI_local_data[0][item.value] != undefined) {
+        JSON.parse(fetchBlockAPI_local_data[0][item.value]).push({
+          [item.value]: JSON.stringify(dataArray),
+        });
+      } else {
+        fetchBlockAPI_local_data.push({
+          [item.value]: JSON.stringify(dataArray),
+        });
+      }
+    } else {
+      dlock_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
+      fetchBlockAPI_local_data = dlock_list_arr;
+    }
+    await setItem('fetchBlockAPI', fetchBlockAPI_local_data);
+  } else {
+    dataArray = await getItem('fetchBlockAPI');
+    fetchDistrict_local_data = await getItem('fetchDistrictAPI');
+    const fetchBlockAPI_local_arr = fetchBlockAPI_local_data.filter(function (
+      v,
+      i,
+    ) {
+      return fetchBlockAPI_local_data[i][item.value] != undefined;
+    });
+    if (fetchBlockAPI_local_arr.length != 0) {
+      dataArray = JSON.parse(fetchBlockAPI_local_arr[0][item.value]);
+    } else {
+      dataArray = [];
+    }
+  }
+  setBlockAll(dataArray);
+  setIsLoading(false);
+}, [farmerData.state]);
+const handleAddDataBlock = useCallback((item) => {
+  setFarmerData(prev => ({ ...prev, block: item.label, bloctValue: item.value }));
+}, []);
+const checkPhone = async () => {
+  if (isOnline) {
+    const check_phone_digit_res = await checkPhoneDigitAPI(
+      dbLanTokUsr.country_id,
+      dbLanTokUsr.languageConpany,
+      dbLanTokUsr.languageId,
+    );
+    if (check_phone_digit_res?.status == 200) {
+      if (check_phone_digit_res.data.data.contact_no_digits) {
+        let require_digit = check_phone_digit_res.data.data.contact_no_digits;
+        if (farmerData.phone.length === require_digit) {
+          try {
             try {
-              try {
-                const axiosConfig1 = {
-                  headers: {
-                    information: `${dbLanTokUsr.dbName}`,
-                    Accept: 'application/json',
-                  },
-                };
-                const inputBody = {
-                  contactNumber: farmerData.phone.toString(),
-                  userType: '2',
-                };
-                let check_phone_res = await axios.post(
-                  config.phoneNoCheckAPI,
-                  inputBody,
-                  axiosConfig1,
-                );
-              } catch (error) {
-                CrashlyticsRecordError(error);
-                Toast.show({
-                  text: `This ${farmerData.phone} Not Available`,
-                  ...AlertMesg[0],
-                });
-                // phoneInputRef.current.focus();
-                setFarmerData({ ...farmerData, phone: '' });
-              }
+              const axiosConfig1 = {
+                headers: {
+                  information: `${dbLanTokUsr.dbName}`,
+                  Accept: 'application/json',
+                },
+              };
+              const inputBody = {
+                contactNumber: farmerData.phone.toString(),
+                userType: '2',
+              };
+              let check_phone_res = await axios.post(
+                config.phoneNoCheckAPI,
+                inputBody,
+                axiosConfig1,
+              );
             } catch (error) {
-              console.log(error);
+              CrashlyticsRecordError(error);
               Toast.show({
                 text: `This ${farmerData.phone} Not Available`,
                 ...AlertMesg[0],
@@ -406,302 +396,311 @@ const PersonalInformation = () => {
               // phoneInputRef.current.focus();
               setFarmerData({ ...farmerData, phone: '' });
             }
-          } else {
+          } catch (error) {
+            console.log(error);
             Toast.show({
-              time: 3,
-              text: `Please Enter ${require_digit} digit phone no`,
+              text: `This ${farmerData.phone} Not Available`,
               ...AlertMesg[0],
             });
-            Keyboard.dismiss();
+            // phoneInputRef.current.focus();
             setFarmerData({ ...farmerData, phone: '' });
           }
+        } else {
+          Toast.show({
+            time: 3,
+            text: `Please Enter ${require_digit} digit phone no`,
+            ...AlertMesg[0],
+          });
+          Keyboard.dismiss();
+          setFarmerData({ ...farmerData, phone: '' });
         }
       }
     }
-  };
-  const handleNavigate = async () => {
-    Keyboard.dismiss();
-    if (farmerData.name == '') {
-      Toast.show({ text: `${t('please_enter_valid_name')}`, ...AlertMesg[0] });
-    } else if (farmerData.phone == '') {
-      Toast.show({
-        text: `${t('please_enter_valid_mobile_no')}`,
-        ...AlertMesg[0],
-      });
-    } else if (farmerData.phone.length != contact_no_digits) {
-      Toast.show({
-        text: `${t('please_enter_valid_mobile_no')}`,
-        ...AlertMesg[0],
-      });
-    } else if (farmerData.age == '') {
-      Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
-    } else if (farmerData.age < 18) {
-      Toast.show({ text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0] });
-    } else if (farmerData.state == '') {
-      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
-    } else if (farmerData.district == '') {
-      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
-    } else if (farmerData.block == '') {
-      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
-    } else if (farmerData.password == '') {
-      Toast.show({ text: `${t('enter_pass')}`, ...AlertMesg[0] });
-    } else if (farmerData.cpassword == '') {
-      Toast.show({ text: `${t('enter_conf_pass')}`, ...AlertMesg[0] });
-    } else if (farmerData.password != farmerData.cpassword) {
-      Toast.show({ text: `${t('same_pass')}`, ...AlertMesg[0] });
-    } else {
-      const newfarmerData = { ...farmerData, identityProofIdentityPropf };
-      if (path != '') {
-        await setItem('storePersnolInfo_data', newfarmerData);
-        navigation.navigate(route.params.pagename, { data: remove });
-      } else {
-        await setItem('storePersnolInfo_data', newfarmerData);
-        navigation.navigate('FinancialInformation', { data: remove });
-      }
-    }
-  };
-  const HandlerGoBack = () => {
+  }
+};
+const handleNavigate = async () => {
+  Keyboard.dismiss();
+  if (farmerData.name == '') {
+    Toast.show({ text: `${t('please_enter_valid_name')}`, ...AlertMesg[0] });
+  } else if (farmerData.phone == '') {
+    Toast.show({
+      text: `${t('please_enter_valid_mobile_no')}`,
+      ...AlertMesg[0],
+    });
+  } else if (farmerData.phone.length != contact_no_digits) {
+    Toast.show({
+      text: `${t('please_enter_valid_mobile_no')}`,
+      ...AlertMesg[0],
+    });
+  } else if (farmerData.age == '') {
+    Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
+  } else if (farmerData.age < 18) {
+    Toast.show({ text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0] });
+  } else if (farmerData.state == '') {
+    Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
+  } else if (farmerData.district == '') {
+    Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
+  } else if (farmerData.block == '') {
+    Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
+  } else if (farmerData.password == '') {
+    Toast.show({ text: `${t('enter_pass')}`, ...AlertMesg[0] });
+  } else if (farmerData.cpassword == '') {
+    Toast.show({ text: `${t('enter_conf_pass')}`, ...AlertMesg[0] });
+  } else if (farmerData.password != farmerData.cpassword) {
+    Toast.show({ text: `${t('same_pass')}`, ...AlertMesg[0] });
+  } else {
+    const newfarmerData = { ...farmerData, identityProofIdentityPropf };
     if (path != '') {
-      navigation.navigate(path);
+      await setItem('storePersnolInfo_data', newfarmerData);
+      navigation.navigate(route.params.pagename, { data: remove });
     } else {
-      navigation.navigate('Dashboard');
+      await setItem('storePersnolInfo_data', newfarmerData);
+      navigation.navigate('FinancialInformation', { data: remove });
     }
-  };
-  const handleAddDataName = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, name: text }));
-  }, [])
-  const handleAddDataPhone = useCallback((text) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
-    setFarmerData(prev => ({ ...prev, phone: numericValue }));
-  }, [])
-  const handleAddDataGender = useCallback((name, value) => {
-    setFarmerData(prev => ({ ...prev, [name]: value }));
-  }, [])
-  const handleAddDataUserType = useCallback((name, value) => {
-    setFarmerData(prev => ({ ...prev, [name]: value }));
-  }, [])
-  const handleAddDataAge = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, age: text }));
-  }, [])
-  const handleAddDataAddress = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, address: text }));
-  }, [])
-  const handleAddDataPin = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, pin: text }));
-  }, [])
-  const handleAddDataPass = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, password: text }));
-  }, [])
-  const handleAddDataCPass = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, cpassword: text }));
-  }, [])
+  }
+};
+const HandlerGoBack = () => {
+  if (path != '') {
+    navigation.navigate(path);
+  } else {
+    navigation.navigate('Dashboard');
+  }
+};
+const handleAddDataName = useCallback((text) => {
+  setFarmerData(prev => ({ ...prev, name: text }));
+}, [])
+const handleAddDataPhone = useCallback((text) => {
+  const numericValue = text.replace(/[^0-9]/g, '');
+  setFarmerData(prev => ({ ...prev, phone: numericValue }));
+}, [])
+const handleAddDataGender = useCallback((name, value) => {
+  setFarmerData(prev => ({ ...prev, [name]: value }));
+}, [])
+const handleAddDataUserType = useCallback((name, value) => {
+  setFarmerData(prev => ({ ...prev, [name]: value }));
+}, [])
+const handleAddDataAge = useCallback((text) => {
+  setFarmerData(prev => ({ ...prev, age: text }));
+}, [])
+const handleAddDataAddress = useCallback((text) => {
+  setFarmerData(prev => ({ ...prev, address: text }));
+}, [])
+const handleAddDataPin = useCallback((text) => {
+  setFarmerData(prev => ({ ...prev, pin: text }));
+}, [])
+const handleAddDataPass = useCallback((text) => {
+  setFarmerData(prev => ({ ...prev, password: text }));
+}, [])
+const handleAddDataCPass = useCallback((text) => {
+  setFarmerData(prev => ({ ...prev, cpassword: text }));
+}, [])
 
-  const renderCustomHeader = useMemo(
-    () => (
-      <CustomHeader
-        path={path != '' ? path : 'Dashboard'}
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-    ),
-    [],
-  );
-  return (
-    <FarmerDrawerScreenWrapper1>
-      <>
-        <Root>
-          <View style={styles.mainContainer}>
-            {renderCustomHeader}
-            <KeyboardAvoidingView
-              style={{ flex: 1 }}
-              // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
-              behavior={Platform.OS === 'ios' ? 'padding' : null}
-              // behavior='position'
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
-              <View style={styles.fromContainer}>
-                <View
+const renderCustomHeader = useMemo(
+  () => (
+    <CustomHeader
+      path={path != '' ? path : 'Dashboard'}
+      HandlerGoBack={HandlerGoBack}
+      logoImage={logoImage}
+      topBanner={topBanner}
+    />
+  ),
+  [],
+);
+return (
+  <FarmerDrawerScreenWrapper1>
+    <>
+      <Root>
+        <View style={styles.mainContainer}>
+          {renderCustomHeader}
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
+            behavior={Platform.OS === 'ios' ? 'padding' : null}
+            // behavior='position'
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
+            <View style={styles.fromContainer}>
+              <View
+                style={{
+                  backgroundColor: Colors.useGreen,
+                  alignSelf: 'flex-end',
+                  marginTop: 20,
+                  borderRadius: 10,
+                  width: '10%',
+
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: 20,
+                  marginBottom: 10,
+                }}>
+                <Text
                   style={{
-                    backgroundColor: Colors.useGreen,
-                    alignSelf: 'flex-end',
-                    marginTop: 20,
-                    borderRadius: 10,
-                    width: '10%',
-
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginRight: 20,
-                    marginBottom: 10,
+                    color: 'white',
                   }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                    }}>
-                    1/3
-                  </Text>
-                </View>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.firatFormContainer}>
-                      <View style={styles.profileImg}>
-                        <ImagePlaceHolderCircle
-                          openImagePicker={openImagePicker}
-                          selectedImage={selectedImage}
-                        />
-                      </View>
-                      <View style={styles.inputContainer}>
-                        <InputTextForm
-                          label={t('name')}
-                          required={true}
-                          onChangeText={handleAddDataName}
-                          value={farmerData.name}
-                        />
-                        <InputTextForm
-                          label={t('new_reg_phone_number')}
-                          required={true}
-                          keyboardType="numeric"
-                          onChangeText={handleAddDataPhone}
-                          value={farmerData.phone}
-                          onBlur={() => checkPhone(farmerData.phone)} // Pass the actual phone value
-                          refname={phoneInputRef}
-                          maxLength={contact_no_digits}
-                        />
+                  1/3
+                </Text>
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.firatFormContainer}>
+                    <View style={styles.profileImg}>
+                      <ImagePlaceHolderCircle
+                        openImagePicker={openImagePicker}
+                        selectedImage={selectedImage}
+                      />
+                    </View>
+                    <View style={styles.inputContainer}>
+                      <InputTextForm
+                        label={t('name')}
+                        required={true}
+                        onChangeText={handleAddDataName}
+                        value={farmerData.name}
+                      />
+                      <InputTextForm
+                        label={t('new_reg_phone_number')}
+                        required={true}
+                        keyboardType="numeric"
+                        onChangeText={handleAddDataPhone}
+                        value={farmerData.phone}
+                        onBlur={() => checkPhone(farmerData.phone)} // Pass the actual phone value
+                        refname={phoneInputRef}
+                        maxLength={contact_no_digits}
+                      />
 
-                        <View>
-                          <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
-                          <RadioForm
-                            label={t('farmer_reg_male')}
-                            onSelect={() => handleAddDataGender('gender', '1')}
-                            selected={farmerData.gender === '1'}
-                          />
-                          <RadioForm
-                            label={t('farmer_reg_female')}
-                            onSelect={() => handleAddDataGender('gender', '2')}
-                            selected={farmerData.gender === '2'}
-                          />
-                          <RadioForm
-                            label={t('farmer_reg_other')}
-                            onSelect={() => handleAddDataGender('gender', '3')}
-                            selected={farmerData.gender === '3'}
-                          />
-                        </View>
-                        <View style={{ marginBottom: 15 }}>
-                          <Text style={styles.text}>
-                            {t('far_reg_far_type')}
-                          </Text>
-                          <RadioForm
-                            label={t('grower')}
-                            onSelect={() => handleAddDataUserType('userType', '1')}
-                            selected={farmerData.userType === '1'}
-                          />
-                          <RadioForm
-                            label={t('small_holder')}
-                            onSelect={() => handleAddDataUserType('userType', '2')}
-                            selected={farmerData.userType === '2'}
-                          />
-                          <RadioForm
-                            label={t('farm_worker')}
-                            onSelect={() => handleAddDataUserType('userType', '3')}
-                            selected={farmerData.userType === '3'}
-                          />
-                        </View>
-                        <InputTextForm
-                          label={t('age')}
-                          required={true}
-                          keyboardType={'number-pad'}
-                          maxLength={2}
-                          onChangeText={handleAddDataAge}
-                          value={farmerData.age}
+                      <View>
+                        <Text style={styles.text}>{t('farmer_reg_gnd')}</Text>
+                        <RadioForm
+                          label={t('farmer_reg_male')}
+                          onSelect={() => handleAddDataGender('gender', '1')}
+                          selected={farmerData.gender === '1'}
                         />
-                        <DropdownForm
-                          label={
-                            regionaldatas.state == ''
-                              ? t('state_col')
-                              : t(`${regionaldatas.state}`)
-                          }
-                          required={true}
-                          data={stateAll}
-                          onChange={handleStateInfo}
-                          val={farmerData.state}
+                        <RadioForm
+                          label={t('farmer_reg_female')}
+                          onSelect={() => handleAddDataGender('gender', '2')}
+                          selected={farmerData.gender === '2'}
                         />
-                        <DropdownForm
-                          label={
-                            regionaldatas.district == ''
-                              ? t('select_zila')
-                              : t(`${regionaldatas.district}`)
-                          }
-                          required={true}
-                          data={districtAll}
-                          onChange={handleDistrictInfo}
-                          val={farmerData.district}
-                        />
-                        <DropdownForm
-                          label={
-                            regionaldatas.block == ''
-                              ? t('select_block_sub_county_upzila')
-                              : t(`${regionaldatas.block}`)
-                          }
-                          required={true}
-                          data={blockAll}
-                          onChange={handleAddDataBlock}
-                          val={farmerData.block}
-                        />
-                        <InputTextForm
-                          label={t('enter_address')}
-                          onChangeText={handleAddDataAddress}
-                          value={farmerData.address}
-                        />
-                        <InputTextForm
-                          label={t('valid_pin_code')}
-                          keyboardType={'number-pad'}
-                          maxLength={6}
-                          onChangeText={handleAddDataPin}
-                          value={farmerData.pin}
-                        />
-                        <PasswordComp
-                          setPasswordVisibility={setPasswordVisibility}
-                          passwordVisibility={passwordVisibility}
-                          label={t('new_reg_password')}
-                          onChangeText={handleAddDataPass}
-                          value={farmerData.password}
-                        />
-                        <PasswordComp
-                          setPasswordVisibility={setcPasswordVisibility}
-                          passwordVisibility={cpasswordVisibility}
-                          label={t('new_reg_confirm_password')}
-                          onChangeText={handleAddDataCPass}
-                          value={farmerData.cpassword}
-                        />
-                        <ProofAndIdentityPropfComp
-                          identityProofIdentityPropf={
-                            identityProofIdentityPropf
-                          }
-                          t={t}
-                          title={t('address_proofAndIdentityPropf')}
-                          setStateValue={setIdentityProofIdentityPropf}
-                          stateValue={identityProofIdentityPropf}
-                          disable={true}
-                          InputTextFormEdit={true}
-                        // photoDeletedValue={photoDeletedValue}
-                        // setPhotoDeletedValue={setPhotoDeletedValue}
-                        // loginUser_data={loginUser_data}
+                        <RadioForm
+                          label={t('farmer_reg_other')}
+                          onSelect={() => handleAddDataGender('gender', '3')}
+                          selected={farmerData.gender === '3'}
                         />
                       </View>
+                      <View style={{ marginBottom: 15 }}>
+                        <Text style={styles.text}>
+                          {t('far_reg_far_type')}
+                        </Text>
+                        <RadioForm
+                          label={t('grower')}
+                          onSelect={() => handleAddDataUserType('userType', '1')}
+                          selected={farmerData.userType === '1'}
+                        />
+                        <RadioForm
+                          label={t('small_holder')}
+                          onSelect={() => handleAddDataUserType('userType', '2')}
+                          selected={farmerData.userType === '2'}
+                        />
+                        <RadioForm
+                          label={t('farm_worker')}
+                          onSelect={() => handleAddDataUserType('userType', '3')}
+                          selected={farmerData.userType === '3'}
+                        />
+                      </View>
+                      <InputTextForm
+                        label={t('age')}
+                        required={true}
+                        keyboardType={'number-pad'}
+                        maxLength={2}
+                        onChangeText={handleAddDataAge}
+                        value={farmerData.age}
+                      />
+                      <DropdownForm
+                        label={
+                          regionaldatas.state == ''
+                            ? t('state_col')
+                            : t(`${regionaldatas.state}`)
+                        }
+                        required={true}
+                        data={stateAll}
+                        onChange={handleStateInfo}
+                        val={farmerData.state}
+                      />
+                      <DropdownForm
+                        label={
+                          regionaldatas.district == ''
+                            ? t('select_zila')
+                            : t(`${regionaldatas.district}`)
+                        }
+                        required={true}
+                        data={districtAll}
+                        onChange={handleDistrictInfo}
+                        val={farmerData.district}
+                      />
+                      <DropdownForm
+                        label={
+                          regionaldatas.block == ''
+                            ? t('select_block_sub_county_upzila')
+                            : t(`${regionaldatas.block}`)
+                        }
+                        required={true}
+                        data={blockAll}
+                        onChange={handleAddDataBlock}
+                        val={farmerData.block}
+                      />
+                      <InputTextForm
+                        label={t('enter_address')}
+                        onChangeText={handleAddDataAddress}
+                        value={farmerData.address}
+                      />
+                      <InputTextForm
+                        label={t('valid_pin_code')}
+                        keyboardType={'number-pad'}
+                        maxLength={6}
+                        onChangeText={handleAddDataPin}
+                        value={farmerData.pin}
+                      />
+                      <PasswordComp
+                        setPasswordVisibility={setPasswordVisibility}
+                        passwordVisibility={passwordVisibility}
+                        label={t('new_reg_password')}
+                        onChangeText={handleAddDataPass}
+                        value={farmerData.password}
+                      />
+                      <PasswordComp
+                        setPasswordVisibility={setcPasswordVisibility}
+                        passwordVisibility={cpasswordVisibility}
+                        label={t('new_reg_confirm_password')}
+                        onChangeText={handleAddDataCPass}
+                        value={farmerData.cpassword}
+                      />
+                      <ProofAndIdentityPropfComp
+                        identityProofIdentityPropf={
+                          identityProofIdentityPropf
+                        }
+                        t={t}
+                        title={t('address_proofAndIdentityPropf')}
+                        setStateValue={setIdentityProofIdentityPropf}
+                        stateValue={identityProofIdentityPropf}
+                        disable={true}
+                        InputTextFormEdit={true}
+                      // photoDeletedValue={photoDeletedValue}
+                      // setPhotoDeletedValue={setPhotoDeletedValue}
+                      // loginUser_data={loginUser_data}
+                      />
                     </View>
                   </View>
-                </ScrollView>
-              </View>
-            </KeyboardAvoidingView>
-          </View>
-          <ButtonForm
-            label={t('next')}
-            onPress={handleNavigate}
-            loading={isLoading}
-          />
-        </Root>
-      </>
-    </FarmerDrawerScreenWrapper1>
-  );
+                </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+        <ButtonForm
+          label={t('next')}
+          onPress={handleNavigate}
+          loading={isLoading}
+        />
+      </Root>
+    </>
+  </FarmerDrawerScreenWrapper1>
+);
 };
 export default PersonalInformation;
 const styles = StyleSheet.create({

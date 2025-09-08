@@ -767,6 +767,7 @@ const Information = ({sendDataToParent, farmerID}) => {
               label={t('age')}
               value={farmerData.age ?? farmerData.age}
               keyboardType="numeric"
+                  editable={false}
             />
             <DropdownForm
               label={

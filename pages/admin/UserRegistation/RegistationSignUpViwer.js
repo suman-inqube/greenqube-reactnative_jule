@@ -37,10 +37,9 @@ const RegistationSignUpViwer = () => {
     Toast,
     logoImage,
     topBanner,
-    AlertMesg,
+    AlertMesg,isOnline
   } = useContext(userCreateContext);
   //GQR-65
-  const { netConnection } = DeviceInfo();
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
@@ -253,7 +252,7 @@ const RegistationSignUpViwer = () => {
         name: name,
       });
     }
-    if (netConnection) {
+    if (isOnline) {
       const database_res = await UserRegisterAPI(
         dbLanTokUsr.dbName,
         dbLanTokUsr.languageId,
