@@ -10,15 +10,15 @@ import {
   Keyboard,
   RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useContext, useCallback} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {loanRouteListAPI} from './LoanAPI_copy';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
-import {Marquee} from '@animatereactnative/marquee';
+import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { loanRouteListAPI } from './LoanAPI_copy';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
+import { Marquee } from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const LoanViewPastRequested = ({setActiveBtn}) => {
+const LoanViewPastRequested = ({ setActiveBtn }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -35,9 +35,9 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     farmerData,
     CustomHeader,
     logoImage,
-    topBanner,
+    topBanner, navigationBarHeight
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
@@ -48,10 +48,9 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
+  const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [loanList, setLoanList] = useState([]);
-  const [loanListRaw, setLoanListRaw] = useState([]);
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
   const [statusName, setStatusName] = useState('');
@@ -63,18 +62,12 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [statusAll, setTtatusAll] = useState([
-    {value: 2, label: t('Approved')},
-    {value: 1, label: t('pending')},
-    {value: 3, label: t('Rejected')},
+    { value: 2, label: t('Approved') },
+    { value: 1, label: t('pending') },
+    { value: 3, label: t('Rejected') },
   ]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+
   const onchangeFilterItem = value => {
     if (value == 'statusFilter') {
       setSearchResultsList(true);
@@ -86,146 +79,101 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     setSearchFarmerPhone('');
     setSearchFarmerName('');
     setStatusName('');
-    setfromDate('');
+    setFromDate('');
     setToDate('');
     setLoanList(loanListRaw);
   };
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
-    setfromDate(effective_date);
+    setFromDate(effective_date);
   };
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setToDate(effective_date);
   };
-  const onPageLoad = async () => {
+  const onPageLoad = async (farmer_id = '', from_date = '', to_date = '', farmer_mobile = '') => {
+    console.log(farmer_id, from_date, to_date, farmer_mobile, "wwwwwwwwwww")
     setIsLoading(true);
     const [currency_res, response] = await Promise.all([
       getItem('currency'),
-      loanRouteListAPI(dbname, lan_id, token, user_id, '', '', ''),
+      loanRouteListAPI(dbname, lan_id, token, user_id, farmer_id, from_date, to_date, farmer_mobile),
     ]);
     if (response?.status == 200) {
       if (response.data.data.rows.length != 0) {
         Promise.all([
           setIsLoading(false),
           setLoanList(response.data.data.rows),
-          setLoanListRaw(response.data.data.rows),
           setCurrencyt(currency_res),
         ]);
       } else {
         setIsLoading(false);
-        Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
+        Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
       }
     }
-  };
-  const handleFilterList = async item => {
-    if (filterName === 'Farmer/Product Name' || filterName === 'PhoneNumber') {
-      handleFilter(
-        item,
-        filterName,
-        farmerData,
-        loanListRaw,
-        setSearchFarmerPhone,
-        setSearchFarmerName,
-        setSearchResultsList,
-        loanList,
-        setSearchResults,
-      );
-    }
-    // else if (filterName === 'PhoneNumber') {
-    //     handleFilter(item, filterName, farmerData, loanListRaw, setSearchFarmerPhone, setSearchFarmerName, setSearchResultsList, loanList, setSearchResults);
-    // }
-    else if (filterName === 'statusFilter') {
-      setSearchResultsList(true);
-      setStatusName(search);
-      const result = statusAll.filter(item =>
-        item.label.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setLoanList(loanListRaw);
-      } else {
-        setSearchResultsList(true);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
-    }
-  };
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
-    setSearchResultsList(false);
-    setSearchFarmerPhone(phone);
-    setSelectedName(name);
-    setSearchFarmerName(name);
-    setStatusName(name);
-    setSearchResults([]);
-    setfarmerID(currentfarmerId);
-    if (name == 'Pending' || name == 'Rejected' || name == 'Approved') {
-      let tempData = loanListRaw.filter(item => {
-        return item.status == currentfarmerId;
-      });
-      setLoanList(tempData);
-    } else if (name !== '') {
-      let tempData = loanListRaw.filter(item => {
-        return (
-          item.agri_user.userName.toLowerCase().indexOf(name.toLowerCase()) > -1
-        );
-      });
-      setLoanList(tempData);
-    } else {
-      let tempData = loanListRaw.filter(item => {
-        return (
-          item.agri_user.contactNumber
-            .toLowerCase()
-            .indexOf(phone.toLowerCase()) > -1
-        );
-      });
-      setLoanList(tempData);
-    }
-  };
-  const filterfromAndToDate = () => {
-    if (fromDate != '' && toDate != '') {
-      let tempData = loanListRaw.filter(item => {
-        return (
-          item.created_at.slice(0, 10) >= fromDate &&
-          item.created_at.slice(0, 10) <= toDate
-        );
-      });
-      setLoanList(tempData);
-    }
-  };
-  const filterDataRemove = () => {
-    setSearchFarmerPhone('');
-    setSearchFarmerName('');
-    setStatusName('');
-    setFilterItem('');
-    setFilterName('');
-    setFilterOption(false);
-    setLoanList(loanListRaw);
-    setSearchResultsList(false);
   };
   useEffect(() => {
-    filterfromAndToDate();
+    // filterfromAndToDate();
   }, [fromDate, toDate]);
   useEffect(() => {
-    onPageLoad();
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setKeyboardVisible(true);
-      },
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-      },
-    );
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
+    onPageLoad('', '', '', '');
   }, []);
+  const filterOptionShow = useCallback(async () => {
+    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    openFilterSheet({
+      options: ['farmer', 'phone', 'date', ''],
+      t: t,
+      dropdownData: farmerData,
+      filterItem: filterItem,
+      setFilterItem: setFilterItem,
+      setSearchFarmerName: setSearchFarmerName,
+      setSearchFarmerPhone: setSearchFarmerPhone,
+      searchFarmerName: searchFarmerName,
+      searchFarmerPhone: searchFarmerPhone,
+      title: 'Choose Status',
+      handleFilterResult: handleFilterResult,
+      handleFilterRemove: handleFilterRemove,
+      setFromDate: setFromDate,
+      setToDate: setToDate,
+      fromDate: fromDate,
+      toDate: toDate,
+      effective_dates: effective_dates,
+      navigationBarHeight: navigationBarHeight,
+      height: 200,
+    });
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
+  const handleFilterResult = useCallback(
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
+        setSearchFarmerName({
+          label: farmerName?.label,
+          value: farmerName?.value,
+        });
+        setSearchFarmerPhone({
+          label: farmerPhone?.label,
+          value: farmerPhone?.value,
+        });
+        onPageLoad(farmerName?.value, fromDate, toDate, farmerPhone?.label)
+      } catch (error) {
+
+      }
+    },
+    [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
+  );
+  const handleFilterRemove = () => {
+    try {
+      setFromDate('');
+      setToDate('');
+      setSearchFarmerName({ label: '', value: '' });
+      setSearchFarmerPhone({ label: '', value: '' });
+      setFilterItem('');
+      onPageLoad();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
@@ -238,18 +186,20 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     navigation.navigate('LoanEnquiryDetail', item);
   };
   const HandlerGoBack = () => navigation.navigate('Dashboard');
-
+  const renderCustomHeader = useMemo(() => <CustomHeader
+    path="Dashboard"
+    HandlerGoBack={HandlerGoBack}
+    logoImage={logoImage}
+    topBanner={topBanner}
+    filterOptionShow={filterOptionShow}
+    t={t}
+  />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
+        {renderCustomHeader}
         <SafeAreaView
-          style={{flex: 1, backgroundColor: Colors.background_light}}>
+          style={{ flex: 1, backgroundColor: Colors.background_light }}>
           <View style={{}}>
             {openFromDate && (
               <DatePickerComp
@@ -269,10 +219,9 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
                   fromDate == ''
                     ? ''
                     : new Date(
-                        `${new Date(fromDate).getFullYear()}-${
-                          new Date(fromDate).getMonth() + 1
-                        }-${new Date(fromDate).getDate() + 1}`,
-                      )
+                      `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
+                      }-${new Date(fromDate).getDate() + 1}`,
+                    )
                 }
               />
             )}
@@ -288,7 +237,7 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
                 showsVerticalScrollIndicator={false}
                 style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                 data={searchResults}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() =>
                       handleResultSelect(item.label, item.value, item.phone)
@@ -305,34 +254,6 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
           ) : (
             ''
           )}
-          {/* <TouchableOpacity
-            style={styles.plusIcon}
-            onPress={() => setActiveBtn(1)}>
-            <Image
-              source={require('../../Common/images/plus.png')}
-              style={{width: 40, height: 40}}
-            />
-          </TouchableOpacity> */}
-          {isLoading ? (
-            ''
-          ) : (
-            <Filter
-              filterItem={filterItem}
-              filterOption={filterOption}
-              setOpenToDate={setOpenToDate}
-              fromDate={fromDate}
-              newToDate={toDate}
-              setOpenFromDate={setOpenFromDate}
-              filterOptionShow={filterOptionShow}
-              onchangeFilterItem={onchangeFilterItem}
-              onChangeText={item => handleFilterList(item)}
-              FarmerProductNameValue={searchFarmerName}
-              FarmerProductPhoneValue={searchFarmerPhone}
-              statusNameValue={statusName}
-              filterDataRemove={filterDataRemove}
-              statusFilter={true}
-            />
-          )}
           <View>
             {isLoading ? (
               <View style={styles.loadingScreen}>
@@ -344,10 +265,10 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
             <FlatList
               showsVerticalScrollIndicator={false}
               data={loanList}
-              style={
-                filterName !== '' ? {marginBottom: 130} : {marginBottom: 40}
-              }
-              renderItem={({item}) => {
+              // style={
+              //   filterName !== '' ? { marginBottom: 130 } : { marginBottom: 40 }
+              // }
+              renderItem={({ item }) => {
                 // var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
                 var date = new Date(item.created_at.split('T')[0]);
                 var sanctioned_date = new Date(item.sanctioned_date);
@@ -491,7 +412,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '2.5%',
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

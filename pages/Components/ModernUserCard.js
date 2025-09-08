@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { Colors,Fonts } from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 import { MENU_ITEMS } from '../utils/dashboardItems';
 import ModernMenuButton from './ModernMenuButton';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -86,22 +86,22 @@ const ModernUserCard = ({
   const cardStyle =
     state.onPageLoad == false
       ? [
-          styles.modernUserCard,
-          {
-            opacity: cardAnim,
-            transform: [
-              { scale: cardAnim },
-              {
-                translateX: cardAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [SCREEN_WIDTH * 0.3, 0],
-                }),
-              },
-            ],
-          },
-        ]
+        styles.modernUserCard,
+        {
+          opacity: cardAnim,
+          transform: [
+            { scale: cardAnim },
+            {
+              translateX: cardAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [SCREEN_WIDTH * 0.3, 0],
+              }),
+            },
+          ],
+        },
+      ]
       : [styles.modernUserCard];
-
+  const filtered = item?.agri_files?.filter(data => data.term_type === "1");
   return (
     <Animated.View style={cardStyle}>
       <TouchableOpacity
@@ -111,9 +111,9 @@ const ModernUserCard = ({
         {/* Card Header */}
         <View style={styles.cardHeader}>
           <View style={styles.userAvatar}>
-            {item.agri_files.length > 0 ? (
+            {filtered.length > 0 ? (
               <ImageForm
-                source={item.agri_files[0].file_path}
+                source={filtered[0].file_path}
                 width={60}
                 height={60}
                 resizeMode="cover"

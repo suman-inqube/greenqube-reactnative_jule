@@ -129,6 +129,7 @@ const UserCreateContextProvider = (props) => {
       }
       watchIdRef.current = Geolocation.watchPosition(
         (pos) => {
+          // console.log(pos)
           setCoords((prev) => {
             if (
               prev.latitude === pos.coords.latitude &&

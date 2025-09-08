@@ -79,10 +79,9 @@ const PlotSiteProduceInformation = () => {
     topBanner,
     DatePicker,
     LoadingScreen,
-    effective_dates, coords
+    effective_dates, coords, isOnline
   } = useContext(userCreateContext);
   //GQR-65
-  const { netConnection } = DeviceInfo();
   const route = useRoute();
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -240,7 +239,7 @@ const PlotSiteProduceInformation = () => {
     var livelihoodTypeArray = [];
     var productionProcessArray = [];
     var produceProductionUnitArray = [];
-    if (netConnection) {
+    if (isOnline) {
       var [
         nearestLatLong_res,
         tterrainType_res,
@@ -458,7 +457,7 @@ const PlotSiteProduceInformation = () => {
         setPath('');
       }
     }
-  }, [isFocused, netConnection]);
+  }, [isFocused, isOnline]);
   const handleBackPress = () => {
     navigation.navigate(path != '' ? path : 'FinancialInformation');
     return true;
@@ -518,7 +517,7 @@ const PlotSiteProduceInformation = () => {
   }, []);
   const produceNameDataList = async (dbName, language_id, livelihoodType) => {
     let produceNameArray = [];
-    if (netConnection) {
+    if (isOnline) {
       const produceNameAPI = await produceNameDataListAPI(
         dbName,
         language_id,
@@ -586,7 +585,7 @@ const PlotSiteProduceInformation = () => {
     produceName,
   ) => {
     let produceVarietyArray = [];
-    if (netConnection) {
+    if (isOnline) {
       let produceVariety_res = await produceVarietyAPI(
         dbName,
         languageID,
@@ -820,7 +819,7 @@ const PlotSiteProduceInformation = () => {
         Number(item?.sizevalue) * Number(storeProduceInfo?.plotSize),
       cycleEnds: '',
     }));
-  }, []);
+  }, [storeProduceInfo]);
 
   const emptyFieldsValue = () => {
     setstoreProduceInfo({
@@ -1200,7 +1199,7 @@ const PlotSiteProduceInformation = () => {
         Number(storeProduceInfo?.sizevalue) * Number(item),
       cycleEnds: '',
     }))
-  }, [])
+  }, [storeProduceInfo])
   const handleIOTId = useCallback((text) => {
     setstoreProduceInfo(prev => ({
       ...prev, IOTId: text
@@ -1243,28 +1242,27 @@ const PlotSiteProduceInformation = () => {
           ) : (
             ''
           )}
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View
+          <View
+            style={{
+              backgroundColor: 'green',
+              alignSelf: 'flex-end',
+              marginTop: 20,
+              borderRadius: 10,
+              width: '10%',
+
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginRight: 20,
+              marginBottom: 15,
+            }}>
+            <Text
               style={{
-                backgroundColor: 'green',
-                alignSelf: 'flex-end',
-                marginTop: 20,
-                borderRadius: 10,
-                width: '10%',
-
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 20,
-                marginBottom: 15,
+                color: 'white',
               }}>
-              <Text
-                style={{
-                  color: 'white',
-                }}>
-                3/3
-              </Text>
-            </View>
-
+              3/3
+            </Text>
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.firatFormContainer}>
               <View style={{ paddingHorizontal: 10 }}>
                 <InputTextForm

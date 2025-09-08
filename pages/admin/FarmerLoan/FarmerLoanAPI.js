@@ -52,9 +52,7 @@ export const Addloan = async (dbName, languageId, token, user_id, inputValue) =>
       return error.response;
     }
 }
-export const loanRouteListAPI = async (dbName,
-    languageId,
-    token, userID, from_date, to_date, farmer_mobile) => {
+export const loanRouteListAPI = async (dbName,languageId,token, userID, from_date, to_date, farmer_mobile) => {
     const axiosHeaders = {
         headers: {
             'authorization': `${token}`,
@@ -64,7 +62,8 @@ export const loanRouteListAPI = async (dbName,
     try {
         // let response = await axios.get(config.BASE_URL + `loanRoute/list/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`, axiosHeaders);
         // return response;
-         const instance = await getAxiosInstance();
+        console.log(`loanRoute/list_e/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`,axiosHeaders);
+        const instance = await getAxiosInstance();
             let response = await instance.get(
               `loanRoute/list_e/1/0/2?&user_id=${userID}&farming_type=crop&from_date=${from_date}&to_date=${to_date}`,
               axiosHeaders,

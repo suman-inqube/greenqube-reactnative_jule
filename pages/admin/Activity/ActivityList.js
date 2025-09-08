@@ -172,7 +172,7 @@ function ActivityList({ navigation }) {
               carbonTypeParams == undefined
                 ? carbonType.value
                 : carbonTypeParams,
-            userID: user_id,
+            userID: "",
             search_key:
               search_key_type && search_key_type !== 'carbon'
                 ? search_key_val

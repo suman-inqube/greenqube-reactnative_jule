@@ -52,7 +52,7 @@ const Dashboard = ({navigation}) => {
     isOnline,
     Toast,
     AlertMesg,
-    coords,
+    coords,AllFarmerList
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -139,6 +139,7 @@ const Dashboard = ({navigation}) => {
           PERMISSIONS_TYPE.fineLocation,
           PERMISSIONS_TYPE.notifications,
         ]),
+        AllFarmerList()
       ]);
 
       // keep all computations in local vars first
@@ -221,11 +222,10 @@ const Dashboard = ({navigation}) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
         }
-        console.log('Plot status', PLOT_STATUS.data.data);
         if (PLOT_STATUS?.status === 200) {
           plotStatus = PLOT_STATUS.data?.data?.rows || [];
         }
-        console.log('latestActivities', plotStatus);
+      
       }
 
       // single batched state updates

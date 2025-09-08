@@ -88,7 +88,6 @@ const ActivityReportAWD = ({ navigation }) => {
   const { dbname, lan_id, token, user_id } = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
   //GQR-67
-  const { netConnection } = DeviceInfo();
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -992,6 +991,7 @@ const ActivityReportAWD = ({ navigation }) => {
       formData.append('cu_rel_fid', saveData.cu_rel_id);
       // Geolocation.clearWatch(watchIdSaveData);
       if (isOnline) {
+          console.log("isOnline")
         // const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData);addPrevPipeActivity
         if (saveData.field_type == 'add') {
           var database_res = await addUserPipeActivity(
@@ -1022,6 +1022,7 @@ const ActivityReportAWD = ({ navigation }) => {
           });
         }
       } else {
+        console.log("offline")
         formData.append('farmerID', saveData.user_id);
         let timeStamp = Date.now();
         await setItem('off' + timeStamp, formData);
