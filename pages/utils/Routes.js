@@ -75,7 +75,7 @@ export const ROUTES = {
       from_date = '',
       to_date = '',
     }) =>
-      `inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
     QUESTION_ROUTE: ({
       pageNo = 1,
       user_id = '',

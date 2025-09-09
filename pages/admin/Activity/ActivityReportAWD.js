@@ -991,7 +991,6 @@ const ActivityReportAWD = ({ navigation }) => {
       formData.append('cu_rel_fid', saveData.cu_rel_id);
       // Geolocation.clearWatch(watchIdSaveData);
       if (isOnline) {
-          console.log("isOnline")
         // const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData);addPrevPipeActivity
         if (saveData.field_type == 'add') {
           var database_res = await addUserPipeActivity(

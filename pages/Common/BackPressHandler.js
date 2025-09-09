@@ -1,10 +1,13 @@
-import React from 'react';
+// onBackPress.js
 import { BackHandler } from 'react-native';
+
 const onBackPress = (callback) => {
-    BackHandler.addEventListener('hardwareBackPress', callback);
-    return () => {
-        BackHandler.removeEventListener('hardwareBackPress', callback);
-    };
+  const subscription = BackHandler.addEventListener(
+    'hardwareBackPress',
+    callback
+  );
+
+  return () => subscription.remove(); // cleanup
 };
 
 export { onBackPress };

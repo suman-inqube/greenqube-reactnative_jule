@@ -1,10 +1,10 @@
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect ,useIsFocused} from '@react-navigation/native';
 import { BackHandler, ToastAndroid, Platform } from 'react-native';
 import { useRef ,useCallback} from 'react';
-
 const useDoubleBackToExit = () => {
   const backPressCount = useRef(0);
   const timerRef = useRef(null);
+  const isFocused = useIsFocused();
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {

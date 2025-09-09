@@ -127,7 +127,7 @@ const CreateProblem = ({navigation}) => {
     severity_id: '',
     plot_id: '',
   });
-  const [myphotoAll, setmyPhotoAll] = useState([]);
+  const [myphotoAll, setMyPhotoAll] = useState([]);
   const [myTitleAll, setMyTitleAll] = useState([]);
   const [showingMenu, setShowingMenu] = useState(false);
   const [modalVisibleRecordFirstItem, setModalVisibleRecordFirstItem] =
@@ -329,19 +329,16 @@ const CreateProblem = ({navigation}) => {
             type: 'image/jpeg',
             name: `file://${path}`,
           };
-          addPhoto(prev => ({
-            ...prev,
-            newPhoto,
-          }));
+          addPhoto(newPhoto);
           const newTitle = {};
           addTitle(newTitle);
         }
       });
     },
-    [myphotoAll],
+    [myphotoAll, myTitleAll],
   );
   const addPhoto = newPhoto => {
-    setmyPhotoAll([...myphotoAll, newPhoto]);
+    setMyPhotoAll([...myphotoAll, newPhoto]);
   };
   const addTitle = newTitle => {
     setMyTitleAll([...myTitleAll, newTitle]);
@@ -489,10 +486,7 @@ const CreateProblem = ({navigation}) => {
       });
       return false;
     }
-
     if (!saveData.latitude) {
-      // console.log('Latitude value:', saveData.latitude);
-      // console.log('Full saveData object:', saveData);
       Toast.show({
         time: 2,
         text: `${t('gpsalertdialogmessage')}`,
@@ -514,6 +508,7 @@ const CreateProblem = ({navigation}) => {
       myphotoAll.forEach(photo => {
         formData.append('photo', photo);
       });
+
       formData.append('file_title', JSON.stringify(myTitleAll));
       if (soundRecordFirstItem.result != '') {
         formData.append('audio', {
@@ -591,6 +586,7 @@ const CreateProblem = ({navigation}) => {
     }
   }, [
     myphotoAll,
+    myTitleAll,
     saveData,
     soundRecordFirstItem,
     soundRecordSecoundItem,
@@ -748,12 +744,11 @@ const CreateProblem = ({navigation}) => {
     [],
   );
   const handleChangeQuestionTitle = useCallback(
-    item =>
-      setSaveData(saveData => ({...saveData, question_title: item.value})),
+    item => setSaveData(saveData => ({...saveData, question_title: item})),
     [],
   );
   const handleChangeQuestionDescription = useCallback(
-    item => setSaveData(saveData => ({...saveData, question_desc: item.value})),
+    item => setSaveData(saveData => ({...saveData, question_desc: item})),
     [],
   );
   const handleSeverityChange = useCallback(

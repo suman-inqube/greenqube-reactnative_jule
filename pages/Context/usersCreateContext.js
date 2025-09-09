@@ -96,7 +96,7 @@ const UserCreateContextProvider = props => {
         }
         return true;
       } catch (err) {
-        // console.warn("Error checking GPS:", err);
+        console.warn('Error checking GPS:', err);
         return false;
       }
     };
@@ -131,7 +131,7 @@ const UserCreateContextProvider = props => {
       }
       watchIdRef.current = Geolocation.watchPosition(
         pos => {
-          // console.log(pos)
+          // console.log('GPSIOT', pos);
           setCoords(prev => {
             if (
               prev.latitude === pos.coords.latitude &&

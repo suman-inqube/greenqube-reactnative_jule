@@ -33,7 +33,7 @@ import {
   OPTIONS_CARBON_FARMER,
 } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused,useRoute} from '@react-navigation/native';
 const FarmerActivityList = ({navigation}) => {
   //GQR-67
   const {
@@ -45,13 +45,13 @@ const FarmerActivityList = ({navigation}) => {
     setItem,
     logoImage,
     topBanner,
-    DeviceInfo,
     Root,
     navigationBarHeight,
-    isOnline,
+    isOnline,Toast,AlertMesg
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   const isFocused = useIsFocused();
+    const route = useRoute();
   const flatListRef = useRef(null);
   //GQR-67
   const [isLoading, setIsLoading] = useState(true);
@@ -143,7 +143,6 @@ const FarmerActivityList = ({navigation}) => {
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-      console.log('response', response);
       await setItem('farmerActivityList' + user_id, response);
     } else {
       var response = await getItem('farmerActivityList' + user_id);
@@ -160,6 +159,14 @@ const FarmerActivityList = ({navigation}) => {
       flatListRef.current.scrollToOffset({offset: 0, animated: true});
     }
   };
+    useEffect(() => {
+      if (route?.params?.action === 'addData') {
+        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        setTotalPages(1);
+        fetchActivityListAPI(1, '');
+        setPage(1);
+      }
+    }, [route?.params]);
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       fetchActivityListAPI(page);
