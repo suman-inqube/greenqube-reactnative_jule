@@ -8,24 +8,27 @@ const getDashboardItems = (t, navigateToPages) => [
   {
     text: t('farmer_list'),
     // imageurl: require('../Common/images/farmer_list.png'),
-    imageurl: require('../Common/images/user_list.png'),
+    imageurl: require('../Common/images/user_list2.png'),
     onpress: () => navigateToPages('userList'),
   },
   {
     text: t('crop_prob_far_dash'),
     // imageurl: require('../Common/images/raise_problem_only.png'),
-    imageurl: require('../Common/images/problem1.png'),
+    imageurl: require('../Common/images/problem2.png'),
     onpress: () => navigateToPages('ProblemList'),
   },
   {
     text: t('acti_report_far_dash'),
     // imageurl: require('../Common/images/activity_report_only.png'),
     imageurl: require('../Common/images/activity2.png'),
+
     onpress: () => navigateToPages('activityList'),
   },
   {
     text: t('agri_inputs_ninquiry_far_dash'),
-    imageurl: require('../Common/images/input_inqu_only.png'),
+    imageurl: require('../Common/images/input1.png'),
+
+    // imageurl: require('../Common/images/input_inqu_only.png'),
     onpress: () => navigateToPages('InputList'),
   },
   {

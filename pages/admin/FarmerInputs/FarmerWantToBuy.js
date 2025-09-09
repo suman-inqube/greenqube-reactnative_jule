@@ -19,7 +19,7 @@ import {
   addModuleForView,
 } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {useIsFocused} from '@react-navigation/native';
 import HarvestedModel from '../../Common/HarvestedModel';
 import {userCreateContext} from '../../Context/usersCreateContext';
@@ -67,6 +67,8 @@ const FarmerWantToBuy = ({navigation}) => {
       label: `${t('part')}`,
     },
   ];
+  const route = useRoute();
+
   const [showingMenu, setShowingMenu] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -124,6 +126,7 @@ const FarmerWantToBuy = ({navigation}) => {
       farmerID,
       relId.value,
     );
+    console.log('inputData', response?.data?.data?.crop_variety.name);
     if (response?.status == 200) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -314,7 +317,8 @@ const FarmerWantToBuy = ({navigation}) => {
     }
   };
   const onPageLoad = async () => {
-    const inputSingleData = await getItem('input_single_data');
+    const inputSingleData = route?.params;
+    console.log('inputSingleData from storage', inputSingleData);
     const min = 1000000000000;
     const max = 9999999999999;
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -324,6 +328,7 @@ const FarmerWantToBuy = ({navigation}) => {
       user_contact_number: loginUser_data.contactNumber,
       ref_code: randomNumber,
     });
+    console.log('Initial saveData ', saveData);
     setfarmerID(user_id);
     problemPlotAgainstFarmer();
     if (inputSingleData) {
@@ -337,6 +342,7 @@ const FarmerWantToBuy = ({navigation}) => {
           inputSingleData?.productCategories[0]?.productCategory.iotype;
         category = entity_type.name;
         sub_category = entity_name.name;
+        console.log('Category from iotype:', category);
       } else {
         const {entity_type, entity_name} =
           inputSingleData?.productCategories[0]?.productCategory.ioname;

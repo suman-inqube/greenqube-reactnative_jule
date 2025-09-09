@@ -5,76 +5,78 @@ import React, {
   useRef,
   useMemo,
   lazy,
-} from "react";
+} from 'react';
 import {
   Alert,
   InteractionManager,
   PermissionsAndroid,
   Platform,
-} from "react-native";
-import Geolocation from "@react-native-community/geolocation";
+} from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
-} from "react-native-android-location-enabler";
-import { getItem, setItem, removeItem } from "../../config/getDataFromStorage";
+} from 'react-native-android-location-enabler';
+import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
   showCarbonFlag,
-} from "../../config/apiHere";
-import { useTranslation } from "react-i18next";
-import { AlertMesg } from "../Common/ToastAlert";
-import { Root, Toast, Popup, SPSheet } from "react-native-popup-confirm-toast";
-import { onBackPress } from "../Common/BackPressHandler";
-import DeviceInfo from "../DeviceInfo";
-import i18next from "i18next";
-import { getNavigationBarHeight } from "react-native-android-navbar-height";
-const ImagePlaceHolderCircle = lazy(() =>import("../Common/ImagePlaceHolderCircle"));
-const InputTextForm = lazy(() => import("../Common/InputTextForm"));
-const RadioForm = lazy(() => import("../Common/RadioForm"));
-const PasswordComp = lazy(() => import("../Common/PasswordComp"));
-const ButtonForm = lazy(() => import("../Common/ButtonForm"));
-const DropdownForm = lazy(() => import("../Common/DropdownForm"));
-const CustomHeader = lazy(() => import("../admin/CustomHeader"));
-const LoadingScreen = lazy(() => import("../Common/LoadingScreen"));
-const DatePickerComp = lazy(() => import("../Common/DatePickerComp"));
-const ButtonFormBottom = lazy(() => import("../Common/ButtonFormBottom"));
-const Filter = lazy(() => import("../Common/Filter"));
-const DatePicker = lazy(() => import("react-native-date-picker"));
-const config = lazy(() => import("../../config"));
-const axios = lazy(() => import("axios"));
+} from '../../config/apiHere';
+import {useTranslation} from 'react-i18next';
+import {AlertMesg} from '../Common/ToastAlert';
+import {Root, Toast, Popup, SPSheet} from 'react-native-popup-confirm-toast';
+import {onBackPress} from '../Common/BackPressHandler';
+import DeviceInfo from '../DeviceInfo';
+import i18next from 'i18next';
+import {getNavigationBarHeight} from 'react-native-android-navbar-height';
+const ImagePlaceHolderCircle = lazy(() =>
+  import('../Common/ImagePlaceHolderCircle'),
+);
+const InputTextForm = lazy(() => import('../Common/InputTextForm'));
+const RadioForm = lazy(() => import('../Common/RadioForm'));
+const PasswordComp = lazy(() => import('../Common/PasswordComp'));
+const ButtonForm = lazy(() => import('../Common/ButtonForm'));
+const DropdownForm = lazy(() => import('../Common/DropdownForm'));
+const CustomHeader = lazy(() => import('../admin/CustomHeader'));
+const LoadingScreen = lazy(() => import('../Common/LoadingScreen'));
+const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
+const ButtonFormBottom = lazy(() => import('../Common/ButtonFormBottom'));
+const Filter = lazy(() => import('../Common/Filter'));
+const DatePicker = lazy(() => import('react-native-date-picker'));
+const config = lazy(() => import('../../config'));
+const axios = lazy(() => import('axios'));
 const userCreateContext = createContext();
-const userListContext = createContext("adduser");
-const UserCreateContextProvider = (props) => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+const userListContext = createContext('adduser');
+const UserCreateContextProvider = props => {
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
   const [loginUser_data, setloginUser_data] = useState({});
-  const [logoImage, setlogoImage] = useState("");
-  const [topBanner, settopBanner] = useState("");
+  const [logoImage, setlogoImage] = useState('');
+  const [topBanner, settopBanner] = useState('');
   const [plotAll, setplotAll] = useState([]);
   const [navigationBarHeight, setNavigationBarHeight] = useState(0);
   const [coords, setCoords] = useState({
-    latitude: "",
-    longitude: "",
-    accuracy: "",
-    timestamp: "",
+    latitude: '',
+    longitude: '',
+    accuracy: '',
+    timestamp: '',
   });
   const watchIdRef = useRef(null);
   useEffect(() => {
     const requestPermission = async () => {
-      if (Platform.OS === "android") {
+      if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
-            title: "Location Permission",
-            message: "This app needs to access your location",
-            buttonNeutral: "Ask Me Later",
-            buttonNegative: "Cancel",
-            buttonPositive: "OK",
-          }
+            title: 'Location Permission',
+            message: 'This app needs to access your location',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       }
@@ -89,8 +91,8 @@ const UserCreateContextProvider = (props) => {
             interval: 10000,
             fastInterval: 5000,
           });
-          console.log("GPS enable result:", result);
-          return result === "enabled" || result === "already-enabled";
+          console.log('GPS enable result:', result);
+          return result === 'enabled' || result === 'already-enabled';
         }
         return true;
       } catch (err) {
@@ -102,35 +104,35 @@ const UserCreateContextProvider = (props) => {
     const startWatching = async () => {
       const hasPermission = await requestPermission();
       if (!hasPermission) {
-        console.warn("Location permission not granted");
+        console.warn('Location permission not granted');
         return;
       }
 
       const gpsEnabled = await ensureGpsEnabled();
       if (!gpsEnabled) {
         Alert.alert(
-          "Enable GPS",
-          "Please enable GPS to use location services.",
+          'Enable GPS',
+          'Please enable GPS to use location services.',
           [
             {
-              text: "Enable",
+              text: 'Enable',
               onPress: async () => {
                 try {
                   const enableResult = await promptForEnableLocationIfNeeded();
-                  console.log("enableResult:", enableResult);
+                  console.log('enableResult:', enableResult);
                 } catch (err) {
-                  console.warn("GPS enable request failed", err);
+                  console.warn('GPS enable request failed', err);
                 }
               },
             },
-          ]
-        )
+          ],
+        );
         return;
       }
       watchIdRef.current = Geolocation.watchPosition(
-        (pos) => {
+        pos => {
           // console.log(pos)
-          setCoords((prev) => {
+          setCoords(prev => {
             if (
               prev.latitude === pos.coords.latitude &&
               prev.longitude === pos.coords.longitude &&
@@ -146,11 +148,11 @@ const UserCreateContextProvider = (props) => {
             };
           });
         },
-        (err) => {
-          console.error("Location error:", err);
+        err => {
+          console.error('Location error:', err);
           if (err.code === 2) {
             // POSITION_UNAVAILABLE → GPS turned off
-            Alert.alert("GPS is turned off. Please enable it.");
+            Alert.alert('GPS is turned off. Please enable it.');
           }
         },
         {
@@ -160,7 +162,7 @@ const UserCreateContextProvider = (props) => {
           fastestInterval: 2000,
           timeout: 30000,
           maximumAge: 0,
-        }
+        },
       );
     };
 
@@ -187,10 +189,10 @@ const UserCreateContextProvider = (props) => {
         companyLanguage_data,
         getNavigationBar,
       ] = await Promise.all([
-        getItem("loginUser_data"),
-        getItem("logoImageData"),
-        getItem("topBannerData"),
-        getItem("companyLanguage_data"),
+        getItem('loginUser_data'),
+        getItem('logoImageData'),
+        getItem('topBannerData'),
+        getItem('companyLanguage_data'),
         getNavigationBarHeight(),
       ]);
       setNavigationBarHeight(getNavigationBar);
@@ -201,50 +203,50 @@ const UserCreateContextProvider = (props) => {
             loginUser_data?.dbname,
             loginUser_data?.lan_id,
             loginUser_data?.token,
-            loginUser_data?.user_id
+            loginUser_data?.user_id,
           ),
           problemPlotAgainstFarmerAPI(
             loginUser_data?.dbname,
             loginUser_data?.lan_id,
             loginUser_data?.token,
-            loginUser_data?.user_id
+            loginUser_data?.user_id,
           ),
           showCarbonFlag(
             loginUser_data?.token,
             loginUser_data?.dbname,
             loginUser_data?.lan_id,
-            loginUser_data?.user_id
+            loginUser_data?.user_id,
           ),
         ]);
-
+        // console.log('farmer_response', farmer_response);
         if (farmer_response?.status == 200) {
           await Promise.all([
-            setItem("farmerByNameAPI", farmer_response),
+            setItem('farmerByNameAPI', farmer_response),
             setItem(
-              "problemPlotAgainstFarmer" + loginUser_data?.user_id,
-              responsePlot
+              'problemPlotAgainstFarmer' + loginUser_data?.user_id,
+              responsePlot,
             ),
-            setItem("carbonFlag", resCarbonFlag),
+            setItem('carbonFlag', resCarbonFlag),
           ]);
         }
       } else {
         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
-          getItem("farmerByNameAPI"),
-          getItem("problemPlotAgainstFarmer" + loginUser_data?.user_id),
-          getItem("carbonFlag"),
+          getItem('farmerByNameAPI'),
+          getItem('problemPlotAgainstFarmer' + loginUser_data?.user_id),
+          getItem('carbonFlag'),
         ]);
       }
 
       if (farmer_response?.status == 200) {
-        let supervisorId = "";
+        let supervisorId = '';
         if (loginUser_data?.userType == 2) {
           supervisorId = loginUser_data?.owner?.user_id;
         } else if (loginUser_data?.userType == 3) {
           supervisorId = loginUser_data?.user_id;
         }
 
-        const { company, country_id } = companyLanguage_data;
-        const { option_value } = resCarbonFlag?.data?.data || {};
+        const {company, country_id} = companyLanguage_data;
+        const {option_value} = resCarbonFlag?.data?.data || {};
 
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
@@ -269,7 +271,7 @@ const UserCreateContextProvider = (props) => {
           carbonFlag: option_value,
         });
 
-        const dataArrayName = farmer_response?.data?.data?.rows.map((data) => ({
+        const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
           label: data.userName,
           phone: data.contactNumber,
@@ -278,7 +280,7 @@ const UserCreateContextProvider = (props) => {
           FcmUserToken: data?.FcmUserToken,
         }));
 
-        const dataArrayPhone = farmer_response?.data?.data?.rows.map((data) => ({
+        const dataArrayPhone = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
           label: data.contactNumber,
           phone: data.contactNumber,
@@ -286,10 +288,10 @@ const UserCreateContextProvider = (props) => {
           kccNumber: data?.kcc_number,
           FcmUserToken: data?.FcmUserToken,
         }));
-
+        // console.log('Does first farmer have FcmUserToken?', farmer_response);
         setFarmerData([dataArrayName, dataArrayPhone]);
 
-        const PlotArray = responsePlot?.data?.data.map((data) => ({
+        const PlotArray = responsePlot?.data?.data.map(data => ({
           value: data.rel_id,
           label: data.plot_no,
         }));
@@ -310,10 +312,10 @@ const UserCreateContextProvider = (props) => {
   }, [netConnection]);
 
   // ---------- HELPERS ----------
-  const effective_dates = (item) => {
-    if (!item) return "";
+  const effective_dates = item => {
+    if (!item) return '';
     const dt = new Date(item);
-    return dt.toISOString().split("T")[0];
+    return dt.toISOString().split('T')[0];
   };
 
   // ---------- PROVIDER VALUE ----------
@@ -370,7 +372,7 @@ const UserCreateContextProvider = (props) => {
       topBanner,
       plotAll,
       navigationBarHeight,
-    ]
+    ],
   );
 
   return (
@@ -380,4 +382,4 @@ const UserCreateContextProvider = (props) => {
   );
 };
 
-export { userListContext, UserCreateContextProvider, userCreateContext };
+export {userListContext, UserCreateContextProvider, userCreateContext};

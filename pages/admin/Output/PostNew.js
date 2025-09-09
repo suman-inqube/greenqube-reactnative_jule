@@ -35,7 +35,7 @@ import {getActionsPostNew} from '../../utils/options';
 import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import DatePickerField from '../../Common/DatePickerField';
-const PostNew = props => {
+const PostNew = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -403,8 +403,8 @@ const PostNew = props => {
           Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
 
           setTimeout(() => {
-            props.sendDataToParent(2);
-            navigation.navigate('ViewPast');
+            // props.sendDataToParent(2);
+            navigation.navigate('OutPutList');
           }, 1500);
         }
       }

@@ -2231,7 +2231,7 @@ const PlotStatusUpdate = () => {
                         color="#2196F3"
                       />
                       <Text style={styles.coordinateText}>
-                        {t('lat')}: {farmerData.IOTLatlat}
+                        {t('lat')}: {Number(farmerData.IOTLatLong).toFixed(6)}
                       </Text>
                     </View>
 
@@ -2242,7 +2242,7 @@ const PlotStatusUpdate = () => {
                         color="#2196F3"
                       />
                       <Text style={styles.coordinateText}>
-                        {t('long')}:{farmerData.IOTLatLong}
+                        {t('long')}:{Number(farmerData.IOTLatlat).toFixed(6)}
                       </Text>
                     </View>
                     {/* <View style={styles.latlongContainer}>
@@ -2332,7 +2332,7 @@ const PlotStatusUpdate = () => {
                             {t('lat')}:{' '}
                             {data && data?.latitude && data?.latitude == ''
                               ? '0.0'
-                              : data?.latitude}
+                              : Number(data?.latitude).toFixed(6)}
                           </Text>
                         </View>
                         <View style={styles.coordinateItem}>
@@ -2345,7 +2345,7 @@ const PlotStatusUpdate = () => {
                             {t('long')}:{' '}
                             {data && data?.longitude && data?.longitude == ''
                               ? '0.0'
-                              : data?.longitude}
+                              : Number(data?.longitude).toFixed(6)}
                           </Text>
                         </View>
                       </View>
@@ -2867,7 +2867,7 @@ const styles = StyleSheet.create({
   },
   coordinateText: {
     marginLeft: 2,
-    fontSize: 12,
+    fontSize: 13,
     color: '#0D47A1',
     fontFamily: 'Poppins-Regular',
     flexShrink: 1,

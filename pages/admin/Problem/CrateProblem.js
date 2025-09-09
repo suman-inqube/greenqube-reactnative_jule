@@ -158,7 +158,10 @@ const CreateProblem = ({navigation}) => {
     result: '',
   });
   const handleResultSelect = useCallback(async item => {
+    // console.log('Full farmer item data:', JSON.stringify(item, null, 2));
     const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
+
+    // console.log('Selected farmer FCM token:', FcmUserToken);
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     // setSelectedName(name);
@@ -180,6 +183,7 @@ const CreateProblem = ({navigation}) => {
         'problemPlotAgainstFarmer' + currentfarmerId,
       );
     }
+    // console.log('farmerToken', response.data.data);
     if (response) {
       //GQR-65
       const dataArray = response?.data?.data.map(data => ({
@@ -487,8 +491,8 @@ const CreateProblem = ({navigation}) => {
     }
 
     if (!saveData.latitude) {
-      console.log('Latitude value:', saveData.latitude);
-      console.log('Full saveData object:', saveData);
+      // console.log('Latitude value:', saveData.latitude);
+      // console.log('Full saveData object:', saveData);
       Toast.show({
         time: 2,
         text: `${t('gpsalertdialogmessage')}`,
@@ -500,9 +504,13 @@ const CreateProblem = ({navigation}) => {
   };
   const handleSave = useCallback(async () => {
     Keyboard.dismiss();
+
     if (validateForm()) {
+      //
       let array = [];
       const formData = new FormData();
+      console.log('IMAGE UPLOADED2222:', JSON.stringify(myphotoAll));
+
       myphotoAll.forEach(photo => {
         formData.append('photo', photo);
       });
@@ -561,6 +569,7 @@ const CreateProblem = ({navigation}) => {
           farmerID,
           formData,
         );
+        console.log('database_res', database_res);
         if (database_res.status === 200) {
           navigation.navigate('ProblemList', {action: 'addData'});
         }
@@ -824,6 +833,8 @@ const CreateProblem = ({navigation}) => {
                 required={true}
                 onChange={handleResultSelect}
               />
+              {/* {console.log('📊 farmerData[0]:', farmerData?.[0])} */}
+
               {/* <InputTextForm
                 label={t('farmer_name')}
                 value={searchFarmerName}

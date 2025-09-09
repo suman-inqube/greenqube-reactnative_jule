@@ -468,6 +468,11 @@ export const farmerByNameAPI = async (dbName, languageID, token, userID) => {
       information: `${dbName},${languageID}`,
     },
   };
+  // console.log(
+  //   'api',
+  //   `${config.BASE_URL}loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=${userID}`,
+  //   axiosHeaders,
+  // );
   try {
     let response = await axios.get(
       `${config.BASE_URL}loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=${userID}`,
@@ -893,7 +898,12 @@ export const problemSaveAPI = async (
     },
   };
   // console.log(JSON.stringify(inputData))
-  // console.log(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
+  console.log(
+    'hhhhhhhhhhhh',
+    `${config.BASE_URL}questionRoute/add`,
+    inputData,
+    axiosHeaders,
+  );
   // return;
   try {
     // console.log(response);
@@ -2159,12 +2169,19 @@ export const farmerProblemDetailApi = async (dbName, languageID, quesId) => {
       information: `${dbName},${languageID}`,
     },
   };
+  console.log(
+    'problem',
+    `${config.BASE_URL}questionRoute/details/${quesId}`,
+    axiosHeaders,
+  );
   try {
     let response = await axios.get(
       `${config.BASE_URL}questionRoute/details/${quesId}`,
       axiosHeaders,
     );
+
     return response;
+
     // return console.log(JSON.stringify(response.data.data,null,2));
   } catch (error) {
     CrashlyticsRecordError(error.response);

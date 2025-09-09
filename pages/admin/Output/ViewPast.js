@@ -214,13 +214,15 @@ const ViewPast = props => {
     }
   };
   const onPageLoad = async () => {
+    console.log('onPageLoad triggered');
     const outputList = await outputListAPI(dbname, lan_id, token, user_id);
     if (outputList?.status == 200) {
       setOutputListAll(outputList.data.data.rows);
       setOutputListRaw(outputList.data.data.rows);
       await setItem('output_data', outputList.data.data.rows);
-      if (route.params.io_oid != undefined) {
-        navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id);
+      console.log('route.params.io_oid:', route);
+      if (route?.params?.io_oid != undefined) {
+        navigateToPages(route?.params?.io_oid, dbname, lan_id, token, user_id);
       }
     }
     setIsLoading(false);

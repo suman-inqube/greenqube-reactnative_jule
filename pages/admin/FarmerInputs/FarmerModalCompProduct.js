@@ -154,7 +154,10 @@ const FarmerModalCompProduct = props => {
               </View>
               <View style={styles.buyBtn}>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('FarmerWantToBuy')}>
+                  onPress={() => {
+                    props.setModalVisible(!props.modalVisible);
+                    navigation.navigate('FarmerWantToBuy', props.inputSigle);
+                  }}>
                   <Text style={styles.btnTitle}>{t('buy_lease_request')}</Text>
                 </TouchableOpacity>
               </View>

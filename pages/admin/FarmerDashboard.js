@@ -43,6 +43,7 @@ const FarmerDashboard = ({navigation}) => {
     logoImage,
     topBanner,
     loginUser_data,
+    AllFarmerList,
   } = useContext(userCreateContext) || {};
   const {dbname, lan_id, token, user_id, agri_user_addresses} =
     loginUser_data || {};
@@ -191,6 +192,7 @@ const FarmerDashboard = ({navigation}) => {
           PERMISSIONS_TYPE.microphone,
           PERMISSIONS_TYPE.fineLocation,
         ]),
+        AllFarmerList(),
       ]);
 
       const {dbname, lan_id, token, agri_user_addresses, user_id} =
