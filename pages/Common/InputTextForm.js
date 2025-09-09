@@ -46,12 +46,12 @@ const InputTextForm = ({
         style={[
           styles.inputField,
           !editable && styles.disabledInput,
-          { borderColor: Colors.borderGreen, minHeight: 48, textAlignVertical: 'top' },
+          { borderColor: Colors.borderGreen, minHeight: 48, },
         ]}
         onChangeText={onChangeText}
         onBlur={() => {
           if (onBlur) onBlur();
-          if(value!=undefined){
+          if (value != undefined) {
             onChangeText(sanitizeInput(value));
           }
         }}
@@ -71,12 +71,12 @@ const InputTextForm = ({
         //     style: { height: e.nativeEvent.contentSize.height },
         //   }))
         // }
-         {...(!editable && {
-    multiline: true,
-    scrollEnabled: true,
-    numberOfLines: 3,
-  })}
-    onContentSizeChange={e =>
+        {...(!editable && {
+          multiline: true,
+          scrollEnabled: true,
+          numberOfLines: 3,
+        })}
+        onContentSizeChange={e =>
           e.nativeEvent.contentSize.height > 48 &&
           (e.target.setNativeProps({
             style: { height: e.nativeEvent.contentSize.height },

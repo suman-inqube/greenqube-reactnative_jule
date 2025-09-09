@@ -71,12 +71,10 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     CustomHeader,
     t,
     DatePickerComp,
-    onBackPress,
     getItem,
     setItem,
     logoImage,
     topBanner,
-    DeviceInfo,
     isOnline,
     LoadingScreen, coords
   } = useContext(userCreateContext);
@@ -91,7 +89,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [location, setLocation] = useState(null);
-  const { netConnection } = DeviceInfo();
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -1069,10 +1066,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           );
         }
         if (database_res?.status == 200) {
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-          setTimeout(() => {
-            navigation.navigate('FarmerActivityList');
-          }, 1500);
+          navigation.navigate('FarmerActivityList', { action: "addData" });
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -1091,10 +1085,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
-        setTimeout(() => {
-          navigation.navigate('FarmerActivityList');
-        }, 1000);
+        navigation.navigate('FarmerActivityList', { action: "addData" });
       }
     }
   };
@@ -1281,14 +1272,14 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   };
   const onPageLoad = async () => {
     // requestLivePermission();
- setSaveData(prev => ({
-        ...prev, act_pattern: 'schedule', latitude: coords.latitude,
-        longitude: coords.longitude,
-      }));
+    setSaveData(prev => ({
+      ...prev, act_pattern: 'schedule', latitude: coords?.latitude,
+      longitude: coords?.longitude,
+    }));
     setisActiveMenu(true);
     setfarmerID(user_id);
     problemPlotAgainstFarmer();
-    if (netConnection) {
+    if (isOnline) {
       var activityType_res = await activityTypeAPIAWD(dbname, lan_id, user_id);
       await setItem('activityType' + user_id, activityType_res);
     } else {
@@ -1306,7 +1297,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       });
       setactivityTypeAll(dataArray);
     }
-    const { latitude, longitude } = coords;
+    const { latitude, longitude } = coords || {};
     setLocation({ latitude, longitude });
 
   };

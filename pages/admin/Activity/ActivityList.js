@@ -98,9 +98,9 @@ function ActivityList({ navigation }) {
       CARBON_TYPE: CARBON_TYPE,
       carbonType: carbonType,
       navigationBarHeight: navigationBarHeight,
-      height: 200,
+      height: 220,
     });
-  },[filterItem,searchFarmerName,searchFarmerPhone,fromDate,toDate])
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
@@ -163,6 +163,12 @@ function ActivityList({ navigation }) {
     search_key_type,
   ) => {
     try {
+      console.log(  pageNo,
+    fromDateParams,
+    toDateParams,
+    search_key_val,
+    carbonTypeParams,
+    search_key_type,)
       setIsLoading(true);
       if (isOnline) {
         var response = await axiosGet(
@@ -172,7 +178,7 @@ function ActivityList({ navigation }) {
               carbonTypeParams == undefined
                 ? carbonType.value
                 : carbonTypeParams,
-            userID: "",
+            userID: '',
             search_key:
               search_key_type && search_key_type !== 'carbon'
                 ? search_key_val
@@ -193,11 +199,12 @@ function ActivityList({ navigation }) {
           await setItem('activityList', response);
         }
       } else {
-        var response = await getItem('activityList');
+        // var response = await getItem('activityList');
       }
+      console.log(`${dbname},${lan_id},${user_id}`)
       if (response?.status == 200) {
-        setTotalPages(Math.ceil(response.data.count / 20));
-        setActivityAll(response?.data?.rows);
+        setTotalPages(Math.ceil(response?.data?.data.count / 20));
+        setActivityAll(response?.data?.data?.rows);
         setIsLoading(false);
       }
       if (flatListRef.current) {
@@ -207,16 +214,18 @@ function ActivityList({ navigation }) {
       console.log(error);
       CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
     }
-  },[page]);
+  }, [page]);
   const handleRefresh = useCallback(async () => {
     setTotalPages(1);
     await fetchActivityListAPI(1, '');
+    setPage(1);
   }, []);
   useEffect(() => {
     if (route?.params?.action === 'addData') {
       Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
       setTotalPages(1);
       fetchActivityListAPI(1, '');
+      setPage(1);
     }
   }, [route?.params]);
   useEffect(() => {

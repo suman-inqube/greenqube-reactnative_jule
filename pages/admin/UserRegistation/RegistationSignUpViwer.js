@@ -303,6 +303,7 @@ const RegistationSignUpViwer = () => {
       getItem('storePersnolInfo_data'),
       getItem('storeFinancial_data'),
       getItem('storeProduceInfo_data'),
+      setItem('pagename','')
     ]);
     await Promise.all([
       setstoreSignup(storeSignup_data),
@@ -404,11 +405,12 @@ const RegistationSignUpViwer = () => {
                           <View style={styles.bodyContainer}>
                             <View style={{ alignItems: 'flex-end' }}>
                               <TouchableOpacity
-                                onPress={() =>
+                                onPress={() => {
+                                  setItem('pagename', 'RegistationSignUpViwer');
                                   navigation.navigate('PersonalInformation', {
                                     pagename: 'RegistationSignUpViwer',
-                                  })
-                                }>
+                                  });
+                                }}>
                                 <Image
                                   source={require('../../Common/images/edit.png')}
                                   style={{ width: 25, height: 25 }}
@@ -539,11 +541,13 @@ const RegistationSignUpViwer = () => {
                         <View style={styles.bodyContainer}>
                           <View style={{ alignItems: 'flex-end' }}>
                             <TouchableOpacity
-                              onPress={() =>
+                              onPress={() =>{
+                                setItem('pagename', 'RegistationSignUpViwer');
                                 navigation.navigate('FinancialInformation', {
                                   pagename: 'RegistationSignUpViwer',
                                   editItem: storeFinancial,
                                 })
+                              }
                               }>
                               <Image
                                 source={require('../../Common/images/edit.png')}
@@ -779,7 +783,8 @@ const RegistationSignUpViwer = () => {
                               key={index}>
                               <View style={{ alignItems: 'flex-end' }}>
                                 <TouchableOpacity
-                                  onPress={() =>
+                                  onPress={() =>{
+                                     setItem('pagename', 'RegistationSignUpViwer');
                                     navigation.navigate(
                                       'PlotSiteProduceInformation',
                                       {
@@ -788,6 +793,7 @@ const RegistationSignUpViwer = () => {
                                         arrayIndex: index,
                                       },
                                     )
+                                  }
                                   }>
                                   <Image
                                     source={require('../../Common/images/edit.png')}

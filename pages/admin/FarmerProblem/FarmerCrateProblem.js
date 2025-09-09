@@ -69,7 +69,6 @@ const FarmerCreateProblem = ({navigation}) => {
     user_id,
     isOnline,
   );
-  const {netConnection} = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [farmerID, setfarmerID] = useState();
@@ -153,7 +152,7 @@ const FarmerCreateProblem = ({navigation}) => {
       cycleEnd: '',
       production_process: '',
     });
-    if (netConnection) {
+    if (isOnline) {
       var response = await problemProduceAgainstPlotAPI(
         dbLanTokUsr.dbName,
         dbLanTokUsr.languageId,
@@ -188,7 +187,7 @@ const FarmerCreateProblem = ({navigation}) => {
             response?.data?.data?.farmer_production_system.fa_id,
           agent_id: supervisorId,
         }));
-        if (netConnection) {
+        if (isOnline) {
           var productionStage_res = await problemProductionStageAPI(
             dbLanTokUsr.dbName,
             dbLanTokUsr.languageId,
@@ -344,7 +343,7 @@ const FarmerCreateProblem = ({navigation}) => {
     setfarmerID(user_id);
     problemPlotAgainstFarmer(dbname, lan_id, token, user_id, isOnline);
     setSaveData(prev => ({...prev, latitude: latitude, longitude: longitude}));
-    if (netConnection) {
+    if (isOnline) {
       var [problemName_res, severity_res] = await Promise.all([
         problemTypeNameAPI(dbname, lan_id, token),
         problemSeverityAPI(dbname, lan_id),
@@ -469,7 +468,7 @@ const FarmerCreateProblem = ({navigation}) => {
       formData.append('question_title', saveData.question_title);
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
-      if (netConnection) {
+      if (isOnline) {
         const database_res = await problemSaveAPI(
           dbLanTokUsr.dbName,
           dbLanTokUsr.languageId,
@@ -605,7 +604,7 @@ const FarmerCreateProblem = ({navigation}) => {
   };
   useEffect(() => {
     onPageLoad();
-  }, [netConnection]);
+  }, [isOnline]);
 
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();

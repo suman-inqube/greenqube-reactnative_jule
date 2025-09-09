@@ -23,6 +23,7 @@ import config from '../../../config';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import { Colors, Fonts, Fronts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
 
 const FinancialInformation = () => {
   const {
@@ -40,6 +41,7 @@ const FinancialInformation = () => {
     effective_dates,
     Root,
   } = useContext(userCreateContext);
+  useSingleBackToNavigate("PersonalInformation")
   const navigation = useNavigation();
   const route = useRoute();
   const isFocused = useIsFocused();
@@ -116,10 +118,6 @@ const FinancialInformation = () => {
         setRemove('');
       }
     }
-    onBackPress(() => {
-      navigation.navigate(path != '' ? path : 'PersonalInformation');
-      return true;
-    });
   }, [isFocused]);
   const emptyData = () => {
     setStoreFinancial({
@@ -152,12 +150,9 @@ const FinancialInformation = () => {
       navigation.navigate('PlotSiteProduceInformation', { data: remove });
     }
   };
-  const HandlerGoBack = () => {
-    if (path != '') {
-      navigation.navigate(path);
-    } else {
-      navigation.navigate('PersonalInformation');
-    }
+  const HandlerGoBack = async () => {
+    const pagename = await getItem('pagename')
+    navigation.navigate(pagename != '' ? pagename : 'PersonalInformation');
   };
   const handleChangeAadhar = useCallback((text) => {
     setStoreFinancial(prev => ({
@@ -505,7 +500,8 @@ const FinancialInformation = () => {
                               t('pension_amount_currency') + ` (${currency})`
                             }
                             onChangeText={pensionAmount =>
-                              setStoreFinancial(prev => ({ ...prev,
+                              setStoreFinancial(prev => ({
+                                ...prev,
                                 pensionAmount: pensionAmount,
                               }))
                             }
@@ -517,7 +513,8 @@ const FinancialInformation = () => {
                             label={t('per_month_quarter_year')}
                             data={config?.pensionParMonthData}
                             onChange={pensionPerMonth =>
-                              setStoreFinancial(prev => ({ ...prev,
+                              setStoreFinancial(prev => ({
+                                ...prev,
                                 pensionPerMonth: pensionPerMonth,
                               }))
                             }
@@ -572,7 +569,8 @@ const FinancialInformation = () => {
                           <InputTextForm
                             label={t('lic_name_of_company')}
                             onChangeText={nameOfCompany =>
-                              setStoreFinancial(prev => ({ ...prev,
+                              setStoreFinancial(prev => ({
+                                ...prev,
                                 nameOfCompany: nameOfCompany,
                               }))
                             }
@@ -582,7 +580,8 @@ const FinancialInformation = () => {
                           <InputTextForm
                             label={t('policy_number')}
                             onChangeText={policyNumber =>
-                              setStoreFinancial(prev => ({ ...prev,
+                              setStoreFinancial(prev => ({
+                                ...prev,
                                 policyNumber: policyNumber,
                               }))
                             }
@@ -592,7 +591,8 @@ const FinancialInformation = () => {
                           <InputTextForm
                             label={t('sum_insured_currency')}
                             onChangeText={sumInsured =>
-                              setStoreFinancial(prev => ({ ...prev,
+                              setStoreFinancial(prev => ({
+                                ...prev,
                                 sumInsured: sumInsured,
                               }))
                             }

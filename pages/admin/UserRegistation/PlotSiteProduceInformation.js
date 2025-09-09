@@ -57,6 +57,7 @@ import { Colors, Fronts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getActionsMapView } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
+import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
 
 const PlotSiteProduceInformation = () => {
   //GQR-65
@@ -82,6 +83,7 @@ const PlotSiteProduceInformation = () => {
     effective_dates, coords, isOnline
   } = useContext(userCreateContext);
   //GQR-65
+  useSingleBackToNavigate("FinancialInformation")
   const route = useRoute();
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -907,12 +909,9 @@ const PlotSiteProduceInformation = () => {
       });
     }
   };
-  const HandlerGoBack = () => {
-    if (path != '') {
-      navigation.navigate(path);
-    } else {
-      navigation.navigate('FinancialInformation');
-    }
+  const HandlerGoBack = async () => {
+    const pagename = await getItem('pagename')
+    navigation.navigate(pagename != '' ? pagename : 'FinancialInformation');
   };
   const [location, setLocation] = useState([
     { latitude: '', longitude: '' },

@@ -21,7 +21,7 @@ import {
   BackHandler,
   RefreshControl,
   Linking,
-  InteractionManager,
+  InteractionManager
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import {userCreateContext} from '../Context/usersCreateContext';
@@ -39,6 +39,7 @@ import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
 import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
+import { useFocusEffect,useIsFocused } from '@react-navigation/native';
 
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
