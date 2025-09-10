@@ -61,8 +61,6 @@ const Login = ({ route }) => {
     { label: t('retailer'), value: '3' },
   ];
   const [checked, setChecked] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  // const { fusedLocationData } = ForegroundLocationService();
   const { requestUserPermission, notificationListener } = NotificationServices();
   const [isLoading, setIsLoading] = useState(false);
   const isFocused = useIsFocused();
@@ -95,40 +93,6 @@ const Login = ({ route }) => {
     role: '',
     company_lable: '',
   });
-
-  // const handleRememberMe = async remember => {
-  //   console.log(remember);
-  //   setChecked(!checked);
-  //     if (remember) {
-  //       await setItem('rememberData', {
-  //         company: remUser.company,
-  //         contactNumber: remUser.phone,
-  //         password: remUser.password,
-  //         type: remUser.role,
-  //       });
-  //       if (navigationTo == 'AdminNavigation') {
-  //         navigation.navigate('AdminNavigation');
-  //       } else if (navigationTo == 'FarmerNavigation') {
-  //         navigation.navigate('FarmerNavigation');
-  //       }
-  //       console.log(remUser);
-
-  //     } else {
-  //       await setItem('rememberData', {
-  //         company:'',
-  //         contactNumber: '',
-  //         password:'',
-  //         type:'',
-  //       });
-  //        if (navigationTo == 'AdminNavigation') {
-  //          navigation.navigate('AdminNavigation');
-  //        } else if (navigationTo == 'FarmerNavigation') {
-  //          navigation.navigate('FarmerNavigation');
-  //        }
-  //       console.log('User chose NOT to remember credentials');
-  //     }
-  //     setModalVisible(false);
-  //   };
   const validateForm = () => {
     Keyboard.dismiss();
     if (!storeLoginUser.phone) {
@@ -187,19 +151,9 @@ const Login = ({ route }) => {
         password: storeLoginUser.password,
         type: storeLoginUser.role,
       };
-      // setRemUser({
-      //   ...remUser,
-      //   phone: storeLoginUser.phone,
-      //   password: storeLoginUser.password,
-      //   role: storeLoginUser.role,
-      //   company: storeLoginUser.company,
-      //   company_lable: storeLoginUser.company_lable,
-      // });
       try {
         setIsLoading(true);
-        // let userIno = await axios.post(config.loginAPI, inputdata);
         let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata);
-
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,
@@ -396,9 +350,9 @@ const Login = ({ route }) => {
           }
         }
       } catch (error) {
-        console.log(error);
+        console.log(error?.data);
         Toast.show({
-          text: `${error.response?.data?.error?.errorMessage}`,
+          text: `${error?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
         });
         setIsLoading(false);
