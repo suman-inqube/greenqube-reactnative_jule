@@ -92,10 +92,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [searchFarmerName, setSearchFarmerName] = useState({ label: '', value: '', phone: '' });
-  const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedName, setSelectedName] = useState('');
-  const [farmerID, setfarmerID] = useState();
+  const [farmerID, setFarmerID] = useState();
   const [plotAll, setPlotAll] = useState([]);
   const [productionStageAll, setProductionStageAll] = useState([]);
   const [activityTypeAll, setActivityTypeAll] = useState([]);
@@ -229,6 +226,7 @@ const ActivityReportAWD = ({ navigation }) => {
     // setSearchResults([]);
     setShowingMenu(false);
     setSearchFarmerName(prev => ({ ...prev, label: name, value: currentfarmerId, phone }));
+    setFarmerID(currentfarmerId);
     setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
@@ -349,7 +347,7 @@ const ActivityReportAWD = ({ navigation }) => {
           }));
           setSaveData(prev => ({
             ...prev,
-            user_id: user_id,
+            user_id: farmerID,
             plot_id: relId.value,
             plot_Name: relId.label,
             crop_name: data.crop_name.fid,
@@ -569,7 +567,7 @@ const ActivityReportAWD = ({ navigation }) => {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'handlePlot');
       console.log(error);
     }
-  }, []);
+  }, [farmerID]);
 
   const formatDate = dateString => {
     const date = new Date(dateString);

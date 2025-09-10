@@ -9,31 +9,29 @@ import {
   SafeAreaView,
   RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext, lazy, useMemo} from 'react';
+import React, { useState, useEffect, useCallback, useContext, lazy, useMemo } from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import {
   inputEnquiryViewAPI,
   inputPastEnquiryListAPI,
 } from '../../../config/apiHere';
 const PastEnquiriesModel = lazy(() => import('./PastEnquiriesModel'));
-import {useRoute, useIsFocused} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { useRoute, useIsFocused } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { Colors, Fonts } from '../../utils/Constants';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 
-const PastEnquiries = ({navigation}) => {
+const PastEnquiries = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
-    LoadingScreen,
     CustomHeader,
     t,
     AlertMesg,
-    onBackPress,
     getItem,
     setItem,
     logoImage,
@@ -41,35 +39,27 @@ const PastEnquiries = ({navigation}) => {
     Root,
     Toast,
     farmerData,
-    effective_dates,
-    Filter,
-    handleFilter,
+    effective_dates, navigationBarHeight
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
-  const isFocused = useIsFocused();
   const route = useRoute();
-  // const [farmerData, setFarmerData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  // const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [inputPastEnquiryAll, setInputPastEnquiryAll] = useState([]);
-  const [inputPastEnquiryRaw, setInputPastEnquiryRaw] = useState([]);
-  const [filterItem, setFilterItem] = useState('');
-  const [filterOption, setFilterOption] = useState(false);
-  const [newFromDate, setnewFromDate] = useState(new Date());
-  const [newToDate, setnewToDate] = useState(new Date());
-  const [openFromDate, setOpenFromDate] = useState(false);
-  const [openToDate, setOpenToDate] = useState(false);
-  const [problemFromDate, setProblemFromDate] = useState('');
-  const [problemToDate, setProblemToDate] = useState('');
   const [pastEnquiries, setPastEnquiries] = useState(false);
   const [pastEnquirySingle, setPastEnquirySingle] = useState(false);
   const [pastEnquiryView, setPastEnquiryView] = useState([]);
-  const [searchResultsList, setSearchResultsList] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-  const [filterName, setFilterName] = useState('');
-  const [searchFarmerName, setSearchFarmerName] = useState('');
-  const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+  const [filterItem, setFilterItem] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [searchFarmerName, setSearchFarmerName] = useState({
+    label: '',
+    value: '',
+  });
+  const [searchFarmerPhone, setSearchFarmerPhone] = useState({
+    label: '',
+    value: '',
+  });
   const [refreshing, setRefreshing] = useState(false);
 
   const [result, setresult] = useState({
@@ -79,17 +69,6 @@ const PastEnquiries = ({navigation}) => {
     disTotal: '',
   });
   const [currency, setcurrency] = useState('');
-  const onchangeFilterItem = value => {
-    setInputPastEnquiryAll(inputPastEnquiryRaw);
-    setSearchFarmerPhone('');
-    setSearchFarmerName('');
-    setProblemFromDate('');
-    setProblemToDate('');
-    setSearchResultsList(false);
-    setFilterName(value);
-    setFilterItem(value);
-    setFilterOption(false);
-  };
   const navigateToPages = useCallback(
     async (fid, dbname, lan_id, token, user_id) => {
       const [input_past_enquiry_Data, response] = await Promise.all([
@@ -128,116 +107,27 @@ const PastEnquiries = ({navigation}) => {
     },
     [],
   );
-  const onPageLoad = async () => {
+  const onPageLoad = async (farmer_id = '', farmer_mobile = '', from_date = '', to_date = '') => {
     setIsLoading(true);
+    console.log(farmer_id, farmer_mobile, from_date, to_date, "aaaa")
     const [response, curr] = await Promise.all([
-      inputPastEnquiryListAPI(dbname, lan_id, token, user_id),
+      inputPastEnquiryListAPI(dbname, lan_id, token, user_id, farmer_id, farmer_mobile, from_date, to_date),
       getItem('currency'),
     ]);
     if (response?.status === 200) {
       setIsLoading(false);
       setcurrency(curr);
       setInputPastEnquiryAll(response?.data?.data?.rows);
-      setInputPastEnquiryRaw(response?.data?.data?.rows);
       setItem('input_past_enquiry_Data', response?.data?.data?.rows);
       // console.log('input_past_enquiry_Data', response?.data?.data?.rows);
-      if (route.params != undefined) {
-        navigateToPages(route.params.io_oid, dbname, lan_id, token, user_id);
+      if (route?.params != undefined) {
+        navigateToPages(route?.params?.io_oid, dbname, lan_id, token, user_id);
       }
     }
   };
-  const handleDatePicker = item => {
-    const effective_date = effective_dates(item);
-    setProblemFromDate(effective_date);
-  };
-  const handleDatePicker2 = item => {
-    const effective_date = effective_dates(item);
-    setProblemToDate(effective_date);
-  };
-  const requestCameraPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      } else {
-        console.log('Location permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-  const handleFilterList = async item => {
-    setFilterOption(false);
-    handleFilter(
-      item,
-      filterName,
-      farmerData,
-      inputPastEnquiryRaw,
-      setSearchFarmerPhone,
-      setSearchFarmerName,
-      setSearchResultsList,
-      setInputPastEnquiryAll,
-      setSearchResults,
-    );
-  };
-  const handleResultSelect = async (name, phone) => {
-    setSearchResultsList(false);
-    setSearchFarmerPhone(phone);
-    setSearchFarmerName(name);
-    setSearchResults([]);
-    if (name !== '') {
-      let tempData = inputPastEnquiryAll.filter(item => {
-        return (
-          item.users.userName.toLowerCase().indexOf(name.toLowerCase()) > -1
-        );
-      });
-      setInputPastEnquiryAll(tempData);
-      if (tempData.length === 0) {
-        Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
-      }
-    } else {
-      let tempData = inputPastEnquiryAll.filter(item => {
-        return (
-          item.users.contactNumber.toLowerCase().indexOf(phone.toLowerCase()) >
-          -1
-        );
-      });
-      setInputPastEnquiryAll(tempData);
-      if (tempData.length === 0) {
-        Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
-      }
-    }
-  };
-  const filterfromAndToDate = () => {
-    if (problemFromDate != '' && problemToDate != '') {
-      let tempData = inputPastEnquiryRaw.filter(item => {
-        return (
-          item.created_at.slice(0, 10) >= problemFromDate &&
-          item.created_at.slice(0, 10) <= problemToDate
-        );
-      });
-      if (tempData.length === 0) {
-        Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
-      }
-      setInputPastEnquiryAll(tempData);
-    }
-  };
-  const filterDataRemove = () => {
-    setSearchFarmerPhone('');
-    setSearchFarmerName('');
-    setFilterItem('');
-    setFilterOption(false);
-    setSearchResultsList(false);
-    setInputPastEnquiryAll(inputPastEnquiryRaw);
-  };
-  useEffect(() => {
-    filterfromAndToDate();
-  }, [problemFromDate, problemToDate]);
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => navigation.navigate('InputList');
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
@@ -245,92 +135,84 @@ const PastEnquiries = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
-  const filterOptionShow=()=>{
+  const filterOptionShow = useCallback(async () => {
+    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    openFilterSheet({
+      options: ['farmer', 'phone', 'date', ''],
+      t: t,
+      dropdownData: farmerData,
+      filterItem: filterItem,
+      setFilterItem: setFilterItem,
+      setSearchFarmerName: setSearchFarmerName,
+      setSearchFarmerPhone: setSearchFarmerPhone,
+      searchFarmerName: searchFarmerName,
+      searchFarmerPhone: searchFarmerPhone,
+      title: 'Choose Status',
+      handleFilterResult: handleFilterResult,
+      handleFilterRemove: handleFilterRemove,
+      setFromDate: setFromDate,
+      setToDate: setToDate,
+      fromDate: fromDate,
+      toDate: toDate,
+      effective_dates: effective_dates,
+      navigationBarHeight: navigationBarHeight,
+      height: 180,
+    });
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
+  const handleFilterResult = useCallback(
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
+        setSearchFarmerName({
+          label: farmerName?.label,
+          value: farmerName?.value,
+        });
+        setSearchFarmerPhone({
+          label: farmerPhone?.label,
+          value: farmerPhone?.value,
+        });
+        // fetchActivityListAPI(
+        //   1,
+        //   fromDate,
+        //   toDate,
+        //   search_key_val,
+        //   sheetCarbonType?.value,
+        //   filter,
+        // );
+        
+        onPageLoad(farmerName?.value, farmerPhone?.label, fromDate, toDate);
+      } catch (error) {
 
-  }
-    const renderCustomHeader = useMemo(() => <CustomHeader
-      logoImage={logoImage}
-      topBanner={topBanner}
-      filterOptionShow={filterOptionShow}
-      t={t}
-    />, [filterOptionShow]);
+      }
+    },
+    [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
+  );
+  const handleFilterRemove = () => {
+    try {
+      setFromDate('');
+      setToDate('');
+      setSearchFarmerName({ label: '', value: '' });
+      setSearchFarmerPhone({ label: '', value: '' });
+      setFilterItem('');
+      onPageLoad();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const renderCustomHeader = useMemo(() => <CustomHeader
+    logoImage={logoImage}
+    topBanner={topBanner}
+    filterOptionShow={filterOptionShow}
+    t={t}
+  />, [filterOptionShow]);
   return (
     <FarmerDrawerScreenWrapper1>
       <>
         <Root>
-          <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-       {renderCustomHeader}
-            {openFromDate && (
-              <DatePickerComp
-                openDate={openFromDate}
-                newDate={newFromDate}
-                setOpenDate={setOpenFromDate}
-                handleDatePicker={handleDatePicker}
-              />
-            )}
-            {openToDate && (
-              <DatePickerComp
-                openDate={openToDate}
-                newDate={newToDate}
-                setOpenDate={setOpenToDate}
-                handleDatePicker={handleDatePicker2}
-                minimumDate={
-                  problemFromDate == ''
-                    ? ''
-                    : new Date(
-                        `${new Date(problemFromDate).getFullYear()}-${
-                          new Date(problemFromDate).getMonth() + 1
-                        }-${new Date(problemFromDate).getDate() + 1}`,
-                      )
-                }
-              />
-            )}
-            <Filter
-              // title={t('past_enq')}
-              filterItem={filterItem}
-              filterOption={filterOption}
-              setOpenToDate={setOpenToDate}
-              filterOptionShow={filterOptionShow}
-              onchangeFilterItem={onchangeFilterItem}
-              setOpenFromDate={setOpenFromDate}
-              fromDate={problemFromDate}
-              newToDate={problemToDate}
-              onChangeText={item => handleFilterList(item)}
-              FarmerProductNameValue={searchFarmerName}
-              FarmerProductPhoneValue={searchFarmerPhone}
-              setFilterOption={setFilterOption}
-              filterDataRemove={filterDataRemove}
-              // category={true}
-            />
-            <SafeAreaView>
-              {searchResultsList && searchResultsList ? (
-                <View style={styles.flatContainer}>
-                  <FlatList
-                    style={
-                      searchResults.length > 8 ? styles.flatlistHeight : ''
-                    }
-                    data={searchResults}
-                    renderItem={({item}) => (
-                      <TouchableOpacity
-                        onPress={() =>
-                          handleResultSelect(item.label, item.phone)
-                        }
-                        style={styles.flatlistitemSearch}>
-                        <Text style={styles.flatlisttitle}>
-                          {filterName == 'PhoneNumber'
-                            ? item.phone
-                            : item.label}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    keyExtractor={(item, index) => index}
-                  />
-                </View>
-              ) : (
-                ''
-              )}
-            </SafeAreaView>
-
+          <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+            {renderCustomHeader}
             {pastEnquiries && (
               <PastEnquiriesModel
                 setModalVisible={setPastEnquiries}
@@ -350,8 +232,8 @@ const PastEnquiries = ({navigation}) => {
             )}
 
             <FlatList
-              data={isLoading ? Array.from({length: 5}) : inputPastEnquiryAll}
-              renderItem={({item, index}) =>
+              data={isLoading ? Array.from({ length: 5 }) : inputPastEnquiryAll}
+              renderItem={({ item, index }) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -490,7 +372,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

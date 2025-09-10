@@ -71,6 +71,12 @@ const ListProblem = ({ navigation }) => {
     farmer_mobile,
     search_key_type,
   ) => {
+    console.log(    pageNo,
+    search_uid,
+    from_date,
+    to_date,
+    farmer_mobile,
+    search_key_type,)
     try {
       setIsLoading(true);
       let response;
@@ -132,12 +138,11 @@ const ListProblem = ({ navigation }) => {
       setRefreshing(false);
     });
   }, []);
-  const filterOptionShow = async () => {
+  const filterOptionShow = useCallback(async () => {
     try {
       const { openFilterSheet } = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['farmer', 'phone', 'date', ''],
-        // onchangeFilterItem: onchangeFilterItem,
         t: t,
         dropdownData: farmerData,
         filterItem: filterItem,
@@ -157,10 +162,10 @@ const ListProblem = ({ navigation }) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
-        height: 200
+        height: 180
       });
     } catch (error) { }
-  };
+  },[filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
@@ -177,7 +182,7 @@ const ListProblem = ({ navigation }) => {
         });
         setPage(1);
         handleProblem(
-          page,
+          1,
           farmerName?.value,
           fromDate,
           toDate,
@@ -188,7 +193,7 @@ const ListProblem = ({ navigation }) => {
         console.log(error, 'error');
       }
     },
-    [],
+    [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
   );
   const handleFilterRemove = () => {
     try {
@@ -197,7 +202,7 @@ const ListProblem = ({ navigation }) => {
       setSearchFarmerName({ label: '', value: '' });
       setSearchFarmerPhone({ label: '', value: '' });
       setFilterItem('');
-      handleProblem(1, '', '', '', '');
+      handleProblem(1, '', '', '', '','');
       setPage(1);
     } catch (error) {
       console.log(error);
