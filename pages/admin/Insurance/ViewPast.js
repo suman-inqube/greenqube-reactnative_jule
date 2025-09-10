@@ -7,7 +7,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import React,{memo} from 'react';
+import React, {memo} from 'react';
 import {useTranslation} from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors, Fonts} from '../../utils/Constants';
@@ -33,16 +33,17 @@ const ViewPast = props => {
 
           <View style={styles.modalView}>
             <View style={styles.header}>
-              <Text style={styles.headerText}>
-                {t('farmer_pastEnq_details')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => props.setModalVisible(!props.modalVisible)}
-                style={styles.closeButton}>
-                <MaterialIcons name="close" size={25} color="#a61e1e" />
-              </TouchableOpacity>
+              <View style={styles.headerContent}>
+                <Text style={styles.headerText}>
+                  {t('farmer_pastEnq_details')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => props.setModalVisible(!props.modalVisible)}
+                  style={styles.closeButton}>
+                  <MaterialIcons name="close" size={25} color="#a61e1e" />
+                </TouchableOpacity>
+              </View>
             </View>
-
             <ScrollView contentContainerStyle={styles.contentContainer}>
               <View style={styles.detailRow}>
                 <View style={styles.iconContainer}>
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: '95%',
-    padding:9,
+    padding: 9,
     maxHeight: '80%',
     backgroundColor: 'white',
     borderRadius: 12,
@@ -171,27 +172,31 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.containerGreen,
   },
   header: {
+    padding: 10,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  headerContent: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    flexDirection: 'row',
-    padding: 5,
-    // backgroundColor: 'white',
   },
   headerText: {
-    color: Colors.green,
+    color: Colors.text,
     fontSize: 18,
-    fontFamily: Fonts.Medium,
+    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
   closeButton: {
     backgroundColor: '#edd6d6',
-    borderRadius: 50,
-    alignItems: 'center',
+    borderRadius: 15,
     height: 30,
     width: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    // marginLeft: 170,
   },
   contentContainer: {
     padding: 16,
@@ -204,13 +209,13 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderBottomRightRadius: 20,
     padding: 5,
-    paddingHorizontal:10,
+    paddingHorizontal: 10,
     // height: 62,
     // elevation: 5,
-    height:80,
-    borderWidth:1,
+    height: 80,
+    borderWidth: 1,
     // borderStyle:'dashed',
-    borderColor:Colors.border
+    borderColor: Colors.border,
   },
   iconContainer: {
     width: 36,
