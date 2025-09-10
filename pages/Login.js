@@ -350,7 +350,6 @@ const Login = ({ route }) => {
           }
         }
       } catch (error) {
-        console.log(error?.data);
         Toast.show({
           text: `${error?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
