@@ -193,6 +193,7 @@ const FarmerInsuViewPastRequested = () => {
       '',
       '',
     );
+    console.log('insu', response);
     if (response?.status == 200) {
       setIsLoading(false);
       setInsuranceList(response?.data?.data?.rows);

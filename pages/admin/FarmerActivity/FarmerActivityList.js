@@ -149,7 +149,7 @@ const FarmerActivityList = ({navigation}) => {
     } else {
       var response = await getItem('farmerActivityList' + user_id);
     }
-    console.log('farmerActivityList', response.data.data);
+    // console.log('farmerActivityList', response.data.data);
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response?.data?.data.count / 20));
       setActivityAll(response?.data?.data.rows);

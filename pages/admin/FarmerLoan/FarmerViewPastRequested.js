@@ -7,8 +7,15 @@ import {
   Image,
   Dimensions,
   SafeAreaView,
+  Alert,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+} from 'react';
 import Filter from '../../Common/FarmerFilter';
 import {useNavigation} from '@react-navigation/native';
 import LoadingScreen from '../../Common/LoadingScreen';
@@ -30,6 +37,8 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
     CustomHeader,
     logoImage,
     topBanner,
+    navigationBarHeight,
+    Root,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner} = loginUser_data;
   //GQR-67
@@ -43,7 +52,7 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
+  // const [fromDate, setfromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [loanList, setLoanList] = useState([]);
   const [loanListRaw, setLoanListRaw] = useState([]);
@@ -54,18 +63,20 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   const [searchResultsList, setSearchResultsList] = useState(false);
   const [selectedName, setSelectedName] = useState('');
   const [farmerID, setfarmerID] = useState();
+  const [fromDate, setFromDate] = useState('');
+
   const [statusAll, setTtatusAll] = useState([
     {value: 2, label: t('Approved')},
     {value: 1, label: t('pending')},
     {value: 3, label: t('Rejected')},
   ]);
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+  // const filterOptionShow = () => {
+  //   if (!filterOption) {
+  //     setFilterOption(true);
+  //   } else {
+  //     setFilterOption(false);
+  //   }
+  // };
   const onchangeFilterItem = value => {
     if (value == 'statusFilter') {
       setSearchResultsList(true);
@@ -75,11 +86,61 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
     setFilterItem(value);
     setFilterOption(false);
   };
+
+  const filterOptionShow = async () => {
+    Alert.alert('done');
+    try {
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      openFilterSheet({
+        options: ['', '', 'date', ''],
+        // onchangeFilterItem: onchangeFilterItem,
+        t: t,
+        dropdownData: [],
+        filterItem: filterItem,
+        setFilterItem: setFilterItem,
+        title: 'Choose Status',
+        handleFilterResult: handleFilterResult,
+        handleFilterRemove: handleFilterRemove,
+        setFromDate: setFromDate,
+        setToDate: setToDate,
+        fromDate: fromDate,
+        toDate: toDate,
+        effective_dates: effective_dates,
+        carbonFlag: false,
+        CARBON_TYPE: [],
+        navigationBarHeight: navigationBarHeight,
+        height: 140,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setfromDate(effective_date);
     setToDate('');
   };
+  const handleFilterResult = useCallback(
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
+
+        onPageLoad(
+          fromDate,
+          toDate,
+          // filter,
+        );
+      } catch (error) {
+        console.log(error, 'error');
+      }
+    },
+    [],
+  );
+  const handleFilterRemove = () => {};
+
   const handleDatePicker2 = async item => {
     const effective_date = effective_dates(item);
     setToDate(effective_date);
@@ -98,7 +159,7 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
       setLoanListRaw(response?.data?.data?.rows);
     }
   };
-  const onPageLoad = async () => {
+  const onPageLoad = async (fromDate = '', toDate = '') => {
     setIsLoading(true);
     const curr = await await getItem('currency');
     setcurrency(curr);
@@ -197,15 +258,11 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   );
   return (
     <FarmerDrawerScreenWrapper1>
-      <CustomHeader
-        path="FarmerDashboard"
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <SafeAreaView style={{flex: 1, backgroundColor: Colors.background_light}}>
-        {/* <View style={styles.main}> */}
-        <View style={{}}>
+      <Root>
+        {renderCustomHeader}
+        <View style={styles.mainContainer}>
+          {/* <View style={styles.main}> */}
+          {/* <View style={{}}>
           <DatePickerComp
             openDate={openFromDate}
             newDate={newFromDate}
@@ -250,8 +307,8 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
           </View>
         ) : (
           ''
-        )}
-        {/* <TouchableOpacity
+        )} */}
+          {/* <TouchableOpacity
           style={styles.plusIcon}
           onPress={() => setActiveBtn(1)}>
           <Image
@@ -259,7 +316,7 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
             style={{width: 50, height: 50}}
           />
         </TouchableOpacity> */}
-        {isLoading ? (
+          {/* {isLoading ? (
           ''
         ) : (
           <View style={{marginVertical: 10}}>
@@ -281,8 +338,8 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
               statusFilter={true}
             />
           </View>
-        )}
-        <View>
+        )} */}
+
           {isLoading ? (
             <View style={styles.loadingScreen}>
               <LoadingScreen />
@@ -383,13 +440,14 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
           />
         </View>
         {/* </View> */}
-      </SafeAreaView>
+      </Root>
     </FarmerDrawerScreenWrapper1>
   );
 };
 export default FarmerLoanViewPastRequested;
 
 const styles = StyleSheet.create({
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
   main: {
     flex: 1,
     backgroundColor: Colors.containerGreen,
