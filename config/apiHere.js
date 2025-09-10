@@ -897,14 +897,6 @@ export const problemSaveAPI = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-  // console.log(JSON.stringify(inputData))
-  console.log(
-    'hhhhhhhhhhhh',
-    `${config.BASE_URL}questionRoute/add`,
-    inputData,
-    axiosHeaders,
-  );
-  // return;
   try {
     // console.log(response);
     let response = await axios.post(
@@ -1088,10 +1080,6 @@ export const inputListAPI = async (
       `${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
       axiosHeaders,
     );
-    console.log(
-      `${config.BASE_URL}marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
-      axiosHeaders,
-    );
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
@@ -1151,6 +1139,10 @@ export const inputPastEnquiryListAPI = async (
   languageId,
   token,
   userId,
+  farmer_id='',
+  farmer_mobile='',
+  from_date='',
+  to_date=''
 ) => {
   const axiosHeaders = {
     headers: {
@@ -1158,10 +1150,9 @@ export const inputPastEnquiryListAPI = async (
       authorization: `${token}`,
     },
   };
-
   try {
     let response = await axios.get(
-      `${config.BASE_URL}inputOutputRoute/list/1/0/2?farmer_id=&transaction_type=1&entity_type_id=&from_date=&to_date=&farmer_mobile=&agent_id=${userId}`,
+      `${config.BASE_URL}inputOutputRoute/list/1/0/2?farmer_id=${farmer_id}&transaction_type=1&entity_type_id=&from_date=${from_date}&to_date=${to_date}&farmer_mobile=${farmer_mobile}&agent_id=`,
       axiosHeaders,
     );
     return response;

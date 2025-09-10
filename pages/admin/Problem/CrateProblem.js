@@ -101,7 +101,7 @@ const CreateProblem = ({navigation}) => {
   });
   const [affectedDate, setaffectedDate] = useState('');
   const [newFromDate, setnewFromDate] = useState(new Date());
-  const [addAffectedDate, setaddAffectedDate] = useState(false);
+  const [addAffectedDate, setAddAffectedDate] = useState(false);
   const [selectedImage, setSelectedImage] = useState({
     firstItem: '',
     secondItem: '',
@@ -386,7 +386,7 @@ const CreateProblem = ({navigation}) => {
         ',' +
         problem_name.label,
     }));
-  }, []);
+  }, [nameVarityStartEnd]);
   const onPageLoad = async () => {
     const {latitude, longitude} = coords || {};
     setSaveData({...saveData, latitude: latitude, longitude: longitude});
@@ -756,7 +756,7 @@ const CreateProblem = ({navigation}) => {
     [],
   );
   const handleActivityPerFromDate = useCallback(() => {
-    setaddAffectedDate(true);
+    setAddAffectedDate(true);
   }, []);
 
   const renderCustomHeader = useMemo(
@@ -777,7 +777,7 @@ const CreateProblem = ({navigation}) => {
           <DatePickerComp
             openDate={addAffectedDate}
             newDate={newFromDate}
-            setOpenDate={setaddAffectedDate}
+            setOpenDate={setAddAffectedDate}
             handleDatePicker={handleDatePicker}
           />
           {modalVisibleRecordFirstItem && (
