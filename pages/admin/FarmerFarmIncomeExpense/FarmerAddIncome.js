@@ -269,14 +269,6 @@ const FarmerAddIncome = ({navigation}) => {
 
           <View style={styles.formContainer}>
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.iconView}>
-                <MaterialIcons
-                  name={'currency-rupee'}
-                  color="green"
-                  size={40}
-                />
-              </View>
-
               <View style={styles.mainView}>
                 <View style={styles.card}>
                   <DropdownForm
@@ -323,7 +315,7 @@ const FarmerAddIncome = ({navigation}) => {
                         />
                         <View style={styles.iconContainer}>
                           <MaterialIcons
-                            name="currency-rupee"
+                            name="payment"
                             size={25}
                             color="#107808ff"
                           />

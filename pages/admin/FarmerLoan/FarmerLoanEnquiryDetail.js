@@ -472,11 +472,7 @@ const FarmerLoanEnquiryDetail = () => {
             /> */}
 
               <View style={styles.infoRow}>
-                <MaterialIcons
-                  name="currency-rupee"
-                  size={20}
-                  color="#4a8c29"
-                />
+                <MaterialIcons name="payment" size={20} color="#4a8c29" />
                 <View style={styles.infoTextContainer}>
                   <Text style={styles.infoLabel}>
                     {t('annual_income') + ` (${currency})`}

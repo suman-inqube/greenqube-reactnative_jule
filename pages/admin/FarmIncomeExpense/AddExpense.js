@@ -367,11 +367,7 @@ const AddExpense = ({navigation}) => {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}>
               <View style={styles.iconView}>
-                <MaterialIcons
-                  name={'currency-rupee'}
-                  color="green"
-                  size={40}
-                />
+                <MaterialIcons name={'payment'} color="green" size={40} />
               </View>
               <View style={styles.mainView}>
                 <View style={styles.card}>
@@ -439,7 +435,7 @@ const AddExpense = ({navigation}) => {
                           />
                           <View style={styles.iconContainer}>
                             <MaterialIcons
-                              name="currency-rupee" // or any other icon
+                              name="payment" // or any other icon
                               size={25}
                               color="#107808ff"
                             />

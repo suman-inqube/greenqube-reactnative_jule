@@ -631,11 +631,7 @@ const FarmerDrawer = props => {
               onPress={() => handleMenuExpand('farmFinc')}>
               <View style={styles.menuItem}>
                 <View style={styles.iconView}>
-                  <MaterialIcons
-                    name="currency-rupee"
-                    size={22}
-                    color="#030730"
-                  />
+                  <MaterialIcons name="payment" size={22} color="#030730" />
 
                   {/* <Image
                   source={require('../Common/images/insurance_menu.png')}

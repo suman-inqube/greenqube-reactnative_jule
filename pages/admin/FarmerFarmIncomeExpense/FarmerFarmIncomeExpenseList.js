@@ -171,6 +171,17 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
     }
   };
   const handlePage = async value => {
+    handlePageList(
+      value,
+      setIsLoading,
+      token,
+      pageNo,
+      farmerFarmaccountsListAPI,
+      setFarmAccount,
+      dbname,
+      lan_id,
+      user_id,
+    );
     setIsLoading(true);
     const currentPageNo = dbLanTokUsr.pageNo;
     const totalPage = dbLanTokUsr.totalPage;
@@ -464,7 +475,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                   <View style={{width: '110%', alignItems: 'center'}}>
                     <MaterialIcons
                       name="add-circle-outline"
-                      size={25}
+                      size={22}
                       color="white"
                     />
                     <Text style={styles.titleBottomMid1}>
@@ -482,8 +493,8 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                   }}>
                   <View style={{alignItems: 'center', width: '110%'}}>
                     <MaterialIcons
-                      name="currency-rupee"
-                      size={24}
+                      name="add-circle-outline"
+                      size={22}
                       color="white"
                     />
                     <Text style={styles.titleBottomMid2}>

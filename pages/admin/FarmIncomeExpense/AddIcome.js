@@ -367,13 +367,6 @@ const AddIcome = ({navigation}) => {
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}>
-              <View style={styles.iconView}>
-                <MaterialIcons
-                  name={'currency-rupee'}
-                  color="green"
-                  size={40}
-                />
-              </View>
               <View style={styles.mainView}>
                 <View style={styles.card}>
                   <DropdownForm
@@ -435,7 +428,7 @@ const AddIcome = ({navigation}) => {
                           />
                           <View style={styles.iconContainer}>
                             <MaterialIcons
-                              name="currency-rupee" // or any other icon
+                              name="payment" // or any other icon
                               size={25}
                               color="#107808ff"
                             />

@@ -176,7 +176,7 @@ const FarmerPastEnquiriesModel = props => {
                     <View style={styles.detailRow}>
                       <View style={styles.iconContainer}>
                         <MaterialIcons
-                          name="currency-rupee"
+                          name="payment"
                           size={20}
                           color="#165A2B"
                         />
@@ -208,7 +208,7 @@ const FarmerPastEnquiriesModel = props => {
                     <View style={styles.detailRow}>
                       <View style={styles.iconContainer}>
                         <MaterialIcons
-                          name="currency-rupee"
+                          name="payment"
                           size={20}
                           color="#165A2B"
                         />
