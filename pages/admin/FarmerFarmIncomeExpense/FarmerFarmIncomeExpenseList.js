@@ -153,9 +153,9 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
     if (incomeItem) {
       let incomeAmount = 0;
       incomeItem.forEach(element => {
-        incomeAmount += parseInt(element.amount);
+        incomeAmount += parseFloat(element.amount) || 0;
       });
-      return incomeAmount + '.0';
+      return incomeAmount.toFixed(2);
     }
   };
   const ShowExpense = props => {
@@ -165,9 +165,9 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
     if (expenseItem) {
       let expenseAmount = 0;
       expenseItem.forEach(element => {
-        expenseAmount += parseInt(element.amount);
+        expenseAmount += parseFloat(element.amount) || 0;
       });
-      return expenseAmount + '.0';
+      return expenseAmount.toFixed(2);
     }
   };
   const handlePage = async value => {

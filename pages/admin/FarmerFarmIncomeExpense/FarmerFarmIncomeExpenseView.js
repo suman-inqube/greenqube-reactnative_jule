@@ -44,9 +44,9 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
     if (incomeItem) {
       let incomeAmount = 0;
       incomeItem.forEach(element => {
-        incomeAmount += parseInt(element.amount);
+        incomeAmount += parseFloat(element.amount) || 0;
       });
-      return incomeAmount + '.0';
+      return incomeAmount.toFixed(2);
     }
   };
 
@@ -57,9 +57,9 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
     if (expenseItem) {
       let expenseAmount = 0;
       expenseItem.forEach(element => {
-        expenseAmount += parseInt(element.amount);
+        expenseAmount += parseFloat(element.amount) || 0;
       });
-      return expenseAmount + '.0';
+      return expenseAmount.toFixed(2);
     }
   };
   const ShowTotalMargin = props => {
@@ -70,7 +70,7 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
       props.expense.filter(item1 => item1.inexType?.taxonomy === 'expense');
     if (expenseItem) {
       expenseItem.forEach(element => {
-        expenseAmount += parseInt(element.amount);
+        expenseAmount += parseFloat(element.amount) || 0;
       });
     }
 
@@ -79,10 +79,10 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
       props.income.filter(item1 => item1.inexType?.taxonomy === 'income');
     if (incomeItem) {
       incomeItem.forEach(element => {
-        incomeAmount += parseInt(element.amount);
+        incomeAmount += parseFloat(element.amount) || 0;
       });
     }
-    return incomeAmount - expenseAmount + '.0';
+    return incomeAmount - expenseAmount.toFixed(2);
   };
 
   useFocusEffect(

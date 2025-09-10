@@ -140,6 +140,7 @@ const FarmerRequestForInsurance = ({}) => {
         user_id,
         formData,
       );
+
       if (addInsurance?.status === 200) {
         addModuleForView(
           dbname,

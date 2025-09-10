@@ -5,6 +5,8 @@ import {formatDateToDateName} from '../../Common/DateChanger';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const FarmIncomeExpenseView = ({route}) => {
   //GQR-67
   const {
@@ -29,6 +31,8 @@ const FarmIncomeExpenseView = ({route}) => {
       getItem('farm_in_ex_id'),
       getItem('currency'),
     ]);
+    // console.log('farmInExId data:', farmInExId);
+    // console.log('farmInExId type:', typeof farmInExId);
     setcurrency(curr);
     if (farmInExId) {
       setFarmAccountSingle(farmInExId);
@@ -42,9 +46,9 @@ const FarmIncomeExpenseView = ({route}) => {
     if (incomeItem) {
       let incomeAmount = 0;
       incomeItem.forEach(element => {
-        incomeAmount += parseInt(element.amount);
+        incomeAmount += parseFloat(element.amount) || 0;
       });
-      return incomeAmount + '.0';
+      return incomeAmount.toFixed(2);
     }
   };
   const ShowExpense = props => {
@@ -54,9 +58,9 @@ const FarmIncomeExpenseView = ({route}) => {
     if (expenseItem) {
       let expenseAmount = 0;
       expenseItem.forEach(element => {
-        expenseAmount += parseInt(element.amount);
+        expenseAmount += parseFloat(element.amount) || 0;
       });
-      return expenseAmount + '.0';
+      return expenseAmount.toFixed(2);
     }
   };
   const ShowTotalMargin = props => {
@@ -67,7 +71,7 @@ const FarmIncomeExpenseView = ({route}) => {
       props.expense.filter(item1 => item1.inexType?.taxonomy === 'expense');
     if (expenseItem) {
       expenseItem.forEach(element => {
-        expenseAmount += parseInt(element.amount);
+        expenseAmount += parseFloat(element.amount);
       });
     }
     const incomeItem =
@@ -75,10 +79,10 @@ const FarmIncomeExpenseView = ({route}) => {
       props.income.filter(item1 => item1.inexType?.taxonomy === 'income');
     if (incomeItem) {
       incomeItem.forEach(element => {
-        incomeAmount += parseInt(element.amount);
+        incomeAmount += parseFloat(element.amount);
       });
     }
-    return incomeAmount - expenseAmount + '.0';
+    return incomeAmount - expenseAmount.toFixed(2);
   };
   useEffect(() => {
     onPageLoad();
@@ -100,44 +104,61 @@ const FarmIncomeExpenseView = ({route}) => {
             <LoadingScreen />
           ) : farmAccountSingle ? (
             <View style={styles.container}>
-              <View style={styles.farmContainer}>
-                <View style={styles.farmContainerItemLeft}>
-                  <Text style={styles.farmTitle}>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>
+                  {t('personal_information')}
+                </Text>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>
                     {t('enter_farmer_s_name')} :{' '}
                   </Text>
-                  <Text style={styles.farmTitle}>{t('farmer_number')} :</Text>
-                  <Text style={styles.farmTitle}>{t('addcrop_plot')} : </Text>
-                  <Text style={styles.farmTitle}>{t('crop_name')} : </Text>
-                  <Text style={styles.farmTitle}>{t('pre_land_size')} : </Text>
-                  <Text style={styles.farmTitle}>{t('showing_date')}: </Text>
-                  <Text style={styles.farmTitle}>
-                    {t('harvesting_date_auto_calculated')} :{' '}
-                  </Text>
-                </View>
-                <View style={styles.farmContainerItemRight}>
-                  <Text style={styles.farmTitleRe}>
+
+                  <Text style={styles.infoValue}>
                     {farmAccountSingle.agri_user &&
                       farmAccountSingle.agri_user.userName}
                   </Text>
-                  <Text style={styles.farmTitleRe}>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>{t('farmer_number')} :</Text>
+
+                  <Text style={styles.infoValue}>
                     {farmAccountSingle.agri_user &&
                       farmAccountSingle.agri_user.contactNumber}
                   </Text>
-                  <Text style={styles.farmTitleRe}>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>{t('addcrop_plot')} : </Text>
+                  <Text style={styles.infoValue}>
                     {farmAccountSingle.land_info &&
                       farmAccountSingle.land_info.plot_no}
                   </Text>
-                  <Text style={styles.farmTitleRe}>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>{t('crop_name')} :</Text>
+                  <Text style={styles.infoValue}>
                     {farmAccountSingle.crop_name &&
                       farmAccountSingle.crop_name.name}
                   </Text>
-                  <Text style={styles.farmTitleRe}>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>{t('pre_land_size')} : </Text>
+                  <Text style={styles.infoValue}>
                     {farmAccountSingle.plot_size && farmAccountSingle.plot_size}
                   </Text>
-                  <Text style={styles.farmTitleRe}>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>{t('showing_date')}: </Text>
+                  <Text style={styles.infoValue}>
                     {formatDateToDateName(farmAccountSingle.sowing_date)}
                   </Text>
-                  <Text style={styles.farmTitleRe}>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>
+                    {t('harvesting_date_auto_calculated')} :{' '}
+                  </Text>
+                  <Text style={styles.infoValue}>
                     {formatDateToDateName(farmAccountSingle.harvesting_date)}
                   </Text>
                 </View>
@@ -290,6 +311,8 @@ const styles = StyleSheet.create({
     color: Colors.text,
     marginVertical: 3,
     fontFamily: 'Poppins-SemiBold',
+    textAlign: 'right',
+    alignSelf: 'flex-end',
   },
   ExpenseContainer: {
     // marginTop: 10,
@@ -412,6 +435,52 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 30, // Extra padding at bottom
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 5,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+
+    // borderWidth: 1,
+    // borderColor: Colors.borderGreen,
+  },
+  cardTitle: {
+    fontSize: 16,
+
+    color: Colors.borderGreen,
+    marginBottom: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    paddingHorizontal: 5,
+    paddingHorizontal: 10,
+  },
+  infoTextContainer: {
+    marginLeft: 10,
+    flex: 1,
+    marginVertical: 5,
+    flexDirection: 'row',
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'right',
+    alignSelf: 'flex-end',
   },
   ///////////////////////////////////////////////////////
   //   container: {

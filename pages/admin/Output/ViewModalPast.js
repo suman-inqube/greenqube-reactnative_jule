@@ -45,14 +45,16 @@ const ViewModalPast = props => {
             onPress={() => props.setModalVisible(!props.modalVisible)}> */}
           <View style={styles.modalView}>
             <View style={styles.header}>
-              <Text style={styles.headerText}>
-                {t('farmer_pastEnq_details')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => props.setModalVisible(!props.modalVisible)}
-                style={styles.closeButton}>
-                <MaterialIcons name="close" size={25} color="#a61e1e" />
-              </TouchableOpacity>
+              <View style={styles.headerContent}>
+                <Text style={styles.headerText}>
+                  {t('farmer_pastEnq_details')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => props.setModalVisible(!props.modalVisible)}
+                  style={styles.closeButton}>
+                  <MaterialIcons name="close" size={25} color="#a61e1e" />
+                </TouchableOpacity>
+              </View>
             </View>
             <ScrollView contentContainerStyle={styles.contentContainer}>
               {props.outputSingle ? (
@@ -328,13 +330,17 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.containerGreen,
   },
   header: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    padding: 5,
+    padding: 10,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerText: {
     color: Colors.text,
@@ -344,13 +350,11 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     backgroundColor: '#edd6d6',
-    borderRadius: 50,
-    alignItems: 'center',
+    borderRadius: 15,
     height: 30,
     width: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 170,
   },
   contentContainer: {
     padding: 16,

@@ -8,7 +8,13 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import React, {useEffect, useState, useContext, useCallback} from 'react';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useMemo,
+  useCallback,
+} from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import FarmerFilter from '../../Common/FarmerFilter';
 import {
@@ -45,6 +51,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
     handleResultSelect,
     isOnline,
     farmerData,
+    navigationBarHeight,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   const {pageNo} = dbLanTokUsr;
@@ -64,7 +71,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
+  // const [fromDate, setfromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -73,13 +80,15 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [fromDateFilter, setFromDateFilter] = useState('');
   const [carbonType, setCarbonType] = useState('');
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+  const [fromDate, setFromDate] = useState('');
+
+  // const filterOptionShow = () => {
+  //   if (!filterOption) {
+  //     setFilterOption(true);
+  //   } else {
+  //     setFilterOption(false);
+  //   }
+  // };
   const onchangeFilterItem = value => {
     setFilterName(value);
     setFilterItem(value);
@@ -109,78 +118,52 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
     );
   };
 
-  const handleFilterList = async item => {
-    /*
-     *(1) It is use to search by farmer's name and phone number
-     *(2) It is use for filter type ('Farmer/Product Name','PhoneNumber')
-     *(3) it is use for all farmer list
-     *(4) it is use for all item list
-     *(5) item List can't modify data
-     *(6,7) it is use use selected value set
-     *(8) farmer list show and hide poup
-     *(9) filter data clear all the value set  list data
-     *(10) it is use set the filters search value set
-     */
-    handleFilter(
-      item,
-      filterName,
-      farmerData,
-      activityAllRow,
-      setSearchFarmerPhone,
-      setSearchFarmerName,
-      setSearchResultsList,
-      setactivityAll,
-      setSearchResults,
-    );
+  const filterOptionShow = async () => {
+    try {
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      openFilterSheet({
+        options: ['', '', 'date', ''],
+        // onchangeFilterItem: onchangeFilterItem,
+        t: t,
+        dropdownData: [],
+        filterItem: filterItem,
+        setFilterItem: setFilterItem,
+        title: 'Choose Status',
+        handleFilterResult: handleFilterResult,
+        handleFilterRemove: handleFilterRemove,
+        setFromDate: setFromDate,
+        setToDate: setToDate,
+        fromDate: fromDate,
+        toDate: toDate,
+        effective_dates: effective_dates,
+        carbonFlag: false,
+        CARBON_TYPE: [],
+        navigationBarHeight: navigationBarHeight,
+        height: 140,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
+  const handleFilterResult = useCallback(
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
 
-  const handleResultSelectList = async item => {
-    const {label, value, phone} = item;
-    // handleResultSelect(label, value, phone, activityAll, activityListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setactivityAll)
-    setSearchFarmerName(label);
-    setSearchFarmerPhone(phone);
-    let tempData = activityAllRow.filter(item => {
-      return (
-        item.agri_user.contactNumber
-          .toLowerCase()
-          .indexOf(phone.toLowerCase()) > -1
-      );
-    });
-    setactivityAll(tempData);
-    setSearchResultsList(false);
-    if (tempData.length == 0) {
-      Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
-    }
-  };
-  const handleDatePicker = item => {
-    const effective_date = effective_dates(item);
-    setfromDate(effective_date);
-    setFromDateFilter(effective_date);
-  };
-  const handleDatePicker2 = async item => {
-    const effective_date = effective_dates(item);
-    setToDate(effective_date);
-    if (fromDateFilter) {
-      const item = '';
-      const response = await FarmerActivityListInstrumentWise(
-        dbname,
-        lan_id,
-        token,
-        user_id,
-        pageNo,
-        item,
-        fromDateFilter,
-        effective_date,
-      );
-      if (response?.status == 200) {
-        setactivityAll(response?.data?.data?.rows);
-        setItem('activity_Data', response?.data?.data?.rows);
+        onPageLoad(
+          fromDate,
+          toDate,
+          // filter,
+        );
+      } catch (error) {
+        console.log(error, 'error');
       }
-    } else {
-      // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-      Toast.show({time: 3, text: t('please_date_first'), ...AlertMesg[0]});
-    }
-  };
+    },
+    [],
+  );
+  const handleFilterRemove = () => {};
   const fatchActivityListAPI = async (
     dbName,
     languageId,
@@ -227,7 +210,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
       }
     }
   };
-  const onPageLoad = async () => {
+  const onPageLoad = async (fromDate = '', toDate = '') => {
     // setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
     let pageNumber;
     if (params?.onPageName == 'CustomDrawer') {
@@ -308,17 +291,22 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
     setCarbonType(value);
     fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
   };
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <CustomHeader
+        {/* <CustomHeader
           path="FarmerDashboard"
           HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
-        />
+        /> */}
         <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-          {openFromDate && (
+          {renderCustomHeader}
+          {/* {openFromDate && (
             <DatePickerComp
               openDate={openFromDate}
               newDate={newFromDate}
@@ -366,7 +354,7 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
                 {label: 'Non-Carbon ', value: 'user_activity'},
               ]}
             />
-          </View>
+          </View> */}
           <>
             {searchResultsList && searchResultsList ? (
               <View

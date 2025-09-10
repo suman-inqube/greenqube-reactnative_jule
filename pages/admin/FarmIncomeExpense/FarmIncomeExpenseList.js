@@ -93,6 +93,7 @@ const FarmIncomeExpenseList = ({navigation}) => {
       ),
     ]);
     setcurrency(curr);
+    // console.log('FarmAcc', response.data.data.rows);
     if (response?.status == 200) {
       const totalPage = Math.ceil(response.data.data.count / 20);
       setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage, pageNo: 1});
@@ -108,9 +109,9 @@ const FarmIncomeExpenseList = ({navigation}) => {
     if (incomeItem) {
       let incomeAmount = 0;
       incomeItem.forEach(element => {
-        incomeAmount += parseInt(element.amount);
+        incomeAmount += parseFloat(element.amount) || 0;
       });
-      return incomeAmount + '.0';
+      return incomeAmount.toFixed(2);
     }
   };
   const ShowExpense = props => {
@@ -120,9 +121,9 @@ const FarmIncomeExpenseList = ({navigation}) => {
     if (expenseItem) {
       let expenseAmount = 0;
       expenseItem.forEach(element => {
-        expenseAmount += parseInt(element.amount);
+        expenseAmount += parseFloat(element.amount) || 0;
       });
-      return expenseAmount + '.0';
+      return expenseAmount.toFixed(2);
     }
   };
   const handlePage = async value => {
@@ -234,10 +235,6 @@ const FarmIncomeExpenseList = ({navigation}) => {
   };
   useEffect(() => {
     onPageLoad();
-    onBackPress(() => {
-      navigation.navigate('Dashboard');
-      return true;
-    });
   }, []);
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
@@ -448,11 +445,12 @@ const FarmIncomeExpenseList = ({navigation}) => {
                 flex: 1,
                 alignItems: 'center',
                 paddingRight: 20,
+                justifyContent: 'center',
               }}>
               <View style={{width: '110%', alignItems: 'center'}}>
                 <MaterialIcons
                   name="add-circle-outline"
-                  size={25}
+                  size={22}
                   color="white"
                 />
                 <Text style={styles.titleBottomMid1}>{t('add_expense')}</Text>
@@ -464,9 +462,14 @@ const FarmIncomeExpenseList = ({navigation}) => {
                 flex: 1,
                 alignItems: 'center',
                 paddingLeft: 20,
+                justifyContent: 'center',
               }}>
               <View style={{alignItems: 'center', width: '110%'}}>
-                <MaterialIcons name="currency-rupee" size={24} color="white" />
+                <MaterialIcons
+                  name="add-circle-outline"
+                  size={22}
+                  color="white"
+                />
                 <Text style={styles.titleBottomMid2}>{t('add_income')}</Text>
               </View>
             </TouchableOpacity>

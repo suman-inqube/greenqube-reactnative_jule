@@ -7,7 +7,13 @@ import {
   Dimensions,
   SafeAreaView,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+} from 'react';
 import Filter from '../../Common/FarmerFilter';
 import ViewPast from './FarmerViewPast';
 import {FarmerInsuranceListAPI} from '../../../config/apiHere';
@@ -37,6 +43,7 @@ const FarmerInsuViewPastRequested = () => {
     Root,
     logoImage,
     topBanner,
+    navigationBarHeight,
   } = useContext(userCreateContext);
   const navigation = useNavigation();
 
@@ -49,7 +56,7 @@ const FarmerInsuViewPastRequested = () => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
+  // const [fromDate, setfromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,14 +68,15 @@ const FarmerInsuViewPastRequested = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [modalVisibleData, setModalVisibleData] = useState({});
   const [farmerData, setfarmerData] = useState([]);
+  const [fromDate, setFromDate] = useState('');
 
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+  // const filterOptionShow = () => {
+  //   if (!filterOption) {
+  //     setFilterOption(true);
+  //   } else {
+  //     setFilterOption(false);
+  //   }
+  // };
   const onchangeFilterItem = value => {
     setSearchFarmerPhone('');
     setSearchFarmerName('');
@@ -76,95 +84,54 @@ const FarmerInsuViewPastRequested = () => {
     setFilterItem(value);
     setFilterOption(false);
   };
-  const handleDatePicker = async item => {
-    const effective_date = effective_dates(item);
-    setfromDate(effective_date);
-    if (toDate) {
-      const response = await FarmerInsuranceListAPI(
-        dbname,
-        lan_id,
-        token,
-        user_id,
-        effective_date,
-        toDate,
-      );
-      if (response) {
-        setIsLoading(false);
-        setInsuranceList(response?.data?.data?.rows);
-        setInsuranceListRow(response?.data?.data?.rows);
-      }
+  const filterOptionShow = async () => {
+    try {
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      openFilterSheet({
+        options: ['', '', 'date', ''],
+        // onchangeFilterItem: onchangeFilterItem,
+        t: t,
+        dropdownData: [],
+        filterItem: filterItem,
+        setFilterItem: setFilterItem,
+        title: 'Choose Status',
+        handleFilterResult: handleFilterResult,
+        handleFilterRemove: handleFilterRemove,
+        setFromDate: setFromDate,
+        setToDate: setToDate,
+        fromDate: fromDate,
+        toDate: toDate,
+        effective_dates: effective_dates,
+        carbonFlag: false,
+        CARBON_TYPE: [],
+        navigationBarHeight: navigationBarHeight,
+        height: 140,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
-  const handleDatePicker2 = async item => {
-    const effective_date = effective_dates(item);
-    setToDate(effective_date);
-    if (fromDate) {
-      const response = await FarmerInsuranceListAPI(
-        dbname,
-        lan_id,
-        token,
-        user_id,
-        fromDate,
-        effective_date,
-      );
-      if (response?.status == 200) {
-        setIsLoading(false);
-        setInsuranceList(response?.data?.data?.rows);
-        setInsuranceListRow(response?.data?.data?.rows);
-      }
-    }
-  };
-  const handleFilter = search => {
-    if (filterName === 'Farmer/Product Name') {
-      setSearchFarmerPhone('');
-      setSearchFarmerName(search);
-      const result = farmerData.filter(item =>
-        item.label.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setInsuranceList(insuranceListRow);
-      } else {
-        let tempData = insuranceList.filter(item => {
-          return (
-            item.agri_user.userName
-              .toLowerCase()
-              .indexOf(search.toLowerCase()) > -1
-          );
-        });
-        setInsuranceList(tempData);
-        setSearchResultsList(true);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
-    } else if (filterName === 'PhoneNumber') {
-      setSearchFarmerName('');
-      setSearchFarmerPhone(search);
-      const result = farmerData.filter(item =>
-        item.phone.toLowerCase().includes(search.toLowerCase()),
-      );
-      if (search == '') {
-        setSearchResultsList(false);
-        setInsuranceList(insuranceListRow);
-      } else {
-        let tempData = insuranceList.filter(item => {
-          return (
-            item.agri_user.contactNumber
-              .toLowerCase()
-              .indexOf(search.toLowerCase()) > -1
-          );
-        });
-        setInsuranceList(tempData);
-        setSearchResultsList(false);
-      }
-      if (result) {
-        setSearchResults(result);
-      }
-    }
-  };
+  const handleFilterResult = useCallback(
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+      try {
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
 
-  const onPageLoad = async () => {
+        onPageLoad(
+          fromDate,
+          toDate,
+          // filter,
+        );
+      } catch (error) {
+        console.log(error, 'error');
+      }
+    },
+    [],
+  );
+  const handleFilterRemove = () => {};
+
+  const onPageLoad = async (fromDate = '', toDate = '') => {
     setIsLoading(true);
     const response = await FarmerInsuranceListAPI(
       dbname,
@@ -174,6 +141,7 @@ const FarmerInsuViewPastRequested = () => {
       '',
       '',
     );
+
     if (response?.status == 200) {
       setIsLoading(false);
       setInsuranceList(response?.data?.data?.rows);
@@ -193,7 +161,6 @@ const FarmerInsuViewPastRequested = () => {
       '',
       '',
     );
-    console.log('insu', response);
     if (response?.status == 200) {
       setIsLoading(false);
       setInsuranceList(response?.data?.data?.rows);
@@ -225,19 +192,16 @@ const FarmerInsuViewPastRequested = () => {
     setModalVisibleData(item);
   };
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
-
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <CustomHeader
-          path="FarmerDashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <SafeAreaView
-          style={{flex: 1, backgroundColor: Colors.background_light}}>
-          <View style={{}}>
+        <View style={styles.mainContainer}>
+          {renderCustomHeader}
+          {/* <View style={{}}>
             <DatePickerComp
               openDate={openFromDate}
               newDate={newFromDate}
@@ -259,7 +223,7 @@ const FarmerInsuViewPastRequested = () => {
                     )
               }
             />
-          </View>
+          </View> */}
           {insuranceList.length != 0 ? (
             <ViewPast
               setModalVisible={setModalVisible}
@@ -273,7 +237,7 @@ const FarmerInsuViewPastRequested = () => {
               modalVisibleData={modalVisibleData}
             />
           ) : null}
-          <View style={{marginVertical: 10}}>
+          {/* <View style={{marginVertical: 10}}>
             <Filter
               filterItem={filterItem}
               filterOption={filterOption}
@@ -289,7 +253,7 @@ const FarmerInsuViewPastRequested = () => {
               filterDataRemove={filterDataRemove}
               onlyDate={true}
             />
-          </View>
+          </View> */}
           {isLoading ? (
             <View style={styles.loadingScreen}>
               <LoadingScreen />
@@ -349,7 +313,7 @@ const FarmerInsuViewPastRequested = () => {
             }}
             keyExtractor={(item, index) => index}
           />
-        </SafeAreaView>
+        </View>
       </Root>
     </FarmerDrawerScreenWrapper1>
   );
@@ -358,6 +322,8 @@ const FarmerInsuViewPastRequested = () => {
 export default FarmerInsuViewPastRequested;
 
 const styles = StyleSheet.create({
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
+
   main: {
     flex: 1,
     backgroundColor: Colors.containerGreen,
