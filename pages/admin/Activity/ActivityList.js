@@ -163,12 +163,6 @@ function ActivityList({ navigation }) {
     search_key_type,
   ) => {
     try {
-      console.log(  pageNo,
-    fromDateParams,
-    toDateParams,
-    search_key_val,
-    carbonTypeParams,
-    search_key_type,)
       setIsLoading(true);
       if (isOnline) {
         var response = await axiosGet(
@@ -199,9 +193,8 @@ function ActivityList({ navigation }) {
           await setItem('activityList', response);
         }
       } else {
-        // var response = await getItem('activityList');
+        var response = await getItem('activityList');
       }
-      console.log(`${dbname},${lan_id},${user_id}`)
       if (response?.status == 200) {
         setTotalPages(Math.ceil(response?.data?.data.count / 20));
         setActivityAll(response?.data?.data?.rows);

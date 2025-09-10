@@ -123,26 +123,37 @@ const FarmerActivityList = ({navigation}) => {
   };
   const fetchActivityListAPI = async (
     pageNo,
-    searchItem = '',
+    search_key_type = '',
     fromDateParams = '',
     toDateParams = '',
     carbonTypeParams,
   ) => {
     setIsLoading(true);
     if (isOnline) {
-      var response = await axiosGet(
-        ROUTES.GET.USER_ACTIVITY({
-          pageNO: pageNo,
-          carbonType:
-            carbonTypeParams == undefined ? carbonType.value : carbonTypeParams,
-          userID: user_id,
-          searchItem: searchItem,
-          from_date: fromDateParams == undefined ? fromDate : fromDateParams,
-          to_date: toDateParams == undefined ? toDate : toDateParams,
-        }),
-        token,
-        {information: `${dbname},${lan_id},${user_id}`},
-      );
+   var response = await axiosGet(
+          ROUTES.GET.LIST_USER_ACITYLIST_E({
+            pageNO: pageNo,
+            carbonType:
+              carbonTypeParams == undefined
+                ? carbonType.value
+                : carbonTypeParams,
+            userID: user_id,
+            search_key:
+              search_key_type && search_key_type !== 'carbon'
+                ? search_key_val
+                : filterItem
+                  ? filterItem === 'Farmer/Product Name'
+                    ? searchFarmerName?.label
+                    : filterItem === 'PhoneNumber'
+                      ? searchFarmerPhone?.label
+                      : ''
+                  : '',
+            from_date: fromDateParams == undefined ? fromDate : fromDateParams,
+            to_date: toDateParams == undefined ? toDate : toDateParams,
+          }),
+          token,
+          { information: `${dbname},${lan_id},${user_id}` },
+        );
       await setItem('farmerActivityList' + user_id, response);
     } else {
       var response = await getItem('farmerActivityList' + user_id);

@@ -1,21 +1,10 @@
 export const ROUTES = {
   POST: {
     LOGIN: 'sessionRoute/login',
-
     ADD_ID_ADDRESS_IMGS: () => `farmerRoute/addIdAddressImgs`,
   },
 
   GET: {
-    // LIST_USER_ACTIVITY: ({
-    //   pageNO,
-    //   carbonType,
-    //   userID,
-    //   searchItem = '',
-    //   from_date = '',
-    //   to_date = '',
-    // }) =>
-    //   `inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
-
     USER_ACTIVITY: ({
       pageNO,
       carbonType,
@@ -75,7 +64,7 @@ export const ROUTES = {
       from_date = '',
       to_date = '',
     }) =>
-      `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&agent_id=&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
     QUESTION_ROUTE: ({
       pageNo = 1,
       user_id = '',
