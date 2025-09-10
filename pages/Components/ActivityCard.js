@@ -94,7 +94,8 @@ const ActivityCard = ({
             <View style={styles.produceInfo}>
               <Text style={styles.produceName}>{activity?.cropName?.name}</Text>
               <Text style={styles.plotSite}>
-                {activity?.land_info?.plot_no}
+                {/* {activity?.land_info?.plot_no} */}
+                 {activity?.agri_user?.userName}
               </Text>
             </View>
           </View>
@@ -122,9 +123,9 @@ const ActivityCard = ({
             style={{paddingVertical: 10}}>
             <View style={styles.farmerSection}>
               <View style={styles.infoRow}>
-                <Text style={styles.label}>{t('farmer_name')}:</Text>
+                <Text style={styles.label}>{t('select_pond')}:</Text>
                 <Text style={styles.value}>
-                  {activity?.agri_user?.userName}
+                  {activity?.land_info?.plot_no}
                 </Text>
               </View>
               <View style={styles.infoRow}>

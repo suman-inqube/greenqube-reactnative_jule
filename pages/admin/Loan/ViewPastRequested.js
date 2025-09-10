@@ -92,7 +92,6 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
     setToDate(effective_date);
   };
   const onPageLoad = async (farmer_id = '', from_date = '', to_date = '', farmer_mobile = '') => {
-    console.log(farmer_id, from_date, to_date, farmer_mobile, "wwwwwwwwwww")
     setIsLoading(true);
     const [currency_res, response] = await Promise.all([
       getItem('currency'),

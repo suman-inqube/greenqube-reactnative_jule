@@ -7,10 +7,10 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import React from 'react';
+import React,{memo} from 'react';
 import {useTranslation} from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors} from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 const ViewPast = props => {
   const {t} = useTranslation();
   const {ins_plots, agri_user} = props.modalVisibleData;
@@ -137,7 +137,7 @@ const ViewPast = props => {
   }
 };
 
-export default ViewPast;
+export default memo(ViewPast);
 
 const styles = StyleSheet.create({
   centeredView: {
@@ -154,7 +154,8 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   modalView: {
-    width: '90%',
+    width: '95%',
+    padding:9,
     maxHeight: '80%',
     backgroundColor: 'white',
     borderRadius: 12,
@@ -170,18 +171,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.containerGreen,
   },
   header: {
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
     padding: 5,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    // backgroundColor: 'white',
   },
   headerText: {
-    color: Colors.text,
+    color: Colors.green,
     fontSize: 18,
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.Medium,
     textAlign: 'center',
   },
   closeButton: {
@@ -192,7 +191,7 @@ const styles = StyleSheet.create({
     width: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 170,
+    // marginLeft: 170,
   },
   contentContainer: {
     padding: 16,
@@ -200,13 +199,18 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderBottomRightRadius: 20,
     padding: 5,
+    paddingHorizontal:10,
     // height: 62,
-    elevation: 5,
+    // elevation: 5,
+    height:80,
+    borderWidth:1,
+    // borderStyle:'dashed',
+    borderColor:Colors.border
   },
   iconContainer: {
     width: 36,
