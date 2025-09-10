@@ -317,125 +317,6 @@ const UserCreateContextProvider = props => {
     const dt = new Date(item);
     return dt.toISOString().split('T')[0];
   };
-  const handlePageList = async (
-    value,
-    setIsLoading,
-    token = '',
-    pageNo,
-    Api,
-    setDataAll,
-    dbname,
-    lan_id,
-    user_id,
-    farmer_type = '',
-    question_type = '',
-    fromDate = '',
-    toDate = '',
-    carbonType,
-  ) => {
-    setIsLoading(true);
-    const currentPageNo = pageNo;
-    const totalPage = totalPage;
-    if (value === 'next') {
-      if (totalPage === currentPageNo) {
-        setDataAll([]);
-        Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
-        setIsLoading(false);
-        return;
-      } else {
-        const nextPage = currentPageNo + 1;
-        const response = await Api(
-          dbname,
-          lan_id,
-          token,
-          user_id,
-          nextPage,
-          farmer_type,
-          question_type,
-          fromDate,
-          toDate,
-          carbonType,
-        );
-        if (response?.status == 200) {
-          if (response.data.data.rows.length == 0) {
-            Toast.show({
-              time: 3,
-              text: `${t('no_data_found')}`,
-              ...AlertMesg[0],
-            });
-          } else {
-            setdbLanTokUsr({...dbLanTokUsr, pageNo: nextPage});
-          }
-          setDataAll(response.data.data.rows);
-          await setItem('problem_Data', response.data.data);
-          setIsLoading(false);
-        }
-      }
-    }
-    if (value === 'previous') {
-      if (pageNo >= 1) {
-        if (currentPageNo === 1) {
-          const prePage = currentPageNo - 1;
-          const response = await Api(
-            dbname,
-            lan_id,
-            token,
-            user_id,
-            1,
-            farmer_type,
-            question_type,
-            fromDate,
-            toDate,
-            carbonType,
-          );
-          if (response?.status == 200) {
-            if (response.data.data.rows.length == 0) {
-              Toast.show({
-                time: 3,
-                text: `${t('no_data_found')}`,
-                ...AlertMesg[0],
-              });
-            } else {
-              setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
-            }
-            setDataAll(response.data.data.rows);
-            setItem('problem_Data', response.data.data);
-            setIsLoading(false);
-          }
-        } else {
-          const prePage = currentPageNo - 1;
-          setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
-          const response = await Api(
-            dbname,
-            lan_id,
-            token,
-            user_id,
-            prePage,
-            farmer_type,
-            question_type,
-            fromDate,
-            toDate,
-            carbonType,
-          );
-          if (response?.status == 200) {
-            if (response.data.data.rows.length == 0) {
-              Toast.show({
-                time: 3,
-                text: `${t('no_data_found')}`,
-                ...AlertMesg[0],
-              });
-            } else {
-              setdbLanTokUsr({...dbLanTokUsr, pageNo: prePage});
-            }
-            setDataAll(response.data.data.rows);
-            setItem('problem_Data', response.data.data);
-            setIsLoading(false);
-          }
-        }
-      }
-    }
-    setIsLoading(false);
-  };
   // ---------- PROVIDER VALUE ----------
   const contextValue = useMemo(
     () => ({
@@ -478,8 +359,7 @@ const UserCreateContextProvider = props => {
       Filter,
       plotAll,
       setplotAll,
-      navigationBarHeight,
-      handlePageList,
+      navigationBarHeight
     }),
     [
       dbLanTokUsr,
