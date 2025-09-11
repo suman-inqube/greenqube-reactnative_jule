@@ -1726,7 +1726,14 @@ const FarmerLiveHood = ({
   };
   const regionRef = useRef(null); // stores the current map region
   const timeoutRef = useRef(null); // timeout controller
-
+ const isEqualCoordinatesArray = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every(
+      (coord, index) =>
+        coord.latitude === arr2[index].latitude &&
+        coord.longitude === arr2[index].longitude,
+    );
+  };
   const handleRegionChangeComplete = async newRegion => {
     const { latitude, longitude } = newRegion;
     regionRef.current = newRegion;
