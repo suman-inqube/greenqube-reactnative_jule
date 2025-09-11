@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Animated,
-  RefreshControl, InteractionManager
+  RefreshControl,
+  InteractionManager,
 } from 'react-native';
 import React, {
   useEffect,
@@ -15,11 +16,11 @@ import React, {
   useCallback,
   lazy,
   useRef,
-  useMemo
+  useMemo,
 } from 'react';
-import { useIsFocused, useRoute } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { SPSheet, Toast } from 'react-native-popup-confirm-toast';
+import {useIsFocused, useRoute} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {SPSheet, Toast} from 'react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import {
   OPTIONS_CARBON,
@@ -27,16 +28,16 @@ import {
   CARBON_TYPE,
 } from '../../utils/options';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import { Colors, Fonts } from '../../utils/Constants';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import {Colors, Fonts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
 import PaginationNav from '../../Components/PaginationNav';
-import { AlertMesg } from '../../Common/ToastAlert';
+import {AlertMesg} from '../../Common/ToastAlert';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import ActivityCard from '../../Components/ActivityCard';
-function ActivityList({ navigation }) {
+function ActivityList({navigation}) {
   //GQR-67
   const {
     loginUser_data,
@@ -52,7 +53,7 @@ function ActivityList({ navigation }) {
     farmerData,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
+  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const route = useRoute();
@@ -70,12 +71,12 @@ function ActivityList({ navigation }) {
     label: '',
     value: '',
   });
-  const [carbonType, setCarbonType] = useState({ label: '', value: '' });
+  const [carbonType, setCarbonType] = useState({label: '', value: ''});
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', 'carbon'],
       t: t,
@@ -100,9 +101,9 @@ function ActivityList({ navigation }) {
       navigationBarHeight: navigationBarHeight,
       height: 220,
     });
-  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       try {
         let search_key_val = '';
         if (filter == 'Farmer/Product Name') {
@@ -134,19 +135,24 @@ function ActivityList({ navigation }) {
           sheetCarbonType?.value,
           filter,
         );
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
-    [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone, carbonType],
+    [
+      filterItem,
+      fromDate,
+      toDate,
+      searchFarmerName,
+      searchFarmerPhone,
+      carbonType,
+    ],
   );
   const handleFilterRemove = () => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
-      setCarbonType({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
+      setCarbonType({label: '', value: ''});
       setFilterItem('');
       fetchActivityListAPI(1, '', '', '', '', '');
       setPage(1);
@@ -154,60 +160,64 @@ function ActivityList({ navigation }) {
       console.log(error);
     }
   };
-  const fetchActivityListAPI = useCallback(async (
-    pageNo,
-    fromDateParams,
-    toDateParams,
-    search_key_val,
-    carbonTypeParams,
-    search_key_type,
-  ) => {
-    try {
-      setIsLoading(true);
-      if (isOnline) {
-        var response = await axiosGet(
-          ROUTES.GET.LIST_USER_ACITYLIST_E({
-            pageNO: pageNo,
-            carbonType:
-              carbonTypeParams == undefined
-                ? carbonType.value
-                : carbonTypeParams,
-            userID: '',
-            search_key:
-              search_key_type && search_key_type !== 'carbon'
-                ? search_key_val
-                : filterItem
+  const fetchActivityListAPI = useCallback(
+    async (
+      pageNo,
+      fromDateParams,
+      toDateParams,
+      search_key_val,
+      carbonTypeParams,
+      search_key_type,
+    ) => {
+      try {
+        setIsLoading(true);
+        if (isOnline) {
+          var response = await axiosGet(
+            ROUTES.GET.LIST_USER_ACITYLIST_E({
+              pageNO: pageNo,
+              carbonType:
+                carbonTypeParams == undefined
+                  ? carbonType.value
+                  : carbonTypeParams,
+              userID: '',
+              search_key:
+                search_key_type && search_key_type !== 'carbon'
+                  ? search_key_val
+                  : filterItem
                   ? filterItem === 'Farmer/Product Name'
                     ? searchFarmerName?.label
                     : filterItem === 'PhoneNumber'
-                      ? searchFarmerPhone?.label
-                      : ''
+                    ? searchFarmerPhone?.label
+                    : ''
                   : '',
-            from_date: fromDateParams == undefined ? fromDate : fromDateParams,
-            to_date: toDateParams == undefined ? toDate : toDateParams,
-          }),
-          token,
-          { information: `${dbname},${lan_id},${user_id}` },
-        );
-        if (response?.status == 200) {
-          await setItem('activityList', response);
+              from_date:
+                fromDateParams == undefined ? fromDate : fromDateParams,
+              to_date: toDateParams == undefined ? toDate : toDateParams,
+            }),
+            token,
+            {information: `${dbname},${lan_id},${user_id}`},
+          );
+          if (response?.status == 200) {
+            await setItem('activityList', response);
+          }
+        } else {
+          var response = await getItem('activityList');
         }
-      } else {
-        var response = await getItem('activityList');
+        if (response?.status == 200) {
+          setTotalPages(Math.ceil(response?.data?.data.count / 20));
+          setActivityAll(response?.data?.data?.rows);
+          setIsLoading(false);
+        }
+        if (flatListRef.current) {
+          flatListRef.current.scrollToOffset({offset: 0, animated: true});
+        }
+      } catch (error) {
+        console.log(error);
+        CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
       }
-      if (response?.status == 200) {
-        setTotalPages(Math.ceil(response?.data?.data.count / 20));
-        setActivityAll(response?.data?.data?.rows);
-        setIsLoading(false);
-      }
-      if (flatListRef.current) {
-        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
-      }
-    } catch (error) {
-      console.log(error);
-      CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
-    }
-  }, [page]);
+    },
+    [page],
+  );
   const handleRefresh = useCallback(async () => {
     setTotalPages(1);
     await fetchActivityListAPI(1, '');
@@ -215,7 +225,7 @@ function ActivityList({ navigation }) {
   }, []);
   useEffect(() => {
     if (route?.params?.action === 'addData') {
-      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
       setTotalPages(1);
       fetchActivityListAPI(1, '');
       setPage(1);
@@ -254,12 +264,17 @@ function ActivityList({ navigation }) {
       CrashlyticsRecordError(error, 'ActivityList', 'handleSPSheetShow');
     }
   };
-  const renderCustomHeader = useMemo(() => <CustomHeader
-    logoImage={logoImage}
-    topBanner={topBanner}
-    filterOptionShow={filterOptionShow}
-    t={t}
-  />, [filterOptionShow]);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+        t={t}
+      />
+    ),
+    [filterOptionShow],
+  );
   return (
     <MyErrorBoundary>
       <Root>
@@ -268,9 +283,9 @@ function ActivityList({ navigation }) {
 
           <FlatList
             ref={flatListRef}
-            data={isLoading ? Array.from({ length: 5 }) : activityAll}
+            data={isLoading ? Array.from({length: 5}) : activityAll}
             keyExtractor={(item, index) => index?.toString()}
-            renderItem={({ item, index }) =>
+            renderItem={({item, index}) =>
               isLoading ? (
                 <SkeletonCardActivityList />
               ) : (
@@ -280,7 +295,7 @@ function ActivityList({ navigation }) {
                   navigation={navigation}
                   t={t}
                   effective_dates={effective_dates}
-                  path={"activityDetail"}
+                  path={'activityDetail'}
                 />
               )
             }
@@ -292,13 +307,20 @@ function ActivityList({ navigation }) {
                 tintColor="#4CAF50"
               />
             }
-            contentContainerStyle={{ padding: 16, paddingBottom: 10 }}
+            contentContainerStyle={{padding: 16, paddingBottom: 10}}
             showsVerticalScrollIndicator={false}
             initialNumToRender={5}
             windowSize={5}
             removeClippedSubviews={true}
           />
-          <PaginationNav isLoading={isLoading} page={page} totalPages={totalPages} onPrev={() => setPage(p => Math.max(1, p - 1))} onNext={() => setPage(p => Math.min(totalPages, p + 1))} t={t} />
+          <PaginationNav
+            isLoading={isLoading}
+            page={page}
+            totalPages={totalPages}
+            onPrev={() => setPage(p => Math.max(1, p - 1))}
+            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+            t={t}
+          />
           <FloatingActionButton
             position="right"
             actions={getActionsActivity(t, styles, Colors)}
@@ -309,7 +331,7 @@ function ActivityList({ navigation }) {
             }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{ vertical: 80, horizontal: 25 }}
+            distanceToEdge={{vertical: 80, horizontal: 25}}
           />
         </SafeAreaView>
       </Root>
@@ -328,7 +350,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -498,7 +520,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,

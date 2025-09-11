@@ -8,17 +8,29 @@ import {
   Dimensions,
   BackHandler,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
+
 import DatePickerComp from '../../Common/DatePickerComp';
-import { farmaccountsListAPI } from '../../../config/apiHere';
-import { formatDateToDateName } from '../../Common/DateChanger';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors, Fronts } from '../../utils/Constants';
+import {farmaccountsListAPI} from '../../../config/apiHere';
+import {formatDateToDateName} from '../../Common/DateChanger';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Marquee } from '@animatereactnative/marquee';
+import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PaginationNav from '../../Components/PaginationNav';
-const FarmIncomeExpenseList = ({ navigation }) => {
+import FloatingActionButton from '../../Components/FloatingActionButton';
+import {getActionsIncomeExpense} from '../../utils/options';
+
+const FarmIncomeExpenseList = ({navigation}) => {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -38,10 +50,12 @@ const FarmIncomeExpenseList = ({ navigation }) => {
     SPSheet,
     effective_dates,
     farmerData,
-    navigationBarHeight
+    navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
-  const { pageNo } = dbLanTokUsr;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const {pageNo} = dbLanTokUsr;
+  const route = useRoute();
+
   //GQR-67
   const [currency, setCurrency] = useState('');
   const [farmAccount, setFarmAccount] = useState([]);
@@ -61,7 +75,13 @@ const FarmIncomeExpenseList = ({ navigation }) => {
   const [toDate, setToDate] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const onPageLoad = async (pageNo, farmerId = '', phoneNumber = '', fromDate = '', toDate = '') => {
+  const onPageLoad = async (
+    pageNo,
+    farmerId = '',
+    phoneNumber = '',
+    fromDate = '',
+    toDate = '',
+  ) => {
     setIsLoading(true);
     const [curr, response] = await Promise.all([
       getItem('currency'),
@@ -83,6 +103,16 @@ const FarmIncomeExpenseList = ({ navigation }) => {
     }
     setIsLoading(false);
   };
+
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+      setTotalPages(1);
+      onPageLoad(1, '');
+      setPage(1);
+    }
+  }, [route?.params]);
+
   const ShowIncome = props => {
     const incomeItem = props.income.filter(
       item1 => item1.inexType?.taxonomy === 'income',
@@ -116,7 +146,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
   }, [page]);
 
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', ''],
       t: t,
@@ -138,9 +168,9 @@ const FarmIncomeExpenseList = ({ navigation }) => {
       navigationBarHeight: navigationBarHeight,
       height: 180,
     });
-  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -154,19 +184,19 @@ const FarmIncomeExpenseList = ({ navigation }) => {
           value: farmerPhone?.value,
         });
         setPage(1);
-        let fid = "";
-        if (filter == "PhoneNumber") {
-          fid = farmerPhone?.value
+        let fid = '';
+        if (filter == 'PhoneNumber') {
+          fid = farmerPhone?.value;
         }
-        if (filter == "Farmer/Product Name") {
-          fid = farmerName?.value
+        if (filter == 'Farmer/Product Name') {
+          fid = farmerName?.value;
         }
         setPage(1);
-        console.log(fid)
-        onPageLoad(1, fid, '', fromDate, toDate)
-        console.log(filter)
+        console.log(fid);
+        onPageLoad(1, fid, '', fromDate, toDate);
+        console.log(filter);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
     [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
@@ -175,10 +205,10 @@ const FarmIncomeExpenseList = ({ navigation }) => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
       setFilterItem('');
-      onPageLoad(1)
+      onPageLoad(1);
       setPage(1);
     } catch (error) {
       console.log(error);
@@ -208,7 +238,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
           )}
           <FlatList
             data={farmAccount}
-            renderItem={({ item, index }) => (
+            renderItem={({item, index}) => (
               <TouchableOpacity
                 style={styles.wrapper}
                 key={index}
@@ -311,7 +341,24 @@ const FarmIncomeExpenseList = ({ navigation }) => {
             page={page}
             totalPages={totalPages}
             onPrev={() => setPage(p => Math.max(1, p - 1))}
-            onNext={() => setPage(p => Math.min(totalPages, p + 1))} t={t} />
+            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+            t={t}
+          />
+          <FloatingActionButton
+            position="right"
+            actions={getActionsIncomeExpense(t, styles, Colors)}
+            color={Colors.useGreen}
+            onPressItem={name => {
+              if (name === 'add_income') {
+                navigation.navigate('AddIcome'); // Navigate to Add Income screen
+              } else if (name === 'add_expense') {
+                navigation.navigate('AddExpense'); // Navigate to Add Expense screen
+              }
+            }}
+            showBackground={true}
+            overlayColor="rgba(22, 17, 17, 0.35)"
+            distanceToEdge={{vertical: 80, horizontal: 25}}
+          />
         </View>
       </Root>
     </FarmerDrawerScreenWrapper1>
@@ -321,7 +368,7 @@ const FarmIncomeExpenseList = ({ navigation }) => {
 export default FarmIncomeExpenseList;
 
 const styles = StyleSheet.create({
-  mainContainer: { backgroundColor: Colors.pageBackground, flex: 1 },
+  mainContainer: {backgroundColor: Colors.pageBackground, flex: 1},
 
   prevNextPage: {
     flexDirection: 'row',
@@ -344,7 +391,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '4%',
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -530,5 +577,5 @@ const styles = StyleSheet.create({
     top: '45%',
     zIndex: 999,
     left: '45%',
-  }
+  },
 });

@@ -235,7 +235,7 @@ const FarmerAddIncome = ({navigation}) => {
         save_data,
       );
       if (response?.status == 200) {
-        navigation.navigate('FarmerFarmIncomeExpenseList');
+        navigation.navigate('FarmerFarmIncomeExpenseList', {action: 'addData'});
       }
     } else {
       Toast.show({

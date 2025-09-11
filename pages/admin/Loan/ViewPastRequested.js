@@ -10,15 +10,21 @@ import {
   Keyboard,
   RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { loanRouteListAPI } from './LoanAPI_copy';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors, Fonts } from '../../utils/Constants';
-import { Marquee } from '@animatereactnative/marquee';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {loanRouteListAPI} from './LoanAPI_copy';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fonts} from '../../utils/Constants';
+import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const LoanViewPastRequested = ({ setActiveBtn }) => {
+const LoanViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -35,9 +41,10 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
     farmerData,
     CustomHeader,
     logoImage,
-    topBanner, navigationBarHeight
+    topBanner,
+    navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
@@ -62,9 +69,9 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [statusAll, setTtatusAll] = useState([
-    { value: 2, label: t('Approved') },
-    { value: 1, label: t('pending') },
-    { value: 3, label: t('Rejected') },
+    {value: 2, label: t('Approved')},
+    {value: 1, label: t('pending')},
+    {value: 3, label: t('Rejected')},
   ]);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
@@ -91,11 +98,25 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
     const effective_date = effective_dates(item);
     setToDate(effective_date);
   };
-  const onPageLoad = async (farmer_id = '', from_date = '', to_date = '', farmer_mobile = '') => {
+  const onPageLoad = async (
+    farmer_id = '',
+    from_date = '',
+    to_date = '',
+    farmer_mobile = '',
+  ) => {
     setIsLoading(true);
     const [currency_res, response] = await Promise.all([
       getItem('currency'),
-      loanRouteListAPI(dbname, lan_id, token, user_id, farmer_id, from_date, to_date, farmer_mobile),
+      loanRouteListAPI(
+        dbname,
+        lan_id,
+        token,
+        user_id,
+        farmer_id,
+        from_date,
+        to_date,
+        farmer_mobile,
+      ),
     ]);
     if (response?.status == 200) {
       if (response.data.data.rows.length != 0) {
@@ -106,7 +127,7 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
         ]);
       } else {
         setIsLoading(false);
-        Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
+        Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
       }
     }
   };
@@ -117,7 +138,7 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
     onPageLoad('', '', '', '');
   }, []);
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', ''],
       t: t,
@@ -139,9 +160,9 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
       navigationBarHeight: navigationBarHeight,
       height: 200,
     });
-  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -154,10 +175,8 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
           label: farmerPhone?.label,
           value: farmerPhone?.value,
         });
-        onPageLoad(farmerName?.value, fromDate, toDate, farmerPhone?.label)
-      } catch (error) {
-
-      }
+        onPageLoad(farmerName?.value, fromDate, toDate, farmerPhone?.label);
+      } catch (error) {}
     },
     [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
   );
@@ -165,8 +184,8 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
       setFilterItem('');
       onPageLoad();
     } catch (error) {
@@ -185,20 +204,25 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
     navigation.navigate('LoanEnquiryDetail', item);
   };
   const HandlerGoBack = () => navigation.navigate('Dashboard');
-  const renderCustomHeader = useMemo(() => <CustomHeader
-    path="Dashboard"
-    HandlerGoBack={HandlerGoBack}
-    logoImage={logoImage}
-    topBanner={topBanner}
-    filterOptionShow={filterOptionShow}
-    t={t}
-  />, [filterOptionShow]);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        path="Dashboard"
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+        t={t}
+      />
+    ),
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         {renderCustomHeader}
         <SafeAreaView
-          style={{ flex: 1, backgroundColor: Colors.background_light }}>
+          style={{flex: 1, backgroundColor: Colors.background_light}}>
           <View style={{}}>
             {openFromDate && (
               <DatePickerComp
@@ -218,9 +242,10 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
                   fromDate == ''
                     ? ''
                     : new Date(
-                      `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
-                      }-${new Date(fromDate).getDate() + 1}`,
-                    )
+                        `${new Date(fromDate).getFullYear()}-${
+                          new Date(fromDate).getMonth() + 1
+                        }-${new Date(fromDate).getDate() + 1}`,
+                      )
                 }
               />
             )}
@@ -236,7 +261,7 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
                 showsVerticalScrollIndicator={false}
                 style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                 data={searchResults}
-                renderItem={({ item }) => (
+                renderItem={({item}) => (
                   <TouchableOpacity
                     onPress={() =>
                       handleResultSelect(item.label, item.value, item.phone)
@@ -267,7 +292,7 @@ const LoanViewPastRequested = ({ setActiveBtn }) => {
               // style={
               //   filterName !== '' ? { marginBottom: 130 } : { marginBottom: 40 }
               // }
-              renderItem={({ item }) => {
+              renderItem={({item}) => {
                 // var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
                 var date = new Date(item.created_at.split('T')[0]);
                 var sanctioned_date = new Date(item.sanctioned_date);
@@ -411,7 +436,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '2.5%',
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

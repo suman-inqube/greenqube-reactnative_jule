@@ -13,7 +13,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {farmerFarmaccountsListAPI} from '../../../config/apiHere';
 import {formatDateToDateName} from '../../Common/DateChanger';
 import {userCreateContext} from '../../Context/usersCreateContext';
@@ -22,6 +22,9 @@ import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import PaginationNav from '../../Components/PaginationNav';
+import FloatingActionButton from '../../Components/FloatingActionButton';
+import {getActionsIncomeExpense} from '../../utils/options';
 
 const FarmerFarmIncomeExpenseList = ({navigation}) => {
   //GQR-67
@@ -49,6 +52,8 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const {pageNo} = dbLanTokUsr;
+  const route = useRoute();
+
   //GQR-67
   const [currency, setcurrency] = useState('');
   const [farmAccount, setFarmAccount] = useState([]);
@@ -66,6 +71,8 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
   const [openToDate, setOpenToDate] = useState(false);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   // const filterOptionShow = () => {
   //   if (!filterOption) {
   //     setFilterOption(true);
@@ -111,7 +118,7 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
         setFilterItem(filter);
         setFromDate(fromDate);
         setToDate(toDate);
-
+        setPage(1);
         onPageLoad(
           fromDate,
           toDate,
@@ -123,8 +130,14 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
     },
     [],
   );
-  const handleFilterRemove = () => {};
-  const onPageLoad = async (fromDate = '', toDate = '') => {
+  const handleFilterRemove = () => {
+    try {
+      setPage(1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const onPageLoad = async (pageNo = 1, fromDate = '', toDate = '') => {
     const curr = await getItem('currency');
     setcurrency(curr);
 
@@ -133,19 +146,28 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
       lan_id,
       token,
       user_id,
-      1,
+      pageNo,
       fromDate,
       toDate,
     );
     if (response?.status == 200) {
-      const totalPage = Math.ceil(response.data.data.count / 20);
-      setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage, pageNo: 1});
+      setTotalPages(Math.ceil(response?.data?.data.count / 20));
+      // setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage, pageNo: 1});
       setFarmAccount(response.data.data.rows);
       setFarmAccountRaw(response.data.data.rows);
       setItem('farm_account', response.data.data.rows);
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+      setTotalPages(1);
+      onPageLoad(1, '');
+      setPage(1);
+    }
+  }, [route?.params]);
   const ShowIncome = props => {
     const incomeItem = props.income.filter(
       item1 => item1.inexType?.taxonomy === 'income',
@@ -439,84 +461,29 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
                 keyExtractor={(item, index) => index}
                 showsVerticalScrollIndicator={false}
               />
-              <View
-                style={{
-                  backgroundColor: '#003c04',
-                  justifyContent: 'space-between', // This will distribute space evenly
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  height: '8%',
-                  paddingHorizontal: 16,
-                  borderTopLeftRadius: 30,
-                  borderTopRightRadius: 30,
-                }}>
-                <TouchableOpacity
-                  onPress={() => handlePage('previous')}
-                  style={{
-                    flex: 1,
-                    alignItems: 'flex-start',
-                  }}>
-                  <View style={{}}>
-                    <MaterialIcons
-                      name="chevron-left"
-                      size={25}
-                      color="white"
-                    />
-                    <Text style={styles.titleBottomPre}>{t('Pre')}</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('FarmerAddExpense')}
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    paddingRight: 20,
-                  }}>
-                  <View style={{width: '110%', alignItems: 'center'}}>
-                    <MaterialIcons
-                      name="add-circle-outline"
-                      size={22}
-                      color="white"
-                    />
-                    <Text style={styles.titleBottomMid1}>
-                      {t('add_expense')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('FarmerAddIncome')}
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    paddingLeft: 20,
-                  }}>
-                  <View style={{alignItems: 'center', width: '110%'}}>
-                    <MaterialIcons
-                      name="add-circle-outline"
-                      size={22}
-                      color="white"
-                    />
-                    <Text style={styles.titleBottomMid2}>
-                      {t('add_income')}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => handlePage('next')}
-                  style={{flex: 1, alignItems: 'flex-end'}}>
-                  <View style={{alignItems: 'center'}}>
-                    <MaterialIcons
-                      name="chevron-right"
-                      size={25}
-                      color="white"
-                    />
-                    <Text style={styles.titleBottomNet}>{t('Next')}</Text>
-                  </View>
-                </TouchableOpacity>
-                {/* </View> */}
-              </View>
+              <PaginationNav
+                isLoading={isLoading}
+                page={page}
+                totalPages={totalPages}
+                onPrev={() => setPage(p => Math.max(1, p - 1))}
+                onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+                t={t}
+              />
+              <FloatingActionButton
+                position="right"
+                actions={getActionsIncomeExpense(t, styles, Colors)}
+                color={Colors.useGreen}
+                onPressItem={name => {
+                  if (name === 'add_income') {
+                    navigation.navigate('FarmerAddIncome'); // Navigate to Add Income screen
+                  } else if (name === 'add_expense') {
+                    navigation.navigate('FarmerAddExpense'); // Navigate to Add Expense screen
+                  }
+                }}
+                showBackground={true}
+                overlayColor="rgba(22, 17, 17, 0.35)"
+                distanceToEdge={{vertical: 80, horizontal: 25}}
+              />
             </>
           )}
         </View>

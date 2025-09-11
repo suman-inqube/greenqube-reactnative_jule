@@ -1139,10 +1139,10 @@ export const inputPastEnquiryListAPI = async (
   languageId,
   token,
   userId,
-  farmer_id='',
-  farmer_mobile='',
-  from_date='',
-  to_date=''
+  farmer_id = '',
+  farmer_mobile = '',
+  from_date = '',
+  to_date = '',
 ) => {
   const axiosHeaders = {
     headers: {

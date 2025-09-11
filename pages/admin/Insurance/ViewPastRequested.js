@@ -9,15 +9,21 @@ import {
   Keyboard,
   RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
 import ViewPast from './ViewPast';
-import { InsuranceListAPI } from '../../../config/apiHere';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors, Fonts } from '../../utils/Constants';
+import {InsuranceListAPI} from '../../../config/apiHere';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-const InsuranceViewPastRequested = ({ setActiveBtn }) => {
+const InsuranceViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -30,9 +36,10 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
     effective_dates,
     CustomHeader,
     logoImage,
-    topBanner, navigationBarHeight
+    topBanner,
+    navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const [filterItem, setFilterItem] = useState('');
   const [fromDate, setFromDate] = useState('');
@@ -50,7 +57,12 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
   });
   const [modalVisibleData, setModalVisibleData] = useState({});
   const [refreshing, setRefreshing] = useState(false);
-  const onPageLoad = async (farmer_id = "", farmer_mobile = "", from_date = "", to_date = "") => {
+  const onPageLoad = async (
+    farmer_id = '',
+    farmer_mobile = '',
+    from_date = '',
+    to_date = '',
+  ) => {
     setIsLoading(true);
     const response = await InsuranceListAPI(
       dbname,
@@ -64,7 +76,7 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
     );
     if (response?.status == 200) {
       if (response.data.data.rows.length == 0) {
-        Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('no_data_found')}`, ...AlertMesg[0]});
       }
       setIsLoading(false);
       setInsuranceList(response.data.data.rows);
@@ -76,17 +88,17 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
   const handleSetModalVisible = useCallback(item => {
     setModalVisible(true);
     setModalVisibleData(item);
-  },[]);
+  }, []);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
       // await onPageLoad("refreshing");
-      await onPageLoad('', '', '', '');;
+      await onPageLoad('', '', '', '');
       setRefreshing(false);
     });
   }, []);
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', ''],
       t: t,
@@ -113,7 +125,14 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
     });
   }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    async ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    async ({
+      filter,
+      fromDate,
+      toDate,
+      farmerName,
+      farmerPhone,
+      sheetCarbonType,
+    }) => {
       try {
         let search_key_val = '';
         if (filter == 'Farmer/Product Name') {
@@ -133,9 +152,7 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
           value: farmerPhone?.value,
         });
         onPageLoad(farmerName?.value, farmerPhone?.label, fromDate, toDate);
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
     [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
   );
@@ -143,8 +160,8 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
       setFilterItem('');
       onPageLoad();
     } catch (error) {
@@ -166,7 +183,7 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
     <FarmerDrawerScreenWrapper1>
       <Root>
         {renderCustomHeader}
-        <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+        <View style={{flex: 1, backgroundColor: Colors.background_light}}>
           {insuranceList.length != 0 ? (
             <ViewPast
               setModalVisible={setModalVisible}
@@ -190,7 +207,7 @@ const InsuranceViewPastRequested = ({ setActiveBtn }) => {
           <FlatList
             showsVerticalScrollIndicator={false}
             data={insuranceList}
-            renderItem={({ item }) => {
+            renderItem={({item}) => {
               var mydate = new Date(
                 item.agri_user.CreateDateTime.split('T')[0],
               );
@@ -297,7 +314,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '2.5%',
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -506,5 +523,5 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderRadius: 10,
     padding: 10,
-  }
+  },
 });

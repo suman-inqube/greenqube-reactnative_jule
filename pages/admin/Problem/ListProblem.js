@@ -12,21 +12,22 @@ import React, {
   useEffect,
   useContext,
   useCallback,
-  useMemo, useRef
+  useMemo,
+  useRef,
 } from 'react';
-import { useIsFocused, useRoute } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors, Fonts } from '../../utils/Constants';
-import { ROUTES } from '../../utils/Routes';
-import { axiosGet } from '../../utils/api';
+import {useIsFocused, useRoute} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fonts} from '../../utils/Constants';
+import {ROUTES} from '../../utils/Routes';
+import {axiosGet} from '../../utils/api';
 import PaginationNav from '../../Components/PaginationNav';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import { getActionsProblemSupervisor } from '../../utils/options';
+import {getActionsProblemSupervisor} from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-import { AlertMesg } from '../../Common/ToastAlert';
-const ListProblem = ({ navigation }) => {
+import {AlertMesg} from '../../Common/ToastAlert';
+const ListProblem = ({navigation}) => {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -40,11 +41,12 @@ const ListProblem = ({ navigation }) => {
     effective_dates,
     navigationBarHeight,
     farmerData,
-    isOnline, Toast
+    isOnline,
+    Toast,
   } = useContext(userCreateContext);
   const route = useRoute();
   const flatListRef = useRef(null);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
@@ -71,12 +73,14 @@ const ListProblem = ({ navigation }) => {
     farmer_mobile,
     search_key_type,
   ) => {
-    console.log(    pageNo,
-    search_uid,
-    from_date,
-    to_date,
-    farmer_mobile,
-    search_key_type,)
+    console.log(
+      pageNo,
+      search_uid,
+      from_date,
+      to_date,
+      farmer_mobile,
+      search_key_type,
+    );
     try {
       setIsLoading(true);
       let response;
@@ -97,7 +101,7 @@ const ListProblem = ({ navigation }) => {
                 : searchFarmerPhone.label,
           }),
           token,
-          { information: `${dbname},${lan_id}` },
+          {information: `${dbname},${lan_id}`},
         );
         if (response?.status === 200) {
           await setItem('problemTypeName', response);
@@ -106,14 +110,14 @@ const ListProblem = ({ navigation }) => {
         response = await getItem('problemTypeName');
       }
       if (!response?.status === 200) return;
-      const { rows, count } = response?.data || {};
+      const {rows, count} = response?.data || {};
       const totalPage = Math.ceil(count / 20);
       setTotalPages(totalPage);
       setProblemAll(rows);
       await setItem('problem_Data', response?.data);
       setIsLoading(false);
       if (flatListRef.current) {
-        flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+        flatListRef.current.scrollToOffset({offset: 0, animated: true});
       }
     } catch (error) {
       console.error('handleProblem error:', error);
@@ -123,7 +127,7 @@ const ListProblem = ({ navigation }) => {
   };
   useEffect(() => {
     if (route?.params?.action === 'addData') {
-      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
       setTotalPages(1);
       handleProblem(1);
     }
@@ -140,7 +144,7 @@ const ListProblem = ({ navigation }) => {
   }, []);
   const filterOptionShow = useCallback(async () => {
     try {
-      const { openFilterSheet } = await import('../../Components/FilterSheet');
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['farmer', 'phone', 'date', ''],
         t: t,
@@ -162,12 +166,12 @@ const ListProblem = ({ navigation }) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
-        height: 180
+        height: 180,
       });
-    } catch (error) { }
-  },[filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
+    } catch (error) {}
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -199,10 +203,10 @@ const ListProblem = ({ navigation }) => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
       setFilterItem('');
-      handleProblem(1, '', '', '', '','');
+      handleProblem(1, '', '', '', '', '');
       setPage(1);
     } catch (error) {
       console.log(error);
@@ -212,20 +216,23 @@ const ListProblem = ({ navigation }) => {
     setItem('problem_id_data', fid);
     navigation.navigate(pageName);
   }, []);
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, [filterOptionShow]);
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         <SafeAreaView
-          style={{ flex: 1, backgroundColor: Colors.background_light }}>
-          <View style={{ flex: 1 }}>
+          style={{flex: 1, backgroundColor: Colors.background_light}}>
+          <View style={{flex: 1}}>
             {renderCustomHeader}
 
             <FlatList
               ref={flatListRef}
               nestedScrollEnabled={true}
-              data={isLoading ? Array.from({ length: 5 }) : problemAll}
-              renderItem={({ item, index }) =>
+              data={isLoading ? Array.from({length: 5}) : problemAll}
+              renderItem={({item, index}) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -303,7 +310,7 @@ const ListProblem = ({ navigation }) => {
               }}
               showBackground={true}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{ vertical: 80, horizontal: 25 }}
+              distanceToEdge={{vertical: 80, horizontal: 25}}
             />
           </View>
         </SafeAreaView>
@@ -331,7 +338,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

@@ -297,7 +297,7 @@ const AddExpense = ({navigation}) => {
           save_data,
         );
         if (response?.status == 200) {
-          navigation.navigate('FarmIncomeExpenseList');
+          navigation.navigate('FarmIncomeExpenseList', {action: 'addData'});
         }
       } else {
         Toast.show({
@@ -366,9 +366,6 @@ const AddExpense = ({navigation}) => {
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}>
-              <View style={styles.iconView}>
-                <MaterialIcons name={'payment'} color="green" size={40} />
-              </View>
               <View style={styles.mainView}>
                 <View style={styles.card}>
                   <DropdownForm

@@ -1,11 +1,11 @@
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const OPTIONS_CARBON = [
-  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
-  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
+  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
+  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
 ];
 const OPTIONS_CARBON_FARMER = [
-  { id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD' },
+  {id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD'},
   {
     id: 'Conventional',
     title: 'Non-Carbon',
@@ -13,8 +13,8 @@ const OPTIONS_CARBON_FARMER = [
   },
 ];
 const CARBON_TYPE = [
-  { label: 'Carbon', value: 'carbon_activity' },
-  { label: 'Non-Carbon ', value: 'user_activity' },
+  {label: 'Carbon', value: 'carbon_activity'},
+  {label: 'Non-Carbon ', value: 'user_activity'},
 ];
 const getActionsActivity = (t, styles, Colors) => [
   {
@@ -136,6 +136,26 @@ const inputViewPast = (t, styles, Colors) => [
     icon: <MaterialIcons name="list-alt" size={26} color="#ffffff" />,
   },
 ];
+const getActionsIncomeExpense = (t, styles, Colors) => [
+  {
+    text: t('add_income'),
+    name: 'add_income',
+    position: 1,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffff',
+    icon: require('../Common/images/addincome.png'),
+  },
+  {
+    text: t('add_expense'),
+    name: 'add_expense',
+    position: 2,
+    color: Colors.useGreen,
+    textStyle: styles.actionText,
+    textBackground: '#ffffff',
+    icon: require('../Common/images/addexp.png'),
+  },
+];
 
 export {
   OPTIONS_CARBON,
@@ -149,4 +169,5 @@ export {
   getActionsPostNewOutputFarmer,
   OPTIONS_CARBON_FARMER,
   inputViewPast,
+  getActionsIncomeExpense,
 };
