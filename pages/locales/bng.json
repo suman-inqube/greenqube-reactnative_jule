@@ -1045,5 +1045,6 @@
   "instrument_Wise_Activity_View": "পাইপ ওয়াইজ অ্যাক্টিভিটি ভিউ",
   "activity_Pipe_Images": "অ্যাক্টিভিটি পাইপ ছবি",
   "please_update_both_image": "দয়া করে উভয় ছবিই আপডেট করুন.",
-  "activity_Pipe_List": "কার্যকলাপ পাইপ তালিকা"
+  "activity_Pipe_List": "কার্যকলাপ পাইপ তালিকা",
+  "plot_status": "প্লটের অবস্থা"
 }

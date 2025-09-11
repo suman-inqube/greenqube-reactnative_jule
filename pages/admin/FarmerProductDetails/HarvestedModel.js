@@ -3,36 +3,50 @@ import React from 'react'
 import { Alert, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 const HarvestedModel = ({
-    setModalVisible,
-    modalVisible,
-    handleHarvested
+  setModalVisible,
+  modalVisible,
+  handleHarvested,
+  status,
 }) => {
-    const { t } = useTranslation();
-    return (
+  const {t} = useTranslation();
+  return (
+    <View style={styles.centeredView}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
         <View style={styles.centeredView}>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalHedingText}>{t('your_previous_crop_hervested')}</Text>
-                        <TouchableOpacity style={styles.item} onPress={() => { handleHarvested("same produce"); setModalVisible(!modalVisible) }}>
-                            <Text style={styles.title}>{t('same_crop_continue')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.item} onPress={() => { handleHarvested("add new Produce"); setModalVisible(!modalVisible) }}>
-                            <Text style={styles.title}>{t('new_crop_continue')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+          <View style={styles.modalView}>
+            <Text style={styles.modalHedingText}>
+              {t('your_previous_crop_hervested')}
+            </Text>
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => {
+                handleHarvested('same produce');
+                setModalVisible(!modalVisible);
+              }}>
+              <Text style={styles.title}>{t('same_crop_continue')}</Text>
+            </TouchableOpacity>
+            {status !== 'CARBON_DOCUMENTS_APPROVED' && (
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  handleHarvested('add new Produce');
+                  setModalVisible(!modalVisible);
+                }}>
+                <Text style={styles.title}>{t('new_crop_continue')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-    )
-}
+      </Modal>
+    </View>
+  );
+};
 
 export default HarvestedModel
 

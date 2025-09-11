@@ -9,7 +9,7 @@ export const CrashlyticsRecordError = async (error, screen_name = "", api = "") 
         DeviceInfo.getDeviceName(),
         getItem('currentRouteName'),
     ])
-    console.log(typeof error)
+    console.log(error ,"error")
     const {
         dbname = "",
         contactNumber = ""
@@ -27,7 +27,7 @@ export const CrashlyticsRecordError = async (error, screen_name = "", api = "") 
     const config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://gqwa-327583164679.asia-south1.run.app/issue/save',
+        url: 'http://134.209.155.11:4003/issue/save',
         headers: {
             'Content-Type': 'application/json'
         },

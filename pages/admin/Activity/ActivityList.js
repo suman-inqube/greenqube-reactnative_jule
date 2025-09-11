@@ -133,7 +133,7 @@ const ActivityList = ({ navigation }) => {
             } else {
                 var response = await getItem('activityList');
             }
-            console.log('act=', response?.data?.data?.rows);
+            
             if (response?.status == 200) {
                 if (response.data.data.count != 0) {
                     const totalPage = Math.ceil(response.data.data.count / 20)

@@ -164,7 +164,7 @@ const ProofAndIdentityPropfCompLoan = ({
                 source={require('../Common/images/scan.png')}
                 style={{width: 30, height: 30}}
               />
-              <Text style={styles.title}>Scanner</Text>
+              <Text style={styles.title}>Scan</Text>
             </TouchableOpacity>:null}
             {InputTextFormEdit!=false?<TouchableOpacity
               style={{

@@ -179,7 +179,7 @@ const UserList = ({ navigation }) => {
     const searchByPhoneNumber = async () => {
         Keyboard.dismiss();
         const response = await userDataListAPI(dbLanTokUsr.dbName, dbLanTokUsr.languageId, dbLanTokUsr.token, dbLanTokUsr.supervisorId, '0', phoneNumber);
-       console.log('check123', response);
+    //    console.log('check123', response);
         if (response.status === 200) {
             if (response.data.data.count != 0) {
                 setuserList(response.data.data);

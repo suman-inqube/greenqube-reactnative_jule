@@ -57,12 +57,12 @@ const axiosHeaders = {
 
 export const databaseListAPI = async () => {
   try {
+    console.log('err112=');
     const instance = await getAxiosInstance();
     let response = await instance.get('hostRoute/databaseList');
-    // console.log('err11=', response);
     return response
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('API Error:5555555555', error);
     throw error;
   }
 };
@@ -337,11 +337,20 @@ export const activityListAPI = async (
     },
   };
   try {
-    // let response = await axios.get(
-    //   `${config.BASE_URL}inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    // let resultJson = await axios.get(
+    //   `${config.BASE_URL}inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
     //   axiosHeaders,
     // );
-     const instance = await getAxiosInstance();
+    // console.log(
+    //   `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    //   {
+    //     headers: {
+    //       authorization: `${token}`,
+    //       information: `${dbName},${languageID},${userID}`,
+    //     },
+    //   },
+    // );
+    const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}inputOutputRoute/listUserActivity_e/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
       {
@@ -351,11 +360,12 @@ export const activityListAPI = async (
         },
       },
     );
+    // console.log('response',response);
     const resultJson = {
       data: response,
       status: 200,
     };
-    
+
     return resultJson;
   } catch (error) {
     CrashlyticsRecordError(error.response, "ActivityList", "activityListAPI");
@@ -3252,6 +3262,10 @@ export const ActivityPipeImages = async (
       information: `${dbName},${language},${userId}`,
     },
   };
+  console.log(
+    `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
+    axiosHeaders,
+  );
   try {
     let response = await axios.get(
       `${config.BASE_URL}inputOutputRoute/pipeImages?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
@@ -3302,13 +3316,18 @@ export const uploadFarmerIdAdd = async (
       'Content-Type': 'multipart/form-data',
     },
   };
+    console.log(
+      `${config.BASE_URL}settingsRoute/uploadFarmerIdAdd`,
+      JSON.stringify(formData),
+      axiosHeaders,
+    );
   try {
     let response = await axios.put(
       `${config.BASE_URL}settingsRoute/uploadFarmerIdAdd`,
       formData,
       axiosHeaders,
     );
-    console.log('response11=', response);
+     console.log('response11=', response);
     return response;
   } catch (error) {
     console.log('error11=', error.response);
@@ -3341,10 +3360,6 @@ export const onlyUpdateIdAddrFile = async (
     return error.response;
   }
 };
-
-
-
-
 export const Fenced_Rejected_Plot_List = async (
   token,
   dbName,
@@ -3352,18 +3367,25 @@ export const Fenced_Rejected_Plot_List = async (
   userId,
   status_level,
   geo_type,
-  page
+  page,
+  searchBy,
 ) => {
+
+  if(page < 1){
+    page = 1;
+  }
   const axiosHeaders = {
     headers: {
       authorization: `${token}`,
       information: `${dbName},${language},${userId}`,
     },
   };
-  console.log(`${config.BASE_URL}landRoute/plotNotification/1/1/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}`)
+  console.log(
+    `${config.BASE_URL}landRoute/plotNotification/1/${page}/3?supervisor=${userId}&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+  );
   try {
     let response = await axios.get(
-      `${config.BASE_URL}landRoute/plotNotification/1/1/${page}?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}`,
+      `${config.BASE_URL}landRoute/plotNotification/1/${page}/3?supervisor=${userId}&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
       axiosHeaders,
     );
     return response;

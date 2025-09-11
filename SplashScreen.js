@@ -45,14 +45,10 @@ const SplashScreen = ({ navigation }) => {
             let company_res = await databaseListAPI();
             if (company_res?.status == 200) {
                 if (company_res?.data?.data) {
-                    const delay = 1000;
-                    const timeout = setTimeout(() => {
-
                         // setCompanyData(company_res.data.data);
                         setCompanyDataRaw(company_res.data.data);
                         setModalVisible(true);
 
-                    }, delay);
                 }
                 // console.log('company APi called');
             }

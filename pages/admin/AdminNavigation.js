@@ -56,6 +56,8 @@ import Business from './Business/Business';
 import InstrumentWiseActivityView from './Activity/InstrumentWiseActivityView';
 import InstrumentWiseActivityDetails from './Activity/InstrumentWiseActivityDetails';
 import Market from './Market/Market';
+import PlotStatusUpdate from './Market/PlotStatusUpdate';
+
 const Drawer = createDrawerNavigator();
 const AdminNavigation = () => {
   return (
@@ -90,231 +92,237 @@ const AdminNavigation = () => {
       <Drawer.Screen name="Dashboard" component={Dashboard} />
 
       <Drawer.Screen
+        name="Market"
+        component={Market}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
+      />
+
+      <Drawer.Screen
+        name="PlotStatusUpdate"
+        component={PlotStatusUpdate}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
+      />
+
+      <Drawer.Screen
         name="Training"
         component={Training}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen name="TraingList" component={TrainingList} />
 
       <Drawer.Screen
         name="UsefulInformation"
         component={UsefulInformation}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="UsefulInformationList"
         component={UsefulInformationList}
-      // options={{ gestureEnabled: false ,unmountOnBlur: true,}}
+        // options={{ gestureEnabled: false ,unmountOnBlur: true,}}
       />
 
       <Drawer.Screen
         name="ProblemCreate"
         component={CreateProblem}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="ProblemList"
         component={ListProblem}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="ProblemView"
         component={ViewProblem}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="OutPutList"
         component={OutPut}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="PostNew"
         component={PostNew}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="ViewPast"
         component={ViewPast}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="Loan"
         component={LoanEnquiry}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="LoanEnquiryDetail"
         component={LoanEnquiryDetail}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="InputList"
         component={InputList}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="WantToBuy"
         component={WantToBuy}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="PastEnquiry"
         component={PastEnquiries}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="activityList"
         component={ActivityList}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="activityReport"
         component={ActivityReport}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="ActivityReportAWD"
         component={ActivityReportAWD}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="activityDetail"
         component={ActivityDetail}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="Profile"
         component={Profile}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="userList"
         component={UserList}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="password"
         component={ForgotPassword}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="information"
         component={Information}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="livehood"
         component={PlotList}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="CrateProblemUser"
         component={CrateProblemUser}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="InsuranceEnquiry"
         component={InsuranceEnquiry}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="DailySalesReport"
         component={DailySalesReport}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="SalesDetail"
         component={SalesDetail}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="DealerReport"
         component={DealerReport}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="FarmerReport"
         component={FarmerReport}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="FarmIncomeExpenseList"
         component={FarmIncomeExpenseList}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="FarmIncomeExpenseView"
         component={FarmIncomeExpenseView}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="AddIcome"
         component={AddIcome}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="AddExpense"
         component={AddExpense}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="PersonalInformation"
         component={PersonalInformation}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="FinancialInformation"
         component={FinancialInformation}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
       <Drawer.Screen
         name="PlotSiteProduceInformation"
         component={PlotSiteProduceInformation}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="RegistationSignUpViwer"
         component={RegistationSignUpViwer}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
 
       <Drawer.Screen
         name="ChangePassword"
         component={ChangePassword}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="Business"
         component={Business}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="InstrumentWiseActivityView"
         component={InstrumentWiseActivityView}
-      // options={{unmountOnBlur: true, gestureEnabled: false}}
+        // options={{unmountOnBlur: true, gestureEnabled: false}}
       />
       <Drawer.Screen
         name="InstrumentWiseActivityDetails"
         component={InstrumentWiseActivityDetails}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
+        options={{unmountOnBlur: true, gestureEnabled: false}}
       />
-      <Drawer.Screen
-        name="Market"
-        component={Market}
-        options={{ unmountOnBlur: true, gestureEnabled: false }}
-      />
-
     </Drawer.Navigator>
   );
 }
