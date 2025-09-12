@@ -25,6 +25,7 @@ import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ListCard from '../../Components/ListCard';
 
 const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
@@ -256,6 +257,31 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
     () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
     [filterOptionShow],
   );
+  const getStatusText = status => {
+    switch (status) {
+      case 1:
+        return t('pending');
+      case 2:
+        return t('Approved');
+      case 3:
+        return t('Rejected');
+      default:
+        return '';
+    }
+  };
+
+  const getStatusStyle = status => {
+    switch (status) {
+      case 1:
+        return styles.pending;
+      case 2:
+        return styles.approved;
+      case 3:
+        return styles.rejected;
+      default:
+        return {};
+    }
+  };
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -354,89 +380,58 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
             renderItem={({item, index}) => {
               var date = new Date(item.created_at.split('T')[0]);
               var sanctioned_date = new Date(item.sanctioned_date);
+              const cardItems = [
+                {
+                  label: t('sta_'),
+                  value: getStatusText(item.status),
+                  valueStyle: getStatusStyle(item.status),
+                },
+                ...(item?.loan_sanctioned
+                  ? [
+                      {
+                        label: t('LoanSanctioned') + `(${currency})`,
+                        value: item.loan_sanctioned,
+                      },
+                    ]
+                  : []),
+                {
+                  label: t('number_caps'),
+                  value: item.agri_user.contactNumber,
+                },
+                {
+                  label: t('date'),
+                  value: date.toString().substring(4, 15),
+                },
+                ...(item?.sanctioned_date
+                  ? [
+                      {
+                        label: t('SanctionedDate'),
+                        value: sanctioned_date.toString().substring(3, 15),
+                      },
+                    ]
+                  : []),
+                ...(item?.loan_ord_id
+                  ? [
+                      {
+                        label: t('LoanOrderID'),
+                        value: item.loan_ord_id,
+                      },
+                    ]
+                  : []),
+              ];
+
               return (
-                <TouchableOpacity
-                  style={styles.flatListContainer}
-                  onPress={() => navigate('LoanEnquiryDetail', item)}>
-                  <View style={styles.flatListItem}>
-                    <View style={styles.cardHeader}>
-                      <View style={styles.marqueeContainer}>
-                        <Text style={styles.cardTitle}>
-                          {t('loan_amt') + `(${currency})`}: {'  '}
-                          <Text style={styles.cardTitleRe}>
-                            {item.loan_amount}
-                          </Text>
-                        </Text>
-                      </View>
-                      <View style={styles.cardFooter}>
-                        <MaterialIcons
-                          name="chevron-right"
-                          size={20}
-                          color="#2e7d32"
-                        />
-                      </View>
-                    </View>
-                    {/* <Text style={styles.title}>
-                        {t('name')}:{item.agri_user.userName}
-                      </Text> */}
-
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('sta_')}:</Text>
-                      <Text
-                        style={[
-                          styles.value,
-                          item.status == 1 && styles.pending,
-                          item.status == 2 && styles.approved,
-                          item.status == 3 && styles.rejected,
-                        ]}>
-                        {item.status == 1 && t('pending')}
-                        {item.status == 2 && t('Approved')}
-                        {item.status == 3 && t('Rejected')}
-                      </Text>
-                    </View>
-                    {item?.loan_sanctioned && (
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>
-                          {t('LoanSanctioned') + `(${currency})`}:
-                        </Text>
-                        <Text style={styles.value}>{item.loan_sanctioned}</Text>
-                      </View>
-                    )}
-
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('number_caps')}:</Text>
-                      <Text style={styles.value}>
-                        {item.agri_user.contactNumber}
-                      </Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('date')}:</Text>
-                      <Text style={styles.value}>
-                        {date.toString().substring(4, 15)}
-                      </Text>
-                    </View>
-
-                    {item?.sanctioned_date && (
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('SanctionedDate')}:</Text>
-                        <Text style={styles.value}>
-                          {sanctioned_date.toString().substring(3, 15)}
-                        </Text>
-                      </View>
-                    )}
-
-                    {item?.loan_ord_id && (
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('LoanOrderID')}:</Text>
-                        <Text style={styles.value}>{item.loan_ord_id}</Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
+                <ListCard
+                  onPress={() => navigate('FarmerLoanEnquiryDetail', item)}
+                  title={`${t('loan_amt')} (${currency}): ${item.loan_amount}`}
+                  titleStyle={styles.redTitle}
+                  items={cardItems}
+                  index={index}
+                  borderColor={Colors.borderGreen}
+                />
               );
             }}
-            keyExtractor={(item, index) => index}
+            keyExtractor={(item, index) => index.toString()}
           />
         </View>
         {/* </View> */}
@@ -634,6 +629,10 @@ const styles = StyleSheet.create({
   },
   rejected: {
     color: '#b83535ff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  redTitle: {
+    color: '#D10000', // Red color for loan amount
     fontFamily: 'Poppins-SemiBold',
   },
 });

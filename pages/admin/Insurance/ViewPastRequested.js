@@ -23,6 +23,7 @@ import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {useNavigation, useRoute} from '@react-navigation/native';
+import ListCard from '../../Components/ListCard';
 
 const InsuranceViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
@@ -217,54 +218,33 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
           <FlatList
             showsVerticalScrollIndicator={false}
             data={insuranceList}
-            renderItem={({item}) => {
+            renderItem={({item, index}) => {
               var mydate = new Date(
                 item.agri_user.CreateDateTime.split('T')[0],
               );
+              const cardItems = [
+                {
+                  label: t('plot_to_be_insured'),
+                  value: item.ins_plots.length,
+                },
+                {
+                  label: t('date'),
+                  value: mydate.toString().substring(4, 15),
+                },
+
+                {
+                  label: t('far_list_number'),
+                  value: item.agri_user.contactNumber,
+                },
+              ];
               return (
-                <TouchableOpacity
-                  style={styles.flatListContainer}
-                  onPress={() => handleSetModalVisible(item)}>
-                  <View style={styles.flatListItem}>
-                    <View style={styles.cardHeader}>
-                      <View style={styles.marqueeContainer}>
-                        <Text style={styles.cardTitle}>
-                          {t('name')}:{' '}
-                          <Text style={styles.cardTitleRe}>
-                            {item.agri_user.userName}
-                          </Text>
-                        </Text>
-                      </View>
-                      <View style={styles.cardFooter}>
-                        <MaterialIcons
-                          name="chevron-right"
-                          size={20}
-                          color="#2e7d32"
-                        />
-                      </View>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>
-                        {t('plot_to_be_insured')}:{' '}
-                      </Text>
-                      <Text style={styles.value}>{item.ins_plots.length}</Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('date')} : </Text>
-
-                      <Text style={styles.value}>
-                        {mydate.toString().substring(4, 15)}
-                      </Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('far_list_number')}: </Text>
-                      <Text style={styles.value}>
-                        {item.agri_user.contactNumber}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
+                <ListCard
+                  onPress={() => handleSetModalVisible(item)}
+                  title={`${t('name')}: ${item.agri_user.userName}`}
+                  items={cardItems}
+                  index={index}
+                  borderColor={Colors.borderGreen}
+                />
               );
             }}
             keyExtractor={(item, index) => index}

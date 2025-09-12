@@ -24,6 +24,8 @@ import {Colors, Fonts} from '../../utils/Constants';
 import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import ListCard from '../../Components/ListCard';
+
 const LoanViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
   const {
@@ -203,7 +205,6 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
-      // await onPageLoad("refreshing");
       await onPageLoad();
       setRefreshing(false);
     });
@@ -225,6 +226,33 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     ),
     [filterOptionShow],
   );
+
+  const getStatusStyle = status => {
+    switch (status) {
+      case 1:
+        return styles.pending;
+      case 2:
+        return styles.approved;
+      case 3:
+        return styles.rejected;
+      default:
+        return {};
+    }
+  };
+
+  const getStatusText = status => {
+    switch (status) {
+      case 1:
+        return t('pending');
+      case 2:
+        return t('Approved');
+      case 3:
+        return t('Rejected');
+      default:
+        return '';
+    }
+  };
+
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
@@ -297,104 +325,66 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
             <FlatList
               showsVerticalScrollIndicator={false}
               data={loanList}
-              // style={
-              //   filterName !== '' ? { marginBottom: 130 } : { marginBottom: 40 }
-              // }
-              renderItem={({item}) => {
-                // var date = new Date(item.agri_user.CreateDateTime.split("T")[0]);
+              renderItem={({item, index}) => {
                 var date = new Date(item.created_at.split('T')[0]);
                 var sanctioned_date = new Date(item.sanctioned_date);
+
+                const cardItems = [
+                  {
+                    label: t('loan_amt') + `(${currency})`,
+                    value: item.loan_amount,
+                    valueStyle: styles.titleLone,
+                  },
+                  {
+                    label: t('sta_'),
+                    value: getStatusText(item.status),
+                    valueStyle: [styles.value, getStatusStyle(item.status)],
+                  },
+                  ...(item?.loan_sanctioned
+                    ? [
+                        {
+                          label: t('LoanSanctioned') + `(${currency})`,
+                          value: item.loan_sanctioned,
+                        },
+                      ]
+                    : []),
+                  {
+                    label: t('number_caps'),
+                    value: item.agri_user.contactNumber,
+                  },
+                  {
+                    label: t('date'),
+                    value: date.toString().substring(4, 15),
+                  },
+                  ...(item?.sanctioned_date
+                    ? [
+                        {
+                          label: t('SanctionedDate'),
+                          value: sanctioned_date.toString().substring(3, 15),
+                        },
+                      ]
+                    : []),
+                  ...(item?.loan_ord_id
+                    ? [
+                        {
+                          label: t('LoanOrderID'),
+                          value: item.loan_ord_id.substring(-1, 9),
+                        },
+                      ]
+                    : []),
+                ];
+
                 return (
-                  <TouchableOpacity
-                    style={styles.flatListContainer}
-                    onPress={() => navigate('LoanEnquiryDetail', item)}>
-                    <View style={styles.flatListItem}>
-                      <View style={styles.cardHeader}>
-                        <View style={styles.marqueeContainer}>
-                          <Text style={styles.cardTitle}>
-                            {t('name')}:{' '}
-                            <Text style={styles.cardTitleRe}>
-                              {item.agri_user.userName}
-                            </Text>
-                          </Text>
-                        </View>
-                        <View style={styles.cardFooter}>
-                          <MaterialIcons
-                            name="chevron-right"
-                            size={20}
-                            color="#2e7d32"
-                          />
-                        </View>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>
-                          {t('loan_amt') + `(${currency})`}:
-                        </Text>
-                        <Text style={styles.titleLone}>{item.loan_amount}</Text>
-                      </View>
-
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('sta_')}:</Text>
-                        <Text
-                          style={[
-                            styles.value,
-                            item.status == 1 && styles.pending,
-                            item.status == 2 && styles.approved,
-                            item.status == 3 && styles.rejected,
-                          ]}>
-                          {item.status == 1 && t('pending')}
-                          {item.status == 2 && t('Approved')}
-                          {item.status == 3 && t('Rejected')}
-                        </Text>
-                      </View>
-
-                      {item?.loan_sanctioned && (
-                        <View style={styles.detailRow}>
-                          <Text style={styles.label}>
-                            {t('LoanSanctioned') + `(${currency})`}:
-                          </Text>
-                          <Text style={styles.value}>
-                            {item.loan_sanctioned}
-                          </Text>
-                        </View>
-                      )}
-
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('number_caps')}:</Text>
-                        <Text style={styles.value}>
-                          {item.agri_user.contactNumber}
-                        </Text>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('date')}: </Text>
-                        <Text style={styles.value}>
-                          {date.toString().substring(4, 15)}
-                        </Text>
-                      </View>
-
-                      {item?.sanctioned_date && (
-                        <View style={styles.detailRow}>
-                          <Text style={styles.label}>
-                            {t('SanctionedDate')}:
-                          </Text>
-                          <Text style={styles.value}>
-                            {sanctioned_date.toString().substring(3, 15)}
-                          </Text>
-                        </View>
-                      )}
-                      {item?.loan_ord_id && (
-                        <View style={styles.detailRow}>
-                          <Text style={styles.label}>{t('LoanOrderID')}: </Text>
-                          <Text style={styles.value}>
-                            {item.loan_ord_id.substring(-1, 9)}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
+                  <ListCard
+                    onPress={() => navigate('LoanEnquiryDetail', item)}
+                    title={`${t('name')}: ${item.agri_user.userName}`}
+                    items={cardItems}
+                    index={index}
+                    borderColor={Colors.borderGreen}
+                  />
                 );
               }}
-              keyExtractor={(item, index) => index}
+              keyExtractor={(item, index) => index.toString()}
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -428,78 +418,6 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     marginHorizontal: '2%',
-    // marginBottom: 5,
-  },
-  flatListItem: {
-    backgroundColor: 'white',
-
-    marginVertical: 8,
-    borderRadius: 20,
-    borderLeftWidth: 5,
-    borderLeftColor: Colors.borderGreen,
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // marginBottom: 8,
-    paddingHorizontal: 15,
-    marginHorizontal: '2.5%',
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    // elevation: 4,
-    borderRightWidth: 1,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderRightColor: Colors.border,
-    borderTopColor: Colors.border,
-    borderBottomColor: Colors.border,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    paddingBottom: 5,
-    marginLeft: 5,
-  },
-  marqueeContainer: {
-    flex: 1,
-    // marginLeft: 10,
-    marginRight: 10,
-    overflow: 'hidden',
-    marginTop: 10,
-  },
-  cardTitle: {
-    fontSize: 14,
-    // fontWeight: '600',
-    color: Colors.borderGreen,
-    // marginLeft: 5,
-    fontFamily: 'Poppins-SemiBold',
-  },
-  cardTitleRe: {
-    fontSize: 14,
-    // fontWeight: '600',
-    color: Colors.useGreen,
-    // marginLeft: 5,
-    fontFamily: 'Poppins-Regular',
-  },
-
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    // borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    // paddingTop: 8,
-    marginLeft: 5,
-  },
-  viewDetailsText: {
-    fontSize: 12,
-    color: Colors.useGreen,
-    // marginRight: 4,
-    fontFamily: 'Poppins-Regular',
   },
   plusIcon: {
     width: 40,
@@ -533,66 +451,15 @@ const styles = StyleSheet.create({
     position: 'relative',
     top: 100,
   },
-  title: {
-    fontSize: 13,
-    color: Colors.text,
-    marginLeft: 5,
-    fontFamily: 'Poppins-SemiBold',
-    paddingBottom: 5,
-  },
   titleLone: {
     fontSize: 13,
     color: '#D10000',
-    marginLeft: 5,
     fontFamily: 'Poppins-SemiBold',
-    paddingBottom: 5,
-  }, //D10000
-  titleRe: {
-    fontSize: 14,
-    color: Colors.text,
-    marginLeft: 5,
-    fontFamily: 'Poppins-Regular',
-    paddingBottom: 5,
-  },
-  titlePen: {
-    fontSize: 14,
-    color: '#a66607ff',
-    marginLeft: 5,
-    fontFamily: 'Poppins-SemiBold',
-    paddingBottom: 5,
-  },
-  titleApp: {
-    fontSize: 14,
-    color: '#236432ff',
-    marginLeft: 5,
-    fontFamily: 'Poppins-SemiBold',
-    paddingBottom: 5,
-  },
-  titleRej: {
-    fontSize: 13,
-    color: '#b83535ff',
-    marginLeft: 5,
-    fontFamily: 'Poppins-SemiBold',
-    paddingBottom: 5,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-    paddingHorizontal: 5,
-    paddingHorizontal: 10,
-  },
-  label: {
-    fontSize: 13,
-    color: Colors.text,
-    fontFamily: 'Poppins-SemiBold',
-    flex: 1,
   },
   value: {
     fontSize: 13,
     color: Colors.text,
     fontFamily: 'Poppins-Regular',
-    flex: 1,
     textAlign: 'right',
   },
   pending: {
@@ -607,50 +474,10 @@ const styles = StyleSheet.create({
     color: '#b83535ff',
     fontFamily: 'Poppins-SemiBold',
   },
-
-  ////////////////////////////////////////////////////////////
-  //   container: {
-  //     marginBottom: 600,
-  //   },
-  //   flatListContainer: {
-  //     marginHorizontal: '2%',
-  //     flexDirection: 'row',
-  //     backgroundColor: '#FFF',
-  //     padding: 6,
-  //     marginBottom: 10,
-  //     borderRadius: 10,
-  //     elevation: 5,
-  //   },
-  //   flatListItem: {
-  //     width: '50%',
-  //   },
-  //   plusIcon: {
-  //     width: 50,
-  //     height: 50,
-  //     position: 'absolute',
-  //     top: '70%',
-  //     // buttom: 200,
-  //     right: 20,
-  //     zIndex: 999,
-  //   },
-  //   flatContainer: {
-  //     backgroundColor: '#ffffff',
-  //     position: 'absolute',
-  //     zIndex: 999,
-  //     // bottom: '100%',
-  //     top: '10%',
-  //     left: 0,
-  //     marginHorizontal: '5%',
-  //     width: '90%',
-  //     elevation: 10,
-  //     borderRadius: 10,
-  //     padding: 10,
-  //   },
   flatContainerLengthUp: {
     backgroundColor: '#ffffff',
     position: 'absolute',
     zIndex: 999,
-    // bottom: '100%',
     top: '15%',
     left: 0,
     marginHorizontal: '5%',
@@ -659,23 +486,4 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
   },
-  //   flatlisttitle: {
-  //     padding: 10,
-  //     color: '#000',
-  //     fontFamily: 'Poppins-Regular',
-  //     fontSize: 13,
-  //   },
-  //   flatlistHeight: {
-  //     height: Dimensions.get('window').height / 2.5,
-  //   },
-  //   loadingScreen: {
-  //     position: 'relative',
-  //     top: 100,
-  //   },
-  //   title: {
-  //     color: '#000',
-  //     marginVertical: 2,
-  //     fontFamily: 'Poppins-Regular',
-  //     fontSize: 14,
-  //   },
 });

@@ -371,7 +371,6 @@ const LoanEnquiryDetail = () => {
       await Linking.openURL(propsData);
     }
   };
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
 
   return (
     <FarmerDrawerScreenWrapper1>
@@ -388,7 +387,7 @@ const LoanEnquiryDetail = () => {
           }}>
           <CustomHeader
             path={'LoanViewPastRequested'}
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

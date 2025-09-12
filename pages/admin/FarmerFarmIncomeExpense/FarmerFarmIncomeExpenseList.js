@@ -25,6 +25,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PaginationNav from '../../Components/PaginationNav';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import {getActionsIncomeExpense} from '../../utils/options';
+import ListCard from '../../Components/ListCard';
 
 const FarmerFarmIncomeExpenseList = ({navigation}) => {
   //GQR-67
@@ -381,84 +382,59 @@ const FarmerFarmIncomeExpenseList = ({navigation}) => {
             <>
               <FlatList
                 data={farmAccount}
-                renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={styles.wrapper}
-                    key={index}
-                    onPress={() =>
-                      navigateToPages('FarmerFarmIncomeExpenseView', index)
-                    }>
-                    <View style={styles.cardHeader}>
-                      <View style={styles.marqueeContainer}>
-                        <Text style={styles.cardTitle}>
-                          {t('addcrop_plot')} :{'  '}
-                          <Text
-                            style={styles.cardTitleRe}
-                            numberOfLines={1}
-                            ellipsizeMode="tail">
-                            {item.land_info && item.land_info.plot_no}
-                          </Text>
-                        </Text>
-                      </View>
-                      <View style={styles.cardFooter}>
-                        <MaterialIcons
-                          name="chevron-right"
-                          size={20}
-                          color="#2e7d32"
-                        />
-                      </View>
-                    </View>
+                renderItem={({item, index}) => {
+                  const cardItems = [
+                    {
+                      label: t('showing_date'),
+                      value: formatDateToDateName(item.sowing_date),
+                      numberOfLines: 1,
+                      ellipsizeMode: 'tail',
+                    },
+                    {
+                      label: t('total_income_sum') + '(' + currency + ')',
+                      value: <ShowIncome income={item.income_expense} />,
+                    },
+                    ,
+                    {
+                      label: t('total_income_sum') + '(' + currency + ')',
+                      value: <ShowIncome income={item.income_expense} />,
+                      numberOfLines: 1,
+                      ellipsizeMode: 'tail',
+                    },
+                    {
+                      label: t('knowyourplot_cropinfo_cropname'),
+                      value: item.crop_name && item.crop_name.name,
+                      numberOfLines: 1,
+                      ellipsizeMode: 'tail',
+                    },
+                    {
+                      label: t('harvesting_date_auto_calculated'),
+                      value: formatDateToDateName(item.harvesting_date),
+                      numberOfLines: 1,
+                      ellipsizeMode: 'tail',
+                    },
+                    {
+                      label: t('total_exp_sum') + '(' + currency + ')',
+                      value: <ShowExpense expense={item.income_expense} />,
+                      numberOfLines: 1,
+                      ellipsizeMode: 'tail',
+                    },
+                  ];
 
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('showing_date')} : </Text>
-                      <Text
-                        style={styles.value}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {formatDateToDateName(item.sowing_date)}
-                      </Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>
-                        {t('total_income_sum') + '(' + currency + ')'} :
-                      </Text>
-                      <Text style={styles.value}>
-                        {<ShowIncome income={item.income_expense} />}
-                      </Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>
-                        {t('knowyourplot_cropinfo_cropname')} :
-                      </Text>
-                      <Text
-                        style={styles.value}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {item.crop_name && item.crop_name.name}
-                      </Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>
-                        {t('harvesting_date_auto_calculated')} :
-                      </Text>
-                      <Text
-                        style={styles.value}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {formatDateToDateName(item.harvesting_date)}
-                      </Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>
-                        {t('total_exp_sum') + '(' + currency + ')'} :
-                      </Text>
-                      <Text style={styles.value}>
-                        {<ShowExpense expense={item.income_expense} />}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item, index) => index}
+                  return (
+                    <ListCard
+                      onPress={() =>
+                        navigateToPages('FarmerFarmIncomeExpenseView', index)
+                      }
+                      title={`${t('addcrop_plot')}: ${
+                        item.land_info && item.land_info.plot_no
+                      }`}
+                      items={cardItems}
+                      index={index}
+                    />
+                  );
+                }}
+                keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
               />
               <PaginationNav

@@ -29,7 +29,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PaginationNav from '../../Components/PaginationNav';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import {getActionsIncomeExpense} from '../../utils/options';
-import {ListCard} from '../../Components/ListCard';
+import ListCard from '../../Components/ListCard';
 
 const FarmIncomeExpenseList = ({navigation}) => {
   //GQR-67
@@ -239,104 +239,65 @@ const FarmIncomeExpenseList = ({navigation}) => {
           )}
           <FlatList
             data={farmAccount}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                style={styles.wrapper}
-                key={index}
-                onPress={() => navigateToPages('FarmIncomeExpenseView', index)}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.marqueeContainer}>
-                    <Text style={styles.cardTitle}>
-                      {t('name')} :{' '}
-                      <Text
-                        style={styles.cardTitleRe}
-                        numberOfLines={1}
-                        ellipsizeMode="tail">
-                        {item.agri_user && item.agri_user.userName}
-                      </Text>
-                    </Text>
-                  </View>
-                  <View style={styles.cardFooter}>
-                    <MaterialIcons
-                      name="chevron-right"
-                      size={20}
-                      color="#2e7d32"
-                    />
-                  </View>
-                </View>
+            renderItem={({item, index}) => {
+              const cardItems = [
+                {
+                  label: t('addcrop_plot'),
+                  value: item.land_info && item.land_info.plot_no,
+                  numberOfLines: 1,
+                  ellipsizeMode: 'tail',
+                },
+                {
+                  label: t('showing_date'),
+                  value: formatDateToDateName(item.sowing_date),
+                },
+                {
+                  label: t('total_income_sum') + '(' + currency + ')',
+                  value: <ShowIncome income={item.income_expense} />,
+                  numberOfLines: 1,
+                  ellipsizeMode: 'tail',
+                },
+                {
+                  label: t('farmer_number'),
+                  value: item.agri_user && item.agri_user.contactNumber,
+                  numberOfLines: 1,
+                  ellipsizeMode: 'tail',
+                },
+                {
+                  label: t('knowyourplot_cropinfo_cropname').substring(0, 13),
+                  value: item.crop_name && item.crop_name.name,
+                  numberOfLines: 1,
+                  ellipsizeMode: 'tail',
+                },
+                {
+                  label: t('harvesting_date_auto_calculated'),
+                  value: formatDateToDateName(item.harvesting_date),
+                  numberOfLines: 1,
+                  ellipsizeMode: 'tail',
+                },
+                {
+                  label: t('total_exp_sum') + '(' + currency + ')',
+                  value: <ShowExpense expense={item.income_expense} />,
+                },
+              ];
 
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>{t('addcrop_plot')} :</Text>
-                  <Text
-                    style={styles.value}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {item.land_info && item.land_info.plot_no}
-                  </Text>
-                </View>
-
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>{t('showing_date')} :</Text>
-                  <Text style={styles.value}>
-                    {formatDateToDateName(item.sowing_date)}
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>
-                    {t('total_income_sum') + '(' + currency + ')'}:
-                  </Text>
-                  <Text
-                    style={styles.value}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {<ShowIncome income={item.income_expense} />}
-                  </Text>
-                </View>
-
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>{t('farmer_number')} : </Text>
-                  <Text
-                    style={styles.value}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {item.agri_user && item.agri_user.contactNumber}
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>
-                    {t('knowyourplot_cropinfo_cropname').substring(0, 13)} :
-                  </Text>
-                  <Text
-                    style={styles.value}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {item.crop_name && item.crop_name.name}
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>
-                    {t('harvesting_date_auto_calculated')} :{' '}
-                  </Text>
-                  <Text
-                    style={styles.value}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
-                    {formatDateToDateName(item.harvesting_date)}
-                  </Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>
-                    {t('total_exp_sum') + '(' + currency + ')'}:
-                  </Text>
-                  <Text style={styles.value}>
-                    {<ShowExpense expense={item.income_expense} />}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index}
+              return (
+                <ListCard
+                  onPress={() =>
+                    navigateToPages('FarmIncomeExpenseView', index)
+                  }
+                  title={`${t('name')}: ${
+                    item.agri_user && item.agri_user.userName
+                  }`}
+                  items={cardItems}
+                  index={index}
+                />
+              );
+            }}
+            keyExtractor={(item, index) => index.toString()}
             showsVerticalScrollIndicator={false}
           />
+
           <PaginationNav
             isLoading={isLoading}
             page={page}

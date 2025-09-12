@@ -21,6 +21,7 @@ import TabBar from '../../Components/TabBar';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PaginationNav from '../../Components/PaginationNav';
+import ListCard from '../../Components/ListCard';
 
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const Market = () => {
@@ -107,6 +108,33 @@ const Market = () => {
     () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
     [],
   );
+  const renderListItem = ({item, index}) => {
+    const {farmer_data, plot_no} = item || {};
+
+    const cardItems = [
+      {
+        label: t('number_caps'),
+        value: farmer_data?.contactNumber || 'N/A',
+      },
+      {
+        label: 'Plot Name',
+        value: plot_no || 'N/A',
+      },
+    ];
+    return (
+      <ListCard
+        onPress={() => detailItem(item)}
+        title={farmer_data?.userName || 'Unknown Farmer'}
+        items={cardItems}
+        index={index}
+        iconName="edit-square"
+        iconSize={16}
+        iconColor="#206708ff"
+        borderColor={activeTab === 0 ? '#d10000ff' : '#206708ff'} //
+        showChevron={false}
+        cardStyle={styles.listCard}></ListCard>
+    );
+  };
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={styles.container}>
@@ -178,41 +206,16 @@ const Market = () => {
               showsVerticalScrollIndicator={false} // Hides vertical scrollbar
               showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
               style={{padding: 10}}
-              renderItem={({_index, item}) => {
-                const {farmer_data, plot_no} = item || {};
-                return (
-                  <TouchableOpacity
-                    style={styles.flatListContainer}
-                    onPress={() => detailItem(item)}>
-                    <View style={styles.flatListItem}>
-                      <View style={styles.cardHeader}>
-                        <View style={styles.marqueeContainer}>
-                          <Text style={styles.cardTitleRe}>
-                            {farmer_data?.userName}{' '}
-                          </Text>
-                        </View>
-                        <View style={styles.cardFooter}>
-                          <MaterialIcons
-                            name="edit-square"
-                            size={16}
-                            color="#2e7d32"
-                          />
-                        </View>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('number_caps')}:</Text>
-                        <Text style={styles.value}>
-                          {farmer_data?.contactNumber}
-                        </Text>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>Plot Name</Text>
-                        <Text style={styles.value}>{plot_no}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
+              renderItem={renderListItem}
+              ListEmptyComponent={
+                !loading && (
+                  <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>
+                      {t('no_rejected_plots')}
+                    </Text>
+                  </View>
+                )
+              }
             />
             <PaginationNav
               page={page}
@@ -247,58 +250,16 @@ const Market = () => {
               showsVerticalScrollIndicator={false} // Hides vertical scrollbar
               showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
               style={{padding: 10}}
-              renderItem={({_index, item}) => {
-                const {farmer_data, plot_no} = item || {};
-                return (
-                  <TouchableOpacity
-                    style={styles.flatListContainer}
-                    onPress={() => detailItem(item)}>
-                    <View style={styles.flatListItemGeo}>
-                      <View style={styles.cardHeader}>
-                        <View style={styles.marqueeContainer}>
-                          <Text style={styles.cardTitleRe}>
-                            {farmer_data?.userName}{' '}
-                          </Text>
-                        </View>
-                        <View style={styles.cardFooter}>
-                          <MaterialIcons
-                            name="edit-square"
-                            size={16}
-                            color="#2e7d32"
-                          />
-                        </View>
-                      </View>
-
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>{t('number_caps')}:</Text>
-                        <Text style={styles.value}>
-                          {farmer_data?.contactNumber}
-                        </Text>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Text style={styles.label}>Plot Name</Text>
-                        <Text style={styles.value}>{plot_no}</Text>
-                      </View>
-
-                      {/* <Text style={styles.text}>Farmer Name</Text>
-                      <Text style={styles.text}>Phone Number</Text>
-                      <Text style={styles.text}>Plot Name</Text>
-                      <View
-                        style={{
-                          flex: 3,
-                        }}>
-                        <Text style={styles.text}>
-                          :{farmer_data?.userName}
-                        </Text>
-                        <Text style={styles.text}>
-                          :{farmer_data?.contactNumber}
-                        </Text>
-                        <Text style={styles.text}>:{plot_no}</Text>
-                      </View> */}
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
+              renderItem={renderListItem}
+              ListEmptyComponent={
+                !loading && (
+                  <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>
+                      {t('no_non_geofenced_plots')}
+                    </Text>
+                  </View>
+                )
+              }
             />
             <PaginationNav
               page={page}
@@ -724,5 +685,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     flex: 1,
     textAlign: 'right',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: Colors.text,
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
 });
