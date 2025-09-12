@@ -10,7 +10,7 @@ import {
   Alert,
   Button,
   StatusBar,
-  Modal,
+  Modal,SafeAreaView
 } from 'react-native';
 import React, { useEffect, useState, useContext } from 'react';
 import Logo from './Common/Logo';
@@ -555,6 +555,7 @@ const Login = ({ route }) => {
   };
   return (
     <MyErrorBoundary>
+      <SafeAreaView style={{flex:1}}>
       <Root>
         <ForegroundLocationService />
         <StatusBar barStyle="light-content" backgroundColor="#023316" />
@@ -666,6 +667,7 @@ const Login = ({ route }) => {
           <ButtonForm label={t('sign_in_submit')} onPress={saveHandle} />
         </View>
       </Root>
+      </SafeAreaView>
     </MyErrorBoundary>
   );
 };

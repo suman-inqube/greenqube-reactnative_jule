@@ -4,7 +4,6 @@ import App from './App';
 import { name as appName } from './app.json';
 import messaging from '@react-native-firebase/messaging';
 import { useEffect, useContext } from 'react';
-import 'react-native-get-random-values';
 import { CrashlyticsRecordError } from './pages/Crashlytics/CrashlyticsRecordError';
 
 messaging().setBackgroundMessageHandler(async remoteMessage => {
