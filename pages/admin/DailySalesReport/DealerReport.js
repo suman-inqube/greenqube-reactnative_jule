@@ -427,7 +427,7 @@ const DealerReport = () => {
         });
         validateForm('', `${t('your_request_submitted')}`);
         setTimeout(() => {
-          navigation.navigate('DailySalesReport');
+          navigation.navigate('DailySalesReport', {action: 'addData'});
         }, 1000);
       } else {
         validateForm('', 'something went wrong');

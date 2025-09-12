@@ -7,10 +7,10 @@ import {
   Image,
   BackHandler,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { userDetailAPI } from '../../../config/apiHere';
+import React, {useState, useEffect, useCallback, useContext} from 'react';
+import {userDetailAPI} from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import { Colors } from '../../utils/Constants';
+import {Colors} from '../../utils/Constants';
 import {
   updateUserInfoAPI,
   districtDataListAPI1,
@@ -24,7 +24,7 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import DatePickerField from '../../Common/DatePickerField';
@@ -45,7 +45,7 @@ const Profile = () => {
     DropdownForm,
     ButtonForm,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
@@ -84,11 +84,11 @@ const Profile = () => {
       },
     ];
     if (storePersnolInfo.stateName == '') {
-      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
     } else if (storePersnolInfo.districtName == '') {
-      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
     } else if (storePersnolInfo.blockName == '') {
-      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
     } else {
       const formData = new FormData();
       formData.append('lan_id', storePersnolInfo.langId);
@@ -123,7 +123,7 @@ const Profile = () => {
           ...AlertMesg[0],
         });
         handleLogout();
-        navigation.navigate('Login', { pagename: 'Login' });
+        navigation.navigate('Login', {pagename: 'Login'});
       }
     }
   };
@@ -143,7 +143,7 @@ const Profile = () => {
     }
   };
   const handleLanguage = async language => {
-    const { block, district, state } = storePersnolInfo;
+    const {block, district, state} = storePersnolInfo;
     const locDiffLangRes = await locDiffLang(
       dbname,
       language.value,
@@ -153,7 +153,7 @@ const Profile = () => {
       block,
     );
     if (locDiffLangRes?.status == 200) {
-      const { distData, stateData, subdivData } =
+      const {distData, stateData, subdivData} =
         locDiffLangRes?.data?.data || {};
       await Promise.all([
         stateInfoDataList(dbname, language.value, token),
@@ -319,7 +319,7 @@ const Profile = () => {
           district: district,
           block: block,
         });
-        const { dbname, lan_id, token, user_id } = loginUser_data;
+        const {dbname, lan_id, token, user_id} = loginUser_data;
         userDetails(dbname, lan_id, token, user_id);
       }
       setIsLoading(false);
@@ -344,10 +344,10 @@ const Profile = () => {
       CommonActions.reset({
         index: 4,
         routes: [
-          { name: 'Login' },
+          {name: 'Login'},
           {
             name: 'Login',
-            params: { pagename: 'Login', locale: storePersnolInfo.langId },
+            params: {pagename: 'Login', locale: storePersnolInfo.langId},
           },
         ],
       }),
@@ -357,100 +357,106 @@ const Profile = () => {
     onPageLoad();
   }, []);
   return (
-    <>
-      <Root>
-        <View style={styles.container}>
-          {isLoading ? (
-            <View style={styles.LoadingScreen}>
-              <LoadingScreen />
-            </View>
-          ) : null}
-          <CustomHeader
-            path="Dashboard"
-            logoImage={logoImage}
-            topBanner={topBanner}
-            t={t}
-          />
-          <View style={styles.fromContainer}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={{ padding: 10 }}>
-                <InputTextForm
-                  label={t('name')}
-                  color="black"
-                  value={storePersnolInfo.userName}
-                  editable={false}
-                />
-                <InputTextForm
-                  label={t('new_reg_phone_number')}
-                  color="black"
-                  value={storePersnolInfo.contactNumber}
-                  editable={false}
-                />
-                <DatePickerField
-                  label={t('date_of_birth')}
-                  value={storePersnolInfo.date_of_birth}
-                  labelColor={Colors.black}
-                />
-
-                <DropdownForm
-                  label={t('select_language')}
-                  color="black"
-                  data={languageData}
-                  onChange={item => {
-                    handleLanguage(item);
-                  }}
-                  val={storePersnolInfo.langIdName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.state == ''
-                      ? t('state_col')
-                      : t(`${regionaldatas.state}`)
-                  }
-                  color="black"
-                  data={stateInfoData}
-                  onChange={item => {
-                    handleStateInfo(item);
-                  }}
-                  val={storePersnolInfo.stateName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.district == ''
-                      ? t('select_zila')
-                      : t(`${regionaldatas.district}`)
-                  }
-                  color="black"
-                  data={districtData}
-                  onChange={item => {
-                    handleDistrict(item);
-                  }}
-                  val={storePersnolInfo.districtName}
-                />
-                <DropdownForm
-                  label={
-                    regionaldatas.block == ''
-                      ? t('select_block_sub_county_upzila')
-                      : t(`${regionaldatas.block}`)
-                  }
-                  color="black"
-                  data={blockData}
-                  onChange={item => {
-                    setstorePersnolInfo({
-                      ...storePersnolInfo,
-                      block: item.value,
-                      blockName: item.label,
-                    });
-                  }}
-                  val={storePersnolInfo.blockName}
-                />
+    <FarmerDrawerScreenWrapper1>
+      <>
+        <Root>
+          <View style={styles.container}>
+            {isLoading ? (
+              <View style={styles.LoadingScreen}>
+                <LoadingScreen />
               </View>
-            </ScrollView>
+            ) : null}
+            <CustomHeader
+              path="Dashboard"
+              logoImage={logoImage}
+              topBanner={topBanner}
+              t={t}
+            />
+            <View style={styles.fromContainer}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={{padding: 10}}>
+                  <InputTextForm
+                    label={t('name')}
+                    color="black"
+                    value={storePersnolInfo.userName}
+                    editable={false}
+                  />
+                  <InputTextForm
+                    label={t('new_reg_phone_number')}
+                    color="black"
+                    value={storePersnolInfo.contactNumber}
+                    editable={false}
+                  />
+                  <DatePickerField
+                    label={t('date_of_birth')}
+                    value={storePersnolInfo.date_of_birth}
+                    labelColor={Colors.black}
+                  />
+
+                  <DropdownForm
+                    label={t('select_language')}
+                    color="black"
+                    data={languageData}
+                    onChange={item => {
+                      handleLanguage(item);
+                    }}
+                    val={storePersnolInfo.langIdName}
+                  />
+                  <DropdownForm
+                    label={
+                      regionaldatas.state == ''
+                        ? t('state_col')
+                        : t(`${regionaldatas.state}`)
+                    }
+                    color="black"
+                    data={stateInfoData}
+                    onChange={item => {
+                      handleStateInfo(item);
+                    }}
+                    val={storePersnolInfo.stateName}
+                  />
+                  <DropdownForm
+                    label={
+                      regionaldatas.district == ''
+                        ? t('select_zila')
+                        : t(`${regionaldatas.district}`)
+                    }
+                    color="black"
+                    data={districtData}
+                    onChange={item => {
+                      handleDistrict(item);
+                    }}
+                    val={storePersnolInfo.districtName}
+                  />
+                  <DropdownForm
+                    label={
+                      regionaldatas.block == ''
+                        ? t('select_block_sub_county_upzila')
+                        : t(`${regionaldatas.block}`)
+                    }
+                    color="black"
+                    data={blockData}
+                    onChange={item => {
+                      setstorePersnolInfo({
+                        ...storePersnolInfo,
+                        block: item.value,
+                        blockName: item.label,
+                      });
+                    }}
+                    val={storePersnolInfo.blockName}
+                  />
+                </View>
+              </ScrollView>
+            </View>
           </View>
-        </View>
-        <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading} />
-      </Root>
-    </>
+          <ButtonForm
+            label={t('submit')}
+            onPress={() => handleSave()}
+            loading={isLoading}
+          />
+        </Root>
+      </>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 export default Profile;

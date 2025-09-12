@@ -37,7 +37,7 @@ const ViewPast = props => {
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
-  const route = useRoute();
+
   const isFocused = useIsFocused();
   const [searchResults, setSearchResults] = useState([]);
   const [filterOption, setFilterOption] = useState(false);
@@ -60,6 +60,8 @@ const ViewPast = props => {
   const [outputSingle, setOutputSingle] = useState();
   const [pastEnquiryView, setPastEnquiryView] = useState([]);
   const [result, setresult] = useState({qty: '', total: ''});
+  const route = useRoute();
+
   const filterOptionShow = () => {
     if (!filterOption) {
       setFilterOption(true);
@@ -213,6 +215,13 @@ const ViewPast = props => {
       }
     }
   };
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
+      onPageLoad('', '');
+    }
+  }, [route?.params]);
   const onPageLoad = async () => {
     console.log('onPageLoad triggered');
     const outputList = await outputListAPI(dbname, lan_id, token, user_id);

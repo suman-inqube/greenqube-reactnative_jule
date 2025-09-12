@@ -21,6 +21,8 @@ import CollapsibleCard from '../../Common/CollapsibleCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors} from '../../utils/Constants';
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
+import PaginationNav from '../../Components/PaginationNav';
+
 const InstrumentWiseActivityView = () => {
   const navigation = useNavigation();
   //GQR-67
@@ -74,6 +76,8 @@ const InstrumentWiseActivityView = () => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [fromDateFilter, setFromDateFilter] = useState('');
   const [carbonType, setCarbonType] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const filterOptionShow = () => {
     if (!filterOption) {
       setFilterOption(true);
@@ -175,6 +179,8 @@ const InstrumentWiseActivityView = () => {
         effective_date,
       );
       if (response?.status == 200) {
+        setTotalPages(Math.ceil(response?.data?.data.count / 20));
+
         setactivityAll(response?.data?.data?.rows);
         setItem('activity_Data', response?.data?.data?.rows);
       }
@@ -183,52 +189,65 @@ const InstrumentWiseActivityView = () => {
       Toast.show({time: 3, text: t('please_date_first'), ...AlertMesg[0]});
     }
   };
-  const fatchActivityListAPI = async (
-    dbName,
-    languageId,
-    token,
-    supervisorId,
-    pageNo,
-    searchItem = '',
-    from_date = '',
-    to_date = '',
-    carbonType = '',
-  ) => {
-    setIsLoading(true);
-    if (isOnline) {
-      var response = await activityListInstrumentWise(
-        dbName,
-        languageId,
-        token,
-        supervisorId,
-        pageNo,
-        searchItem,
-        from_date,
-        to_date,
-        carbonType,
-      );
-      if (response?.status == 200) {
-        await setItem('activityList', response);
-      }
-    } else {
-      var response = await getItem('activityList');
-    }
-    if (response?.status == 200) {
-      if (response.data.data.count != 0) {
-        const totalPage = Math.ceil(response.data.data.count / 20);
-        setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage});
-        setactivityAll(response?.data?.data?.rows);
-        if (carbonType == '') {
-          setactivityAllRow(response?.data?.data?.rows);
+
+  const fatchActivityListAPI = useCallback(
+    async (
+      dbName,
+      languageId,
+      token,
+      supervisorId,
+      pageNo,
+      searchItem = '',
+      from_date = '',
+      to_date = '',
+      carbonType = '',
+    ) => {
+      try {
+        setIsLoading(true);
+        if (isOnline) {
+          var response = await activityListInstrumentWise(
+            dbName,
+            languageId,
+            token,
+            supervisorId,
+            pageNo,
+            searchItem,
+            from_date,
+            to_date,
+            carbonType,
+          );
+          if (response?.status == 200) {
+            await setItem('activityList', response);
+          }
+        } else {
+          var response = await getItem('activityList');
         }
-        await setItem('activity_Data', response?.data?.data?.rows);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-        Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
+        if (response?.status == 200) {
+          if (response.data.data.count != 0) {
+            const totalPage = Math.ceil(response.data.data.count / 20);
+            setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage});
+            setactivityAll(response?.data?.data?.rows);
+            if (carbonType == '') {
+              setactivityAllRow(response?.data?.data?.rows);
+            }
+            await setItem('activity_Data', response?.data?.data?.rows);
+            setIsLoading(false);
+          } else {
+            setIsLoading(false);
+            Toast.show({
+              time: 3,
+              text: `${t('no_data_found')}`,
+              ...AlertMesg[0],
+            });
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        // CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
       }
-    }
-  };
+    },
+    [page],
+  );
   const onPageLoad = async () => {
     // setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
     let pageNumber;
@@ -694,15 +713,22 @@ const InstrumentWiseActivityView = () => {
             maxToRenderPerBatch={10}
             updateCellsBatchingPeriod={50}
           />
-
-          <View style={styles.prevNextPage}>
+          <PaginationNav
+            isLoading={isLoading}
+            page={page}
+            totalPages={totalPages}
+            onPrev={() => setPage(p => Math.max(1, p - 1))}
+            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+            t={t}
+          />
+          {/* <View style={styles.prevNextPage}>
             <TouchableOpacity onPress={() => handlePage('previous')}>
               <Text style={styles.title}>{t('prev_page')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handlePage('next')}>
               <Text style={styles.title}>{t('next_page')}</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </Root>
     </FarmerDrawerScreenWrapper1>

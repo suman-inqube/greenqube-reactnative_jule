@@ -37,6 +37,7 @@ import PaginationNav from '../../Components/PaginationNav';
 import {AlertMesg} from '../../Common/ToastAlert';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import ActivityCard from '../../Components/ActivityCard';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 function ActivityList({navigation}) {
   //GQR-67
   const {
@@ -276,66 +277,68 @@ function ActivityList({navigation}) {
     [filterOptionShow],
   );
   return (
-    <MyErrorBoundary>
-      <Root>
-        <SafeAreaView style={styles.container}>
-          {renderCustomHeader}
+    <FarmerDrawerScreenWrapper1>
+      <MyErrorBoundary>
+        <Root>
+          <SafeAreaView style={styles.container}>
+            {renderCustomHeader}
 
-          <FlatList
-            ref={flatListRef}
-            data={isLoading ? Array.from({length: 5}) : activityAll}
-            keyExtractor={(item, index) => index?.toString()}
-            renderItem={({item, index}) =>
-              isLoading ? (
-                <SkeletonCardActivityList />
-              ) : (
-                <ActivityCard
-                  activity={item}
-                  index={index}
-                  navigation={navigation}
-                  t={t}
-                  effective_dates={effective_dates}
-                  path={'activityDetail'}
+            <FlatList
+              ref={flatListRef}
+              data={isLoading ? Array.from({length: 5}) : activityAll}
+              keyExtractor={(item, index) => index?.toString()}
+              renderItem={({item, index}) =>
+                isLoading ? (
+                  <SkeletonCardActivityList />
+                ) : (
+                  <ActivityCard
+                    activity={item}
+                    index={index}
+                    navigation={navigation}
+                    t={t}
+                    effective_dates={effective_dates}
+                    path={'activityDetail'}
+                  />
+                )
+              }
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={['#4CAF50']}
+                  tintColor="#4CAF50"
                 />
-              )
-            }
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                colors={['#4CAF50']}
-                tintColor="#4CAF50"
-              />
-            }
-            contentContainerStyle={{padding: 16, paddingBottom: 10}}
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={5}
-            windowSize={5}
-            removeClippedSubviews={true}
-          />
-          <PaginationNav
-            isLoading={isLoading}
-            page={page}
-            totalPages={totalPages}
-            onPrev={() => setPage(p => Math.max(1, p - 1))}
-            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-            t={t}
-          />
-          <FloatingActionButton
-            position="right"
-            actions={getActionsActivity(t, styles, Colors)}
-            color={Colors.useGreen}
-            onPressItem={name => {
-              // SPSheet.hide();
-              handleSPSheetShow();
-            }}
-            showBackground={true}
-            overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
-          />
-        </SafeAreaView>
-      </Root>
-    </MyErrorBoundary>
+              }
+              contentContainerStyle={{padding: 16, paddingBottom: 10}}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={5}
+              windowSize={5}
+              removeClippedSubviews={true}
+            />
+            <PaginationNav
+              isLoading={isLoading}
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage(p => Math.max(1, p - 1))}
+              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+              t={t}
+            />
+            <FloatingActionButton
+              position="right"
+              actions={getActionsActivity(t, styles, Colors)}
+              color={Colors.useGreen}
+              onPressItem={name => {
+                // SPSheet.hide();
+                handleSPSheetShow();
+              }}
+              showBackground={true}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{vertical: 80, horizontal: 25}}
+            />
+          </SafeAreaView>
+        </Root>
+      </MyErrorBoundary>
+    </FarmerDrawerScreenWrapper1>
   );
 }
 export default ActivityList;

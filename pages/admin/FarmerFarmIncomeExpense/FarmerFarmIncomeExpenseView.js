@@ -1,5 +1,5 @@
 import {BackHandler, StyleSheet, Text, View, ScrollView} from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {formatDateToDateName} from '../../Common/DateChanger';
 import {userCreateContext} from '../../Context/usersCreateContext';
@@ -85,15 +85,9 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
     return incomeAmount - expenseAmount.toFixed(2);
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('FarmerFarmIncomeExpenseList');
-        return true;
-      });
-    }, []),
-  );
+  useEffect(() => {
+    onPageLoad();
+  }, []);
   const HandlerGoBack = () =>
     navigation.navigate('FarmerFarmIncomeExpenseList');
   return (

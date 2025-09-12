@@ -22,6 +22,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 const InsuranceViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
@@ -57,6 +58,8 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
   });
   const [modalVisibleData, setModalVisibleData] = useState({});
   const [refreshing, setRefreshing] = useState(false);
+  const route = useRoute();
+
   const onPageLoad = async (
     farmer_id = '',
     farmer_mobile = '',
@@ -89,6 +92,13 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
     setModalVisible(true);
     setModalVisibleData(item);
   }, []);
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
+      onPageLoad('', '');
+    }
+  }, [route?.params]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {
@@ -238,13 +248,6 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
                         {t('plot_to_be_insured')}:{' '}
                       </Text>
                       <Text style={styles.value}>{item.ins_plots.length}</Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={styles.label}>{t('farmer_reg_nm')} :</Text>
-                      <Text style={styles.value}>
-                        {item.agri_user.userName}
-                      </Text>
                     </View>
 
                     <View style={styles.detailRow}>

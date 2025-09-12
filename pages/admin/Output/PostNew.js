@@ -404,7 +404,7 @@ const PostNew = ({navigation}) => {
 
           setTimeout(() => {
             // props.sendDataToParent(2);
-            navigation.navigate('OutPutList');
+            navigation.navigate('OutPutList', {action: 'addData'});
           }, 1500);
         }
       }

@@ -20,6 +20,7 @@ import {useNavigation} from '@react-navigation/native';
 import TabBar from '../../Components/TabBar';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import PaginationNav from '../../Components/PaginationNav';
 
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const Market = () => {
@@ -45,6 +46,7 @@ const Market = () => {
   const [nonGeofenced, setNonGeofenced] = useState('');
   const [searchBy, setSearchBy] = useState('');
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -59,6 +61,7 @@ const Market = () => {
         searchBy,
       );
       if (response?.status === 200) {
+        setTotalPages(Math.ceil(response?.data?.data.count / 20));
         // console.log(JSON.stringify(response?.data?.data));
         setPlotList(response?.data?.data?.rows);
       }
@@ -190,8 +193,8 @@ const Market = () => {
                         </View>
                         <View style={styles.cardFooter}>
                           <MaterialIcons
-                            name="chevron-right"
-                            size={20}
+                            name="edit-square"
+                            size={16}
                             color="#2e7d32"
                           />
                         </View>
@@ -211,14 +214,21 @@ const Market = () => {
                 );
               }}
             />
-            <View style={styles.prevNextPage}>
+            <PaginationNav
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage(p => Math.max(1, p - 1))}
+              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+              t={t}
+            />
+            {/* <View style={styles.prevNextPage}>
               <TouchableOpacity onPress={() => setPage(page - 1)}>
                 <Text style={styles.title}>{t('prev_page')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setPage(page + 1)}>
                 <Text style={styles.title}>{t('next_page')}</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
           </View>
 
           <View style={styles.page}>
@@ -252,8 +262,8 @@ const Market = () => {
                         </View>
                         <View style={styles.cardFooter}>
                           <MaterialIcons
-                            name="chevron-right"
-                            size={20}
+                            name="edit-square"
+                            size={16}
                             color="#2e7d32"
                           />
                         </View>
@@ -290,14 +300,21 @@ const Market = () => {
                 );
               }}
             />
-            <View style={styles.prevNextPage}>
+            <PaginationNav
+              page={page}
+              totalPages={totalPages}
+              onPrev={() => setPage(p => Math.max(1, p - 1))}
+              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+              t={t}
+            />
+            {/* <View style={styles.prevNextPage}>
               <TouchableOpacity onPress={() => setPage(page - 1)}>
                 <Text style={styles.title}>{t('prev_page')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setPage(page + 1)}>
                 <Text style={styles.title}>{t('next_page')}</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
       </View>

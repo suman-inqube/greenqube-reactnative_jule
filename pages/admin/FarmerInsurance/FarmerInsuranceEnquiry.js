@@ -18,12 +18,7 @@ const FarmerInsuranceEnquiry = ({navigation}) => {
   //GQR-67
   const [activeBtn, setActiveBtn] = useState(2);
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
-  useEffect(() => {
-    onBackPress(() => {
-      navigation.navigate('FarmerDashboard');
-      return true;
-    });
-  }, []);
+
   return (
     <FarmerDrawerScreenWrapper1>
       {/* <View style={{flex: 1, height: Dimensions.get('window').height / 2}}> */}

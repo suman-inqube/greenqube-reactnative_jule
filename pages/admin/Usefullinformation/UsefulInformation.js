@@ -13,6 +13,7 @@ import {useRoute} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors} from '../../utils/Constants';
 import FormsTitle from '../../Common/FormsTitle';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
 const head = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -74,52 +75,53 @@ const UsefulInformation = () => {
     onPageLoad();
   }, []);
   return (
-    <View style={{flex: 1, backgroundColor: Colors.background}}>
-      <CustomHeader
-        path={'UsefulInformationList'}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <FormsTitle title={noticeDetails && noticeDetails.post_name} />
-
-      {/* Horizontal Scroll for Attachments */}
-      <View style={{marginHorizontal: 7, marginBottom: 10}}>
-        <FlatList
-          horizontal
-          data={noticeFiles}
-          keyExtractor={item => item.file_id}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={{
-                width: 200,
-                margin: 10,
-                backgroundColor: '#FFF',
-                padding: 10,
-                elevation: 5,
-                borderRadius: 10,
-                justifyContent: 'center',
-              }}
-              onPress={() => detailItem(item.file_path, item.file_ext)}>
-              <TouchableOpacity
-                onPress={() => detailItem(item.file_path, item.file_ext)}>
-                <DocumentDisplay
-                  item={item.file_path}
-                  file_ext={item.file_ext}
-                />
-              </TouchableOpacity>
-            </TouchableOpacity>
-          )}
+    <FarmerDrawerScreenWrapper1>
+      <View style={{flex: 1, backgroundColor: Colors.background}}>
+        <CustomHeader
+          path={'UsefulInformationList'}
+          logoImage={logoImage}
+          topBanner={topBanner}
         />
-      </View>
+        <FormsTitle title={noticeDetails && noticeDetails.post_name} />
 
-      {/* WebView Content */}
-      <View style={{flex: 1}}>
-        <WebView
-          style={{flex: 1}}
-          originWhitelist={['*']}
-          source={{
-            html: `
+        {/* Horizontal Scroll for Attachments */}
+        <View style={{marginHorizontal: 7, marginBottom: 10}}>
+          <FlatList
+            horizontal
+            data={noticeFiles}
+            keyExtractor={item => item.file_id}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={{
+                  width: 200,
+                  margin: 10,
+                  backgroundColor: '#FFF',
+                  padding: 10,
+                  elevation: 5,
+                  borderRadius: 10,
+                  justifyContent: 'center',
+                }}
+                onPress={() => detailItem(item.file_path, item.file_ext)}>
+                <TouchableOpacity
+                  onPress={() => detailItem(item.file_path, item.file_ext)}>
+                  <DocumentDisplay
+                    item={item.file_path}
+                    file_ext={item.file_ext}
+                  />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+
+        {/* WebView Content */}
+        <View style={{flex: 1}}>
+          <WebView
+            style={{flex: 1}}
+            originWhitelist={['*']}
+            source={{
+              html: `
               <!DOCTYPE html>
               <html>
                 <head>${head}</head>
@@ -128,15 +130,16 @@ const UsefulInformation = () => {
                 </body>
               </html>
             `,
-          }}
-          automaticallyAdjustContentInsets={false}
-          allowsFullscreenVideo={true}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-        />
+            }}
+            automaticallyAdjustContentInsets={false}
+            allowsFullscreenVideo={true}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            startInLoadingState={true}
+          />
+        </View>
       </View>
-    </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

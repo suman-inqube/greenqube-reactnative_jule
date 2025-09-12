@@ -17,7 +17,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {loanRouteListAPI} from './LoanAPI_copy';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
@@ -67,6 +67,7 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
   const [farmerID, setfarmerID] = useState();
   const [currency, setCurrencyt] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const route = useRoute();
 
   const [statusAll, setTtatusAll] = useState([
     {value: 2, label: t('Approved')},
@@ -192,6 +193,13 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
       console.log(error);
     }
   };
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
+      onPageLoad('', '');
+    }
+  }, [route?.params]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {

@@ -243,7 +243,7 @@ const FarmerReport = () => {
       if (response?.status === 200) {
         validateForm('', `${t('your_request_submitted')}`);
         setTimeout(() => {
-          navigation.navigate('DailySalesReport');
+          navigation.navigate('DailySalesReport', {action: 'addData'});
         }, 1000);
       }
     }

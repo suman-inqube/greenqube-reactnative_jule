@@ -359,7 +359,7 @@ const UserCreateContextProvider = props => {
       Filter,
       plotAll,
       setplotAll,
-      navigationBarHeight
+      navigationBarHeight,
     }),
     [
       dbLanTokUsr,

@@ -204,7 +204,7 @@ const RequestForInsurance = ({}) => {
           setActiveBtn(2);
         }, 2000);
 
-        navigation.navigate('InsuranceViewPastRequested');
+        navigation.navigate('InsuranceViewPastRequested', {action: 'addData'});
       }
       setIsLoading(false);
     }

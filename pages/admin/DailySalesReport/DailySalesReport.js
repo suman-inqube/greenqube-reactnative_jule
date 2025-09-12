@@ -25,6 +25,7 @@ import {FloatingAction} from 'react-native-floating-action';
 import {getActionsDealerReportSupervisor} from '../../utils/options';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 const DailySalesReport = ({navigation}) => {
   //GQR-67
@@ -37,12 +38,16 @@ const DailySalesReport = ({navigation}) => {
     setItem,
     logoImage,
     topBanner,
+    Toast,
+    AlertMesg,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [dailySalesReportData, setDailySalesReportData] = useState([]);
+  const route = useRoute();
+
   const onPageLoad = async () => {
     setIsLoading(true);
     const response = await DailySalesReportGetAPI(
@@ -59,6 +64,13 @@ const DailySalesReport = ({navigation}) => {
   useEffect(() => {
     onPageLoad();
   }, []);
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
+      onPageLoad('', '');
+    }
+  }, [route?.params]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     requestAnimationFrame(async () => {

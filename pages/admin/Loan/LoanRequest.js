@@ -1204,7 +1204,7 @@ const LoanRequest = ({setActiveBtn}) => {
           setActiveBtn(2);
         }, 2000);
 
-        navigation.navigate('LoanViewPastRequested');
+        navigation.navigate('LoanViewPastRequested', {action: 'addData'});
       }
       setIsLoading(false);
     }
@@ -1234,7 +1234,7 @@ const LoanRequest = ({setActiveBtn}) => {
             style={{
               flex: 1,
               backgroundColor: Colors.background_light,
-              marginBottom: 50,
+              // marginBottom: 50,
             }}>
             {/* {searchResultsList && searchResultsList ? (
               <View style={styles.flatContainer}>
@@ -1571,7 +1571,7 @@ export default LoanRequest;
 
 const styles = StyleSheet.create({
   idcontainer: {
-    marginBottom: 50,
+    marginBottom: 20,
 
     backgroundColor: '#FFF',
     elevation: 5,

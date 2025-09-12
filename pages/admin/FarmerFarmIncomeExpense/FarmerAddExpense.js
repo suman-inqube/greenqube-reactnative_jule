@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import HeadDropDown from './FarmerHeadDropDown';
 import {useFocusEffect} from '@react-navigation/native';
 import {
@@ -121,15 +121,10 @@ const FarmerAddExpense = ({navigation}) => {
     setfarmerID(user_id);
     problemPlotAgainstFarmer();
   };
-  useFocusEffect(
-    React.useCallback(() => {
-      onPageLoad();
-      onBackPress(() => {
-        navigation.navigate('FarmerFarmIncomeExpenseList');
-        return true;
-      });
-    }, []),
-  );
+  useEffect(() => {
+    onPageLoad();
+  }, []);
+
   const handlePlot = async relId => {
     const response = await problemProduceAgainstPlotAPI(
       dbname,

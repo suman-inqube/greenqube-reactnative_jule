@@ -14,6 +14,7 @@ import {useNavigation, useIsFocused, useRoute} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FormsTitle from '../../Common/FormsTitle';
 import {Colors} from '../../utils/Constants';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
 const head = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -86,52 +87,54 @@ const Training = () => {
   const HandlerGoBack = () => navigation.navigate('TraingList');
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.background}}>
-      <CustomHeader
-        path="Dashboard"
-        HandlerGoBack={HandlerGoBack}
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <FormsTitle title={noticeDetails?.post_name} />
-      {/* Horizontal File Viewer */}
-      <View style={{width: '100%', alignItems: 'center', paddingHorizontal: 7}}>
-        <FlatList
-          data={noticeFiles}
-          keyExtractor={item => item.file_id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingVertical: 10}}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={{
-                width: 200,
-                margin: 10,
-                backgroundColor: '#FFF',
-                padding: 10,
-                elevation: 5,
-                borderRadius: 10,
-                justifyContent: 'center',
-              }}
-              onPress={() => detailItem(item.file_path)}>
-              <TouchableOpacity onPress={() => detailItem(item.file_path)}>
-                <DocumentDisplay
-                  item={item.file_path}
-                  file_ext={item.file_ext}
-                />
-              </TouchableOpacity>
-            </TouchableOpacity>
-          )}
+    <FarmerDrawerScreenWrapper1>
+      <View style={{flex: 1, backgroundColor: Colors.background}}>
+        <CustomHeader
+          path="Dashboard"
+          HandlerGoBack={HandlerGoBack}
+          logoImage={logoImage}
+          topBanner={topBanner}
         />
-      </View>
+        <FormsTitle title={noticeDetails?.post_name} />
+        {/* Horizontal File Viewer */}
+        <View
+          style={{width: '100%', alignItems: 'center', paddingHorizontal: 7}}>
+          <FlatList
+            data={noticeFiles}
+            keyExtractor={item => item.file_id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingVertical: 10}}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={{
+                  width: 200,
+                  margin: 10,
+                  backgroundColor: '#FFF',
+                  padding: 10,
+                  elevation: 5,
+                  borderRadius: 10,
+                  justifyContent: 'center',
+                }}
+                onPress={() => detailItem(item.file_path)}>
+                <TouchableOpacity onPress={() => detailItem(item.file_path)}>
+                  <DocumentDisplay
+                    item={item.file_path}
+                    file_ext={item.file_ext}
+                  />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
 
-      {/* WebView Section */}
-      <View style={{flex: 1, paddingHorizontal: 7}}>
-        <WebView
-          style={{flex: 1}}
-          originWhitelist={['*']}
-          source={{
-            html: `
+        {/* WebView Section */}
+        <View style={{flex: 1, paddingHorizontal: 7}}>
+          <WebView
+            style={{flex: 1}}
+            originWhitelist={['*']}
+            source={{
+              html: `
               <!DOCTYPE html>
               <html>
                 <head>${head}</head>
@@ -140,14 +143,15 @@ const Training = () => {
                 </body>
               </html>
             `,
-          }}
-          allowsFullscreenVideo
-          javaScriptEnabled
-          domStorageEnabled
-          automaticallyAdjustContentInsets={false}
-        />
+            }}
+            allowsFullscreenVideo
+            javaScriptEnabled
+            domStorageEnabled
+            automaticallyAdjustContentInsets={false}
+          />
+        </View>
       </View>
-    </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

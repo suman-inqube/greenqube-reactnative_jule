@@ -9,24 +9,47 @@ import {
   View,
   BackHandler,
   Animated,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useRef, useCallback } from 'react'
-import moment from "moment";
-import { useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
-import { trainingListAPI } from '../../../config/apiHere';
-import { useTranslation } from 'react-i18next';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from 'react';
+import moment from 'moment';
+import {
+  useNavigation,
+  useIsFocused,
+  useNavigationState,
+} from '@react-navigation/native';
+import {trainingListAPI} from '../../../config/apiHere';
+import {useTranslation} from 'react-i18next';
 import FormsTitle from '../../Common/FormsTitle';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import ImageForm from '../../Common/ImageForm';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
-import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
+import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
 import HeaderWithSearchAndToggle from '../../Components/HeaderWithSearchAndToggle';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const TrainingList = () => {
   //GQR-67
-  const { loginUser_data, CustomHeader, t, AlertMesg, onBackPress, getItem, setItem, logoImage, topBanner, Root, Toast } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, agri_user_addresses } = loginUser_data;
+  const {
+    loginUser_data,
+    CustomHeader,
+    t,
+    AlertMesg,
+    onBackPress,
+    getItem,
+    setItem,
+    logoImage,
+    topBanner,
+    Root,
+    Toast,
+  } = useContext(userCreateContext);
+  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -36,20 +59,27 @@ const TrainingList = () => {
   const [loading, setLoading] = useState(false);
   const animationValues = useRef({});
   const numColumns = isGridView ? 1 : 2;
-  const { currentRoute, previousRoute } = useCurrentAndPreviousRoute();
+  const {currentRoute, previousRoute} = useCurrentAndPreviousRoute();
   const toggleView = () => {
     setIsGridView(!isGridView);
   };
-  const getAnimationValue = (fid) => {
+  const getAnimationValue = fid => {
     if (!animationValues.current[fid]) {
       animationValues.current[fid] = new Animated.Value(0);
     }
     return animationValues.current[fid];
   };
-  const detailItem = async (itemId) => {
+  const detailItem = async itemId => {
     navigation.navigate('Training', itemId);
-  }
-  const trainingList = async (dbName, languageID, userID, state_id, district_id, subdiv_id) => {
+  };
+  const trainingList = async (
+    dbName,
+    languageID,
+    userID,
+    state_id,
+    district_id,
+    subdiv_id,
+  ) => {
     setLoading(true);
     let response = await trainingListAPI(
       dbName,
@@ -64,19 +94,26 @@ const TrainingList = () => {
     );
     if (response) {
       if (response.data.data.rows != 0) {
-        setTrainingList(response.data.data)
-        setItem("userTrainingList", response.data.data)
+        setTrainingList(response.data.data);
+        setItem('userTrainingList', response.data.data);
       } else {
         setTrainingList([]);
-        Toast.show({ text: `${t('no_data_found')}`, ...AlertMesg[0] })
+        Toast.show({text: `${t('no_data_found')}`, ...AlertMesg[0]});
       }
     }
     setLoading(false);
-
-  }
+  };
   const onPageLoad = async () => {
-    const { agri_state, agri_district, agri_subdivision } = agri_user_addresses[0];
-    trainingList(dbname, lan_id, user_id, agri_state.fid, agri_district.fid, agri_subdivision.fid);
+    const {agri_state, agri_district, agri_subdivision} =
+      agri_user_addresses[0];
+    trainingList(
+      dbname,
+      lan_id,
+      user_id,
+      agri_state.fid,
+      agri_district.fid,
+      agri_subdivision.fid,
+    );
   };
 
   useEffect(() => {
@@ -85,45 +122,57 @@ const TrainingList = () => {
   const HandlerGoBack = () => {
     setTrainingList([]);
     setTitleSearch('');
-    navigation.navigate('Dashboard')
-  }
+    navigation.navigate('Dashboard');
+  };
   const searchByTitle = async () => {
     Keyboard.dismiss();
     trainingList(dbname, lan_id, user_id, '', '', '');
   };
   const renderItem = useCallback(
-    ({ item }) =>
-      isGridView
-        ? <GridItemComponent item={item} onPress={detailItem} getAnimationValue={getAnimationValue} noticeList={noticeList} />
-        : <ListItemComponent item={item} onPress={detailItem} getAnimationValue={getAnimationValue} noticeList={noticeList} />,
-    [isGridView, noticeList, detailItem]
+    ({item}) =>
+      isGridView ? (
+        <GridItemComponent
+          item={item}
+          onPress={detailItem}
+          getAnimationValue={getAnimationValue}
+          noticeList={noticeList}
+        />
+      ) : (
+        <ListItemComponent
+          item={item}
+          onPress={detailItem}
+          getAnimationValue={getAnimationValue}
+          noticeList={noticeList}
+        />
+      ),
+    [isGridView, noticeList, detailItem],
   );
-  const keyExtractor = useCallback((item) => item.fid.toString(), []);
+  const keyExtractor = useCallback(item => item.fid.toString(), []);
   return (
-    <Root>
-      <View style={styles.container}>
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <HeaderWithSearchAndToggle
-          titleSearch={titleSearch}
-          setTitleSearch={setTitleSearch}
-          onSearch={searchByTitle}
-          isGridView={isGridView}
-          onToggleView={toggleView}
-        />
+    <FarmerDrawerScreenWrapper1>
+      <Root>
+        <View style={styles.container}>
+          <CustomHeader
+            path="Dashboard"
+            HandlerGoBack={HandlerGoBack}
+            logoImage={logoImage}
+            topBanner={topBanner}
+          />
+          <HeaderWithSearchAndToggle
+            titleSearch={titleSearch}
+            setTitleSearch={setTitleSearch}
+            onSearch={searchByTitle}
+            isGridView={isGridView}
+            onToggleView={toggleView}
+          />
 
-        {/* FlatList Container */}
-        <View style={styles.flatListContainer}>
-          {loading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color="#156106ff" />
-            </View>
-          )
-            : noticeList && noticeList.rows && noticeList.rows.length > 0 ? (
+          {/* FlatList Container */}
+          <View style={styles.flatListContainer}>
+            {loading ? (
+              <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#156106ff" />
+              </View>
+            ) : noticeList && noticeList.rows && noticeList.rows.length > 0 ? (
               <FlatList
                 key={isGridView ? 'grid' : 'list'} // Force re-render on view change
                 data={noticeList.rows}
@@ -144,11 +193,12 @@ const TrainingList = () => {
                 <Text style={styles.emptyText}>{t('no_data_found')}</Text>
               </View>
             )}
+          </View>
         </View>
-      </View>
-    </Root>
+      </Root>
+    </FarmerDrawerScreenWrapper1>
   );
-}
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -187,7 +237,7 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
@@ -224,7 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -269,7 +319,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',
@@ -284,7 +334,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
   },
   gridContent: {
-    padding: 8
+    padding: 8,
   },
   gridTitle: {
     fontSize: 14,
@@ -318,4 +368,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TrainingList
+export default TrainingList;

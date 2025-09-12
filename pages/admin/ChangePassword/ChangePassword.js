@@ -97,13 +97,7 @@ const ChangePassword = ({sendDataToParent}) => {
       }
     }
   };
-  useEffect(() => {
-    // onPageLoad();
-    onBackPress(() => {
-      navigation.navigate('Dashboard');
-      return true;
-    });
-  }, []);
+
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   return (
     <FarmerDrawerScreenWrapper1>
