@@ -3369,7 +3369,7 @@ export const uploadFarmerIdAdd = async (
       formData,
       axiosHeaders,
     );
-    console.log('response11=', response);
+
     return response;
   } catch (error) {
     console.log('error11=', error.response);

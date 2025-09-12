@@ -54,42 +54,54 @@ const getDashboardItems = (t, navigateToPages) => [
 const getDashboardFarmerItems = (t, navigateToPages) => [
   {
     text: t('crop_prob_far_dash'),
-    imageurl: require('../Common/images/raise_problem_only.png'),
+    // imageurl: require('../Common/images/raise_problem_only.png'),
+    imageurl: require('../Common/images/problem2.png'),
     onpress: () => navigateToPages('FarmerListProblem'),
   },
   {
     text: t('acti_report_far_dash'),
-    imageurl: require('../Common/images/activity_report_only.png'),
+    // imageurl: require('../Common/images/activity_report_only.png'),
+    imageurl: require('../Common/images/activity2.png'),
     onpress: () => navigateToPages('FarmerActivityList'),
   },
   {
     text: t('agri_inputs_ninquiry_far_dash'),
-    imageurl: require('../Common/images/input_inqu_only.png'),
+    // imageurl: require('../Common/images/input_inqu_only.png'),
+    imageurl: require('../Common/images/input1.png'),
+
     onpress: () => navigateToPages('FarmerInputList'),
   },
   {
     text: t('agri_output_far_dash'),
-    imageurl: require('../Common/images/dash_sale_your_product.png'),
+    // imageurl: require('../Common/images/dash_sale_your_product.png'),
+    imageurl: require('../Common/images/output1.png'),
+
     onpress: () => navigateToPages('FarmerViewPast'),
   },
   {
     text: t('weather_nadvisory_far_dash'),
-    imageurl: require('../Common/images/dash_weather_advisory.png'),
+    // imageurl: require('../Common/images/dash_weather_advisory.png'),
+    imageurl: require('../Common/images/weather1.png'),
+
     onpress: () => navigateToPages('Weather'),
   },
   {
     text: t('useful_ninformation_far_dash'),
-    imageurl: require('../Common/images/dash_sale_your_product.png'),
+    // imageurl: require('../Common/images/dash_sale_your_product.png'),
+    imageurl: require('../Common/images/information1.png'),
+
     onpress: () => navigateToPages('FarmerUsefulInformationList'),
   },
   {
     text: t('training_support'),
-    imageurl: require('../Common/images/training_support_green.png'),
+    // imageurl: require('../Common/images/training_support_green.png'),
+    imageurl: require('../Common/images/traning1.png'),
+
     onpress: () => navigateToPages('FarmerTrainingList'),
   },
   {
     text: t('Market Info'),
-    imageurl: require('../Common/images/market_information_white.png'),
+    imageurl: require('../Common/images/market2.png'),
     onpress: () => {},
   },
 ];
