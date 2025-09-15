@@ -1020,11 +1020,11 @@ const ActivityReportAWD = ({ navigation }) => {
             pipeDetails.length,
           );
         } else {
-          if(location!=null){
-            const {latitude, longitude}=location||{};
-            const distances = previousPlotLatlong.map(p => getDistance(p, { latitude, longitude }));
+          // if(location!=null){
+          //   const {latitude, longitude}=location||{};
+          //   const distances = previousPlotLatlong.map(p => getDistance(p, { latitude, longitude }));
 
-          }
+          // }
           var database_res = await addPrevPipeActivity(
             dbname,
             lan_id,
