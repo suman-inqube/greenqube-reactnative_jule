@@ -1337,6 +1337,7 @@ const FarmerLiveHood = ({
             };
           }
         });
+        console.log(values,"valuesvaluesvalues")
         setLocation(values);
         setmainLocation(values);
         setPreviousPlotLatlong(values);

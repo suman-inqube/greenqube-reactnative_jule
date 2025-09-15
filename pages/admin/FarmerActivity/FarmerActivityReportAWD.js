@@ -735,10 +735,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
                   '  (' +
                   _data?.pipeActName?.categoryName +
                   ')',
+                  color:_data?.pipeActName?.color_code
               };
             },
           );
-          // console.log(overdueAct);
           setPipeLatLong(pipeLatLongArr);
         } else {
           setPipeLatLong([]);

@@ -127,10 +127,11 @@ const ActivityMap = ({
                 coordinate={{
                   latitude: polygon?.latitude,
                   longitude: polygon?.longitude,
-                }}>
+                }}
+                pinColor={polygon.color && polygon.color.trim() !== "" ? polygon.color : "blue"}>
                 {/* Option 1: Use Callout */}
                 <Callout>
-                  <Text>{polygon?.name}</Text>
+                  <Text style={{color:'#000'}}>{polygon?.name}</Text>
                 </Callout>
               </Marker>
             ))}

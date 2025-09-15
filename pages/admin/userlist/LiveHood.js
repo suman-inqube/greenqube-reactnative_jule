@@ -1255,7 +1255,22 @@ const LiveHood = ({ sendDataToParent, dataProps, activeTab, onTabPress, setAddPl
           onTabPress(0);
         }
       } else {
+        
+// console.log(latlongArr);
+const uniqueData = latlongArr.filter(
+  (item, index, self) =>
+    index === self.findIndex(
+      (t) => t.latitude === item.latitude && t.longitude === item.longitude
+    )
+);
 
+console.log("SSSSSSSSSSSSSSSSSSSSSSS")
+console.log(uniqueData.length)
+console.log(latlongArr.length)
+// latlongArr.map((_data,_i)=>{
+//   console.log(_data)
+// })
+return;
         var cusCropCyclStartDate = '2004-02-29';
         if (harvested != '') {
           cusCropCyclStartDate = '2004-02-29';
