@@ -55,6 +55,25 @@ const FarmerActivityDetail = () => {
   const openImagePicker = item => {};
   const [carbonActivity, setCarbonActivity] = useState([]);
 
+  const fetchActivityDetails = async uact_id => {
+    try {
+      setIsLoading(true);
+      const activityDetailsRes = await axiosGet(
+        ROUTES.GET.USER_ACTIVITY_DETAILS({uact_id}),
+        token,
+        {information: `${dbname},${lan_id},${user_id}`},
+      );
+
+      if (activityDetailsRes?.status == 200) {
+        console.log('Activity details:', activityDetailsRes.data.data.rows);
+
+        return activityDetailsRes.data;
+      }
+    } catch (error) {
+      console.error('Error fetching activity details:', error);
+    }
+  };
+
   const onPageLoad = async () => {
     // const [activityData, uact_id_data] = await Promise.all([
     //   getItem('activity_Data'),
@@ -62,6 +81,10 @@ const FarmerActivityDetail = () => {
     // ]);
 
     const farmerFound = route.params;
+
+    if (farmerFound?.uact_id) {
+      const activityDetails = await fetchActivityDetails(farmerFound.uact_id);
+    }
 
     if (farmerFound?.type == 'carbon_activity') {
       const PipeListDetailsRes = await axiosGet(

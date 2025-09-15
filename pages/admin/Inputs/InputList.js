@@ -33,6 +33,8 @@ const SearchBy = lazy(() => import('./SearchBy'));
 const SearchSubBy = lazy(() => import('./SearchSubBy'));
 import InputProductCard from '../../Components/InputProductCard';
 import FloatingActionButton from '../../Components/FloatingActionButton';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const InputList = ({navigation}) => {
   const {
     loginUser_data,
@@ -65,27 +67,48 @@ const InputList = ({navigation}) => {
     setIsLoading(true);
     const currency_res = await getItem('currency');
     setCurrencyt(currency_res);
-    const [inputListRes, inputCategoryList] = await Promise.all([
-      inputListAPI(dbname, lan_id, token, user_id, ''),
-      inputCategoryAPI(dbname, lan_id, token, user_id),
-    ]);
-    if (inputListRes?.status === 200) {
-      setInputListAll(inputListRes?.data?.data?.rows);
-      setInputListAllRaw(inputListRes?.data?.data?.rows);
-      setItem('input_data', inputListRes?.data?.data?.rows);
-    }
-    if (inputCategoryList) {
-      const dataArray = [{value: '0', label: t('All')}].concat(
-        inputCategoryList.data.data.rows.map(e => ({
-          value: e.fid,
-          label: e.name,
-        })),
-      );
-      setInputCategory(dataArray);
-      setInputSubCategory([]);
-    }
 
-    setIsLoading(false);
+    try {
+      const [inputListRes, inputCategoryList] = await Promise.all([
+        axiosGet(
+          ROUTES.GET.INPUT_LIST_API({
+            category_id: '',
+            // search_key: '',
+          }),
+          token,
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+          },
+        ),
+
+        axiosGet(ROUTES.GET.INPUT_CATEGORY_API(), token, {
+          information: `${dbname},${lan_id},${user_id}`,
+        }),
+      ]);
+
+      if (inputListRes?.status === 200) {
+        setInputListAll(inputListRes?.data?.data?.rows);
+        setInputListAllRaw(inputListRes?.data?.data?.rows);
+        setItem('input_data', inputListRes?.data?.data?.rows);
+      }
+      if (inputCategoryList?.status === 200) {
+        const dataArray = [{value: '0', label: t('All')}].concat(
+          inputCategoryList.data.data.rows.map(e => ({
+            value: e.fid,
+            label: e.name,
+          })),
+        );
+        setInputCategory(dataArray);
+        setInputSubCategory([]);
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      // Handle any errors from the new API calls
+      console.error('Error in onPageLoad:', error);
+
+      setIsLoading(false);
+    }
   }, [dbname, lan_id, token, user_id, getItem, setItem, t]);
 
   const handleCategory = useCallback(
@@ -94,19 +117,44 @@ const InputList = ({navigation}) => {
         setInputListAll(inputListAllRaw);
         setInputSubCategory([]);
       } else {
-        const [inputFound, inputSubCategoryList] = await Promise.all([
-          inputListAPI(dbname, lan_id, token, user_id, search.value),
-          inputSubCategoryAPI(dbname, lan_id, token, user_id, search.value),
-        ]);
-        if (inputFound?.status === 200)
-          setInputListAll(inputFound?.data?.data?.rows);
+        try {
+          const [inputFound, inputSubCategoryList] = await Promise.all([
+            axiosGet(
+              ROUTES.GET.INPUT_LIST_API({
+                category_id: search.value,
+                search_key: '',
+              }),
+              token,
+              {
+                headers: {
+                  information: `${dbname},${lan_id},${user_id}`,
+                },
+              },
+            ),
+            axiosGet(
+              ROUTES.GET.INPUT_SUB_CATEGORY_API({
+                category_id: search.value,
+              }),
+              token,
+              {
+                headers: {
+                  information: `${dbname},${lan_id},${user_id}`,
+                },
+              },
+            ),
+          ]);
+          if (inputFound?.status === 200)
+            setInputListAll(inputFound?.data?.data?.rows);
 
-        if (inputSubCategoryList) {
-          const subCatData = inputSubCategoryList.data.data.rows.map(d => ({
-            value: d.entity_name.fid,
-            label: d.entity_name.name,
-          }));
-          setInputSubCategory(subCatData);
+          if (inputSubCategoryList?.status === 200) {
+            const subCatData = inputSubCategoryList.data.data.rows.map(d => ({
+              value: d.entity_name.fid,
+              label: d.entity_name.name,
+            }));
+            setInputSubCategory(subCatData);
+          }
+        } catch (error) {
+          console.error('Error in handleCategory:', error);
         }
       }
     },
@@ -115,15 +163,25 @@ const InputList = ({navigation}) => {
 
   const handleSubCategory = useCallback(
     async search => {
-      const inputList = await inputListAPI(
-        dbname,
-        lan_id,
-        token,
-        user_id,
-        search.value,
-      );
-      if (inputList?.status === 200)
-        setInputListAll(inputList?.data?.data?.rows);
+      try {
+        // NEW WAY:
+        const inputList = await axiosGet(
+          ROUTES.GET.INPUT_LIST_API({
+            category_id: search.value,
+            search_key: '',
+          }),
+          token,
+          {
+            headers: {
+              information: `${dbname},${lan_id},${user_id}`,
+            },
+          },
+        );
+        if (inputList?.status === 200)
+          setInputListAll(inputList?.data?.data?.rows);
+      } catch (error) {
+        console.error('Error in handleSubCategory:', error);
+      }
     },
     [dbname, lan_id, token, user_id],
   );

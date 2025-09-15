@@ -85,8 +85,24 @@ export const ROUTES = {
     AGENT_ROUTE: ({page = 1, search_key = ''}) =>
       `agentRoute/listFarmer_e/1/${page}/2?search_key=${search_key}`,
 
-    Fenced_Rejected_Plot_List: ({page, status_level, geo_type, searchBy}) =>
+    Fenced_Rejected_Plot_List: ({
+      page,
+      status_level,
+      geo_type,
+      searchBy = '',
+    }) =>
       `landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+
+    USER_ACTIVITY_DETAILS: ({uact_id}) =>
+      `settingsRoute/detailsUserActivity?uact_id=${uact_id}`,
+
+    INPUT_LIST_API: ({category_id = ''}) =>
+      `marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
+
+    INPUT_CATEGORY_API: () => `inputOutputEntityRoute/listEntityTypes/1/0/2`,
+
+    INPUT_SUB_CATEGORY_API: ({category_id = ''}) =>
+      `inputOutputEntityRoute/listEntities/1/0/2?entity_type_id=${category_id}`,
   },
 
   PUT: {

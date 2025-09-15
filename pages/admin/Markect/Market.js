@@ -22,6 +22,8 @@ import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PaginationNav from '../../Components/PaginationNav';
 import ListCard from '../../Components/ListCard';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const Market = () => {
@@ -51,16 +53,30 @@ const Market = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const response = await Fenced_Rejected_Plot_List(
+      console.log('searchBy value:', searchBy, 'type:', typeof searchBy);
+      // const response = await Fenced_Rejected_Plot_List(
+      //   token,
+      //   dbname,
+      //   lan_id,
+      //   user_id,
+      //   rejection,
+      //   nonGeofenced,
+      //   page,
+      //   searchBy,
+      // );
+      const response = await axiosGet(
+        ROUTES.GET.Fenced_Rejected_Plot_List({
+          status_level: rejection,
+          geo_type: nonGeofenced,
+          page: page,
+          searchBy: searchBy,
+        }),
         token,
-        dbname,
-        lan_id,
-        user_id,
-        rejection,
-        nonGeofenced,
-        page,
-        searchBy,
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+        },
       );
+      console.log('ddd', response?.status);
       if (response?.status === 200) {
         setTotalPages(Math.ceil(response?.data?.data.count / 20));
         // console.log(JSON.stringify(response?.data?.data));
