@@ -400,6 +400,7 @@ const ActivityReportAWD = ({ navigation }) => {
             ...selectPipeList,
             label: '',
             value: '',
+            latlongs: {}
           });
           if (isOnline) {
             var [productionStage_res, activitySchedule, pipeLatLongRes] =
@@ -1020,19 +1021,24 @@ const ActivityReportAWD = ({ navigation }) => {
             pipeDetails.length,
           );
         } else {
-          // if(location!=null){
-          //   const {latitude, longitude}=location||{};
-          //   const distances = previousPlotLatlong.map(p => getDistance(p, { latitude, longitude }));
-
-          // }
-          var database_res = await addPrevPipeActivity(
-            dbname,
-            lan_id,
-            token,
-            saveData.user_id,
-            formData,
-            1,
-          );
+          if (location != null) {
+            const { latitude, longitude } = location || {};
+            const distances = getDistance(selectPipeList.latlongs, { latitude, longitude });
+            if (distances < 10) {
+              var database_res = await addPrevPipeActivity(
+                dbname,
+                lan_id,
+                token,
+                saveData.user_id,
+                formData,
+                1,
+              );
+            } else {
+              Toast.show({ text: t('Pipe distance under 10 meters'), ...AlertMesg[0] });
+            }
+          } else {
+            Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+          }
         }
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
@@ -1112,6 +1118,7 @@ const ActivityReportAWD = ({ navigation }) => {
         ...selectPipeList,
         label: '',
         value: '',
+        latlongs: {}
       });
       if (response.data.data.count > 0) {
         response.data.data.rows.forEach(element => {
@@ -1203,6 +1210,7 @@ const ActivityReportAWD = ({ navigation }) => {
         ...selectPipeList,
         label: '',
         value: '',
+        latlongs: {}
       });
       const PipeListDetailsRes = await getUniquePipeNames(
         dbname,
@@ -1214,11 +1222,12 @@ const ActivityReportAWD = ({ navigation }) => {
         saveData.cu_rel_id,
       );
       if (PipeListDetailsRes?.status == 200) {
-        console.log(PipeListDetailsRes?.data?.data,"PipeListDetailsRes?.data?.data")
+        // console.log(JSON.stringify(PipeListDetailsRes?.data?.data),"PipeListDetailsRes?.data?.data")
         const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
           (_data, _index) => ({
             value: _data.pipe_pid,
             label: _data.pipe_name,
+            latlongs: _data?.latlongs?.[0]||{}
           }),
         );
         setPipeListDetailsResArr(pipeDetailsArr);
@@ -1241,11 +1250,11 @@ const ActivityReportAWD = ({ navigation }) => {
   const [selectPipeList, setselectPipeList] = useState({
     label: '',
     value: '',
+    latlongs: {},
   });
   const handleActivityPipe = _item => {
-    const { pipeFiles, pipeLatLong, label, value } = _item || {};
-    console.log(_item)
-    setselectPipeList({ ...selectPipeList, label, value });
+    const { pipeFiles, pipeLatLong, label, value, latlongs } = _item || {};
+    setselectPipeList({ ...selectPipeList, label, value, latlongs: latlongs });
   };
   const requestLivePermission = async () => {
     try {
@@ -1543,6 +1552,7 @@ const ActivityReportAWD = ({ navigation }) => {
   // };
 
   const openImagePickerPipe = async item => {
+    console.log(location)
     if (location != null) {
       setCameraItem(item);
       setModalVisibleMap(true);

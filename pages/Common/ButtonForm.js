@@ -10,10 +10,11 @@ const ButtonForm = ({label, onPress, tcolor, bcolor, loading}) => {
           backgroundColor: bcolor ?? '#003c04',
           padding: 10,
           borderRadius: 0,
-          marginBottom: 5,
+          marginBottom: 35,
           position: 'absolute',
           bottom: -5,
           width: '100%',
+          marginTop:10
         }}
         onPress={onPress}
         disabled={loading}>

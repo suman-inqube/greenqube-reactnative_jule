@@ -5,10 +5,12 @@ const ButtonFormBottom = ({ label, onPress, tcolor, bcolor }) => {
   const color = 'red';
   return (
     <View style={{
-      bottom:0,
+      bottom: 5,
       left: 0,
       width: '100%',
-      position:'absolute'
+      position: 'absolute',
+      marginBottom: 35,
+      marginTop: 10
     }}>
       <TouchableOpacity style={{
         backgroundColor: bcolor ?? '#003c04',
