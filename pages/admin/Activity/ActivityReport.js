@@ -339,205 +339,210 @@ const ActivityReport = ({navigation}) => {
         console.log('User is outside the polygon.');
       }
     }
-    if (response) {
-      const dateString = response?.data?.data?.harvesting_date;
-      const harvesting_date = new Date(dateString);
-      const currentDate = new Date();
-      if (harvesting_date > currentDate) {
-        const data = response.data.data;
-        setShowingMenu(true);
-        data.crop_cycl_start_date == null ||
-        data.crop_cycl_start_date == '2004-02-29'
-          ? setIsButtonDisabled(false)
-          : setIsButtonDisabled(true);
-        let cycle_start_date =
+    console.log('response111', response.data);
+    try {
+      if (response?.status == 200) {
+        const dateString = response?.data?.data?.harvesting_date;
+        const harvesting_date = new Date(dateString);
+        const currentDate = new Date();
+        if (harvesting_date > currentDate) {
+          const data = response.data.data;
+          setShowingMenu(true);
           data.crop_cycl_start_date == null ||
           data.crop_cycl_start_date == '2004-02-29'
-            ? data.sowing_date
-            : data.crop_cycl_start_date;
-        setNameVarityStartEnd({
-          ...nameVarityStartEnd,
-          name: data.crop_name.name,
-          varity: data.crop_variety.name,
-          cycleStarts: cycle_start_date,
-          cycleEnd: data.harvesting_date,
-        });
-        setSaveData({
-          ...saveData,
-          user_id: farmerID,
-          plot_id: relId.value,
-          plot_Name: relId.label,
-          crop_name: data.crop_name.fid,
-          crop_variety: data.crop_variety.fid,
-          cycle_start_date: cycle_start_date,
-          cu_rel_id: data.cu_rel_id,
-          cycle_start_date: cycle_start_date,
-          growth_stage: '',
-          act_ref_type: '',
-          act_to_date: '',
-          act_to_date_label: '',
-          act_start_date: '',
-          act_ref: '',
-          act_master_id: '',
-        });
-        setsinglePlot(response.data.data);
-        setCropType(data.crop_type.fid);
-        setCropName(data.crop_name.fid);
-        if (isOnline) {
-          // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
-          // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
+            ? setIsButtonDisabled(false)
+            : setIsButtonDisabled(true);
+          let cycle_start_date =
+            data.crop_cycl_start_date == null ||
+            data.crop_cycl_start_date == '2004-02-29'
+              ? data.sowing_date
+              : data.crop_cycl_start_date;
+          setNameVarityStartEnd({
+            ...nameVarityStartEnd,
+            name: data.crop_name.name,
+            varity: data.crop_variety.name,
+            cycleStarts: cycle_start_date,
+            cycleEnd: data.harvesting_date,
+          });
+          setSaveData({
+            ...saveData,
+            user_id: farmerID,
+            plot_id: relId.value,
+            plot_Name: relId.label,
+            crop_name: data.crop_name.fid,
+            crop_variety: data.crop_variety.fid,
+            cycle_start_date: cycle_start_date,
+            cu_rel_id: data.cu_rel_id,
+            cycle_start_date: cycle_start_date,
+            growth_stage: '',
+            act_ref_type: '',
+            act_to_date: '',
+            act_to_date_label: '',
+            act_start_date: '',
+            act_ref: '',
+            act_master_id: '',
+          });
+          setsinglePlot(response.data.data);
+          setCropType(data.crop_type.fid);
+          setCropName(data.crop_name.fid);
+          if (isOnline) {
+            // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
+            // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
 
-          var [productionStage_res, activitySchedule] = await Promise.all([
-            productionStageAPI(
-              dbname,
-              lan_id,
-              data.crop_type_id,
-              data.crop_name_id,
-            ),
-            activityScheduleAPI(
-              dbname,
-              lan_id,
-              token,
-              'user_activity',
-              relId.value,
-              data.crop_name_id,
-              data.cu_rel_id,
-            ),
-            //  setItem(
-            //    'productionStageAPI' +
-            //      data.crop_type_id +
-            //      data.crop_type_id,
-            //    productionStage_res,
-            //  ),
-            setLastAct(''),
-            setOverdueAct([]),
-            setUpcomingAct(''),
-          ]);
-        } else {
-          var productionStage_res = await getItem(
-            'productionStageAPI' + data.crop_type_id + data.crop_type_id,
-          );
-        }
-        if (productionStage_res) {
-          const dataArray = productionStage_res?.data?.data?.growth_stage.map(
-            data => ({
-              value: data.growth_stage.fid,
-              label: data.growth_stage.name,
-            }),
-          );
-          setproductionStageAll(dataArray);
-        }
-
-        if (activitySchedule.status == 200) {
-          if (
-            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-          ) {
-            var lastData =
-              activitySchedule.data.data.lastActivity.activityName
-                ?.categoryName +
-              ' (' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_start_date,
-              ) +
-              ' - ' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_to_date,
-              ) +
-              ')';
-            setLastAct(lastData);
+            var [productionStage_res, activitySchedule] = await Promise.all([
+              productionStageAPI(
+                dbname,
+                lan_id,
+                data.crop_type_id,
+                data.crop_name_id,
+              ),
+              activityScheduleAPI(
+                dbname,
+                lan_id,
+                token,
+                'user_activity',
+                relId.value,
+                data.crop_name_id,
+                data.cu_rel_id,
+              ),
+              //  setItem(
+              //    'productionStageAPI' +
+              //      data.crop_type_id +
+              //      data.crop_type_id,
+              //    productionStage_res,
+              //  ),
+              setLastAct(''),
+              setOverdueAct([]),
+              setUpcomingAct(''),
+            ]);
+          } else {
+            var productionStage_res = await getItem(
+              'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+            );
           }
-          //  console.log('sch== ',activitySchedule.data.data);
-          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-            activitySchedule?.data?.data?.otherActivities.forEach(function (
-              element,
+          if (productionStage_res) {
+            const dataArray = productionStage_res?.data?.data?.growth_stage.map(
+              data => ({
+                value: data.growth_stage.fid,
+                label: data.growth_stage.name,
+              }),
+            );
+            setproductionStageAll(dataArray);
+          }
+
+          if (activitySchedule.status == 200) {
+            if (
+              activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
             ) {
-              var overdueData;
-              if (element?.days_until_start < 0) {
-                overdueData =
-                  element.activityName?.categoryName +
-                  ' (' +
-                  formatDate(element?.activity_start_date) +
-                  ' - ' +
-                  formatDate(element?.activity_end_date) +
-                  ')';
-                setOverdueAct(prevItems => [...prevItems, overdueData]);
-              }
-            });
-
-            const upcomingActivity =
-              activitySchedule?.data?.data?.otherActivities?.find(
-                item => item.days_until_start >= 0,
-              );
-            // console.log(upcomingActivity.days_from);
-            if (upcomingActivity != undefined) {
-              const monthNames = [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-              ];
-              // const cycleDate =
-              //   cycleDtartDate == ''
-              //     ? saveData.cycle_start_date
-              //     : cycleDtartDate;
-              const cycleDate =
-                data.crop_cycl_start_date == null ||
-                data.crop_cycl_start_date == '2004-02-29'
-                  ? data.sowing_date
-                  : data.crop_cycl_start_date;
-              const sdate = new Date(cycleDate);
-              sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-              const smonth = monthNames[sdate.getMonth()];
-              const sday = sdate.getDate();
-              const syear = sdate.getFullYear();
-              const startDate = `${smonth} ${sday}, ${syear}`;
-              const edate = new Date(cycleDate);
-              edate.setDate(edate.getDate() + upcomingActivity.days_to);
-              const emonth = monthNames[edate.getMonth()];
-              const eday = edate.getDate();
-              const eyear = edate.getFullYear();
-              const endDate = `${emonth} ${eday}, ${eyear}`;
-              const startDateEndDate = `${startDate}-${endDate}`;
-
-              setUpcomingAct(
-                upcomingActivity?.activityName?.categoryName +
-                  ' (' +
-                  startDateEndDate +
-                  ')',
-              );
+              var lastData =
+                activitySchedule.data.data.lastActivity.activityName
+                  ?.categoryName +
+                ' (' +
+                formatDate(
+                  activitySchedule?.data?.data?.lastActivity?.act_start_date,
+                ) +
+                ' - ' +
+                formatDate(
+                  activitySchedule?.data?.data?.lastActivity?.act_to_date,
+                ) +
+                ')';
+              setLastAct(lastData);
             }
-            // const upcomingActivity =
-            //   activitySchedule?.data?.data?.otherActivities?.find(
-            //     item => item.days_until_start >= 0,
-            //   );
+            //  console.log('sch== ',activitySchedule.data.data);
+            if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+              activitySchedule?.data?.data?.otherActivities.forEach(function (
+                element,
+              ) {
+                var overdueData;
+                if (element?.days_until_start < 0) {
+                  overdueData =
+                    element.activityName?.categoryName +
+                    ' (' +
+                    formatDate(element?.activity_start_date) +
+                    ' - ' +
+                    formatDate(element?.activity_end_date) +
+                    ')';
+                  setOverdueAct(prevItems => [...prevItems, overdueData]);
+                }
+              });
 
-            // setUpcomingAct(upcomingActivity);
-            // console.log(upcomingActivity);
+              const upcomingActivity =
+                activitySchedule?.data?.data?.otherActivities?.find(
+                  item => item.days_until_start >= 0,
+                );
+              // console.log(upcomingActivity.days_from);
+              if (upcomingActivity != undefined) {
+                const monthNames = [
+                  'January',
+                  'February',
+                  'March',
+                  'April',
+                  'May',
+                  'June',
+                  'July',
+                  'August',
+                  'September',
+                  'October',
+                  'November',
+                  'December',
+                ];
+                // const cycleDate =
+                //   cycleDtartDate == ''
+                //     ? saveData.cycle_start_date
+                //     : cycleDtartDate;
+                const cycleDate =
+                  data.crop_cycl_start_date == null ||
+                  data.crop_cycl_start_date == '2004-02-29'
+                    ? data.sowing_date
+                    : data.crop_cycl_start_date;
+                const sdate = new Date(cycleDate);
+                sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+                const smonth = monthNames[sdate.getMonth()];
+                const sday = sdate.getDate();
+                const syear = sdate.getFullYear();
+                const startDate = `${smonth} ${sday}, ${syear}`;
+                const edate = new Date(cycleDate);
+                edate.setDate(edate.getDate() + upcomingActivity.days_to);
+                const emonth = monthNames[edate.getMonth()];
+                const eday = edate.getDate();
+                const eyear = edate.getFullYear();
+                const endDate = `${emonth} ${eday}, ${eyear}`;
+                const startDateEndDate = `${startDate}-${endDate}`;
+
+                setUpcomingAct(
+                  upcomingActivity?.activityName?.categoryName +
+                    ' (' +
+                    startDateEndDate +
+                    ')',
+                );
+              }
+              // const upcomingActivity =
+              //   activitySchedule?.data?.data?.otherActivities?.find(
+              //     item => item.days_until_start >= 0,
+              //   );
+
+              // setUpcomingAct(upcomingActivity);
+              // console.log(upcomingActivity);
+            }
+            // setScheduleInfo({
+            //   ...scheduleInfo,
+            //   lastAct: '',
+            //   upcomingAct: '',
+            // });
           }
-          // setScheduleInfo({
-          //   ...scheduleInfo,
-          //   lastAct: '',
-          //   upcomingAct: '',
-          // });
+          setIsLoading(false);
+        } else {
+          setIsButtonDisabled(false);
+          // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+          setSearchFarmerName('');
+          setSearchFarmerPhone('');
+          // setplotAll([])
+          setModalVisible(true);
+          // navigation.navigate('Dashboard');
         }
-        setIsLoading(false);
-      } else {
-        setIsButtonDisabled(false);
-        // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-        setSearchFarmerName('');
-        setSearchFarmerPhone('');
-        // setplotAll([])
-        setModalVisible(true);
-        // navigation.navigate('Dashboard');
       }
+    } catch (error) {
+      console.log('error', error);
     }
   };
 

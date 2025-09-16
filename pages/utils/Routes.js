@@ -65,6 +65,7 @@ export const ROUTES = {
       to_date = '',
     }) =>
       `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&agent_id=&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+
     QUESTION_ROUTE: ({
       pageNo = 1,
       user_id = '',
@@ -74,6 +75,7 @@ export const ROUTES = {
       farmer_mobile = '',
     }) =>
       `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&problem_type_id=&problem_name_id=&farmer_mobile=${farmer_mobile}`,
+
     INPUT_OUTPUT_ROUTE: ({
       farmer_id = '',
       from_date = '',
@@ -82,6 +84,7 @@ export const ROUTES = {
       farmer_mobile = '',
     }) =>
       `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
+
     AGENT_ROUTE: ({page = 1, search_key = ''}) =>
       `agentRoute/listFarmer_e/1/${page}/2?search_key=${search_key}`,
 
@@ -94,7 +97,7 @@ export const ROUTES = {
       `landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
 
     USER_ACTIVITY_DETAILS: ({uact_id}) =>
-      `settingsRoute/detailsUserActivity?uact_id=${uact_id}`,
+      `inputOutputRoute/detailsUserActivity_e?uact_id=${uact_id}`,
 
     INPUT_LIST_API: ({category_id = ''}) =>
       `marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
@@ -103,6 +106,37 @@ export const ROUTES = {
 
     INPUT_SUB_CATEGORY_API: ({category_id = ''}) =>
       `inputOutputEntityRoute/listEntities/1/0/2?entity_type_id=${category_id}`,
+
+    NOTICE_DETAILS: ({noticeId}) => `generalInfoRoute/details/${noticeId}`,
+
+    SUPERVISOR_OUTPUT_VIEW: ({id}) => `inputOutputRoute/protofdetails/${id}`,
+
+    OUTPUT_LIST: ({
+      farmer_id = '',
+      fromDate = '',
+      toDate = '',
+      userId = '',
+      mobileNo = '',
+    }) =>
+      `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${fromDate}&to_date=${toDate}&agent_id=${userId}&farmer_mobile=${mobileNo}`,
+
+    FARMER_AGAINST_SUPERVISOR: () =>
+      `loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=`,
+
+    FARMER_BY_NAME: ({userID = ''}) =>
+      `loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=${userID}`,
+
+    PROBLEM_PLOT_AGAINST_FARMER: ({farmerID = ''}) =>
+      `landRoute/userLandDetails/${farmerID}`,
+
+    PROBLEM_PRODUCE_AGAINST_PLOT: ({relID = ''}) =>
+      `cropRoute/currentCropStatus?land_rel_id=${relID}`,
+
+    UNIT_BY_LIST: ({is_default = '', sub_type = ''}) =>
+      `unitRoute/list/1/0/5?search_key=&is_default=${is_default}&sub_type=${sub_type}&unit_type=product_unit`,
+
+    FARMER_PROBLEM_DETAILS: ({quesId = ''}) =>
+      `questionRoute/details/${quesId}`,
   },
 
   PUT: {

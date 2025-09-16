@@ -4,8 +4,9 @@ import {Alert, NativeModules} from 'react-native';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
 const instance = axios.create({
-  // baseURL: 'http://134.209.155.11:4003/',
-  baseURL: 'https://mygreenqube.com:4003/',
+  baseURL: 'http://134.209.155.11:4003/',
+
+  // baseURL: 'https://mygreenqube.com:4003/',
 
   timeout: 10000,
 });
@@ -146,6 +147,7 @@ export const axiosPost = async (
   extraHeaders = {},
   abortController = null,
 ) => {
+  console.log('URL', url);
   if (!(await isInternetAvailable()))
     return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();

@@ -24,15 +24,17 @@ import {
   useNavigation,
   useIsFocused,
 } from '@react-navigation/native';
-import { usefulInfoListAPI } from '../../../config/apiHere';
+import {usefulInfoListAPI} from '../../../config/apiHere';
 import ImageForm from '../../Common/ImageForm';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import ListItemComponent from '../../Common/ListItemComponent';
 import GridItemComponent from '../../Common/GridItemComponent';
-import { useCurrentAndPreviousRoute } from '../../Common/useCurrentAndPreviousRoute';
+import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors } from '../../utils/Constants';
+import {Colors} from '../../utils/Constants';
 import HeaderWithSearchAndToggle from '../../Components/HeaderWithSearchAndToggle';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const UsefulInformationList = () => {
   const {
     loginUser_data,
@@ -44,8 +46,8 @@ const UsefulInformationList = () => {
     Root,
     Toast,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, user_id, agri_user_addresses } = loginUser_data;
-  const { currentRoute, previousRoute } = useCurrentAndPreviousRoute();
+  const {dbname, lan_id, user_id, agri_user_addresses} = loginUser_data;
+  const {currentRoute, previousRoute} = useCurrentAndPreviousRoute();
   const isFocused = useIsFocused();
   const navigation = useNavigation();
 
@@ -79,25 +81,39 @@ const UsefulInformationList = () => {
   ) => {
     setLoading(true);
     try {
-      let response = await usefulInfoListAPI(
-        dbName,
-        languageID,
-        userID,
-        state_id,
-        district_id,
-        subdiv_id,
-        'supervisor',
-        'general_info',
-        titleSearch,
+      // let response = await usefulInfoListAPI(
+      //   dbName,
+      //   languageID,
+      //   userID,
+      //   state_id,
+      //   district_id,
+      //   subdiv_id,
+      //   'supervisor',
+      //   'general_info',
+      //   titleSearch,
+      // );
+      let response = await axiosGet(
+        ROUTES.GET.USEFULL_INFO_LIST({
+          userId: userID,
+          titleSearch: titleSearch,
+          userType: 'supervisor',
+          post: 'general_info',
+          state_id: state_id,
+          district_id: district_id,
+          subdiv_id: subdiv_id,
+        }),
+        '',
+        {information: `${dbName},${languageID}`},
       );
+
       if (response?.status === 200) {
-        if (response.data.data.rows.length !== 0) {
-          setNoticeList(response.data.data);
+        if (response?.data?.rows && response.data?.rows?.length !== 0) {
+          setNoticeList(response.data);
           // setItem('userNoticeList', response.data.data);
           // Reset animation values on new data loaded
         } else {
           setNoticeList([]);
-          Toast.show({ time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0] });
+          Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
         }
       }
     } catch (error) {
@@ -112,7 +128,7 @@ const UsefulInformationList = () => {
   };
 
   const onPageLoad = async () => {
-    const { agri_state, agri_district, agri_subdivision } =
+    const {agri_state, agri_district, agri_subdivision} =
       agri_user_addresses[0];
     usefulInfoList(
       dbname,
@@ -129,7 +145,7 @@ const UsefulInformationList = () => {
   }, []);
   const searchByTitle = async () => {
     Keyboard.dismiss();
-    const { agri_state, agri_district, agri_subdivision } =
+    const {agri_state, agri_district, agri_subdivision} =
       agri_user_addresses[0];
     usefulInfoList(
       dbname,
@@ -148,7 +164,7 @@ const UsefulInformationList = () => {
   };
 
   const renderItem = useCallback(
-    ({ item }) =>
+    ({item}) =>
       isGridView ? (
         <GridItemComponent
           item={item}
@@ -190,7 +206,6 @@ const UsefulInformationList = () => {
           />
 
           {/* Search Container */}
-
 
           {/* FlatList Container */}
           <View style={styles.flatListContainer}>
@@ -267,7 +282,7 @@ const styles = StyleSheet.create({
     // marginBottom: 7,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 2,
     borderWidth: 0.5,
@@ -306,7 +321,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -351,7 +366,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

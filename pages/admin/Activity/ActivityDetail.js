@@ -17,6 +17,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {PipeListDetails} from '../../../config/apiHere';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const ActivityDetail = () => {
   const {
     LoadingScreen,
@@ -57,6 +59,7 @@ const ActivityDetail = () => {
     secondItemRecord: '',
     thirdItemRecord: '',
   });
+  const [allFiles, setAllFiles] = useState([]);
   const [carbonActivity, setCarbonActivity] = useState([]);
   const openImagePicker = item => {};
   const getFilePaths = (files, ext, max = 3) => {
@@ -73,27 +76,40 @@ const ActivityDetail = () => {
     try {
       const farmerFound = route.params;
       setIsLoading(true);
-      if (farmerFound?.agri_files) {
-        const [Imag1, Imag2, Imag3] = getFilePaths(
-          farmerFound.agri_files,
-          'image/jpeg',
+
+      // let agriFiles = []; // Initialize agriFiles here
+
+      if (farmerFound?.type == 'user_activity') {
+        const activity_files = await axiosGet(
+          ROUTES.GET.USER_ACTIVITY_DETAILS({uact_id: farmerFound.uact_id}),
+          token,
+          {information: `${dbname},${lan_id}`},
         );
-        const [audio1, audio2, audio3] = getFilePaths(
-          farmerFound.agri_files,
-          'audio/mp3',
-        );
-        setSelectedImage(prev => ({
-          ...prev,
-          firstItem: Imag1,
-          secondItem: Imag2,
-          thirdItem: Imag3,
-        }));
-        setSelectedRecord({
-          firstItemRecord: audio1,
-          secondItemRecord: audio2,
-          thirdItemRecord: audio3,
-        });
+
+        console.log('farmerFound', activity_files?.data?.rows[0]?.agri_files);
+
+        // Extract files from API response
+        agriFiles = activity_files?.data?.rows[0]?.agri_files || [];
       }
+
+      // Move these lines outside the if block
+      setAllFiles(agriFiles);
+
+      const imageFiles = getFilePaths(agriFiles, 'image/jpeg', 3);
+      const audioFiles = getFilePaths(agriFiles, 'audio/mp3', 3);
+
+      setSelectedImage({
+        firstItem: imageFiles[0],
+        secondItem: imageFiles[1],
+        thirdItem: imageFiles[2],
+      });
+
+      setSelectedRecord({
+        firstItemRecord: audioFiles[0],
+        secondItemRecord: audioFiles[1],
+        thirdItemRecord: audioFiles[2],
+      });
+
       if (farmerFound?.type === 'carbon_activity') {
         const PipeListDetailsRes = await PipeListDetails(
           dbname,
@@ -110,6 +126,7 @@ const ActivityDetail = () => {
       } else {
         setCarbonActivity([]);
       }
+
       setfarmerActivity(prev => ({
         ...prev,
         userName: farmerFound?.agri_user?.userName ?? '',

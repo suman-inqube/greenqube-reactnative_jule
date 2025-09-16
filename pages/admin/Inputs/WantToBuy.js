@@ -33,6 +33,8 @@ import HarvestedModel from '../../Common/HarvestedModel';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fronts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const WantToBuy = ({navigation}) => {
   //GQR-67
@@ -107,56 +109,104 @@ const WantToBuy = ({navigation}) => {
     setSearchFarmerName(label);
     setSearchResults([]);
     setfarmerID(value);
-    const response = await problemPlotAgainstFarmerAPI(
-      dbname,
-      lan_id,
-      token,
-      value,
-    );
-    if (response?.status == 200) {
-      const dataArray = response.data.data.map(data => ({
-        value: data.rel_id,
-        label: data.plot_no,
-        user_id: data.user_id,
-        created_at: data.created_at,
-      }));
-      setplotAll(dataArray);
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+          farmerID: value,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      );
+
+      if (response?.status == 200) {
+        const dataArray = response.data.data.map(data => ({
+          value: data.rel_id,
+          label: data.plot_no,
+          user_id: data.user_id,
+          created_at: data.created_at,
+        }));
+        setplotAll(dataArray);
+      }
+    } catch (error) {
+      Toast.show({
+        time: 3,
+        text: t('error_occurred', 'An error occurred'),
+        type: 'error',
+      });
+      console.error('API Error:', error);
     }
   }, []);
   const handlePlot = useCallback(async relId => {
-    const farmer_all = await farmerAgainstSupervisorAPI(
-      dbname,
-      lan_id,
-      farmerID,
-    );
-    const problemNameFound = farmer_all.data.data.rows.find(
-      user => user.user_id === relId.user_id,
-    );
-    setSaveData(prev => ({
-      ...prev,
-      type: '',
-      farmer_id: relId.user_id,
-      land_rel_id: relId.value,
-      land_rel_id_label: relId.label,
-      transaction_type: 1,
-      fulfill_status: 0,
-      created_at: relId.created_at,
-      state_name:
-        problemNameFound?.agri_user_addresses[0]?.agri_state?.state_name,
-      district_name:
-        problemNameFound?.agri_user_addresses[0]?.agri_district?.district_name,
-      subdiv_name:
-        problemNameFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
-      state_id: problemNameFound?.agri_user_addresses[0]?.state,
-      district_id: problemNameFound?.agri_user_addresses[0]?.district,
-      subdiv_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
-    }));
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
-    );
+    try {
+      const farmer_all = await axiosGet(
+        ROUTES.GET.FARMER_AGAINST_SUPERVISOR({userID: farmerID}),
+        '',
+        {information: `${dbname},${lan_id},${farmerID}`},
+      );
+
+      const problemNameFound = farmer_all.data.data.rows.find(
+        user => user.user_id === relId.user_id,
+      );
+
+      setSaveData(prev => ({
+        ...prev,
+        type: '',
+        farmer_id: relId.user_id,
+        land_rel_id: relId.value,
+        land_rel_id_label: relId.label,
+        transaction_type: 1,
+        fulfill_status: 0,
+        created_at: relId.created_at,
+        state_name:
+          problemNameFound?.agri_user_addresses[0]?.agri_state?.state_name,
+        district_name:
+          problemNameFound?.agri_user_addresses[0]?.agri_district
+            ?.district_name,
+        subdiv_name:
+          problemNameFound?.agri_user_addresses[0]?.agri_subdivision
+            ?.subdiv_name,
+        state_id: problemNameFound?.agri_user_addresses[0]?.state,
+        district_id: problemNameFound?.agri_user_addresses[0]?.district,
+        subdiv_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
+      }));
+    } catch (error) {
+      Toast.show({
+        time: 3,
+        text: t('error_occurred', 'An error occurred'),
+        type: 'error',
+      });
+      console.error('API Error:', error);
+    }
+
+    let response;
+    try {
+      response = await axiosGet(
+        ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+          relID: relId.value,
+        }),
+        '', // No authorization token needed
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+        },
+      );
+
+      // Your existing logic continues here exactly as before
+      // No changes to any business logic or variable names
+    } catch (error) {
+      // Simply show the error to user - no other logic changes
+      Toast.show({
+        time: 3,
+        text: t('error_occurred', 'An error occurred'),
+        type: 'error',
+      });
+      console.error('API Error:', error);
+    }
+    // const response = await problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
     if (response) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -216,39 +266,55 @@ const WantToBuy = ({navigation}) => {
       let unit_id = item.label;
       let entity_variety_id = item.value;
       let pp_qty = item.pp_qty;
-      const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
-      if (unitRes?.status == 200) {
-        const rows = unitRes?.data?.data?.rows[0];
-        const defined_unit_value = inputSingle.agri_product_prices?.filter(
-          function (v, i) {
-            return v.prod_price_id == item.value;
-          },
+
+      try {
+        const unitRes = await axiosGet(
+          ROUTES.GET.UNIT_BY_LIST({
+            is_default: 1,
+            sub_type: item.sub_type,
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
         );
-        inputSingle?.productCategories?.forEach(element => {
-          if (element.productCategory.iotype) {
-            entity_type_id = element.productCategory.iotype.entity_type_id;
-            entity_name_id = element.productCategory.iotype.entity_name_id;
-          } else {
-            entity_type_id = element.productCategory.ioname.entity_type_id;
-            entity_name_id = element.productCategory.ioname.entity_name_id;
-          }
-          setSaveData(prev => ({
-            ...prev,
-            entity_type_id: entity_type_id,
-            entity_name_id: entity_name_id,
-            entity_variety_id: entity_variety_id,
-            io_prod_id: io_prod_id,
-            // unit_id: unit_id,
-            // defined_unit_value: defined_unit_value[0].agri_unit.defined_unit_value,
-            unit_id: item?.label,
-            unit_fid: item?.value,
-            unit_sname: item?.unit_sname,
-            unit_sub_type: item?.sub_type,
-            defined_unit_value: item?.defined_unit_value,
-            filter_unit_fid: rows?.fid,
-            pp_qty: pp_qty,
-          }));
+
+        if (unitRes?.status == 200) {
+          const rows = unitRes?.data?.data?.rows[0];
+          const defined_unit_value = inputSingle.agri_product_prices?.filter(
+            function (v, i) {
+              return v.prod_price_id == item.value;
+            },
+          );
+          inputSingle?.productCategories?.forEach(element => {
+            if (element.productCategory.iotype) {
+              entity_type_id = element.productCategory.iotype.entity_type_id;
+              entity_name_id = element.productCategory.iotype.entity_name_id;
+            } else {
+              entity_type_id = element.productCategory.ioname.entity_type_id;
+              entity_name_id = element.productCategory.ioname.entity_name_id;
+            }
+            setSaveData(prev => ({
+              ...prev,
+              entity_type_id: entity_type_id,
+              entity_name_id: entity_name_id,
+              entity_variety_id: entity_variety_id,
+              io_prod_id: io_prod_id,
+              unit_id: item?.label,
+              unit_fid: item?.value,
+              unit_sname: item?.unit_sname,
+              unit_sub_type: item?.sub_type,
+              defined_unit_value: item?.defined_unit_value,
+              filter_unit_fid: rows?.fid,
+              pp_qty: pp_qty,
+            }));
+          });
+        }
+      } catch (error) {
+        Toast.show({
+          time: 3,
+          text: t('error_occurred', 'An error occurred'),
+          type: 'error',
         });
+        console.error('API Error:', error);
       }
     },
     [inputSingle],
@@ -284,12 +350,13 @@ const WantToBuy = ({navigation}) => {
     return true;
   };
   useEffect(() => {
-    console.log('Full saveData with UNIT:', saveData.unit_id);
-    console.log('Full saveData:', saveData);
+    // console.log('Full saveData with UNIT:', saveData.unit_id);
+    // console.log('Full saveData:', saveData);
   }, [saveData]);
   const saveHandle = async () => {
     Keyboard.dismiss();
     const res = validationData();
+
     if (res == true) {
       if (formStep === 1) {
         setFormStep(2);
@@ -329,6 +396,7 @@ const WantToBuy = ({navigation}) => {
         formData.append('default_unit_fid', saveData.filter_unit_fid);
         //
         formData.append('pp_qty', saveData.pp_qty);
+
         const database_res = await inputSaveAPI(
           dbname,
           lan_id,
@@ -336,6 +404,7 @@ const WantToBuy = ({navigation}) => {
           saveData.farmer_id,
           formData,
         );
+
         if (database_res?.status == 200) {
           Toast.show({
             time: 2,
@@ -387,7 +456,7 @@ const WantToBuy = ({navigation}) => {
       const dataArray = inputSingleData.agri_product_prices.map(data => ({
         value: data.prod_price_id,
         // label: data.agri_unit.unit_name,
-        label: `${data.quantity} ${data.agri_unit.unit_name}`,
+        label: `${data.quantity} ${data?.agri_unit?.unit_name}`,
         pp_qty: data.quantity,
         fid: data?.agri_unit?.fid,
         unit_sname: data?.agri_unit?.unit_sname,
@@ -396,15 +465,34 @@ const WantToBuy = ({navigation}) => {
       }));
       setUnitData(dataArray);
     }
-    const response = await farmerByNameAPI(dbname, lan_id, token, user_id);
-    if (response?.status == 200) {
-      const dataArray = response.data.data.rows.map(data => ({
-        value: data.user_id,
-        label: data.userName,
-        phone: data.contactNumber,
-      }));
-      setFarmerData(dataArray);
-      setIsLoading(false);
+
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.FARMER_BY_NAME({
+          userID: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      );
+
+      // farmerByNameAPI(dbname, lan_id, token, user_id);
+
+      if (response?.status == 200) {
+        const dataArray = response.data.data.rows.map(data => ({
+          value: data.user_id,
+          label: data.userName,
+          phone: data.contactNumber,
+        }));
+        setFarmerData(dataArray);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      Toast.show({
+        time: 3,
+        text: t('error_occurred', 'An error occurred'),
+        type: 'error',
+      });
+      console.error('API Error:', error);
     }
   };
 

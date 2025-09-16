@@ -1201,7 +1201,7 @@ export const inputSaveAPI = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-  // console.log(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
+  console.log(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
   try {
     let response = await axios.post(
       `${config.BASE_URL}inputOutputRoute/add`,
@@ -2172,11 +2172,7 @@ export const farmerProblemDetailApi = async (dbName, languageID, quesId) => {
       information: `${dbName},${languageID}`,
     },
   };
-  console.log(
-    'problem',
-    `${config.BASE_URL}questionRoute/details/${quesId}`,
-    axiosHeaders,
-  );
+
   try {
     let response = await axios.get(
       `${config.BASE_URL}questionRoute/details/${quesId}`,
