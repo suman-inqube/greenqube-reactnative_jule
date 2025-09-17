@@ -9,23 +9,30 @@ import {
   SafeAreaView,
   RefreshControl,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext, lazy, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  lazy,
+  useMemo,
+} from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import {
   inputEnquiryViewAPI,
   inputPastEnquiryListAPI,
 } from '../../../config/apiHere';
 const PastEnquiriesModel = lazy(() => import('./PastEnquiriesModel'));
-import { useRoute, useIsFocused } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {useRoute, useIsFocused} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fonts } from '../../utils/Constants';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {Colors, Fonts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 
-const PastEnquiries = ({ navigation }) => {
+const PastEnquiries = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -39,9 +46,10 @@ const PastEnquiries = ({ navigation }) => {
     Root,
     Toast,
     farmerData,
-    effective_dates, navigationBarHeight
+    effective_dates,
+    navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(false);
@@ -73,10 +81,17 @@ const PastEnquiries = ({ navigation }) => {
     async (fid, dbname, lan_id, token, user_id) => {
       const [input_past_enquiry_Data, response] = await Promise.all([
         await getItem('input_past_enquiry_Data'),
-        inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid),
+
+        axiosGet(
+          ROUTES.GET.INPUT_ENQUIRY_VIEW({farmer_id: fid}),
+
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
+        ),
+
+        // inputEnquiryViewAPI(dbname, lan_id, token, user_id, fid),
       ]);
 
-      console.log('EnquiryFound11', input_past_enquiry_Data);
       const EnquiryFound = input_past_enquiry_Data.find(
         user => user.fid === fid,
       );
@@ -107,11 +122,35 @@ const PastEnquiries = ({ navigation }) => {
     },
     [],
   );
-  const onPageLoad = async (farmer_id = '', farmer_mobile = '', from_date = '', to_date = '') => {
+  const onPageLoad = async (
+    farmer_id = '',
+    farmer_mobile = '',
+    from_date = '',
+    to_date = '',
+  ) => {
     setIsLoading(true);
-    console.log(farmer_id, farmer_mobile, from_date, to_date, "aaaa")
     const [response, curr] = await Promise.all([
-      inputPastEnquiryListAPI(dbname, lan_id, token, user_id, farmer_id, farmer_mobile, from_date, to_date),
+      axiosGet(
+        ROUTES.GET.INPUT_PAST_ENQUIRY_LIST({
+          farmer_id: farmer_id,
+          from_date: from_date,
+          to_date: to_date,
+          farmer_mobile: farmer_mobile,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ),
+
+      // inputPastEnquiryListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   farmer_id,
+      //   farmer_mobile,
+      //   from_date,
+      //   to_date,
+      // ),
       getItem('currency'),
     ]);
     if (response?.status === 200) {
@@ -136,7 +175,7 @@ const PastEnquiries = ({ navigation }) => {
     });
   }, []);
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', ''],
       t: t,
@@ -158,9 +197,9 @@ const PastEnquiries = ({ navigation }) => {
       navigationBarHeight: navigationBarHeight,
       height: 180,
     });
-  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate])
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -181,11 +220,9 @@ const PastEnquiries = ({ navigation }) => {
         //   sheetCarbonType?.value,
         //   filter,
         // );
-        
-        onPageLoad(farmerName?.value, farmerPhone?.label, fromDate, toDate);
-      } catch (error) {
 
-      }
+        onPageLoad(farmerName?.value, farmerPhone?.label, fromDate, toDate);
+      } catch (error) {}
     },
     [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
   );
@@ -193,25 +230,30 @@ const PastEnquiries = ({ navigation }) => {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({ label: '', value: '' });
-      setSearchFarmerPhone({ label: '', value: '' });
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
       setFilterItem('');
       onPageLoad();
     } catch (error) {
       console.log(error);
     }
   };
-  const renderCustomHeader = useMemo(() => <CustomHeader
-    logoImage={logoImage}
-    topBanner={topBanner}
-    filterOptionShow={filterOptionShow}
-    t={t}
-  />, [filterOptionShow]);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+        t={t}
+      />
+    ),
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <>
         <Root>
-          <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+          <View style={{flex: 1, backgroundColor: Colors.background_light}}>
             {renderCustomHeader}
             {pastEnquiries && (
               <PastEnquiriesModel
@@ -232,8 +274,8 @@ const PastEnquiries = ({ navigation }) => {
             )}
 
             <FlatList
-              data={isLoading ? Array.from({ length: 5 }) : inputPastEnquiryAll}
-              renderItem={({ item, index }) =>
+              data={isLoading ? Array.from({length: 5}) : inputPastEnquiryAll}
+              renderItem={({item, index}) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -372,7 +414,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

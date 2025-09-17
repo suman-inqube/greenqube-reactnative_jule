@@ -1981,40 +1981,39 @@ const LiveHood = ({
               InputTextFormEdit={InputTextFormEdit}
               marginBottom={navigationBarHeight}
             />
-            {identityProofIdentityPropf[0]?.uri !== '' &&
-            identityProofIdentityPropf[1]?.uri !== '' ? (
-              <View style={{marginTop: 15}}>
-                <ProofAndIdentityPropfComp
-                  identityProofIdentityPropf={identityProofIdentityPropf}
-                  t={t}
-                  title={t('address_proofAndIdentityPropf')}
-                  setStateValue={setIdentityProofIdentityPropf}
-                  stateValue={identityProofIdentityPropf}
-                  photoDeletedValue={identityPhotoDeletedValue}
-                  setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-                  loginUser_data={loginUser_data}
-                  status_level={statuslevel.label}
-                  InputTextFormEdit={
-                    statuslevel.label == 'PENDING' ||
-                    statuslevel.label == 'REJECTED'
-                      ? true
-                      : false
-                  }
-                  disable={
-                    statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : statuslevel.label == 'PENDING' ||
-                        statuslevel.label == 'REJECTED'
-                      ? false
-                      : true
-                  }
-                  marginBottom={navigationBarHeight}
-                />
-              </View>
-            ) : null}
+
+            <View style={{marginTop: 15}}>
+              <ProofAndIdentityPropfComp
+                identityProofIdentityPropf={identityProofIdentityPropf}
+                t={t}
+                title={t('address_proofAndIdentityPropf')}
+                setStateValue={setIdentityProofIdentityPropf}
+                stateValue={identityProofIdentityPropf}
+                photoDeletedValue={identityPhotoDeletedValue}
+                setPhotoDeletedValue={setIdentityPhotoDeletedValue}
+                loginUser_data={loginUser_data}
+                status_level={statuslevel.label}
+                InputTextFormEdit={
+                  statuslevel.label == 'PENDING' ||
+                  statuslevel.label == 'REJECTED'
+                    ? true
+                    : false
+                }
+                disable={
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    ? false
+                    : statuslevel.label == 'PENDING' ||
+                      statuslevel.label == 'REJECTED'
+                    ? false
+                    : true
+                }
+                marginBottom={navigationBarHeight}
+              />
+            </View>
+
             {area != 0 && area != null && (
               <InputTextForm
                 label={

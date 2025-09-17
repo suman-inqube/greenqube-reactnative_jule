@@ -267,7 +267,7 @@ const PlotStatusUpdate = () => {
         PlotSiteUserLandDetails(dbname, lan_id, token, farmer_data.user_id),
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
-        ProductionSeasonAndApi(dbname, lan_id, ''),
+        // ProductionSeasonAndApi(dbname, lan_id, ''),
         // livelihoodCropAndPlotDetailsAPI(dbname, lan_id, farmeruserID, dataProps?.rel_id),
         getPlotDocAPI(dbname, lan_id, token, farmer_data.user_id, rel_id),
         terraintype_resAPI(dbname, lan_id, 'terrain_type'),

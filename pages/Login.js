@@ -156,7 +156,9 @@ const Login = ({route}) => {
       try {
         setIsLoading(true);
         let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata);
-        console.log('userIno', inputdata);
+        console.log('inputdata', inputdata);
+        console.log('userIno', userIno);
+
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,

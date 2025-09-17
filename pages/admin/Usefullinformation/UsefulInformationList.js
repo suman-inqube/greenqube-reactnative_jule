@@ -105,7 +105,6 @@ const UsefulInformationList = () => {
         '',
         {information: `${dbName},${languageID}`},
       );
-
       if (response?.status === 200) {
         if (response?.data?.rows && response.data?.rows?.length !== 0) {
           setNoticeList(response.data);

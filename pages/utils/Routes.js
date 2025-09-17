@@ -137,6 +137,38 @@ export const ROUTES = {
 
     FARMER_PROBLEM_DETAILS: ({quesId = ''}) =>
       `questionRoute/details/${quesId}`,
+
+    INPUT_ENQUIRY_VIEW: ({farmer_id = ''}) =>
+      `inputOutputRoute/stofdetails/${farmer_id}`,
+
+    INPUT_PAST_ENQUIRY_LIST: ({
+      farmer_id = '',
+      from_date = '',
+      to_date = '',
+      farmer_mobile = '',
+    }) =>
+      `inputOutputRoute/list/1/0/2?farmer_id=${farmer_id}&transaction_type=1&entity_type_id=&from_date=${from_date}&to_date=${to_date}&farmer_mobile=${farmer_mobile}&agent_id=`,
+
+    ACTIVITY_SCHEDULE_API: ({
+      type = '',
+      plotId = '',
+      cropId = '',
+      cu_rel_id = '',
+    }) =>
+      `settingsRoute/activitySchedule?type=${type}&plot_id=${plotId}&crop_name=${cropId}&cu_rel_fid=${cu_rel_id}`,
+
+    ACTIVITY_INFO: ({cropType = '', cropName = '', actTypeID = ''}) =>
+      `inputOutputRoute/listActivity/1/0/1?crop_type=${cropType}&crop_name=${cropName}&act_type_id=${actTypeID}`,
+
+    ACTIVITY_TYPE: () =>
+      `categoryRoute/list/1/1/2?categoryType=activity_type_master&search_key=`,
+
+    PRODUCTION_STAGE: ({languageID, cropTypeId, cropNameID}) =>
+      `cropRoute/getCropRelationDropdown/${languageID}?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`,
+
+    PROBLEM_SEVERITY: () => `cropRoute/list/1/0/1?type=severity&search_key`,
+
+    PROBLEM_TYPE_NAME: () => `problemRoute/problemtypename?farming_type=crop`,
   },
 
   PUT: {

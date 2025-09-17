@@ -45,6 +45,8 @@ import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DatePickerField from '../../Common/DatePickerField';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const CreateProblem = ({navigation}) => {
   //GQR-65
   const {
@@ -171,19 +173,26 @@ const CreateProblem = ({navigation}) => {
     setFarmerID(currentfarmerId);
     setSaveData(prev => ({...prev, farmer_fcm: FcmUserToken}));
     if (isOnline) {
-      var response = await problemPlotAgainstFarmerAPI(
-        dbname,
-        lan_id,
+      var response = await axiosGet(
+        ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+          farmerID: currentfarmerId,
+        }),
         token,
-        currentfarmerId,
+        {information: `${dbname},${lan_id}`},
       );
+      // problemPlotAgainstFarmerAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   currentfarmerId,
+      // );
       await setItem('problemPlotAgainstFarmer' + currentfarmerId, response);
     } else {
       var response = await getItem(
         'problemPlotAgainstFarmer' + currentfarmerId,
       );
     }
-    // console.log('farmerToken', response.data.data);
+    console.log('farmerToken', response.status);
     if (response) {
       //GQR-65
       const dataArray = response?.data?.data.map(data => ({
@@ -196,12 +205,21 @@ const CreateProblem = ({navigation}) => {
   }, []);
   const handlePlot = useCallback(async relId => {
     if (isOnline) {
-      var response = await problemProduceAgainstPlotAPI(
-        dbname,
-        lan_id,
-        farmerID,
-        relId.value,
+      var response = await axiosGet(
+        ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+          relID: relId.value,
+        }),
+        '',
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+        },
       );
+      // problemProduceAgainstPlotAPI(
+      //   dbname,
+      //   lan_id,
+      //   farmerID,
+      //   relId.value,
+      // );
       await setItem(
         'problemProduceAgainstPlot' + farmerID + relId.value,
         response,
@@ -211,6 +229,7 @@ const CreateProblem = ({navigation}) => {
         'problemProduceAgainstPlot' + farmerID + relId.value,
       );
     }
+    console.log('problemProduceAgainstPlot', response?.status);
     if (response?.status == 200) {
       setNameVarityStartEnd(prev => ({
         ...prev,
@@ -239,12 +258,22 @@ const CreateProblem = ({navigation}) => {
           agent_id: user_id,
         }));
         if (isOnline) {
-          var productionStage_res = await problemProductionStageAPI(
-            dbname,
-            lan_id,
-            response?.data?.data?.crop_type_id,
-            response?.data?.data?.crop_name_id,
+          var productionStage_res = await axiosGet(
+            ROUTES.GET.PRODUCTION_STAGE({
+              languageID: lan_id,
+              cropTypeId: response?.data?.data?.crop_type_id,
+              cropNameID: response?.data?.data?.crop_name_id,
+            }),
+            '',
+            {information: `${dbname},${lan_id}`},
           );
+
+          // problemProductionStageAPI(
+          //   dbname,
+          //   lan_id,
+          //   response?.data?.data?.crop_type_id,
+          //   response?.data?.data?.crop_name_id,
+          // );
           await setItem(
             'problemProductionStage' +
               response?.data?.data?.crop_type_id +
@@ -258,8 +287,8 @@ const CreateProblem = ({navigation}) => {
               response?.data?.data?.crop_name_id,
           );
         }
+        console.log('problemProductionStageAPI', productionStage_res?.status);
         if (productionStage_res) {
-          // console.log('problem', productionStage_res?.data?.data);
           const dataArray = productionStage_res?.data?.data?.growth_stage.map(
             data => ({
               value: data.growth_stage.fid,
@@ -375,18 +404,21 @@ const CreateProblem = ({navigation}) => {
     [problemAll],
   );
 
-  const handleProblemName = useCallback(problem_name => {
-    setSaveData(prev => ({
-      ...prev,
-      problem_name_id: problem_name.value,
-      question_title:
-        nameVarityStartEnd.name +
-        ',' +
-        nameVarityStartEnd.question_title1 +
-        ',' +
-        problem_name.label,
-    }));
-  }, [nameVarityStartEnd]);
+  const handleProblemName = useCallback(
+    problem_name => {
+      setSaveData(prev => ({
+        ...prev,
+        problem_name_id: problem_name.value,
+        question_title:
+          nameVarityStartEnd.name +
+          ',' +
+          nameVarityStartEnd.question_title1 +
+          ',' +
+          problem_name.label,
+      }));
+    },
+    [nameVarityStartEnd],
+  );
   const onPageLoad = async () => {
     const {latitude, longitude} = coords || {};
     setSaveData({...saveData, latitude: latitude, longitude: longitude});
@@ -397,9 +429,19 @@ const CreateProblem = ({navigation}) => {
     });
     if (isOnline) {
       var [problemName_res, severity_res] = await Promise.all([
-        problemTypeNameAPI(dbname, lan_id, token),
-        problemSeverityAPI(dbname, lan_id),
+        axiosGet(ROUTES.GET.PROBLEM_TYPE_NAME(), token, {
+          information: `${dbname},${lan_id}`,
+        }),
+
+        // problemTypeNameAPI(dbname, lan_id, token),
+
+        axiosGet(ROUTES.GET.PROBLEM_SEVERITY(), '', {
+          information: `${dbname},${lan_id}`,
+        }),
+
+        // problemSeverityAPI(dbname, lan_id),
       ]);
+      console.log('problemTypeNameAPI', problemName_res.status);
       if (problemName_res?.status == 200) {
         await Promise.all([
           setItem('supervisorProblemTypeName', problemName_res),
@@ -421,6 +463,7 @@ const CreateProblem = ({navigation}) => {
       setProblemTypeAll(dataArray);
       setIsLoading(false);
     }
+    console.log('severity_res', severity_res.status);
     if (severity_res) {
       const dataArray = severity_res?.data?.data?.rows.map(data => ({
         value: data.fid,

@@ -58,7 +58,7 @@ export const databaseListAPI = async () => {
   try {
     const instance = await getAxiosInstance();
     let response = await instance.get('hostRoute/databaseList');
-    // console.log('err11=', response);
+    // console.log('err11=', response.data.data);
     return response;
   } catch (error) {
     console.error('API Error:', error);
@@ -3206,6 +3206,12 @@ export const activityScheduleAPI = async (
       information: `${dbName},${languageID}`,
     },
   };
+  console.log('Headers:', {
+    information: `${dbName},${languageID}`,
+  });
+
+  // API URL being logged
+
   try {
     let response = await axios.get(
       `${config.BASE_URL}settingsRoute/activitySchedule?type=${type}&plot_id=${plotId}&crop_name=${cropId}&cu_rel_fid=${cu_rel_id}`,

@@ -110,7 +110,7 @@ const PostNew = ({navigation}) => {
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
     setfarmerID(currentfarmerId);
-    const response = await await axiosGet(
+    const response = await axiosGet(
       ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
         farmerID: currentfarmerId,
       }),
@@ -340,7 +340,19 @@ const PostNew = ({navigation}) => {
       district: district,
       block: block,
     }));
-    const unitByList = await unitByListAPI(dbname, lan_id);
+    const unitByList = await axiosGet(
+      ROUTES.GET.UNIT_BY_LIST({
+        is_default: '',
+        sub_type: '',
+      }),
+      '',
+      {information: `${dbname},${lan_id}`},
+    );
+
+    // unitByListAPI(dbname, lan_id);
+
+    console.log('unitByList.status', unitByList.status);
+
     if (unitByList.status === 200) {
       const dataArray = unitByList?.data?.data?.rows.map(data => ({
         value: data.fid,
