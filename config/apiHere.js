@@ -2033,6 +2033,13 @@ export const UpdateLandCropdetailsAPI = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   };
+
+  console.log(
+    'check-',
+    `${config.BASE_URL}landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`,
+    formData,
+    axiosHeaders,
+  );
   try {
     let response = await axios.put(
       `${config.BASE_URL}landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`,
@@ -2060,11 +2067,7 @@ export const AddLandCropDetailsAPI = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-  console.log(
-    `${config.BASE_URL}landRoute/multiLatLong`,
-    formData,
-    axiosHeaders,
-  );
+
   try {
     let response = await axios.post(
       `${config.BASE_URL}landRoute/multiLatLong`,

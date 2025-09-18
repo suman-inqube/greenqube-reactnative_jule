@@ -178,6 +178,9 @@ export const axiosPut = async (
   extraHeaders = {},
   abortController = null,
 ) => {
+  console.log('URL', url);
+  console.log('extraHeaders', extraHeaders);
+
   if (!(await isInternetAvailable()))
     return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();

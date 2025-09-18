@@ -2,6 +2,8 @@ export const ROUTES = {
   POST: {
     LOGIN: 'sessionRoute/login',
     ADD_ID_ADDRESS_IMGS: () => `farmerRoute/addIdAddressImgs`,
+    NEAREST_LATLONG: `settingsRoute/nearestPlots`,
+    ADD_LAND_CROP_DETAIL: ({}) => `landRoute/multiLatLong`,
   },
 
   GET: {
@@ -184,10 +186,21 @@ export const ROUTES = {
 
     UNIT_CONVERSION_DEFAULT: ({}) =>
       `unitRoute/list/1/0/5?search_key=&unit_type=land_unit`,
+
+    LAND_UNIT_AREA: ({}) =>
+      `unitRoute/list/1/0/5?search_key=&unit_type=land_unit&is_default=1&sub_type=land_area`,
+
+    LAND_UNIT_SQUARE: ({}) =>
+      `unitRoute/list/1/0/5?search_key=&unit_type=land_unit&sub_type=land_area&unit_slug=square_metre`,
+
+    LAND_ROUTE: ({type = ''}) =>
+      `landRoute/list/1/0/1?type=${type}&search_key=`,
   },
 
   PUT: {
     USER_PROFILE_UPDATE: ({user_id}) => `loginSignupRoute/update/${user_id}`,
+    UPDATE_LAND_CROP_DETAILS: ({land_rel_id = '', crop_rel_id = ''}) =>
+      `landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`,
   },
 
   DELETE: {

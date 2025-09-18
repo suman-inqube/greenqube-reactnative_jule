@@ -68,7 +68,7 @@ import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {groupByRelId} from '../../utils/helpers';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
@@ -250,6 +250,20 @@ const LiveHood = ({
         produceVariety_res,
         productionProcess_res,
       ] = await Promise.all([
+        // axiosPost(
+        //   ROUTES.POST.NEAREST_LATLONG,
+        //   {
+        //     latitude: latitude,
+        //     longitude: longitude,
+        //     distance: 200,
+        //     data_limit: 100,
+        //   },
+        //   token,
+        //   false,
+        //   {
+        //     information: `${dbname},${lan_id}`,
+        //   },
+        // ),
         nearestLatLong(dbname, lan_id, token, latitude, longitude),
 
         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
@@ -265,9 +279,17 @@ const LiveHood = ({
           {information: `${dbname},${lan_id}`},
         ),
         // PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
+        }),
+        // LandUnitArea(dbname, lan_id, token),
 
-        LandUnitArea(dbname, lan_id, token),
-        LandUnitsquare_metre(dbname, lan_id, token),
+        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
+        }),
+        // LandUnitsquare_metre(dbname, lan_id, token),
 
         axiosGet(
           ROUTES.GET.PRODUCTION_SEASON({
@@ -289,6 +311,7 @@ const LiveHood = ({
 
         productionProcessAPI(dbname, lan_id),
       ]);
+      console.log('nearestLatLong_res?.status', nearestLatLong_res?.status);
       if (nearestLatLong_res?.status === 200) {
         const {data} = nearestLatLong_res.data;
         if (data?.length > 0) {
@@ -308,11 +331,13 @@ const LiveHood = ({
           setConvertionLUState(true);
         }
       }
+      console.log('landUnitArea_res?.status', landUnitArea_res?.status);
       if (landUnitArea_res?.status === 200) {
         const {count, rows = []} = landUnitArea_res.data?.data || {};
         setLandAreaUnit(count > 0 ? rows : []);
         setDefaultLand(rows.some(el => el.defined_unit_value?.length > 0));
       }
+      console.log('landUnitSquare_res?.status', landUnitSquare_res?.status);
       if (landUnitSquare_res?.status === 200) {
         const {count, rows = []} = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
@@ -379,13 +404,29 @@ const LiveHood = ({
         // ),
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
         getItem('fusedLocation'),
-        nearestLatLong(
-          dbname,
-          lan_id,
+
+        axiosPost(
+          ROUTES.POST.NEAREST_LATLONG,
+          {
+            latitude: findData?.latitude,
+            longitude: findData?.longitude,
+            distance: 200,
+            data_limit: 100,
+          },
           token,
-          findData?.latitude,
-          findData?.longitude,
+          false,
+          {
+            information: `${dbname},${lan_id}`,
+          },
         ),
+
+        // nearestLatLong(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   findData?.latitude,
+        //   findData?.longitude,
+        // ),
       ]);
       setPlotId(findData.value);
       if (getPlotDoc?.status == 200) {
@@ -962,7 +1003,16 @@ const LiveHood = ({
   }, []);
   const terraintype_resAPI = async (dbname, lan_id, type) => {
     try {
-      let terraintype_res = await landRouteApi(dbname, lan_id, type);
+      let terraintype_res = await axiosGet(
+        ROUTES.GET.LAND_ROUTE({
+          type: type,
+        }),
+        '',
+        {information: `${dbname},${lan_id}`},
+      );
+      // landRouteApi(dbname, lan_id, type);
+
+      console.log('terraintype_res?.status', terraintype_res?.status);
       if (terraintype_res?.status == 200) {
         const terraintypeArray = terraintype_res.data.data.rows.map(data => ({
           value: data.fid,
@@ -976,7 +1026,16 @@ const LiveHood = ({
   };
   const soilType_resAPI = async (dbname, lan_id, type) => {
     try {
-      let soilType_res = await landRouteApi(dbname, lan_id, type);
+      let soilType_res = await axiosGet(
+        ROUTES.GET.LAND_ROUTE({
+          type: type,
+        }),
+        '',
+        {information: `${dbname},${lan_id}`},
+      );
+      // landRouteApi(dbname, lan_id, type);
+
+      console.log('soilType_res?.status', soilType_res?.status);
       if (soilType_res?.status == 200) {
         const soilTypeArray = soilType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -990,7 +1049,16 @@ const LiveHood = ({
   };
   const landType_resAPI = async (dbname, lan_id, type) => {
     try {
-      let landType_res = await landRouteApi(dbname, lan_id, type);
+      let landType_res = await axiosGet(
+        ROUTES.GET.LAND_ROUTE({
+          type: type,
+        }),
+        '',
+        {information: `${dbname},${lan_id}`},
+      );
+      // landRouteApi(dbname, lan_id, type);
+
+      console.log('landType_res?.status', landType_res?.status);
       if (landType_res?.status == 200) {
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1306,15 +1374,22 @@ const LiveHood = ({
             formdata.append('plot_image', data);
           }
         });
-        const AddLandCropDetails_res = await AddLandCropDetailsAPI(
-          dbname,
-          lan_id,
-          farmeruserID,
-          token,
+        const AddLandCropDetails_res = await axiosPost(
+          ROUTES.POST.ADD_LAND_CROP_DETAIL({}),
           formdata,
-          '',
-          '',
+          token,
+          false,
+          {information: `${dbname},${lan_id},${farmeruserID}`},
         );
+        // AddLandCropDetailsAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   token,
+        //   formdata,
+        //   '',
+        //   '',
+        // );
         if (AddLandCropDetails_res?.status === 200) {
           removesetLocation();
           Toast.show({text: t('l_c_add_succ'), ...AlertMesg[0]});
@@ -1383,15 +1458,28 @@ const LiveHood = ({
         }
         let save_data = qs.stringify(dataToSend);
         let updateLandCropdetails_res = {};
-        updateLandCropdetails_res = await UpdateLandCropdetailsAPI(
-          dbname,
-          lan_id,
-          farmeruserID,
+
+        console.log('dataToSend', dataToSend);
+        updateLandCropdetails_res = await axiosPut(
+          ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
+            land_rel_id: farmerData.land_rel_id,
+            crop_rel_id: farmerData.cu_rel_id,
+          }),
+          dataToSend,
           token,
-          save_data,
-          farmerData.land_rel_id,
-          farmerData.cu_rel_id,
+          true,
+          {information: `${dbname},${lan_id},${farmeruserID}`},
         );
+
+        // UpdateLandCropdetailsAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   token,
+        //   save_data,
+        //   farmerData.land_rel_id,
+        //   farmerData.cu_rel_id,
+        // );
         addressProof.map((data, index) => {
           if (data.name != '' && data.id == '') {
             formDataPlotImg.append('plot_image', data);
@@ -1477,6 +1565,10 @@ const LiveHood = ({
             formdataCarbon,
           );
         }
+        console.log(
+          'updateLandCropdetails_res?.status',
+          updateLandCropdetails_res?.status,
+        );
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
           Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
@@ -1697,13 +1789,28 @@ const LiveHood = ({
         Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await nearestLatLong(
-            dbname,
-            lan_id,
+          const nearestLatLong_res = await axiosPost(
+            ROUTES.POST.NEAREST_LATLONG,
+            {
+              latitude: latitude,
+              longitude: longitude,
+              distance: 200,
+              data_limit: 100,
+            },
             token,
-            latitude,
-            longitude,
+            false,
+            {
+              information: `${dbname},${lan_id}`,
+            },
           );
+
+          // nearestLatLong(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   latitude,
+          //   longitude,
+          // );
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res?.data?.data;
             setnearPolData(data);
