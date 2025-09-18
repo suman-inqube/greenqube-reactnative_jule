@@ -1173,6 +1173,7 @@ const PlotStatusUpdate = () => {
       crop_type_id,
       crop_name_id,
     );
+    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr =
         productSeasonresRes?.data?.data?.crop_season.map(data => ({

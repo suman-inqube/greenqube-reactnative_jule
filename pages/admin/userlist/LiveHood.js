@@ -68,7 +68,8 @@ import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {groupByRelId} from '../../utils/helpers';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 
@@ -250,17 +251,42 @@ const LiveHood = ({
         productionProcess_res,
       ] = await Promise.all([
         nearestLatLong(dbname, lan_id, token, latitude, longitude),
-        UnitConversonToDefault(dbname, lan_id, token),
-        PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
+
+        axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
+          information: `${dbname},${lan_id}`,
+        }),
+        // UnitConversonToDefault(dbname, lan_id, token),
+
+        axiosGet(
+          ROUTES.GET.PLOT_SIDE_USER_LAND_DETAILS({
+            farmeruserID: farmeruserID,
+          }),
+          token,
+          {information: `${dbname},${lan_id}`},
+        ),
+        // PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
+
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
-        ProductionSeasonAndApi(dbname, lan_id, ''),
+
+        axiosGet(
+          ROUTES.GET.PRODUCTION_SEASON({
+            lanId: lan_id,
+            crop_type_id: '',
+            crop_name_id: '',
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
+        ),
+        // ProductionSeasonAndApi(dbname, lan_id, ''),
+
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
         terraintype_resAPI(dbname, lan_id, 'terrain_type'),
         soilType_resAPI(dbname, lan_id, 'soil_type'),
         landType_resAPI(dbname, lan_id, 'land_type'),
         landunit_resAPI(axiosConfig),
         produceVarietyAPI(dbname, lan_id),
+
         productionProcessAPI(dbname, lan_id),
       ]);
       if (nearestLatLong_res?.status === 200) {
@@ -272,6 +298,7 @@ const LiveHood = ({
           setPolygons(grouped);
         }
       }
+      console.log('unitConversion_res?.status', unitConversion_res?.status);
       if (unitConversion_res?.status === 200) {
         const rows = unitConversion_res.data?.data?.rows || [];
         const invalidUnits = rows.filter(
@@ -290,6 +317,10 @@ const LiveHood = ({
         const {count, rows = []} = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
+      console.log(
+        'plotSiteUserLandDetails_res',
+        plotSiteUserLandDetails_res?.status,
+      );
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -319,13 +350,33 @@ const LiveHood = ({
         fusedLocation,
         nearestLatLong_res,
       ] = await Promise.all([
-        ProductionSeasonAndApi(dbname, lan_id, ''),
-        livelihoodCropAndPlotDetailsAPI(
-          dbname,
-          lan_id,
-          farmeruserID,
-          findData.value,
+        axiosGet(
+          ROUTES.GET.PRODUCTION_SEASON({
+            lanId: lan_id,
+            crop_type_id: '',
+            crop_name_id: '',
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
         ),
+        // ProductionSeasonAndApi(dbname, lan_id, ''),
+
+        axiosGet(
+          ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+            relID: findData.value,
+          }),
+          '', // No authorization token needed
+          {
+            information: `${dbname},${lan_id},${farmeruserID}`,
+          },
+        ),
+
+        // livelihoodCropAndPlotDetailsAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   findData.value,
+        // ),
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
         getItem('fusedLocation'),
         nearestLatLong(
@@ -437,6 +488,7 @@ const LiveHood = ({
           },
         ]);
       }
+      console.log('cropAndPlotDetails?.status', cropAndPlotDetails?.status);
       if (cropAndPlotDetails?.status === 200) {
         const data = cropAndPlotDetails?.data?.data || {};
         plotSiteUserLandDetails.map((dataLandDetails, index) => {
@@ -631,6 +683,7 @@ const LiveHood = ({
           setAdd_new_crop(false);
         }
       }
+      console.log('productSeasonresRes', productSeasonresRes?.status);
       if (productSeasonresRes?.status === 200) {
         const productSeasonresResArr =
           productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -977,12 +1030,23 @@ const LiveHood = ({
     crop_name_id,
   ) => {
     console.log(dbName, languageID, crop_type_id, crop_name_id);
-    const productSeasonresRes = await ProductionSeasonAndApi(
-      dbName,
-      languageID,
-      crop_type_id,
-      crop_name_id,
+    const productSeasonresRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_SEASON({
+        lanId: languageID,
+        crop_type_id: crop_type_id,
+        crop_name_id: crop_name_id,
+      }),
+      '',
+      {information: `${dbname},${languageID}`},
     );
+
+    // ProductionSeasonAndApi(
+    //   dbName,
+    //   languageID,
+    //   crop_type_id,
+    //   crop_name_id,
+    // );
+    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr =
         productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -1007,12 +1071,24 @@ const LiveHood = ({
     crop_type_id,
     crop_name_id,
   ) => {
-    const productSeasonresRes = await ProductionSeasonAndApi(
-      dbName,
-      languageID,
-      crop_type_id,
-      crop_name_id,
+    const productSeasonresRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_SEASON({
+        lanId: languageID,
+        crop_type_id: crop_type_id,
+        crop_name_id: crop_name_id,
+      }),
+      '',
+      {information: `${dbname},${languageID}`},
     );
+
+    // ProductionSeasonAndApi(
+    //   dbName,
+    //   languageID,
+    //   crop_type_id,
+    //   crop_name_id,
+    // );
+    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
+
     if (productSeasonresRes?.status == 200) {
       const produceVariety = productSeasonresRes?.data?.data?.crop_variety.map(
         data => ({
@@ -1024,7 +1100,14 @@ const LiveHood = ({
     }
   };
   const produceVarietyAPI = async (dbName, languageID) => {
-    const productionProcessRes = await ProductionProcessAPI(dbName, languageID);
+    const productionProcessRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_PROCESS({}),
+      '',
+      {information: `${dbName},${languageID}`},
+    );
+    // ProductionProcessAPI(dbName, languageID);
+
+    console.log('productionProcessRes?.status', productionProcessRes?.status);
     if (productionProcessRes?.status == 200) {
       const productionProcessArr = productionProcessRes?.data?.data?.rows.map(
         data => ({value: data?.fid, label: data?.name}),
@@ -1033,7 +1116,15 @@ const LiveHood = ({
     }
   };
   const productionProcessAPI = async (dbName, languageID) => {
-    const ProductionUnitRes = await ProductionUnitAPI(dbName, languageID);
+    const ProductionUnitRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_UNIT({}),
+      '',
+      {information: `${dbName},${languageID}`},
+    );
+
+    // ProductionUnitAPI(dbName, languageID);
+
+    console.log('ProductionUnitRes?.status', ProductionUnitRes?.status);
     if (ProductionUnitRes?.status == 200) {
       const productionUnitArr = ProductionUnitRes?.data?.data?.rows.map(
         data => ({value: data?.fid, label: data.unit_name}),

@@ -44,6 +44,8 @@ import {SPSheet} from 'react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import DatePickerField from '../../Common/DatePickerField';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const CrateProblemUser = ({navigation}) => {
   //GQR-66
   const {
@@ -173,6 +175,7 @@ const CrateProblemUser = ({navigation}) => {
       token,
       currentfarmerId,
     );
+    console.log('problemPlotAgainstFarmerAPI', response.status);
     if (response) {
       const dataArray = [];
       response.data.data.forEach(element => {
@@ -414,11 +417,21 @@ const CrateProblemUser = ({navigation}) => {
       requestLivePermission();
       const [problemName_res, response, severity_res] = await Promise.all([
         problemTypeNameAPI(dbname, lan_id, token),
-        farmerByNameAPI(dbname, lan_id, token, user_id),
+
+        axiosGet(
+          ROUTES.GET.FARMER_BY_NAME({
+            userID: user_id,
+          }),
+          token,
+          {information: `${dbname},${lan_id}`},
+        ),
+        // farmerByNameAPI(dbname, lan_id, token, user_id),
+
         problemSeverityAPI(dbname, lan_id),
       ]);
+      console.log('problemName_res?.status', problemName_res?.data?.data);
       if (problemName_res?.status == 200) {
-        setProblemAll(problemName_res.data.data);
+        setProblemAll(problemName_res?.data?.data);
         const dataArray = problemName_res?.data?.data.map(element => ({
           value: element.fid,
           label: element.name,
@@ -432,6 +445,7 @@ const CrateProblemUser = ({navigation}) => {
         }));
         setSeverityAll(dataArray);
       }
+      console.log('farmer-name', response?.status);
       if (response?.status == 200) {
         const dataArray = response?.data?.data?.rows.map(element => ({
           value: element.user_id,

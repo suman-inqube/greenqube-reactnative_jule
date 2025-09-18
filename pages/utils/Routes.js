@@ -163,12 +163,27 @@ export const ROUTES = {
     ACTIVITY_TYPE: () =>
       `categoryRoute/list/1/1/2?categoryType=activity_type_master&search_key=`,
 
-    PRODUCTION_STAGE: ({languageID, cropTypeId, cropNameID}) =>
+    PRODUCTION_STAGE: ({languageID = '', cropTypeId = '', cropNameID = ''}) =>
       `cropRoute/getCropRelationDropdown/${languageID}?crop_type_id=${cropTypeId}&crop_name_id=${cropNameID}`,
 
     PROBLEM_SEVERITY: () => `cropRoute/list/1/0/1?type=severity&search_key`,
 
     PROBLEM_TYPE_NAME: () => `problemRoute/problemtypename?farming_type=crop`,
+
+    PRODUCTION_SEASON: ({lanId = '', crop_type_id = '', crop_name_id = ''}) =>
+      `cropRoute/getCropRelationDropdown/${lanId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`,
+
+    PRODUCTION_PROCESS: ({}) =>
+      `farmerRoute/listfardata/1/0/2?type=production_system&search_key=`,
+
+    PRODUCTION_UNIT: ({}) =>
+      `unitRoute/list/1/0/5?unit_type=yield_unit&search_key=`,
+
+    PLOT_SIDE_USER_LAND_DETAILS: ({farmeruserID = ''}) =>
+      `landRoute/userLandDetails/${farmeruserID}`,
+
+    UNIT_CONVERSION_DEFAULT: ({}) =>
+      `unitRoute/list/1/0/5?search_key=&unit_type=land_unit`,
   },
 
   PUT: {
