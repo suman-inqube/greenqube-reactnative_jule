@@ -187,7 +187,12 @@ const PersonalInformation = () => {
     } = dbLanTokUsr;
     //GQR-65
     const [checkPhoneNumberDigit] = await Promise.all([
-      checkPhoneDigitAPI(country_id, languageConpany, languageId),
+      axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({countryId: country_id}), '', {
+        information: `${languageConpany},${languageId}`,
+        Accept: 'application/json',
+      }),
+      // checkPhoneDigitAPI(country_id, languageConpany, languageId),
+
       getState(dbName, languageId),
     ]);
     console.log('checkPhoneNumberDigit', checkPhoneNumberDigit?.status);
@@ -350,11 +355,20 @@ const PersonalInformation = () => {
       var dlock_list_arr = [];
       let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
       if (isOnline) {
-        const response = await fetchBlockAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          item.value,
+        const response = await axiosGet(
+          ROUTES.GET.BLOCK_API({
+            districtID: item.value,
+          }),
+          '',
+          {information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}`},
         );
+
+        // fetchBlockAPI(
+        //   dbLanTokUsr.dbName,
+        //   dbLanTokUsr.languageId,
+        //   item.value,
+        // );
+        console.log('BLOCK-', response.status);
         dataArray = response?.data?.data?.rows.map(data => ({
           value: data.fid,
           label: data.subdiv_name,
@@ -405,11 +419,20 @@ const PersonalInformation = () => {
   }, []);
   const checkPhone = async () => {
     if (isOnline) {
-      const check_phone_digit_res = await checkPhoneDigitAPI(
-        dbLanTokUsr.country_id,
-        dbLanTokUsr.languageConpany,
-        dbLanTokUsr.languageId,
+      const check_phone_digit_res = await axiosGet(
+        ROUTES.GET.CHECK_PHONE_DIGIT({countryId: dbLanTokUsr.country_id}),
+        '',
+        {
+          information: `${dbLanTokUsr.languageConpany},${dbLanTokUsr.languageId}`,
+          Accept: 'application/json',
+        },
       );
+      // checkPhoneDigitAPI(
+      //   dbLanTokUsr.country_id,
+      //   dbLanTokUsr.languageConpany,
+      //   dbLanTokUsr.languageId,
+      // );
+      console.log('check phone no 2-', check_phone_digit_res?.status);
       if (check_phone_digit_res?.status == 200) {
         if (check_phone_digit_res.data.data.contact_no_digits) {
           let require_digit = check_phone_digit_res.data.data.contact_no_digits;

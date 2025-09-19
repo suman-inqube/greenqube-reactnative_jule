@@ -200,6 +200,12 @@ export const ROUTES = {
       `locationRoute/listDistrict/1/0/1?search_key=&state_id=${stateID}`,
 
     STATE_API: () => `locationRoute/stateList/1/0/1?search_key=&country_id=1`,
+
+    BLOCK_API: ({districtID = ''}) =>
+      `locationRoute/listAllSubdiv/1/0/1?search_key=&district_id=${districtID}`,
+
+    CHECK_PHONE_DIGIT: ({countryId = ''}) =>
+      `locationRoute/getContactNoDigitByCountryID/${countryId}`,
   },
 
   PUT: {
