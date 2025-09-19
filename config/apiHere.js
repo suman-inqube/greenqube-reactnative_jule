@@ -1007,11 +1007,11 @@ export const userDetailAPI = async (dbName, languageId, token, user_id) => {
       config.BASE_URL + 'loginSignupRoute/details/' + user_id,
       axiosHeaders,
     );
-    console.log(
-      'details:',
-      config.BASE_URL + 'loginSignupRoute/details/' + user_id,
-      axiosHeaders,
-    );
+    // console.log(
+    //   'details:',
+    //   config.BASE_URL + 'loginSignupRoute/details/' + user_id,
+    //   axiosHeaders,
+    // );
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);

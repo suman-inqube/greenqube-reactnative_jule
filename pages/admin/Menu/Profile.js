@@ -11,6 +11,8 @@ import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {userDetailAPI} from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import {Colors} from '../../utils/Constants';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 import {
   updateUserInfoAPI,
   districtDataListAPI1,
@@ -244,8 +246,16 @@ const Profile = () => {
   const userDetails = async (dbname, languageId, token, user_id) => {
     try {
       setIsLoading(true);
-      let response = await userDetailAPI(dbname, languageId, token, user_id);
-      console.log('response', response.status);
+      let response = await axiosGet(
+        ROUTES.GET.FARMER_PROFILE_INFO({
+          user_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      );
+      // userDetailAPI(dbname, languageId, token, user_id);
+
+      console.log('USER-DETAILS', response?.status);
       if (response?.status == 200) {
         setstorePersnolInfo({
           ...storePersnolInfo,

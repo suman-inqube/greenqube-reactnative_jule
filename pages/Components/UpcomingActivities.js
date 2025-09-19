@@ -6,11 +6,11 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState, memo } from 'react';
+import React, {useState, memo} from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import moment from 'moment';
-const UpcomingActivities = ({ uiState, t }) => {
+const UpcomingActivities = ({uiState, t}) => {
   const [upcomingActivities, setUpcomingActivities] = useState([
     {
       id: 1,
@@ -41,7 +41,7 @@ const UpcomingActivities = ({ uiState, t }) => {
           resizeMode="stretch"
           height={200}
           width={'100%'}
-          style={{ borderRadius: 10 }}
+          style={{borderRadius: 10}}
         />
         <View style={styles.greenOverlay} />
         <View style={styles.userTitleOverlay}>
@@ -49,13 +49,13 @@ const UpcomingActivities = ({ uiState, t }) => {
             <View style={styles.profileBackView}>
               {uiState?.profileImg ? (
                 <ImagePlaceHolderCircleWithoutAddButton
-                  imageurl={{ uri: uiState?.profileImg }}
-                // style={styles.dp}
+                  imageurl={{uri: uiState?.profileImg}}
+                  style={{width: 110, height: 110, borderRadius: 75}}
                 />
               ) : (
                 <ImagePlaceHolderCircleWithoutAddButton
-                  imageurl={require('../Common/images/avatar.png')}
-                // style={{ width: 100, height: 100, borderRadius: 75 }}
+                  imageurl={require('../Common/images/avatar1.png')}
+                  style={{width: 110, height: 110, borderRadius: 75}}
                 />
               )}
             </View>
@@ -78,7 +78,7 @@ const UpcomingActivities = ({ uiState, t }) => {
             <FlatList
               data={upcomingActivities}
               keyExtractor={item => item.id.toString()}
-              renderItem={({ item }) => (
+              renderItem={({item}) => (
                 <View style={styles.activityItem}>
                   <View style={styles.activityIndicator} />
                   <View style={styles.activityDetails}>

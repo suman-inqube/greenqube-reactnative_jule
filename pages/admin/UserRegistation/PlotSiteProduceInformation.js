@@ -259,21 +259,21 @@ const PlotSiteProduceInformation = () => {
         LandUnitArea_res,
         LandUnitsquare_metre_res,
       ] = await Promise.all([
-        axiosPost(
-          ROUTES.POST.NEAREST_LATLONG,
-          {
-            latitude: latitude,
-            longitude: longitude,
-            distance: 200,
-            data_limit: 100,
-          },
-          token,
-          false,
-          {
-            information: `${dbName},${languageId}`,
-          },
-        ),
-        // nearestLatLong(dbName, languageId, token, latitude, longitude),
+        // axiosPost(
+        //   ROUTES.POST.NEAREST_LATLONG,
+        //   {
+        //     latitude: latitude,
+        //     longitude: longitude,
+        //     distance: 200,
+        //     data_limit: 100,
+        //   },
+        //   token,
+        //   false,
+        //   {
+        //     information: `${dbName},${languageId}`,
+        //   },
+        // ),
+        nearestLatLong(dbName, languageId, token, latitude, longitude),
 
         axiosGet(ROUTES.GET.TERRAIN_TYPE(), '', {
           information: `${dbName},${languageId}`,
@@ -330,8 +330,7 @@ const PlotSiteProduceInformation = () => {
         // LandUnitsquare_metre(dbName, languageId, token),
       ]);
       setreferencelatLong({latitude, longitude});
-
-      console.log('NEAREST-LAT-LONG', nearestLatLong_res.status);
+      console.log('nearestLatLong_res.status', nearestLatLong_res.status);
       if (nearestLatLong_res.status == 200) {
         groupedData = groupByRelId(nearestLatLong_res.data.data);
         setnearPolSet(groupByRelId(nearestLatLong_res.data.data));
@@ -342,7 +341,6 @@ const PlotSiteProduceInformation = () => {
           setPolygons(groupedData);
         }
       }
-      console.log('LAND-UNIT-AREA', LandUnitArea_res?.status);
 
       if (LandUnitArea_res?.status == 200) {
         const {count, rows} = LandUnitArea_res?.data?.data || {};
@@ -352,7 +350,6 @@ const PlotSiteProduceInformation = () => {
           setLandAreaUnit([]);
         }
       }
-      console.log('LAND-UNIT-SQUARE', LandUnitsquare_metre_res?.status);
 
       if (LandUnitsquare_metre_res?.status == 200) {
         const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
@@ -363,28 +360,24 @@ const PlotSiteProduceInformation = () => {
         }
       }
       //GQR-65
-      console.log('TERRAIN-TYPE', tterrainType_res?.status);
       if (tterrainType_res?.status === 200) {
         terraintypeArray = tterrainType_res?.data?.data?.rows?.map(data => ({
           value: data.fid,
           label: data.name,
         }));
       }
-      console.log('LAND-TYPE', landType_res?.status);
       if (landType_res?.status === 200) {
         landTypeArray = landType_res?.data?.data?.rows?.map(data => ({
           value: data.fid,
           label: data.name,
         }));
       }
-      console.log('SOIL-TYPE', soilType_res?.status);
       if (soilType_res?.status === 200) {
         soilTypeArray = soilType_res?.data?.data?.rows?.map(data => ({
           value: data.fid,
           label: data.name,
         }));
       }
-      console.log('LAND-UNIT', landUnit_res?.status);
       if (landUnit_res?.status === 200) {
         landUnitArray = landUnit_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -392,7 +385,6 @@ const PlotSiteProduceInformation = () => {
           sizevalue: data.unit_value,
         }));
       }
-      console.log('PRODUCE-SESSION', producceSeasion_res?.status);
 
       if (producceSeasion_res?.status === 200) {
         prodctionSeasionArray =
@@ -401,14 +393,12 @@ const PlotSiteProduceInformation = () => {
             label: data.name,
           }));
       }
-      console.log('LIVELIHOOD', livelihoodType_res?.status);
 
       if (livelihoodType_res?.status === 200) {
         livelihoodTypeArray = livelihoodType_res?.data?.data?.crop_type?.map(
           data => ({value: data.fid, label: data.name}),
         );
       }
-      console.log('PRODUCTION-PROCESS-DATA', productionProcessData_res?.status);
 
       if (productionProcessData_res?.status === 200) {
         productionProcessArray =
@@ -417,7 +407,6 @@ const PlotSiteProduceInformation = () => {
             label: data.name,
           }));
       }
-      console.log('PRODUCE-PRODUCTION-UNIT', producceSeasion_res?.status);
 
       if (produceProductionUnitData_res?.status === 200) {
         produceProductionUnitArray =
@@ -615,7 +604,6 @@ const PlotSiteProduceInformation = () => {
       //   language_id,
       //   livelihoodType.value,
       // );
-      console.log('PRODUCE-NAME', produceNameAPI?.status);
       if (produceNameAPI?.status === 200) {
         produceNameArray = produceNameAPI?.data?.data?.crop_name?.map(data => ({
           value: data.crop_name.fid,
@@ -687,7 +675,6 @@ const PlotSiteProduceInformation = () => {
         livelihoodType,
         produceName,
       );
-      console.log('PRODUVE-VARIETY', produceVariety_res?.status);
       if (produceVariety_res?.status == 200) {
         produceVarietyArray = produceVariety_res?.data?.data?.crop_variety?.map(
           data => ({
@@ -1191,28 +1178,21 @@ const PlotSiteProduceInformation = () => {
         Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await axiosPost(
-            ROUTES.POST.NEAREST_LATLONG,
-            {
-              latitude: latitude,
-              longitude: longitude,
-              distance: 200,
-              data_limit: 100,
-            },
-            token,
-            false,
-            {
-              information: `${dbName},${languageId}`,
-            },
-          );
-          // nearestLatLong(
-          //   dbName,
-          //   languageId,
+          const nearestLatLong_res = await // axiosPost(
+          //   ROUTES.POST.NEAREST_LATLONG,
+          //   {
+          //     latitude: latitude,
+          //     longitude: longitude,
+          //     distance: 200,
+          //     data_limit: 100,
+          //   },
           //   token,
-          //   latitude,
-          //   longitude,
+          //   false,
+          //   {
+          //     information: `${dbName},${languageId}`,
+          //   },
           // );
-          console.log('NEAREST-LAT-LONG-2', nearestLatLong_res?.status);
+          nearestLatLong(dbName, languageId, token, latitude, longitude);
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res?.data?.data;
             // setnearPolData(data);
