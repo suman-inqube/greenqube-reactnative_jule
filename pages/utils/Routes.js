@@ -3,7 +3,8 @@ export const ROUTES = {
     LOGIN: 'sessionRoute/login',
     ADD_ID_ADDRESS_IMGS: () => `farmerRoute/addIdAddressImgs`,
     NEAREST_LATLONG: `settingsRoute/nearestPlots`,
-    ADD_LAND_CROP_DETAIL: ({}) => `landRoute/multiLatLong`,
+    ADD_LAND_CROP_DETAIL: () => `landRoute/multiLatLong`,
+    PROBLEM_SAVE: () => `questionRoute/add`,
   },
 
   GET: {
