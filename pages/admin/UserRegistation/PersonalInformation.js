@@ -145,7 +145,6 @@ const PersonalInformation = () => {
 
       // fetchStateAPI(dbName, languageID);
 
-      console.log('state-', response.status);
       if (response.status == 200) {
         dataArray = response?.data?.data?.rows?.map(data => ({
           value: data.fid,
@@ -195,7 +194,6 @@ const PersonalInformation = () => {
 
       getState(dbName, languageId),
     ]);
-    console.log('checkPhoneNumberDigit', checkPhoneNumberDigit?.status);
     if (checkPhoneNumberDigit?.status == 200) {
       const {contact_no_digits} = checkPhoneNumberDigit?.data?.data;
       setcontact_no_digits(contact_no_digits);
@@ -297,7 +295,6 @@ const PersonalInformation = () => {
       //   dbLanTokUsr.languageId,
       //   item.value,
       // );
-      console.log('district-', response.status);
       if (response?.status === 200) {
         dataArray = response?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -368,7 +365,6 @@ const PersonalInformation = () => {
         //   dbLanTokUsr.languageId,
         //   item.value,
         // );
-        console.log('BLOCK-', response.status);
         dataArray = response?.data?.data?.rows.map(data => ({
           value: data.fid,
           label: data.subdiv_name,
@@ -432,7 +428,6 @@ const PersonalInformation = () => {
       //   dbLanTokUsr.languageConpany,
       //   dbLanTokUsr.languageId,
       // );
-      console.log('check phone no 2-', check_phone_digit_res?.status);
       if (check_phone_digit_res?.status == 200) {
         if (check_phone_digit_res.data.data.contact_no_digits) {
           let require_digit = check_phone_digit_res.data.data.contact_no_digits;

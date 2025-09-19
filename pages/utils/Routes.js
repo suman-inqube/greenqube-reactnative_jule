@@ -206,6 +206,24 @@ export const ROUTES = {
 
     CHECK_PHONE_DIGIT: ({countryId = ''}) =>
       `locationRoute/getContactNoDigitByCountryID/${countryId}`,
+
+    TERRAIN_TYPE: () => `landRoute/list/1/0/1?type=terrain_type&search_key=`,
+
+    LAND_TYPE: () => `landRoute/list/1/0/1?type=land_type&search_key=`,
+
+    SOIL_TYPE: () => `landRoute/list/1/0/1?type=soil_type&search_key=`,
+
+    LAND_UNIT: () => `unitRoute/list/1/0/5?search_key=&unit_type=land_unit,`,
+
+    PRODUCTION_SEASON_REG: ({
+      languageId,
+      crop_type_id = '',
+      crop_name_id = '',
+    }) =>
+      `cropRoute/getCropRelationDropdown/${languageId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`,
+
+    PRODUCE_NAME_LIST: ({languag = '', livelihoodType = ''}) =>
+      `cropRoute/getCropRelationDropdown/${languag}?crop_type_id=${livelihoodType}&crop_name_id=`,
   },
 
   PUT: {
