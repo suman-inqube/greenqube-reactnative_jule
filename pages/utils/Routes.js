@@ -184,17 +184,20 @@ export const ROUTES = {
     PLOT_SIDE_USER_LAND_DETAILS: ({farmeruserID = ''}) =>
       `landRoute/userLandDetails/${farmeruserID}`,
 
-    UNIT_CONVERSION_DEFAULT: ({}) =>
+    UNIT_CONVERSION_DEFAULT: () =>
       `unitRoute/list/1/0/5?search_key=&unit_type=land_unit`,
 
-    LAND_UNIT_AREA: ({}) =>
+    LAND_UNIT_AREA: () =>
       `unitRoute/list/1/0/5?search_key=&unit_type=land_unit&is_default=1&sub_type=land_area`,
 
-    LAND_UNIT_SQUARE: ({}) =>
+    LAND_UNIT_SQUARE: () =>
       `unitRoute/list/1/0/5?search_key=&unit_type=land_unit&sub_type=land_area&unit_slug=square_metre`,
 
     LAND_ROUTE: ({type = ''}) =>
       `landRoute/list/1/0/1?type=${type}&search_key=`,
+
+    DISTRICT_API: ({stateID = ''}) =>
+      `locationRoute/listDistrict/1/0/1?search_key=&state_id=${stateID}`,
   },
 
   PUT: {
