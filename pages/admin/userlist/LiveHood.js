@@ -311,7 +311,6 @@ const LiveHood = ({
 
         productionProcessAPI(dbname, lan_id),
       ]);
-      console.log('nearestLatLong_res?.status', nearestLatLong_res?.status);
       if (nearestLatLong_res?.status === 200) {
         const {data} = nearestLatLong_res.data;
         if (data?.length > 0) {
@@ -321,7 +320,6 @@ const LiveHood = ({
           setPolygons(grouped);
         }
       }
-      console.log('unitConversion_res?.status', unitConversion_res?.status);
       if (unitConversion_res?.status === 200) {
         const rows = unitConversion_res.data?.data?.rows || [];
         const invalidUnits = rows.filter(
@@ -331,21 +329,16 @@ const LiveHood = ({
           setConvertionLUState(true);
         }
       }
-      console.log('landUnitArea_res?.status', landUnitArea_res?.status);
       if (landUnitArea_res?.status === 200) {
         const {count, rows = []} = landUnitArea_res.data?.data || {};
         setLandAreaUnit(count > 0 ? rows : []);
         setDefaultLand(rows.some(el => el.defined_unit_value?.length > 0));
       }
-      console.log('landUnitSquare_res?.status', landUnitSquare_res?.status);
       if (landUnitSquare_res?.status === 200) {
         const {count, rows = []} = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
-      console.log(
-        'plotSiteUserLandDetails_res',
-        plotSiteUserLandDetails_res?.status,
-      );
+
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -529,7 +522,6 @@ const LiveHood = ({
           },
         ]);
       }
-      console.log('cropAndPlotDetails?.status', cropAndPlotDetails?.status);
       if (cropAndPlotDetails?.status === 200) {
         const data = cropAndPlotDetails?.data?.data || {};
         plotSiteUserLandDetails.map((dataLandDetails, index) => {
@@ -724,7 +716,6 @@ const LiveHood = ({
           setAdd_new_crop(false);
         }
       }
-      console.log('productSeasonresRes', productSeasonresRes?.status);
       if (productSeasonresRes?.status === 200) {
         const productSeasonresResArr =
           productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -1012,7 +1003,6 @@ const LiveHood = ({
       );
       // landRouteApi(dbname, lan_id, type);
 
-      console.log('terraintype_res?.status', terraintype_res?.status);
       if (terraintype_res?.status == 200) {
         const terraintypeArray = terraintype_res.data.data.rows.map(data => ({
           value: data.fid,
@@ -1035,7 +1025,6 @@ const LiveHood = ({
       );
       // landRouteApi(dbname, lan_id, type);
 
-      console.log('soilType_res?.status', soilType_res?.status);
       if (soilType_res?.status == 200) {
         const soilTypeArray = soilType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1058,7 +1047,6 @@ const LiveHood = ({
       );
       // landRouteApi(dbname, lan_id, type);
 
-      console.log('landType_res?.status', landType_res?.status);
       if (landType_res?.status == 200) {
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1097,7 +1085,6 @@ const LiveHood = ({
     crop_type_id,
     crop_name_id,
   ) => {
-    console.log(dbName, languageID, crop_type_id, crop_name_id);
     const productSeasonresRes = await axiosGet(
       ROUTES.GET.PRODUCTION_SEASON({
         lanId: languageID,
@@ -1114,7 +1101,6 @@ const LiveHood = ({
     //   crop_type_id,
     //   crop_name_id,
     // );
-    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr =
         productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -1155,7 +1141,6 @@ const LiveHood = ({
     //   crop_type_id,
     //   crop_name_id,
     // );
-    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
 
     if (productSeasonresRes?.status == 200) {
       const produceVariety = productSeasonresRes?.data?.data?.crop_variety.map(
@@ -1175,7 +1160,6 @@ const LiveHood = ({
     );
     // ProductionProcessAPI(dbName, languageID);
 
-    console.log('productionProcessRes?.status', productionProcessRes?.status);
     if (productionProcessRes?.status == 200) {
       const productionProcessArr = productionProcessRes?.data?.data?.rows.map(
         data => ({value: data?.fid, label: data?.name}),
@@ -1192,7 +1176,6 @@ const LiveHood = ({
 
     // ProductionUnitAPI(dbName, languageID);
 
-    console.log('ProductionUnitRes?.status', ProductionUnitRes?.status);
     if (ProductionUnitRes?.status == 200) {
       const productionUnitArr = ProductionUnitRes?.data?.data?.rows.map(
         data => ({value: data?.fid, label: data.unit_name}),
@@ -1459,7 +1442,6 @@ const LiveHood = ({
         let save_data = qs.stringify(dataToSend);
         let updateLandCropdetails_res = {};
 
-        console.log('dataToSend', dataToSend);
         updateLandCropdetails_res = await axiosPut(
           ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
             land_rel_id: farmerData.land_rel_id,
@@ -1565,10 +1547,7 @@ const LiveHood = ({
             formdataCarbon,
           );
         }
-        console.log(
-          'updateLandCropdetails_res?.status',
-          updateLandCropdetails_res?.status,
-        );
+
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
           Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
