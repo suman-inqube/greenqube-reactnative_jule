@@ -175,10 +175,10 @@ export const ROUTES = {
     PRODUCTION_SEASON: ({lanId = '', crop_type_id = '', crop_name_id = ''}) =>
       `cropRoute/getCropRelationDropdown/${lanId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`,
 
-    PRODUCTION_PROCESS: ({}) =>
+    PRODUCTION_PROCESS: () =>
       `farmerRoute/listfardata/1/0/2?type=production_system&search_key=`,
 
-    PRODUCTION_UNIT: ({}) =>
+    PRODUCTION_UNIT: () =>
       `unitRoute/list/1/0/5?unit_type=yield_unit&search_key=`,
 
     PLOT_SIDE_USER_LAND_DETAILS: ({farmeruserID = ''}) =>
@@ -198,6 +198,8 @@ export const ROUTES = {
 
     DISTRICT_API: ({stateID = ''}) =>
       `locationRoute/listDistrict/1/0/1?search_key=&state_id=${stateID}`,
+
+    STATE_API: () => `locationRoute/stateList/1/0/1?search_key=&country_id=1`,
   },
 
   PUT: {

@@ -139,7 +139,13 @@ const PersonalInformation = () => {
   const getState = async (dbName, languageID) => {
     var dataArray = [];
     if (isOnline) {
-      const response = await fetchStateAPI(dbName, languageID);
+      const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
+        information: `${dbName},${languageID}`,
+      });
+
+      // fetchStateAPI(dbName, languageID);
+
+      console.log('state-', response.status);
       if (response.status == 200) {
         dataArray = response?.data?.data?.rows?.map(data => ({
           value: data.fid,
