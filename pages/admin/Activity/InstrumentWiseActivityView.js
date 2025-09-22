@@ -22,6 +22,8 @@ import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors} from '../../utils/Constants';
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 import PaginationNav from '../../Components/PaginationNav';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const InstrumentWiseActivityView = () => {
   const navigation = useNavigation();
@@ -205,17 +207,30 @@ const InstrumentWiseActivityView = () => {
       try {
         setIsLoading(true);
         if (isOnline) {
-          var response = await activityListInstrumentWise(
-            dbName,
-            languageId,
+          var response = await axiosGet(
+            ROUTES.GET.ACTIVITY_LIST_INSTRUMENTWISE({
+              pageNO: pageNo,
+              userID: supervisorId,
+              searchItem: searchItem,
+              from_date: from_date,
+              to_date: to_date,
+              // carbonType: carbonType,
+            }),
             token,
-            supervisorId,
-            pageNo,
-            searchItem,
-            from_date,
-            to_date,
-            carbonType,
+            {information: `${dbName},${languageId},${supervisorId}`},
           );
+          // activityListInstrumentWise(
+          //   dbName,
+          //   languageId,
+          //   token,
+          //   supervisorId,
+          //   pageNo,
+          //   searchItem,
+          //   from_date,
+          //   to_date,
+          //   carbonType,
+          // );
+          console.log('Activity-Instrument-List', response?.status);
           if (response?.status == 200) {
             await setItem('activityList', response);
           }

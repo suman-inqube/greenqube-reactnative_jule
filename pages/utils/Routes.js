@@ -5,6 +5,7 @@ export const ROUTES = {
     NEAREST_LATLONG: `settingsRoute/nearestPlots`,
     ADD_LAND_CROP_DETAIL: () => `landRoute/multiLatLong`,
     PROBLEM_SAVE: () => `questionRoute/add`,
+    ADD_LOAN: () => `loanRoute/add`,
   },
 
   GET: {
@@ -225,6 +226,26 @@ export const ROUTES = {
 
     PRODUCE_NAME_LIST: ({languag = '', livelihoodType = ''}) =>
       `cropRoute/getCropRelationDropdown/${languag}?crop_type_id=${livelihoodType}&crop_name_id=`,
+
+    ACTIVITY_LIST_INSTRUMENTWISE: ({
+      pageNO = '',
+      userID = '',
+      searchItem = '',
+      from_date = '',
+      to_date = '',
+    }) =>
+      `settingsRoute/listPipeActivity/1/${pageNO}/2?type=carbon_activity&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&from_date=${from_date}&to_date=${to_date}`,
+
+    LOAN_PURPOSE_API: () =>
+      `loanEntityRoute/list/1/0/1?entity_type=loan_purpose`,
+
+    LOAN_LIST: ({
+      farmer_id = '',
+      from_date = '',
+      to_date = '',
+      farmer_mobile = '',
+    }) =>
+      `loanRoute/list/1/0/2?&user_id=${farmer_id}&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=&farmer_mobile=${farmer_mobile}`,
   },
 
   PUT: {
