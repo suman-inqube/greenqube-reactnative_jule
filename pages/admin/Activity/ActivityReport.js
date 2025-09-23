@@ -282,6 +282,8 @@ const ActivityReport = ({navigation}) => {
     } else {
       var response = await getItem('plotAgainstFarmer' + currentfarmerId);
     }
+
+    console.log('plotAgainstFarmerAPI', response.status);
     if (response) {
       const dataArray = response?.data?.data.map(data => ({
         value: data.rel_id,
@@ -456,6 +458,8 @@ const ActivityReport = ({navigation}) => {
               'productionStageAPI' + data.crop_type_id + data.crop_type_id,
             );
           }
+
+          console.log('productionStage_res', productionStage_res.status);
           if (productionStage_res) {
             const dataArray = productionStage_res?.data?.data?.growth_stage.map(
               data => ({
@@ -892,6 +896,8 @@ const ActivityReport = ({navigation}) => {
           saveData.user_id,
           formData,
         );
+
+        console.log('SAVE', database_res?.status);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.navigate('activityList', {action: 'addData'});

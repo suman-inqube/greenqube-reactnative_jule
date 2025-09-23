@@ -189,15 +189,23 @@ const FarmIncomeExpenseView = ({route}) => {
                     <View key={index}>
                       {data.inexType && data.inexType.taxonomy === 'expense' ? (
                         <View style={styles.flatListItem} key={index}>
-                          <Text style={styles.text}>
-                            {data.inexType &&
-                              data.inexType.inexName &&
-                              data.inexType.inexName.categoryName}
-                          </Text>
-                          <Text style={styles.text}>
-                            {formatDateToDateName(data.date)}
-                          </Text>
-                          <Text style={styles.text}>{data.amount}</Text>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.inexType &&
+                                data.inexType.inexName &&
+                                data.inexType.inexName.categoryName}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {formatDateToDateName(data.date)}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.amount}
+                            </Text>
+                          </View>
                         </View>
                       ) : (
                         ''
@@ -233,15 +241,23 @@ const FarmIncomeExpenseView = ({route}) => {
                     <View key={index}>
                       {data.inexType && data.inexType.taxonomy === 'income' ? (
                         <View style={styles.flatListItem2} key={index}>
-                          <Text style={styles.text}>
-                            {data.inexType &&
-                              data.inexType.inexName &&
-                              data.inexType.inexName.categoryName}
-                          </Text>
-                          <Text style={styles.text}>
-                            {formatDateToDateName(data.date)}
-                          </Text>
-                          <Text style={styles.text}>{data.amount}</Text>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.inexType &&
+                                data.inexType.inexName &&
+                                data.inexType.inexName.categoryName}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {formatDateToDateName(data.date)}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.amount}
+                            </Text>
+                          </View>
                         </View>
                       ) : (
                         ''
@@ -260,7 +276,7 @@ const FarmIncomeExpenseView = ({route}) => {
             <Text style={styles.bottomTitle}>
               {t('total_margin') + '(' + currency + ')'}:{' '}
             </Text>
-            <Text style={styles.bottomTitle}>
+            <Text style={[styles.bottomTitle, styles.amountText]}>
               {
                 <ShowTotalMargin
                   expense={
@@ -324,21 +340,18 @@ const styles = StyleSheet.create({
     // borderBottomLeftRadius: 12,
     // borderBottomRightRadius: 12,
     borderWidth: 0.5,
-    borderColor: '#6F7E8C',
+    borderColor: 'red',
   },
   TotalContainer: {
-    // marginTop: 10,
     backgroundColor: Colors.useGreen,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center', // Center horizontally
+    alignItems: 'center', // Center vertically
     paddingVertical: 15,
-    alignItems: 'center',
-    marginHorizontal: 10,
-    borderRadius: 30,
+    marginHorizontal: 16,
+    borderRadius: 25,
     marginTop: 10,
     marginBottom: 5,
-    // borderBottomLeftRadius: 12,
-    // borderBottomRightRadius: 12,
   },
   ExpenseTitle: {
     color: 'red',
@@ -359,6 +372,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
+    textAlign: 'center',
   },
   ExpenseCon: {
     flexDirection: 'row',
@@ -407,34 +421,40 @@ const styles = StyleSheet.create({
   },
   flatListItem: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    // marginVertical: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#FFF',
     paddingVertical: 15,
-    // borderRadius: 10,
     elevation: 5,
-    // borderBottomWidth: 1,
     borderWidth: 0.5,
     borderColor: 'red',
   },
   flatListItem2: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    // marginVertical: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#FFF',
     paddingVertical: 15,
-    // borderRadius: 10,
     elevation: 5,
-    // borderBottomWidth: 1,
     borderWidth: 0.5,
     borderColor: 'green',
+  },
+  textContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+    justifyContent: 'center',
   },
   text: {
     color: '#000',
     fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    textAlign: 'center',
+
+    includeFontPadding: false,
+    flexShrink: 1,
   },
   scrollContent: {
-    paddingBottom: 30, // Extra padding at bottom
+    paddingBottom: 30,
   },
   card: {
     backgroundColor: 'white',
@@ -481,6 +501,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     textAlign: 'right',
     alignSelf: 'flex-end',
+  },
+  amountText: {
+    marginLeft: 8, // Adds space between label and amount
+    fontFamily: 'Poppins-SemiBold', // Optional: make amount stand out
   },
   ///////////////////////////////////////////////////////
   //   container: {

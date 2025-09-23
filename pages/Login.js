@@ -152,12 +152,9 @@ const Login = ({route}) => {
         password: storeLoginUser.password,
         type: storeLoginUser.role,
       };
-      console.log('userIno123', ROUTES.POST.LOGIN, inputdata);
       try {
         setIsLoading(true);
         let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata);
-        console.log('inputdata', inputdata);
-        console.log('userIno', userIno);
 
         if (userIno?.status === 200) {
           setRemUser({

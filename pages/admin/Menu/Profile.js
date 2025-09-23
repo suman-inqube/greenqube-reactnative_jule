@@ -98,14 +98,25 @@ const Profile = () => {
       formData.append('status', '1');
       formData.append('userName', storePersnolInfo.userName);
       formData.append('date_of_birth', storePersnolInfo.date_of_birth);
-      let submitRes = await updateUserInfoAPI(
-        dbname,
-        storePersnolInfo.language,
-        storePersnolInfo.userId,
-        token,
+      let submitRes = await axiosPut(
+        ROUTES.PUT.USER_PROFILE_UPDATE({
+          user_id: storePersnolInfo.userId,
+        }),
         formData,
+        token,
+        '',
+        {
+          information: `${dbname},${storePersnolInfo.language},${storePersnolInfo.userId}`,
+        },
       );
-
+      // updateUserInfoAPI(
+      //   dbname,
+      //   storePersnolInfo.language,
+      //   storePersnolInfo.userId,
+      //   token,
+      //   formData,
+      // );
+      console.log('Save', submitRes?.status);
       if (submitRes?.status === 200) {
         Toast.show({
           text: `${t('Data_submitted_successfully')}`,
@@ -131,7 +142,11 @@ const Profile = () => {
   };
   let languageDataList = async dbname => {
     try {
-      let language_res = await firstLanguageListAPI(dbname);
+      let language_res = await axiosGet(ROUTES.GET.FIRST_LAN_LIST(), null, {
+        information: `${dbname}`,
+      });
+      // firstLanguageListAPI(dbname);
+      console.log('LANGUAGE', language_res?.status);
       if (language_res?.status == 200) {
         let languageArray = language_res?.data?.data?.map(data => ({
           value: data.id,
@@ -146,14 +161,18 @@ const Profile = () => {
   };
   const handleLanguage = async language => {
     const {block, district, state} = storePersnolInfo;
-    const locDiffLangRes = await locDiffLang(
-      dbname,
-      language.value,
+    const locDiffLangRes = await axiosGet(
+      ROUTES.GET.LOC_DIFFERENCE_LANGUAGE({
+        state_fid: state,
+        district_fid: district,
+        subdiv_fid: block,
+      }),
       token,
-      state,
-      district,
-      block,
+      {information: `${dbname},${language.value}`},
     );
+    // locDiffLang(dbname, language.value, token, state, district, block);
+
+    console.log('locDiffLang', locDiffLangRes?.status);
     if (locDiffLangRes?.status == 200) {
       const {distData, stateData, subdivData} =
         locDiffLangRes?.data?.data || {};
@@ -177,7 +196,12 @@ const Profile = () => {
   };
   let stateInfoDataList = async (dbname, language, token) => {
     try {
-      let state_res = await stateListAPI(dbname, language, token);
+      let state_res = await axiosGet(ROUTES.GET.STATE_API(), token, {
+        information: `${dbname},${language}`,
+      });
+      // stateListAPI(dbname, language, token);
+
+      console.log('STATE', state_res?.status);
       if (state_res?.status == 200) {
         let stateArray = state_res?.data?.data?.rows?.map(data => ({
           value: data?.fid,
@@ -204,7 +228,16 @@ const Profile = () => {
   let districtDataList = async (dbname, language, state) => {
     try {
       setIsLoading(true);
-      let district_res = await districtDataListAPI1(dbname, language, state);
+      let district_res = await axiosGet(
+        ROUTES.GET.DISTRICT_API({
+          stateID: state,
+        }),
+        '',
+        {information: `${dbname},${language}`},
+      );
+      // districtDataListAPI1(dbname, language, state);
+
+      console.log('DISTRICT', district_res?.status);
       if (district_res?.status == 200) {
         let districtArray = district_res?.data?.data?.rows?.map(data => ({
           value: data?.fid,
@@ -230,7 +263,16 @@ const Profile = () => {
   let blockDataList = async (dbname, language, district) => {
     try {
       setIsLoading(true);
-      let block_res = await blockDataListAPI1(dbname, language, district);
+      let block_res = await axiosGet(
+        ROUTES.GET.BLOCK_API({
+          districtID: district,
+        }),
+        '',
+        {information: `${dbname},${language}`},
+      );
+      // blockDataListAPI1(dbname, language, district);
+
+      console.log('BLOCK', block_res?.status);
       if (block_res?.status == 200) {
         let blocktArray = block_res?.data?.data?.rows?.map(data => ({
           value: data?.fid,
@@ -255,7 +297,6 @@ const Profile = () => {
       );
       // userDetailAPI(dbname, languageId, token, user_id);
 
-      console.log('USER-DETAILS', response?.status);
       if (response?.status == 200) {
         setstorePersnolInfo({
           ...storePersnolInfo,

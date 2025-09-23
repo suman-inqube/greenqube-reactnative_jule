@@ -30,6 +30,8 @@ import PaginationNav from '../../Components/PaginationNav';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import {getActionsIncomeExpense} from '../../utils/options';
 import ListCard from '../../Components/ListCard';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 const FarmIncomeExpenseList = ({navigation}) => {
   //GQR-67
@@ -86,16 +88,27 @@ const FarmIncomeExpenseList = ({navigation}) => {
     setIsLoading(true);
     const [curr, response] = await Promise.all([
       getItem('currency'),
-      farmaccountsListAPI(
-        dbname,
-        lan_id,
+
+      axiosGet(
+        ROUTES.GET.FARMER_ACCOUNT_LIST({
+          pageNo: pageNo,
+          farmerId: farmerId,
+          fromDate: fromDate,
+          toDate: toDate,
+        }),
         token,
-        user_id,
-        pageNo,
-        farmerId,
-        fromDate,
-        toDate,
+        {information: `${dbname},${lan_id},${user_id}`},
       ),
+      // farmaccountsListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   pageNo,
+      //   farmerId,
+      //   fromDate,
+      //   toDate,
+      // ),
     ]);
     setCurrency(curr);
     if (response?.status == 200) {

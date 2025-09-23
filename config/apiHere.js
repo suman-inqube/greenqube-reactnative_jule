@@ -1711,6 +1711,7 @@ export const AllProductSubCategoryListAPI = async (
       information: `${dbName},${languageId},${user_id}`,
     },
   };
+
   try {
     let response = await axios.get(
       config.BASE_URL +
@@ -1736,6 +1737,13 @@ export const AllProductNameList = async (
       information: `${dbName},${languageId},${user_id}`,
     },
   };
+
+  // console.log(
+  //   'kkkk',
+  //   config.BASE_URL +
+  //     `marketRoute/listproduct/1/0/2?search_key=&category_id=${subCategoryID}`,
+  //   axiosHeaders,
+  // );
   try {
     let response = await axios.get(
       config.BASE_URL +

@@ -24,6 +24,8 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
+import {axiosDelete, axiosGet, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const DealerReport = () => {
   //GQR-67
   const {
@@ -186,7 +188,11 @@ const DealerReport = () => {
     setIsLoading(true);
     const [curr] = await Promise.all([getItem('currency')]);
     setcurrency(curr);
-    const response = await ChooseDealerAPI(dbname, lan_id, token, user_id);
+    const response = await axiosGet(ROUTES.GET.CHOOSE_DEALER(), token, {
+      information: `${dbname},${lan_id}`,
+    });
+    // ChooseDealerAPI(dbname, lan_id, token, user_id);
+    console.log('ChooseDealerAPI', response?.status);
     if (response?.status === 200) {
       setIsLoading(false);
       setDealer(response.data.data.rows);
@@ -240,12 +246,19 @@ const DealerReport = () => {
   };
   const handleOrderReceived = async item => {
     setDealerData({...dealerData, orderReceived: item});
-    const response = await AllProductCategoryListAPI(
-      dbname,
-      lan_id,
+
+    const response = await axiosGet(
+      ROUTES.GET.ALL_PRODUCT_CATEGORY_LIST(),
       token,
-      user_id,
+      {information: `${dbname},${lan_id}`},
     );
+    // AllProductCategoryListAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    // );
+    console.log('AllProductCategoryListAPI', response?.status);
     if (response?.status === 200) {
       const categoryArray = [];
       response.data.data.rows.forEach(element => {
@@ -262,13 +275,22 @@ const DealerReport = () => {
       productCategory: item.label,
       productCategory_fid: item.value,
     });
-    const response = await AllProductSubCategoryListAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.ALL_PRODUCT_SUB_CATEGORY_LIST({
+        categoryID: item.value,
+      }),
       token,
-      user_id,
-      item.value,
+      {information: `${dbname},${lan_id},${user_id}`},
     );
+    // AllProductSubCategoryListAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   item.value,
+    // );
+    console.log('SubCategoryLis', response?.status);
+
     if (response?.status === 200) {
       const subCategoryArray = [];
       response.data.data.rows.map((data, index) => {
@@ -290,22 +312,36 @@ const DealerReport = () => {
       productSubCategory: item.label,
       productSubCategory_fid: item.value,
     });
-    const AllProduct = await AllProductNameList(
-      dbname,
-      lan_id,
+    const AllProduct = await axiosGet(
+      ROUTES.GET.ALL_PRODUCT_NAME_LIST({
+        subCategoryID: item.value,
+      }),
       token,
-      user_id,
-      item.value,
+      {information: `${dbname},${lan_id},${user_id}`},
     );
+
+    // AllProductNameList(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   item.value,
+    // );
+    console.log('AllProductNameList', AllProduct?.status);
     if (AllProduct?.status === 200) {
       const productArray = [];
       const unitArray = [];
       AllProduct.data.data.rows.map((data, index) => {
         productArray.push({value: data.fid, label: data.product_name});
+        console.log(
+          'agri_product_prices for product:',
+          data.product_name,
+          data.agri_product_prices,
+        );
         data.agri_product_prices.map((unitData, unitIndex) => {
           unitArray.push({
-            value: unitData.agri_unit.fid,
-            label: unitData.agri_unit.unit_name,
+            value: unitData?.agri_unit?.fid,
+            label: unitData?.agri_unit?.unit_name,
           });
         });
       });
@@ -393,13 +429,22 @@ const DealerReport = () => {
         });
       });
       formData.append('products', JSON.stringify(productArr));
-      const response = await DealerDailysalesreportAdd(
-        dbname,
-        lan_id,
-        token,
-        user_id,
+      const response = await axiosPost(
+        ROUTES.POST.DEALER_DAILY_SALES_REPORT_ADD(),
         formData,
+        token,
+        false,
+        {information: `${dbname},${lan_id},${user_id}`},
       );
+      // DealerDailysalesreportAdd(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   formData,
+      // );
+
+      console.log('SAVE', response?.status);
       if (response?.status === 200) {
         setDate('');
         setIssueDate('');

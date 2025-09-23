@@ -14,24 +14,24 @@ const UpcomingActivities = ({uiState, t}) => {
   const [upcomingActivities, setUpcomingActivities] = useState([
     {
       id: 1,
-      title: 'Coming soon...',
-      date: '2025-11-15',
+      title: 'Fertilizer Spray',
+      date: '2025-11-22',
 
       status: 'Pending',
     },
     {
       id: 2,
-      title: 'Coming soon...',
-      date: '2025-11-18',
+      title: 'Pipe Installation',
+      date: '2025-11-28',
 
       status: 'Upcoming',
     },
-    {
-      id: 3,
-      title: 'Coming soon...',
-      date: '2025-11-22',
-      status: 'Upcoming',
-    },
+    // {
+    //   id: 3,
+    //   title: 'Coming soon...',
+    //   date: '2025-11-22',
+    //   status: 'Upcoming',
+    // },
   ]);
   return (
     <ScrollView>

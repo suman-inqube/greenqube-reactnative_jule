@@ -26,6 +26,8 @@ import {getActionsDealerReportSupervisor} from '../../utils/options';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {useNavigation, useRoute} from '@react-navigation/native';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 const DailySalesReport = ({navigation}) => {
   //GQR-67
@@ -50,12 +52,16 @@ const DailySalesReport = ({navigation}) => {
 
   const onPageLoad = async () => {
     setIsLoading(true);
-    const response = await DailySalesReportGetAPI(
-      dbname,
-      lan_id,
-      token,
-      user_id,
-    );
+    const response = await axiosGet(ROUTES.GET.DAILY_SALES_REPORT(), token, {
+      information: `${dbname},${lan_id},${user_id}`,
+    });
+    // DailySalesReportGetAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    // );
+
     if (response?.status == 200) {
       setIsLoading(false);
       setDailySalesReportData(response.data.data.rows);

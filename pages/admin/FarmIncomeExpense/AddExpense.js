@@ -22,6 +22,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 const AddExpense = ({navigation}) => {
   //GQR-67
   const {
@@ -82,7 +84,6 @@ const AddExpense = ({navigation}) => {
   const [fromDate, setfromDate] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const addMoreExpense = () => {
-    console.log(fromDate);
     setIndex(isIndex + 1);
     setData([
       ...data,
@@ -169,12 +170,19 @@ const AddExpense = ({navigation}) => {
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
     setfarmerID(currentfarmerId);
-    const response = await problemPlotAgainstFarmerAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+        farmerID: currentfarmerId,
+      }),
       token,
-      currentfarmerId,
+      {information: `${dbname},${lan_id}`},
     );
+    // problemPlotAgainstFarmerAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   currentfarmerId,
+    // );
     if (response?.status == 200) {
       const dataArray = response.data.data.map(data => ({
         value: data.rel_id,
@@ -199,12 +207,22 @@ const AddExpense = ({navigation}) => {
   };
 
   const handlePlot = async relId => {
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: relId.value,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
+
     if (response?.status == 200) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -229,11 +247,16 @@ const AddExpense = ({navigation}) => {
             response.data.data.land_info.land_unit.name,
           createdBy: user_id,
         });
-        const response_farmIncome = await farmaccountsExpenseListAPI(
-          dbname,
-          lan_id,
-          farmerID,
+        const response_farmIncome = await axiosGet(
+          ROUTES.GET.FARMER_ACCOUNT_EXPENSE_LIST(),
+          '',
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
+        // farmaccountsExpenseListAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmerID,
+        // );
         if (response_farmIncome?.status == 200) {
           const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({
             value: data.fid,
@@ -276,7 +299,7 @@ const AddExpense = ({navigation}) => {
           item.date.trim() !== '',
       );
       const qs = require('qs');
-      let save_data = qs.stringify({
+      let save_data = {
         land_rel_id: saveData.land_rel_id,
         crop_name_id: saveData.crop_name_id,
         harvesting_date: saveData.harvesting_date.substring(0, 10),
@@ -287,15 +310,18 @@ const AddExpense = ({navigation}) => {
         grand_total: '0',
         expense_total: expense_total,
         cost_head: JSON.stringify(data),
-      });
+      };
       if (allFieldsFilled) {
-        const response = await farmIncomeExpenceSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
+        const response = await axiosPost(
+          ROUTES.POST.FARMER_INCOME_EXPENSE_SAVE(),
           save_data,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
+        // farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
+
+        console.log('SAVE', response?.status);
         if (response?.status == 200) {
           navigation.navigate('FarmIncomeExpenseList', {action: 'addData'});
         }

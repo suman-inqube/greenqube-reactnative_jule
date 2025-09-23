@@ -6,6 +6,9 @@ export const ROUTES = {
     ADD_LAND_CROP_DETAIL: () => `landRoute/multiLatLong`,
     PROBLEM_SAVE: () => `questionRoute/add`,
     ADD_LOAN: () => `loanRoute/add`,
+    ADD_INSURANCE: () => `insuranceRoute/add`,
+    FARMER_INCOME_EXPENSE_SAVE: () => `cropRoute/addUserCropRels`,
+    DEALER_DAILY_SALES_REPORT_ADD: () => `optionRoute/salesReport`,
   },
 
   GET: {
@@ -246,10 +249,56 @@ export const ROUTES = {
       farmer_mobile = '',
     }) =>
       `loanRoute/list/1/0/2?&user_id=${farmer_id}&farming_type=crop&from_date=${from_date}&to_date=${to_date}&agent_id=&farmer_mobile=${farmer_mobile}`,
+
+    INSURANCE_LIST: ({
+      farmer_id = '',
+      from_date = '',
+      to_date = '',
+      user_id = '',
+      farmer_mobile = '',
+    }) =>
+      `insuranceRoute/list/1/0/2?&user_id=${farmer_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${user_id}&farmer_mobile=${farmer_mobile}`,
+
+    FARMER_ACCOUNT_LIST: ({
+      pageNo = '',
+      farmerId = '',
+      fromDate = '',
+      toDate = '',
+    }) =>
+      `cropRoute/listUserCropRelsNew/1/${pageNo}/2/?search_key=&agent_id=&user_id=${farmerId}&from_date=${fromDate}&to_date=${toDate}`,
+
+    FARMER_ACCOUNT_EXPENSE_LIST: () =>
+      `categoryRoute/list/1/0/2?search_key=&categoryType=expense`,
+
+    FARMER_ACCOUNT_INCOME_LIST: () =>
+      `categoryRoute/list/1/0/2?search_key=&categoryType=income`,
+
+    DAILY_SALES_REPORT: () =>
+      `optionRoute/srList/1/0/1?search_key=&user_fid=&from_date=&to_date=`,
+
+    CHOOSE_DEALER: () =>
+      `loginSignupRoute/listDealerAdmin/1/1/2?userType=9&search_key=&createdBy=`,
+
+    ALL_PRODUCT_CATEGORY_LIST: () =>
+      `inputOutputEntityRoute/listEntityTypes/1/0/1`,
+
+    LOC_DIFFERENCE_LANGUAGE: ({
+      state_fid = '',
+      district_fid = '',
+      subdiv_fid = '',
+    }) =>
+      `locationRoute/locDiffLang/?state_fid=${state_fid}&district_fid=${district_fid}&subdiv_fid=${subdiv_fid}`,
+
+    ALL_PRODUCT_SUB_CATEGORY_LIST: ({categoryID = ''}) =>
+      `inputOutputEntityRoute/listEntityNames/1/0/1?entity_type_id=${categoryID}`,
+
+    ALL_PRODUCT_NAME_LIST: ({subCategoryID = ''}) =>
+      `marketRoute/listproduct/1/0/2?search_key=&category_id=${subCategoryID}`,
   },
 
   PUT: {
-    USER_PROFILE_UPDATE: ({user_id}) => `loginSignupRoute/update/${user_id}`,
+    USER_PROFILE_UPDATE: ({user_id = ''}) =>
+      `loginSignupRoute/update/${user_id}`,
     UPDATE_LAND_CROP_DETAILS: ({land_rel_id = '', crop_rel_id = ''}) =>
       `landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`,
   },
