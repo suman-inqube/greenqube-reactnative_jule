@@ -124,6 +124,7 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
+  console.log('extraHeaders', extraHeaders);
   if (!(await isInternetAvailable()))
     return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();

@@ -897,7 +897,6 @@ const ActivityReport = ({navigation}) => {
           formData,
         );
 
-        console.log('SAVE', database_res?.status);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.navigate('activityList', {action: 'addData'});

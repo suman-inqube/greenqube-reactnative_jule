@@ -34,6 +34,8 @@ import GridItemComponent from '../../Common/GridItemComponent';
 import {useCurrentAndPreviousRoute} from '../../Common/useCurrentAndPreviousRoute';
 import HeaderWithSearchAndToggle from '../../Components/HeaderWithSearchAndToggle';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const TrainingList = () => {
   //GQR-67
   const {
@@ -81,21 +83,35 @@ const TrainingList = () => {
     subdiv_id,
   ) => {
     setLoading(true);
-    let response = await trainingListAPI(
-      dbName,
-      languageID,
-      userID,
-      state_id,
-      district_id,
-      subdiv_id,
-      'supervisor',
-      'training',
-      titleSearch,
+    let response = await axiosGet(
+      ROUTES.GET.USEFULL_INFO_LIST({
+        userId: userID,
+        titleSearch: titleSearch,
+        userType: 'supervisor',
+        post: 'training',
+        state_id: state_id,
+        district_id: district_id,
+        subdiv_id: subdiv_id,
+      }),
+      '',
+      {information: `${dbName},${languageID}`},
     );
-    if (response) {
-      if (response.data.data.rows != 0) {
-        setTrainingList(response.data.data);
-        setItem('userTrainingList', response.data.data);
+    // trainingListAPI(
+    //   dbName,
+    //   languageID,
+    //   userID,
+    //   state_id,
+    //   district_id,
+    //   subdiv_id,
+    //   'supervisor',
+    //   'training',
+    //   titleSearch,
+    // );
+
+    if (response.status == 200) {
+      if (response?.data?.rows != 0) {
+        setTrainingList(response.data);
+        setItem('userTrainingList', response.data);
       } else {
         setTrainingList([]);
         Toast.show({text: `${t('no_data_found')}`, ...AlertMesg[0]});

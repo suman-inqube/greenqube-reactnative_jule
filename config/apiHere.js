@@ -1449,10 +1449,7 @@ export const usefulInfoListAPI = async (
       `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
       axiosHeaders,
     );
-    console.log(
-      'API response:',
-      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
-    );
+
     // console.log('Complete response:', response);
     const resultJson = {
       data: response,
@@ -1501,6 +1498,12 @@ export const trainingListAPI = async (
       information: `${dbName},${languageId}`,
     },
   };
+
+  console.log(
+    'oooo',
+    `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+    axiosHeaders,
+  );
   try {
     // let response = await axios.get(
     //   `${config.BASE_URL}generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
