@@ -9,6 +9,8 @@ export const ROUTES = {
     ADD_INSURANCE: () => `insuranceRoute/add`,
     FARMER_INCOME_EXPENSE_SAVE: () => `cropRoute/addUserCropRels`,
     DEALER_DAILY_SALES_REPORT_ADD: () => `optionRoute/salesReport`,
+    ADD_USER_PIPE_ACTIVITY: `inputOutputRoute/addUserPipeActivity`,
+    UPDATE_PIPE_ACTIVITY: `inputOutputRoute/updatePipeActivity`,
   },
 
   GET: {
@@ -294,6 +296,19 @@ export const ROUTES = {
 
     ALL_PRODUCT_NAME_LIST: ({subCategoryID = ''}) =>
       `marketRoute/listproduct/1/0/2?search_key=&category_id=${subCategoryID}`,
+
+    INPUT_OUTPUT_ROUTE_PIPE_IMG_LAT_LONG: ({
+      plot_fid = '',
+      cropfid = '',
+      cu_rel_id = '',
+    }) =>
+      `landRoute/plotPipesLatLong?plot_fid=${plot_fid}&act_name_fid=&crop_name=${cropfid}&cu_rel_fid=${cu_rel_id}`,
+
+    UNIQUE_PIPE_NAME: ({plot_id = '', cu_rel_id = ''}) =>
+      `inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
+
+    ACTIVITY_TYPE_AWD: () =>
+      `categoryRoute/list/1/1/2?categoryType=carbon_activity_type&search_key=`,
   },
 
   PUT: {

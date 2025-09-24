@@ -77,7 +77,7 @@ const ActivityDetail = () => {
       const farmerFound = route.params;
       setIsLoading(true);
 
-      // let agriFiles = []; // Initialize agriFiles here
+      let agriFiles = []; // Initialize agriFiles here
 
       if (farmerFound?.type == 'user_activity') {
         const activity_files = await axiosGet(

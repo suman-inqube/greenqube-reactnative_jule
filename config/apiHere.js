@@ -3098,10 +3098,7 @@ export const getUniquePipeNames = async (
       `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
       axiosHeaders,
     );
-    console.log(
-      `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
-      axiosHeaders,
-    );
+
     // console.log(response);
     return response;
   } catch (error) {

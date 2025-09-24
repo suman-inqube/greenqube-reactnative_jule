@@ -192,7 +192,6 @@ const CreateProblem = ({navigation}) => {
         'problemPlotAgainstFarmer' + currentfarmerId,
       );
     }
-    console.log('farmerToken', response.status);
     if (response) {
       //GQR-65
       const dataArray = response?.data?.data.map(data => ({
@@ -229,7 +228,6 @@ const CreateProblem = ({navigation}) => {
         'problemProduceAgainstPlot' + farmerID + relId.value,
       );
     }
-    console.log('problemProduceAgainstPlot', response?.status);
     if (response?.status == 200) {
       setNameVarityStartEnd(prev => ({
         ...prev,
@@ -287,7 +285,6 @@ const CreateProblem = ({navigation}) => {
               response?.data?.data?.crop_name_id,
           );
         }
-        console.log('problemProductionStageAPI', productionStage_res?.status);
         if (productionStage_res) {
           const dataArray = productionStage_res?.data?.data?.growth_stage.map(
             data => ({
@@ -441,7 +438,7 @@ const CreateProblem = ({navigation}) => {
 
         // problemSeverityAPI(dbname, lan_id),
       ]);
-      console.log('problemTypeNameAPI', problemName_res.status);
+      // console.log('problemTypeNameAPI', problemName_res.status);
       if (problemName_res?.status == 200) {
         await Promise.all([
           setItem('supervisorProblemTypeName', problemName_res),
@@ -463,7 +460,6 @@ const CreateProblem = ({navigation}) => {
       setProblemTypeAll(dataArray);
       setIsLoading(false);
     }
-    console.log('severity_res', severity_res.status);
     if (severity_res) {
       const dataArray = severity_res?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -546,7 +542,6 @@ const CreateProblem = ({navigation}) => {
       //
       let array = [];
       const formData = new FormData();
-      console.log('IMAGE UPLOADED2222:', JSON.stringify(myphotoAll));
 
       myphotoAll.forEach(photo => {
         formData.append('photo', photo);
@@ -607,7 +602,6 @@ const CreateProblem = ({navigation}) => {
           farmerID,
           formData,
         );
-        console.log('database_res', database_res);
         if (database_res.status === 200) {
           navigation.navigate('ProblemList', {action: 'addData'});
         }
