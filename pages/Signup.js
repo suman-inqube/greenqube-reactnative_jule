@@ -41,6 +41,8 @@ import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
 import DocumentPicker, {types} from 'react-native-document-picker';
 import {Colors, Fonts} from './utils/Constants';
+import {axiosPost, axiosGet} from './utils/api';
+import {ROUTES} from './utils/Routes';
 
 const Signup = () => {
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : -40;
@@ -69,7 +71,11 @@ const Signup = () => {
     try {
       let countryArray = [];
       if (netConnection) {
-        const country_res = await countryDataListAPI();
+        const country_res = await axiosGet(ROUTES.GET.COUNTRY_DATA_LIST(), '', {
+          information: `localhost,1`,
+        });
+        // countryDataListAPI();
+
         if (country_res?.status == 200) {
           country_res.data.data.rows.forEach(element => {
             countryArray.push({
@@ -110,7 +116,16 @@ const Signup = () => {
       let companyData_list_local_data = await getItem('companyDataListAPI');
       let company_list_arr = [];
       if (netConnection) {
-        let company_res = await companyDataListAPI(country_id, language_id);
+        let company_res = await axiosGet(
+          ROUTES.GET.COMPANY_DATA_LIST({
+            country_id: country_id,
+            language_id: language_id,
+          }),
+          '',
+          {},
+        );
+        // companyDataListAPI(country_id, language_id);
+
         if (company_res.data.data) {
           company_res.data.data.agri_companies.forEach(element => {
             companyArray.push({
@@ -168,8 +183,14 @@ const Signup = () => {
       let supervisory_ofline_list_arr = [];
       let supervisory_ofline_list = await getItem('supervisoryDataListAPI');
       if (netConnection) {
-        let supervisor_res = await supervisoryDataListAPI(company_id);
-        // console.log(supervisor_res);
+        let supervisor_res = await axiosGet(
+          ROUTES.GET.SUPERVISOR_DATA_LIST({
+            company_id: company_id,
+          }),
+          '',
+          {information: `localhost,1`},
+        );
+        // supervisoryDataListAPI(company_id);
         if (supervisor_res.data.data) {
           supervisor_res.data.data.rows.forEach(element => {
             supervisorArray.push({
@@ -249,11 +270,20 @@ const Signup = () => {
     Keyboard.dismiss();
     try {
       if (netConnection) {
-        let check_phone_digit_res = await checkPhoneDigitAPI(
-          storeSignup.country.value,
-          storeSignup.company.dbname,
-          language_id,
+        let check_phone_digit_res = await axiosGet(
+          ROUTES.GET.CHECK_PHONE_DIGIT({countryId: storeSignup.country.value}),
+          '',
+          {
+            information: `${storeSignup.company.dbname},${language_id}`,
+            Accept: 'application/json',
+          },
         );
+        // checkPhoneDigitAPI(
+        //   storeSignup.country.value,
+        //   storeSignup.company.dbname,
+        //   language_id,
+        // );
+
         if (check_phone_digit_res.data.data.contact_no_digits) {
           let require_digit = check_phone_digit_res.data.data.contact_no_digits;
 
@@ -414,7 +444,7 @@ const Signup = () => {
                 style={{
                   backgroundColor: Colors.useGreen,
                   alignSelf: 'flex-end',
-                  marginTop: 20,
+                  marginTop: 10,
                   borderRadius: 40,
                   width: '10%',
                   // height: 30,

@@ -45,7 +45,7 @@ import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DatePickerField from '../../Common/DatePickerField';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 const CreateProblem = ({navigation}) => {
   //GQR-65
@@ -595,13 +595,22 @@ const CreateProblem = ({navigation}) => {
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
       if (isOnline) {
-        const database_res = await problemSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
+        const database_res = await axiosPost(
+          ROUTES.POST.PROBLEM_SAVE(),
           formData,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
+        // problemSaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   farmerID,
+        //   formData,
+        // );
+
+        console.log('SAVE', database_res.status);
         if (database_res.status === 200) {
           navigation.navigate('ProblemList', {action: 'addData'});
         }

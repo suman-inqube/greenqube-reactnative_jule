@@ -157,6 +157,7 @@ export const languageDataListAPI = async dbName => {
 export const stateInfoDataListAPI = async (dbName, language) => {
   const headers = headersWithCompanyDBlanID(dbName, language.value);
   let state_res = await axios.get(config.stateAPI, {headers});
+
   return state_res;
 };
 

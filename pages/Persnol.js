@@ -34,6 +34,8 @@ import DeviceInfo from './DeviceInfo';
 import DocumentPicker, {types} from 'react-native-document-picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
 import {Colors, Fonts} from './utils/Constants';
+import {axiosPost, axiosGet} from './utils/api';
+import {ROUTES} from './utils/Routes';
 
 const Persnol = () => {
   const {netConnection} = DeviceInfo();
@@ -70,7 +72,12 @@ const Persnol = () => {
     try {
       let languageArray = [];
       if (netConnection) {
-        let language_res = await languageDataListAPI(dbname);
+        let language_res = await axiosGet(ROUTES.GET.FIRST_LAN_LIST(), '', {
+          information: `${dbname}`,
+        });
+
+        // languageDataListAPI(dbname);
+
         if (language_res.data.data) {
           language_res.data.data.forEach(element => {
             languageArray.push({
@@ -82,6 +89,7 @@ const Persnol = () => {
         }
       } else {
         const languageDataListAPI = await getItem('languageDataListAPI');
+
         if (languageDataListAPI) {
           languageArray = languageDataListAPI;
         }
@@ -109,7 +117,11 @@ const Persnol = () => {
       let stateInfo_data_list_offline_arr = [];
       let stateInfo_data_list_offline = await getItem('stateInfoDataListAPI');
       if (netConnection) {
-        let state_res = await stateInfoDataListAPI(dbName, language);
+        let state_res = await axiosGet(ROUTES.GET.STATE_API(), '', {
+          information: `${dbName},${language.value}`,
+        });
+        // stateInfoDataListAPI(dbName, language);
+
         if (state_res.data.data.count > 0) {
           state_res.data.data.rows.forEach(element => {
             stateArray.push({
@@ -159,7 +171,7 @@ const Persnol = () => {
 
       setstateInfoData(stateArray);
     } catch (error) {
-      console.log(error.response);
+      console.log(error);
     }
   };
   const handleStateInfo = stateInfo => {
@@ -177,11 +189,19 @@ const Persnol = () => {
       let district_offline_list_arr = [];
       let district_offline_list = await getItem('districtDataListAPI');
       if (netConnection) {
-        let district_res = await districtDataListAPI(
-          dbName,
-          language,
-          stateInfo,
+        let district_res = await axiosGet(
+          ROUTES.GET.DISTRICT_API({
+            stateID: stateInfo.value,
+          }),
+          '',
+          {information: `${dbName},${language.value}`},
         );
+        // districtDataListAPI(
+        //   dbName,
+        //   language,
+        //   stateInfo,
+        // );
+
         if (district_res.data.data) {
           district_res.data.data.rows.forEach(element => {
             districtArray.push({
@@ -242,7 +262,14 @@ const Persnol = () => {
       let blockData_offline_list_arr = [];
       let blockData_offline_list = await getItem('blockDataListAPI');
       if (netConnection) {
-        let block_res = await blockDataListAPI(dbName, language, district);
+        let block_res = await axiosGet(
+          ROUTES.GET.BLOCK_API({
+            districtID: district.value,
+          }),
+          '',
+          {information: `${dbName},${language.value}`},
+        );
+        // blockDataListAPI(dbName, language, district);
         if (block_res.data.data) {
           block_res.data.data.rows.forEach(element => {
             blocktArray.push({

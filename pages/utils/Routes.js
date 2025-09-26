@@ -1,3 +1,5 @@
+import {DEFAULT} from '@sentry/react-native/dist/js/tracing';
+
 export const ROUTES = {
   POST: {
     LOGIN: 'sessionRoute/login',
@@ -309,6 +311,28 @@ export const ROUTES = {
 
     ACTIVITY_TYPE_AWD: () =>
       `categoryRoute/list/1/1/2?categoryType=carbon_activity_type&search_key=`,
+
+    DETAILS_COMPANY: (db_company_id = '') =>
+      `locationRoute/detailsCompany/${db_company_id}`,
+
+    DEFAULT_CURRENCY: () =>
+      `optionRoute/currList/1/0/5?search_key=&is_default=1`,
+
+    FPO_DETAILS: ({compCode = ''}) =>
+      `loginSignupRoute/fpodetails_e/${compCode}`,
+
+    REGINAL_DATA_SERVICE: () =>
+      `categoryRoute/list/1/0/2?search_key=&categoryType=regionaldata`,
+
+    DATABASE_LIST: () => `hostRoute/databaseList`,
+
+    COUNTRY_DATA_LIST: () => `locationRoute/countryList/1/0/2?search_key=`,
+
+    COMPANY_DATA_LIST: ({country_id = '', language_id = ''}) =>
+      `locationRoute/locationHierarchy/${country_id}/${language_id}`,
+
+    SUPERVISOR_DATA_LIST: ({company_id = ''}) =>
+      `agentRoute/listAgentByCompanyID/${company_id}`,
   },
 
   PUT: {

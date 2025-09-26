@@ -49,7 +49,7 @@ import DeviceInfo from './DeviceInfo';
 import {userCreateContext} from './Context/usersCreateContext';
 import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
-import {axiosPost} from './utils/api';
+import {axiosPost, axiosGet} from './utils/api';
 import {ROUTES} from './utils/Routes';
 
 const Login = ({route}) => {
@@ -173,11 +173,18 @@ const Login = ({route}) => {
             microCompany,
             db_company_id,
           } = loginUserdata;
-          const details_company_res = await DetailsCompany(
-            loginUserdata?.dbname,
-            1,
-            loginUserdata?.db_company_id,
+          const details_company_res = await axiosGet(
+            ROUTES.GET.DETAILS_COMPANY(loginUserdata?.db_company_id),
+            '',
+            {
+              information: `${loginUserdata?.dbname},${1}`,
+            },
           );
+          // DetailsCompany(
+          //   loginUserdata?.dbname,
+          //   1,
+          //   loginUserdata?.db_company_id,
+          // );
           if (details_company_res?.status == 200) {
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
@@ -197,7 +204,7 @@ const Login = ({route}) => {
             }),
           ]);
           if (loginUserdata?.agri_files.length > 0) {
-            const profileImg = loginUserdata?.agri_files.find(
+            const profileImg = loginUserdata?.agri_files?.find(
               item => item.term_type === '1',
             );
             if (typeof profileImg != 'undefined') {
@@ -217,24 +224,42 @@ const Login = ({route}) => {
           });
           const [fpoDetailsList_res, reginalRes, defaultCurrRes] =
             await Promise.all([
-              fpodetailsDataListAPI(
-                loginUserdata.dbname,
-                loginUserdata.lan_id,
+              axiosGet(
+                ROUTES.GET.FPO_DETAILS({
+                  compCode: loginUserdata.sa_company[0].company_code,
+                }),
                 loginUserdata.token,
-                loginUserdata.user_id,
-                loginUserdata.sa_company[0].company_code,
+                {
+                  information: `${loginUserdata.dbname},${loginUserdata.lan_id},${loginUserdata.user_id}`,
+                },
               ),
-              reginalDataServiceAPI(
-                loginUserdata.dbname,
-                loginUserdata.lan_id,
-                'regionaldatas',
-              ),
-              defaultCurrAPI(
-                loginUserdata.dbname,
-                loginUserdata.lan_id,
-                loginUserdata.token,
-              ),
+              // fpodetailsDataListAPI(
+              //   loginUserdata.dbname,
+              //   loginUserdata.lan_id,
+              //   loginUserdata.token,
+              //   loginUserdata.user_id,
+              //   loginUserdata.sa_company[0].company_code,
+              // ),
+
+              axiosGet(ROUTES.GET.REGINAL_DATA_SERVICE(), '', {
+                information: `${loginUserdata.dbname},${loginUserdata.lan_id}`,
+              }),
+              // reginalDataServiceAPI(
+              //   loginUserdata.dbname,
+              //   loginUserdata.lan_id,
+              //   'regionaldatas',
+              // ),
+
+              axiosGet(ROUTES.GET.DEFAULT_CURRENCY(), loginUserdata.token, {
+                information: `${loginUserdata.dbname},${loginUserdata.lan_id}`,
+              }),
+              // defaultCurrAPI(
+              //   loginUserdata.dbname,
+              //   loginUserdata.lan_id,
+              //   loginUserdata.token,
+              // ),
             ]);
+
           if (defaultCurrRes?.status === 200) {
             if (defaultCurrRes.data.data.rows.length > 0) {
               await setItem(
@@ -249,9 +274,10 @@ const Login = ({route}) => {
               });
             }
           }
+
           if (fpoDetailsList_res?.status === 200) {
             //   i18next.changeLanguage(`${loginUserdata?.lan_id}`);
-            const {company_website} = fpoDetailsList_res.data.data[0];
+            const {company_website} = fpoDetailsList_res.data[0];
             var url_regex = /^(http|https)/;
             if (url_regex.test(String(company_website).toLowerCase()) == true) {
               await setItem('company_website', company_website);
@@ -259,6 +285,7 @@ const Login = ({route}) => {
               await setItem('company_website', `https://${company_website}`);
             }
           }
+
           if (reginalRes?.status === 200) {
             const datam = reginalRes?.data?.data?.rows;
             datam.map(async item => {
@@ -275,21 +302,21 @@ const Login = ({route}) => {
             });
           }
           if (fpoDetailsList_res?.status === 200) {
-            const agri_files = fpoDetailsList_res?.data?.data[0]?.agri_files;
-            const foundbotomBannerFind = agri_files.find(
+            const agri_files = fpoDetailsList_res?.data[0]?.agri_files;
+            const foundbotomBannerFind = agri_files?.find(
               item => item.term_type === 'fpo_promobanner',
             );
             if (typeof foundbotomBannerFind != 'undefined') {
               await setItem('bottomBannerData', foundbotomBannerFind.file_path);
             }
-            const foundlogoFindFind = agri_files.find(
+            const foundlogoFindFind = agri_files?.find(
               item => item.term_type === 'fpo_logo',
             );
             if (typeof foundlogoFindFind != 'undefined') {
               await setItem('logoImageData', foundlogoFindFind.file_path);
               setlogoImage(foundlogoFindFind.file_path);
             }
-            const foundtopBannerFind = agri_files.find(
+            const foundtopBannerFind = agri_files?.find(
               item => item.term_type === 'fpo_banner',
             );
             if (typeof foundtopBannerFind != 'undefined') {
@@ -351,6 +378,7 @@ const Login = ({route}) => {
           }
         }
       } catch (error) {
+        console.log('ERRor', error);
         Toast.show({
           text: `${error?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
@@ -365,7 +393,9 @@ const Login = ({route}) => {
         getItem('companyFirstEntry'),
         getItem('rememberData'),
         getItem('companyLanguage_data'),
-        databaseListAPI(),
+
+        axiosGet(ROUTES.GET.DATABASE_LIST(), ''),
+        // databaseListAPI(),
         removeItem('storeSignup_data'),
         removeItem('storePersnolInfo_data'),
         removeItem('storeFinancial_data'),
@@ -389,6 +419,7 @@ const Login = ({route}) => {
     //     company_name: '',
     //   });
     // }
+
     if (companyLanguage_data != '' && companyLanguage_data != null) {
       setcompanyLanguage(companyLanguage_data);
       const {country_id, company, language} = companyLanguage_data;
@@ -432,6 +463,7 @@ const Login = ({route}) => {
         }
       }
     }
+
     if (company_res.status == 200) {
       let companyArray = [];
       company_res?.data?.data?.map((data, index) => {
@@ -472,11 +504,20 @@ const Login = ({route}) => {
     checkPhoneNumber(country_id, dbname, language);
   };
   const checkPhoneNumber = async (country_id, company, language) => {
-    const checkPhoneNumber = await checkPhoneDigitAPI(
-      country_id,
-      company,
-      language,
+    const checkPhoneNumber = await axiosGet(
+      ROUTES.GET.CHECK_PHONE_DIGIT({countryId: country_id}),
+      '',
+      {
+        information: `${company},${language}`,
+        Accept: 'application/json',
+      },
     );
+    // checkPhoneDigitAPI(
+    //   country_id,
+    //   company,
+    //   language,
+    // );
+
     if (checkPhoneNumber.status == 200) {
       const {contact_no_digits} = checkPhoneNumber.data?.data;
       setcontact_no_digits(contact_no_digits);
