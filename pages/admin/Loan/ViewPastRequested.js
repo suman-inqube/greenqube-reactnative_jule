@@ -135,10 +135,10 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
       // ),
     ]);
     if (response?.status == 200) {
-      if (response.data.data.rows.length != 0) {
+      if (response?.data?.data?.rows?.length != 0) {
         Promise.all([
           setIsLoading(false),
-          setLoanList(response.data.data.rows),
+          setLoanList(response?.data?.data?.rows),
           setCurrencyt(currency_res),
         ]);
       } else {
@@ -212,15 +212,14 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     if (route?.params?.action === 'addData') {
       Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
 
-      onPageLoad('', '');
+      onPageLoad();
     }
   }, [route?.params]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    requestAnimationFrame(async () => {
-      await onPageLoad();
-      setRefreshing(false);
-    });
+
+    await onPageLoad();
+    setRefreshing(false);
   }, []);
   const navigate = (LoanEnquiryDetail, item) => {
     navigation.navigate('LoanEnquiryDetail', item);
