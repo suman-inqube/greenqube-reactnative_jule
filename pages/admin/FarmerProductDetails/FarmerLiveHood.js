@@ -2365,21 +2365,21 @@ const FarmerLiveHood = ({
             disable={edit}
           />
           <View style={styles.plotSiteUnit}>
-            <View style={{width: '45%'}}>
-              <InputTextForm
-                label={`${t('expected_yield')}`}
-                required={true}
-                value={farmerData.expectedProduction}
-                onChangeText={handleAddUserDataExpected}
-                // editable={
-                //   edit == ''
-                //     ? harvested == 'same produce'
-                //       ? false
-                //       : true
-                //     : !edit
-                // }
-              />
-            </View>
+            {/* <View style={{width: '45%'}}> */}
+            <InputTextForm
+              label={`${t('expected_yield')}`}
+              required={true}
+              value={farmerData.expectedProduction}
+              onChangeText={handleAddUserDataExpected}
+              // editable={
+              //   edit == ''
+              //     ? harvested == 'same produce'
+              //       ? false
+              //       : true
+              //     : !edit
+              // }
+            />
+            {/* </View> */}
             <View style={{width: '45%'}}>
               <DropdownForm
                 label={`${t('select_unit_input')}`}
@@ -2671,7 +2671,7 @@ const styles = StyleSheet.create({
   labelContainer2: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
   },
   locationContainer: {
     backgroundColor: '#f6f7ffff',

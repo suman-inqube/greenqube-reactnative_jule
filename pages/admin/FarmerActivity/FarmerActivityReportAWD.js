@@ -1138,6 +1138,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           label: '',
           value: '',
         }));
+        console.log('response', response.status);
         if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [
@@ -1381,10 +1382,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState('');
 
-  const openImagePickerPipe = async item => {
+  const openImagePickerPipe = useCallback(async item => {
     setCameraItem(item);
     setModalVisibleMap(true);
-  };
+  }, []);
   const TakePhoto = useCallback(() => {
     const options = {
       mediaType: 'photo',

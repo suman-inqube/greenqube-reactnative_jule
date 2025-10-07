@@ -8,7 +8,13 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import React, {useEffect, useState, useContext, useCallback} from 'react';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useCallback,
+  useMemo,
+} from 'react';
 import DatePickerComp from '../../Common/DatePickerComp';
 import Filter from '../../Common/Filter';
 import {
@@ -50,13 +56,13 @@ const InstrumentWiseActivityView = () => {
     handleResultSelect,
     isOnline,
     farmerData,
+    navigationBarHeight,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   const {pageNo} = dbLanTokUsr;
   const route = useRoute();
   const {params} = route;
   //GQR-67
-  const {netConnection} = DeviceInfo();
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
   const [searchResultsList, setSearchResultsList] = useState(false);
@@ -69,7 +75,7 @@ const InstrumentWiseActivityView = () => {
   const [newToDate, setnewToDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
   const [openToDate, setOpenToDate] = useState(false);
-  const [fromDate, setfromDate] = useState('');
+  const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
@@ -80,117 +86,6 @@ const InstrumentWiseActivityView = () => {
   const [carbonType, setCarbonType] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
-  const onchangeFilterItem = value => {
-    setFilterName(value);
-    setFilterItem(value);
-    setFilterOption(false);
-    setactivityAll(activityAllRow);
-    setfromDate('');
-    setToDate('');
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setCarbonType('');
-  };
-  const handlePage = async value => {
-    handlePageList(
-      value,
-      setIsLoading,
-      token,
-      pageNo,
-      activityListInstrumentWise,
-      setactivityAll,
-      dbname,
-      lan_id,
-      user_id,
-      '',
-      fromDate,
-      toDate,
-      carbonType,
-    );
-  };
-
-  const handleFilterList = async item => {
-    /*
-     *(1) It is use to search by farmer's name and phone number
-     *(2) It is use for filter type ('Farmer/Product Name','PhoneNumber')
-     *(3) it is use for all farmer list
-     *(4) it is use for all item list
-     *(5) item List can't modify data
-     *(6,7) it is use use selected value set
-     *(8) farmer list show and hide poup
-     *(9) filter data clear all the value set  list data
-     *(10) it is use set the filters search value set
-     */
-    handleFilter(
-      item,
-      filterName,
-      farmerData,
-      activityAllRow,
-      setSearchFarmerPhone,
-      setSearchFarmerName,
-      setSearchResultsList,
-      setactivityAll,
-      setSearchResults,
-    );
-  };
-
-  const handleResultSelectList = async item => {
-    const {label, value, phone} = item;
-    console.log('handleResultSelectList', value, phone, label);
-    // handleResultSelect(label, value, phone, activityAll, activityListAPI, setIsLoading, setSearchResultsList, setSearchFarmerPhone, setSearchFarmerName, setSearchResults, setactivityAll)
-    setSearchFarmerName(label);
-    setSearchFarmerPhone(phone);
-    let tempData = activityAllRow.filter(item => {
-      return (
-        item?.pipeUser?.contactNumber
-          .toLowerCase()
-          .indexOf(phone.toLowerCase()) > -1
-      );
-    });
-    setactivityAll(tempData);
-    setSearchResultsList(false);
-    if (tempData.length == 0) {
-      Toast.show({time: 3, text: `${t('no_data_found')}`, ...AlertMesg[0]});
-    }
-  };
-  const handleDatePicker = item => {
-    const effective_date = effective_dates(item);
-    setfromDate(effective_date);
-    setFromDateFilter(effective_date);
-  };
-  const handleDatePicker2 = async item => {
-    const effective_date = effective_dates(item);
-    setToDate(effective_date);
-    if (fromDateFilter) {
-      const item = '';
-      const response = await activityListInstrumentWise(
-        dbname,
-        lan_id,
-        token,
-        user_id,
-        pageNo,
-        item,
-        fromDateFilter,
-        effective_date,
-      );
-      if (response?.status == 200) {
-        setTotalPages(Math.ceil(response?.data?.data.count / 20));
-
-        setactivityAll(response?.data?.data?.rows);
-        setItem('activity_Data', response?.data?.data?.rows);
-      }
-    } else {
-      // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-      Toast.show({time: 3, text: t('please_date_first'), ...AlertMesg[0]});
-    }
-  };
 
   const fatchActivityListAPI = useCallback(
     async (
@@ -219,18 +114,6 @@ const InstrumentWiseActivityView = () => {
             token,
             {information: `${dbName},${languageId},${supervisorId}`},
           );
-          // activityListInstrumentWise(
-          //   dbName,
-          //   languageId,
-          //   token,
-          //   supervisorId,
-          //   pageNo,
-          //   searchItem,
-          //   from_date,
-          //   to_date,
-          //   carbonType,
-          // );
-          console.log('Activity-Instrument-List', response?.status);
           if (response?.status == 200) {
             await setItem('activityList', response);
           }
@@ -239,12 +122,8 @@ const InstrumentWiseActivityView = () => {
         }
         if (response?.status == 200) {
           if (response.data.data.count != 0) {
-            const totalPage = Math.ceil(response.data.data.count / 20);
-            setdbLanTokUsr({...dbLanTokUsr, totalPage: totalPage});
+            setTotalPages(Math.ceil(response?.data?.data.count / 20));
             setactivityAll(response?.data?.data?.rows);
-            if (carbonType == '') {
-              setactivityAllRow(response?.data?.data?.rows);
-            }
             await setItem('activity_Data', response?.data?.data?.rows);
             setIsLoading(false);
           } else {
@@ -257,93 +136,17 @@ const InstrumentWiseActivityView = () => {
           }
         }
       } catch (error) {
+        setIsLoading(false);
+
         console.log(error);
         // CrashlyticsRecordError(error, 'ActivityList', 'fetchActivityListAPI');
       }
     },
     [page],
   );
-  const onPageLoad = async () => {
-    // setdbLanTokUsr({ ...dbLanTokUsr, pageNo: 1 });
-    let pageNumber;
-    if (params?.onPageName == 'CustomDrawer') {
-      pageNumber = 1;
-    } else {
-      pageNumber = pageNo;
-    }
-    fatchActivityListAPI(dbname, lan_id, token, user_id, pageNumber);
-  };
-  const filterDataRemove = () => {
-    setFilterItem('');
-    setCarbonType('');
-    setFilterOption(false);
-    setactivityAll(activityAllRow);
-    setSearchResultsList(false);
-  };
-  const HandlerGoBack = () => {
-    setFilterItem('');
-    setFilterOption(false);
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setSearchResultsList(false);
-    setfromDate('');
-    setToDate('');
-    // setactivityAll([]);
-    // setactivityAllRow([]);
-    navigation.navigate('Dashboard');
-  };
-  const handleBackPress = () => {
-    setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
-    setFilterItem('');
-    setFilterOption(false);
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setSearchResultsList(false);
-    setfromDate('');
-    setToDate('');
-    // setactivityAll([]);
-    // setactivityAllRow([]);
-    navigation.navigate('Dashboard');
-    return true;
-  };
   useEffect(() => {
-    if (isFocused) {
-      if (
-        fromDate == '' &&
-        toDate == '' &&
-        searchFarmerName == '' &&
-        searchFarmerPhone == ''
-      ) {
-        onPageLoad();
-      }
-      onBackPress(handleBackPress);
-    }
-  }, [isFocused]);
-  useEffect(() => {
-    if (isFocused) {
-      const keyboardDidShowListener = Keyboard.addListener(
-        'keyboardDidShow',
-        () => {
-          setKeyboardVisible(true);
-        },
-      );
-      const keyboardDidHideListener = Keyboard.addListener(
-        'keyboardDidHide',
-        () => {
-          setKeyboardVisible(false);
-        },
-      );
-      return () => {
-        keyboardDidHideListener.remove();
-        keyboardDidShowListener.remove();
-      };
-    }
-  }, [isFocused]);
-  const onChangeCarbonType = _item => {
-    const {label, value} = _item;
-    setCarbonType(value);
-    fatchActivityListAPI(dbname, lan_id, token, user_id, 1, '', '', '', value);
-  };
+    fatchActivityListAPI(dbname, lan_id, token, user_id, page, '', '', '', '');
+  }, [page]);
 
   const renderItem = useCallback(({item}) => {
     return (
@@ -624,91 +427,116 @@ const InstrumentWiseActivityView = () => {
       </TouchableOpacity>
     );
   }, []);
+  const filterOptionShow = useCallback(async () => {
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
+    openFilterSheet({
+      options: ['farmer', 'phone', 'date'],
+      t: t,
+      dropdownData: farmerData,
+      filterItem: filterItem,
+      setFilterItem: setFilterItem,
+      setSearchFarmerName: setSearchFarmerName,
+      setSearchFarmerPhone: setSearchFarmerPhone,
+      searchFarmerName: searchFarmerName,
+      searchFarmerPhone: searchFarmerPhone,
+      title: 'Choose Status',
+      handleFilterResult: handleFilterResult,
+      handleFilterRemove: handleFilterRemove,
+      setFromDate: setFromDate,
+      setToDate: setToDate,
+      fromDate: fromDate,
+      toDate: toDate,
+      effective_dates: effective_dates,
+      navigationBarHeight: navigationBarHeight,
+      height: 180,
+    });
+  }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
+  const handleFilterResult = useCallback(
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+      try {
+        let search_key_val = '';
+        if (filter == 'Farmer/Product Name') {
+          search_key_val = farmerName?.label;
+        } else if (filter == 'PhoneNumber') {
+          search_key_val = farmerPhone?.label;
+        }
+        setFilterItem(filter);
+        setFromDate(fromDate);
+        setToDate(toDate);
+        setSearchFarmerName({
+          label: farmerName?.label,
+          value: farmerName?.value,
+        });
+        setSearchFarmerPhone({
+          label: farmerPhone?.label,
+          value: farmerPhone?.value,
+        });
+        setCarbonType({
+          label: sheetCarbonType?.label,
+          value: sheetCarbonType?.value,
+        });
+        setPage(1);
+        //         dbName,
+        // languageId,
+        // token,
+        // supervisorId,
+        // pageNo,
+        // searchItem = '',
+        // from_date = '',
+        // to_date = '',
+        // carbonType = '',
+        fatchActivityListAPI(
+          dbname,
+          lan_id,
+          token,
+          user_id,
+          1,
+          search_key_val,
+          fromDate,
+          toDate,
+          '',
+        );
+      } catch (error) {}
+    },
+    [
+      filterItem,
+      fromDate,
+      toDate,
+      searchFarmerName,
+      searchFarmerPhone,
+      carbonType,
+    ],
+  );
+  const handleFilterRemove = () => {
+    try {
+      setFromDate('');
+      setToDate('');
+      setSearchFarmerName({label: '', value: ''});
+      setSearchFarmerPhone({label: '', value: ''});
+      setCarbonType({label: '', value: ''});
+      setFilterItem('');
+      fetchActivityListAPI(1, '', '', '', '', '');
+      setPage(1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+        t={t}
+      />
+    ),
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <CustomHeader
-          path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
+        {renderCustomHeader}
         <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-          {openFromDate && (
-            <DatePickerComp
-              openDate={openFromDate}
-              newDate={newFromDate}
-              setOpenDate={setOpenFromDate}
-              handleDatePicker={handleDatePicker}
-            />
-          )}
-          {openToDate && (
-            <DatePickerComp
-              openDate={openToDate}
-              newDate={newToDate}
-              setOpenDate={setOpenToDate}
-              handleDatePicker={handleDatePicker2}
-              minimumDate={
-                fromDate == ''
-                  ? ''
-                  : new Date(
-                      `${new Date(fromDate).getFullYear()}-${
-                        new Date(fromDate).getMonth() + 1
-                      }-${new Date(fromDate).getDate() + 1}`,
-                    )
-              }
-            />
-          )}
-          <Filter
-            filterItem={filterItem}
-            filterOption={filterOption}
-            setOpenToDate={setOpenToDate}
-            fromDate={fromDate}
-            newToDate={toDate}
-            setOpenFromDate={setOpenFromDate}
-            filterOptionShow={filterOptionShow}
-            onchangeFilterItem={onchangeFilterItem}
-            onChangeText={item => handleFilterList(item)}
-            // title={t('activity_Pipe_List')}
-            filterDataRemove={filterDataRemove}
-            FarmerProductNameValue={searchFarmerName}
-            FarmerProductPhoneValue={searchFarmerPhone}
-            carbonFlag={false}
-            onChangeCarbonType={onChangeCarbonType}
-            carbonTypeVal={carbonType}
-            dataActivity={[
-              {label: 'Carbon ', value: 'carbon_activity'},
-              {label: 'Non-Carbon ', value: 'user_activity'},
-            ]}
-          />
-          <>
-            {searchResultsList && searchResultsList ? (
-              <View
-                View
-                style={
-                  isKeyboardVisible
-                    ? styles.flatContainerLengthUp
-                    : styles.flatContainer
-                }>
-                <FlatList
-                  style={searchResults.length > 8 ? styles.flatlistHeight : ''}
-                  data={searchResults}
-                  renderItem={({item}) => (
-                    <TouchableOpacity
-                      onPress={() => handleResultSelectList(item)}
-                      style={styles.flatlistitem}>
-                      <Text style={[styles.flatlisttitle, {color: 'black'}]}>
-                        {filterName == 'PhoneNumber' ? item.phone : item.label}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  keyExtractor={(item, index) => index}
-                />
-              </View>
-            ) : (
-              ''
-            )}
-          </>
           {isLoading && (
             <View style={styles.loadingScreen}>
               <LoadingScreen />
@@ -736,14 +564,6 @@ const InstrumentWiseActivityView = () => {
             onNext={() => setPage(p => Math.min(totalPages, p + 1))}
             t={t}
           />
-          {/* <View style={styles.prevNextPage}>
-            <TouchableOpacity onPress={() => handlePage('previous')}>
-              <Text style={styles.title}>{t('prev_page')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePage('next')}>
-              <Text style={styles.title}>{t('next_page')}</Text>
-            </TouchableOpacity>
-          </View> */}
         </View>
       </Root>
     </FarmerDrawerScreenWrapper1>

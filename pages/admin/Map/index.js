@@ -477,6 +477,7 @@ const Map = ({
           fillColor="rgba(167, 3, 3, 0.66)"
           strokeColor="rgb(240, 9, 9)"
           strokeWidth={2}
+          zIndex={-1}
         />
       );
     });
