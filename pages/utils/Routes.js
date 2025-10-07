@@ -1,0 +1,133 @@
+export const ROUTES = {
+  POST: {
+    LOGIN: 'sessionRoute/login',
+    ADD_ID_ADDRESS_IMGS: () => `farmerRoute/addIdAddressImgs`,
+  },
+
+  GET: {
+    DATABASE_LIST: `hostRoute/databaseList`,
+    LANGUAGE_LIST: `locationRoute/getLang?status=1&search`,
+    LIST_USER: ({ user_id = '' }) => `loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=${user_id}`,
+    PLOT_AGAINST_FARMER: ({ user_id }) => `landRoute/userLandDetails/${user_id}`,
+    SHOW_CARBON_FLAG: `optionRoute/showCarbonFlag`,
+    PHONE_DIGIT_CHECK: ({ country_id }) => `locationRoute/getContactNoDigitByCountryID/${country_id}`,
+    FPO_DETAILS: ({ compCode }) => `loginSignupRoute/fpodetails_e/${compCode}`,
+    REGIONAL_DATA: `categoryRoute/list/1/0/2?search_key=&categoryType=regionaldata`,
+    DEFAULT_CURR: `optionRoute/currList/1/0/5?search_key=&is_default=1`,
+    USER_LAND_CROP_LIST: ({ user_id = "" }) => `landRoute/userLandCropList_e/${user_id}`,
+    UNIT_ROUTE: ({ unit_type = "land_unit", is_default = 1, sub_type = "land_area", unit_slug = "square_metre" }) => `unitRoute/list/1/0/5?search_key=&unit_type=${unit_type}&is_default=${is_default}&sub_type=${sub_type}&unit_slug=${unit_slug}`,
+    PRODUCTION_SEASON: ({ lanId = '', crop_type_id = '', crop_name_id = '' }) => `cropRoute/getCropRelationDropdown/${lanId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`,
+    LAND_ROUTE: ({ type = '' }) => `landRoute/list/1/0/1?type=${type}&search_key=`,
+    PRODUCTION_PROCESS: ({}) => `farmerRoute/listfardata/1/0/2?type=production_system&search_key=`,
+    USER_ACTIVITY: ({
+      pageNO,
+      carbonType,
+      userID,
+      searchItem = '',
+      from_date = '',
+      to_date = '',
+    }) =>
+      `inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+
+    USER_ACTIVITY_DETAILS: ({
+      uact_id
+    }) =>
+      `settingsRoute/detailsUserActivity?uact_id=${uact_id}`,
+    PIPE_LIST_DETAILS: ({ plot_id, act_master_id, cu_rel_id, pipe_id }) =>
+      `landRoute/plotPipes?plot_fid=${plot_id}&act_name_fid=${act_master_id}&cu_rel_fid=${cu_rel_id}&pipe_id=`,
+
+    CROP_LIST: ({
+      pageNO,
+      carbonType,
+      userID,
+      searchItem = '',
+      from_date = '',
+      to_date = '',
+    }) =>
+      `inputOutputRoute/listUserActivity/1/${pageNO}/2?type=${carbonType}&agent_id=${userID}&crop_type=&crop_name=&crop_variety=&search_key=${searchItem}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+
+    FARMER_PROFILE_INFO: ({ user_id }) => `loginSignupRoute/details/${user_id}`,
+
+    FARMER_DOC: ({ user_id }) => `loginSignupRoute/onlydetails/${user_id}`,
+
+    FIRST_LAN_LIST: () => 'locationRoute/getLang?status=1&search',
+
+    FARMER_USEFULL_INFO_LIST: ({
+      userId,
+      userType,
+      post,
+      state_id,
+      district_id,
+      subdiv_id,
+      newCropId,
+    }) =>
+      `generalInfoRoute/list/1/0/2?user_id=${userId}&search_key=&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=${newCropId}`,
+
+    USEFULL_INFO_LIST: ({
+      userId,
+      titleSearch,
+      userType,
+      post,
+      state_id,
+      district_id,
+      subdiv_id,
+    }) =>
+      `generalInfoRoute/list_e/1/0/2?user_id=${userId}&search_key=${titleSearch}&role_type=${userType}&post_type=${post}&state_id=${state_id}&district_id=${district_id}&subdiv_id=${subdiv_id}&crop_name_id=`,
+
+    LIST_USER_ACITYLIST_E: ({
+      pageNO = 1,
+      carbonType = '',
+      userID = '',
+      search_key = '',
+      from_date = '',
+      to_date = '',
+    }) =>
+      `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&agent_id=&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+    QUESTION_ROUTE: ({
+      pageNo = 1,
+      user_id = '',
+      from_date = '',
+      to_date = '',
+      agent_id = '',
+      farmer_mobile = '',
+    }) =>
+      `questionRoute/list_e/1/${pageNo}/2?search_key=&user_id=${user_id}&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&problem_type_id=&problem_name_id=&farmer_mobile=${farmer_mobile}`,
+    INPUT_OUTPUT_ROUTE: ({
+      farmer_id = '',
+      from_date = '',
+      to_date = '',
+      agent_id = '',
+      farmer_mobile = '',
+    }) =>
+      `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
+    AGENT_ROUTE: ({ page = 1, search_key = '' }) =>
+      `agentRoute/listFarmer_e/1/${page}/2?search_key=${search_key}`,
+
+    Fenced_Rejected_Plot_List: ({
+      page,
+      status_level,
+      geo_type,
+      searchBy = '',
+    }) =>
+      `landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+
+    USER_ACTIVITY_DETAILS: ({ uact_id }) =>
+      `settingsRoute/detailsUserActivity?uact_id=${uact_id}`,
+
+    INPUT_LIST_API: ({ category_id = '' }) =>
+      `marketRoute/listproduct/1/0/2?search_key=&category_id=${category_id}`,
+
+    INPUT_CATEGORY_API: () => `inputOutputEntityRoute/listEntityTypes/1/0/2`,
+
+    INPUT_SUB_CATEGORY_API: ({ category_id = '' }) =>
+      `inputOutputEntityRoute/listEntities/1/0/2?entity_type_id=${category_id}`,
+  },
+
+  PUT: {
+    USER_PROFILE_UPDATE: ({ user_id }) => `loginSignupRoute/update/${user_id}`,
+  },
+
+  DELETE: {
+    DEL_PLOT_IMG: () => `optionRoute/deleteFile`,
+  },
+};
