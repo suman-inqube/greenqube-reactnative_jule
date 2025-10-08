@@ -8,11 +8,11 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import {SPSheet }from '@sekizlipenguen/react-native-popup-confirm-toast'
+import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import DocumentPicker, {types} from '@react-native-documents/picker';
 import {createPdf} from 'react-native-images-to-pdf'; // Assuming you need to import this
 import DocumentScanner from 'react-native-document-scanner-plugin';
-import ImageResizer from 'react-native-image-resizer';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {deletePlotImageAPI} from '../admin/Loan/LoanAPI';

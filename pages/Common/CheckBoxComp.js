@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import CheckBox from 'react-native-check-box'
+import CheckBox from '@react-native-community/checkbox'
 const CheckBoxComp = ({ onCheckBox, arrayKey, isChecked, title }) => {
   let value = false;
   if(isChecked== undefined){

@@ -1,42 +1,63 @@
-import React, { memo } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from "react-native";
-import { Colors,Fonts } from "../utils/Constants";
-import CollapsibleCard from "../Common/CollapsibleCard";
-import StatusBadge from "./StatusBadge";
+import React, {memo} from 'react';
+import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
+import {Colors, Fonts} from '../utils/Constants';
+import CollapsibleCard from '../Common/CollapsibleCard';
+import StatusBadge from './StatusBadge';
 
-const PlotCard = memo(({ item, onPress, landUnitsquareMetre, landAreaUnit }) => {
+const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
   const convertedArea = (
-    Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) * Number(item?.google_area || 0)
+    Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) *
+    Number(item?.google_area || 0)
   ).toFixed(2);
 
   return (
     <TouchableOpacity onPress={onPress}>
       <CollapsibleCard
         width="100%"
-        header={<Text style={[styles.text, { fontSize: 18, color: Colors.text }]}>{item?.plot_no}</Text>}
+        header={
+          <Text style={[styles.text, {fontSize: 18, color: Colors.text}]}>
+            {item?.plot_no}
+          </Text>
+        }
         content={
           <>
             <View style={styles.plotInfoContainer}>
               <View>
-                {['Plot Name', 'Reported Land Area', 'Converted Land Area', 'Crop Name',
-                  'Crop Variety', 'Cycle Start Date', 'Cycle End Date'].map((label, idx) => (
-                    <Text key={idx} style={styles.text}>{label}</Text>
-                  ))}
+                {[
+                  'Plot Name',
+                  'Reported Land Area',
+                  'Converted Land Area',
+                  'Crop Name',
+                  'Crop Variety',
+                  'Cycle Start Date',
+                  'Cycle End Date',
+                ].map((label, idx) => (
+                  <Text key={idx} style={styles.text}>
+                    {label}
+                  </Text>
+                ))}
               </View>
-              <View style={{ marginLeft: 10 }}>
+              <View style={{marginLeft: 10}}>
                 <Text style={styles.label}>: {item?.plot_no}</Text>
-                <Text style={styles.label}>: {item?.land_size} {item?.land_unit?.name}</Text>
-                <Text style={styles.label}>: {parseFloat(item?.land_convert_size).toFixed(2)} {landAreaUnit?.[0]?.name}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.crop_name?.name}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.crop_variety?.name}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.sowing_date}</Text>
-                <Text style={styles.label}>: {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}</Text>
+                <Text style={styles.label}>
+                  : {item?.land_size} {item?.land_unit?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {parseFloat(item?.land_convert_size).toFixed(2)}{' '}
+                  {landAreaUnit?.[0]?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.crop_name?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.crop_variety?.name}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.sowing_date?.substring(0, 10)}
+                </Text>
+                <Text style={styles.label}>
+                  : {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}
+                </Text>
               </View>
             </View>
 
@@ -78,7 +99,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   label: {
     color: Colors.text,
@@ -87,36 +108,36 @@ const styles = StyleSheet.create({
     marginVertical: 3,
     lineHeight: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   plotInfoContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 8,
   },
   footerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 8,
   },
   areaRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   areaIcon: {
     width: 18,
     height: 18,
     marginRight: 6,
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
   rejectBox: {
-    backgroundColor: "#ffe6e6",
+    backgroundColor: '#ffe6e6',
     borderRadius: 6,
     padding: 8,
     marginTop: 8,
   },
   rejectText: {
-    color: "red",
+    color: 'red',
     fontSize: 13,
   },
 });

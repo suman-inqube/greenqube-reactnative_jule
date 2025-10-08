@@ -16,7 +16,7 @@ import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 // import TakePhoto from './TakePhoto';
 import {launchCamera} from 'react-native-image-picker';
-// import Marker, {Position} from 'react-native-image-marker';
+import Marker, {Position} from 'react-native-image-marker';
 import RecordComp from '../Activity/RecordComp';
 import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
@@ -1138,6 +1138,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           label: '',
           value: '',
         }));
+        console.log('response', response.status);
         if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [
@@ -1381,10 +1382,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState('');
 
-  const openImagePickerPipe = async item => {
+  const openImagePickerPipe = useCallback(async item => {
     setCameraItem(item);
     setModalVisibleMap(true);
-  };
+  }, []);
   const TakePhoto = useCallback(() => {
     const options = {
       mediaType: 'photo',

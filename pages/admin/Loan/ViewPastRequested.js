@@ -25,6 +25,8 @@ import {Marquee} from '@animatereactnative/marquee';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import ListCard from '../../Components/ListCard';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 const LoanViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
@@ -110,22 +112,33 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     setIsLoading(true);
     const [currency_res, response] = await Promise.all([
       getItem('currency'),
-      loanRouteListAPI(
-        dbname,
-        lan_id,
+
+      axiosGet(
+        ROUTES.GET.LOAN_LIST({
+          farmer_id: farmer_id,
+          from_date: from_date,
+          to_date: to_date,
+          farmer_mobile: farmer_mobile,
+        }),
         token,
-        user_id,
-        farmer_id,
-        from_date,
-        to_date,
-        farmer_mobile,
+        {information: `${dbname},${lan_id}`},
       ),
+      // loanRouteListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   farmer_id,
+      //   from_date,
+      //   to_date,
+      //   farmer_mobile,
+      // ),
     ]);
     if (response?.status == 200) {
-      if (response.data.data.rows.length != 0) {
+      if (response?.data?.data?.rows?.length != 0) {
         Promise.all([
           setIsLoading(false),
-          setLoanList(response.data.data.rows),
+          setLoanList(response?.data?.data?.rows),
           setCurrencyt(currency_res),
         ]);
       } else {
@@ -199,15 +212,14 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     if (route?.params?.action === 'addData') {
       Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
 
-      onPageLoad('', '');
+      onPageLoad();
     }
   }, [route?.params]);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    requestAnimationFrame(async () => {
-      await onPageLoad();
-      setRefreshing(false);
-    });
+
+    await onPageLoad();
+    setRefreshing(false);
   }, []);
   const navigate = (LoanEnquiryDetail, item) => {
     navigation.navigate('LoanEnquiryDetail', item);

@@ -10,8 +10,8 @@ const commonAxios = async () => {
 const {ConfigModule} = NativeModules;
 
   try {
-    const baseURL = await ConfigModule.getBaseURL();
-     const encKey = await ConfigModule.getEncryptedKey();
+    const baseURL = "http://134.209.155.11:4003/";
+     const encKey = "greenQube_96740_64428";
 
     instance = axios.create({
       baseURL: baseURL,  // use dynamic URL

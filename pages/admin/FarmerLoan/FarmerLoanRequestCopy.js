@@ -1,7 +1,7 @@
 import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, Dimensions, Keyboard } from 'react-native'
 import React, { useCallback, useState, useEffect, useContext } from 'react'
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import { problemPlotAgainstFarmerAPI, loanPurposeAPI, problemProduceAgainstPlotAPI, Addloan } from './FarmerLoanAPI';
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { addModuleForView } from '../../../config/apiHere';

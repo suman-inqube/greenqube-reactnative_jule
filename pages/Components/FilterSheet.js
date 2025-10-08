@@ -1,6 +1,6 @@
 import React, { useState, lazy, useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { SPSheet from '@sekizlipenguen/react-native-popup-confirm-toast'
+import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import DropdownForm from '../Common/DropdownForm';
 import { Colors, Fonts } from '../utils/Constants';
 const RadioForm = lazy(() => import('../Common/RadioForm'));
@@ -32,7 +32,7 @@ const FilterSheetContent = React.memo(({
   CARBON_TYPE,
   carbonType,
   height,
-  navigationBarHeight,
+  navigationBarHeight=0,
   setFilterItem
 }) => {
   const [selectedValue, setSelectedValue] = useState(filterItem);
@@ -389,7 +389,7 @@ export const openFilterSheet = (props) => {
       console.warn('openFilterSheet: No props provided');
       return;
     }
-    const sheetHeight = filterItem === '' ? height + navigationBarHeight : 220 + navigationBarHeight;
+    const sheetHeight = filterItem === '' ? height  : 200 ;
     const finalHeight = Math.max(sheetHeight, height);
     SPSheet.show({
       component: () => <FilterSheetContent {...props} />,

@@ -97,16 +97,18 @@ const OutPut = ({navigation}) => {
       let fromDate = fromDateFilter;
       let toDate = effective_date;
       let mobileNo = '';
-      const outputList = await outputListAPI(
-        dbname,
-        lan_id,
+      const outputList = await axiosGet(
+        ROUTES.GET.OUTPUT_LIST({
+          farmer_id: farmer_id,
+          fromDate: fromDate,
+          toDate: toDate,
+          userId: toDate,
+          mobileNo: mobileNo,
+        }),
         token,
-        user_id,
-        farmer_id,
-        fromDate,
-        toDate,
-        mobileNo,
+        {information: `${dbname},${lan_id},${user_id}`},
       );
+
       if (outputList.status === 200) {
         if (outputList.data.data.rows.length === 0) {
           Toast.show({text: t('no_data_found'), ...AlertMesg[0]});
@@ -124,13 +126,20 @@ const OutPut = ({navigation}) => {
     const outputFound = output_data.find(user => user.fid === fid);
     setIsLoading(false);
     setOutputSingle(outputFound);
-    const response = await SupervisoroutputEnquiryViewAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.SUPERVISOR_OUTPUT_VIEW({
+        id: fid,
+      }),
       token,
-      user_id,
-      fid,
+      {information: `${dbname},${lan_id},${user_id}`},
     );
+    // SupervisoroutputEnquiryViewAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   fid,
+    // );
     if (response?.status == 200) {
       setPastEnquiryView(response?.data?.data);
       var qty = 0;

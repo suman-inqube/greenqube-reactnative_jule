@@ -7,28 +7,28 @@ import {
   Image,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useState, useContext} from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import ButtonForm from './Common/ButtonForm';
-import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
-import {useNavigation} from '@react-navigation/native';
+import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
+import { useNavigation } from '@react-navigation/native';
 import MessageDialog from './Common/MessageDialog';
-import {useFocusEffect} from '@react-navigation/native';
-import {signupSaveAPI} from '../config/apiHere';
-import {useTranslation} from 'react-i18next';
-import {onBackPress} from './Common/BackPressHandler';
+import { useFocusEffect } from '@react-navigation/native';
+import { signupSaveAPI } from '../config/apiHere';
+import { useTranslation } from 'react-i18next';
+import { onBackPress } from './Common/BackPressHandler';
 import DeviceInfo from './DeviceInfo';
 import FormsTitle from './Common/FormsTitle';
-import {userCreateContext} from './Context/usersCreateContext';
+import { userCreateContext } from './Context/usersCreateContext';
 import LoadingScreen from './Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fonts} from './utils/Constants';
+import { Colors, Fonts } from './utils/Constants';
 const SignUpViwer = () => {
   //GQR-65
-  const {AllFarmerList, Toast, Root, AlertMesg, t} =
+  const { AllFarmerList, Toast, Root, AlertMesg, t } =
     useContext(userCreateContext);
 
   // const { t } = useTranslation();
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const [isstorePersnolInfo, setisstorePersnolInfo] = useState(false);
@@ -54,175 +54,183 @@ const SignUpViwer = () => {
     storeFinancial_data,
     storeProduceInfo_data,
   ) => {
-    // const gender = storePersnolInfo_data.gender === 'male' ? "1" : "2";
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const yearsToSubtract = storePersnolInfo_data.age;
-    const day = currentDate.getDate();
-    const month = currentDate.getMonth() + 1;
-    const newYear = currentYear - yearsToSubtract;
-    const dob = `${newYear}-${month}-${day}`;
-    // const userType = storePersnolInfo_data.userType === 'large Grower' ? "1" : storePersnolInfo_data.userType === 'mall holder' ? "2" : "3"
-    const lan_id = storePersnolInfo_data.language.value.toString();
-    const phone = storeSignup_data.phone.toString();
-    const farmer_details = {
-      userName: storePersnolInfo_data.name,
-      contactNumber: phone,
-      lan_id: lan_id,
-      gender: storePersnolInfo_data?.gender,
-      farmer_type: storePersnolInfo_data?.userType,
-      date_of_birth: dob,
-      finance_agriculture_campagin: 'No Loan',
-      IMEINumber: '123456',
-      FcmUserToken: '654321',
-      password: storeSignup_data.password,
-      createdBy: storeSignup_data.supervisor.value,
-    };
-    const agri_user_addresses = {
-      country: storeSignup_data.country.value,
-      company: storeSignup_data.company.value,
-      state: storePersnolInfo_data.stateInfo.value,
-      district: storePersnolInfo_data.district.value,
-      subdivision: storePersnolInfo_data.block.value,
-      address: storePersnolInfo_data.address,
-      pincode: storePersnolInfo_data.zip,
-    };
-    const identity_details = {};
-    if (storeFinancial.kcc_number) {
-      identity_details['kcc_number'] = storeFinancial.farmarLoanNo;
-    }
-    if (storeFinancial_data.adharCard) {
-      identity_details['aadhar_number'] = storeFinancial_data.adharCard;
-    }
-    if (storeFinancial_data.panNo) {
-      identity_details['pan_number'] = storeFinancial_data.panNo;
-    }
+    try {
+      // const gender = storePersnolInfo_data.gender === 'male' ? "1" : "2";
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const yearsToSubtract = storePersnolInfo_data.age;
+      const day = currentDate.getDate();
+      const month = currentDate.getMonth() + 1;
+      const newYear = currentYear - yearsToSubtract;
+      const dob = `${newYear}-${month}-${day}`;
+      // const userType = storePersnolInfo_data.userType === 'large Grower' ? "1" : storePersnolInfo_data.userType === 'mall holder' ? "2" : "3"
+      const lan_id = storePersnolInfo_data.language.value.toString();
+      const phone = storeSignup_data.phone.toString();
+      const farmer_details = {
+        userName: storePersnolInfo_data.name,
+        contactNumber: phone,
+        lan_id: lan_id,
+        gender: storePersnolInfo_data?.gender,
+        farmer_type: storePersnolInfo_data?.userType,
+        date_of_birth: dob,
+        finance_agriculture_campagin: 'No Loan',
+        IMEINumber: '123456',
+        FcmUserToken: '654321',
+        password: storeSignup_data.password,
+        createdBy: storeSignup_data.supervisor.value,
+      };
+      const agri_user_addresses = {
+        country: storeSignup_data?.country?.value,
+        company: storeSignup_data?.company?.value,
+        state: storePersnolInfo_data.stateInfo.value,
+        district: storePersnolInfo_data.district.value,
+        subdivision: storePersnolInfo_data.block.value,
+        address: storePersnolInfo_data.address,
+        pincode: storePersnolInfo_data.zip,
+      };
+      const identity_details = {};
+      if (storeFinancial.kcc_number) {
+        identity_details['kcc_number'] = storeFinancial.farmarLoanNo;
+      }
+      if (storeFinancial_data.adharCard) {
+        identity_details['aadhar_number'] = storeFinancial_data.adharCard;
+      }
+      if (storeFinancial_data.panNo) {
+        identity_details['pan_number'] = storeFinancial_data.panNo;
+      }
 
-    if (storeFinancial_data.adharCard) {
-      identity_details['voter_card_number'] = storeFinancial_data.adharCard;
+      if (storeFinancial_data.adharCard) {
+        identity_details['voter_card_number'] = storeFinancial_data.adharCard;
+      }
+      const bank_details = {};
+      const pension_details = {};
+      const lic_details = {};
+      if (storeFinancial_data.accountHolderName) {
+        bank_details['user_bank_account_holder'] =
+          storeFinancial_data.accountHolderName;
+      }
+      if (storeFinancial_data.bankAccountNo) {
+        bank_details['user_bank_account_number'] =
+          storeFinancial_data.bankAccountNo;
+      }
+      if (storeFinancial_data.bankName) {
+        bank_details['user_bank_account_name'] = storeFinancial_data.bankName;
+      }
+      if (storeFinancial_data.branchName) {
+        bank_details['user_bank_branch_name'] = storeFinancial_data.branchName;
+      }
+      if (storeFinancial_data.ifscCode) {
+        bank_details['user_bank_ifsc_code'] = storeFinancial_data.ifscCode;
+      }
+      if (storeFinancial_data.pensionProvidingAuthority) {
+        pension_details['pension_authority'] =
+          storeFinancial_data.pensionProvidingAuthority;
+      }
+      if (storeFinancial_data.pensionAccountNo) {
+        pension_details['pension_account_no'] =
+          storeFinancial_data.pensionAccountNo;
+      }
+      if (storeFinancial_data.pensionEffectiveFrom) {
+        pension_details['effective_from'] =
+          storeFinancial_data.pensionEffectiveFrom;
+      }
+      if (storeFinancial_data.pensionAmount) {
+        pension_details['pension_amount'] = storeFinancial_data.pensionAmount;
+      }
+      if (
+        storeFinancial_data.pensionPerMonth &&
+        storeFinancial_data.pensionPerMonth.value
+      ) {
+        pension_details['frequency'] = storeFinancial_data.pensionPerMonth.value;
+      }
+      if (storeFinancial_data.nameOfCompany) {
+        lic_details['company_name'] = storeFinancial_data.nameOfCompany;
+      }
+      if (storeFinancial_data.policyNumber) {
+        lic_details['policy_no'] = storeFinancial_data.policyNumber;
+      }
+      if (storeFinancial_data.sumInsured) {
+        lic_details['sum_insured'] = storeFinancial_data.sumInsured;
+      }
+      const agri_land_user_rels = storeProduceInfo_data.map((item, index) => ({
+        plot_no: item.storeProduceInfo.plotSiteName,
+        terrain_type_id:
+          item.storeProduceInfo.terrainType &&
+          item.storeProduceInfo.terrainType.value,
+        lan_type_id:
+          item.storeProduceInfo.landType && item.storeProduceInfo.landType.value,
+        soil_type_id:
+          item.storeProduceInfo.soilType && item.storeProduceInfo.soilType.value,
+        land_unit_id: item.storeProduceInfo.landUnit,
+        land_size: item.storeProduceInfo.plotSize,
+        google_area: item.storeProduceInfo.google_area,
+        device_no: item.storeProduceInfo.IOTId,
+        device_lat: item.storeProduceInfo.IOTLatlat,
+        device_long: item.storeProduceInfo.IOTLatLong,
+        land_convert_size:
+          item.storeProduceInfo.sizevalue == '' ||
+            item.storeProduceInfo.sizevalue == undefined ||
+            item.storeProduceInfo.sizevalue == null
+            ? item.storeProduceInfo.plotSize * 1
+            : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
+        latitude: item.location[0].latitude.toString(),
+        longitude: item.location[0].longitude.toString(),
+        daag_no: item.storeProduceInfo.daagNo,
+        khatian_no: item.storeProduceInfo.khatianNo,
+        plant_number: item.storeProduceInfo.noOfPlants,
+        agri_land_user_latlongs: item.location.filter(
+          item => item.latitude !== '',
+        ),
+      }));
+      const crop_details = storeProduceInfo_data.map((item, index) => ({
+        crop_season_id:
+          item.storeProduceInfo.prodctionSeasion &&
+          item.storeProduceInfo.prodctionSeasion.value,
+        crop_type_id:
+          item.storeProduceInfo.livelihoodType &&
+          item.storeProduceInfo.livelihoodType.value,
+        crop_name_id:
+          item.storeProduceInfo.produceName &&
+          item.storeProduceInfo.produceName.value,
+        crop_variety_id:
+          item.storeProduceInfo.produceVariety &&
+          item.storeProduceInfo.produceVariety.value,
+        is_primary: 1,
+        production_system:
+          item.storeProduceInfo.productionProcess &&
+          item.storeProduceInfo.productionProcess.value,
+        total_production: '7',
+        have_fertilizer: 'Yes',
+        buy_pesticide: 'No',
+        sowing_date: item.storeProduceInfo.cycleStarts,
+        harvesting_date: item.storeProduceInfo.cycleEnds,
+        yield_amount: item.storeProduceInfo.expectedProduction,
+        yield_unit:
+          item.storeProduceInfo.produceProductionUnit &&
+          item.storeProduceInfo.produceProductionUnit.value,
+      }));
+      const agri_ponds = [];
+      const data_farmer_details = {};
+      const data = [];
+      farmer_details['agri_user_addresses'] = agri_user_addresses;
+      farmer_details['identity_details'] = identity_details;
+      farmer_details['bank_details'] = bank_details;
+      farmer_details['pension_details'] = pension_details;
+      farmer_details['lic_details'] = lic_details;
+      farmer_details['agri_land_user_rels'] = agri_land_user_rels;
+      farmer_details['crop_details'] = crop_details;
+      farmer_details['agri_ponds'] = agri_ponds;
+      farmer_details['agri_ponds'] = agri_ponds;
+      data_farmer_details['farmer_details'] = farmer_details;
+      data.push(data_farmer_details);
+      setsaveData(data);
+    } catch (error) {
+      Toast.show({
+        time: 3,
+        text: error,
+        ...AlertMesg[0],
+      });
     }
-    const bank_details = {};
-    const pension_details = {};
-    const lic_details = {};
-    if (storeFinancial_data.accountHolderName) {
-      bank_details['user_bank_account_holder'] =
-        storeFinancial_data.accountHolderName;
-    }
-    if (storeFinancial_data.bankAccountNo) {
-      bank_details['user_bank_account_number'] =
-        storeFinancial_data.bankAccountNo;
-    }
-    if (storeFinancial_data.bankName) {
-      bank_details['user_bank_account_name'] = storeFinancial_data.bankName;
-    }
-    if (storeFinancial_data.branchName) {
-      bank_details['user_bank_branch_name'] = storeFinancial_data.branchName;
-    }
-    if (storeFinancial_data.ifscCode) {
-      bank_details['user_bank_ifsc_code'] = storeFinancial_data.ifscCode;
-    }
-    if (storeFinancial_data.pensionProvidingAuthority) {
-      pension_details['pension_authority'] =
-        storeFinancial_data.pensionProvidingAuthority;
-    }
-    if (storeFinancial_data.pensionAccountNo) {
-      pension_details['pension_account_no'] =
-        storeFinancial_data.pensionAccountNo;
-    }
-    if (storeFinancial_data.pensionEffectiveFrom) {
-      pension_details['effective_from'] =
-        storeFinancial_data.pensionEffectiveFrom;
-    }
-    if (storeFinancial_data.pensionAmount) {
-      pension_details['pension_amount'] = storeFinancial_data.pensionAmount;
-    }
-    if (
-      storeFinancial_data.pensionPerMonth &&
-      storeFinancial_data.pensionPerMonth.value
-    ) {
-      pension_details['frequency'] = storeFinancial_data.pensionPerMonth.value;
-    }
-    if (storeFinancial_data.nameOfCompany) {
-      lic_details['company_name'] = storeFinancial_data.nameOfCompany;
-    }
-    if (storeFinancial_data.policyNumber) {
-      lic_details['policy_no'] = storeFinancial_data.policyNumber;
-    }
-    if (storeFinancial_data.sumInsured) {
-      lic_details['sum_insured'] = storeFinancial_data.sumInsured;
-    }
-    const agri_land_user_rels = storeProduceInfo_data.map((item, index) => ({
-      plot_no: item.storeProduceInfo.plotSiteName,
-      terrain_type_id:
-        item.storeProduceInfo.terrainType &&
-        item.storeProduceInfo.terrainType.value,
-      lan_type_id:
-        item.storeProduceInfo.landType && item.storeProduceInfo.landType.value,
-      soil_type_id:
-        item.storeProduceInfo.soilType && item.storeProduceInfo.soilType.value,
-      land_unit_id: item.storeProduceInfo.landUnit,
-      land_size: item.storeProduceInfo.plotSize,
-      google_area: item.storeProduceInfo.google_area,
-      device_no: item.storeProduceInfo.IOTId,
-      device_lat: item.storeProduceInfo.IOTLatlat,
-      device_long: item.storeProduceInfo.IOTLatLong,
-      land_convert_size:
-        item.storeProduceInfo.sizevalue == '' ||
-        item.storeProduceInfo.sizevalue == undefined ||
-        item.storeProduceInfo.sizevalue == null
-          ? item.storeProduceInfo.plotSize * 1
-          : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
-      latitude: item.location[0].latitude.toString(),
-      longitude: item.location[0].longitude.toString(),
-      daag_no: item.storeProduceInfo.daagNo,
-      khatian_no: item.storeProduceInfo.khatianNo,
-      plant_number: item.storeProduceInfo.noOfPlants,
-      agri_land_user_latlongs: item.location.filter(
-        item => item.latitude !== '',
-      ),
-    }));
-    const crop_details = storeProduceInfo_data.map((item, index) => ({
-      crop_season_id:
-        item.storeProduceInfo.prodctionSeasion &&
-        item.storeProduceInfo.prodctionSeasion.value,
-      crop_type_id:
-        item.storeProduceInfo.livelihoodType &&
-        item.storeProduceInfo.livelihoodType.value,
-      crop_name_id:
-        item.storeProduceInfo.produceName &&
-        item.storeProduceInfo.produceName.value,
-      crop_variety_id:
-        item.storeProduceInfo.produceVariety &&
-        item.storeProduceInfo.produceVariety.value,
-      is_primary: 1,
-      production_system:
-        item.storeProduceInfo.productionProcess &&
-        item.storeProduceInfo.productionProcess.value,
-      total_production: '7',
-      have_fertilizer: 'Yes',
-      buy_pesticide: 'No',
-      sowing_date: item.storeProduceInfo.cycleStarts,
-      harvesting_date: item.storeProduceInfo.cycleEnds,
-      yield_amount: item.storeProduceInfo.expectedProduction,
-      yield_unit:
-        item.storeProduceInfo.produceProductionUnit &&
-        item.storeProduceInfo.produceProductionUnit.value,
-    }));
-    const agri_ponds = [];
-    const data_farmer_details = {};
-    const data = [];
-    farmer_details['agri_user_addresses'] = agri_user_addresses;
-    farmer_details['identity_details'] = identity_details;
-    farmer_details['bank_details'] = bank_details;
-    farmer_details['pension_details'] = pension_details;
-    farmer_details['lic_details'] = lic_details;
-    farmer_details['agri_land_user_rels'] = agri_land_user_rels;
-    farmer_details['crop_details'] = crop_details;
-    farmer_details['agri_ponds'] = agri_ponds;
-    farmer_details['agri_ponds'] = agri_ponds;
-    data_farmer_details['farmer_details'] = farmer_details;
-    data.push(data_farmer_details);
-    setsaveData(data);
   };
   const handleSave = async () => {
     try {
@@ -248,7 +256,7 @@ const SignUpViwer = () => {
         storePersnolInfo.identityProofIdentityPropf[0]?.fileName != '' &&
         storePersnolInfo.identityProofIdentityPropf[0]?.fileName != ''
       ) {
-        const {uri, type, name} =
+        const { uri, type, name } =
           storePersnolInfo.identityProofIdentityPropf[0];
         formData.append('farmer_address', {
           uri: uri,
@@ -260,7 +268,7 @@ const SignUpViwer = () => {
         storePersnolInfo.identityProofIdentityPropf[1]?.fileName != '' &&
         storePersnolInfo.identityProofIdentityPropf[1]?.fileName != ''
       ) {
-        const {uri, type, name} =
+        const { uri, type, name } =
           storePersnolInfo.identityProofIdentityPropf[1];
         formData.append('farmer_identity', {
           uri: uri,
@@ -270,7 +278,7 @@ const SignUpViwer = () => {
       }
       const filteredFiles = storeProduceInfo[0].landProof.map((data, index) => {
         if (data.name != '') {
-          return {uri: data?.uri, type: data?.type, name: data?.name};
+          return { uri: data?.uri, type: data?.type, name: data?.name };
         }
       });
 
@@ -335,6 +343,12 @@ const SignUpViwer = () => {
       }
       setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
+      Toast.show({
+        time: 3,
+        text: error,
+        ...AlertMesg[0],
+      });
       console.log(error);
     }
   };
@@ -370,7 +384,7 @@ const SignUpViwer = () => {
 
   return (
     <Root>
-      <View style={{flex: 1, backgroundColor: Colors.background_light}}>
+      <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
         <View
           style={{
             // height: 100,
@@ -385,7 +399,7 @@ const SignUpViwer = () => {
         </View>
 
         <ScrollView>
-          <View style={{paddingHorizontal: 20, marginTop: 50}}>
+          <View style={{ paddingHorizontal: 20, marginTop: 50 }}>
             <View
               style={{
                 marginTop: 10,
@@ -403,7 +417,7 @@ const SignUpViwer = () => {
               }}>
               <TouchableOpacity onPress={togglestorePersnolInfo}>
                 <View style={styles.headerStyle}>
-                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                  <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                     <MaterialIcons
                       name="account-circle"
                       size={28}
@@ -444,9 +458,9 @@ const SignUpViwer = () => {
                 <>
                   {storePersnolInfo ? (
                     storePersnolInfo.block ? (
-                      <View style={{margin: 10}}>
+                      <View style={{ margin: 10 }}>
                         <View style={styles.bodyContainer}>
-                          <View style={{alignItems: 'flex-end'}}>
+                          <View style={{ alignItems: 'flex-end' }}>
                             <TouchableOpacity
                               onPress={() =>
                                 navigation.navigate('PersnolUpdate', {
@@ -455,7 +469,7 @@ const SignUpViwer = () => {
                               }>
                               <Image
                                 source={require('./Common/images/edit.png')}
-                                style={{width: 25, height: 25}}
+                                style={{ width: 25, height: 25 }}
                               />
                             </TouchableOpacity>
                           </View>
@@ -548,7 +562,7 @@ const SignUpViwer = () => {
               }}>
               <TouchableOpacity onPress={togglestoreFinancial}>
                 <View style={styles.headerStyle}>
-                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                  <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                     <MaterialIcons
                       name="badge"
                       size={28}
@@ -559,7 +573,7 @@ const SignUpViwer = () => {
                   <Text
                     style={[
                       styles.toggleText,
-                      {fontFamily: 'Poppins-SemiBold'},
+                      { fontFamily: 'Poppins-SemiBold' },
                     ]}>
                     {isstoreFinancial
                       ? `${t('financial_information')}`
@@ -587,9 +601,9 @@ const SignUpViwer = () => {
               {isstoreFinancial && (
                 <>
                   {storeFinancial ? (
-                    <View style={{margin: 10}}>
+                    <View style={{ margin: 10 }}>
                       <View style={styles.bodyContainer}>
-                        <View style={{alignItems: 'flex-end'}}>
+                        <View style={{ alignItems: 'flex-end' }}>
                           <TouchableOpacity
                             onPress={() =>
                               navigation.navigate('FinancialUpdate', {
@@ -598,7 +612,7 @@ const SignUpViwer = () => {
                             }>
                             <Image
                               source={require('./Common/images/edit.png')}
-                              style={{width: 25, height: 25}}
+                              style={{ width: 25, height: 25 }}
                             />
                           </TouchableOpacity>
                         </View>
@@ -660,7 +674,7 @@ const SignUpViwer = () => {
               }}>
               <TouchableOpacity onPress={togglestoreProduceInfo}>
                 <View style={styles.headerStyle}>
-                  <View style={{paddingLeft: 5, paddingTop: 2}}>
+                  <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                     <MaterialIcons
                       name="article"
                       size={28}
@@ -695,11 +709,11 @@ const SignUpViwer = () => {
               {isstoreProduceInfo && (
                 <>
                   {storeProduceInfo ? (
-                    <View style={{marginTop: 10}}>
+                    <View style={{ marginTop: 10 }}>
                       {storeProduceInfo.map((item, index) => {
                         return item.storeProduceInfo ? (
                           <View style={styles.bodyContainer} key={index}>
-                            <View style={{alignItems: 'flex-end'}}>
+                            <View style={{ alignItems: 'flex-end' }}>
                               <TouchableOpacity
                                 onPress={() =>
                                   navigation.navigate('ProduceInfoUpdate', {
@@ -709,7 +723,7 @@ const SignUpViwer = () => {
                                 }>
                                 <Image
                                   source={require('./Common/images/edit.png')}
-                                  style={{width: 25, height: 25}}
+                                  style={{ width: 25, height: 25 }}
                                 />
                               </TouchableOpacity>
                             </View>
@@ -803,7 +817,7 @@ const SignUpViwer = () => {
             </View>
           </View>
         </ScrollView>
-        <View style={{marginTop: 10, backgroundColor: '#D5FFD0'}}>
+        <View style={{ marginTop: 10, backgroundColor: '#D5FFD0' }}>
           <ButtonForm label={t('save')} onPress={handleSave} />
         </View>
       </View>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
 import ErrorBoundary from 'react-native-error-boundary';
-// import { CrashlyticsRecordError } from '../Crashlytics/CrashlyticsRecordError';
+import { CrashlyticsRecordError } from '../Crashlytics/CrashlyticsRecordError';
 const ErrorFallback = ({ error, resetError }) => {
 const handleRetry=()=>{
-    // CrashlyticsRecordError({error});
+    CrashlyticsRecordError({error});
     resetError();
 }
     return (

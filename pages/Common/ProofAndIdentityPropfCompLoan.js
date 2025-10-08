@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import React, {memo, useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
-import {SPSheet }from '@sekizlipenguen/react-native-popup-confirm-toast'
+import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-import ImageResizer from 'react-native-image-resizer';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {Colors, Fonts} from '../utils/Constants';

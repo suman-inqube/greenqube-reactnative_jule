@@ -5,8 +5,9 @@ import {
   ScrollView,
   Keyboard,
   KeyboardAvoidingView,
-  Platform, BackHandler,
-  Alert
+  Platform,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import React, {
   useState,
@@ -16,7 +17,7 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {
   fetchDistrictAPI,
   fetchStateAPI,
@@ -28,18 +29,21 @@ import {
   useIsFocused,
   useFocusEffect,
 } from '@react-navigation/native';
-import { checkPhoneDigitAPI, phoneNoCheckAPI } from '../../../config/apiHere';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {checkPhoneDigitAPI, phoneNoCheckAPI} from '../../../config/apiHere';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import axios from 'axios';
 import config from '../../../config';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
+import DocumentPicker, {types} from '@react-native-documents/picker';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fronts } from '../../utils/Constants';
+import {Colors, Fronts} from '../../utils/Constants';
 const qs = require('qs');
 import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
+import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const PersonalInformation = () => {
-  useSingleBackToNavigate('Dashboard')
+  useSingleBackToNavigate('Dashboard');
   //GQR-65
   const {
     dbLanTokUsr,
@@ -60,7 +64,8 @@ const PersonalInformation = () => {
     FormsTitle,
     ImagePlaceHolderCircle,
     logoImage,
-    topBanner, isOnline,navigationBarHeight
+    topBanner,
+    isOnline,
   } = useContext(userCreateContext);
   //GQR-65
   const navigation = useNavigation();
@@ -94,8 +99,8 @@ const PersonalInformation = () => {
     cpassword: '',
   });
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-    { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
-    { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
+    {uri: '', name: '', type: '', fileName: '', imageType: 'address'},
+    {uri: '', name: '', type: '', fileName: '', imageType: 'identity'},
   ]);
   const [path, setPath] = useState('');
   const [regionaldatas, setregionaldatas] = useState({
@@ -134,7 +139,12 @@ const PersonalInformation = () => {
   const getState = async (dbName, languageID) => {
     var dataArray = [];
     if (isOnline) {
-      const response = await fetchStateAPI(dbName, languageID);
+      const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
+        information: `${dbName},${languageID}`,
+      });
+
+      // fetchStateAPI(dbName, languageID);
+
       if (response.status == 200) {
         dataArray = response?.data?.data?.rows?.map(data => ({
           value: data.fid,
@@ -176,11 +186,16 @@ const PersonalInformation = () => {
     } = dbLanTokUsr;
     //GQR-65
     const [checkPhoneNumberDigit] = await Promise.all([
-      checkPhoneDigitAPI(country_id, languageConpany, languageId),
+      axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({countryId: country_id}), '', {
+        information: `${languageConpany},${languageId}`,
+        Accept: 'application/json',
+      }),
+      // checkPhoneDigitAPI(country_id, languageConpany, languageId),
+
       getState(dbName, languageId),
     ]);
     if (checkPhoneNumberDigit?.status == 200) {
-      const { contact_no_digits } = checkPhoneNumberDigit?.data?.data;
+      const {contact_no_digits} = checkPhoneNumberDigit?.data?.data;
       setcontact_no_digits(contact_no_digits);
     }
     setIsLoading(false);
@@ -211,10 +226,10 @@ const PersonalInformation = () => {
     }
   }, [isFocused, isOnline]);
   useEffect(() => {
-    setItem('pagename', '')
-  }, [])
+    setItem('pagename', '');
+  }, []);
   const handleBackPress = () => {
-    console.log("path", path)
+    console.log('path', path);
     navigation.navigate(path != '' ? path : 'Dashboard');
     return true; // disable normal behaviour
   };
@@ -227,7 +242,7 @@ const PersonalInformation = () => {
   // useFocusEffect(
   //   useCallback(() => {
   //     const onBackPress = () => {
-  //       navigation.navigate(path != '' ? path : 'Dashboard'); 
+  //       navigation.navigate(path != '' ? path : 'Dashboard');
   //       return true;
   //     };
   //     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
@@ -254,7 +269,7 @@ const PersonalInformation = () => {
     });
   };
 
-  const handleStateInfo = useCallback(async (item) => {
+  const handleStateInfo = useCallback(async item => {
     setIsLoading(true);
     setFarmerData(prev => ({
       ...prev,
@@ -267,11 +282,19 @@ const PersonalInformation = () => {
     var distric_list_arr = [];
     let fetchDistrict_local_data = await getItem('fetchDistrictAPI');
     if (isOnline) {
-      const response = await fetchDistrictAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        item.value,
+      const response = await axiosGet(
+        ROUTES.GET.DISTRICT_API({
+          stateID: item.value,
+        }),
+        '',
+        {information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}`},
       );
+
+      // fetchDistrictAPI(
+      //   dbLanTokUsr.dbName,
+      //   dbLanTokUsr.languageId,
+      //   item.value,
+      // );
       if (response?.status === 200) {
         dataArray = response?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -291,7 +314,7 @@ const PersonalInformation = () => {
             });
           }
         } else {
-          distric_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
+          distric_list_arr.push({[item.value]: JSON.stringify(dataArray)});
           fetchDistrict_local_data = distric_list_arr;
         }
         await setItem('fetchDistrictAPI', fetchDistrict_local_data);
@@ -316,73 +339,95 @@ const PersonalInformation = () => {
     setdistrictAll(dataArray);
     setIsLoading(false);
   }, []);
-  const handleDistrictInfo = useCallback(async (item, name, value) => {
-    setIsLoading(true);
+  const handleDistrictInfo = useCallback(
+    async (item, name, value) => {
+      setIsLoading(true);
+      setFarmerData(prev => ({
+        ...prev,
+        district: item.label,
+        districtValue: item.value,
+        ['block']: '',
+      }));
+      var dataArray = [];
+      var dlock_list_arr = [];
+      let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
+      if (isOnline) {
+        const response = await axiosGet(
+          ROUTES.GET.BLOCK_API({
+            districtID: item.value,
+          }),
+          '',
+          {information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}`},
+        );
+
+        // fetchBlockAPI(
+        //   dbLanTokUsr.dbName,
+        //   dbLanTokUsr.languageId,
+        //   item.value,
+        // );
+        dataArray = response?.data?.data?.rows.map(data => ({
+          value: data.fid,
+          label: data.subdiv_name,
+        }));
+        if (
+          fetchBlockAPI_local_data != null &&
+          fetchBlockAPI_local_data.length > 0
+        ) {
+          if (fetchBlockAPI_local_data[0][item.value] != undefined) {
+            JSON.parse(fetchBlockAPI_local_data[0][item.value]).push({
+              [item.value]: JSON.stringify(dataArray),
+            });
+          } else {
+            fetchBlockAPI_local_data.push({
+              [item.value]: JSON.stringify(dataArray),
+            });
+          }
+        } else {
+          dlock_list_arr.push({[item.value]: JSON.stringify(dataArray)});
+          fetchBlockAPI_local_data = dlock_list_arr;
+        }
+        await setItem('fetchBlockAPI', fetchBlockAPI_local_data);
+      } else {
+        dataArray = await getItem('fetchBlockAPI');
+        fetchDistrict_local_data = await getItem('fetchDistrictAPI');
+        const fetchBlockAPI_local_arr = fetchBlockAPI_local_data.filter(
+          function (v, i) {
+            return fetchBlockAPI_local_data[i][item.value] != undefined;
+          },
+        );
+        if (fetchBlockAPI_local_arr.length != 0) {
+          dataArray = JSON.parse(fetchBlockAPI_local_arr[0][item.value]);
+        } else {
+          dataArray = [];
+        }
+      }
+      setBlockAll(dataArray);
+      setIsLoading(false);
+    },
+    [farmerData.state],
+  );
+  const handleAddDataBlock = useCallback(item => {
     setFarmerData(prev => ({
       ...prev,
-      district: item.label,
-      districtValue: item.value,
-      ['block']: '',
+      block: item.label,
+      bloctValue: item.value,
     }));
-    var dataArray = [];
-    var dlock_list_arr = [];
-    let fetchBlockAPI_local_data = await getItem('fetchBlockAPI');
-    if (isOnline) {
-      const response = await fetchBlockAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        item.value,
-      );
-      dataArray = response?.data?.data?.rows.map(data => ({
-        value: data.fid,
-        label: data.subdiv_name,
-      }));
-      if (
-        fetchBlockAPI_local_data != null &&
-        fetchBlockAPI_local_data.length > 0
-      ) {
-        if (fetchBlockAPI_local_data[0][item.value] != undefined) {
-          JSON.parse(fetchBlockAPI_local_data[0][item.value]).push({
-            [item.value]: JSON.stringify(dataArray),
-          });
-        } else {
-          fetchBlockAPI_local_data.push({
-            [item.value]: JSON.stringify(dataArray),
-          });
-        }
-      } else {
-        dlock_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
-        fetchBlockAPI_local_data = dlock_list_arr;
-      }
-      await setItem('fetchBlockAPI', fetchBlockAPI_local_data);
-    } else {
-      dataArray = await getItem('fetchBlockAPI');
-      fetchDistrict_local_data = await getItem('fetchDistrictAPI');
-      const fetchBlockAPI_local_arr = fetchBlockAPI_local_data.filter(function (
-        v,
-        i,
-      ) {
-        return fetchBlockAPI_local_data[i][item.value] != undefined;
-      });
-      if (fetchBlockAPI_local_arr.length != 0) {
-        dataArray = JSON.parse(fetchBlockAPI_local_arr[0][item.value]);
-      } else {
-        dataArray = [];
-      }
-    }
-    setBlockAll(dataArray);
-    setIsLoading(false);
-  }, [farmerData.state]);
-  const handleAddDataBlock = useCallback((item) => {
-    setFarmerData(prev => ({ ...prev, block: item.label, bloctValue: item.value }));
   }, []);
   const checkPhone = async () => {
     if (isOnline) {
-      const check_phone_digit_res = await checkPhoneDigitAPI(
-        dbLanTokUsr.country_id,
-        dbLanTokUsr.languageConpany,
-        dbLanTokUsr.languageId,
+      const check_phone_digit_res = await axiosGet(
+        ROUTES.GET.CHECK_PHONE_DIGIT({countryId: dbLanTokUsr.country_id}),
+        '',
+        {
+          information: `${dbLanTokUsr.languageConpany},${dbLanTokUsr.languageId}`,
+          Accept: 'application/json',
+        },
       );
+      // checkPhoneDigitAPI(
+      //   dbLanTokUsr.country_id,
+      //   dbLanTokUsr.languageConpany,
+      //   dbLanTokUsr.languageId,
+      // );
       if (check_phone_digit_res?.status == 200) {
         if (check_phone_digit_res.data.data.contact_no_digits) {
           let require_digit = check_phone_digit_res.data.data.contact_no_digits;
@@ -411,7 +456,7 @@ const PersonalInformation = () => {
                   ...AlertMesg[0],
                 });
                 // phoneInputRef.current.focus();
-                setFarmerData({ ...farmerData, phone: '' });
+                setFarmerData({...farmerData, phone: ''});
               }
             } catch (error) {
               console.log(error);
@@ -420,7 +465,7 @@ const PersonalInformation = () => {
                 ...AlertMesg[0],
               });
               // phoneInputRef.current.focus();
-              setFarmerData({ ...farmerData, phone: '' });
+              setFarmerData({...farmerData, phone: ''});
             }
           } else {
             Toast.show({
@@ -429,7 +474,7 @@ const PersonalInformation = () => {
               ...AlertMesg[0],
             });
             Keyboard.dismiss();
-            setFarmerData({ ...farmerData, phone: '' });
+            setFarmerData({...farmerData, phone: ''});
           }
         }
       }
@@ -438,7 +483,7 @@ const PersonalInformation = () => {
   const handleNavigate = async () => {
     Keyboard.dismiss();
     if (farmerData.name == '') {
-      Toast.show({ text: `${t('please_enter_valid_name')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_valid_name')}`, ...AlertMesg[0]});
     } else if (farmerData.phone == '') {
       Toast.show({
         text: `${t('please_enter_valid_mobile_no')}`,
@@ -450,65 +495,65 @@ const PersonalInformation = () => {
         ...AlertMesg[0],
       });
     } else if (farmerData.age == '') {
-      Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_birth_date')}`, ...AlertMesg[0]});
     } else if (farmerData.age < 18) {
-      Toast.show({ text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0]});
     } else if (farmerData.state == '') {
-      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
     } else if (farmerData.district == '') {
-      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
     } else if (farmerData.block == '') {
-      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
     } else if (farmerData.password == '') {
-      Toast.show({ text: `${t('enter_pass')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('enter_pass')}`, ...AlertMesg[0]});
     } else if (farmerData.cpassword == '') {
-      Toast.show({ text: `${t('enter_conf_pass')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('enter_conf_pass')}`, ...AlertMesg[0]});
     } else if (farmerData.password != farmerData.cpassword) {
-      Toast.show({ text: `${t('same_pass')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('same_pass')}`, ...AlertMesg[0]});
     } else {
-      const newfarmerData = { ...farmerData, identityProofIdentityPropf };
+      const newfarmerData = {...farmerData, identityProofIdentityPropf};
       if (path != '') {
         await setItem('storePersnolInfo_data', newfarmerData);
-        navigation.navigate(route.params.pagename, { data: remove });
+        navigation.navigate(route.params.pagename, {data: remove});
       } else {
         await setItem('storePersnolInfo_data', newfarmerData);
-        navigation.navigate('FinancialInformation', { data: remove });
+        navigation.navigate('FinancialInformation', {data: remove});
       }
     }
   };
   const HandlerGoBack = useCallback(async () => {
-    const pagename = await getItem('pagename')
+    const pagename = await getItem('pagename');
     navigation.navigate(pagename != '' ? pagename : 'Dashboard');
     return true; // disable normal behaviour
   }, [isFocused, navigation, path, route]);
-  const handleAddDataName = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, name: text }));
-  }, [])
-  const handleAddDataPhone = useCallback((text) => {
+  const handleAddDataName = useCallback(text => {
+    setFarmerData(prev => ({...prev, name: text}));
+  }, []);
+  const handleAddDataPhone = useCallback(text => {
     const numericValue = text.replace(/[^0-9]/g, '');
-    setFarmerData(prev => ({ ...prev, phone: numericValue }));
-  }, [])
+    setFarmerData(prev => ({...prev, phone: numericValue}));
+  }, []);
   const handleAddDataGender = useCallback((name, value) => {
-    setFarmerData(prev => ({ ...prev, [name]: value }));
-  }, [])
+    setFarmerData(prev => ({...prev, [name]: value}));
+  }, []);
   const handleAddDataUserType = useCallback((name, value) => {
-    setFarmerData(prev => ({ ...prev, [name]: value }));
-  }, [])
-  const handleAddDataAge = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, age: text }));
-  }, [])
-  const handleAddDataAddress = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, address: text }));
-  }, [])
-  const handleAddDataPin = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, pin: text }));
-  }, [])
-  const handleAddDataPass = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, password: text }));
-  }, [])
-  const handleAddDataCPass = useCallback((text) => {
-    setFarmerData(prev => ({ ...prev, cpassword: text }));
-  }, [])
+    setFarmerData(prev => ({...prev, [name]: value}));
+  }, []);
+  const handleAddDataAge = useCallback(text => {
+    setFarmerData(prev => ({...prev, age: text}));
+  }, []);
+  const handleAddDataAddress = useCallback(text => {
+    setFarmerData(prev => ({...prev, address: text}));
+  }, []);
+  const handleAddDataPin = useCallback(text => {
+    setFarmerData(prev => ({...prev, pin: text}));
+  }, []);
+  const handleAddDataPass = useCallback(text => {
+    setFarmerData(prev => ({...prev, password: text}));
+  }, []);
+  const handleAddDataCPass = useCallback(text => {
+    setFarmerData(prev => ({...prev, cpassword: text}));
+  }, []);
 
   const renderCustomHeader = useMemo(
     () => (
@@ -528,7 +573,7 @@ const PersonalInformation = () => {
           <View style={styles.mainContainer}>
             {renderCustomHeader}
             <KeyboardAvoidingView
-              style={{ flex: 1 }}
+              style={{flex: 1}}
               // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
               behavior={Platform.OS === 'ios' ? 'padding' : null}
               // behavior='position'
@@ -555,7 +600,7 @@ const PersonalInformation = () => {
                   </Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                  <View style={{ flex: 1 }}>
+                  <View style={{flex: 1}}>
                     <View style={styles.firatFormContainer}>
                       <View style={styles.profileImg}>
                         <ImagePlaceHolderCircle
@@ -599,23 +644,29 @@ const PersonalInformation = () => {
                             selected={farmerData.gender === '3'}
                           />
                         </View>
-                        <View style={{ marginBottom: 15 }}>
+                        <View style={{marginBottom: 15}}>
                           <Text style={styles.text}>
                             {t('far_reg_far_type')}
                           </Text>
                           <RadioForm
                             label={t('grower')}
-                            onSelect={() => handleAddDataUserType('userType', '1')}
+                            onSelect={() =>
+                              handleAddDataUserType('userType', '1')
+                            }
                             selected={farmerData.userType === '1'}
                           />
                           <RadioForm
                             label={t('small_holder')}
-                            onSelect={() => handleAddDataUserType('userType', '2')}
+                            onSelect={() =>
+                              handleAddDataUserType('userType', '2')
+                            }
                             selected={farmerData.userType === '2'}
                           />
                           <RadioForm
                             label={t('farm_worker')}
-                            onSelect={() => handleAddDataUserType('userType', '3')}
+                            onSelect={() =>
+                              handleAddDataUserType('userType', '3')
+                            }
                             selected={farmerData.userType === '3'}
                           />
                         </View>
@@ -696,11 +747,9 @@ const PersonalInformation = () => {
                           stateValue={identityProofIdentityPropf}
                           disable={true}
                           InputTextFormEdit={true}
-                          navigationBarHeight={navigationBarHeight}
-                        // photoDeletedValue={photoDeletedValue}
-                        // setPhotoDeletedValue={setPhotoDeletedValue}
-                        // loginUser_data={loginUser_data}
-                        
+                          // photoDeletedValue={photoDeletedValue}
+                          // setPhotoDeletedValue={setPhotoDeletedValue}
+                          // loginUser_data={loginUser_data}
                         />
                       </View>
                     </View>
@@ -737,7 +786,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontFamily: 'Poppins-Regular',
   },
-  mainContainer: { flex: 1, backgroundColor: Colors.background_light },
+  mainContainer: {flex: 1, backgroundColor: Colors.background_light},
   firatFormContainer: {
     backgroundColor: 'white',
     padding: 16,
@@ -754,12 +803,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   inputContainer: {},
-  inputContainer2: { paddingHorizontal: 16 },
+  inputContainer2: {paddingHorizontal: 16},
   profileImg: {
     zIndex: 2,
     elevation: 5, // For Android shadow
     shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 3,
     justifyContent: 'center',

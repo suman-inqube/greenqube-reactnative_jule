@@ -24,6 +24,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 const AddIcome = ({navigation}) => {
   //GQR-67
@@ -171,12 +173,19 @@ const AddIcome = ({navigation}) => {
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
     setfarmerID(currentfarmerId);
-    const response = await problemPlotAgainstFarmerAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+        farmerID: currentfarmerId,
+      }),
       token,
-      currentfarmerId,
+      {information: `${dbname},${lan_id}`},
     );
+    // problemPlotAgainstFarmerAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   currentfarmerId,
+    // );
     if (response?.status == 200) {
       const dataArray = response?.data?.data.map(data => ({
         value: data.rel_id,
@@ -199,12 +208,21 @@ const AddIcome = ({navigation}) => {
     }
   };
   const handlePlot = async relId => {
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: relId.value,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
     if (response?.status == 200) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -228,11 +246,17 @@ const AddIcome = ({navigation}) => {
             response?.data?.data?.land_info.land_unit.name,
           createdBy: user_id,
         });
-        const response_farmIncome = await farmaccountsIncomeListAPI(
-          dbname,
-          lan_id,
-          farmerID,
+        const response_farmIncome = await axiosGet(
+          ROUTES.GET.FARMER_ACCOUNT_INCOME_LIST(),
+          '',
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
+        // farmaccountsIncomeListAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmerID,
+        // );
+
         if (response_farmIncome?.status == 200) {
           const dataArray = response_farmIncome?.data?.data?.rows.map(data => ({
             value: data.fid,
@@ -277,7 +301,7 @@ const AddIcome = ({navigation}) => {
           item.date.trim() !== '',
       );
       const qs = require('qs');
-      let save_data = qs.stringify({
+      let save_data = {
         land_rel_id: saveData.land_rel_id,
         crop_name_id: saveData.crop_name_id,
         harvesting_date: saveData.harvesting_date.substring(0, 10),
@@ -288,15 +312,22 @@ const AddIcome = ({navigation}) => {
         grand_total: grand_total,
         expense_total: '0',
         cost_head: JSON.stringify(data),
-      });
+      };
       if (allFieldsFilled) {
-        const response = await farmIncomeExpenceSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
+        const response = await axiosPost(
+          ROUTES.POST.FARMER_INCOME_EXPENSE_SAVE(),
           save_data,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
+        // farmIncomeExpenceSaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   farmerID,
+        //   save_data,
+        // );
         if (response?.status == 200) {
           navigation.navigate('FarmIncomeExpenseList', {action: 'addData'});
         }

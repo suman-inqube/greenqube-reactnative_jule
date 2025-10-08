@@ -77,7 +77,7 @@ const Login = ({ route }) => {
     company_name: '',
   });
   const [contact_no_digits, setcontact_no_digits] = useState(11);
-    const [storeLoginUser, setStoreLoginUser] = useState({
+  const [storeLoginUser, setStoreLoginUser] = useState({
     FcmUserToken: '',
     IMEINumber: '123456',
     company: '',
@@ -176,7 +176,7 @@ const Login = ({ route }) => {
             1,
             loginUserdata?.db_company_id,
           );
-          
+
           if (details_company_res?.status == 200) {
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
@@ -337,7 +337,6 @@ const Login = ({ route }) => {
           }
         }
       } catch (error) {
-        console.log(error)
         Toast.show({
           text: `${error?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
@@ -352,7 +351,7 @@ const Login = ({ route }) => {
         getItem('companyFirstEntry'),
         getItem('rememberData'),
         getItem('companyLanguage_data'),
-        axiosGet(ROUTES.GET.DATABASE_LIST),
+        axiosGet(ROUTES.GET.DATABASE_LIST(), ''),
         removeItem('storeSignup_data'),
         removeItem('storePersnolInfo_data'),
         removeItem('storeFinancial_data'),
@@ -366,21 +365,10 @@ const Login = ({ route }) => {
         ]),
         removeItem('side_menu_option'),
       ]);
-
-    // else {
-    //   setCompanyLanguage({
-    //     ...companyLanguage,
-    //     company: '',
-    //     language: '',
-    //     company_id: '',
-    //     company_name: '',
-    //   });
-    // }
     if (companyLanguage_data != '' && companyLanguage_data != null) {
       setCompanyLanguage(companyLanguage_data);
       const { country_id, company, language } = companyLanguage_data;
       checkPhoneNumber(country_id, company, language);
-
       if (companyFirstEntry == 1) {
         setStoreLoginUser({
           ...storeLoginUser,
@@ -447,21 +435,23 @@ const Login = ({ route }) => {
     }
   }, [netConnection]);
   const onChangeConpany = async item => {
-    const { country_id, dbname, value, label } = item;
-    const { language } = companyLanguage;
-    setStoreLoginUser(prev => ({
-      ...prev,
-      company: value,
-      company_lable: label,
-    }));
-    checkPhoneNumber(country_id, dbname, language);
+    try {
+      const { country_id, dbname, value, label } = item;
+      const { language } = companyLanguage;
+      setStoreLoginUser(prev => ({
+        ...prev,
+        company: value,
+        company_lable: label,
+      }));
+      checkPhoneNumber(country_id, dbname, language);
+    } catch (error) {
+      Toast.show({
+        text: error,
+        ...AlertMesg[0],
+      });
+    }
   };
   const checkPhoneNumber = async (country_id, company, language) => {
-    // const checkPhoneNumber = await checkPhoneDigitAPI(
-    //   country_id,
-    //   company,
-    //   language,
-    // );
     try {
       const checkPhoneNumber = await axiosGet(ROUTES.GET.PHONE_DIGIT_CHECK({ country_id }), '', { information: `${company},${language}`, })
       if (checkPhoneNumber.status == 200) {
@@ -469,7 +459,10 @@ const Login = ({ route }) => {
         setcontact_no_digits(contact_no_digits);
       }
     } catch (error) {
-      console.log(error, "error")
+      Toast.show({
+        text: error,
+        ...AlertMesg[0],
+      });
     }
   };
   return (

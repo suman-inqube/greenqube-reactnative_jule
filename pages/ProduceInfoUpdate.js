@@ -26,7 +26,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
-import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast'
+import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import {AlertMesg} from './Common/ToastAlert';
 import Map from './admin/Map';
 import * as geolib from 'geolib';

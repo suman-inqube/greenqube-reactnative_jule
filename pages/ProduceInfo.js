@@ -19,7 +19,7 @@ import axios from 'axios';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
 import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
-import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast'
+import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import {AlertMesg} from './Common/ToastAlert';
 import {useTranslation} from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
@@ -43,6 +43,8 @@ import {Colors, Fonts} from './utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {getActionsMapView} from './utils/options';
 import FloatingActionButton from './Components/FloatingActionButton';
+import {axiosPost, axiosGet} from './utils/api';
+import {ROUTES} from './utils/Routes';
 const ProduceInfo = () => {
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
@@ -222,19 +224,52 @@ const ProduceInfo = () => {
         defaultLandUnitAreaRes,
         UnitConversonToDefault_res,
       ] = await Promise.all([
-        axios.get(config.soiltypeAPI, axiosConfig),
-        axios.get(config.terraintypeAPI, axiosConfig),
-        axios.get(config.landtypeAPI, axiosConfig),
+        axiosGet(ROUTES.GET.SOIL_TYPE(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.soiltypeAPI, axiosConfig),
+
+        axiosGet(ROUTES.GET.TERRAIN_TYPE(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.terraintypeAPI, axiosConfig),
+
+        axiosGet(ROUTES.GET.LAND_TYPE(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.landtypeAPI, axiosConfig),
         axios.get(prodctionSeasionAPI, axiosConfig1),
         axios.get(prodctionSeasionAPI, axiosConfig1),
-        axios.get(config.landunitAPI, axiosConfig),
-        axios.get(config.productionProcessAPI, axiosConfig),
-        axios.get(config.produceProductionUnitAPI, axiosConfig),
-        axios.get(config.defaultLandUnitArea, axiosConfig),
-        axios.get(config.UnitConversonToDefault, axiosConfig),
+
+        axiosGet(ROUTES.GET.LAND_UNIT(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.landunitAPI, axiosConfig),
+
+        axiosGet(ROUTES.GET.PRODUCTION_PROCESS(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.productionProcessAPI, axiosConfig),
+
+        axiosGet(ROUTES.GET.PRODUCTION_UNIT(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.produceProductionUnitAPI, axiosConfig),
+
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.defaultLandUnitArea, axiosConfig),
+
+        axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), '', {
+          information: `${dbname},${language_id}`,
+        }),
+        // axios.get(config.UnitConversonToDefault, axiosConfig),
       ]);
 
       let i = 0;
+
+      console.log('UnitConversonToDefault', UnitConversonToDefault_res.status);
       if (UnitConversonToDefault_res.status == 200) {
         if (UnitConversonToDefault_res.data.data?.count > 0) {
           UnitConversonToDefault_res.data.data.rows.forEach(element => {
@@ -250,6 +285,7 @@ const ProduceInfo = () => {
       if (i > 0) {
         setConvertionLUState(true);
       }
+      console.log('defaultLandUnitAreaRes', defaultLandUnitAreaRes.status);
 
       if (defaultLandUnitAreaRes.status == 200) {
         if (defaultLandUnitAreaRes.data.data?.count > 0) {
@@ -260,6 +296,8 @@ const ProduceInfo = () => {
           });
         }
       }
+
+      console.log('soil_type', soilType_res.status);
       if (soilType_res.status == 200) {
         if (soilType_res.data.data.count > 0) {
           soilType_res.data.data.rows.forEach(element => {
@@ -270,6 +308,8 @@ const ProduceInfo = () => {
           });
         }
       }
+      console.log('terraintype_res', terraintype_res.status);
+
       if (terraintype_res.status == 200) {
         if (terraintype_res.data.data.count > 0) {
           terraintype_res.data.data.rows.forEach(element => {
@@ -280,6 +320,9 @@ const ProduceInfo = () => {
           });
         }
       }
+
+      console.log('landType_res', landType_res.status);
+
       if (landType_res.status == 200) {
         if (landType_res.data.data.count > 0) {
           landType_res.data.data.rows.forEach(element => {
@@ -290,6 +333,8 @@ const ProduceInfo = () => {
           });
         }
       }
+      console.log('livelihoodType_res', livelihoodType_res);
+
       if (livelihoodType_res.status == 200) {
         if (livelihoodType_res.data.data) {
           livelihoodType_res.data.data.crop_type.forEach(element => {
@@ -300,6 +345,9 @@ const ProduceInfo = () => {
           });
         }
       }
+
+      console.log('prodctionSeasion_res', prodctionSeasion_res.status);
+
       if (prodctionSeasion_res.status == 200) {
         if (prodctionSeasion_res.data.data) {
           prodctionSeasion_res.data.data.crop_season.forEach(element => {
@@ -310,6 +358,8 @@ const ProduceInfo = () => {
           });
         }
       }
+      console.log('landUnit_res', landUnit_res.status);
+
       if (landUnit_res.status == 200) {
         if (landUnit_res.data.data.count > 0) {
           landUnit_res.data.data.rows.forEach(element => {
@@ -321,6 +371,8 @@ const ProduceInfo = () => {
           });
         }
       }
+      console.log('productionProcess_res', productionProcess_res.status);
+
       if (productionProcess_res.status == 200) {
         if (productionProcess_res.data.data.count > 0) {
           productionProcess_res.data.data.rows.forEach(element => {
@@ -331,6 +383,11 @@ const ProduceInfo = () => {
           });
         }
       }
+      console.log(
+        'produceProductionUnit_res',
+        produceProductionUnit_res.status,
+      );
+
       if (produceProductionUnit_res.status == 200) {
         if (produceProductionUnit_res.data.data) {
           produceProductionUnit_res.data.data.rows.forEach(element => {
@@ -845,15 +902,27 @@ const ProduceInfo = () => {
     const [nearestLatLong_res, LandUnitArea_res, LandUnitsquare_metre_res] =
       await Promise.all([
         nearestLatLong(dbName, languageID, '', latitude, longitude),
-        LandUnitArea(dbName, languageID),
-        LandUnitsquare_metre(dbName, languageID),
+
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA(), '', {
+          information: `${dbName},${languageID}`,
+        }),
+        // LandUnitArea(dbName, languageID),
+
+        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE(), '', {
+          information: `${dbName},${languageID}`,
+        }),
+        // LandUnitsquare_metre(dbName, languageID),
       ]);
     setreferencelatLong({latitude, longitude});
+
+    console.log('nearestLatLong_res', nearestLatLong_res.status);
     if (nearestLatLong_res.status == 200) {
       groupedData = groupByRelId(nearestLatLong_res.data.data);
       setnearPolSet(groupedData);
       setPolygons(groupedData);
     }
+
+    console.log('LAND-UNIT-AREA', LandUnitArea_res?.status);
     if (LandUnitArea_res?.status == 200) {
       const {count, rows} = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
@@ -862,6 +931,8 @@ const ProduceInfo = () => {
         setLandAreaUnit([]);
       }
     }
+
+    console.log('LandUnitsquare_metre_res', LandUnitsquare_metre_res?.status);
     if (LandUnitsquare_metre_res?.status == 200) {
       const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
@@ -1172,6 +1243,9 @@ const ProduceInfo = () => {
             latitude,
             longitude,
           );
+
+          console.log('nearestLatLong_res', nearestLatLong_res.status);
+
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res?.data?.data;
             // setnearPolData(data);

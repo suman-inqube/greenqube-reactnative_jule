@@ -5,6 +5,7 @@ import {
   Linking,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 import React, {useState, useEffect, useCallback, useContext} from 'react';
 import {WebView} from 'react-native-webview';
@@ -14,6 +15,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors} from '../../utils/Constants';
 import FormsTitle from '../../Common/FormsTitle';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const head = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -60,15 +63,24 @@ const UsefulInformation = () => {
   };
 
   const onPageLoad = async () => {
+    Alert.a;
     const noticeId = route.params;
-    if (noticeId) {
-      const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
-      if (response?.status === 200 && response.data.data.length > 0) {
-        const notice = response.data.data[0];
-        setNoticeDetails(notice);
-        setNoticeFiles(notice.agri_files || []);
-      }
+    // if (noticeId) {
+    const response = await axiosGet(
+      ROUTES.GET.NOTICE_DETAILS({
+        noticeId: noticeId,
+      }),
+      token,
+      {information: `${dbname},${lan_id}`},
+    );
+    //  noticeDetailsAPI(dbname, lan_id, token, noticeId);
+    console.log('API', response.data);
+    if (response?.status === 200) {
+      const notice = response.data.data[0];
+      setNoticeDetails(notice);
+      setNoticeFiles(notice.agri_files || []);
     }
+    // }
   };
 
   useEffect(() => {

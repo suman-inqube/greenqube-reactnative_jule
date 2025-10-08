@@ -21,7 +21,7 @@ import React, {
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
 import {launchCamera} from 'react-native-image-picker';
-// import Marker, {Position} from 'react-native-image-marker';
+import Marker, {Position} from 'react-native-image-marker';
 import ButtonForm from '../../Common/ButtonForm';
 import {
   farmerByNameAPI,
@@ -40,11 +40,11 @@ import {useRoute, useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
-import {SPSheet} from 'react-native-popup-confirm-toast';
+import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 import DatePickerField from '../../Common/DatePickerField';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 const CrateProblemUser = ({navigation}) => {
   //GQR-66
@@ -161,40 +161,25 @@ const CrateProblemUser = ({navigation}) => {
     recordTime: '00:00:00',
     result: '',
   });
-  const handleResultSelect = async (name, currentfarmerId, phone) => {
-    setSearchResultsList(false);
-    setSearchFarmerPhone(phone);
-    setSelectedName(name);
-    setSearchFarmerName(name);
-    setShowingMenu(false);
-    setSearchResults([]);
-    setfarmerID(currentfarmerId);
-    const response = await problemPlotAgainstFarmerAPI(
-      dbname,
-      lan_id,
-      token,
-      currentfarmerId,
-    );
-    console.log('problemPlotAgainstFarmerAPI', response.status);
-    if (response) {
-      const dataArray = [];
-      response.data.data.forEach(element => {
-        dataArray.push({
-          value: element.rel_id,
-          label: element.plot_no,
-        });
-      });
-      setplotAll(dataArray);
-    }
-  };
+
   const handlePlot = async relId => {
     setIsLoading(true);
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: relId.value,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
+    console.log('PRODUCE', response.status);
     if (response) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -224,12 +209,23 @@ const CrateProblemUser = ({navigation}) => {
         });
         setCropType(response?.data?.data?.crop_type.fid);
         setCropName(response?.data?.data?.crop_name.fid);
-        const productionStage_res = await problemProductionStageAPI(
-          dbname,
-          lan_id,
-          response?.data?.data?.crop_type_id,
-          response?.data?.data?.crop_name_id,
+        const productionStage_res = await axiosGet(
+          ROUTES.GET.PRODUCTION_STAGE({
+            languageID: lan_id,
+            cropTypeId: response?.data?.data?.crop_type_id,
+            cropNameID: response?.data?.data?.crop_name_id,
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
         );
+        // problemProductionStageAPI(
+        //   dbname,
+        //   lan_id,
+        //   response?.data?.data?.crop_type_id,
+        //   response?.data?.data?.crop_name_id,
+        // );
+        console.log('PRODUCE-STAGE', productionStage_res.status);
+
         if (productionStage_res) {
           const dataArray = [];
           productionStage_res.data.data.growth_stage.forEach(element => {
@@ -416,7 +412,10 @@ const CrateProblemUser = ({navigation}) => {
     try {
       requestLivePermission();
       const [problemName_res, response, severity_res] = await Promise.all([
-        problemTypeNameAPI(dbname, lan_id, token),
+        axiosGet(ROUTES.GET.PROBLEM_TYPE_NAME(), token, {
+          information: `${dbname},${lan_id}`,
+        }),
+        // problemTypeNameAPI(dbname, lan_id, token),
 
         axiosGet(
           ROUTES.GET.FARMER_BY_NAME({
@@ -427,9 +426,12 @@ const CrateProblemUser = ({navigation}) => {
         ),
         // farmerByNameAPI(dbname, lan_id, token, user_id),
 
-        problemSeverityAPI(dbname, lan_id),
+        axiosGet(ROUTES.GET.PROBLEM_SEVERITY(), '', {
+          information: `${dbname},${lan_id}`,
+        }),
+        // problemSeverityAPI(dbname, lan_id),
       ]);
-      console.log('problemName_res?.status', problemName_res?.data?.data);
+      console.log('PROBLEM-NAME', problemName_res?.status);
       if (problemName_res?.status == 200) {
         setProblemAll(problemName_res?.data?.data);
         const dataArray = problemName_res?.data?.data.map(element => ({
@@ -438,6 +440,7 @@ const CrateProblemUser = ({navigation}) => {
         }));
         setProblemTypeAll(dataArray);
       }
+      console.log('severity_res?.status ', severity_res?.status);
       if (severity_res?.status == 200) {
         const dataArray = severity_res?.data?.data?.rows.map(element => ({
           value: element.fid,
@@ -445,7 +448,6 @@ const CrateProblemUser = ({navigation}) => {
         }));
         setSeverityAll(dataArray);
       }
-      console.log('farmer-name', response?.status);
       if (response?.status == 200) {
         const dataArray = response?.data?.data?.rows.map(element => ({
           value: element.user_id,
@@ -581,13 +583,21 @@ const CrateProblemUser = ({navigation}) => {
       formData.append('question_title', saveData.question_title);
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
-      const database_res = await problemSaveAPI(
-        dbname,
-        lan_id,
-        token,
-        farmerID,
+      const database_res = await axiosPost(
+        ROUTES.POST.PROBLEM_SAVE(),
         formData,
+        token,
+        false,
+        {information: `${dbname},${lan_id},${farmerID}`},
       );
+      // problemSaveAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   farmerID,
+      //   formData,
+      // );
+      console.log('SAVE-PROBLEM', database_res.status);
       if (database_res.status === 200) {
         // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
         Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});

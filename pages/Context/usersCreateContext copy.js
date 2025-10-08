@@ -4,7 +4,7 @@ const userCreateContext = createContext();
 import { farmerByNameAPI } from '../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../Common/ToastAlert';
-import { Root, Toast, Popup from '@sekizlipenguen/react-native-popup-confirm-toast'
+import { Root, Toast, Popup } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import { onBackPress } from '../Common/BackPressHandler';
 const InputTextForm = lazy(() => import('../Common/InputTextForm'));
 const RadioForm = lazy(() => import('../Common/RadioForm'));

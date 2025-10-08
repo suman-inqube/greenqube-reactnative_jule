@@ -8,9 +8,9 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import {SPSheet }from '@sekizlipenguen/react-native-popup-confirm-toast'
-import { pick, isCancel, types } from '@react-native-documents/picker';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import DocumentPicker, {types} from '@react-native-documents/picker';
+import {createPdf} from 'react-native-images-to-pdf'; // Assuming you need to import this
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
@@ -59,7 +59,7 @@ const CarbonCertificate = ({
   const onHandleDocumentSelection = useCallback(
     async (imageType, index) => {
       try {
-        const response = await pick({
+        const response = await DocumentPicker.pick({
           presentationStyle: 'fullScreen',
           type: [types.pdf, types.images],
         });
@@ -98,7 +98,7 @@ const CarbonCertificate = ({
         };
         setStateValue(values);
       } catch (err) {
-        if (isCancel(err)) {
+        if (DocumentPicker.isCancel(err)) {
           console.log('File selection canceled');
         } else {
           console.error('Error selecting document:', err);
@@ -145,86 +145,58 @@ const CarbonCertificate = ({
     },
     [stateValue, setStateValue],
   );
- const handleScanAndCreatePdf = useCallback(
-  async (data, index) => {
-    setLoading(true);
-    try {
-      const { scannedImages, status } = await DocumentScanner.scanDocument();
-      if (status !== 'success' || !scannedImages?.length) {
-        Alert.alert('Error', 'Scanning failed or no image captured');
-        return;
-      }
-
-      // 1. Resize scanned images
-      const resizedUris = [];
-      for (const uri of scannedImages) {
-        resizedUris.push(await resizeImage(uri));
-      }
-
-      // 2. Create a PDF doc
-      const pdfDoc = await PDFDocument.create();
-
-      for (const uri of resizedUris) {
-        const imageBytes = await RNFS.readFile(uri, 'base64');
-        const imageBuffer = Uint8Array.from(atob(imageBytes), c => c.charCodeAt(0));
-
-        let embeddedImage, page;
-        if (uri.toLowerCase().endsWith('.png')) {
-          embeddedImage = await pdfDoc.embedPng(imageBuffer);
-        } else {
-          embeddedImage = await pdfDoc.embedJpg(imageBuffer);
+  const handleScanAndCreatePdf = useCallback(
+    async (data, index) => {
+      setLoading(true);
+      try {
+        // const { scannedImages } = await DocumentScanner.scanDocument({
+        //   croppedImageQuality: 100,
+        // });
+        const {scannedImages, status} = await DocumentScanner.scanDocument();
+        if (status !== 'success' || !scannedImages?.length) {
+          Alert.alert('Error', 'Scanning failed or no image captured');
+          return;
         }
-
-        const { width, height } = embeddedImage;
-        page = pdfDoc.addPage([width, height]);
-        page.drawImage(embeddedImage, {
-          x: 0,
-          y: 0,
-          width,
-          height,
+        const resizedUris = [];
+        for (const uri of scannedImages) {
+          resizedUris.push(await resizeImage(uri));
+        }
+        const fileName = `document_${Date.now()}.pdf`;
+        const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+        const path = await createPdf({
+          pages: resizedUris.map(uri => ({imagePath: uri})),
+          outputPath,
         });
+        const fileStat = await RNFS.stat(path);
+        const fileSizeInMB = fileStat.size / (1024 * 1024);
+        console.log(`PDF Size: ${fileSizeInMB} MB`);
+        const sizeLimitMB = 3;
+        if (fileSizeInMB > sizeLimitMB) {
+          Alert.alert(
+            'File Too Large',
+            `PDF size (${fileSizeInMB.toFixed(1)}MB) exceeds limit`,
+          );
+          await RNFS.unlink(path);
+          return;
+        }
+        const values = [...stateValue];
+        values[index] = {
+          uri: `file://${path}`,
+          name: fileName,
+          type: 'application/pdf',
+          fileName: fileName,
+          value: '1',
+          id: '',
+        };
+        setStateValue(values);
+      } catch (error) {
+        console.log('Error:', error.message);
+      } finally {
+        setLoading(false); // Stop loading
       }
-
-      // 3. Save PDF
-      const pdfBytes = await pdfDoc.save();
-      const fileName = `document_${Date.now()}.pdf`;
-      const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-      await RNFS.writeFile(outputPath, pdfBytes, 'base64');
-
-      // 4. Check size
-      const fileStat = await RNFS.stat(outputPath);
-      const fileSizeInMB = fileStat.size / (1024 * 1024);
-      console.log(`PDF Size: ${fileSizeInMB} MB`);
-      const sizeLimitMB = 3;
-      if (fileSizeInMB > sizeLimitMB) {
-        Alert.alert(
-          'File Too Large',
-          `PDF size (${fileSizeInMB.toFixed(1)}MB) exceeds limit`
-        );
-        await RNFS.unlink(outputPath);
-        return;
-      }
-
-      // 5. Update state
-      const values = [...stateValue];
-      values[index] = {
-        uri: `file://${outputPath}`,
-        name: fileName,
-        type: 'application/pdf',
-        fileName: fileName,
-        value: '1',
-        id: '',
-      };
-      setStateValue(values);
-    } catch (error) {
-      console.log('Error:', error.message);
-    } finally {
-      setLoading(false);
-    }
-  },
-  [stateValue, setStateValue]
-);
-
+    },
+    [stateValue, setStateValue],
+  );
 
   const openFile = async uri => {
     try {

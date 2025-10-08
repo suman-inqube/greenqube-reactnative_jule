@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Text } from 'react-native';
-import crashlytics from '@react-native-firebase/crashlytics';
+// import crashlytics from '@react-native-firebase/crashlytics';
 
 const withErrorBoundary = (WrappedComponent, FallbackComponent = null) => {
   return class ErrorBoundary extends React.Component {
@@ -16,12 +16,12 @@ const withErrorBoundary = (WrappedComponent, FallbackComponent = null) => {
 
     componentDidCatch(error, info) {
       console.error("Error caught by withErrorBoundary:", error, info);
-      crashlytics().recordError(error);
-      crashlytics().log("Error caught in HOC");
-      crashlytics().setAttributes({
-        screen: WrappedComponent.name || "UnknownComponent",
-        time: new Date().toISOString(),
-      });
+      // crashlytics().recordError(error);
+      // crashlytics().log("Error caught in HOC");
+      // crashlytics().setAttributes({
+      //   screen: WrappedComponent.name || "UnknownComponent",
+      //   time: new Date().toISOString(),
+      // });
     }
 
     render() {

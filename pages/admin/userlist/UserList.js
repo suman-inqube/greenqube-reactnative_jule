@@ -34,15 +34,11 @@ import ModernUserCard from '../../Components/ModernUserCard';
 
 const UserList = ({ navigation }) => {
   const {
-    dbLanTokUsr,
-    setdbLanTokUsr,
     loginUser_data,
     CustomHeader,
     t,
-    getItem,
     setItem,
     Root,
-    Toast,
     navigationBarHeight,
     farmerData,
   } = useContext(userCreateContext);
@@ -176,8 +172,8 @@ const UserList = ({ navigation }) => {
       title: 'Choose Status',
       handleFilterResult: handleFilterResult,
       handleFilterRemove: handleFilterRemove,
-      navigationBarHeight: navigationBarHeight,
-      height: 125
+      navigationBarHeight: 0,
+      height: 100
     });
   },[filterItem,searchFarmerPhone]);
 

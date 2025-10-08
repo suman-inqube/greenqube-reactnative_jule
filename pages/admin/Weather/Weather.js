@@ -14,7 +14,7 @@ import React, {useEffect, useState} from 'react';
 const {height} = Dimensions.get('window');
 import UniqueDateController from './UniqueDate';
 import moment from 'moment';
-import {Rootfrom '@sekizlipenguen/react-native-popup-confirm-toast'
+import {Root} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import LoadingScreen from '../../Common/LoadingScreen';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';

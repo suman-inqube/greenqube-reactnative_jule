@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+// import messaging from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { getItem, setItem } from '../../config/getDataFromStorage';
@@ -7,14 +7,14 @@ import { Platform } from 'react-native';
 const notificationServices = () => {
   const navigation = useNavigation();
   const requestUserPermission = async () => {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
-      getFcmToken()
-    }
+    // const authStatus = await messaging().requestPermission();
+    // const enabled =
+    //   authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    //   authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    // if (enabled) {
+    //   console.log('Authorization status:', authStatus);
+    //   getFcmToken()
+    // }
   }
   const getFcmToken = async () => {
     let checkToken = await getItem('fcmToken')

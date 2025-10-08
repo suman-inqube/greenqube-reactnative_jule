@@ -28,6 +28,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 const LoanEnquiryDetail = () => {
   //GQR-67
@@ -199,10 +201,17 @@ const LoanEnquiryDetail = () => {
       item => item.term_type === 'loan_support_img',
     );
     const [farmarDoc, currency_res] = await Promise.all([
-      farmerDocAPI(dbname, lan_id, token, user_id),
+      axiosGet(
+        ROUTES.GET.FARMER_DOC({
+          user_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id}`},
+      ),
+      // farmerDocAPI(dbname, lan_id, token, user_id),
+
       getItem('currency'),
     ]);
-
     if (farmarDoc.status === 200) {
       const farmerIdentityDoc = farmarDoc.data.data[0].agri_files.filter(
         item => item.term_type === 'farmer_identity',

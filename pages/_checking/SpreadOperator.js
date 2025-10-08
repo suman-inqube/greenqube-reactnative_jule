@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import InputTextForm from '../Common/InputTextForm';
 import ButtonForm from '../Common/ButtonForm';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import DropdownForm from '../Common/DropdownForm1';
 
 

@@ -17,7 +17,7 @@ import React, {
   useCallback,
 } from 'react';
 import Filter from '../../Common/FarmerFilter';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import LoadingScreen from '../../Common/LoadingScreen';
 import {loanRouteListAPI} from './FarmerLoanAPI';
 import {userCreateContext} from '../../Context/usersCreateContext';
@@ -40,6 +40,8 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
     topBanner,
     navigationBarHeight,
     Root,
+    Toast,
+    AlertMesg,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, owner} = loginUser_data;
   //GQR-67
@@ -65,6 +67,7 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   const [selectedName, setSelectedName] = useState('');
   const [farmerID, setfarmerID] = useState();
   const [fromDate, setFromDate] = useState('');
+  const route = useRoute();
 
   const [statusAll, setTtatusAll] = useState([
     {value: 2, label: t('Approved')},
@@ -196,6 +199,13 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   useEffect(() => {
     onPageLoad();
   }, []);
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
+      onPageLoad();
+    }
+  }, [route?.params]);
   const filterDataRemove = async () => {
     setFilterItem('');
     setFilterOption(false);

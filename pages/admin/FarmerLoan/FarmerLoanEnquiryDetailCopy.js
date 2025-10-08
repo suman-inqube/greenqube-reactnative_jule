@@ -1,6 +1,6 @@
 import { ScrollView, Modal, StyleSheet, Text, View, TouchableOpacity, Image, Linking } from 'react-native'
 import React, { useCallback, useEffect, useState, useContext } from 'react'
-import DocumentPicker, { types } from 'react-native-document-picker';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { LoanUpdate } from './FarmerLoanAPI';
 import { userCreateContext } from '../../Context/usersCreateContext';

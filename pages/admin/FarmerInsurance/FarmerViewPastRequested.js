@@ -46,6 +46,8 @@ const FarmerInsuViewPastRequested = () => {
     logoImage,
     topBanner,
     navigationBarHeight,
+    Toast,
+    AlertMesg,
   } = useContext(userCreateContext);
   const navigation = useNavigation();
 
@@ -71,6 +73,7 @@ const FarmerInsuViewPastRequested = () => {
   const [modalVisibleData, setModalVisibleData] = useState({});
   const [farmerData, setfarmerData] = useState([]);
   const [fromDate, setFromDate] = useState('');
+  const route = useRoute();
 
   // const filterOptionShow = () => {
   //   if (!filterOption) {
@@ -180,6 +183,13 @@ const FarmerInsuViewPastRequested = () => {
       setInsuranceList(tempData);
     }
   };
+  useEffect(() => {
+    if (route?.params?.action === 'addData') {
+      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+
+      onPageLoad('', '');
+    }
+  }, [route?.params]);
   useEffect(() => {
     filterfromAndToDate();
   }, [fromDate, toDate]);

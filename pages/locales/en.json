@@ -1091,7 +1091,9 @@
     "Finance":"Finance",
     "LiveHood":"LiveHood",
     "PlotStatusUpdate":"Plot Status Update",
-    "Plot Status":"Plot Status"
+    "Plot Status":"Plot Status",
+    "no_rejected_plots":"No rejected plot",
+    "no_non_geofenced_plots":"No non geofenced plots"
 
 
 

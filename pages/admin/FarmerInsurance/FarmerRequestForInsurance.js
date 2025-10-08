@@ -152,7 +152,16 @@ const FarmerRequestForInsurance = ({}) => {
           'insurance_user',
           1,
         );
-        navigation.navigate('FarmerInsuViewPastRequested');
+
+        // navigation.navigate('FarmerInsuViewPastRequested');
+      }
+      if (addInsurance.status === 200) {
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+        setTimeout(() => {
+          setActiveBtn(2);
+        }, 2000);
+
+        navigation.navigate('FarmerInsuViewPastRequested', {action: 'addData'});
       }
     }
   };
@@ -168,7 +177,9 @@ const FarmerRequestForInsurance = ({}) => {
             logoImage={logoImage}
             topBanner={topBanner}
           />
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{backgroundColor: Colors.background_light}}>
             <View style={styles.container}>
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{t('farmer_information')}</Text>

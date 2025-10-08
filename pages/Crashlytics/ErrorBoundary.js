@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import crashlytics from '@react-native-firebase/crashlytics';
+// import crashlytics from '@react-native-firebase/crashlytics';
 import { navigationRef } from '../../App';
 import { userCreateContext } from '../Context/usersCreateContext';
 
@@ -23,15 +23,15 @@ class ErrorBoundaryClass extends React.Component {
         const { contactNumber,userName,dbname, user_id } = loginUser_data || {};
         const currentRoute = navigationRef.getCurrentRoute();
         const screenName = currentRoute?.name || 'Unknown';
-        crashlytics().setUserId(user_id || 'UnknownUser');
-        crashlytics().setAttribute('contactNumber', contactNumber || 'UnknownContact');
-        crashlytics().setAttribute('userName', userName || 'UnknownUserName');
-        crashlytics().setAttribute('dbname', dbname || 'UnknownDBName');
-        crashlytics().setAttribute('crashed_screen', screenName);
-        crashlytics().setAttribute('error_boundary_scope', this.props.source || 'Global');
-        crashlytics().log(info?.componentStack || '');
-        crashlytics().log('App launched');
-        crashlytics().recordError(error);
+        // crashlytics().setUserId(user_id || 'UnknownUser');
+        // crashlytics().setAttribute('contactNumber', contactNumber || 'UnknownContact');
+        // crashlytics().setAttribute('userName', userName || 'UnknownUserName');
+        // crashlytics().setAttribute('dbname', dbname || 'UnknownDBName');
+        // crashlytics().setAttribute('crashed_screen', screenName);
+        // crashlytics().setAttribute('error_boundary_scope', this.props.source || 'Global');
+        // crashlytics().log(info?.componentStack || '');
+        // crashlytics().log('App launched');
+        // crashlytics().recordError(error);
         console.log('ErrorBoundary caught an error:', user_id);
         this.setState({ info });
         console.error('[ErrorBoundary]', error, info);

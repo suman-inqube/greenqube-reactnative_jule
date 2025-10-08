@@ -20,7 +20,7 @@ import React, {
 } from 'react';
 import {useIsFocused, useRoute} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
-import {SPSheet, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast'
+import {SPSheet, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import {
   OPTIONS_CARBON,
@@ -332,8 +332,8 @@ function ActivityList({navigation}) {
                 handleSPSheetShow();
               }}
               showBackground={true}
-              // overlayColor="rgba(22, 17, 17, 0.35)"
-              // distanceToEdge={{vertical: 80, horizontal: 25}}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{vertical: 80, horizontal: 25}}
             />
           </SafeAreaView>
         </Root>

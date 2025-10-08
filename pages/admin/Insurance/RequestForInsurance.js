@@ -21,6 +21,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 import {
   useFocusEffect,
   useNavigation,
@@ -102,12 +104,20 @@ const RequestForInsurance = ({}) => {
     setfarmerID(item.user_id);
     setSearchResultsList(false);
     setFarmerData(item);
-    const plotSiteApi = await problemPlotAgainstFarmerAPI(
-      dbname,
-      lan_id,
+    const plotSiteApi = await axiosGet(
+      ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+        farmerID: item.user_id,
+      }),
       token,
-      item.user_id,
+      {information: `${dbname},${lan_id}`},
     );
+    // problemPlotAgainstFarmerAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   item.user_id,
+    // );
+
     if (plotSiteApi) {
       const dataArray = [];
       const VarityStartArr = [];
@@ -135,12 +145,21 @@ const RequestForInsurance = ({}) => {
     }
   };
   const handlePlotCheck = async (value, label, index) => {
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: value,
+      }),
+      '', // No authorization token needed
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   value,
+    // );
     const isCheckedValue = [...isChecked];
     if (isChecked[index].isCheck == '') {
       isCheckedValue[index] = {isCheck: value};
@@ -174,7 +193,6 @@ const RequestForInsurance = ({}) => {
   };
 
   const handleSave = async () => {
-    console.log('log');
     Keyboard.dismiss();
     const checkValue = [];
     Object.values(isChecked).map((data, index) => {
@@ -190,14 +208,21 @@ const RequestForInsurance = ({}) => {
       const formData = new FormData();
       formData.append('user_id', farmerData.user_id);
       formData.append('plot_id', checkValue);
-      const addInsurance = await InsuranceAddAPI(
-        dbname,
-        lan_id,
-        token,
-        user_id,
+      const addInsurance = await axiosPost(
+        ROUTES.POST.ADD_INSURANCE(),
         formData,
+        token,
+        false,
+        {information: `${dbname},${lan_id},${user_id}`},
       );
-      console.log('addInsurance', addInsurance);
+
+      // InsuranceAddAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   formData,
+      // );
       if (addInsurance.status === 200) {
         Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {

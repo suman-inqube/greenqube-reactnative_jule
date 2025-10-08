@@ -48,8 +48,6 @@ const config = lazy(() => import('../../config'));
 const axios = lazy(() => import('axios'));
 const userCreateContext = createContext();
 const userListContext = createContext('adduser');
-import { ROUTES } from '../utils/Routes';
-import { axiosGet } from '../utils/api';
 const UserCreateContextProvider = props => {
   const { netConnection } = DeviceInfo();
   const { t } = useTranslation();
@@ -58,7 +56,7 @@ const UserCreateContextProvider = props => {
   const [loginUser_data, setloginUser_data] = useState({});
   const [logoImage, setlogoImage] = useState('');
   const [topBanner, settopBanner] = useState('');
-  const [plotAll, setplotAll] = useState([]);
+  const [plotAll, setPlotAll] = useState([]);
   const [navigationBarHeight, setNavigationBarHeight] = useState(0);
   const [coords, setCoords] = useState({
     latitude: '',
@@ -67,114 +65,134 @@ const UserCreateContextProvider = props => {
     timestamp: '',
   });
   const watchIdRef = useRef(null);
-  useEffect(() => {
-    const requestPermission = async () => {
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'Location Permission',
-            message: 'This app needs to access your location',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          },
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      }
-      return true;
-    };
-
-    const ensureGpsEnabled = async () => {
-      try {
-        const enabled = await isLocationEnabled();
-        if (!enabled) {
-          const result = await promptForEnableLocationIfNeeded({
-            interval: 10000,
-            fastInterval: 5000,
-          });
-          console.log('GPS enable result:', result);
-          return result === 'enabled' || result === 'already-enabled';
-        }
-        return true;
-      } catch (err) {
-        console.warn('Error checking GPS:', err);
-        return false;
-      }
-    };
-
-    const startWatching = async () => {
-      const hasPermission = await requestPermission();
-      if (!hasPermission) {
-        console.warn('Location permission not granted');
-        return;
-      }
-
-      const gpsEnabled = await ensureGpsEnabled();
-      if (!gpsEnabled) {
-        Alert.alert(
-          'Enable GPS',
-          'Please enable GPS to use location services.',
-          [
-            {
-              text: 'Enable',
-              onPress: async () => {
-                try {
-                  const enableResult = await promptForEnableLocationIfNeeded();
-                  console.log('enableResult:', enableResult);
-                } catch (err) {
-                  console.warn('GPS enable request failed', err);
-                }
-              },
-            },
-          ],
-        );
-        return;
-      }
-      watchIdRef.current = Geolocation.watchPosition(
-        pos => {
-          // console.log('GPSIOT', pos);
-          setCoords(prev => {
-            if (
-              prev.latitude === pos.coords.latitude &&
-              prev.longitude === pos.coords.longitude &&
-              prev.accuracy === pos.coords.accuracy
-            ) {
-              return prev;
-            }
-            return {
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              accuracy: pos.coords.accuracy,
-              timestamp: pos.timestamp,
-            };
-          });
-        },
-        err => {
-          console.error('Location error:', err);
-          if (err.code === 2) {
-            // POSITION_UNAVAILABLE → GPS turned off
-            Alert.alert('GPS is turned off. Please enable it.');
-          }
-        },
+  const requestPermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
-          enableHighAccuracy: true,
-          distanceFilter: 10, // update after 10m movement
-          interval: 5000,
-          fastestInterval: 2000,
-          timeout: 30000,
-          maximumAge: 0,
+          title: 'Location Permission',
+          message: 'This app needs to access your location',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
         },
       );
-    };
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    return true;
+  };
 
-    startWatching();
-
-    return () => {
-      if (watchIdRef.current != null) {
-        Geolocation.clearWatch(watchIdRef.current);
+  const ensureGpsEnabled = async () => {
+    try {
+      const enabled = await isLocationEnabled();
+      if (!enabled) {
+        const result = await promptForEnableLocationIfNeeded({
+          interval: 10000,
+          fastInterval: 5000,
+        });
+        return result === 'enabled' || result === 'already-enabled';
       }
-    };
+      return true;
+    } catch (err) {
+      console.warn('Error checking GPS:', err);
+      return false;
+    }
+  };
+
+  // --------- WATCH POSITION (Reusable Function) ----------
+  const startWatchingLocation = async () => {
+    const hasPermission = await requestPermission();
+    if (!hasPermission) {
+      Alert.alert('Permission Required', 'Location permission not granted.');
+      return;
+    }
+    const gpsEnabled = await ensureGpsEnabled();
+    if (!gpsEnabled) {
+      Alert.alert('Enable GPS', 'Please enable GPS to use location services.', [
+        {
+          text: 'Enable',
+          onPress: async () => {
+            try {
+              await promptForEnableLocationIfNeeded();
+            } catch (err) {
+              console.warn('GPS enable request failed', err);
+            }
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]);
+      return;
+    }
+
+    // Clear previous watch before starting a new one
+    if (watchIdRef.current) {
+      Geolocation.clearWatch(watchIdRef.current);
+    }
+    watchIdRef.current = Geolocation.watchPosition(
+      pos => {
+        // console.log("pos i",pos )
+        if (!pos || !pos.coords) {
+          Alert.alert('Unable to fetch location. Please try again.');
+          return;
+        }
+
+        setCoords(prev => {
+          if (
+            prev.latitude === pos.coords.latitude &&
+            prev.longitude === pos.coords.longitude &&
+            prev.accuracy === pos.coords.accuracy
+          ) {
+            return prev; // No change
+          }
+          return {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            timestamp: pos.timestamp,
+          };
+        });
+      },
+      err => {
+        console.error('Location error:', err);
+        if (err.code === 1) {
+          Alert.alert('Permission Denied', 'Location permission denied.');
+        } else if (err.code === 2) {
+          Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
+        } else if (err.code === 3) {
+          Alert.alert('Timeout', 'Location request timed out.');
+        } else {
+          Alert.alert('Unable to get location. Please try again.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 5,
+        interval: 5000,
+        fastestInterval: 2000,
+        timeout: 20000,
+        maximumAge: 0,
+      },
+    );
+
+    // Fallback if no location update within 15 sec
+    // setTimeout(() => {
+    //   if (!coords.latitude || !coords.longitude) {
+    //     Alert.alert('No GPS response. Please move to open sky or enable GPS.');
+    //   }
+    // }, 15000);
+  };
+
+  const stopWatchingLocation = () => {
+    if (watchIdRef.current) {
+      Geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+  };
+
+  // ---------- INIT: Start Watching Once ----------
+  useEffect(() => {
+    startWatchingLocation();
+    return () => stopWatchingLocation();
   }, []);
 
   // ---------- API: Get Farmers ----------
@@ -198,14 +216,28 @@ const UserCreateContextProvider = props => {
         getNavigationBarHeight(),
       ]);
       setNavigationBarHeight(getNavigationBar);
-      const { dbname, lan_id, user_id, token } = loginUser_data || {};
+      i18next.changeLanguage(loginUser_data?.lan_id?.toString());
+
       if (netConnection && loginUser_data?.token) {
-        i18next.changeLanguage(loginUser_data?.lan_id?.toString());
-        const { dbname, lan_id, user_id, token } = loginUser_data || {};
-         [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
-          axiosGet(ROUTES.GET.LIST_USER({ user_id }), token, { information: `${dbname},${lan_id}` }),
-          axiosGet(ROUTES.GET.PLOT_AGAINST_FARMER({user_id}), token, { information: `${dbname},${lan_id}` }),
-          axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, token, { information: `${dbname},${lan_id}` })
+        [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
+          farmerByNameAPI(
+            loginUser_data?.dbname,
+            loginUser_data?.lan_id,
+            loginUser_data?.token,
+            loginUser_data?.user_id,
+          ),
+          problemPlotAgainstFarmerAPI(
+            loginUser_data?.dbname,
+            loginUser_data?.lan_id,
+            loginUser_data?.token,
+            loginUser_data?.user_id,
+          ),
+          showCarbonFlag(
+            loginUser_data?.token,
+            loginUser_data?.dbname,
+            loginUser_data?.lan_id,
+            loginUser_data?.user_id,
+          ),
         ]);
         if (farmer_response?.status == 200) {
           await Promise.all([
@@ -218,7 +250,7 @@ const UserCreateContextProvider = props => {
           ]);
         }
       } else {
-       [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
+        [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
           getItem('farmerByNameAPI'),
           getItem('problemPlotAgainstFarmer' + loginUser_data?.user_id),
           getItem('carbonFlag'),
@@ -277,15 +309,14 @@ const UserCreateContextProvider = props => {
           value: data.rel_id,
           label: data.plot_no,
         }));
-
-        setplotAll(PlotArray);
+        setPlotAll(PlotArray);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // ---------- INIT ----------
+  // ---------- INIT: Load Farmers ----------
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       AllFarmerList();
@@ -299,6 +330,7 @@ const UserCreateContextProvider = props => {
     const dt = new Date(item);
     return dt.toISOString().split('T')[0];
   };
+
   // ---------- PROVIDER VALUE ----------
   const contextValue = useMemo(
     () => ({
@@ -309,6 +341,9 @@ const UserCreateContextProvider = props => {
       loginUser_data,
       isOnline: netConnection,
       coords,
+      setCoords,
+      startWatchingLocation,
+      stopWatchingLocation,
       t,
       AlertMesg,
       onBackPress,
@@ -340,7 +375,7 @@ const UserCreateContextProvider = props => {
       effective_dates,
       Filter,
       plotAll,
-      setplotAll,
+      setPlotAll,
       navigationBarHeight,
     }),
     [

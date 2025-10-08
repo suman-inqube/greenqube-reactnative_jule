@@ -25,7 +25,7 @@ import {
 import {getItem, setItem} from '../config/getDataFromStorage';
 import {isNotEmpty} from './Common/ValidationFunctions';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {Root, Popup, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast'
+import {Root, Popup, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import {AlertMesg} from './Common/ToastAlert';
 import {useTranslation} from 'react-i18next';
 import DocumentPicker, {types} from '@react-native-documents/picker';

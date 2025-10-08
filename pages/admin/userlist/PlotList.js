@@ -19,27 +19,25 @@ import React, {
   memo,
   useMemo,
 } from 'react';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {
   plotListApproval,
   LandUnitArea,
   LandUnitsquare_metre,
 } from '../../../config/apiHere';
 import LiveHood from './LiveHood';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { getActionsPlot } from '../../utils/options';
-import { Colors, Fonts } from '../../utils/Constants';
-const { width } = Dimensions.get('window');
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {getActionsPlot} from '../../utils/options';
+import {Colors, Fonts} from '../../utils/Constants';
+const {width} = Dimensions.get('window');
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { ROUTES } from '../../utils/Routes';
-import { axiosGet } from '../../utils/api';
 const PlotList = () => {
   const route = useRoute();
-  const { farmeruserID } = route.params;
+  const {farmeruserID} = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
   const [addPlot, setAddPlot] = useState(false);
@@ -50,20 +48,20 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const { loginUser_data, t, Root, CustomHeader } = useContext(userCreateContext);
-  const { dbname, lan_id, token } = loginUser_data;
+  const {loginUser_data, t, Root, CustomHeader} = useContext(userCreateContext);
+  const {dbname, lan_id, token} = loginUser_data;
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
     setDataProps(data);
-    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    scrollRef.current?.scrollTo({x: index * width, animated: true});
   }, []);
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
-        axiosGet(ROUTES.GET.USER_LAND_CROP_LIST({ user_id: farmeruserID }), token, { information: `${dbname},${lan_id}`}),
-        axiosGet(ROUTES.GET.UNIT_ROUTE({ unit_type:"land_unit", is_default:1, sub_type:"land_area", unit_slug:"" }), token, { information: `${dbname},${lan_id}` }),
-        axiosGet(ROUTES.GET.UNIT_ROUTE({ unit_type:"land_unit", is_default:1, sub_type:"land_area", unit_slug:"square_metre" }), token, { information: `${dbname},${lan_id}` })
+        plotListApproval(dbname, lan_id, token, farmeruserID),
+        LandUnitArea(dbname, lan_id, token),
+        LandUnitsquare_metre(dbname, lan_id, token),
       ]);
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
       if (unitAreaRes?.status === 200)
@@ -101,88 +99,88 @@ const PlotList = () => {
   return (
     <Root>
       <FarmerDrawerScreenWrapper1>
-        <View style={styles.container}>
-          {renderCustomHeader}
-          <TabBar
-            tabs={['Plot Status', 'Plot Add and Edit']}
-            activeTab={activeTab}
-            onTabPress={ix => onTabPress(ix)}
-            indicatorColor={Colors.useGreen}
-            height={65}
-            backgroundColor={Colors.background}
-            colors={Colors.primary}
-          />
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
-              { useNativeDriver: false },
-            )}
-            scrollEventThrottle={16}
-            onMomentumScrollEnd={e =>
-              setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))
-            }>
-            <View style={styles.page}>
-              <FlatList
-                data={isLoading ? Array.from({ length: 5 }) : plotList}
-                keyExtractor={(item, index) => item?.id?.toString() || index}
-                refreshing={refreshing}
-                onRefresh={() => setRefreshing(false)}
-                renderItem={({ item, index }) =>
-                  isLoading ? (
-                    <PlotStatusSkeletonScreen />
-                  ) : (
-                    <PlotCard
-                      item={item}
-                      onPress={() => onTabPress(1, item)}
-                      landUnitsquareMetre={landUnitsquareMetre}
-                      landAreaUnit={landAreaUnit}
-                    />
-                  )
-                }
-                contentContainerStyle={{ padding: 15 }}
-                showsVerticalScrollIndicator={false}
-                initialNumToRender={5}
-                windowSize={5}
-                removeClippedSubviews={true}
-              />
-            </View>
-            <View style={styles.page}>
-              {activeTab === 1 && (
-                <LiveHood
-                  dataProps={dataProps}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  onTabPress={onTabPress}
-                  setAddPlot={setAddPlot}
-                  addPlot={addPlot}
-                />
-              )}
-            </View>
-          </ScrollView>
-          {activeTab === 0 && (
-            <>
-              <FloatingActionButton
-                position="right"
-                actions={getActionsPlot(t, styles, Colors)}
-                color={Colors.useGreen}
-                onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
-                overlayColor="rgba(22, 17, 17, 0.35)"
-                distanceToEdge={{ vertical: 80, horizontal: 25 }}
-              />
-            </>
+      <View style={styles.container}>
+        {renderCustomHeader}
+        <TabBar
+          tabs={['Plot Status', 'Plot Add and Edit']}
+          activeTab={activeTab}
+          onTabPress={ix => onTabPress(ix)}
+          indicatorColor={Colors.useGreen}
+          height={65}
+          backgroundColor={Colors.background}
+          colors={Colors.primary}
+        />
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          scrollEnabled={false}
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+            {useNativeDriver: false},
           )}
-        </View>
+          scrollEventThrottle={16}
+          onMomentumScrollEnd={e =>
+            setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))
+          }>
+          <View style={styles.page}>
+            <FlatList
+              data={isLoading ? Array.from({length: 5}) : plotList}
+              keyExtractor={(item, index) => item?.id?.toString() || index}
+              refreshing={refreshing}
+              onRefresh={() => setRefreshing(false)}
+              renderItem={({item, index}) =>
+                isLoading ? (
+                  <PlotStatusSkeletonScreen />
+                ) : (
+                  <PlotCard
+                    item={item}
+                    onPress={() => onTabPress(1, item)}
+                    landUnitsquareMetre={landUnitsquareMetre}
+                    landAreaUnit={landAreaUnit}
+                  />
+                )
+              }
+              contentContainerStyle={{padding: 15}}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={5}
+              windowSize={5}
+              removeClippedSubviews={true}
+            />
+          </View>
+          <View style={styles.page}>
+            {activeTab === 1 && (
+              <LiveHood
+                dataProps={dataProps}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                onTabPress={onTabPress}
+                setAddPlot={setAddPlot}
+                addPlot={addPlot}
+              />
+            )}
+          </View>
+        </ScrollView>
+        {activeTab === 0 && (
+          <>
+            <FloatingActionButton
+              position="right"
+              actions={getActionsPlot(t, styles, Colors)}
+              color={Colors.useGreen}
+              onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{vertical: 80, horizontal: 25}}
+            />
+          </>
+        )}
+      </View>
       </FarmerDrawerScreenWrapper1>
     </Root>
   );
 };
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -190,7 +188,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     paddingVertical: 3,
@@ -200,8 +198,8 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
   },
-  tabText: { fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium },
-  activeTabText: { fontSize: 16, color: 'green', fontFamily: Fonts.Medium },
+  tabText: {fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium},
+  activeTabText: {fontSize: 16, color: 'green', fontFamily: Fonts.Medium},
   indicator: {
     position: 'absolute',
     bottom: 0,

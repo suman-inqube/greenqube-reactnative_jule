@@ -9,7 +9,7 @@ import {
   addActivityPipeImages,
 } from '../../../config/apiHere';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
-// import Marker, {Position} from 'react-native-image-marker';
+import Marker, {Position} from 'react-native-image-marker';
 import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
 import useLocationTracking from '../../Common/useLocationTracking';

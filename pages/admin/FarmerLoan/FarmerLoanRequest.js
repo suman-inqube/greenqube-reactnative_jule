@@ -35,7 +35,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {addModuleForView} from '../../../config/apiHere';
 import ProofAndIdentityPropfCompLoan from '../../Common/ProofAndIdentityPropfCompLoan';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-import ImageResizer from 'react-native-image-resizer';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import {createPdf} from 'react-native-images-to-pdf';
@@ -1258,8 +1258,7 @@ const FarmerLoanRequest = ({}) => {
           text: t('Data_submitted_successfully'),
           ...AlertMesg[0],
         });
-        setTimeout(() => {}, 2000);
-        navigation.navigate('FarmerLoanViewPastRequested');
+        navigation.navigate('FarmerLoanViewPastRequested', {action: 'addData'});
       }
     }
     setIsLoading(false);
@@ -1461,74 +1460,81 @@ const FarmerLoanRequest = ({}) => {
                   required={true}
                 />
               </View>
-              <View style={styles.card}>
-                {nameVarityStartEnd.map((data, index) => {
-                  if (data.isChecked == '1') {
-                    return (
-                      <View key={index}>
-                        <TouchableOpacity
-                          onPress={() => produceRemoveDetails(index)}>
-                          <MaterialIcons name="cancel" color="red" size={22} />
-                        </TouchableOpacity>
-                        <View style={styles.plotContainerItem}>
-                          <View>
-                            <Text style={styles.plotTextRe}>
-                              {t('select_plot')}
-                            </Text>
-                            <Text style={styles.plotTextRe}>
-                              {t('addcrop_cropname')}
-                            </Text>
-                            <Text style={styles.plotTextRe}>
-                              {t('addcrop_cropvariety')}
-                            </Text>
-                            {/* <Text style={styles.plotText}>
+              {nameVarityStartEnd.some(data => data.isChecked == '1') && (
+                <View style={styles.card}>
+                  {nameVarityStartEnd.map((data, index) => {
+                    if (data.isChecked == '1') {
+                      return (
+                        <View key={index}>
+                          <TouchableOpacity
+                            onPress={() => produceRemoveDetails(index)}>
+                            <MaterialIcons
+                              name="cancel"
+                              color="red"
+                              size={22}
+                            />
+                          </TouchableOpacity>
+                          <View style={styles.plotContainerItem}>
+                            <View>
+                              <Text style={styles.plotTextRe}>
+                                {t('select_plot')}
+                              </Text>
+                              <Text style={styles.plotTextRe}>
+                                {t('addcrop_cropname')}
+                              </Text>
+                              <Text style={styles.plotTextRe}>
+                                {t('addcrop_cropvariety')}
+                              </Text>
+                              {/* <Text style={styles.plotText}>
                                                      {t('showing_date')}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      {t('harvesting_date_auto_calculated')}
                                                    </Text> */}
-                          </View>
-                          <View>
-                            <Text style={styles.plotText}>
-                              :{data.plot_no.substring(-1, 15)}
-                            </Text>
-                            <Text style={styles.plotText}>
-                              :{data.name.substring(-1, 15)}
-                            </Text>
-                            <Text style={styles.plotText}>
-                              :{data.varity.substring(-1, 15)}
-                            </Text>
-                            {/* <Text style={styles.plotText}>
+                            </View>
+                            <View>
+                              <Text style={styles.plotText}>
+                                :{data.plot_no.substring(-1, 15)}
+                              </Text>
+                              <Text style={styles.plotText}>
+                                :{data.name.substring(-1, 15)}
+                              </Text>
+                              <Text style={styles.plotText}>
+                                :{data.varity.substring(-1, 15)}
+                              </Text>
+                              {/* <Text style={styles.plotText}>
                                                      :{data.cycleStarts}
                                                    </Text>
                                                    <Text style={styles.plotText}>
                                                      :{data.cycleEnd.substring(0, 10)}
                                                    </Text> */}
+                            </View>
+                          </View>
+
+                          <View style={styles.idcontainer}>
+                            <View style={styles.idItemContainer}>
+                              <ProofAndIdentityPropfCompLoan
+                                identityProofIdentityPropf={data.addressProof}
+                                t={t}
+                                title={t('address_proof')}
+                                handleDocumentSelection={
+                                  handleDocumentSelection
+                                }
+                                handleDocumentSelectionRemove={
+                                  handleDocumentSelectionRemove
+                                }
+                                handleScanAndCreatePdf={handleScanAndCreatePdf}
+                                parent={data}
+                                InputTextFormEdit={false}
+                              />
+                            </View>
                           </View>
                         </View>
-
-                        <View style={styles.idcontainer}>
-                          <View style={styles.idItemContainer}>
-                            <ProofAndIdentityPropfCompLoan
-                              identityProofIdentityPropf={data.addressProof}
-                              t={t}
-                              title={t('address_proof')}
-                              handleDocumentSelection={handleDocumentSelection}
-                              handleDocumentSelectionRemove={
-                                handleDocumentSelectionRemove
-                              }
-                              handleScanAndCreatePdf={handleScanAndCreatePdf}
-                              parent={data}
-                              InputTextFormEdit={false}
-                            />
-                          </View>
-                        </View>
-                      </View>
-                    );
-                  }
-                })}
-              </View>
-
+                      );
+                    }
+                  })}
+                </View>
+              )}
               <TouchableOpacity
                 style={styles.clickAddMorePlots}
                 onPress={() => handle_button()}>

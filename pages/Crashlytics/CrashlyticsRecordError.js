@@ -8,7 +8,6 @@ export const CrashlyticsRecordError = async (
   screen_name = '',
   api = '',
 ) => {
-  console.log(error,screen_name,api,"**************")
   const [loginUser_data, device_model, currentRouteName] = await Promise.all([
     getItem('loginUser_data'),
     DeviceInfo.getDeviceName(),

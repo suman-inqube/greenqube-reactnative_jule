@@ -1,15 +1,17 @@
 import React, {useState} from 'react';
 import {Modal, View, Text, Button, StyleSheet} from 'react-native';
-import { setItem,removeItem } from '../../config/getDataFromStorage';
+
 
 const RememberMeModal = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleRememberMe = async remember => {
     if (remember) {
-      await setItem('rememberMe', 'true'); // Store user preference
+      await AsyncStorage.setItem('rememberMe', 'true'); // Store user preference
+      console.log('User chose to remember credentials');
     } else {
-      await removeItem('rememberMe'); // Remove stored credentials
+      await AsyncStorage.removeItem('rememberMe'); // Remove stored credentials
+      console.log('User chose NOT to remember credentials');
     }
     setModalVisible(false);
   };

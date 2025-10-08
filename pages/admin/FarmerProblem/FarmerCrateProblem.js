@@ -13,7 +13,7 @@ import React, {useState, useEffect, useCallback, useContext} from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
 import {launchCamera} from 'react-native-image-picker';
-// import Marker, {Position} from 'react-native-image-marker';
+import Marker, {Position} from 'react-native-image-marker';
 import {
   problemProduceAgainstPlotAPI,
   problemProductionStageAPI,

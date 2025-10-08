@@ -34,6 +34,8 @@ const qs = require('qs');
 import DatePickerField from '../../Common/DatePickerField';
 import DatePickerComp from '../../Common/DatePickerComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const Information = ({sendDataToParent, farmerID}) => {
   //GQR-66
   const {
@@ -158,7 +160,11 @@ const Information = ({sendDataToParent, farmerID}) => {
   };
 
   const getState = async (dbname, lan_id) => {
-    const response = await fetchStateAPI(dbname, lan_id);
+    const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
+      information: `${dbname},${lan_id}`,
+    });
+    // fetchStateAPI(dbname, lan_id);
+
     if (response?.status == 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -168,7 +174,15 @@ const Information = ({sendDataToParent, farmerID}) => {
     }
   };
   const getDistrict = async (dbname, lan_id, stateID) => {
-    const response = await fetchDistrictAPI(dbname, lan_id, stateID);
+    const response = await axiosGet(
+      ROUTES.GET.DISTRICT_API({
+        stateID: stateID,
+      }),
+      '',
+      {information: `${dbname},${lan_id}`},
+    );
+    // fetchDistrictAPI(dbname, lan_id, stateID);
+
     if (response?.status === 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -178,7 +192,14 @@ const Information = ({sendDataToParent, farmerID}) => {
     }
   };
   const getBlock = async (dbname, lan_id, districtID) => {
-    const response = await fetchBlockAPI(dbname, lan_id, districtID);
+    const response = await axiosGet(
+      ROUTES.GET.BLOCK_API({
+        districtID: districtID,
+      }),
+      '',
+      {information: `${dbname},${lan_id}`},
+    );
+    // fetchBlockAPI(dbname, lan_id, districtID);
     if (response?.status == 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -479,14 +500,24 @@ const Information = ({sendDataToParent, farmerID}) => {
           file_delete_ids: photoDeletedValue.toString(),
         });
         const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
-          UserInformationUpdate(
-            dbname,
-            lan_id,
-            user_id,
-            token,
-            farmeruserID,
+          axiosPut(
+            ROUTES.PUT.USER_PROFILE_UPDATE({
+              user_id: farmeruserID,
+            }),
             formData,
+            token,
+            '',
+            {information: `${dbname},${lan_id},${user_id}`},
           ),
+          // UserInformationUpdate(
+          //   dbname,
+          //   lan_id,
+          //   user_id,
+          //   token,
+          //   farmeruserID,
+          //   formData,
+          // ),
+
           onlyUpdateIdAddrFile(
             dbname,
             lan_id,
@@ -494,8 +525,10 @@ const Information = ({sendDataToParent, farmerID}) => {
             token,
             formDataPlotImg,
           ),
+
           deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
         ]);
+
         if (userDataUpdate.status === 200) {
           Toast.show({
             text: 'User information update successfully',

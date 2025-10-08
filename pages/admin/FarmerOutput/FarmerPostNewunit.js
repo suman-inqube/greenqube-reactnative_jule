@@ -10,7 +10,7 @@ import { getItem } from '../../../config/getDataFromStorage';
 import { farmerAgainstSupervisorAPI, farmerByNameAPI, livelihoodNameVarietyLandrelAPI, outputSaveAPI, problemPlotAgainstFarmerAPI, produceAgainstPlotAPI, unitByListAPI } from '../../../config/apiHere';
 import axios from 'axios';
 import MessageDialog from '../../Common/MessageDialog';
-import { Root, Popup, Toast from '@sekizlipenguen/react-native-popup-confirm-toast'
+import { Root, Popup, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import { useNavigation } from '@react-navigation/native';
 import { AlertMesg } from '../../Common/ToastAlert'
 import { useTranslation } from 'react-i18next';

@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useState} from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,15 +7,15 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast'
-import { pick, isCancel, types } from '@react-native-documents/picker';
-import {createPdf} from 'react-native-images-to-pdf';
+import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import DocumentPicker, { types } from '@react-native-documents/picker';
+import { createPdf } from 'react-native-images-to-pdf';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import LoadingScreen from './LoadingScreen';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 const PDF_SIZE_LIMIT = 3;
 const ProofAndIdentityPropfComp = ({
   stateValue,
@@ -26,7 +26,6 @@ const ProofAndIdentityPropfComp = ({
   marginBottom = 0,
   status_level,
   InputTextFormEdit,
-    navigationBarHeight=0
 }) => {
   const [loading, setLoading] = useState(false);
   const logFileSize = async (uri, label = '') => {
@@ -35,17 +34,12 @@ const ProofAndIdentityPropfComp = ({
       const stat = await RNFS.stat(path);
       const sizeInMB = (stat.size / (1024 * 1024)).toFixed(2);
       console.log(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`);
-      alert(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`);
+      alert(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`)
     } catch (err) {
       console.warn(`Could not get file size for ${label}:`, err.message);
     }
   };
-  const resizeImage = async (
-    uri,
-    width = 1200,
-    height = 1600,
-    quality = 85,
-  ) => {
+  const resizeImage = async (uri, width = 1200, height = 1600, quality = 85) => {
     try {
       const resized = await ImageResizer.createResizedImage(
         uri,
@@ -71,17 +65,14 @@ const ProofAndIdentityPropfComp = ({
   const onHandleDocumentSelection = useCallback(
     async (imageType, index) => {
       try {
-        const [res] = await pick({
+        const [res] = await DocumentPicker.pick({
           type: [types.pdf, types.images],
         });
         let fileUri = res.uri;
-        // console.log('err==', fileUri);
 
-        // if (res.type?.startsWith('image/')) {
-        //   fileUri = await resizeImage(res.uri);
-        // }
-
-        // console.log('err1==', fileUri);
+        if (res.type?.startsWith('image/')) {
+          fileUri = await resizeImage(res.uri);
+        }
 
         const values = [...stateValue];
         markPhotoDeleted(index, values);
@@ -98,7 +89,7 @@ const ProofAndIdentityPropfComp = ({
         };
         setStateValue(values);
       } catch (err) {
-        if (!isCancel(err)) {
+        if (!DocumentPicker.isCancel(err)) {
           console.error('Document selection error:', err);
         }
       }
@@ -122,7 +113,7 @@ const ProofAndIdentityPropfComp = ({
         'Confirm Deletion',
         'Are you sure you want to delete this document?',
         [
-          {text: 'Cancel', style: 'cancel'},
+          { text: 'Cancel', style: 'cancel' },
           {
             text: 'Delete',
             style: 'destructive',
@@ -156,7 +147,7 @@ const ProofAndIdentityPropfComp = ({
     const fileName = `document_${Date.now()}_compressed.pdf`;
     const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
     return await createPdf({
-      pages: resized.map(uri => ({imagePath: uri})),
+      pages: resized.map(uri => ({ imagePath: uri })),
       outputPath,
     });
   };
@@ -164,7 +155,13 @@ const ProofAndIdentityPropfComp = ({
     async (imageType, index) => {
       setLoading(true);
       try {
-        const {scannedImages, status} = await DocumentScanner.scanDocument();
+        const { scannedImages, status } = await DocumentScanner.scanDocument({
+           letUserAdjustCrop: false,
+        maxNumDocuments: 1,
+        noAutoEnhance: false,
+        croppedImageQuality: 0.9,   // control quality
+        croppedImageMaxSize: 1600,  // limit size
+        });
         if (status !== 'success' || !scannedImages?.length) return;
         const resized = await Promise.all(
           scannedImages.map(uri => resizeImage(uri)),
@@ -172,7 +169,7 @@ const ProofAndIdentityPropfComp = ({
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
         let pdfPath = await createPdf({
-          pages: resized.map(uri => ({imagePath: uri})),
+          pages: resized.map(uri => ({ imagePath: uri })),
           outputPath,
         });
         pdfPath = await compressIfNeeded(pdfPath, scannedImages);
@@ -209,7 +206,7 @@ const ProofAndIdentityPropfComp = ({
     try {
       const exists = await RNFS.exists(filePath);
       if (exists) return FileViewer.open(filePath);
-      const dl = await RNFS.downloadFile({fromUrl: fileUrl, toFile: filePath})
+      const dl = await RNFS.downloadFile({ fromUrl: fileUrl, toFile: filePath })
         .promise;
       if (dl.statusCode === 200) {
         await FileViewer.open(filePath);
@@ -220,7 +217,7 @@ const ProofAndIdentityPropfComp = ({
       Alert.alert('File error', err.message);
     }
   };
-  const ActionSheet = ({data, index, spSheet}) => {
+  const ActionSheet = ({ data, index, spSheet }) => {
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
       if (!fileUrl) return;
@@ -264,7 +261,7 @@ const ProofAndIdentityPropfComp = ({
   };
   return (
     <View style={styles.idContainer}>
-      <Text style={[styles.title, {fontSize: 14, marginBottom: 10}]}>
+      <Text style={[styles.title, { fontSize: 14, marginBottom: 10 }]}>
         {title}
       </Text>
       {loading && (
@@ -285,17 +282,16 @@ const ProofAndIdentityPropfComp = ({
                 component: () => (
                   <ActionSheet data={data} index={index} spSheet={SPSheet} />
                 ),
-                // height: 220 + marginBottom,
-                  height: navigationBarHeight==0?150:160,
+                height: 220 + marginBottom,
               })
             }>
-            <View style={{borderWidth: 1, borderColor: '#FFF'}}>
+            <View style={{ borderWidth: 1, borderColor: '#FFF' }}>
               <Text style={styles.itemLabel} numberOfLines={1}>
                 {data?.imageType === 'address'
                   ? 'Address Proof'
                   : data?.imageType === 'identity'
-                  ? 'Identity Proof'
-                  : ''}
+                    ? 'Identity Proof'
+                    : ''}
               </Text>
 
               {data?.uri ? (
@@ -305,7 +301,7 @@ const ProofAndIdentityPropfComp = ({
                     style={styles.idImage}
                   />
                 ) : (
-                  <Image source={{uri: data.uri}} style={styles.idImage} />
+                  <Image source={{ uri: data.uri }} style={styles.idImage} />
                 )
               ) : (
                 <Image
@@ -324,7 +320,7 @@ const ProofAndIdentityPropfComp = ({
                     style={styles.deleteIcon}>
                     <Image
                       source={require('./images/cross50.png')}
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                     />
                   </TouchableOpacity>
                 )}
@@ -338,7 +334,7 @@ const ProofAndIdentityPropfComp = ({
     </View>
   );
 };
-const ActionButton = ({label, icon, onPress}) => (
+const ActionButton = ({ label, icon, onPress }) => (
   <TouchableOpacity style={styles.actionButton} onPress={onPress}>
     <Image source={icon} style={styles.actionIcon} />
     <Text numberOfLines={1} style={styles.title}>
@@ -357,7 +353,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderStyle: 'dotted',
   },
-  idItemContainer: {flexDirection: 'row', flexWrap: 'wrap'},
+  idItemContainer: { flexDirection: 'row', flexWrap: 'wrap' },
   idItem: {
     width: '30%',
     alignItems: 'center',
@@ -365,26 +361,26 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 100,
   },
-  idImage: {width: 60, height: 60, borderRadius: 5},
-  itemLabel: {fontSize: 12, color: '#000', textAlign: 'center'},
-  fileName: {fontSize: 12, color: '#000', marginTop: 4},
-  deleteIcon: {position: 'absolute', top: -10, right: -5},
-  title: {color: '#000', fontFamily: Fonts.Regular},
+  idImage: { width: 60, height: 60, borderRadius: 5 },
+  itemLabel: { fontSize: 12, color: '#000', textAlign: 'center' },
+  fileName: { fontSize: 12, color: '#000', marginTop: 4 },
+  deleteIcon: { position: 'absolute', top: -10, right: -5 },
+  title: { color: '#000', fontFamily: Fonts.Regular },
   loaderBackdrop: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   },
-  loaderContainer: {backgroundColor: '#FFF', padding: 15, alignItems: 'center'},
-  loaderText: {marginTop: 10, fontSize: 14, color: '#333'},
+  loaderContainer: { backgroundColor: '#FFF', padding: 15, alignItems: 'center' },
+  loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
   sheetTitle: {
     textAlign: 'center',
     fontSize: 18,
     fontFamily: Fonts.SemiBold,
     marginBottom: 10,
   },
-  sheetRow: {flexDirection: 'row', justifyContent: 'space-around'},
+  sheetRow: { flexDirection: 'row', justifyContent: 'space-around' },
   actionButton: {
     backgroundColor: '#DFE8EF',
     width: 70,
@@ -393,5 +389,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionIcon: {width: 30, height: 30},
+  actionIcon: { width: 30, height: 30 },
 });

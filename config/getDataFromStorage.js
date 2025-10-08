@@ -1,4 +1,4 @@
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import EncryptedStorage from 'react-native-encrypted-storage';
 //Define keys for your data in local storage
 const STORAGE_KEY = {

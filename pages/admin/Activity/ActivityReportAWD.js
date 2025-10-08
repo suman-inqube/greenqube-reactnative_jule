@@ -10,9 +10,9 @@ import {
   SafeAreaView,
   Keyboard,
   Alert,
-  Linking,
+  Linking, InteractionManager
 } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {
   useEffect,
@@ -21,9 +21,9 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-import AudioRecorderPlayer from '@react-native-ohos/react-native-audio-recorder-player';
-import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from '@react-native-oh-tpl/react-native-image-marker';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import {launchCamera} from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
 import {
   inputOutputRoutePipeImagesLatLong,
   activityInfoAPI,
@@ -41,9 +41,9 @@ import {
   inputOutputRoutePipeImages,
   activityScheduleAPI,
   problemProduceAgainstPlotAPI,
-  problemProductionStageAPI
+  problemProductionStageAPI,
 } from '../../../config/apiHere';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
@@ -51,18 +51,20 @@ import CustomAlert from '../../Common/CustomAlert';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AnalyticsLogEvent } from '../../Analytics';
-import { isPointInPolygon, getDistance } from 'geolib';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {AnalyticsLogEvent} from '../../Analytics';
+import {isPointInPolygon, getDistance} from 'geolib';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import ActivityMap from '../../Common/ActivityMap';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import { Colors, Fronts } from '../../utils/Constants';
+import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { use } from 'i18next';
-const ActivityReportAWD = ({ navigation }) => {
+import {use} from 'i18next';
+import {axiosGet, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
+const ActivityReportAWD = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -83,15 +85,21 @@ const ActivityReportAWD = ({ navigation }) => {
     DropdownForm,
     ButtonForm,
     DatePickerComp,
-    isOnline, coords, farmerData
+    isOnline,
+    coords,
+    farmerData,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
   //GQR-67
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const [searchFarmerName, setSearchFarmerName] = useState({ label: '', value: '', phone: '' });
+  const [searchFarmerName, setSearchFarmerName] = useState({
+    label: '',
+    value: '',
+    phone: '',
+  });
   const [farmerID, setFarmerID] = useState();
   const [plotAll, setPlotAll] = useState([]);
   const [productionStageAll, setProductionStageAll] = useState([]);
@@ -215,359 +223,445 @@ const ActivityReportAWD = ({ navigation }) => {
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({ ...saveData, act_perform_date: effective_date });
+    setSaveData({...saveData, act_perform_date: effective_date});
   };
-  const handleResultSelect = useCallback(async (item) => {
-    setIsLoading(true);
-    const { label: name, value: currentfarmerId, phone } = item || {}
-    // setSearchFarmerPhone(phone);
-    // setSelectedName(name);
-    // setSearchFarmerName(name);
-    // setSearchResults([]);
-    setShowingMenu(false);
-    setSearchFarmerName(prev => ({ ...prev, label: name, value: currentfarmerId, phone }));
-    setFarmerID(currentfarmerId);
-    setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
-    setNameVarityStartEnd({
-      ...nameVarityStartEnd,
-      name: '',
-      varity: '',
-      cycleStarts: '',
-      cycleEnd: '',
-    });
-    if (isOnline) {
-      var response = await plotAgainstFarmerAPI(
-        dbname,
-        lan_id,
-        token,
-        currentfarmerId,
-      );
-      await setItem('plotAgainstFarmer' + currentfarmerId, response);
-    } else {
-      var response = await getItem('plotAgainstFarmer' + currentfarmerId);
-    }
-    if (response) {
-      const dataArray = response?.data?.data.map(data => ({
-        value: data.rel_id,
-        label: data.plot_no,
-      }));
-      setPlotAll(dataArray);
-      if (isOnline) {
-        var activityType_res = await activityTypeAPIAWD(
-          dbname,
-          lan_id,
-          currentfarmerId,
-        );
-        await setItem('activityType' + currentfarmerId, activityType_res);
-      } else {
-        var activityType_res = await getItem('activityType' + currentfarmerId);
-      }
-      if (activityType_res?.status == 200) {
-        const dataArray = activityType_res?.data?.data?.rows.map(data => ({
-          value: data.fid,
-          label: data.categoryName,
-          field_type: data.field_type,
-        }));
-        setActivityTypeAll(dataArray);
-      }
-    }
-    setIsLoading(false);
-  }, [isOnline]);
-  const handlePlot = useCallback(async relId => {
-    try {
-      const { latitude, longitude } = coords || {};
+  const handleResultSelect = useCallback(
+    async item => {
       setIsLoading(true);
+      const {label: name, value: currentfarmerId, phone} = item || {};
+      // setSearchFarmerPhone(phone);
+      // setSelectedName(name);
+      // setSearchFarmerName(name);
+      // setSearchResults([]);
+      setShowingMenu(false);
+      setSearchFarmerName(prev => ({
+        ...prev,
+        label: name,
+        value: currentfarmerId,
+        phone,
+      }));
+      setFarmerID(currentfarmerId);
+      setSaveData({...saveData, plot_id: '', plot_Name: ''});
+      setNameVarityStartEnd({
+        ...nameVarityStartEnd,
+        name: '',
+        varity: '',
+        cycleStarts: '',
+        cycleEnd: '',
+      });
       if (isOnline) {
-        var [response] = await Promise.all([
-          produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value),
-        ]);
-        await setItem('produceAgainstPlot' + farmerID + relId.value, response);
-      } else {
-        var response = await getItem(
-          'produceAgainstPlot' + farmerID + relId.value,
+        var response = await axiosGet(
+          ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+            farmerID: currentfarmerId,
+          }),
+          token,
+          {information: `${dbname},${lan_id}`},
         );
+        // plotAgainstFarmerAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   currentfarmerId,
+        // );
+        await setItem('plotAgainstFarmer' + currentfarmerId, response);
+      } else {
+        var response = await getItem('plotAgainstFarmer' + currentfarmerId);
       }
+
+      console.log('PLOT_AG-Farmer', response.status);
       if (response) {
-        if (
-          response?.data?.data?.land_info?.agri_land_user_latlongs.length > 2
-        ) {
-          setIsGeoFence(true);
-        } else {
-          setIsGeoFence(false);
-          Alert.alert(
-            'Plot is not geofenced to register carbon activities',
+        const dataArray = response?.data?.data.map(data => ({
+          value: data.rel_id,
+          label: data.plot_no,
+        }));
+        setPlotAll(dataArray);
+        if (isOnline) {
+          var activityType_res = await axiosGet(
+            ROUTES.GET.ACTIVITY_TYPE_AWD(),
             '',
-            [
+            {information: `${dbname},${lan_id},${currentfarmerId}`},
+          );
+          // activityTypeAPIAWD(
+          //   dbname,
+          //   lan_id,
+          //   currentfarmerId,
+          // );
+          await setItem('activityType' + currentfarmerId, activityType_res);
+        } else {
+          var activityType_res = await getItem(
+            'activityType' + currentfarmerId,
+          );
+        }
+
+        console.log('Activity Type', activityType_res?.status);
+        if (activityType_res?.status == 200) {
+          const dataArray = activityType_res?.data?.data?.rows.map(data => ({
+            value: data.fid,
+            label: data.categoryName,
+            field_type: data.field_type,
+          }));
+          setActivityTypeAll(dataArray);
+        }
+      }
+      setIsLoading(false);
+    },
+    [isOnline],
+  );
+  const handlePlot = useCallback(
+    async relId => {
+      try {
+        const {latitude, longitude} = coords || {};
+        setIsLoading(true);
+        if (isOnline) {
+          var [response] = await Promise.all([
+            axiosGet(
+              ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+                relID: relId.value,
+              }),
+              '',
               {
-                text: 'OK',
+                information: `${dbname},${lan_id},${farmerID}`,
               },
-            ],
-            { cancelable: false },
+            ),
+            // produceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value),
+          ]);
+          await setItem(
+            'produceAgainstPlot' + farmerID + relId.value,
+            response,
+          );
+        } else {
+          var response = await getItem(
+            'produceAgainstPlot' + farmerID + relId.value,
           );
         }
-        const latandlongArr =
-          response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
-            (_data, _index) => ({
-              longitude: parseFloat(_data.longitude),
-              latitude: parseFloat(_data.latitude),
-            }),
-          );
-        if (latandlongArr.length != 0) {
-          setPlotPolygon(latandlongArr);
-          const inside = isPointInPolygon({ latitude, longitude }, latandlongArr);
-          if (inside) {
-            setOutofRange(true);
-            setOutofRangeCheck(true);
+
+        console.log('Produce-ag-Farmer', response.status);
+        if (response) {
+          if (
+            response?.data?.data?.land_info?.agri_land_user_latlongs.length > 2
+          ) {
+            setIsGeoFence(true);
           } else {
-            setOutofRange(false);
-            setOutofRangeCheck(false);
-          }
-        }
-        const dateString = response?.data?.data?.harvesting_date;
-        const harvesting_date = new Date(dateString);
-        const currentDate = new Date();
-        if (harvesting_date > currentDate) {
-          const data = response?.data?.data;
-          setShowingMenu(true);
-          data.crop_cycl_start_date == null ||
-            data.crop_cycl_start_date == '2004-02-29'
-            ? setIsButtonDisabled(false)
-            : setIsButtonDisabled(true);
-          let cycle_start_date =
-            data.crop_cycl_start_date == null ||
-              data.crop_cycl_start_date == '2004-02-29'
-              ? data.sowing_date
-              : data.crop_cycl_start_date;
-          setNameVarityStartEnd(prev => ({
-            ...prev,
-            name: data.crop_name.name,
-            varity: data.crop_variety.name,
-            cycleStarts: cycle_start_date,
-            cycleEnd: data.harvesting_date,
-          }));
-          setSaveData(prev => ({
-            ...prev,
-            user_id: farmerID,
-            plot_id: relId.value,
-            plot_Name: relId.label,
-            crop_name: data.crop_name.fid,
-            crop_variety: data.crop_variety.fid,
-            cycle_start_date: cycle_start_date,
-            cu_rel_id: data.cu_rel_id,
-            cycle_start_date: cycle_start_date,
-            crop_season: data?.crop_season?.fid,
-            latitude: coords?.latitude,
-            longitude: coords?.longitude,
-            growth_stage: '',
-            act_ref_type: '',
-            act_to_date: '',
-            act_to_date_label: '',
-            act_start_date: '',
-            act_ref: '',
-            act_master_id: '',
-            field_type: '',
-          }));
-          // setsinglePlot(response.data.data.rows);
-          setCropType(data.crop_type.fid);
-          setCropName(data.crop_name.fid);
-          setSelectedImagePipe(prev => ({
-            ...prev,
-            firstItem: '',
-            firstItemLat: '',
-            firstItemLong: '',
-            secondItem: '',
-            secondItemLat: '',
-            secondItemLong: '',
-          }));
-          setselectPipeList(prev => ({
-            ...prev,
-            label: '',
-            value: '',
-          }));
-          if (isOnline) {
-            var [productionStage_res, activitySchedule, pipeLatLongRes] =
-              await Promise.all([
-                productionStageAPI(
-                  dbname,
-                  lan_id,
-                  data.crop_type_id,
-                  data.crop_name_id,
-                ),
-                activityScheduleAPI(
-                  dbname,
-                  lan_id,
-                  token,
-                  'carbon_activity',
-                  relId.value,
-                  data.crop_name_id,
-                  data.cu_rel_id,
-                ),
-                inputOutputRoutePipeImagesLatLong(
-                  dbname,
-                  lan_id,
-                  farmerID,
-                  relId.value,
-                  data.crop_name.fid,
-                  data.cu_rel_id,
-                ),
-                // setItem(
-                //   'productionStageAPI' + data.crop_type_id + data.crop_type_id,
-                //   productionStage_res,
-                // ),
-                setLastAct(''),
-                setOverdueAct([]),
-                setUpcomingAct(''),
-              ]);
-          } else {
-            var productionStage_res = await getItem(
-              'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+            setIsGeoFence(false);
+            Alert.alert(
+              'Plot is not geofenced to register carbon activities',
+              '',
+              [
+                {
+                  text: 'OK',
+                },
+              ],
+              {cancelable: false},
             );
           }
-          if (productionStage_res) {
-            const dataArray = productionStage_res?.data?.data?.growth_stage.map(
-              data => ({
-                value: data.growth_stage.fid,
-                label: data.growth_stage.name,
+          const latandlongArr =
+            response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
+              (_data, _index) => ({
+                longitude: parseFloat(_data.longitude),
+                latitude: parseFloat(_data.latitude),
               }),
             );
-            setProductionStageAll(dataArray);
-          }
-          if (activitySchedule.status == 200) {
-            setIsLoading(false);
-            if (
-              activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-            ) {
-              var lastData =
-                activitySchedule?.data?.data?.lastActivity?.activityName
-                  ?.categoryName +
-                ' (' +
-                formatDate(
-                  activitySchedule?.data?.data?.lastActivity?.act_start_date,
-                ) +
-                ' - ' +
-                formatDate(
-                  activitySchedule?.data?.data?.lastActivity?.act_to_date,
-                ) +
-                ')';
-              setLastAct(lastData);
+          if (latandlongArr.length != 0) {
+            setPlotPolygon(latandlongArr);
+            const inside = isPointInPolygon(
+              {latitude, longitude},
+              latandlongArr,
+            );
+            if (inside) {
+              setOutofRange(true);
+              setOutofRangeCheck(true);
+            } else {
+              setOutofRange(false);
+              setOutofRangeCheck(false);
             }
-            // console.log(activitySchedule.data.data.lastActivity);
-            // var overdueData;
-            if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-              activitySchedule?.data?.data?.otherActivities.forEach(function (
-                element,
+          }
+          const dateString = response?.data?.data?.harvesting_date;
+          const harvesting_date = new Date(dateString);
+          const currentDate = new Date();
+          if (harvesting_date > currentDate) {
+            const data = response?.data?.data;
+            setShowingMenu(true);
+            data.crop_cycl_start_date == null ||
+            data.crop_cycl_start_date == '2004-02-29'
+              ? setIsButtonDisabled(false)
+              : setIsButtonDisabled(true);
+            let cycle_start_date =
+              data.crop_cycl_start_date == null ||
+              data.crop_cycl_start_date == '2004-02-29'
+                ? data.sowing_date
+                : data.crop_cycl_start_date;
+            setNameVarityStartEnd(prev => ({
+              ...prev,
+              name: data.crop_name.name,
+              varity: data.crop_variety.name,
+              cycleStarts: cycle_start_date,
+              cycleEnd: data.harvesting_date,
+            }));
+            setSaveData(prev => ({
+              ...prev,
+              user_id: farmerID,
+              plot_id: relId.value,
+              plot_Name: relId.label,
+              crop_name: data.crop_name.fid,
+              crop_variety: data.crop_variety.fid,
+              cycle_start_date: cycle_start_date,
+              cu_rel_id: data.cu_rel_id,
+              cycle_start_date: cycle_start_date,
+              crop_season: data?.crop_season?.fid,
+              latitude: coords?.latitude,
+              longitude: coords?.longitude,
+              growth_stage: '',
+              act_ref_type: '',
+              act_to_date: '',
+              act_to_date_label: '',
+              act_start_date: '',
+              act_ref: '',
+              act_master_id: '',
+              field_type: '',
+            }));
+            // setsinglePlot(response.data.data.rows);
+            setCropType(data.crop_type.fid);
+            setCropName(data.crop_name.fid);
+            setSelectedImagePipe(prev => ({
+              ...prev,
+              firstItem: '',
+              firstItemLat: '',
+              firstItemLong: '',
+              secondItem: '',
+              secondItemLat: '',
+              secondItemLong: '',
+            }));
+            setselectPipeList(prev => ({
+              ...prev,
+              label: '',
+              value: '',
+            }));
+            if (isOnline) {
+              var [productionStage_res, activitySchedule, pipeLatLongRes] =
+                await Promise.all([
+                  axiosGet(
+                    ROUTES.GET.PRODUCTION_STAGE({
+                      languageID: lan_id,
+                      cropTypeId: data.crop_type_id,
+                      cropNameID: data.crop_name_id,
+                    }),
+                    '',
+                    {information: `${dbname},${lan_id}`},
+                  ),
+                  // productionStageAPI(
+                  //   dbname,
+                  //   lan_id,
+                  //   data.crop_type_id,
+                  //   data.crop_name_id,
+                  // ),
+
+                  axiosGet(
+                    ROUTES.GET.ACTIVITY_SCHEDULE_API({
+                      type: 'carbon_activity',
+                      plotId: relId.value,
+                      cropId: data.crop_name_id,
+                      cu_rel_id: data.cu_rel_id,
+                    }),
+                    token,
+                    {information: `${dbname},${lan_id}`},
+                  ),
+                  // activityScheduleAPI(
+                  //   dbname,
+                  //   lan_id,
+                  //   token,
+                  //   'carbon_activity',
+                  //   relId.value,
+                  //   data.crop_name_id,
+                  //   data.cu_rel_id,
+                  // ),
+
+                  axiosGet(
+                    ROUTES.GET.INPUT_OUTPUT_ROUTE_PIPE_IMG_LAT_LONG({
+                      plot_fid: relId.value,
+                      cropfid: data.crop_name.fid,
+                      cu_rel_id: data.cu_rel_id,
+                    }),
+                    '',
+                    {information: `${dbname},${lan_id},${farmerID}`},
+                  ),
+                  // inputOutputRoutePipeImagesLatLong(
+                  //   dbname,
+                  //   lan_id,
+                  //   farmerID,
+                  //   relId.value,
+                  //   data.crop_name.fid,
+                  //   data.cu_rel_id,
+                  // ),
+                  // setItem(
+                  //   'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+                  //   productionStage_res,
+                  // ),
+                  setLastAct(''),
+                  setOverdueAct([]),
+                  setUpcomingAct(''),
+                ]);
+            } else {
+              var productionStage_res = await getItem(
+                'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+              );
+            }
+
+            console.log('productionStage_res', productionStage_res.status);
+            if (productionStage_res) {
+              const dataArray =
+                productionStage_res?.data?.data?.growth_stage.map(data => ({
+                  value: data.growth_stage.fid,
+                  label: data.growth_stage.name,
+                }));
+              setProductionStageAll(dataArray);
+            }
+            console.log('activitySchedule', activitySchedule.status);
+            if (activitySchedule.status == 200) {
+              setIsLoading(false);
+              if (
+                activitySchedule?.data?.data?.lastActivity !==
+                'No Last Activity'
               ) {
-                var overdueData;
-                if (element?.days_until_start < 0) {
-                  overdueData =
-                    element?.activityName.categoryName +
-                    ' (' +
-                    formatDate(element?.activity_start_date) +
-                    ' - ' +
-                    formatDate(element?.activity_end_date) +
-                    ')';
-                  //  console.log("00",overdueData);
-                  setOverdueAct(prevItems => [...prevItems, overdueData]);
-                }
-                // setOverdueAct(prevItems => [...prevItems, overdueData]);
-              });
-              const upcomingActivity =
-                activitySchedule?.data?.data?.otherActivities?.find(
-                  item => item.days_until_start >= 0,
-                );
-              if (upcomingActivity != undefined) {
-                const monthNames = [
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                  'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December',
-                ];
-                // const cycleDate =
-                //   cycleDtartDate == ''
-                //     ? saveData.cycle_start_date
-                //     : cycleDtartDate;
-                const cycleDate =
-                  data.crop_cycl_start_date == null ||
-                    data.crop_cycl_start_date == '2004-02-29'
-                    ? data.sowing_date
-                    : data.crop_cycl_start_date;
-                const sdate = new Date(cycleDate);
-                sdate.setDate(sdate.getDate() + upcomingActivity?.days_from);
-                const smonth = monthNames[sdate.getMonth()];
-                const sday = sdate.getDate();
-                const syear = sdate.getFullYear();
-                const startDate = `${smonth} ${sday}, ${syear}`;
-                const edate = new Date(cycleDate);
-                edate.setDate(edate.getDate() + upcomingActivity?.days_to);
-                const emonth = monthNames[edate.getMonth()];
-                const eday = edate.getDate();
-                const eyear = edate.getFullYear();
-                const endDate = `${emonth} ${eday}, ${eyear}`;
-                const startDateEndDate = `${startDate}-${endDate}`;
-
-                setUpcomingAct(
-                  upcomingActivity?.activityName?.categoryName +
+                var lastData =
+                  activitySchedule?.data?.data?.lastActivity?.activityName
+                    ?.categoryName +
                   ' (' +
-                  startDateEndDate +
-                  ')',
-                );
+                  formatDate(
+                    activitySchedule?.data?.data?.lastActivity?.act_start_date,
+                  ) +
+                  ' - ' +
+                  formatDate(
+                    activitySchedule?.data?.data?.lastActivity?.act_to_date,
+                  ) +
+                  ')';
+                setLastAct(lastData);
               }
-              //  console.log(
-              //    upcomingActivity?.activityName?.categoryName +
-              //      ' (' +
-              //      startDateEndDate +
-              //      ')',
-              //  );
+              // console.log(activitySchedule.data.data.lastActivity);
+              // var overdueData;
+              if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+                activitySchedule?.data?.data?.otherActivities.forEach(function (
+                  element,
+                ) {
+                  var overdueData;
+                  if (element?.days_until_start < 0) {
+                    overdueData =
+                      element?.activityName.categoryName +
+                      ' (' +
+                      formatDate(element?.activity_start_date) +
+                      ' - ' +
+                      formatDate(element?.activity_end_date) +
+                      ')';
+                    //  console.log("00",overdueData);
+                    setOverdueAct(prevItems => [...prevItems, overdueData]);
+                  }
+                  // setOverdueAct(prevItems => [...prevItems, overdueData]);
+                });
+                const upcomingActivity =
+                  activitySchedule?.data?.data?.otherActivities?.find(
+                    item => item.days_until_start >= 0,
+                  );
+                if (upcomingActivity != undefined) {
+                  const monthNames = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December',
+                  ];
+                  // const cycleDate =
+                  //   cycleDtartDate == ''
+                  //     ? saveData.cycle_start_date
+                  //     : cycleDtartDate;
+                  const cycleDate =
+                    data.crop_cycl_start_date == null ||
+                    data.crop_cycl_start_date == '2004-02-29'
+                      ? data.sowing_date
+                      : data.crop_cycl_start_date;
+                  const sdate = new Date(cycleDate);
+                  sdate.setDate(sdate.getDate() + upcomingActivity?.days_from);
+                  const smonth = monthNames[sdate.getMonth()];
+                  const sday = sdate.getDate();
+                  const syear = sdate.getFullYear();
+                  const startDate = `${smonth} ${sday}, ${syear}`;
+                  const edate = new Date(cycleDate);
+                  edate.setDate(edate.getDate() + upcomingActivity?.days_to);
+                  const emonth = monthNames[edate.getMonth()];
+                  const eday = edate.getDate();
+                  const eyear = edate.getFullYear();
+                  const endDate = `${emonth} ${eday}, ${eyear}`;
+                  const startDateEndDate = `${startDate}-${endDate}`;
+
+                  setUpcomingAct(
+                    upcomingActivity?.activityName?.categoryName +
+                      ' (' +
+                      startDateEndDate +
+                      ')',
+                  );
+                }
+                //  console.log(
+                //    upcomingActivity?.activityName?.categoryName +
+                //      ' (' +
+                //      startDateEndDate +
+                //      ')',
+                //  );
+              }
+              // setScheduleInfo({
+              //   ...scheduleInfo,
+              //   lastAct: '',
+              //   upcomingAct: '',
+              // });
             }
-            // setScheduleInfo({
-            //   ...scheduleInfo,
-            //   lastAct: '',
-            //   upcomingAct: '',
-            // });
+            setIsLoading(false);
+          } else {
+            setIsButtonDisabled(false);
+            // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+            setSearchFarmerName(prev => ({
+              ...prev,
+              label: '',
+              value: '',
+              phone: '',
+            }));
+            // setplotAll([])
+            setModalVisible(true);
           }
-          setIsLoading(false);
-        } else {
-          setIsButtonDisabled(false);
-          // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-          setSearchFarmerName(prev => ({ ...prev, label: "", value: "", phone: "" }));
-          // setplotAll([])
-          setModalVisible(true);
         }
-      }
-      if (pipeLatLongRes?.status == 200) {
-        const pipeLatLongArr = pipeLatLongRes?.data?.data?.pipeData?.rows.map(
-          _data => {
-            return {
-              latitude: parseFloat(_data.pipeLatLong[0].latitude),
-              longitude: parseFloat(_data.pipeLatLong[0].longitude),
-              name:
-                _data.pipe_name +
-                '  (' +
-                _data?.pipeActName?.categoryName +
-                ')',
-            };
-          },
-        );
 
-        setPipeLatLong(pipeLatLongArr);
-      } else {
-        setPipeLatLong([]);
-      }
+        console.log('pipeLatLongRes', pipeLatLongRes.status);
+        if (pipeLatLongRes?.status == 200) {
+          const pipeLatLongArr = pipeLatLongRes?.data?.data?.pipeData?.rows.map(
+            _data => {
+              return {
+                latitude: parseFloat(_data.pipeLatLong[0].latitude),
+                longitude: parseFloat(_data.pipeLatLong[0].longitude),
+                name:
+                  _data.pipe_name +
+                  '  (' +
+                  _data?.pipeActName?.categoryName +
+                  ')',
+              };
+            },
+          );
 
-      setIsLoading(false);
-    } catch (error) {
-      CrashlyticsRecordError(error, 'ActivityReportAWD', 'handlePlot');
-      console.log(error);
-    }
-  }, [farmerID]);
+          setPipeLatLong(pipeLatLongArr);
+        } else {
+          setPipeLatLong([]);
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        CrashlyticsRecordError(error, 'ActivityReportAWD', 'handlePlot');
+        console.log(error);
+      }
+    },
+    [farmerID],
+  );
 
   const formatDate = dateString => {
     const date = new Date(dateString);
@@ -616,17 +710,28 @@ const ActivityReportAWD = ({ navigation }) => {
           saveData.cu_rel_id,
           save_data,
         ),
-        activityScheduleAPI(
-          dbname,
-          lan_id,
-          token,
-          'carbon_activity',
-          saveData.plot_id,
-          saveData.crop_name,
-          saveData.cu_rel_id,
-        ),
-      ]);
 
+        axiosGet(
+          ROUTES.GET.ACTIVITY_SCHEDULE_API({
+            type: 'carbon_activity',
+            plotId: saveData.plot_id,
+            cropId: saveData.crop_name,
+            cu_rel_id: saveData.cu_rel_id,
+          }),
+          token,
+          {information: `${dbname},${lan_id}`},
+        ),
+        // activityScheduleAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   'carbon_activity',
+        //   saveData.plot_id,
+        //   saveData.crop_name,
+        //   saveData.cu_rel_id,
+        // ),
+      ]);
+      console.log('activitySchedule2222', activitySchedule.status);
       if (activitySchedule.status == 200) {
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
           var lastData =
@@ -707,9 +812,9 @@ const ActivityReportAWD = ({ navigation }) => {
 
             setUpcomingAct(
               upcomingActivity?.activityName?.categoryName +
-              ' (' +
-              startDateEndDate +
-              ')',
+                ' (' +
+                startDateEndDate +
+                ')',
             );
           }
           // console.log(
@@ -829,16 +934,16 @@ const ActivityReportAWD = ({ navigation }) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
+      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
       return false;
     }
     if (!isGeoFence) {
-      Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
+      Toast.show({text: 'Plot is not geofenced ', ...AlertMesg[0]});
       // Alert.alert('You are out of range');
       return;
     }
     if (!outofRangeCheck) {
-      Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+      Toast.show({text: 'You are out of range', ...AlertMesg[0]});
       // Alert.alert('You are out of range');
       return;
     }
@@ -899,8 +1004,8 @@ const ActivityReportAWD = ({ navigation }) => {
         formData.append('act_ref', saveData.act_ref);
         if (saveData.field_type == 'add') {
           const pipe_data = pipeDetails.map(_data => {
-            const { selectedImagePipe, pipe_name } = _data;
-            const { firstItemLat, firstItemLong, secondItemLat, secondItemLong } =
+            const {selectedImagePipe, pipe_name} = _data;
+            const {firstItemLat, firstItemLong, secondItemLat, secondItemLong} =
               selectedImagePipe || {};
             const pipe_lattlong = [];
             if (firstItemLat != '') {
@@ -935,15 +1040,15 @@ const ActivityReportAWD = ({ navigation }) => {
               longitude: selectedImagePipe.secondItemLong,
             });
           }
-          const pipe_data = [{ pipe_id: selectPipeList.value, latlong: latlong }];
+          const pipe_data = [{pipe_id: selectPipeList.value, latlong: latlong}];
           if (latlong.length != 0) {
             formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
           }
         }
         if (saveData.field_type == 'add') {
           pipeDetails.map((_data, _index) => {
-            const { selectedImagePipe } = _data;
-            const { firstItem, secondItem } = selectedImagePipe || {};
+            const {selectedImagePipe} = _data;
+            const {firstItem, secondItem} = selectedImagePipe || {};
             const firstItemfileName = firstItem.split('/').pop();
             const secondItemfileName = secondItem.split('/').pop();
             if (firstItemfileName != '') {
@@ -990,28 +1095,52 @@ const ActivityReportAWD = ({ navigation }) => {
       // Geolocation.clearWatch(watchIdSaveData);
       if (isOnline) {
         // const database_res = await activitySaveAPI(dbname, lan_id, token, saveData.user_id, formData);addPrevPipeActivity
+
         if (saveData.field_type == 'add') {
-          var database_res = await addUserPipeActivity(
-            dbname,
-            lan_id,
-            token,
-            saveData.user_id,
+          var database_res = await axiosPost(
+            ROUTES.POST.ADD_USER_PIPE_ACTIVITY,
             formData,
-            pipeDetails.length,
+            token,
+            false,
+            {
+              information: `${dbname},${lan_id},${saveData.user_id}`,
+              pipe_count: pipeDetails.length,
+            },
           );
+
+          // addUserPipeActivity(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   saveData.user_id,
+          //   formData,
+          //   pipeDetails.length,
+          // );
+          console.log('2nd-', database_res?.status);
         } else {
-          var database_res = await addPrevPipeActivity(
-            dbname,
-            lan_id,
-            token,
-            saveData.user_id,
+          var database_res = await axiosPost(
+            ROUTES.POST.UPDATE_PIPE_ACTIVITY,
             formData,
-            1,
+            token,
+            false,
+            {
+              information: `${dbname},${lan_id},${saveData.user_id}`,
+              pipe_count: 1,
+            },
           );
+          // addPrevPipeActivity(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   saveData.user_id,
+          //   formData,
+          //   1,
+          // );
         }
+        console.log('1st-', database_res?.status);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
-          navigation.navigate('activityList', { action: "addData" });
+          navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -1019,7 +1148,7 @@ const ActivityReportAWD = ({ navigation }) => {
           });
         }
       } else {
-        console.log("offline")
+        console.log('offline');
         formData.append('farmerID', saveData.user_id);
         let timeStamp = Date.now();
         await setItem('off' + timeStamp, formData);
@@ -1032,193 +1161,230 @@ const ActivityReportAWD = ({ navigation }) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        navigation.navigate('activityList', { action: "addData" });
+        navigation.navigate('activityList', {action: 'addData'});
       }
     }
   };
 
-  const handleActivityType = useCallback(async item => {
-    try {
-      let dataArray = [];
-      if (isOnline) {
-        var response = await activityInfoAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
-          CropType,
-          CropName,
-          item.value,
-        );
-        await setItem(
-          'activityInfo' + farmerID + CropType + CropName + item.value,
-          response,
-        );
-      } else {
-        var response = await getItem(
-          'activityInfo' + farmerID + CropType + CropName + item.value,
-        );
-      }
-      setSaveData(prev => ({
-        ...prev,
-        act_to_date: '',
-        act_to_date_label: '',
-        act_start_date: '',
-        act_ref: '',
-        act_master_id: '',
-        act_ref_type: item.value,
-        field_type: '',
-      }));
-      setSelectedImagePipe(prev => ({
-        ...prev,
-        firstItem: '',
-        firstItemLat: '',
-        firstItemLong: '',
-        secondItem: '',
-        secondItemLat: '',
-        secondItemLong: '',
-      }));
-      setselectPipeList(prev => ({
-        ...prev,
-        label: '',
-        value: '',
-      }));
-      if (response.data.data.count > 0) {
-        response.data.data.rows.forEach(element => {
-          const monthNames = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-          ];
-          const cycleDate =
-            cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
-          const sdate = new Date(cycleDate);
-          sdate.setDate(sdate.getDate() + element?.days_from);
-          const smonth = monthNames[sdate.getMonth()];
-          const sday = sdate.getDate();
-          const syear = sdate.getFullYear();
-          const startDate = `${smonth} ${sday}, ${syear}`;
-          const edate = new Date(cycleDate);
-          edate.setDate(edate.getDate() + element?.days_to);
-          const emonth = monthNames[edate.getMonth()];
-          const eday = edate.getDate();
-          const eyear = edate.getFullYear();
-          const endDate = `${emonth} ${eday}, ${eyear}`;
-          const startDateEndDate = `${startDate}-${endDate}`;
-          dataArray.push({
-            start_date: sdate,
-            end_date: edate,
-            value: element.act_rid,
-            label:
-              element?.activity?.categoryName + ' (' + startDateEndDate + ')',
-            act_master_id: element?.act_master_id,
-            field_type: element?.activity?.field_type,
-          });
-        });
-        if (isButtonDisabled) {
-          setActivityInfoAll(dataArray);
+  const handleActivityType = useCallback(
+    async item => {
+      try {
+        let dataArray = [];
+        if (isOnline) {
+          var response = await axiosGet(
+            ROUTES.GET.ACTIVITY_INFO({
+              cropType: CropType,
+              cropName: CropName,
+              actTypeID: item.value,
+            }),
+            token,
+            {information: `${dbname},${lan_id},${farmerID}`},
+          );
+          // activityInfoAPI(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   farmerID,
+          //   CropType,
+          //   CropName,
+          //   item.value,
+          // );
+          await setItem(
+            'activityInfo' + farmerID + CropType + CropName + item.value,
+            response,
+          );
+        } else {
+          var response = await getItem(
+            'activityInfo' + farmerID + CropType + CropName + item.value,
+          );
         }
-        setPipeListDetailsResArr([]);
-      } else {
-        setActivityInfoAll([]);
+        setSaveData(prev => ({
+          ...prev,
+          act_to_date: '',
+          act_to_date_label: '',
+          act_start_date: '',
+          act_ref: '',
+          act_master_id: '',
+          act_ref_type: item.value,
+          field_type: '',
+        }));
+        setSelectedImagePipe(prev => ({
+          ...prev,
+          firstItem: '',
+          firstItemLat: '',
+          firstItemLong: '',
+          secondItem: '',
+          secondItemLat: '',
+          secondItemLong: '',
+        }));
+        setselectPipeList(prev => ({
+          ...prev,
+          label: '',
+          value: '',
+        }));
+
+        console.log('Activity-INFO', response.status);
+        if (response.data.data.count > 0) {
+          response.data.data.rows.forEach(element => {
+            const monthNames = [
+              'January',
+              'February',
+              'March',
+              'April',
+              'May',
+              'June',
+              'July',
+              'August',
+              'September',
+              'October',
+              'November',
+              'December',
+            ];
+            const cycleDate =
+              cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
+            const sdate = new Date(cycleDate);
+            sdate.setDate(sdate.getDate() + element?.days_from);
+            const smonth = monthNames[sdate.getMonth()];
+            const sday = sdate.getDate();
+            const syear = sdate.getFullYear();
+            const startDate = `${smonth} ${sday}, ${syear}`;
+            const edate = new Date(cycleDate);
+            edate.setDate(edate.getDate() + element?.days_to);
+            const emonth = monthNames[edate.getMonth()];
+            const eday = edate.getDate();
+            const eyear = edate.getFullYear();
+            const endDate = `${emonth} ${eday}, ${eyear}`;
+            const startDateEndDate = `${startDate}-${endDate}`;
+            dataArray.push({
+              start_date: sdate,
+              end_date: edate,
+              value: element.act_rid,
+              label:
+                element?.activity?.categoryName + ' (' + startDateEndDate + ')',
+              act_master_id: element?.act_master_id,
+              field_type: element?.activity?.field_type,
+            });
+          });
+          if (isButtonDisabled) {
+            setActivityInfoAll(dataArray);
+          }
+          setPipeListDetailsResArr([]);
+        } else {
+          setActivityInfoAll([]);
+        }
+      } catch (error) {
+        CrashlyticsRecordError(
+          error,
+          'ActivityReportAWD',
+          'handleActivityType',
+        );
       }
-    } catch (error) {
-      CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityType');
-    }
-  }, [CropType, CropName]);
+    },
+    [CropType, CropName],
+  );
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
-  const handleActivityInfo = useCallback(async item => {
-    try {
-      const act_to_date1 = item.end_date;
-      const date1 = new Date(act_to_date1);
-      const year1 = date1.getFullYear();
-      const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
-      const day1 = date1.getDate().toString().padStart(2, '0');
-      const act_to_date = `${year1}-${month1}-${day1}`;
-      const act_start_date1 = item.start_date;
-      ``;
-      const date2 = new Date(act_start_date1);
-      const year2 = date2.getFullYear();
-      const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
-      const day2 = date2.getDate().toString().padStart(2, '0');
-      const act_start_date = `${year2}-${month2}-${day2}`;
-      setSaveData(prev => ({
-        ...prev,
-        act_to_date: act_to_date,
-        act_to_date_label: item.label,
-        act_start_date: act_start_date,
-        act_ref: item.value,
-        act_master_id: item?.act_master_id,
-        field_type: item?.field_type || '',
-      }));
-      setSelectedImagePipe(prev => ({
-        ...prev,
-        firstItem: '',
-        firstItemLat: '',
-        firstItemLong: '',
-        secondItem: '',
-        secondItemLat: '',
-        secondItemLong: '',
-      }));
-      setselectPipeList(prev => ({
-        ...prev,
-        label: '',
-        value: '',
-      }));
-      const PipeListDetailsRes = await getUniquePipeNames(
-        dbname,
-        lan_id,
-        token,
-        farmerID,
-        saveData.plot_id,
-        item?.act_master_id,
-        saveData.cu_rel_id,
-      );
-      if (PipeListDetailsRes?.status == 200) {
-        const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
-          (_data, _index) => ({
-            value: _data.pipe_pid,
-            label: _data.pipe_name,
+  const handleActivityInfo = useCallback(
+    async item => {
+      try {
+        const act_to_date1 = item.end_date;
+        const date1 = new Date(act_to_date1);
+        const year1 = date1.getFullYear();
+        const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
+        const day1 = date1.getDate().toString().padStart(2, '0');
+        const act_to_date = `${year1}-${month1}-${day1}`;
+        const act_start_date1 = item.start_date;
+        ``;
+        const date2 = new Date(act_start_date1);
+        const year2 = date2.getFullYear();
+        const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+        const day2 = date2.getDate().toString().padStart(2, '0');
+        const act_start_date = `${year2}-${month2}-${day2}`;
+        setSaveData(prev => ({
+          ...prev,
+          act_to_date: act_to_date,
+          act_to_date_label: item.label,
+          act_start_date: act_start_date,
+          act_ref: item.value,
+          act_master_id: item?.act_master_id,
+          field_type: item?.field_type || '',
+        }));
+        setSelectedImagePipe(prev => ({
+          ...prev,
+          firstItem: '',
+          firstItemLat: '',
+          firstItemLong: '',
+          secondItem: '',
+          secondItemLat: '',
+          secondItemLong: '',
+        }));
+        setselectPipeList(prev => ({
+          ...prev,
+          label: '',
+          value: '',
+        }));
+        const PipeListDetailsRes = await axiosGet(
+          ROUTES.GET.UNIQUE_PIPE_NAME({
+            plot_id: saveData.plot_id,
+            cu_rel_id: saveData.cu_rel_id,
           }),
+          token,
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
-        setPipeListDetailsResArr(pipeDetailsArr);
-        if (PipeListDetailsRes?.data?.data?.length == 0) {
-          Keyboard.dismiss();
-          Toast.show({
-            time: 2,
-            text: `${t('No pipe found in ' + item.label)}`,
-            ...AlertMesg[0],
-          });
+        // getUniquePipeNames(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   farmerID,
+        //   saveData.plot_id,
+        //   item?.act_master_id,
+        //   saveData.cu_rel_id,
+        // );
+
+        console.log('getUniquePipeNames', PipeListDetailsRes?.status);
+        if (PipeListDetailsRes?.status == 200) {
+          const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
+            (_data, _index) => ({
+              value: _data.pipe_pid,
+              label: _data.pipe_name,
+            }),
+          );
+          setPipeListDetailsResArr(pipeDetailsArr);
+          if (PipeListDetailsRes?.data?.data?.length == 0) {
+            Keyboard.dismiss();
+            Toast.show({
+              time: 2,
+              text: `${t('No pipe found in ' + item.label)}`,
+              ...AlertMesg[0],
+            });
+          }
+        } else {
+          setPipeListDetailsResArr([]);
         }
-      } else {
-        setPipeListDetailsResArr([]);
+      } catch (error) {
+        CrashlyticsRecordError(
+          error,
+          'ActivityReportAWD',
+          'handleActivityInfo',
+        );
       }
-    } catch (error) {
-      CrashlyticsRecordError(error, 'ActivityReportAWD', 'handleActivityInfo');
-    }
-  }, [saveData.plot_id,saveData.cu_rel_id]);
+    },
+    [saveData.plot_id, saveData.cu_rel_id],
+  );
   //basudev
   const [selectPipeList, setselectPipeList] = useState({
     label: '',
     value: '',
   });
   const handleActivityPipe = useCallback(_item => {
-    const { pipeFiles, pipeLatLong, label, value } = _item || {};
-    setselectPipeList(prev => ({ ...prev, label, value }));
+    const {pipeFiles, pipeLatLong, label, value} = _item || {};
+    setselectPipeList(prev => ({...prev, label, value}));
   }, []);
   const onPageLoad = async () => {
     try {
       setSaveData(prev => ({
-        ...prev, act_pattern: 'schedule', latitude: coords.latitude,
+        ...prev,
+        act_pattern: 'schedule',
+        latitude: coords.latitude,
         longitude: coords.longitude,
       }));
       setisActiveMenu(true);
@@ -1232,7 +1398,14 @@ const ActivityReportAWD = ({ navigation }) => {
   };
 
   useEffect(() => {
-    onPageLoad();
+    const task = InteractionManager.runAfterInteractions(() => {
+      onPageLoad();
+      startWatchingLocation();
+    });
+    return () => {
+      task.cancel();
+      stopWatchingLocation();
+    };
   }, []);
 
   const handleHarvested = async data => {
@@ -1324,7 +1497,7 @@ const ActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1337,7 +1510,7 @@ const ActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1426,7 +1599,7 @@ const ActivityReportAWD = ({ navigation }) => {
     } else {
       setPipeDetails([
         ...pipeDetails,
-        { pipe_name: pipeNumber, selectedImagePipe },
+        {pipe_name: pipeNumber, selectedImagePipe},
       ]);
       setSelectedImagePipe(prev => ({
         ...prev,
@@ -1510,11 +1683,11 @@ const ActivityReportAWD = ({ navigation }) => {
         const watermarkText = `${coords?.latitude},${coords?.longitude},${formattedTime}`;
 
         const markerOptions = {
-          backgroundImage: { src: asset.uri, scale: 1 },
+          backgroundImage: {src: asset.uri, scale: 1},
           watermarkTexts: [
             {
               text: watermarkText,
-              positionOptions: { position: Position.bottomLeft },
+              positionOptions: {position: Position.bottomLeft},
               style: {
                 color: '#df2020',
                 fontSize: 2,
@@ -1555,19 +1728,19 @@ const ActivityReportAWD = ({ navigation }) => {
     });
   }, [cameraItem, setSelectedImagePipe, setModalVisibleMap]);
   const handlegrowth_stage = useCallback(growth_stage => {
-    setSaveData(prev => ({ ...prev, growth_stage: growth_stage.value }))
+    setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);
   const handleact_desc = useCallback(act_desc => {
-    setSaveData(prev => ({ ...prev, act_desc: act_desc }))
+    setSaveData(prev => ({...prev, act_desc: act_desc}));
   }, []);
   const handlematerial_used = useCallback(material_used => {
-    setSaveData(prev => ({ ...prev, material_used: material_used }))
+    setSaveData(prev => ({...prev, material_used: material_used}));
   }, []);
   const handlewater_used = useCallback(water_used => {
-    setSaveData(prev => ({ ...prev, water_used: water_used }))
+    setSaveData(prev => ({...prev, water_used: water_used}));
   }, []);
   const handlepower_used = useCallback(power_used => {
-    setSaveData(prev => ({ ...prev, power_used: power_used }))
+    setSaveData(prev => ({...prev, power_used: power_used}));
   }, []);
   return (
     <FarmerDrawerScreenWrapper1>
@@ -1675,17 +1848,13 @@ const ActivityReportAWD = ({ navigation }) => {
                           </Text>
                         </View>
                         <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.label}>
-                            {t('crop_veriety')}
-                          </Text>
+                          <Text style={styles.label}>{t('crop_veriety')}</Text>
                           <Text style={styles.value}>
                             {nameVarityStartEnd.varity.substring(0, 12)}
                           </Text>
                         </View>
                         <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.label}>
-                            {t('showing_date')}
-                          </Text>
+                          <Text style={styles.label}>{t('showing_date')}</Text>
                           <Text style={styles.value}>
                             {formatDateToMMDDYYYY(
                               nameVarityStartEnd.cycleStarts,
@@ -1697,9 +1866,7 @@ const ActivityReportAWD = ({ navigation }) => {
                             {t('harvesting_date_auto_calculated')}
                           </Text>
                           <Text style={styles.value}>
-                            {formatDateToMMDDYYYY(
-                              nameVarityStartEnd.cycleEnd,
-                            )}
+                            {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
                           </Text>
                         </View>
                       </View>
@@ -1712,7 +1879,7 @@ const ActivityReportAWD = ({ navigation }) => {
                     onChange={handlegrowth_stage}
                     val={saveData.growth_stage}
                   />
-                  <View style={{ marginBottom: 15 }}>
+                  <View style={{marginBottom: 15}}>
                     <Text style={styles.title}>
                       {t('pick_crop_cycle_start_date')}
                     </Text>
@@ -1721,7 +1888,7 @@ const ActivityReportAWD = ({ navigation }) => {
                         style={styles.cycleContainerDate}
                         disabled={isButtonDisabled}
                         onPress={() => srtCycleStartDate(true)}>
-                        <View style={{ width: '80%' }}>
+                        <View style={{width: '80%'}}>
                           <Text style={styles.title}>
                             {cycleDtartDate == ''
                               ? saveData.cycle_start_date
@@ -1730,7 +1897,7 @@ const ActivityReportAWD = ({ navigation }) => {
                         </View>
                         <Image
                           source={require('../../Common/images/calendar.png')}
-                          style={{ width: 20, height: 20 }}
+                          style={{width: 20, height: 20}}
                         />
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -1747,7 +1914,7 @@ const ActivityReportAWD = ({ navigation }) => {
                         <Text
                           style={[
                             styles.titleDate,
-                            { color: isButtonDisabled ? '#000' : '#FFF' },
+                            {color: isButtonDisabled ? '#000' : '#FFF'},
                           ]}>
                           {t('set_the_crop_cycle_start_date')}
                         </Text>
@@ -1789,9 +1956,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       {upcomingAct ? (
                         <View style={styles.plotSiteContainer}>
                           <View style={styles.detailRow}>
-                            <Text style={styles.label}>
-                              Upcoming activity
-                            </Text>
+                            <Text style={styles.label}>Upcoming activity</Text>
                             <View style={styles.bulletPointContainer}>
                               <Text style={styles.bulletPoint}>•</Text>
                               <Text style={[styles.value1, styles.leftAlign]}>
@@ -1811,9 +1976,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       {overdueAct.length > 0 ? (
                         <View style={styles.plotSiteContainer}>
                           <View style={styles.detailRow}>
-                            <Text style={styles.label}>
-                              Overdue Activities
-                            </Text>
+                            <Text style={styles.label}>Overdue Activities</Text>
                             {overdueAct.map((act, index) => (
                               <View
                                 key={index}
@@ -1838,7 +2001,13 @@ const ActivityReportAWD = ({ navigation }) => {
                       {saveData.field_type != '' &&
                         // activityPattern
                         saveData.field_type != null && (
-                          <View style={{ borderWidth: 0.5, borderColor: Colors.useGreen, borderRadius: 8, padding: 10, }}>
+                          <View
+                            style={{
+                              borderWidth: 0.5,
+                              borderColor: Colors.useGreen,
+                              borderRadius: 8,
+                              padding: 10,
+                            }}>
                             <Text
                               style={[
                                 styles.title,
@@ -1884,12 +2053,12 @@ const ActivityReportAWD = ({ navigation }) => {
                                     borderRadius: 50,
                                   }}
                                   onPress={() => addMorePipe()}>
-                                  <Text style={{ color: '#FFF' }}>
+                                  <Text style={{color: '#FFF'}}>
                                     Save and Add Instrument
                                   </Text>
                                 </TouchableOpacity>
                               )}
-                              <View style={{ marginTop: 10 }}>
+                              <View style={{marginTop: 10}}>
                                 {pipeDetails.map((_data, _index) => (
                                   <TouchableOpacity
                                     style={{
@@ -1919,7 +2088,7 @@ const ActivityReportAWD = ({ navigation }) => {
                                       }>
                                       <Image
                                         source={require('../../Common/images/cross.png')}
-                                        style={{ width: 20, height: 20 }}
+                                        style={{width: 20, height: 20}}
                                       />
                                     </TouchableOpacity>
                                   </TouchableOpacity>
@@ -1932,9 +2101,8 @@ const ActivityReportAWD = ({ navigation }) => {
                   ) : (
                     ''
                   )}
-                  <View style={{ marginBottom: 15, marginTop: 10 }}>
-                    <View
-                      style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{marginBottom: 15, marginTop: 10}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <Text
                         style={{
                           fontFamily: 'Poppins-Regular',
@@ -1951,7 +2119,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       <Text style={styles.title}>{activityPreFormDate}</Text>
                       <Image
                         source={require('../../Common/images/calendar.png')}
-                        style={{ width: 20, height: 20 }}
+                        style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
                   </View>
@@ -1959,13 +2127,11 @@ const ActivityReportAWD = ({ navigation }) => {
                     label={t('your_comm_')}
                     value={saveData.act_desc}
                     onChangeText={handleact_desc}
-
                   />
                   <InputTextForm
                     label={t('material_used')}
                     value={saveData.material_used}
                     onChangeText={handlematerial_used}
-
                   />
                   <InputTextForm
                     label={t('water_used')}
@@ -1979,7 +2145,11 @@ const ActivityReportAWD = ({ navigation }) => {
                   />
                 </View>
               </ScrollView>
-              <ButtonForm label={t('submit')} onPress={() => handleSave()} loading={isLoading} />
+              <ButtonForm
+                label={t('submit')}
+                onPress={() => handleSave()}
+                loading={isLoading}
+              />
             </View>
           </>
         </Root>
@@ -2077,7 +2247,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
 
-
   plotSiteContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -2089,7 +2258,7 @@ const styles = StyleSheet.create({
     borderLeftColor: Colors.borderGreen,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

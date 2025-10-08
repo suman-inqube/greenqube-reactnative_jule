@@ -12,7 +12,7 @@ import { getItem } from '../../../config/getDataFromStorage';
 import MessageDialog from '../../Common/MessageDialog';
 import { useFocusEffect } from '@react-navigation/native';
 import { useIsFocused } from '@react-navigation/native';
-import { Root, Popup, Toast from '@sekizlipenguen/react-native-popup-confirm-toast'
+import { Root, Popup, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import { AlertMesg } from '../../Common/ToastAlert';
 import { useTranslation } from 'react-i18next';
 import HarvestedModel from '../../Common/HarvestedModel';

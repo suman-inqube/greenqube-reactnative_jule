@@ -12,7 +12,7 @@ import {UserCreateContextProvider} from './pages/Context/usersCreateContext';
 import {Root as PopupRootProvider} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import ErrorScreen from './pages/Common/ErrorScreen';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
-let isExceptionHandlerConfigured = false;
+// let isExceptionHandlerConfigured = false;
 import './pages/services/i18next'
 // const configureExceptionHandlers = setFatalError => {
 //   if (isExceptionHandlerConfigured) return;

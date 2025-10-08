@@ -267,7 +267,7 @@ const PlotStatusUpdate = () => {
         PlotSiteUserLandDetails(dbname, lan_id, token, farmer_data.user_id),
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
-        ProductionSeasonAndApi(dbname, lan_id, ''),
+        // ProductionSeasonAndApi(dbname, lan_id, ''),
         // livelihoodCropAndPlotDetailsAPI(dbname, lan_id, farmeruserID, dataProps?.rel_id),
         getPlotDocAPI(dbname, lan_id, token, farmer_data.user_id, rel_id),
         terraintype_resAPI(dbname, lan_id, 'terrain_type'),
@@ -1173,6 +1173,7 @@ const PlotStatusUpdate = () => {
       crop_type_id,
       crop_name_id,
     );
+    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr =
         productSeasonresRes?.data?.data?.crop_season.map(data => ({

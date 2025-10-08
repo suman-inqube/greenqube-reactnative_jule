@@ -121,3 +121,4 @@ dependencies {
 project.ext.react = [
     enableHermes: false  // <--- set this to false
 ]
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

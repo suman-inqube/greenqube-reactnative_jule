@@ -110,13 +110,19 @@ const PostNew = ({navigation}) => {
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
     setfarmerID(currentfarmerId);
-    const response = await problemPlotAgainstFarmerAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+        farmerID: currentfarmerId,
+      }),
       token,
-      currentfarmerId,
+      {information: `${dbname},${lan_id}`},
     );
-    // console.log('response', response);
+    // problemPlotAgainstFarmerAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   currentfarmerId,
+    // );
     if (response?.status == 200) {
       const dataArray = [
         {
@@ -140,11 +146,14 @@ const PostNew = ({navigation}) => {
     setIsLoading(true);
     if (relId.label == 'other') {
       setIsOther(true);
-      const farmer_all = await farmerAgainstSupervisorAPI(
-        dbname,
-        lan_id,
-        farmerID,
+      const farmer_all = await axiosGet(
+        ROUTES.GET.FARMER_AGAINST_SUPERVISOR({userID: farmerID}),
+        '',
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+        },
       );
+
       if (farmer_all?.status == 200) {
         const problemNameFound = farmer_all.data.data.rows.find(
           user => user.user_id === relId.user_id,
@@ -177,13 +186,26 @@ const PostNew = ({navigation}) => {
     } else {
       setIsOther(false);
       const [livelyhoodNameVerity, farmer_all] = await Promise.all([
-        livelihoodNameVarietyLandrelAPI(
-          dbname,
-          lan_id,
-          relId.user_id,
-          relId.value,
+        axiosGet(
+          ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+            relID: relId.value,
+          }),
+          '',
+          {
+            information: `${dbname},${lan_id},${relId.user_id}`,
+          },
         ),
-        farmerAgainstSupervisorAPI(dbname, lan_id, farmerID),
+        // livelihoodNameVarietyLandrelAPI(
+        //   dbname,
+        //   lan_id,
+        //   relId.user_id,
+        //   relId.value,
+        // ),
+
+        axiosGet(ROUTES.GET.FARMER_AGAINST_SUPERVISOR({userID: farmerID}), '', {
+          information: `${dbname},${lan_id},${farmerID}`,
+        }),
+        // farmerAgainstSupervisorAPI(dbname, lan_id, farmerID),
       ]);
       if (livelyhoodNameVerity) {
         const problemNameFound = farmer_all.data.data.rows.find(
@@ -263,7 +285,16 @@ const PostNew = ({navigation}) => {
   };
   const handleUnit = useCallback(async item => {
     setIsLoading(true);
-    const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
+    const unitRes = await axiosGet(
+      ROUTES.GET.UNIT_BY_LIST({
+        is_default: 1,
+        sub_type: item.sub_type,
+      }),
+      '',
+      {information: `${dbname},${lan_id}`},
+    );
+    // unitByListAPI(dbname, lan_id, 1, item.sub_type);
+
     if (unitRes?.status == 200) {
       const rows = unitRes?.data?.data?.rows[0];
       setSaveData(prev => ({
@@ -309,7 +340,19 @@ const PostNew = ({navigation}) => {
       district: district,
       block: block,
     }));
-    const unitByList = await unitByListAPI(dbname, lan_id);
+    const unitByList = await axiosGet(
+      ROUTES.GET.UNIT_BY_LIST({
+        is_default: '',
+        sub_type: '',
+      }),
+      '',
+      {information: `${dbname},${lan_id}`},
+    );
+
+    // unitByListAPI(dbname, lan_id);
+
+    console.log('unitByList.status', unitByList.status);
+
     if (unitByList.status === 200) {
       const dataArray = unitByList?.data?.data?.rows.map(data => ({
         value: data.fid,

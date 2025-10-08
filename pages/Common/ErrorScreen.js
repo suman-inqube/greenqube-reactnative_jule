@@ -1,7 +1,15 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 
-const ErrorScreen = ({ error, onRetry }) => {
+const ErrorScreen = ({error, onRetry}) => {
+  Alert.alert(error);
   return (
     <View style={styles.container}>
       <Image
@@ -9,10 +17,10 @@ const ErrorScreen = ({ error, onRetry }) => {
         style={styles.image}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Oops! Something went wrong.</Text>
-      <Text style={styles.message}>
-        We will need to restart the app
+      <Text style={styles.title}>
+        {error?.message}Oops! Something went wrong.
       </Text>
+      <Text style={styles.message}>We will need to restart the app</Text>
       <TouchableOpacity style={styles.button} onPress={onRetry}>
         <Text style={styles.buttonText}>Try Again</Text>
       </TouchableOpacity>

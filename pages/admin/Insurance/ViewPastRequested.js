@@ -24,6 +24,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import ListCard from '../../Components/ListCard';
+import {ROUTES} from '../../utils/Routes';
+import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
 
 const InsuranceViewPastRequested = ({setActiveBtn}) => {
   //GQR-67
@@ -68,16 +70,27 @@ const InsuranceViewPastRequested = ({setActiveBtn}) => {
     to_date = '',
   ) => {
     setIsLoading(true);
-    const response = await InsuranceListAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.INSURANCE_LIST({
+        farmer_id: farmer_id,
+        from_date: from_date,
+        to_date: to_date,
+        user_id: user_id,
+        farmer_mobile: farmer_mobile,
+      }),
       token,
-      user_id,
-      farmer_id,
-      farmer_mobile,
-      from_date,
-      to_date,
+      {information: `${dbname},${lan_id},${user_id}`},
     );
+    // InsuranceListAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   farmer_id,
+    //   farmer_mobile,
+    //   from_date,
+    //   to_date,
+    // );
     if (response?.status == 200) {
       if (response.data.data.rows.length == 0) {
         Toast.show({text: `${t('no_data_found')}`, ...AlertMesg[0]});

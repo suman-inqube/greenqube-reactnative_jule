@@ -29,6 +29,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const ViewProblem = ({navigation}) => {
   // console.log('Question Title:', farmerProblem?.question_title);
   //GQR-67
@@ -133,11 +135,19 @@ const ViewProblem = ({navigation}) => {
             comment_qid,
           );
         } else {
-          var response = await farmerProblemDetailApi(
-            dbname,
-            lan_id,
-            problemIdData,
+          var response = await axiosGet(
+            ROUTES.GET.FARMER_PROBLEM_DETAILS({
+              quesId: problemIdData,
+            }),
+            '',
+            {information: `${dbname},${lan_id}`},
           );
+
+          // farmerProblemDetailApi(
+          //   dbname,
+          //   lan_id,
+          //   problemIdData,
+          // );
         }
 
         if (response?.status == 200) {
@@ -165,6 +175,7 @@ const ViewProblem = ({navigation}) => {
         });
         const [commnetList, answerList] = await Promise.all([
           problemCommentListAPI(dbname, user_id, question_id),
+
           problemAnswerListAPI(dbname, lan_id, token, question_id),
         ]);
         if (commnetList?.status == 200) {

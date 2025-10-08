@@ -18,16 +18,6 @@ import React, {
   useRef,
 } from 'react';
 import {
-  ProductionSeasonAndApi,
-  ProductionProcessAPI,
-  ProductionUnitAPI,
-  livelihoodCropAndPlotDetailsAPI,
-  PlotSiteUserLandDetails,
-  UpdateLandCropdetailsAPI,
-  AddLandCropDetailsAPI,
-  LandUnitArea,
-  LandUnitsquare_metre,
-  UnitConversonToDefault,
   nearestLatLong,
   uploadCarbonAgrDocs,
   landRouteApi,
@@ -55,6 +45,7 @@ import {
   calculatePolygonArea,
   isWithin20Meters,
 } from '../../Common/calculateAreaFun';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import CarbonCertificate from '../../Common/CarbonCertificate';
 const timeoutConfig = { timeout: 5000 };
@@ -67,7 +58,7 @@ import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import { groupByRelId } from '../../utils/helpers';
 import { Colors, Fonts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { axiosGet } from '../../utils/api';
+import { axiosGet, axiosPut, axiosPost } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import { getActionsPlot } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
@@ -94,8 +85,9 @@ const LiveHood = ({
     DropdownForm,
     effective_dates,
     navigationBarHeight,
-    coords,
+    coords, startWatchingLocation, stopWatchingLocation
   } = useContext(userCreateContext);
+
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-65
   const navigation = useNavigation();
@@ -224,10 +216,10 @@ const LiveHood = ({
   const [previousPlotLatlong, setPreviousPlotLatlong] = useState([]);
   const [add_new_crop, setAdd_new_crop] = useState(false);
   const onPageLoad = useCallback(async () => {
-    console.log(coords, "coordscoords")
     try {
       setIsLoading(true);
       const { latitude, longitude } = coords || {};
+      console.log(coords, "ZZZZZZZZZZZZZZZZZZZZZZZZZZ");
       setreferencelatLong({ latitude, longitude });
       const axiosConfig = {
         headers: {
@@ -236,7 +228,7 @@ const LiveHood = ({
         },
       };
       const [
-        // nearestLatLong_res,
+        nearestLatLong_res,
         unitConversion_res,
         plotSiteUserLandDetails_res,
         landUnitArea_res,
@@ -250,23 +242,47 @@ const LiveHood = ({
         produceVariety_res,
         productionProcess_res,
       ] = await Promise.all([
+        axiosPost(
+          ROUTES.POST.NEAREST_LATLONG,
+          {
+            latitude: latitude,
+            longitude: longitude,
+            distance: 200,
+            data_limit: 100,
+          },
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id}`,
+          },
+        ),
         // nearestLatLong(dbname, lan_id, token, latitude, longitude),
-        axiosGet(ROUTES.GET.UNIT_ROUTE({ unit_type: "land_unit", is_default: '', sub_type: "", unit_slug: "" }), token, {
+
+        axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
           information: `${dbname},${lan_id}`,
         }),
+        // UnitConversonToDefault(dbname, lan_id, token),
+
         axiosGet(
-          ROUTES.GET.PLOT_AGAINST_FARMER({
-            user_id: farmeruserID,
+          ROUTES.GET.PLOT_SIDE_USER_LAND_DETAILS({
+            farmeruserID: farmeruserID,
           }),
           token,
           { information: `${dbname},${lan_id}` },
         ),
-        axiosGet(ROUTES.GET.UNIT_ROUTE({ unit_type: "land_unit", is_default: 1, sub_type: "land_area", unit_slug: "" }), token, {
+        // PlotSiteUserLandDetails(dbname, lan_id, token, farmeruserID),
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA({}), token, {
           information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
         }),
-        axiosGet(ROUTES.GET.UNIT_ROUTE({ unit_type: "land_unit", is_default: 1, sub_type: "land_area", unit_slug: "square_metre" }), token, {
-          information: `${dbname},${lan_id}`
+        // LandUnitArea(dbname, lan_id, token),
+
+        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
         }),
+        // LandUnitsquare_metre(dbname, lan_id, token),
+
         axiosGet(
           ROUTES.GET.PRODUCTION_SEASON({
             lanId: lan_id,
@@ -284,19 +300,19 @@ const LiveHood = ({
         landType_resAPI(dbname, lan_id, 'land_type'),
         landunit_resAPI(axiosConfig),
         produceVarietyAPI(dbname, lan_id),
+
         productionProcessAPI(dbname, lan_id),
       ]);
-      console.log(plotSiteUserLandDetails_res, "plotSiteUserLandDetails_res")
-      console.log(landUnitSquare_res, "landUnitSquare_res")
-      // if (nearestLatLong_res?.status === 200) {
-      //   const {data} = nearestLatLong_res.data;
-      //   if (data?.length > 0) {
-      //     setnearPolData(data);
-      //     const grouped = groupByRelId(data);
-      //     setnearPolSet(grouped);
-      //     setPolygons(grouped);
-      //   }
-      // }
+      console.log(nearestLatLong_res, "nearestLatLong")
+      if (nearestLatLong_res?.status === 200) {
+        const { data } = nearestLatLong_res.data;
+        if (data?.length > 0) {
+          setnearPolData(data);
+          const grouped = groupByRelId(data);
+          setnearPolSet(grouped);
+          setPolygons(grouped);
+        }
+      }
       if (unitConversion_res?.status === 200) {
         const rows = unitConversion_res.data?.data?.rows || [];
         const invalidUnits = rows.filter(
@@ -306,7 +322,6 @@ const LiveHood = ({
           setConvertionLUState(true);
         }
       }
-      console.log(landUnitSquare_res, "landUnitSquare_res")
       if (landUnitArea_res?.status === 200) {
         const { count, rows = [] } = landUnitArea_res.data?.data || {};
         setLandAreaUnit(count > 0 ? rows : []);
@@ -316,6 +331,7 @@ const LiveHood = ({
         const { count, rows = [] } = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
+
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -328,7 +344,7 @@ const LiveHood = ({
       });
       CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
     }
-  }, []);
+  }, [coords]);
 
   const handlePlot = useCallback(
     async findData => {
@@ -338,7 +354,6 @@ const LiveHood = ({
       let locationLength = 0;
       setPlotEdit(true);
       setupdateRelId(findData.value);
-      const { latitude, longitude } = coords || {};
       const [
         productSeasonresRes,
         cropAndPlotDetails,
@@ -375,12 +390,28 @@ const LiveHood = ({
         // ),
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
         getItem('fusedLocation'),
+
+        axiosPost(
+          ROUTES.POST.NEAREST_LATLONG,
+          {
+            latitude: latitude,
+            longitude: longitude,
+            distance: 200,
+            data_limit: 100,
+          },
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id}`,
+          },
+        ),
+
         // nearestLatLong(
         //   dbname,
         //   lan_id,
         //   token,
-        //   latitude,
-        //   longitude,
+        //   findData?.latitude,
+        //   findData?.longitude,
         // ),
       ]);
       setPlotId(findData.value);
@@ -484,7 +515,6 @@ const LiveHood = ({
           },
         ]);
       }
-      console.log('cropAndPlotDetails?.status', cropAndPlotDetails?.status);
       if (cropAndPlotDetails?.status === 200) {
         const data = cropAndPlotDetails?.data?.data || {};
         plotSiteUserLandDetails.map((dataLandDetails, index) => {
@@ -514,7 +544,7 @@ const LiveHood = ({
             } else {
               setEdit(true);
             }
-
+            setIsLoading(false);
             // setArea(data.land_info?.google_area);
             if (landUnitsquareMetre?.[0]?.defined_unit_value) {
               setArea(
@@ -569,6 +599,7 @@ const LiveHood = ({
                 Number(dataLandDetails?.land_unit?.defined_unit_value) *
                 Number(dataLandDetails?.land_size),
             }));
+            return;
           }
         });
         const agri_land_user_latlongs = data.land_info.agri_land_user_latlongs;
@@ -678,7 +709,6 @@ const LiveHood = ({
           setAdd_new_crop(false);
         }
       }
-      console.log('productSeasonresRes', productSeasonresRes?.status);
       if (productSeasonresRes?.status === 200) {
         const productSeasonresResArr =
           productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -693,21 +723,20 @@ const LiveHood = ({
         setProductionSeason(productSeasonresResArr);
         setLivelihoodType(livelihoodTypeArr);
       }
-      // if (nearestLatLong_res?.status == 200) {
-      //   if (nearestLatLong_res.data.data.length > 0) {
-      //     setnearPolData(nearestLatLong_res.data.data);
-      //     groupedData = groupByRelId(nearestLatLong_res.data.data);
-      //     if (
-      //       statuslevel == 'APPROVED' ||
-      //       statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
-      //       statuslevel == 'CARBON_DOCUMENTS_APPROVED'
-      //     ) {
-      //       setnearPolSet(groupedData);
-      //       setPolygons(groupedData);
-      //     }
-      //   }
-      // }
-      setIsLoading(false);
+      if (nearestLatLong_res?.status == 200) {
+        if (nearestLatLong_res.data.data.length > 0) {
+          setnearPolData(nearestLatLong_res.data.data);
+          groupedData = groupByRelId(nearestLatLong_res.data.data);
+          if (
+            statuslevel == 'APPROVED' ||
+            statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
+            statuslevel == 'CARBON_DOCUMENTS_APPROVED'
+          ) {
+            setnearPolSet(groupedData);
+            setPolygons(groupedData);
+          }
+        }
+      }
     },
     [
       farmerData,
@@ -729,8 +758,12 @@ const LiveHood = ({
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
+      startWatchingLocation();
     });
-    return () => task.cancel(); // cleanup
+    return () => {
+      task.cancel();
+      stopWatchingLocation();
+    };
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
@@ -966,6 +999,7 @@ const LiveHood = ({
         { information: `${dbname},${lan_id}` },
       );
       // landRouteApi(dbname, lan_id, type);
+
       if (terraintype_res?.status == 200) {
         const terraintypeArray = terraintype_res.data.data.rows.map(data => ({
           value: data.fid,
@@ -987,6 +1021,7 @@ const LiveHood = ({
         { information: `${dbname},${lan_id}` },
       );
       // landRouteApi(dbname, lan_id, type);
+
       if (soilType_res?.status == 200) {
         const soilTypeArray = soilType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1007,7 +1042,8 @@ const LiveHood = ({
         '',
         { information: `${dbname},${lan_id}` },
       );
-      // landRouteApi(dbname, lan_id, type);;
+      // landRouteApi(dbname, lan_id, type);
+
       if (landType_res?.status == 200) {
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1046,7 +1082,6 @@ const LiveHood = ({
     crop_type_id,
     crop_name_id,
   ) => {
-    console.log(dbName, languageID, crop_type_id, crop_name_id);
     const productSeasonresRes = await axiosGet(
       ROUTES.GET.PRODUCTION_SEASON({
         lanId: languageID,
@@ -1063,7 +1098,6 @@ const LiveHood = ({
     //   crop_type_id,
     //   crop_name_id,
     // );
-    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr =
         productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -1104,7 +1138,6 @@ const LiveHood = ({
     //   crop_type_id,
     //   crop_name_id,
     // );
-    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
 
     if (productSeasonresRes?.status == 200) {
       const produceVariety = productSeasonresRes?.data?.data?.crop_variety.map(
@@ -1123,6 +1156,7 @@ const LiveHood = ({
       { information: `${dbName},${languageID}` },
     );
     // ProductionProcessAPI(dbName, languageID);
+
     if (productionProcessRes?.status == 200) {
       const productionProcessArr = productionProcessRes?.data?.data?.rows.map(
         data => ({ value: data?.fid, label: data?.name }),
@@ -1132,10 +1166,12 @@ const LiveHood = ({
   };
   const productionProcessAPI = async (dbName, languageID) => {
     const ProductionUnitRes = await axiosGet(
-      ROUTES.GET.UNIT_ROUTE({ unit_type: "yield_unit", is_default: '', sub_type: "", unit_slug: "" }),
+      ROUTES.GET.PRODUCTION_UNIT({}),
       '',
       { information: `${dbName},${languageID}` },
     );
+
+    // ProductionUnitAPI(dbName, languageID);
 
     if (ProductionUnitRes?.status == 200) {
       const productionUnitArr = ProductionUnitRes?.data?.data?.rows.map(
@@ -1318,15 +1354,22 @@ const LiveHood = ({
             formdata.append('plot_image', data);
           }
         });
-        const AddLandCropDetails_res = await AddLandCropDetailsAPI(
-          dbname,
-          lan_id,
-          farmeruserID,
-          token,
+        const AddLandCropDetails_res = await axiosPost(
+          ROUTES.POST.ADD_LAND_CROP_DETAIL({}),
           formdata,
-          '',
-          '',
+          token,
+          false,
+          { information: `${dbname},${lan_id},${farmeruserID}` },
         );
+        // AddLandCropDetailsAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   token,
+        //   formdata,
+        //   '',
+        //   '',
+        // );
         if (AddLandCropDetails_res?.status === 200) {
           removesetLocation();
           Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
@@ -1393,17 +1436,28 @@ const LiveHood = ({
         if (cusCropCyclStartDate) {
           dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
         }
-        let save_data = qs.stringify(dataToSend);
+        // let save_data = qs.stringify(dataToSend);
         let updateLandCropdetails_res = {};
-        updateLandCropdetails_res = await UpdateLandCropdetailsAPI(
-          dbname,
-          lan_id,
-          farmeruserID,
+        updateLandCropdetails_res = await axiosPut(
+          ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
+            land_rel_id: farmerData.land_rel_id,
+            crop_rel_id: farmerData.cu_rel_id,
+          }),
+          dataToSend,
           token,
-          save_data,
-          farmerData.land_rel_id,
-          farmerData.cu_rel_id,
+          true,
+          { information: `${dbname},${lan_id},${farmeruserID}` },
         );
+
+        // UpdateLandCropdetailsAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   token,
+        //   save_data,
+        //   farmerData.land_rel_id,
+        //   farmerData.cu_rel_id,
+        // );
         addressProof.map((data, index) => {
           if (data.name != '' && data.id == '') {
             formDataPlotImg.append('plot_image', data);
@@ -1489,6 +1543,7 @@ const LiveHood = ({
             formdataCarbon,
           );
         }
+
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
           Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
@@ -1648,8 +1703,10 @@ const LiveHood = ({
   };
 
   const clearNewPolygon = () => {
+
     setFarmerData(prev => ({ ...prev, google_area: 0 }));
     if (userData == 'addUserData' || addPlot == true) {
+      
       setNewPolygon([]);
       setPolygons(nearPolSet);
       removesetLocation();
@@ -1694,8 +1751,9 @@ const LiveHood = ({
   };
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
-  const handleRegionChangeComplete = async newRegion => {
+  const handleRegionChangeComplete = useCallback(async newRegion => {
     const { latitude, longitude } = newRegion;
+    console.log(newRegion, 'newRegion');
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1709,12 +1767,19 @@ const LiveHood = ({
         Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await nearestLatLong(
-            dbname,
-            lan_id,
+          const nearestLatLong_res = await axiosPost(
+            ROUTES.POST.NEAREST_LATLONG,
+            {
+              latitude: latitude,
+              longitude: longitude,
+              distance: 200,
+              data_limit: 100,
+            },
             token,
-            latitude,
-            longitude,
+            false,
+            {
+              information: `${dbname},${lan_id}`,
+            },
           );
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res?.data?.data;
@@ -1725,16 +1790,11 @@ const LiveHood = ({
               latitude: parseFloat(item.latitude),
               longitude: parseFloat(item.longitude),
             }));
-            const index = groupedData.findIndex(
-              subArray =>
-                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
-            );
+            const index = groupedData.findIndex(subArray => JSON.stringify(subArray) === JSON.stringify(parsedTargetArray));
             const foundArray = groupedData.filter(
               item => !isEqualCoordinatesArray(item, parsedTargetArray),
             );
             setnearPolSet(foundArray);
-
-            // setnearPolSet(groupedData);
             setPolygons(foundArray);
           }
         } catch (error) {
@@ -1746,7 +1806,7 @@ const LiveHood = ({
         setIsLoading(false);
       }
     }, 3000);
-  };
+  }, [coords]);
   const handleIOTId = useCallback(async text => {
     try {
       setFarmerData(prev => ({ ...prev, IOTId: text }));
@@ -2069,21 +2129,21 @@ const LiveHood = ({
               loginUser_data={loginUser_data}
               disable={
                 statuslevel.label == 'APPROVED' ||
-                statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                   ? false
                   : statuslevel.label == 'PENDING' ||
                     statuslevel.label == 'REJECTED'
-                  ? false
-                  : true
+                    ? false
+                    : true
               }
               InputTextFormEdit={InputTextFormEdit}
               marginBottom={navigationBarHeight}
             />
 
             <View style={{ marginTop: 15 }}>
-              {/* <ProofAndIdentityPropfComp
+              <ProofAndIdentityPropfComp
                 identityProofIdentityPropf={identityProofIdentityPropf}
                 t={t}
                 title={t('address_proofAndIdentityPropf')}
@@ -2095,23 +2155,23 @@ const LiveHood = ({
                 status_level={statuslevel.label}
                 InputTextFormEdit={
                   statuslevel.label == 'PENDING' ||
-                  statuslevel.label == 'REJECTED'
+                    statuslevel.label == 'REJECTED'
                     ? true
                     : false
                 }
                 disable={
                   statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? false
                     : statuslevel.label == 'PENDING' ||
                       statuslevel.label == 'REJECTED'
-                    ? false
-                    : true
+                      ? false
+                      : true
                 }
                 marginBottom={navigationBarHeight}
-              /> */}
+              />
             </View>
 
             {area != 0 && area != null && (

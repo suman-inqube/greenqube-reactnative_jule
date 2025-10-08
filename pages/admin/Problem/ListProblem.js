@@ -67,20 +67,12 @@ const ListProblem = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const handleProblem = async (
     pageNo,
-    search_uid,
-    from_date,
-    to_date,
-    farmer_mobile,
-    search_key_type,
+    search_uid='',
+    from_date='',
+    to_date='',
+    farmer_mobile='',
+    search_key_type='',
   ) => {
-    console.log(
-      pageNo,
-      search_uid,
-      from_date,
-      to_date,
-      farmer_mobile,
-      search_key_type,
-    );
     try {
       setIsLoading(true);
       let response;

@@ -102,7 +102,8 @@ const SplashScreen = ({ navigation }) => {
 
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      const company_res = await axiosGet(ROUTES.GET.DATABASE_LIST);
+      const company_res = await axiosGet(ROUTES.GET.DATABASE_LIST(), '');
+      console.log(JSON.stringify(company_res.data))
       if (!isMountedRef.current) return;
       if (company_res?.status === 200 && company_res?.data?.data) {
         setState(prev => ({
@@ -115,7 +116,7 @@ const SplashScreen = ({ navigation }) => {
     } catch (error) {
       if (isMountedRef.current) {
         setState(prev => ({ ...prev, isLoading: false }));
-        CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
+        // CrashlyticsRecordError(error, 'SplashScreen', 'databaseListAPI');
         console.error('Company API error:', error);
       }
     }

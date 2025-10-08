@@ -1,6 +1,6 @@
 import React, { useState, lazy } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { SPSheet from '@sekizlipenguen/react-native-popup-confirm-toast'
+import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import DropdownForm from '../Common/DropdownForm';
 import { Colors, Fonts } from '../utils/Constants';
 const RadioForm = lazy(() => import('../Common/RadioForm'));
