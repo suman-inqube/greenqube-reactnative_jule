@@ -20,6 +20,9 @@ export const ROUTES = {
   GET: {
     REGIONAL_DATA: `categoryRoute/list/1/0/2?search_key=&categoryType=regionaldata`,
     DEFAULT_CURR: `optionRoute/currList/1/0/5?search_key=&is_default=1`,
+    LIST_USER: ({ user_id = '' }) => `loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=${user_id}`,
+    PLOT_AGAINST_FARMER: ({ user_id }) => `landRoute/userLandDetails/${user_id}`,
+    SHOW_CARBON_FLAG: `optionRoute/showCarbonFlag`,
     PHONE_DIGIT_CHECK: ({ country_id }) => `locationRoute/getContactNoDigitByCountryID/${country_id}`,
     USER_ACTIVITY: ({
       pageNO,

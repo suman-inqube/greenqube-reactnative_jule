@@ -55,7 +55,6 @@ import {
   calculatePolygonArea,
   isWithin20Meters,
 } from '../../Common/calculateAreaFun';
-import DocumentPicker, {types} from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import CarbonCertificate from '../../Common/CarbonCertificate';
 const timeoutConfig = {timeout: 5000};
@@ -588,10 +587,14 @@ const PlotStatusUpdate = () => {
           }
           setIsLoading(false);
           // setArea(data.land_info?.google_area);
-          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+          if (
+            LandUnitsquare_metre_res?.data?.data?.rows[0]?.defined_unit_value
+          ) {
             setArea(
-              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                Number(data.land_info?.google_area),
+              Number(
+                LandUnitsquare_metre_res?.data?.data?.rows[0]
+                  ?.defined_unit_value,
+              ) * Number(data.land_info?.google_area),
             );
           } else {
             setArea(data.land_info?.google_area);
@@ -1622,7 +1625,6 @@ const PlotStatusUpdate = () => {
     setfarmerData({...farmerData, [`${name}`]: data});
   };
   const handleAddUserDataland_size = (name, data) => {
-    console.log('handleAddUserDataland_size', name, data);
     setfarmerData({
       ...farmerData,
       [`${name}`]: data,
@@ -2166,37 +2168,43 @@ const PlotStatusUpdate = () => {
                     }
                   />
                 </View>
-                {area != 0 && area != null && (
-                  <InputTextForm
-                    label={
-                      t('Calculated Map Area ') +
-                      `${
-                        landAreaUnit?.[0]?.defined_unit_value
-                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                          : '(Square meter)'
-                      }`
-                    }
-                    value={area.toString()}
-                    onChangeText={text => handleAddUserData('daag_no', text)}
-                    editable={false}
-                  />
-                )}
-
                 {/* {area != 0 && area != null && (
-              <InputTextForm
-                label={
-                  t('Calculated Map Area ') +
-                  `${
-                    landAreaUnit?.[0]?.defined_unit_value
-                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                      : '(Square meter)'
-                  }`
-                }
-                value={area.toString()}
-                onChangeText={text => handleAddUserData('daag_no', text)}
-                editable={false}
-              />
-            )} */}
+                  <>
+                    {console.log('Calculated Map  AREA:', area)}
+                    <InputTextForm
+                      label={
+                        t('Calculated Map Area ') +
+                        `${
+                          landAreaUnit?.[0]?.defined_unit_value
+                            ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                            : '(Square meter)'
+                        }`
+                      }
+                      value={area.toString()}
+                      onChangeText={text => handleAddUserData('daag_no', text)}
+                      editable={false}
+                    />
+                  </>
+                )} */}
+
+                {area != 0 && area != null && (
+                  <>
+                    {console.log('Calculated Map  AREA:', area)}
+                    <InputTextForm
+                      label={
+                        t('Calculated Map Area ') +
+                        `${
+                          landAreaUnit?.[0]?.defined_unit_value
+                            ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                            : '(Square meter)'
+                        }`
+                      }
+                      value={area.toString()}
+                      onChangeText={text => handleAddUserData('daag_no', text)}
+                      editable={false}
+                    />
+                  </>
+                )}
                 <View style={{marginTop: 10}}>
                   <InputTextForm
                     label={t('Enter IOT Id')}

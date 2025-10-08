@@ -22,12 +22,17 @@ import {
   problemTypeNameAPI,
   addModuleForView,
 } from '../../../config/apiHere';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+const AudioRecorderPlayer =
+  AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
+const audioRecorderPlayer =
+  typeof AudioRecorderPlayer === 'function'
+    ? new AudioRecorderPlayer()
+    : AudioRecorderPlayer;
 import RNFS from 'react-native-fs';
 import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import {useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
-const audioRecorderPlayer = new AudioRecorderPlayer();
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';

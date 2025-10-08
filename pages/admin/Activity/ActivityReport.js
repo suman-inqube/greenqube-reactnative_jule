@@ -11,13 +11,13 @@ import {
   Keyboard,
   Alert,
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, {useEffect, useState, useCallback, useContext} from 'react';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+// import AudioRecorderPlayer from '@react-native-ohos/react-native-audio-recorder-player';
 import TakePhoto from './TakePhoto';
-import {launchCamera} from 'react-native-image-picker';
-import Marker, {Position} from 'react-native-image-marker';
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from '@react-native-oh-tpl/react-native-image-marker';
 import RecordComp from './RecordComp';
 import {
   activityScheduleAPI,
@@ -30,24 +30,33 @@ import {
   productionStageAPI,
   setCycleDateAPI,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
-const audioRecorderPlayer = new AudioRecorderPlayer();
+// const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {AnalyticsLogEvent} from '../../Analytics';
-import {isPointInPolygon} from 'geolib';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { AnalyticsLogEvent } from '../../Analytics';
+import { isPointInPolygon } from 'geolib';
 import getCurrentLocation from '../../Common/getCurrentLocation';
-import {isWithin20Meters} from '../../Common/calculateAreaFun';
-import {Colors, Fonts, Fronts} from '../../utils/Constants';
+import { isWithin20Meters } from '../../Common/calculateAreaFun';
+import { Colors, Fonts, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-const ActivityReport = ({navigation}) => {
+
+// import useRecorder from '../../utils/useRecorder';
+import { captureRef } from 'react-native-view-shot';
+import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+const AudioRecorderPlayer =
+  AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
+const audioRecorderPlayer =
+  typeof AudioRecorderPlayer === 'function'
+    ? new AudioRecorderPlayer()
+    : AudioRecorderPlayer;
+const ActivityReport = ({ navigation }) => {
+
   //GQR-67
   const {
     loginUser_data,
@@ -75,9 +84,8 @@ const ActivityReport = ({navigation}) => {
     farmerData,
     coords,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
-  // const { pageNo } = dbLanTokUsr;
-  //GQR-67
+  const { dbname, lan_id, token, user_id } = loginUser_data;
+
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -176,30 +184,34 @@ const ActivityReport = ({navigation}) => {
     result: '',
   });
   const [outofRange, setOutofRange] = useState(false);
+  const [tempImage, setTempImage] = useState(null);
+  const [tempText, setTempText] = useState('');
+  const watermarkViewRef = useRef(null);
   const openImagePicker = item => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    const addPhoto = newPhoto => {
-      setmyPhotoAll([...myphotoAll, newPhoto]);
-    };
-    launchCamera(options, async response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.error) {
-        console.log('Camera Error: ', response.error);
-      } else {
-        const timestamp = Date.now();
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        const options = {
-          backgroundImage: {src: imageUri, scale: 1},
-          watermarkTexts: [
-            {
-              text: `${saveData.latitude},${
-                saveData.longitude
+    try {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
+
+      const addPhoto = newPhoto => {
+        setmyPhotoAll([...myphotoAll, newPhoto]);
+      };
+
+      launchCamera(options, async response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+        } else {
+          try {
+            const timestamp = Date.now();
+            let imageUri = response.uri || response.assets?.[0]?.uri;
+
+            // Create watermark text
+            const watermarkText = `${saveData.latitude},${saveData.longitude
               },${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: '2-digit',
@@ -207,38 +219,222 @@ const ActivityReport = ({navigation}) => {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-              }).format(timestamp)}`,
-              positionOptions: {
-                position: Position.bottomLeft,
-              },
-              style: {
-                color: '#df2020',
-                fontSize: 2,
-                fontName: 'Arial',
-                textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
-              },
-            },
-          ],
-          scale: 1,
-          quality: 100,
-          filename: `${response.assets[0].fileName}`,
-          saveFormat: `${response.assets[0].type}`,
-          maxSize: 1000,
-        };
-        let path = await Marker.markText(options);
-        setSelectedImage({
-          ...selectedImage,
-          [item]: `file://${path}`,
-        });
-        const newPhoto = {
-          uri: `file://${path}`,
-          type: 'image/jpeg',
-          name: `file://${path}`,
-        };
-        addPhoto(newPhoto);
-      }
-    });
+              }).format(timestamp)}`;
+
+            // Set temporary image and text for watermarking
+            setTempImage(imageUri);
+            setTempText(watermarkText);
+
+            // Wait for render
+            setTimeout(async () => {
+              try {
+                // Capture the watermarked view
+                const uri = await captureRef(watermarkViewRef, {
+                  format: 'jpg',
+                  quality: 2,
+                  width: 800,
+                  height: 800,
+                });
+
+                // Save to permanent location
+                const fileName = response.assets[0].fileName || `photo_${timestamp}.jpg`;
+                const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+                await RNFS.copyFile(uri, destPath);
+
+                const path = destPath;
+
+                // Clear temp data
+                setTempImage(null);
+                setTempText('');
+
+                // Update selected image
+                setSelectedImage({
+                  ...selectedImage,
+                  [item]: `file://${path}`,
+                });
+
+                // Add photo
+                const newPhoto = {
+                  uri: `file://${path}`,
+                  type: 'image/jpeg',
+                  name: `file://${path}`,
+                };
+                addPhoto(newPhoto);
+
+                console.log('Watermarked image saved:', path);
+              } catch (error) {
+                console.log('Capture Error:', error);
+                setTempImage(null);
+                setTempText('');
+              }
+            }, 500);
+          } catch (error) {
+            console.log('Watermark Error:', error);
+          }
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
+  // const openImagePicker = item => {
+  //   try {
+  //     const options = {
+  //       mediaType: 'photo',
+  //       includeBase64: true,
+  //       maxHeight: 200,
+  //       maxWidth: 200,
+  //     };
+
+  //     const addPhoto = newPhoto => {
+  //       setmyPhotoAll([...myphotoAll, newPhoto]);
+  //     };
+
+  //     launchCamera(options, async response => {
+  //       if (response.didCancel) {
+  //         console.log('User cancelled camera');
+  //       } else if (response.error) {
+  //         console.log('Camera Error: ', response.error);
+  //       } else {
+  //         try {
+  //           const timestamp = Date.now();
+  //           let imageUri = response.uri || response.assets?.[0]?.uri;
+
+  //           // Create watermark text
+  //           const watermarkText = `${saveData.latitude},${
+  //             saveData.longitude
+  //           },${new Intl.DateTimeFormat('en-US', {
+  //             year: 'numeric',
+  //             month: '2-digit',
+  //             day: '2-digit',
+  //             hour: '2-digit',
+  //             minute: '2-digit',
+  //             second: '2-digit',
+  //           }).format(timestamp)}`;
+
+  //           // Set temporary image and text for watermarking
+  //           setTempImage(imageUri);
+  //           setTempText(watermarkText);
+
+  //           // Wait for render
+  //           setTimeout(async () => {
+  //             try {
+  //               // Capture the watermarked view
+  //               const uri = await captureRef(watermarkViewRef, {
+  //                 format: 'jpg',
+  //                 quality: 1.0,
+  //                 width: 200,
+  //                 height: 200,
+  //               });
+
+  //               // Save to permanent location
+  //               const fileName = response.assets[0].fileName || `photo_${timestamp}.jpg`;
+  //               const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+  //               await RNFS.copyFile(uri, destPath);
+
+  //               const path = destPath;
+
+  //               // Clear temp data
+  //               setTempImage(null);
+  //               setTempText('');
+
+  //               // Update selected image
+  //               setSelectedImage({
+  //                 ...selectedImage,
+  //                 [item]: `file://${path}`,
+  //               });
+
+  //               // Add photo
+  //               const newPhoto = {
+  //                 uri: `file://${path}`,
+  //                 type: 'image/jpeg',
+  //                 name: `file://${path}`,
+  //               };
+  //               addPhoto(newPhoto);
+
+  //               console.log('Watermarked image saved:', path);
+  //             } catch (error) {
+  //               console.log('Capture Error:', error);
+  //               setTempImage(null);
+  //               setTempText('');
+  //             }
+  //           }, 500);
+  //         } catch (error) {
+  //           console.log('Watermark Error:', error);
+  //         }
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+  // const openImagePicker = item => {
+  //  try {
+  //    const options = {
+  //     mediaType: 'photo',
+  //     includeBase64: true,
+  //     maxHeight: 200,
+  //     maxWidth: 200,
+  //   };
+  //   const addPhoto = newPhoto => {
+  //     setmyPhotoAll([...myphotoAll, newPhoto]);
+  //   };
+  //   launchCamera(options, async response => {
+  //     if (response.didCancel) {
+  //       console.log('User cancelled camera');
+  //     } else if (response.error) {
+  //       console.log('Camera Error: ', response.error);
+  //     } else {
+  //       const timestamp = Date.now();
+  //       let imageUri = response.uri || response.assets?.[0]?.uri;
+  //       const options = {
+  //         backgroundImage: {src: imageUri, scale: 1},
+  //         watermarkTexts: [
+  //           {
+  //             text: `${saveData.latitude},${
+  //               saveData.longitude
+  //             },${new Intl.DateTimeFormat('en-US', {
+  //               year: 'numeric',
+  //               month: '2-digit',
+  //               day: '2-digit',
+  //               hour: '2-digit',
+  //               minute: '2-digit',
+  //               second: '2-digit',
+  //             }).format(timestamp)}`,
+  //             positionOptions: {
+  //               position: Position.bottomLeft,
+  //             },
+  //             style: {
+  //               color: '#df2020',
+  //               fontSize: 2,
+  //               fontName: 'Arial',
+  //               textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
+  //             },
+  //           },
+  //         ],
+  //         scale: 1,
+  //         quality: 100,
+  //         filename: `${response.assets[0].fileName}`,
+  //         saveFormat: `${response.assets[0].type}`,
+  //         maxSize: 1000,
+  //       };
+  //       let path = await Marker.markText(options);
+  //       setSelectedImage({
+  //         ...selectedImage,
+  //         [item]: `file://${path}`,
+  //       });
+  //       const newPhoto = {
+  //         uri: `file://${path}`,
+  //         type: 'image/jpeg',
+  //         name: `file://${path}`,
+  //       };
+  //       addPhoto(newPhoto);
+  //     }
+  //   });
+  //  } catch (error) {
+  //   console.log(error)
+  //  }
+  // };
   const handleDatePicker = async item => {
     const effective_date = effective_dates(item);
     setCycleStartDate(effective_date);
@@ -246,17 +442,17 @@ const ActivityReport = ({navigation}) => {
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({...saveData, act_perform_date: effective_date});
+    setSaveData({ ...saveData, act_perform_date: effective_date });
   };
   const handleResultSelect = async item => {
     setIsLoading(true);
-    const {label: name, value: currentfarmerId, phone} = item || {};
+    const { label: name, value: currentfarmerId, phone } = item || {};
     setSearchFarmerPhone(phone);
     setSelectedName(name);
     setSearchFarmerName(name);
     setSearchResults([]);
     setfarmerID(currentfarmerId);
-    setSaveData({...saveData, plot_id: '', plot_Name: ''});
+    setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
       name: '',
@@ -265,25 +461,16 @@ const ActivityReport = ({navigation}) => {
       cycleEnd: '',
     });
     if (isOnline) {
-      var response = await axiosGet(
-        ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
-          farmerID: currentfarmerId,
-        }),
+      var response = await plotAgainstFarmerAPI(
+        dbname,
+        lan_id,
         token,
-        {information: `${dbname},${lan_id}`},
+        currentfarmerId,
       );
-      // plotAgainstFarmerAPI(
-      //   dbname,
-      //   lan_id,
-      //   token,
-      //   currentfarmerId,
-      // );
       await setItem('plotAgainstFarmer' + currentfarmerId, response);
     } else {
       var response = await getItem('plotAgainstFarmer' + currentfarmerId);
     }
-
-    console.log('plotAgainstFarmerAPI', response.status);
     if (response) {
       const dataArray = response?.data?.data.map(data => ({
         value: data.rel_id,
@@ -291,15 +478,11 @@ const ActivityReport = ({navigation}) => {
       }));
       setplotAll(dataArray);
       if (isOnline) {
-        var activityType_res = await axiosGet(
-          ROUTES.GET.ACTIVITY_TYPE({}),
-          '',
-          {information: `${dbname},${lan_id},${currentfarmerId}`},
+        var activityType_res = await activityTypeAPI(
+          dbname,
+          lan_id,
+          currentfarmerId,
         );
-        // activityTypeAPI();
-        // dbname,
-        //   lan_id,
-        //   currentfarmerId,
         await setItem('activityType' + currentfarmerId, activityType_res);
       } else {
         var activityType_res = await getItem('activityType' + currentfarmerId);
@@ -316,24 +499,15 @@ const ActivityReport = ({navigation}) => {
   };
 
   const handlePlot = async relId => {
-    const {latitude, longitude} = coords || {};
+    const { latitude, longitude } = coords || {};
     setIsLoading(true);
     if (isOnline) {
-      var response = await axiosGet(
-        ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
-          relID: relId.value,
-        }),
-        '', // No authorization token needed
-        {
-          information: `${dbname},${lan_id},${farmerID}`,
-        },
+      var response = await produceAgainstPlotAPI(
+        dbname,
+        lan_id,
+        farmerID,
+        relId.value,
       );
-
-      // produceAgainstPlotAPI();
-      // dbname,
-      //   lan_id,
-      //   farmerID,
-      //   relId.value,
       await setItem('produceAgainstPlot' + farmerID + relId.value, response);
     } else {
       var response = await getItem(
@@ -351,7 +525,7 @@ const ActivityReport = ({navigation}) => {
       );
     if (latandlongArr.length != 0) {
       const is20Meters = isWithin20Meters(
-        {latitude, longitude},
+        { latitude, longitude },
         latandlongArr,
         20,
       );
@@ -363,225 +537,205 @@ const ActivityReport = ({navigation}) => {
         console.log('User is outside the polygon.');
       }
     }
-    try {
-      if (response?.status == 200) {
-        const dateString = response?.data?.data?.harvesting_date;
-        const harvesting_date = new Date(dateString);
-        const currentDate = new Date();
-        if (harvesting_date > currentDate) {
-          const data = response.data.data;
-          setShowingMenu(true);
-          data.crop_cycl_start_date == null ||
+    if (response) {
+      const dateString = response?.data?.data?.harvesting_date;
+      const harvesting_date = new Date(dateString);
+      const currentDate = new Date();
+      if (harvesting_date > currentDate) {
+        const data = response.data.data;
+        setShowingMenu(true);
+        data.crop_cycl_start_date == null ||
           data.crop_cycl_start_date == '2004-02-29'
-            ? setIsButtonDisabled(false)
-            : setIsButtonDisabled(true);
-          let cycle_start_date =
-            data.crop_cycl_start_date == null ||
+          ? setIsButtonDisabled(false)
+          : setIsButtonDisabled(true);
+        let cycle_start_date =
+          data.crop_cycl_start_date == null ||
             data.crop_cycl_start_date == '2004-02-29'
-              ? data.sowing_date
-              : data.crop_cycl_start_date;
-          setNameVarityStartEnd({
-            ...nameVarityStartEnd,
-            name: data.crop_name.name,
-            varity: data.crop_variety.name,
-            cycleStarts: cycle_start_date,
-            cycleEnd: data.harvesting_date,
-          });
-          setSaveData({
-            ...saveData,
-            user_id: farmerID,
-            plot_id: relId.value,
-            plot_Name: relId.label,
-            crop_name: data.crop_name.fid,
-            crop_variety: data.crop_variety.fid,
-            cycle_start_date: cycle_start_date,
-            cu_rel_id: data.cu_rel_id,
-            cycle_start_date: cycle_start_date,
-            growth_stage: '',
-            act_ref_type: '',
-            act_to_date: '',
-            act_to_date_label: '',
-            act_start_date: '',
-            act_ref: '',
-            act_master_id: '',
-          });
-          setsinglePlot(response.data.data);
-          setCropType(data.crop_type.fid);
-          setCropName(data.crop_name.fid);
-          if (isOnline) {
-            // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
-            // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
+            ? data.sowing_date
+            : data.crop_cycl_start_date;
+        setNameVarityStartEnd({
+          ...nameVarityStartEnd,
+          name: data.crop_name.name,
+          varity: data.crop_variety.name,
+          cycleStarts: cycle_start_date,
+          cycleEnd: data.harvesting_date,
+        });
+        setSaveData({
+          ...saveData,
+          user_id: farmerID,
+          plot_id: relId.value,
+          plot_Name: relId.label,
+          crop_name: data.crop_name.fid,
+          crop_variety: data.crop_variety.fid,
+          cycle_start_date: cycle_start_date,
+          cu_rel_id: data.cu_rel_id,
+          cycle_start_date: cycle_start_date,
+          growth_stage: '',
+          act_ref_type: '',
+          act_to_date: '',
+          act_to_date_label: '',
+          act_start_date: '',
+          act_ref: '',
+          act_master_id: '',
+        });
+        setsinglePlot(response.data.data);
+        setCropType(data.crop_type.fid);
+        setCropName(data.crop_name.fid);
+        if (isOnline) {
+          // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
+          // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
 
-            var [productionStage_res, activitySchedule] = await Promise.all([
-              axiosGet(
-                ROUTES.GET.PRODUCTION_STAGE({
-                  languageID: lan_id,
-                  cropTypeId: data.crop_type_id,
-                  cropNameID: data.crop_name_id,
-                }),
-                '',
-                {information: `${dbname},${lan_id}`},
-              ),
-
-              // productionStageAPI(),
-              // dbname,
-              // lan_id,
-              // data.crop_type_id,
-              // data.crop_name_id,
-              axiosGet(
-                ROUTES.GET.ACTIVITY_SCHEDULE_API({
-                  type: 'user_activity',
-                  plotId: relId.value,
-                  cropId: data.crop_name_id,
-                  cu_rel_id: data.cu_rel_id,
-                }),
-                token,
-                {information: `${dbname},${lan_id}`},
-              ),
-
-              // activityScheduleAPI(
-              //   dbname,
-              //   lan_id,
-              //   token,
-              //   'user_activity',
-              //   relId.value,
-              //   data.crop_name_id,
-              //   data.cu_rel_id,
-              // ),
-
-              setLastAct(''),
-              setOverdueAct([]),
-              setUpcomingAct(''),
-            ]);
-          } else {
-            var productionStage_res = await getItem(
-              'productionStageAPI' + data.crop_type_id + data.crop_type_id,
-            );
-          }
-
-          console.log('productionStage_res', productionStage_res.status);
-          if (productionStage_res) {
-            const dataArray = productionStage_res?.data?.data?.growth_stage.map(
-              data => ({
-                value: data.growth_stage.fid,
-                label: data.growth_stage.name,
-              }),
-            );
-            setproductionStageAll(dataArray);
-          }
-          if (activitySchedule.status == 200) {
-            if (
-              activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-            ) {
-              var lastData =
-                activitySchedule.data.data.lastActivity.activityName
-                  ?.categoryName +
-                ' (' +
-                formatDate(
-                  activitySchedule?.data?.data?.lastActivity?.act_start_date,
-                ) +
-                ' - ' +
-                formatDate(
-                  activitySchedule?.data?.data?.lastActivity?.act_to_date,
-                ) +
-                ')';
-              setLastAct(lastData);
-            }
-            //  console.log('sch== ',activitySchedule.data.data);
-            if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-              activitySchedule?.data?.data?.otherActivities.forEach(function (
-                element,
-              ) {
-                var overdueData;
-                if (element?.days_until_start < 0) {
-                  overdueData =
-                    element.activityName?.categoryName +
-                    ' (' +
-                    formatDate(element?.activity_start_date) +
-                    ' - ' +
-                    formatDate(element?.activity_end_date) +
-                    ')';
-                  setOverdueAct(prevItems => [...prevItems, overdueData]);
-                }
-              });
-
-              const upcomingActivity =
-                activitySchedule?.data?.data?.otherActivities?.find(
-                  item => item.days_until_start >= 0,
-                );
-              // console.log(upcomingActivity.days_from);
-              if (upcomingActivity != undefined) {
-                const monthNames = [
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                  'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December',
-                ];
-                // const cycleDate =
-                //   cycleDtartDate == ''
-                //     ? saveData.cycle_start_date
-                //     : cycleDtartDate;
-                const cycleDate =
-                  data.crop_cycl_start_date == null ||
-                  data.crop_cycl_start_date == '2004-02-29'
-                    ? data.sowing_date
-                    : data.crop_cycl_start_date;
-                const sdate = new Date(cycleDate);
-                sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-                const smonth = monthNames[sdate.getMonth()];
-                const sday = sdate.getDate();
-                const syear = sdate.getFullYear();
-                const startDate = `${smonth} ${sday}, ${syear}`;
-                const edate = new Date(cycleDate);
-                edate.setDate(edate.getDate() + upcomingActivity.days_to);
-                const emonth = monthNames[edate.getMonth()];
-                const eday = edate.getDate();
-                const eyear = edate.getFullYear();
-                const endDate = `${emonth} ${eday}, ${eyear}`;
-                const startDateEndDate = `${startDate}-${endDate}`;
-
-                setUpcomingAct(
-                  upcomingActivity?.activityName?.categoryName +
-                    ' (' +
-                    startDateEndDate +
-                    ')',
-                );
-              }
-              // const upcomingActivity =
-              //   activitySchedule?.data?.data?.otherActivities?.find(
-              //     item => item.days_until_start >= 0,
-              //   );
-
-              // setUpcomingAct(upcomingActivity);
-              // console.log(upcomingActivity);
-            }
-            // setScheduleInfo({
-            //   ...scheduleInfo,
-            //   lastAct: '',
-            //   upcomingAct: '',
-            // });
-          }
-          setIsLoading(false);
+          var [productionStage_res, activitySchedule] = await Promise.all([
+            productionStageAPI(
+              dbname,
+              lan_id,
+              data.crop_type_id,
+              data.crop_name_id,
+            ),
+            activityScheduleAPI(
+              dbname,
+              lan_id,
+              token,
+              'user_activity',
+              relId.value,
+              data.crop_name_id,
+              data.cu_rel_id,
+            ),
+            //  setItem(
+            //    'productionStageAPI' +
+            //      data.crop_type_id +
+            //      data.crop_type_id,
+            //    productionStage_res,
+            //  ),
+            setLastAct(''),
+            setOverdueAct([]),
+            setUpcomingAct(''),
+          ]);
         } else {
-          setIsButtonDisabled(false);
-          // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-          setSearchFarmerName('');
-          setSearchFarmerPhone('');
-          // setplotAll([])
-          setModalVisible(true);
-          // navigation.navigate('Dashboard');
+          var productionStage_res = await getItem(
+            'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+          );
         }
+        if (productionStage_res) {
+          const dataArray = productionStage_res?.data?.data?.growth_stage.map(
+            data => ({
+              value: data.growth_stage.fid,
+              label: data.growth_stage.name,
+            }),
+          );
+          setproductionStageAll(dataArray);
+        }
+
+        if (activitySchedule.status == 200) {
+          if (
+            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
+          ) {
+            var lastData =
+              activitySchedule.data.data.lastActivity.activityName
+                ?.categoryName +
+              ' (' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_start_date,
+              ) +
+              ' - ' +
+              formatDate(
+                activitySchedule?.data?.data?.lastActivity?.act_to_date,
+              ) +
+              ')';
+            setLastAct(lastData);
+          }
+          //  console.log('sch== ',activitySchedule.data.data);
+          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+            activitySchedule?.data?.data?.otherActivities.forEach(function (
+              element,
+            ) {
+              var overdueData;
+              if (element?.days_until_start < 0) {
+                overdueData =
+                  element.activityName?.categoryName +
+                  ' (' +
+                  formatDate(element?.activity_start_date) +
+                  ' - ' +
+                  formatDate(element?.activity_end_date) +
+                  ')';
+                setOverdueAct(prevItems => [...prevItems, overdueData]);
+              }
+            });
+
+            const upcomingActivity =
+              activitySchedule?.data?.data?.otherActivities?.find(
+                item => item.days_until_start >= 0,
+              );
+            // console.log(upcomingActivity.days_from);
+            if (upcomingActivity != undefined) {
+              const monthNames = [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December',
+              ];
+              // const cycleDate =
+              //   cycleDtartDate == ''
+              //     ? saveData.cycle_start_date
+              //     : cycleDtartDate;
+              const cycleDate =
+                data.crop_cycl_start_date == null ||
+                  data.crop_cycl_start_date == '2004-02-29'
+                  ? data.sowing_date
+                  : data.crop_cycl_start_date;
+              const sdate = new Date(cycleDate);
+              sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+              const smonth = monthNames[sdate.getMonth()];
+              const sday = sdate.getDate();
+              const syear = sdate.getFullYear();
+              const startDate = `${smonth} ${sday}, ${syear}`;
+              const edate = new Date(cycleDate);
+              edate.setDate(edate.getDate() + upcomingActivity.days_to);
+              const emonth = monthNames[edate.getMonth()];
+              const eday = edate.getDate();
+              const eyear = edate.getFullYear();
+              const endDate = `${emonth} ${eday}, ${eyear}`;
+              const startDateEndDate = `${startDate}-${endDate}`;
+
+              setUpcomingAct(
+                upcomingActivity?.activityName?.categoryName +
+                ' (' +
+                startDateEndDate +
+                ')',
+              );
+            }
+            // const upcomingActivity =
+            //   activitySchedule?.data?.data?.otherActivities?.find(
+            //     item => item.days_until_start >= 0,
+            //   );
+
+            // setUpcomingAct(upcomingActivity);
+            // console.log(upcomingActivity);
+          }
+          // setScheduleInfo({
+          //   ...scheduleInfo,
+          //   lastAct: '',
+          //   upcomingAct: '',
+          // });
+        }
+        setIsLoading(false);
+      } else {
+        setIsButtonDisabled(false);
+        // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+        setSearchFarmerName('');
+        setSearchFarmerPhone('');
+        // setplotAll([])
+        setModalVisible(true);
+        // navigation.navigate('Dashboard');
       }
-    } catch (error) {
-      console.log('error', error);
     }
   };
 
@@ -635,27 +789,15 @@ const ActivityReport = ({navigation}) => {
         saveData.cu_rel_id,
         save_data,
       ),
-
-      axiosGet(
-        ROUTES.GET.ACTIVITY_SCHEDULE_API({
-          type: 'user_activity',
-          plotId: saveData.plot_id,
-          cropId: saveData.crop_name,
-          cu_rel_id: saveData.cu_rel_id,
-        }),
+      activityScheduleAPI(
+        dbname,
+        lan_id,
         token,
-        {information: `${dbname},${lan_id}`},
+        'user_activity',
+        saveData.plot_id,
+        saveData.crop_name,
+        saveData.cu_rel_id,
       ),
-
-      // activityScheduleAPI(
-      //   dbname,
-      //   lan_id,
-      //   token,
-      //   'user_activity',
-      //   saveData.plot_id,
-      //   saveData.crop_name,
-      //   saveData.cu_rel_id,
-      // ),
     ]);
 
     if (activitySchedule.status == 200) {
@@ -735,9 +877,9 @@ const ActivityReport = ({navigation}) => {
 
           setUpcomingAct(
             upcomingActivity?.activityName?.categoryName +
-              ' (' +
-              startDateEndDate +
-              ')',
+            ' (' +
+            startDateEndDate +
+            ')',
           );
         }
         // console.log(
@@ -825,7 +967,7 @@ const ActivityReport = ({navigation}) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
+      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
       return false;
     }
     return true;
@@ -896,10 +1038,9 @@ const ActivityReport = ({navigation}) => {
           saveData.user_id,
           formData,
         );
-
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
-          navigation.navigate('activityList', {action: 'addData'});
+          navigation.navigate('activityList', { action: 'addData' });
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -919,13 +1060,13 @@ const ActivityReport = ({navigation}) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        navigation.navigate('activityList', {action: 'addData'});
+        navigation.navigate('activityList', { action: 'addData' });
       }
     }
   };
   const handleActivityPattern = item => {
-    setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
-    setSaveData({...saveData, act_pattern: item});
+    setactivityInfoReadio({ ...activityInfoReadio, activityPreFormDate: item });
+    setSaveData({ ...saveData, act_pattern: item });
     if (item === 'schedule') {
       setisActiveMenu(true);
     } else {
@@ -935,25 +1076,15 @@ const ActivityReport = ({navigation}) => {
   const handleActivityType = async item => {
     let dataArray = [];
     if (isOnline) {
-      var response = await axiosGet(
-        ROUTES.GET.ACTIVITY_INFO({
-          cropType: CropType,
-          cropName: CropName,
-          actTypeID: item.value,
-        }),
+      var response = await activityInfoAPI(
+        dbname,
+        lan_id,
         token,
-        {information: `${dbname},${lan_id},${farmerID}`},
+        farmerID,
+        CropType,
+        CropName,
+        item.value,
       );
-
-      // activityInfoAPI(
-      //   dbname,
-      //   lan_id,
-      //   token,
-      //   farmerID,
-      //   CropType,
-      //   CropName,
-      //   item.value,
-      // );
       await setItem(
         'activityInfo' + farmerID + CropType + CropName + item.value,
         response,
@@ -963,7 +1094,7 @@ const ActivityReport = ({navigation}) => {
         'activityInfo' + farmerID + CropType + CropName + item.value,
       );
     }
-    setSaveData({...saveData, act_ref_type: item.value});
+    setSaveData({ ...saveData, act_ref_type: item.value });
     if (response.data.data.count > 0) {
       response.data.data.rows.forEach(element => {
         const monthNames = [
@@ -1069,133 +1200,138 @@ const ActivityReport = ({navigation}) => {
   const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
-  const onStartRecordFirstItem = async () => {
-    const path = RNFS.DocumentDirectoryPath + '/firstItem.mp3';
+const onStartRecordFirstItem = async () => {
+  try {
+    const path = `${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
     await RNFS.mkdir(RNFS.DocumentDirectoryPath);
     await audioRecorderPlayer.startRecorder(path);
-    audioRecorderPlayer.addRecordBackListener(e => {
+
+    audioRecorderPlayer.addRecordBackListener(async e => {
       setSoundRecordFirstItem({
         isLoggingIn: true,
         recordSecs: e.currentPosition,
         recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
       });
-      if (
-        audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
-      ) {
-        onStopRecordFirstItem();
+
+      // Stop recording after 60 seconds (60000 ms)
+      if (e.currentPosition >= 60000) {
+        await onStopRecordFirstItem();
         setModalVisibleRecordFirstItem(false);
       }
+
       return;
     });
-  };
+  } catch (error) {
+    console.error("Error starting recorder:", error);
+  }
+};
+
   const onStartRecordSecoundItem = async () => {
-    const path = RNFS.DocumentDirectoryPath + '/secoundItem.mp3';
-    await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    await audioRecorderPlayer.startRecorder(path);
-    audioRecorderPlayer.addRecordBackListener(e => {
-      setSoundRecordSecoundItem({
-        isLoggingIn: true,
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-      });
-      if (
-        audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
-      ) {
-        onStopRecordSecoundItem();
-        setModalVisibleRecordSecoundItem(false);
-      }
-      return;
-    });
+    // const path = RNFS.DocumentDirectoryPath + '/secoundItem.mp3';
+    // await RNFS.mkdir(RNFS.DocumentDirectoryPath);
+    // await audioRecorderPlayer.startRecorder(path);
+    // audioRecorderPlayer.addRecordBackListener(e => {
+    //   setSoundRecordSecoundItem({
+    //     isLoggingIn: true,
+    //     recordSecs: e.currentPosition,
+    //     recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+    //   });
+    //   if (
+    //     audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
+    //   ) {
+    //     onStopRecordSecoundItem();
+    //     setModalVisibleRecordSecoundItem(false);
+    //   }
+    //   return;
+    // });
   };
   const onStartRecordThirdItem = async () => {
-    const path = RNFS.DocumentDirectoryPath + '/thirdItem.mp3';
-    await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    await audioRecorderPlayer.startRecorder(path);
-    audioRecorderPlayer.addRecordBackListener(e => {
-      setSoundRecordThirdItem({
-        isLoggingIn: true,
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-      });
-      if (
-        audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
-      ) {
-        onStopRecordThirdItem();
-        setModalVisibleRecordThirdItem(false);
-      }
-      return;
-    });
+    // const path = RNFS.DocumentDirectoryPath + '/thirdItem.mp3';
+    // await RNFS.mkdir(RNFS.DocumentDirectoryPath);
+    // await audioRecorderPlayer.startRecorder(path);
+    // audioRecorderPlayer.addRecordBackListener(e => {
+    //   setSoundRecordThirdItem({
+    //     isLoggingIn: true,
+    //     recordSecs: e.currentPosition,
+    //     recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+    //   });
+    //   if (
+    //     audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
+    //   ) {
+    //     onStopRecordThirdItem();
+    //     setModalVisibleRecordThirdItem(false);
+    //   }
+    //   return;
+    // });
   };
-  const onStopRecordFirstItem = useCallback(async () => {
-    // if (record == "firstItem") {
-    try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordFirstItem({
-        ...soundRecordFirstItem,
-        isLoggingIn: false,
-        result: result,
-      });
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
-    } catch (error) {
-      console.error('Error stopping the recording:', error);
-    }
-    // }
-  }, []);
+  const onStopRecordFirstItem = async () => {
+  try {
+    const result = await audioRecorderPlayer.stopRecorder();
+    audioRecorderPlayer.removeRecordBackListener();
+    setSoundRecordFirstItem({
+      isLoggingIn: false,
+      recordSecs: 0,
+      recordTime: '00:00:00',
+    });
+    console.log('Recording stopped:', result);
+  } catch (error) {
+    console.error("Error stopping recorder:", error);
+  }
+};
+
   const onStopRecordSecoundItem = useCallback(async () => {
     // if (record == "firstItem") {
-    try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
-    } catch (error) {
-      console.error('Error stopping the recording:', error);
-    }
+    // try {
+    //   const result = await audioRecorderPlayer.stopRecorder();
+    //   audioRecorderPlayer.removeRecordBackListener();
+    //   setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+    //   // console.log("Stopped recording:", result);
+    //   // navigation.navigate(navPath, { result: result,name:name });
+    // } catch (error) {
+    //   console.error('Error stopping the recording:', error);
+    // }
     // }
   }, []);
   const onStopRecordThirdItem = useCallback(async () => {
     // if (record == "firstItem") {
-    try {
-      const result = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
-      // console.log("Stopped recording:", result);
-      // navigation.navigate(navPath, { result: result,name:name });
-    } catch (error) {
-      console.error('Error stopping the recording:', error);
-    }
+    // try {
+    //   const result = await audioRecorderPlayer.stopRecorder();
+    //   audioRecorderPlayer.removeRecordBackListener();
+    //   setSoundRecordThirdItem({isLoggingIn: false, result: result});
+    //   // console.log("Stopped recording:", result);
+    //   // navigation.navigate(navPath, { result: result,name:name });
+    // } catch (error) {
+    //   console.error('Error stopping the recording:', error);
+    // }
     // }
   }, []);
   const cancelRecord = async item => {
-    await audioRecorderPlayer.stopPlayer();
-    if (item == 'firstItem') {
-      setSoundRecordFirstItem({
-        item: '1',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: '',
-      });
-    } else if (item == 'secoundItem') {
-      setSoundRecordSecoundItem({
-        item: '2',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: '',
-      });
-    } else if (item == 'thirdItem') {
-      setSoundRecordThirdItem({
-        item: '3',
-        isLoggingIn: false,
-        recordSecs: 0,
-        recordTime: '00:00:00',
-        result: '',
-      });
-    }
+    // await audioRecorderPlayer.stopPlayer();
+    // if (item == 'firstItem') {
+    //   setSoundRecordFirstItem({
+    //     item: '1',
+    //     isLoggingIn: false,
+    //     recordSecs: 0,
+    //     recordTime: '00:00:00',
+    //     result: '',
+    //   });
+    // } else if (item == 'secoundItem') {
+    //   setSoundRecordSecoundItem({
+    //     item: '2',
+    //     isLoggingIn: false,
+    //     recordSecs: 0,
+    //     recordTime: '00:00:00',
+    //     result: '',
+    //   });
+    // } else if (item == 'thirdItem') {
+    //   setSoundRecordThirdItem({
+    //     item: '3',
+    //     isLoggingIn: false,
+    //     recordSecs: 0,
+    //     recordTime: '00:00:00',
+    //     result: '',
+    //   });
+    // }
   };
   const soundPlay = async item => {
     let path;
@@ -1241,7 +1377,7 @@ const ActivityReport = ({navigation}) => {
               handleDatePicker={handleDatePicker2}
             />
 
-            {modalVisibleRecordFirstItem ? (
+           {modalVisibleRecordFirstItem ? (
               <SoundRecord
                 modalVisibleRecord={modalVisibleRecordFirstItem}
                 setModalVisibleRecord={setModalVisibleRecordFirstItem}
@@ -1346,7 +1482,7 @@ const ActivityReport = ({navigation}) => {
                   }
                   val={saveData.growth_stage}
                 />
-                <View style={{marginBottom: 15}}>
+                <View style={{ marginBottom: 15 }}>
                   <Text style={styles.title}>
                     {t('pick_crop_cycle_start_date')}
                   </Text>
@@ -1355,7 +1491,7 @@ const ActivityReport = ({navigation}) => {
                       style={styles.cycleContainerDate}
                       disabled={isButtonDisabled}
                       onPress={() => srtCycleStartDate(true)}>
-                      <View style={{width: '80%'}}>
+                      <View style={{ width: '80%' }}>
                         <Text style={styles.title}>
                           {cycleDtartDate == ''
                             ? saveData.cycle_start_date
@@ -1364,7 +1500,7 @@ const ActivityReport = ({navigation}) => {
                       </View>
                       <Image
                         source={require('../../Common/images/calendar.png')}
-                        style={{width: 20, height: 20}}
+                        style={{ width: 20, height: 20 }}
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -1381,7 +1517,7 @@ const ActivityReport = ({navigation}) => {
                       <Text
                         style={[
                           styles.titleDate,
-                          {color: isButtonDisabled ? '#000' : '#FFF'},
+                          { color: isButtonDisabled ? '#000' : '#FFF' },
                         ]}>
                         {t('set_the_crop_cycle_start_date')}
                       </Text>
@@ -1476,8 +1612,8 @@ const ActivityReport = ({navigation}) => {
                   ''
                 )}
 
-                <View style={{marginBottom: 15, marginTop: 10}}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{ marginBottom: 15, marginTop: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text
                       style={{
                         fontFamily: 'Poppins-Regular',
@@ -1494,7 +1630,7 @@ const ActivityReport = ({navigation}) => {
                     <Text style={styles.title}>{activityPreFormDate}</Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                     />
                   </TouchableOpacity>
                 </View>
@@ -1502,30 +1638,48 @@ const ActivityReport = ({navigation}) => {
                   label={t('your_comm_')}
                   value={saveData.act_desc}
                   onChangeText={act_desc =>
-                    setSaveData({...saveData, act_desc: act_desc})
+                    setSaveData({ ...saveData, act_desc: act_desc })
                   }
                 />
                 <InputTextForm
                   label={t('material_used')}
                   value={saveData.material_used}
                   onChangeText={material_used =>
-                    setSaveData({...saveData, material_used: material_used})
+                    setSaveData({ ...saveData, material_used: material_used })
                   }
                 />
                 <InputTextForm
                   label={t('water_used')}
                   value={saveData.water_used}
                   onChangeText={water_used =>
-                    setSaveData({...saveData, water_used: water_used})
+                    setSaveData({ ...saveData, water_used: water_used })
                   }
                 />
                 <InputTextForm
                   label={t('power_used')}
                   value={saveData.power_used}
                   onChangeText={power_used =>
-                    setSaveData({...saveData, power_used: power_used})
+                    setSaveData({ ...saveData, power_used: power_used })
                   }
                 />
+                <View style={styles.hiddenContainer}>
+                  {tempImage && (
+                    <View
+                      ref={watermarkViewRef}
+                      style={styles.watermarkView}
+                      collapsable={false}
+                    >
+                      <Image
+                        source={{ uri: tempImage }}
+                        style={styles.watermarkImage}
+                        resizeMode="cover"
+                      />
+                      <View style={styles.watermarkTextContainer}>
+                        <Text style={styles.watermarkText}>{tempText}</Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
                 <TakePhoto
                   openImagePicker={openImagePicker}
                   selectedImage={selectedImage}
@@ -1543,7 +1697,7 @@ const ActivityReport = ({navigation}) => {
                   setModalVisibleRecordThirdItem={
                     setModalVisibleRecordThirdItem
                   }
-                  soundRecordFirstItem={soundRecordFirstItem}
+                     soundRecordFirstItem={soundRecordFirstItem}
                   soundRecordSecoundItem={soundRecordSecoundItem}
                   soundRecordThirdItem={soundRecordThirdItem}
                   title={t('record_your_comment_optional')}
@@ -1552,7 +1706,7 @@ const ActivityReport = ({navigation}) => {
                 />
               </View>
             </ScrollView>
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <ButtonForm
                 label={t('submit')}
                 onPress={() => handleSave()}
@@ -1696,7 +1850,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -1769,5 +1923,74 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
     width: '100%',
     marginTop: 10,
+  },
+
+
+
+
+  hiddenContainer: {
+    position: 'absolute',
+    left: -9999,
+    top: -9999,
+    width: 200,
+    height: 200,
+  },
+  watermarkView: {
+    width: 200,
+    height: 200,
+    backgroundColor: '#000',
+  },
+  watermarkImage: {
+    width: '100%',
+    height: '100%',
+  },
+  watermarkTextContainer: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+  },
+  watermarkText: {
+    color: '#df2020',
+    fontSize: 8,
+    fontWeight: 'bold',
+    fontFamily: 'Arial',
+  },
+  imageContainer: {
+    marginTop: 20,
+  },
+  imageWrapper: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  imageIndex: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    borderRadius: 5,
+  },
+  galleryWrapper: {
+    marginTop: 20,
   },
 });

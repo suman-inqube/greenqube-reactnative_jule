@@ -12,7 +12,6 @@ import {
 import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {useEffect, useState, useCallback, useContext} from 'react';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 // import TakePhoto from './TakePhoto';
 import {launchCamera} from 'react-native-image-picker';
@@ -45,7 +44,13 @@ import {useFocusEffect} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import CustomAlert from '../../Common/CustomAlert';
-const audioRecorderPlayer = new AudioRecorderPlayer();
+import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+const AudioRecorderPlayer =
+  AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
+const audioRecorderPlayer =
+  typeof AudioRecorderPlayer === 'function'
+    ? new AudioRecorderPlayer()
+    : AudioRecorderPlayer;
 const qs = require('qs');
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';

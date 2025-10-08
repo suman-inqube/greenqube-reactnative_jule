@@ -33,7 +33,6 @@ import {
   problemTypeNameAPI,
 } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import {useRoute, useIsFocused} from '@react-navigation/native';
@@ -42,7 +41,13 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
 import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
-const audioRecorderPlayer = new AudioRecorderPlayer();
+import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+const AudioRecorderPlayer =
+  AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
+const audioRecorderPlayer =
+  typeof AudioRecorderPlayer === 'function'
+    ? new AudioRecorderPlayer()
+    : AudioRecorderPlayer;
 import DatePickerField from '../../Common/DatePickerField';
 import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';

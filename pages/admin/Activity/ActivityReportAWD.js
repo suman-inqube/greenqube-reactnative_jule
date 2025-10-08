@@ -21,7 +21,6 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import {launchCamera} from 'react-native-image-picker';
 import Marker, {Position} from 'react-native-image-marker';
 import {
@@ -48,7 +47,13 @@ import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
 import CustomAlert from '../../Common/CustomAlert';
-const audioRecorderPlayer = new AudioRecorderPlayer();
+import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+const AudioRecorderPlayer =
+  AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
+const audioRecorderPlayer =
+  typeof AudioRecorderPlayer === 'function'
+    ? new AudioRecorderPlayer()
+    : AudioRecorderPlayer;
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';

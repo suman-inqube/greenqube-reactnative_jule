@@ -30,13 +30,18 @@ import {
   problemSeverityAPI,
   problemTypeNameAPI,
 } from '../../../config/apiHere';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import {useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import HarvestedModel from '../../Common/HarvestedModel';
-const audioRecorderPlayer = new AudioRecorderPlayer();
+import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+const AudioRecorderPlayer =
+  AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
+const audioRecorderPlayer =
+  typeof AudioRecorderPlayer === 'function'
+    ? new AudioRecorderPlayer()
+    : AudioRecorderPlayer;
 // audioRecorderPlayer.setSubscriptionDuration(0.09);
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import {userCreateContext} from '../../Context/usersCreateContext';

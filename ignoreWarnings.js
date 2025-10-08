@@ -10,7 +10,8 @@ if (__DEV__) {
     "exported from 'deprecated-react-native-prop-types'.",
     "Non-serializable values were found in the navigation state.",
     "VirtualizedLists should never be nested inside plain ScrollViews",
-    "Reanimated 2"
+    "Reanimated 2",
+    'useInsertionEffect must not schedule updates'
   ];
 
   const warn = console.warn;
