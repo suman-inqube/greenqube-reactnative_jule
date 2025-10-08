@@ -611,8 +611,8 @@ const styles = StyleSheet.create({
   },
   areaBox: {
     position: 'absolute',
-    bottom: 30,
-    right: 20,
+    bottom: 3,
+    right: 30,
     backgroundColor: '#000',
     padding: 6,
     borderRadius: 4,

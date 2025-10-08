@@ -21,7 +21,7 @@ import {
   BackHandler,
   RefreshControl,
   Linking,
-  InteractionManager
+  InteractionManager,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import {userCreateContext} from '../Context/usersCreateContext';
@@ -39,10 +39,11 @@ import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
 import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
-import { useFocusEffect,useIsFocused } from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
+  const isFocused = useIsFocused();
   useDoubleBackToExit();
   const {
     getItem,
@@ -53,7 +54,9 @@ const Dashboard = ({navigation}) => {
     isOnline,
     Toast,
     AlertMesg,
-    coords,AllFarmerList
+    coords,
+    AllFarmerList,
+    loginUser_data,
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -140,7 +143,7 @@ const Dashboard = ({navigation}) => {
           PERMISSIONS_TYPE.fineLocation,
           PERMISSIONS_TYPE.notifications,
         ]),
-        AllFarmerList()
+        AllFarmerList(),
       ]);
 
       // keep all computations in local vars first
@@ -170,9 +173,9 @@ const Dashboard = ({navigation}) => {
               userType: 'supervisor',
               post: 'general_info',
               titleSearch: '',
-              state_id: agri_user_addresses[0].agri_state.fid,
-              district_id: agri_user_addresses[0].agri_district.fid,
-              subdiv_id: agri_user_addresses[0].agri_subdivision.fid,
+              state_id: agri_user_addresses[0]?.agri_state.fid,
+              district_id: agri_user_addresses[0]?.agri_district.fid,
+              subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
             }),
             '',
             {information: `${dbname},${lan_id}`},
@@ -226,7 +229,6 @@ const Dashboard = ({navigation}) => {
         if (PLOT_STATUS?.status === 200) {
           plotStatus = PLOT_STATUS.data?.data?.rows || [];
         }
-      
       }
 
       // single batched state updates
@@ -261,6 +263,50 @@ const Dashboard = ({navigation}) => {
     });
     return () => task.cancel();
   }, []);
+  useEffect(() => {
+    const {agri_user_addresses, dbname, lan_id, token, user_id} =
+      loginUser_data || {};
+    let plotStatus = [];
+    var usefulInfoList = [];
+    const USEFULL_Call = async () => {
+      const [FARMER_USEFULL_INFO_LIST, PLOT_STATUS] = await Promise.all([
+        axiosGet(
+          ROUTES.GET.USEFULL_INFO_LIST({
+            userId: user_id,
+            userType: 'supervisor',
+            post: 'general_info',
+            titleSearch: '',
+            state_id: agri_user_addresses[0]?.agri_state.fid,
+            district_id: agri_user_addresses[0]?.agri_district.fid,
+            subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
+        ),
+        axiosGet(
+          ROUTES.GET.Fenced_Rejected_Plot_List({
+            page: 1,
+            status_level: 'REJECTED',
+            geo_type: '',
+            searchBy: '',
+          }),
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
+        ),
+      ]);
+      if (FARMER_USEFULL_INFO_LIST?.status === 200) {
+        usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
+      }
+      if (PLOT_STATUS?.status === 200) {
+        plotStatus = PLOT_STATUS.data?.data?.rows || [];
+      }
+      setDataState({
+        plotStatus,
+        usefulInfoList,
+      });
+    };
+    USEFULL_Call();
+  }, [isFocused]);
   const exit = useCallback(() => {
     Alert.alert(
       `${t('app_name')}`,

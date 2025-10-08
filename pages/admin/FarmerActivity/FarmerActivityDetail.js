@@ -63,9 +63,9 @@ const FarmerActivityDetail = () => {
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-
+      console.log('activityDetailsRes100', activityDetailsRes.data?.rows);
       if (activityDetailsRes?.status == 200) {
-        console.log('Activity details:', activityDetailsRes.data.data.rows);
+        // console.log('Activity details:', activityDetailsRes.data.data.rows);
 
         return activityDetailsRes.data;
       }

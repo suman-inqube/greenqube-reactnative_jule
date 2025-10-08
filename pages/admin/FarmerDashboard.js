@@ -223,10 +223,10 @@ const FarmerDashboard = ({navigation}) => {
           '',
           {information: `${dbname},${lan_id}`},
         ),
-        console.log(
-          'dashboard USER_ACTIVITY',
-          ROUTES.GET.FARMER_USEFULL_INFO_LIST,
-        ),
+        // console.log(
+        //   'dashboard USER_ACTIVITY',
+        //   ROUTES.GET.FARMER_USEFULL_INFO_LIST,
+        // ),
       ]);
       const logoImgToSet = logoImage || logoImageData || null;
       const topBannerToSet = topBanner || topBannerData || null;
@@ -244,7 +244,7 @@ const FarmerDashboard = ({navigation}) => {
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
-
+      console.log('USER-ACTIVITY', USER_ACTIVITY.data?.data?.rows);
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }

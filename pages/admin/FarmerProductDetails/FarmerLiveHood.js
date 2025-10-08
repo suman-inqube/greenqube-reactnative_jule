@@ -676,6 +676,8 @@ const FarmerLiveHood = ({
       crop_type_id,
       crop_name_id,
     );
+
+    console.log('productSeasonresRes', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr = [];
       const livelihoodTypeArr = [];
@@ -1274,6 +1276,7 @@ const FarmerLiveHood = ({
           },
         ]);
       }
+      console.log('cropAndPlotDetails', cropAndPlotDetails?.status);
       if (cropAndPlotDetails?.status === 200) {
         // if (cropAndPlotDetails.data.data.count != 0) {
         const data = cropAndPlotDetails?.data?.data;
@@ -2132,13 +2135,13 @@ const FarmerLiveHood = ({
               <View style={styles.coordinateItem}>
                 <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
                 <Text style={styles.coordinateText}>
-                  {t('lat')}: {farmerData.IOTLatlat}
+                  {t('lat')}: {Number(farmerData.IOTLatLong).toFixed(6)}
                 </Text>
               </View>
               <View style={styles.coordinateItem}>
                 <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
                 <Text style={styles.coordinateText}>
-                  {t('long')}:{farmerData.IOTLatLong}
+                  {t('long')}:{Number(farmerData.IOTLatlat).toFixed(6)}
                 </Text>
               </View>
             </View>
@@ -2291,9 +2294,10 @@ const FarmerLiveHood = ({
                         color="#2196F3"
                       />
                       <Text style={styles.coordinateText}>
-                        {' '}
-                        {t('lat')}:
-                        {data?.latitude == '' ? '0.0' : data?.latitude}
+                        {t('lat')}:{' '}
+                        {data && data?.latitude && data?.latitude == ''
+                          ? '0.0'
+                          : Number(data?.latitude).toFixed(7)}
                       </Text>
                     </View>
                     <View style={styles.coordinateItem}>
@@ -2303,9 +2307,10 @@ const FarmerLiveHood = ({
                         color="#2196F3"
                       />
                       <Text style={styles.coordinateText}>
-                        {' '}
-                        {t('long')}:
-                        {data?.longitude == '' ? '0.0' : data?.longitude}
+                        {t('long')}:{' '}
+                        {data && data?.longitude && data?.longitude == ''
+                          ? '0.0'
+                          : Number(data?.longitude).toFixed(7)}
                       </Text>
                     </View>
                   </View>

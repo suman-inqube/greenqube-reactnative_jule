@@ -1238,6 +1238,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
       item?.act_master_id,
       saveData.cu_rel_id,
     );
+
+    console.log('PIPE_List', PipeListDetailsRes?.data?.data);
     if (PipeListDetailsRes?.status == 200) {
       const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
         (_data, _index) => ({
@@ -1594,7 +1596,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                           <Text style={styles.value}>
                             {formatDateToMMDDYYYY(
                               nameVarityStartEnd.cycleStarts,
-                            )}
+                            )?.substring(0, 10)}
                           </Text>
                         </View>
                         <View style={styles.plotSiteContainerItem}>
@@ -1629,8 +1631,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
                           <View style={{width: '80%'}}>
                             <Text style={styles.title}>
                               {cycleDtartDate == ''
-                                ? saveData.cycle_start_date
-                                : cycleDtartDate}
+                                ? saveData?.cycle_start_date?.substring(0, 10)
+                                : cycleDtartDate?.substring(0, 10)}
                             </Text>
                           </View>
                           <Image
