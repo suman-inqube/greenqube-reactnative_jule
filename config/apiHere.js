@@ -300,10 +300,10 @@ export const farmerAgainstSupervisorAPI = async (
     },
   };
   // console.log(dbName, languageID, userId)
-  // console.log({
-  //     'information': `${dbName},${languageID},${userId}`,
-  // })
-  // console.log(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=');
+  console.log({
+      'information': `${dbName},${languageID},${userId}`,
+  })
+  console.log(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=');
   try {
     let response = await axios.get(
       config.BASE_URL +

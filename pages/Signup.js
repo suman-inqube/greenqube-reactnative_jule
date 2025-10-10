@@ -38,7 +38,6 @@ import PasswordComp from './Common/PasswordComp';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
-import DocumentPicker, {types} from '@react-native-documents/picker';
 import {Colors, Fonts} from './utils/Constants';
 import {axiosPost, axiosGet} from './utils/api';
 import {ROUTES} from './utils/Routes';

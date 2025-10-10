@@ -194,6 +194,7 @@ const ViewProblem = ({navigation}) => {
           const agri_files_image = agri_files.filter(function (v, i) {
             return v['file_ext'] == 'image/jpeg';
           });
+          console.log("agri_files_image",agri_files_image)
           const agri_files_mp3 = agri_audio_files.filter(function (v, i) {
             return v;
           });

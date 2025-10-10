@@ -10,11 +10,10 @@ import {
 } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import RNFS from 'react-native-fs';
 import TakePhoto from './TakePhoto';
 import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from 'react-native-image-marker';
 import RecordComp from '../Activity/RecordComp';
 import {
   activityScheduleAPI,
@@ -42,12 +41,10 @@ const qs = require('qs');
 import { userCreateContext } from '../../Context/usersCreateContext';
 import { plotHook } from '../../hooks/plotHook';
 import HarvestedModel from '../../Common/HarvestedModel';
-import { isPointInPolygon } from 'geolib';
-import getCurrentLocation from '../../Common/getCurrentLocation';
 import { isWithin20Meters } from '../../Common/calculateAreaFun';
 import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { captureRef } from 'react-native-view-shot';
 const FarmerActivityReport = ({ navigation }) => {
   const {
     InputTextForm,
@@ -179,12 +176,15 @@ const FarmerActivityReport = ({ navigation }) => {
     lastAct: '',
     upcomingAct: '',
   });
+  const [tempImage, setTempImage] = useState(null);
+  const [tempText, setTempText] = useState('');
+  const watermarkViewRef = useRef(null);
   const openImagePicker = item => {
     const options = {
       mediaType: 'photo',
       includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
+      maxHeight: 800,
+      maxWidth: 800,
     };
 
     const addPhoto = newPhoto => {
@@ -197,58 +197,55 @@ const FarmerActivityReport = ({ navigation }) => {
       } else if (response.error) {
         console.log('Camera Error: ', response.error);
       } else {
-        const timestamp = Date.now();
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        const options = {
-          backgroundImage: {
-            src: imageUri,
-            scale: 1,
-          },
-          watermarkTexts: [
-            {
-              text: `${saveData.latitude},${saveData.longitude
-                },${new Intl.DateTimeFormat('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
-                }).format(timestamp)}`,
-
-              positionOptions: {
-                position: Position.bottomLeft,
-              },
-              style: {
-                color: '#df2020',
-                fontSize: 2,
-                fontName: 'Arial',
-                textBackgroundStyle: {
-                  padding: '10% 10%',
-                  color: '#00000000',
-                },
-              },
-            },
-          ],
-          scale: 1,
-          quality: 100,
-
-          filename: `${response.assets[0].fileName}`,
-          saveFormat: `${response.assets[0].type}`,
-          maxSize: 1000,
-        };
-        let path = await Marker.markText(options);
-        setSelectedImage({
-          ...selectedImage,
-          [item]: `file://${path}`,
-        });
-        const newPhoto = {
-          uri: `file://${path}`,
-          type: 'image/jpeg',
-          name: `file://${path}`,
-        };
-
-        addPhoto(newPhoto);
+        try {
+          const timestamp = Date.now();
+          let imageUri = response.uri || response.assets?.[0]?.uri;
+          const watermarkText = `${saveData.latitude},${saveData.longitude
+            },${new Intl.DateTimeFormat('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            }).format(timestamp)}`;
+          setTempImage(imageUri);
+          setTempText(watermarkText);
+          setTimeout(async () => {
+            try {
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 2,
+                width: 800,
+                height: 800,
+              });
+              const fileName = response.assets[0].fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+              await RNFS.copyFile(uri, destPath);
+              const path = destPath;
+              console.log("fileName", fileName)
+              setTempImage(null);
+              setTempText('');
+              setSelectedImage({
+                ...selectedImage,
+                [item]: `file://${path}`,
+              });
+              const newPhoto = {
+                uri: `file://${path}`,
+                type: 'image/jpeg',
+                name: `${fileName}`,
+              };
+              addPhoto(newPhoto);
+              console.log('Watermarked image saved:', path);
+            } catch (error) {
+              console.log('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 500);
+        } catch (error) {
+          console.log('Watermark Error:', error);
+        }
       }
     });
   };
@@ -1467,7 +1464,24 @@ const FarmerActivityReport = ({ navigation }) => {
                     setSaveData({ ...saveData, power_used: power_used })
                   }
                 />
-
+                <View style={styles.hiddenContainer}>
+                  {tempImage && (
+                    <View
+                      ref={watermarkViewRef}
+                      style={styles.watermarkView}
+                      collapsable={false}
+                    >
+                      <Image
+                        source={{ uri: tempImage }}
+                        style={styles.watermarkImage}
+                        resizeMode="cover"
+                      />
+                      <View style={styles.watermarkTextContainer}>
+                        <Text style={styles.watermarkText}>{tempText}</Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
                 <TakePhoto
                   openImagePicker={openImagePicker}
                   selectedImage={selectedImage}
@@ -1715,5 +1729,72 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
     width: '100%',
     marginTop: 10,
+  },
+
+
+   hiddenContainer: {
+    position: 'absolute',
+    left: -9999,
+    top: -9999,
+    width: 200,
+    height: 200,
+  },
+  watermarkView: {
+    width: 200,
+    height: 200,
+    backgroundColor: '#000',
+  },
+  watermarkImage: {
+    width: '100%',
+    height: '100%',
+  },
+  watermarkTextContainer: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+  },
+  watermarkText: {
+    color: '#df2020',
+    fontSize: 8,
+    fontWeight: 'bold',
+    fontFamily: 'Arial',
+  },
+  imageContainer: {
+    marginTop: 20,
+  },
+  imageWrapper: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  imageIndex: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+  },
+  image: {
+    width: '100%',
+    height: 300,
+    borderRadius: 5,
+  },
+  galleryWrapper: {
+    marginTop: 20,
   },
 });

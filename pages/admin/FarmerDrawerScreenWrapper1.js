@@ -8,7 +8,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useDrawerProgress } from '@react-navigation/drawer';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 const FarmerDrawerScreenWrapper1 = ({ children }) => {
   const progress = useDrawerProgress();
   const animatedStyle = useAnimatedStyle(() => ({
@@ -24,9 +24,11 @@ const FarmerDrawerScreenWrapper1 = ({ children }) => {
     overflow: 'hidden',
   }));
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
-      {children}
-    </Animated.View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#1d3122' }}>
+      <Animated.View style={[styles.container, animatedStyle]}>
+        {children}
+      </Animated.View>
+    </SafeAreaView>
   );
 };
 

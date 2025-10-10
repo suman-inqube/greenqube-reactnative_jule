@@ -203,7 +203,7 @@ const FarmerActivityList = ({navigation}) => {
             options={OPTIONS_CARBON_FARMER}
           />
         ),
-        height: 170 + navigationBarHeight,
+        height: 140,
         zIndex: 1000,
       });
     } else {

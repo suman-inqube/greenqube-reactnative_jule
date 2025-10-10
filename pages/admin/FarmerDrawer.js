@@ -157,7 +157,10 @@ const FarmerDrawer = props => {
   };
   const navigateToPages = pageName => {
     if (netConnection) {
-      navigation.navigate(pageName);
+       navigation.navigate('FarmerNavigation', {
+          screen: 'FarmerMainStack',
+          params: { screen: pageName },
+        });
     }
   };
   return (

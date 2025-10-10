@@ -17,7 +17,6 @@ import React, { useEffect, useState, useCallback, useContext, useRef } from 'rea
 // import AudioRecorderPlayer from '@react-native-ohos/react-native-audio-recorder-player';
 import TakePhoto from './TakePhoto';
 import { launchCamera } from 'react-native-image-picker';
-import Marker, { Position } from '@react-native-oh-tpl/react-native-image-marker';
 import RecordComp from './RecordComp';
 import {
   activityScheduleAPI,
@@ -195,11 +194,9 @@ const ActivityReport = ({ navigation }) => {
         maxHeight: 800,
         maxWidth: 800,
       };
-
       const addPhoto = newPhoto => {
         setmyPhotoAll([...myphotoAll, newPhoto]);
       };
-
       launchCamera(options, async response => {
         if (response.didCancel) {
           console.log('User cancelled camera');
@@ -209,8 +206,6 @@ const ActivityReport = ({ navigation }) => {
           try {
             const timestamp = Date.now();
             let imageUri = response.uri || response.assets?.[0]?.uri;
-
-            // Create watermark text
             const watermarkText = `${saveData.latitude},${saveData.longitude
               },${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
@@ -220,47 +215,33 @@ const ActivityReport = ({ navigation }) => {
                 minute: '2-digit',
                 second: '2-digit',
               }).format(timestamp)}`;
-
-            // Set temporary image and text for watermarking
             setTempImage(imageUri);
             setTempText(watermarkText);
-
-            // Wait for render
             setTimeout(async () => {
               try {
-                // Capture the watermarked view
                 const uri = await captureRef(watermarkViewRef, {
                   format: 'jpg',
                   quality: 2,
                   width: 800,
                   height: 800,
                 });
-
-                // Save to permanent location
                 const fileName = response.assets[0].fileName || `photo_${timestamp}.jpg`;
                 const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
                 await RNFS.copyFile(uri, destPath);
-
                 const path = destPath;
-
-                // Clear temp data
+                console.log("fileName", fileName)
                 setTempImage(null);
                 setTempText('');
-
-                // Update selected image
                 setSelectedImage({
                   ...selectedImage,
                   [item]: `file://${path}`,
                 });
-
-                // Add photo
                 const newPhoto = {
                   uri: `file://${path}`,
                   type: 'image/jpeg',
-                  name: `file://${path}`,
+                  name: `${fileName}`,
                 };
                 addPhoto(newPhoto);
-
                 console.log('Watermarked image saved:', path);
               } catch (error) {
                 console.log('Capture Error:', error);
@@ -277,164 +258,6 @@ const ActivityReport = ({ navigation }) => {
       console.log(error);
     }
   };
-  // const openImagePicker = item => {
-  //   try {
-  //     const options = {
-  //       mediaType: 'photo',
-  //       includeBase64: true,
-  //       maxHeight: 200,
-  //       maxWidth: 200,
-  //     };
-
-  //     const addPhoto = newPhoto => {
-  //       setmyPhotoAll([...myphotoAll, newPhoto]);
-  //     };
-
-  //     launchCamera(options, async response => {
-  //       if (response.didCancel) {
-  //         console.log('User cancelled camera');
-  //       } else if (response.error) {
-  //         console.log('Camera Error: ', response.error);
-  //       } else {
-  //         try {
-  //           const timestamp = Date.now();
-  //           let imageUri = response.uri || response.assets?.[0]?.uri;
-
-  //           // Create watermark text
-  //           const watermarkText = `${saveData.latitude},${
-  //             saveData.longitude
-  //           },${new Intl.DateTimeFormat('en-US', {
-  //             year: 'numeric',
-  //             month: '2-digit',
-  //             day: '2-digit',
-  //             hour: '2-digit',
-  //             minute: '2-digit',
-  //             second: '2-digit',
-  //           }).format(timestamp)}`;
-
-  //           // Set temporary image and text for watermarking
-  //           setTempImage(imageUri);
-  //           setTempText(watermarkText);
-
-  //           // Wait for render
-  //           setTimeout(async () => {
-  //             try {
-  //               // Capture the watermarked view
-  //               const uri = await captureRef(watermarkViewRef, {
-  //                 format: 'jpg',
-  //                 quality: 1.0,
-  //                 width: 200,
-  //                 height: 200,
-  //               });
-
-  //               // Save to permanent location
-  //               const fileName = response.assets[0].fileName || `photo_${timestamp}.jpg`;
-  //               const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-  //               await RNFS.copyFile(uri, destPath);
-
-  //               const path = destPath;
-
-  //               // Clear temp data
-  //               setTempImage(null);
-  //               setTempText('');
-
-  //               // Update selected image
-  //               setSelectedImage({
-  //                 ...selectedImage,
-  //                 [item]: `file://${path}`,
-  //               });
-
-  //               // Add photo
-  //               const newPhoto = {
-  //                 uri: `file://${path}`,
-  //                 type: 'image/jpeg',
-  //                 name: `file://${path}`,
-  //               };
-  //               addPhoto(newPhoto);
-
-  //               console.log('Watermarked image saved:', path);
-  //             } catch (error) {
-  //               console.log('Capture Error:', error);
-  //               setTempImage(null);
-  //               setTempText('');
-  //             }
-  //           }, 500);
-  //         } catch (error) {
-  //           console.log('Watermark Error:', error);
-  //         }
-  //       }
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  // const openImagePicker = item => {
-  //  try {
-  //    const options = {
-  //     mediaType: 'photo',
-  //     includeBase64: true,
-  //     maxHeight: 200,
-  //     maxWidth: 200,
-  //   };
-  //   const addPhoto = newPhoto => {
-  //     setmyPhotoAll([...myphotoAll, newPhoto]);
-  //   };
-  //   launchCamera(options, async response => {
-  //     if (response.didCancel) {
-  //       console.log('User cancelled camera');
-  //     } else if (response.error) {
-  //       console.log('Camera Error: ', response.error);
-  //     } else {
-  //       const timestamp = Date.now();
-  //       let imageUri = response.uri || response.assets?.[0]?.uri;
-  //       const options = {
-  //         backgroundImage: {src: imageUri, scale: 1},
-  //         watermarkTexts: [
-  //           {
-  //             text: `${saveData.latitude},${
-  //               saveData.longitude
-  //             },${new Intl.DateTimeFormat('en-US', {
-  //               year: 'numeric',
-  //               month: '2-digit',
-  //               day: '2-digit',
-  //               hour: '2-digit',
-  //               minute: '2-digit',
-  //               second: '2-digit',
-  //             }).format(timestamp)}`,
-  //             positionOptions: {
-  //               position: Position.bottomLeft,
-  //             },
-  //             style: {
-  //               color: '#df2020',
-  //               fontSize: 2,
-  //               fontName: 'Arial',
-  //               textBackgroundStyle: {padding: '10% 10%', color: '#00000000'},
-  //             },
-  //           },
-  //         ],
-  //         scale: 1,
-  //         quality: 100,
-  //         filename: `${response.assets[0].fileName}`,
-  //         saveFormat: `${response.assets[0].type}`,
-  //         maxSize: 1000,
-  //       };
-  //       let path = await Marker.markText(options);
-  //       setSelectedImage({
-  //         ...selectedImage,
-  //         [item]: `file://${path}`,
-  //       });
-  //       const newPhoto = {
-  //         uri: `file://${path}`,
-  //         type: 'image/jpeg',
-  //         name: `file://${path}`,
-  //       };
-  //       addPhoto(newPhoto);
-  //     }
-  //   });
-  //  } catch (error) {
-  //   console.log(error)
-  //  }
-  // };
   const handleDatePicker = async item => {
     const effective_date = effective_dates(item);
     setCycleStartDate(effective_date);
@@ -1200,31 +1023,31 @@ const ActivityReport = ({ navigation }) => {
   const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
-const onStartRecordFirstItem = async () => {
-  try {
-    const path = `${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
-    await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    await audioRecorderPlayer.startRecorder(path);
+  const onStartRecordFirstItem = async () => {
+    try {
+      const path = `${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
+      await RNFS.mkdir(RNFS.DocumentDirectoryPath);
+      await audioRecorderPlayer.startRecorder(path);
 
-    audioRecorderPlayer.addRecordBackListener(async e => {
-      setSoundRecordFirstItem({
-        isLoggingIn: true,
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+      audioRecorderPlayer.addRecordBackListener(async e => {
+        setSoundRecordFirstItem({
+          isLoggingIn: true,
+          recordSecs: e.currentPosition,
+          recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+        });
+
+        // Stop recording after 60 seconds (60000 ms)
+        if (e.currentPosition >= 60000) {
+          await onStopRecordFirstItem();
+          setModalVisibleRecordFirstItem(false);
+        }
+
+        return;
       });
-
-      // Stop recording after 60 seconds (60000 ms)
-      if (e.currentPosition >= 60000) {
-        await onStopRecordFirstItem();
-        setModalVisibleRecordFirstItem(false);
-      }
-
-      return;
-    });
-  } catch (error) {
-    console.error("Error starting recorder:", error);
-  }
-};
+    } catch (error) {
+      console.error("Error starting recorder:", error);
+    }
+  };
 
   const onStartRecordSecoundItem = async () => {
     // const path = RNFS.DocumentDirectoryPath + '/secoundItem.mp3';
@@ -1265,19 +1088,19 @@ const onStartRecordFirstItem = async () => {
     // });
   };
   const onStopRecordFirstItem = async () => {
-  try {
-    const result = await audioRecorderPlayer.stopRecorder();
-    audioRecorderPlayer.removeRecordBackListener();
-    setSoundRecordFirstItem({
-      isLoggingIn: false,
-      recordSecs: 0,
-      recordTime: '00:00:00',
-    });
-    console.log('Recording stopped:', result);
-  } catch (error) {
-    console.error("Error stopping recorder:", error);
-  }
-};
+    try {
+      const result = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+      setSoundRecordFirstItem({
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+      });
+      console.log('Recording stopped:', result);
+    } catch (error) {
+      console.error("Error stopping recorder:", error);
+    }
+  };
 
   const onStopRecordSecoundItem = useCallback(async () => {
     // if (record == "firstItem") {
@@ -1377,7 +1200,7 @@ const onStartRecordFirstItem = async () => {
               handleDatePicker={handleDatePicker2}
             />
 
-           {modalVisibleRecordFirstItem ? (
+            {modalVisibleRecordFirstItem ? (
               <SoundRecord
                 modalVisibleRecord={modalVisibleRecordFirstItem}
                 setModalVisibleRecord={setModalVisibleRecordFirstItem}
@@ -1697,7 +1520,7 @@ const onStartRecordFirstItem = async () => {
                   setModalVisibleRecordThirdItem={
                     setModalVisibleRecordThirdItem
                   }
-                     soundRecordFirstItem={soundRecordFirstItem}
+                  soundRecordFirstItem={soundRecordFirstItem}
                   soundRecordSecoundItem={soundRecordSecoundItem}
                   soundRecordThirdItem={soundRecordThirdItem}
                   title={t('record_your_comment_optional')}

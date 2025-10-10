@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
+// import DocumentPicker, { types } from '@react-native-documents/picker';
 import DocumentPicker, { types } from '@react-native-documents/picker';
 import { createPdf } from 'react-native-images-to-pdf';
 import DocumentScanner from 'react-native-document-scanner-plugin';
@@ -73,10 +74,8 @@ const ProofAndIdentityPropfComp = ({
         if (res.type?.startsWith('image/')) {
           fileUri = await resizeImage(res.uri);
         }
-
         const values = [...stateValue];
         markPhotoDeleted(index, values);
-
         values[index] = {
           ...values[index],
           uri: fileUri,
@@ -89,6 +88,7 @@ const ProofAndIdentityPropfComp = ({
         };
         setStateValue(values);
       } catch (err) {
+        console.error(err)
         if (!DocumentPicker.isCancel(err)) {
           console.error('Document selection error:', err);
         }
@@ -245,7 +245,7 @@ const ProofAndIdentityPropfComp = ({
                 icon={require('../Common/images/gallery.png')}
                 onPress={() => {
                   onHandleDocumentSelection(data?.imageType, index);
-                  spSheet.hide();
+                  // spSheet.hide();
                 }}
               />
             </>

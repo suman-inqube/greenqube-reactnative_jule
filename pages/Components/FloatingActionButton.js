@@ -2,6 +2,7 @@
 import React, { useMemo } from "react";
 import { FloatingAction } from "react-native-floating-action";
 import { Colors } from "../utils/Constants";
+import { View } from "react-native";
 const FloatingActionButton = ({
   t,             // i18n translation fn
   styles,        // style object
@@ -28,6 +29,15 @@ const FloatingActionButton = ({
       showBackground={showBackground}
       overlayColor={overlayColor}
       distanceToEdge={distanceToEdge}
+       floatingActionButtonStyle={{
+        borderRadius: 0, // 🔹 Removes rounded corners
+        shadowColor: "transparent",
+        shadowOpacity: 0,
+        shadowOffset: { width: 0, height: 0 },
+        shadowRadius: 0,
+        elevation: 0, // Remove Android shadow
+      }}
+      
     />
   );
 };

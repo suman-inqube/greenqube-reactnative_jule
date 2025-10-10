@@ -254,7 +254,7 @@ function ActivityList({navigation}) {
               options={OPTIONS_CARBON}
             />
           ),
-          height: 170 + navigationBarHeight,
+          height: 140 ,
           zIndex: 1000,
         });
       } else {
