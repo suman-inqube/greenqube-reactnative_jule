@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useDrawerProgress } from '@react-navigation/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Root } from '@sekizlipenguen/react-native-popup-confirm-toast';
 const FarmerDrawerScreenWrapper1 = ({ children }) => {
   const progress = useDrawerProgress();
   const animatedStyle = useAnimatedStyle(() => ({
@@ -24,11 +25,13 @@ const FarmerDrawerScreenWrapper1 = ({ children }) => {
     overflow: 'hidden',
   }));
   return (
+    <Root>
     <SafeAreaView style={{ flex: 1, backgroundColor: '#1d3122' }}>
       <Animated.View style={[styles.container, animatedStyle]}>
         {children}
       </Animated.View>
     </SafeAreaView>
+    </Root>
   );
 };
 

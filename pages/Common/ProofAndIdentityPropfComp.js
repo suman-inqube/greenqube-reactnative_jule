@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 // import DocumentPicker, { types } from '@react-native-documents/picker';
-import DocumentPicker, { types } from '@react-native-documents/picker';
+import DocumentPicker, { types,pick } from '@react-native-documents/picker';
 import { createPdf } from 'react-native-images-to-pdf';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
@@ -66,7 +66,7 @@ const ProofAndIdentityPropfComp = ({
   const onHandleDocumentSelection = useCallback(
     async (imageType, index) => {
       try {
-        const [res] = await DocumentPicker.pick({
+        const [res] = await pick({
           type: [types.pdf, types.images],
         });
         let fileUri = res.uri;
@@ -245,7 +245,7 @@ const ProofAndIdentityPropfComp = ({
                 icon={require('../Common/images/gallery.png')}
                 onPress={() => {
                   onHandleDocumentSelection(data?.imageType, index);
-                  // spSheet.hide();
+                  spSheet.hide();
                 }}
               />
             </>
@@ -282,7 +282,7 @@ const ProofAndIdentityPropfComp = ({
                 component: () => (
                   <ActionSheet data={data} index={index} spSheet={SPSheet} />
                 ),
-                height: 220 + marginBottom,
+                height: 230,
               })
             }>
             <View style={{ borderWidth: 1, borderColor: '#FFF' }}>

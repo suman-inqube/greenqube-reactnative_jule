@@ -51,6 +51,7 @@ import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
 import { axiosGet, axiosPost } from './utils/api';
 import { ROUTES } from './utils/Routes';
+import Container from '../Components/Container';
 
 const Login = ({ route }) => {
   const { setlogoImage, settopBanner, AllFarmerList, t } =
@@ -467,6 +468,7 @@ const Login = ({ route }) => {
   };
   return (
     <Root>
+      <Container>
       {/* <ForegroundLocationService /> */}
       <StatusBar barStyle="light-content" backgroundColor="#023316" />
       <ScrollView>
@@ -616,6 +618,7 @@ const Login = ({ route }) => {
           </View>
         </View>
       </ScrollView>
+      </Container>
     </Root>
   );
 };

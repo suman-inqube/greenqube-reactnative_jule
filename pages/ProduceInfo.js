@@ -1185,31 +1185,6 @@ const ProduceInfo = () => {
       // {latitude: '', longitude: ''},
     ]);
   };
-
-  const handleDocumentSelection = async (data, index) => {
-    try {
-      const response = await DocumentPicker.pick({
-        presentationStyle: 'fullScreen',
-        type: [types.pdf, types.images],
-      });
-      const values = [...landProof];
-      values[index]['uri'] = response[0].uri;
-      values[index]['name'] = response[0].name;
-      values[index]['type'] = response[0].type;
-      values[index]['fileName'] = response[0].name;
-      setLandProof(values);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const handleDocumentSelectionRemove = index => {
-    const values = [...landProof];
-    values[index]['uri'] = '';
-    values[index]['name'] = '';
-    values[index]['type'] = '';
-    values[index]['fileName'] = '';
-    setLandProof(values);
-  };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
     const {latitude, longitude} = fusedLocation;
