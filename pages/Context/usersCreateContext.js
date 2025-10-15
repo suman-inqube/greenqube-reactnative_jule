@@ -130,7 +130,7 @@ const UserCreateContextProvider = props => {
     }
     watchIdRef.current = Geolocation.watchPosition(
       pos => {
-        // console.log("pos i",pos )
+        console.log("pos i",pos )
         if (!pos || !pos.coords) {
           Alert.alert('Unable to fetch location. Please try again.');
           return;

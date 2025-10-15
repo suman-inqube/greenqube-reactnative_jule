@@ -12,45 +12,46 @@ import {UserCreateContextProvider} from './pages/Context/usersCreateContext';
 import {Root as PopupRootProvider} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import ErrorScreen from './pages/Common/ErrorScreen';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
-// let isExceptionHandlerConfigured = false;
+let isExceptionHandlerConfigured = false;
 import './pages/services/i18next'
-// const configureExceptionHandlers = setFatalError => {
-//   if (isExceptionHandlerConfigured) return;
+const configureExceptionHandlers = setFatalError => {
+  if (isExceptionHandlerConfigured) return;
 
-//   const jsExceptionHandler = (error, isFatal) => {
-//     if (isFatal) {
-//       console.log('isFatal', isFatal);
-//     //   CrashlyticsRecordError(error);
-//       setFatalError(error);
-//     } else {
-//       console.warn('[Non-Fatal Error]', error);
-//     //   CrashlyticsRecordError(error);
-//     }
-//   };
-//   const nativeExceptionHandler = errorString => {
-//     console.error('[Native Exception]', errorString);
-//     // CrashlyticsRecordError(errorString);
-//   };
+  const jsExceptionHandler = (error, isFatal) => {
+    if (isFatal) {
+      console.log('isFatal', isFatal);
+    //   CrashlyticsRecordError(error);
+      setFatalError(error);
+    } else {
+      console.warn('[Non-Fatal Error]', error);
+    //   CrashlyticsRecordError(error);
+    }
+  };
+  const nativeExceptionHandler = errorString => {
+    console.error('[Native Exception]', errorString);
+    // CrashlyticsRecordError(errorString);
+  };
 
-//   setJSExceptionHandler(jsExceptionHandler, true);
-//   setNativeExceptionHandler(nativeExceptionHandler);
-//   isExceptionHandlerConfigured = true;
-// };
+  setJSExceptionHandler(jsExceptionHandler, true);
+  setNativeExceptionHandler(nativeExceptionHandler);
+  isExceptionHandlerConfigured = true;
+};
 
 export default function Main() {
   const [fatalError, setFatalError] = useState(null);
   const handleRetry = useCallback(() => {
     if (fatalError) {
+      console.error(fatalError)
     //   CrashlyticsRecordError(`Retry attempted for: ${fatalError.message}`);
     }
     setFatalError(null);
   }, [fatalError]);
-  // useEffect(() => {
-  //   configureExceptionHandlers(setFatalError);
-  // }, []);
-  // if (fatalError) {
-  //   return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
-  // }
+  useEffect(() => {
+    configureExceptionHandlers(setFatalError);
+  }, []);
+  if (fatalError) {
+    return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
+  }
   return (
     <MyErrorBoundary>
       <UserCreateContextProvider>

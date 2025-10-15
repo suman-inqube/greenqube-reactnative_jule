@@ -106,6 +106,7 @@ const PlotSiteProduceInformation = () => {
     landUnitName: '',
     landUnitSize: '',
     prodctionSeasion: '',
+    prodctionSeasionSdId: '',
     livelihoodType: '',
     produceName: '',
     produceVariety: '',
@@ -234,6 +235,7 @@ const PlotSiteProduceInformation = () => {
   const {dbName, languageId, token, supervisorId, company, country} =
     dbLanTokUsr;
   //GQR-65
+  var prodctionSeasionArray = [];
   const onPageLoad = async () => {
     const {latitude, longitude} = coords;
     let groupedData;
@@ -241,7 +243,7 @@ const PlotSiteProduceInformation = () => {
     var landTypeArray = [];
     var soilTypeArray = [];
     var landUnitArray = [];
-    var prodctionSeasionArray = [];
+    // var prodctionSeasionArray = [];
     var livelihoodTypeArray = [];
     var productionProcessArray = [];
     var produceProductionUnitArray = [];
@@ -386,13 +388,13 @@ const PlotSiteProduceInformation = () => {
         }));
       }
 
-      if (producceSeasion_res?.status === 200) {
-        prodctionSeasionArray =
-          producceSeasion_res?.data?.data?.crop_season?.map(data => ({
-            value: data.fid,
-            label: data.name,
-          }));
-      }
+      // if (producceSeasion_res?.status === 200) {
+      //   prodctionSeasionArray =
+      //     producceSeasion_res?.data?.data?.crop_season?.map(data => ({
+      //       value: data.fid,
+      //       label: data.name,
+      //     }));
+      // }
 
       if (livelihoodType_res?.status === 200) {
         livelihoodTypeArray = livelihoodType_res?.data?.data?.crop_type?.map(
@@ -551,6 +553,7 @@ const PlotSiteProduceInformation = () => {
       landUnitName: '',
       landUnitSize: '',
       prodctionSeasion: '',
+      prodctionSeasionSdId: '',
       livelihoodType: '',
       produceName: '',
       produceVariety: '',
@@ -689,7 +692,30 @@ const PlotSiteProduceInformation = () => {
     }
     setproduceVarietyData(produceVarietyArray);
   };
-  const handlecycleStart = item => {
+  const handlecycleStart = async item => {
+    const seasonData = await axiosGet(
+      ROUTES.GET.PRODUCE_SEASON({
+        from_date: effective_dates(item),
+      }),
+      '',
+      {
+        information: `${dbName},${languageId},${supervisorId}`,
+        Authorization: `${token}`,
+      },
+    );
+    console.log('seasonData', seasonData);
+
+    if (seasonData?.status === 200) {
+      prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
+        value: data.season_info.fid,
+        label: data.season_info.name,
+        sd_id: data.sd_id,
+      }));
+    }
+    console.log('prodctionSeasionArray', prodctionSeasionArray);
+    if (prodctionSeasionArray) {
+      setprodctionSeasionData(prodctionSeasionArray);
+    }
     const cycleStarts = effective_dates(item);
     setstoreProduceInfo({...storeProduceInfo, cycleStarts: cycleStarts});
   };
@@ -919,6 +945,7 @@ const PlotSiteProduceInformation = () => {
       plotSize: '',
       landUnit: '',
       prodctionSeasion: '',
+      prodctionSeasionSdId: '',
       livelihoodType: '',
       produceName: '',
       produceVariety: '',
@@ -1304,6 +1331,7 @@ const PlotSiteProduceInformation = () => {
     setstoreProduceInfo(prev => ({
       ...prev,
       prodctionSeasion: item.label,
+      prodctionSeasionSdId: item.sd_id,
       prodctionSeasionValue: item.value,
       livelihoodType: '',
       livelihoodTypeValue: '',
@@ -1313,6 +1341,19 @@ const PlotSiteProduceInformation = () => {
       produceVarietyValue: '',
     }));
   }, []);
+
+  // const getSeasonCycleStarts = () => {
+  //   setOpencycleStarts(true);
+  //    axiosGet(ROUTES.GET.PRODUCE_SEASON(
+  //     {
+  //       from_date:"2025-02-01",
+  //     }
+  //    ), '', {
+  //         information: `${dbName},${languageId},${supervisorId}`,
+  //         Authorization: `${token}`,
+  //       }),
+
+  // };
   const renderCustomHeader = useMemo(
     () => (
       <CustomHeader
@@ -1567,13 +1608,13 @@ const PlotSiteProduceInformation = () => {
                       </TouchableOpacity>
                     );
                   })} */}
-                <DropdownForm
+                {/* <DropdownForm
                   label={t('addcrop_select_cultivating_season')}
                   required={true}
                   data={prodctionSeasionData}
                   onChange={handelChangeAddCrop}
                   val={storeProduceInfo.prodctionSeasion}
-                />
+                /> */}
                 <DropdownForm
                   label={t('select_crop_type')}
                   required={true}
@@ -1631,6 +1672,7 @@ const PlotSiteProduceInformation = () => {
                     <TouchableOpacity
                       style={styles.passwordContainer}
                       onPress={() => setOpencycleStarts(true)}>
+                      {/* onPress={() => getSeasonCycleStarts()}> */}
                       <View style={{width: '90%'}}>
                         <Text style={styles.text}>
                           {storeProduceInfo.cycleStarts}
@@ -1658,6 +1700,13 @@ const PlotSiteProduceInformation = () => {
                     </TouchableOpacity>
                   </View>
                 </View>
+                <DropdownForm
+                  label={t('addcrop_select_cultivating_season')}
+                  required={true}
+                  data={prodctionSeasionData}
+                  onChange={handelChangeAddCrop}
+                  val={storeProduceInfo.prodctionSeasion}
+                />
                 <View style={{marginVertical: 10}}>
                   <Text
                     style={{
@@ -1734,6 +1783,7 @@ const PlotSiteProduceInformation = () => {
                     </TouchableOpacity>
                   </View>
                 </View>
+
                 {route.params.arrayIndex == undefined ? (
                   <TouchableOpacity
                     onPress={saveInObject}

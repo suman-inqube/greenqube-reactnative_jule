@@ -115,7 +115,6 @@ const Map = ({
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
       }
-
       animationTimeoutRef.current = setTimeout(() => {
         if (isMountedRef.current && mapRef.current) {
           try {
@@ -517,7 +516,7 @@ const Map = ({
         zoomTapEnabled
         rotateEnabled={false}
         userLocationUpdateInterval={5000}
-        loadingEnabled
+        // loadingEnabled
         showsMyLocationButton
         zoomEnabled
         pitchEnabled>
