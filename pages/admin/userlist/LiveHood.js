@@ -127,6 +127,7 @@ const LiveHood = ({
     unit: '',
     unitValue: '',
     productionSeason: '',
+    productionSeasonSdId: '',
     productionSeasonValue: '',
     livelihoodType: '',
     livelihoodTypeValue: '',
@@ -879,11 +880,41 @@ const LiveHood = ({
       }));
     }
   };
-  const handleDatePicker = item =>
+  const handleDatePicker = async item => {
+    const selectedDate = effective_dates(item);
+
+    const seasonData = await axiosGet(
+      ROUTES.GET.PRODUCE_SEASON({
+        from_date: selectedDate,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${user_id}`,
+        Authorization: `${token}`,
+      },
+    );
+
+    console.log('seasonData', seasonData);
+
+    let prodctionSeasionArray = [];
+    if (seasonData?.status === 200) {
+      prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
+        value: data.season_info.fid,
+        label: data.season_info.name,
+        sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+      }));
+    }
+
+    console.log('prodctionSeasionArray', prodctionSeasionArray);
+    if (prodctionSeasionArray) {
+      setProductionSeason(prodctionSeasionArray);
+    }
+
     setFarmerData(prev => ({
       ...prev,
-      cycleStartDate: effective_dates(item),
+      cycleStartDate: selectedDate,
     }));
+  };
   const handleDatePicker2 = item =>
     setFarmerData(prev => ({
       ...prev,
@@ -936,6 +967,7 @@ const LiveHood = ({
       ...prev,
       productionSeason: item.label,
       productionSeasonValue: item.value,
+      productionSeasonSdId: item.sd_id,
       livelihoodType: '',
       livelihoodTypeValue: '',
       produceName: '',
@@ -2365,7 +2397,7 @@ const LiveHood = ({
                 </View>
               ))}
 
-            <DropdownForm
+            {/* <DropdownForm
               label={t('addcrop_select_cultivating_season')}
               required={true}
               data={productionSeason}
@@ -2375,7 +2407,7 @@ const LiveHood = ({
               disable={
                 edit == '' ? (harvested == 'same produce' ? true : false) : edit
               }
-            />
+            /> */}
             <DropdownForm
               label={t('addcrop_croptype')}
               required={true}
@@ -2454,58 +2486,79 @@ const LiveHood = ({
                 />
               </View>
             </View>
-            <TouchableOpacity
-              onPress={() =>
-                harvested != '' || userData == 'addUserData' || addPlot == true
-                  ? setopenCycleStart(true)
-                  : null
+            <View style={{marginBlock: 15}}>
+              <TouchableOpacity
+                onPress={() =>
+                  harvested != '' ||
+                  userData == 'addUserData' ||
+                  addPlot == true
+                    ? setopenCycleStart(true)
+                    : null
+                }
+                activeOpacity={9}>
+                <View style={styles.labelContainer2}>
+                  <Text
+                    style={{
+                      color: '#4e4e4e',
+                      fontFamily: Fonts.Regular,
+                      fontSize: 15,
+                    }}>
+                    {t('showing_date')}
+                    <Text style={styles.requiredStar}> *</Text>
+                  </Text>
+                </View>
+                <View style={styles.calenderContainer}>
+                  <Text style={{color: '#000'}}>
+                    {farmerData.cycleStartDate}
+                  </Text>
+                  <Image
+                    source={require('../../Common/images/calendar.png')}
+                    style={{width: 20, height: 20, tintColor: Colors.useGreen}}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+            <DropdownForm
+              label={t('addcrop_select_cultivating_season')}
+              required={true}
+              data={productionSeason}
+              onChange={handleAddDataproductionSeason}
+              val={farmerData.productionSeason}
+              // disable={edit}
+              disable={
+                edit == '' ? (harvested == 'same produce' ? true : false) : edit
               }
-              activeOpacity={9}>
-              <View style={styles.labelContainer2}>
-                <Text
-                  style={{
-                    color: '#4e4e4e',
-                    fontFamily: Fonts.Regular,
-                    fontSize: 15,
-                  }}>
-                  {t('showing_date')}
+            />
+            <View style={{marginBottom: 40}}>
+              <TouchableOpacity
+                onPress={() =>
+                  harvested != '' ||
+                  userData == 'addUserData' ||
+                  addPlot == true
+                    ? setopenCycleEnd(true)
+                    : null
+                }
+                activeOpacity={9}>
+                <View style={styles.labelContainer2}>
+                  <Text
+                    style={{
+                      color: '#4e4e4e',
+                      fontFamily: Fonts.Regular,
+                      fontSize: 15,
+                    }}>
+                    {t('harvesting_date_auto_calculated')}
+                  </Text>
                   <Text style={styles.requiredStar}> *</Text>
-                </Text>
-              </View>
-              <View style={styles.calenderContainer}>
-                <Text style={{color: '#000'}}>{farmerData.cycleStartDate}</Text>
-                <Image
-                  source={require('../../Common/images/calendar.png')}
-                  style={{width: 20, height: 20, tintColor: Colors.useGreen}}
-                />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() =>
-                harvested != '' || userData == 'addUserData' || addPlot == true
-                  ? setopenCycleEnd(true)
-                  : null
-              }
-              activeOpacity={9}>
-              <View style={styles.labelContainer2}>
-                <Text
-                  style={{
-                    color: '#4e4e4e',
-                    fontFamily: Fonts.Regular,
-                    fontSize: 15,
-                  }}>
-                  {t('harvesting_date_auto_calculated')}
-                </Text>
-                <Text style={styles.requiredStar}> *</Text>
-              </View>
-              <View style={styles.calenderContainer}>
-                <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
-                <Image
-                  source={require('../../Common/images/calendar.png')}
-                  style={{width: 20, height: 20, tintColor: Colors.useGreen}}
-                />
-              </View>
-            </TouchableOpacity>
+                </View>
+                <View style={styles.calenderContainer}>
+                  <Text style={{color: '#000'}}>{farmerData.cycleEndDate}</Text>
+                  <Image
+                    source={require('../../Common/images/calendar.png')}
+                    style={{width: 20, height: 20, tintColor: Colors.useGreen}}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
             {(statuslevel.label == 'APPROVED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
               statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
