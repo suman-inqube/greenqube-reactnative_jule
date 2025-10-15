@@ -96,6 +96,8 @@ const LiveHood = ({
     effective_dates,
     navigationBarHeight,
     coords,
+    startWatchingLocation,
+    stopWatchingLocation,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-65
@@ -352,7 +354,7 @@ const LiveHood = ({
       });
       CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
     }
-  }, []);
+  }, [coords]);
 
   const handlePlot = useCallback(
     async findData => {
@@ -766,8 +768,12 @@ const LiveHood = ({
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
+      startWatchingLocation();
     });
-    return () => task.cancel(); // cleanup
+    return () => {
+      task.cancel();
+      stopWatchingLocation();
+    }; // cleanup
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
@@ -1981,6 +1987,7 @@ const LiveHood = ({
           newDate={newDate}
           setOpenDate={setopenCycleStart}
           handleDatePicker={handleDatePicker}
+          // minimumDate={new Date()}
         />
         <DatePickerComp
           openDate={penCycleEnd}
@@ -2529,7 +2536,7 @@ const LiveHood = ({
                 edit == '' ? (harvested == 'same produce' ? true : false) : edit
               }
             />
-            <View style={{marginBottom: 40}}>
+            <View style={{marginBottom: 50}}>
               <TouchableOpacity
                 onPress={() =>
                   harvested != '' ||

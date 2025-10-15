@@ -43,6 +43,9 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+                  <meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="@string/google_maps_api_key"/>
        <meta-data  android:name="com.dieam.reactnativepushnotification.notification_foreground"
                     android:value="true"/>
         <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
@@ -64,10 +67,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-            <meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="@string/google_maps_api_key"/>
-
     </application>
      <queries>
    <intent>

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, memo } from 'react';
+import React, {useRef, useEffect, useCallback, memo} from 'react';
 import {
   Animated,
   TouchableOpacity,
@@ -8,10 +8,10 @@ import {
   Dimensions,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { Colors, Fonts } from '../utils/Constants';
-import { MENU_ITEMS } from '../utils/dashboardItems';
+import {Colors, Fonts} from '../utils/Constants';
+import {MENU_ITEMS} from '../utils/dashboardItems';
 import ModernMenuButton from './ModernMenuButton';
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 const ModernUserCard = ({
   item,
   isExpanded,
@@ -80,28 +80,28 @@ const ModernUserCard = ({
 
   const handleCardPress = useCallback(() => {
     onToggle(item.user_id);
-    setState(prev => ({ ...prev, onPageLoad: true }));
+    setState(prev => ({...prev, onPageLoad: true}));
   }, [onToggle, item.user_id, setState]);
 
   const cardStyle =
     state.onPageLoad == false
       ? [
-        styles.modernUserCard,
-        {
-          opacity: cardAnim,
-          transform: [
-            { scale: cardAnim },
-            {
-              translateX: cardAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [SCREEN_WIDTH * 0.3, 0],
-              }),
-            },
-          ],
-        },
-      ]
+          styles.modernUserCard,
+          {
+            opacity: cardAnim,
+            transform: [
+              {scale: cardAnim},
+              {
+                translateX: cardAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [SCREEN_WIDTH * 0.3, 0],
+                }),
+              },
+            ],
+          },
+        ]
       : [styles.modernUserCard];
-  const filtered = item?.agri_files?.filter(data => data.term_type === "1");
+  const filtered = item?.agri_files?.filter(data => data.term_type === '1');
   return (
     <Animated.View style={cardStyle}>
       <TouchableOpacity
@@ -217,7 +217,7 @@ const styles = {
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  cardTouchable: { padding: 0 },
+  cardTouchable: {padding: 0},
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -238,16 +238,16 @@ const styles = {
     color: '#FFFFFF',
     fontFamily: Fonts.Bold,
   },
-  userDetails: { flex: 1 },
+  userDetails: {flex: 1},
   modernUserName: {
     fontSize: 16,
     color: Colors.text,
     marginBottom: 4,
     fontFamily: Fonts.Medium,
   },
-  phoneText: { fontSize: 14, color: Colors.lightText, fontFamily: Fonts.Medium },
-  dateText: { fontSize: 12, color: Colors.lightText, fontFamily: Fonts.Medium },
-  cardActions: { alignItems: 'center' },
+  phoneText: {fontSize: 14, color: Colors.lightText, fontFamily: Fonts.Medium},
+  dateText: {fontSize: 12, color: Colors.lightText, fontFamily: Fonts.Medium},
+  cardActions: {alignItems: 'center'},
   plotsBadge: {
     flexDirection: 'row',
     backgroundColor: '#E8F5E8',
@@ -263,9 +263,16 @@ const styles = {
     fontFamily: Fonts.SemiBold,
     marginRight: 4,
   },
-  plotsLabel: { fontSize: 10, color: Colors.borderGreen, fontFamily: Fonts.Medium },
-  menuPositionContainer: { overflow: 'hidden', backgroundColor: Colors.background },
-  modernMenuContainer: { height: 120, backgroundColor: Colors.background },
+  plotsLabel: {
+    fontSize: 10,
+    color: Colors.borderGreen,
+    fontFamily: Fonts.Medium,
+  },
+  menuPositionContainer: {
+    overflow: 'hidden',
+    backgroundColor: Colors.background,
+  },
+  modernMenuContainer: {height: 120, backgroundColor: Colors.background},
   modernMenuGrid: {
     flexDirection: 'row',
     paddingHorizontal: 20,
