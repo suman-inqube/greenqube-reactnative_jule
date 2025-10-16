@@ -63,6 +63,8 @@ import {ROUTES} from '../../utils/Routes';
 
 const PlotSiteProduceInformation = () => {
   //GQR-65
+  const today = new Date();
+
   const {
     dbLanTokUsr,
     InputTextForm,
@@ -1696,6 +1698,7 @@ const PlotSiteProduceInformation = () => {
                         onCancel={() => {
                           setOpencycleStarts(false);
                         }}
+                        maximumDate={today}
                       />
                     </TouchableOpacity>
                   </View>

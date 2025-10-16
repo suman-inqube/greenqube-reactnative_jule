@@ -82,6 +82,7 @@ const LiveHood = ({
   addPlot,
 }) => {
   //GQR-65
+  const today = new Date();
   const {
     loginUser_data,
     t,
@@ -1988,6 +1989,8 @@ const LiveHood = ({
           setOpenDate={setopenCycleStart}
           handleDatePicker={handleDatePicker}
           // minimumDate={new Date()}
+          // minimumDate={today}
+          maximumDate={today}
         />
         <DatePickerComp
           openDate={penCycleEnd}
