@@ -90,6 +90,7 @@ const PlotStatusUpdate = () => {
     DropdownForm,
     effective_dates,
     ButtonForm,
+    coords,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-65
@@ -241,10 +242,9 @@ const PlotStatusUpdate = () => {
   };
   const onPageLoad = async () => {
     try {
-      console.log('par==', JSON.stringify(route.params));
+      // console.log('par==', JSON.stringify(route.params));
       setIsLoading(true);
-      const fusedLocation = await getItem('fusedLocation');
-      const {latitude, longitude} = fusedLocation;
+      const {latitude, longitude} = coords || {};
       let groupedData;
       const axiosConfig = {
         headers: {
@@ -335,6 +335,7 @@ const PlotStatusUpdate = () => {
       }
       setIsLoading(false);
     } catch (error) {
+      console.log('error', error);
       Toast.show({
         text: JSON.stringify(error),
         ...AlertMesg[0],
@@ -344,8 +345,8 @@ const PlotStatusUpdate = () => {
   };
 
   const handlePlot = async findData => {
-    const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const {latitude, longitude} = coords || {};
+
     const axiosConfig = {
       headers: {
         information: `${dbname},${lan_id}`,
@@ -805,12 +806,11 @@ const PlotStatusUpdate = () => {
     navigation.navigate('userList');
     return true;
   };
-  //   useEffect(() => {
-
-  //     onPageLoad();
-  //     removesetLocation();
-  //     // onBackPress(handleBackPress);
-  //   }, []);
+  useEffect(() => {
+    onPageLoad();
+    removesetLocation();
+    // onBackPress(handleBackPress);
+  }, []);
   useEffect(() => {
     removesetLocation();
     //   console.log('latitude==', latitude, latitude);
@@ -942,11 +942,10 @@ const PlotStatusUpdate = () => {
     }
   };
   const handleCurrentLatLong = async index => {
-    const fusedLocation = await getItem('fusedLocation');
+    const {latitude, longitude} = coords || {};
+
     const values = [...location];
-    const {latitude, longitude} = fusedLocation;
     if (
-      fusedLocation != null &&
       longitude.toString().length == 10 &&
       latitude.toString().length == 10 &&
       latitude > 0 &&
@@ -1148,7 +1147,6 @@ const PlotStatusUpdate = () => {
         ...timeoutConfig,
       });
       if (landunitAPI?.status == 200) {
-        console.log('rr=', JSON.stringify(landunitAPI.data.data.rows));
         setfarmerData({
           ...farmerData,
           unit_valueArr: JSON.stringify(landunitAPI.data.data.rows),
@@ -1176,7 +1174,6 @@ const PlotStatusUpdate = () => {
       crop_type_id,
       crop_name_id,
     );
-    console.log('productSeasonresRes?.status', productSeasonresRes?.status);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr =
         productSeasonresRes?.data?.data?.crop_season.map(data => ({
@@ -1240,8 +1237,8 @@ const PlotStatusUpdate = () => {
     const locationArry = [];
     const latlongArr = [];
     if (location?.[0]?.editing == true && statuslevel.label != '') {
-      const fusedLocation = await getItem('fusedLocation');
-      const {latitude, longitude} = fusedLocation;
+      const {latitude, longitude} = coords || {};
+
       const distances = previousPlotLatlong.map(p =>
         getDistance(p, {latitude, longitude}),
       );
@@ -1849,8 +1846,8 @@ const PlotStatusUpdate = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     try {
-      const fusedLocation = await getItem('fusedLocation');
-      const {latitude, longitude} = fusedLocation;
+      const {latitude, longitude} = coords || {};
+
       setfarmerData({
         ...farmerData,
         IOTLatlat: longitude,

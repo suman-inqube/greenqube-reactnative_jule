@@ -113,8 +113,6 @@ const Dashboard = ({ navigation }) => {
     },
     [isOnline, navigation, uiState.convertionLUState, Toast, AlertMesg],
   );
-
-  // Batched onPageLoad: fetch everything, then set state once
   const onPageLoad = useCallback(async type => {
     if (type != 'refreshing') {
       setIsLoading(true);
@@ -163,8 +161,8 @@ const Dashboard = ({ navigation }) => {
           FARMER_USEFULL_INFO_LIST,
           PLOT_STATUS,
         ] = await Promise.all([
-          UnitConversonToDefault(dbname, lan_id, token),
-          LandUnitArea(dbname, lan_id, token),
+          axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, { information: `${dbname},${lan_id}` }),
+          axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, { information: `${dbname},${lan_id}` }),
           axiosGet(
             ROUTES.GET.USEFULL_INFO_LIST({
               userId: user_id,
@@ -250,8 +248,10 @@ const Dashboard = ({ navigation }) => {
 
       setIsLoading(false);
     } catch (error) {
-      // don't spam console in production; keep minimal
-      console.warn('onPageLoad error', error);
+      Toast?.show({
+        text: error,
+        ...AlertMesg?.[0],
+      });
       setIsLoading(false);
     }
   }, []);

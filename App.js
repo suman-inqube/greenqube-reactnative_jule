@@ -1,8 +1,8 @@
-import React, { useRef, useContext, useState, useEffect, lazy } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, {useRef, useContext, useState, useEffect, lazy} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import 'react-native-gesture-handler';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {
   AppState,
   Alert,
@@ -26,21 +26,21 @@ const FinancialUpdate = lazy(() => import('./pages/FinancialUpdate'));
 const ProduceInfo = lazy(() => import('./pages/ProduceInfo'));
 const ProduceInfoUpdate = lazy(() => import('./pages/ProduceInfoUpdate'));
 
-import { userCreateContext } from './pages/Context/usersCreateContext';
-import { addModuleForView } from './config/apiHere';
+import {userCreateContext} from './pages/Context/usersCreateContext';
+import {addModuleForView} from './config/apiHere';
 import './ignoreWarnings';
-import { navigationRef } from './pages/utils/NavigationUtils';
+import {navigationRef} from './pages/utils/NavigationUtils';
 const Stack = createNativeStackNavigator();
 // import { Provider as PaperProvider } from 'react-native-paper';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 function App() {
   const routeNameRef = useRef();
-  const { loginUser_data } = useContext(userCreateContext) || {};
-  const { dbname, lan_id, token, user_id } = loginUser_data || {};
+  const {loginUser_data} = useContext(userCreateContext) || {};
+  const {dbname, lan_id, token, user_id} = loginUser_data || {};
   return (
     // <PaperProvider>
     <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{flex: 1}}>
         <NavigationContainer
           ref={navigationRef}
           onReady={() => {
@@ -122,67 +122,67 @@ function App() {
           }}>
           <Stack.Navigator
             initialRouteName="SplashScreen"
-            screenOptions={{ headerShown: false, lazy: true }}>
+            screenOptions={{headerShown: false, lazy: true}}>
             <Stack.Screen
               name="SplashScreen"
               component={SplashScreen}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="Login"
               component={Login}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="Signup"
               component={Signup}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="SignUpViwer"
               component={SignUpViwer}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="Persnol"
               component={Persnol}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="PersnolUpdate"
               component={PersnolUpdate}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="Financial"
               component={Financial}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="FinancialUpdate"
               component={FinancialUpdate}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="ProduceInfo"
               component={ProduceInfo}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="ProduceInfoUpdate"
               component={ProduceInfoUpdate}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
               name="AdminNavigation"
               component={AdminNavigation}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
             />
             <Stack.Screen
-            name="FarmerNavigation"
-            component={FarmerNavigation}
-            options={{headerShown: false}}
-          />
+              name="FarmerNavigation"
+              component={FarmerNavigation}
+              options={{headerShown: false}}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>

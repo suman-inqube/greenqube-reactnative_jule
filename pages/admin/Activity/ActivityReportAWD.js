@@ -272,8 +272,6 @@ const ActivityReportAWD = ({ navigation }) => {
       } else {
         var response = await getItem('plotAgainstFarmer' + currentfarmerId);
       }
-
-      console.log('PLOT_AG-Farmer', response.status);
       if (response) {
         const dataArray = response?.data?.data.map(data => ({
           value: data.rel_id,
@@ -297,8 +295,6 @@ const ActivityReportAWD = ({ navigation }) => {
             'activityType' + currentfarmerId,
           );
         }
-
-        console.log('Activity Type', activityType_res?.status);
         if (activityType_res?.status == 200) {
           const dataArray = activityType_res?.data?.data?.rows.map(data => ({
             value: data.fid,
@@ -339,8 +335,6 @@ const ActivityReportAWD = ({ navigation }) => {
             'produceAgainstPlot' + farmerID + relId.value,
           );
         }
-
-        console.log('Produce-ag-Farmer', response.status);
         if (response) {
           if (
             response?.data?.data?.land_info?.agri_land_user_latlongs.length > 2
@@ -511,8 +505,6 @@ const ActivityReportAWD = ({ navigation }) => {
                 'productionStageAPI' + data.crop_type_id + data.crop_type_id,
               );
             }
-
-            console.log('productionStage_res', productionStage_res.status);
             if (productionStage_res) {
               const dataArray =
                 productionStage_res?.data?.data?.growth_stage.map(data => ({
@@ -521,7 +513,6 @@ const ActivityReportAWD = ({ navigation }) => {
                 }));
               setProductionStageAll(dataArray);
             }
-            console.log('activitySchedule', activitySchedule.status);
             if (activitySchedule.status == 200) {
               setIsLoading(false);
               if (
@@ -542,8 +533,6 @@ const ActivityReportAWD = ({ navigation }) => {
                   ')';
                 setLastAct(lastData);
               }
-              // console.log(activitySchedule.data.data.lastActivity);
-              // var overdueData;
               if (activitySchedule?.data?.data?.otherActivities.length > 0) {
                 activitySchedule?.data?.data?.otherActivities.forEach(function (
                   element,
@@ -557,10 +546,8 @@ const ActivityReportAWD = ({ navigation }) => {
                       ' - ' +
                       formatDate(element?.activity_end_date) +
                       ')';
-                    //  console.log("00",overdueData);
                     setOverdueAct(prevItems => [...prevItems, overdueData]);
                   }
-                  // setOverdueAct(prevItems => [...prevItems, overdueData]);
                 });
                 const upcomingActivity =
                   activitySchedule?.data?.data?.otherActivities?.find(
@@ -611,12 +598,6 @@ const ActivityReportAWD = ({ navigation }) => {
                     ')',
                   );
                 }
-                //  console.log(
-                //    upcomingActivity?.activityName?.categoryName +
-                //      ' (' +
-                //      startDateEndDate +
-                //      ')',
-                //  );
               }
               // setScheduleInfo({
               //   ...scheduleInfo,
@@ -706,16 +687,17 @@ const ActivityReportAWD = ({ navigation }) => {
       //   saveData.crop_name,
       //   saveData.cu_rel_id,
       // );
-      var [setCycleDate, activitySchedule] = await Promise.all([
-        setCycleDateAPI(
-          dbname,
-          lan_id,
-          farmerID,
-          token,
-          saveData.cu_rel_id,
-          save_data,
-        ),
-
+      var [
+        // setCycleDate,
+         activitySchedule] = await Promise.all([
+           // setCycleDateAPI(
+           //   dbname,
+           //   lan_id,
+           //   farmerID,
+           //   token,
+           //   saveData.cu_rel_id,
+           //   save_data,
+           // ),
         axiosGet(
           ROUTES.GET.ACTIVITY_SCHEDULE_API({
             type: 'carbon_activity',
@@ -736,7 +718,6 @@ const ActivityReportAWD = ({ navigation }) => {
         //   saveData.cu_rel_id,
         // ),
       ]);
-      console.log('activitySchedule2222', activitySchedule.status);
       if (activitySchedule.status == 200) {
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
           var lastData =
@@ -1124,7 +1105,6 @@ const ActivityReportAWD = ({ navigation }) => {
           if (coords != null) {
             const { latitude, longitude } = coords || {};
             const distances = getDistance(selectPipeList.latlongs, { latitude, longitude });
-            console.log(distances)
             if (distances < 10) {
               database_res = await axiosPost(
                 ROUTES.POST.UPDATE_PIPE_ACTIVITY,
@@ -1165,7 +1145,6 @@ const ActivityReportAWD = ({ navigation }) => {
           });
         }
       } else {
-        console.log('offline');
         formData.append('farmerID', saveData.user_id);
         let timeStamp = Date.now();
         await setItem('off' + timeStamp, formData);
@@ -1240,8 +1219,6 @@ const ActivityReportAWD = ({ navigation }) => {
           value: '',
           latlongs: {}
         });
-
-        console.log('Activity-INFO', response.status);
         if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [

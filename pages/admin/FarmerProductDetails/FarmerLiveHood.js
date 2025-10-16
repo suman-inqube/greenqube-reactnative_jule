@@ -63,6 +63,7 @@ import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
+import MyErrorBoundary from '../../Common/MyErrorBoundary';
 
 const FarmerLiveHood = ({
   dataProps,
@@ -1915,7 +1916,7 @@ const FarmerLiveHood = ({
     }
   }, [statuslevel.label, harvested]);
   return (
-    <FarmerDrawerScreenWrapper1>
+    <MyErrorBoundary>
       <DatePickerComp
         openDate={penCycleStart}
         newDate={newDate}
@@ -2574,7 +2575,7 @@ const FarmerLiveHood = ({
           />
         </Modal>
       )}
-    </FarmerDrawerScreenWrapper1>
+    </MyErrorBoundary>
   );
 };
 

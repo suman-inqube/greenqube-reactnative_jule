@@ -1,14 +1,8 @@
-import React, { memo, useRef, useEffect, useCallback } from 'react';
-import {
-  Animated,
-  TouchableOpacity,
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
+import React, {memo, useRef, useEffect, useCallback} from 'react';
+import {Animated, TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { Colors,Fonts } from '../utils/Constants';
-const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
+import {Colors, Fonts} from '../utils/Constants';
+const ModernMenuButton = memo(({item, onPress, t, index, isExpanded}) => {
   const buttonAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -52,7 +46,7 @@ const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
         {
           opacity: buttonAnim,
           transform: [
-            { scale: buttonAnim },
+            {scale: buttonAnim},
             {
               translateY: buttonAnim.interpolate({
                 inputRange: [0, 1],
@@ -63,7 +57,7 @@ const ModernMenuButton = memo(({ item, onPress, t, index, isExpanded }) => {
         },
       ]}>
       <TouchableOpacity
-        style={[styles.menuButtonTouchable, { backgroundColor: item.iconBg }]}
+        style={[styles.menuButtonTouchable, {backgroundColor: item.iconBg}]}
         onPress={handlePress}
         activeOpacity={0.8}>
         <View style={styles.modernIconContainer}>
@@ -108,5 +102,4 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     lineHeight: 12,
   },
-  
 });
