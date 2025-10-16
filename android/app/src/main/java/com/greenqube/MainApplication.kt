@@ -1,4 +1,4 @@
-package com.greenqube
+package com.inqube.greenqube
 
 import android.app.Application
 import com.facebook.react.PackageList
