@@ -722,6 +722,7 @@ const LiveHood = ({
           setAdd_new_crop(false);
         }
       }
+      console.log('productSeasonresRes', productSeasonresRes);
       if (productSeasonresRes?.status === 200) {
         const productSeasonresResArr =
           productSeasonresRes?.data?.data?.crop_season.map(data => ({

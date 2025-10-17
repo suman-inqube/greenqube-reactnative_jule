@@ -710,7 +710,7 @@ const PlotSiteProduceInformation = () => {
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
         value: data.season_info.fid,
-        label: data.season_info.name,
+        label: `${data.season_info.name} (${data.year})`,
         sd_id: data.sd_id,
       }));
     }
