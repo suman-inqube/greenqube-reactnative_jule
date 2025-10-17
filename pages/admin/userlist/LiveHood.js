@@ -295,15 +295,15 @@ const LiveHood = ({
         }),
         // LandUnitsquare_metre(dbname, lan_id, token),
 
-        axiosGet(
-          ROUTES.GET.PRODUCTION_SEASON({
-            lanId: lan_id,
-            crop_type_id: '',
-            crop_name_id: '',
-          }),
-          '',
-          { information: `${dbname},${lan_id}` },
-        ),
+        // axiosGet(
+        //   ROUTES.GET.PRODUCTION_SEASON({
+        //     lanId: lan_id,
+        //     crop_type_id: '',
+        //     crop_name_id: '',
+        //   }),
+        //   '',
+        //   {information: `${dbname},${lan_id}`},
+        // ),
         // ProductionSeasonAndApi(dbname, lan_id, ''),
 
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
@@ -407,132 +407,133 @@ const LiveHood = ({
             },
           ),
 
-          // nearestLatLong(
-          //   dbname,
-          //   lan_id,
-          //   token,
-          //   findData?.latitude,
-          //   findData?.longitude,
-          // ),
-        ]);
-        setPlotId(findData.value);
-        if (getPlotDoc?.status == 200) {
-          const { count } = getPlotDoc?.data?.data;
-          const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
-          const values = [...addressProof];
-          const carbonCertificateValues = [...carboncertificate];
-          const filteredPlotImages = plot_img.filter(
-            item => item.term_type === 'plot_image',
-          );
-          const filteredCarbonAgreement = plot_img.filter(
-            item => item.term_type === 'carbon_agreement',
-          );
-          const filteredSignature = plot_img.filter(
-            item => item.term_type === 'signature',
-          );
-          const filterLandUserImgsAddress = landUserImgs.filter(
-            item => item.term_type === 'farmer_address',
-          );
-          const filterLandUserImgsIdentity = landUserImgs.filter(
-            item => item.term_type === 'farmer_identity',
-          );
-          if (filteredSignature.length > 0) {
-            setSignature(prev => ({
-              ...prev,
-              uri: filteredSignature[filteredSignature.length - 1]?.file_path,
-              name: filteredSignature[filteredSignature.length - 1]?.file_name,
-              type: filteredSignature[filteredSignature.length - 1]?.file_ext,
-              fileName:
-                filteredSignature[filteredSignature.length - 1]?.file_name,
-              id: filteredSignature[filteredSignature.length - 1]?.file_id,
-            }));
-          }
-          addressProof.map((_data, _index) => {
-            if (filteredPlotImages[_index] !== undefined && count > 0) {
-              values[_index] = {
-                uri: filteredPlotImages[_index]?.file_path,
-                name: filteredPlotImages[_index]?.file_name,
-                type: filteredPlotImages[_index]?.file_ext,
-                fileName: filteredPlotImages[_index]?.file_name,
-                id: filteredPlotImages[_index]?.file_id,
-              };
-            } else {
-              values[_index] = {
-                uri: '',
-                name: '',
-                type: '',
-                fileName: '',
-                id: '',
-              };
-            }
-          });
-          carboncertificate.map((_data, _index) => {
-            if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
-              carbonCertificateValues[_index] = {
-                uri: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_path,
-                name: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_name,
-                type: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_ext,
-                fileName:
-                  filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                    ?.file_name,
-                id: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_id,
-              };
-            } else {
-              carbonCertificateValues[_index] = {
-                uri: '',
-                name: '',
-                type: '',
-                fileName: '',
-                id: '',
-              };
-            }
-          });
-          setCarboncertificate(carbonCertificateValues);
-          setAddressProof(values);
-          setIdentityProofIdentityPropf([
-            {
-              uri: filterLandUserImgsAddress?.[0]?.file_path || '',
-              name: filterLandUserImgsAddress?.[0]?.file_name || '',
-              type: filterLandUserImgsAddress?.[0]?.file_ext || '',
-              fileName: filterLandUserImgsAddress?.[0]?.file_name || '',
-              imageType: 'address',
-              file_path: filterLandUserImgsAddress?.[0]?.file_path || '',
-              file_id: filterLandUserImgsAddress?.[0]?.file_id || '',
-              id: filterLandUserImgsAddress?.[0]?.file_id || '',
-            },
-            {
-              uri: filterLandUserImgsIdentity?.[0]?.file_path || '',
-              name: filterLandUserImgsIdentity?.[0]?.file_name || '',
-              type: filterLandUserImgsIdentity?.[0]?.file_ext || '',
-              fileName: filterLandUserImgsIdentity?.[0]?.file_name || '',
-              imageType: 'identity',
-              file_path: filterLandUserImgsIdentity?.[0]?.file_path || '',
-              file_id: filterLandUserImgsIdentity?.[0]?.file_id || '',
-              id: filterLandUserImgsIdentity?.[0]?.file_id || '',
-            },
-          ]);
+        // nearestLatLong(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   findData?.latitude,
+        //   findData?.longitude,
+        // ),
+      ]);
+      setPlotId(findData.value);
+
+      if (getPlotDoc?.status == 200) {
+        const {count} = getPlotDoc?.data?.data;
+        const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
+        const values = [...addressProof];
+        const carbonCertificateValues = [...carboncertificate];
+        const filteredPlotImages = plot_img.filter(
+          item => item.term_type === 'plot_image',
+        );
+        const filteredCarbonAgreement = plot_img.filter(
+          item => item.term_type === 'carbon_agreement',
+        );
+        const filteredSignature = plot_img.filter(
+          item => item.term_type === 'signature',
+        );
+        const filterLandUserImgsAddress = landUserImgs.filter(
+          item => item.term_type === 'farmer_address',
+        );
+        const filterLandUserImgsIdentity = landUserImgs.filter(
+          item => item.term_type === 'farmer_identity',
+        );
+        if (filteredSignature.length > 0) {
+          setSignature(prev => ({
+            ...prev,
+            uri: filteredSignature[filteredSignature.length - 1]?.file_path,
+            name: filteredSignature[filteredSignature.length - 1]?.file_name,
+            type: filteredSignature[filteredSignature.length - 1]?.file_ext,
+            fileName:
+              filteredSignature[filteredSignature.length - 1]?.file_name,
+            id: filteredSignature[filteredSignature.length - 1]?.file_id,
+          }));
         }
-        if (cropAndPlotDetails?.status === 200) {
-          const data = cropAndPlotDetails?.data?.data || {};
-          plotSiteUserLandDetails.map((dataLandDetails, index) => {
-            if (dataLandDetails?.rel_id == findData.value) {
-              if (
-                dataLandDetails?.status_level == 'APPROVED' ||
-                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
-                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
-              ) {
-                Alert.alert(
-                  'Note',
-                  'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-                  [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-                  { cancelable: false },
-                );
-              }
+        addressProof.map((_data, _index) => {
+          if (filteredPlotImages[_index] !== undefined && count > 0) {
+            values[_index] = {
+              uri: filteredPlotImages[_index]?.file_path,
+              name: filteredPlotImages[_index]?.file_name,
+              type: filteredPlotImages[_index]?.file_ext,
+              fileName: filteredPlotImages[_index]?.file_name,
+              id: filteredPlotImages[_index]?.file_id,
+            };
+          } else {
+            values[_index] = {
+              uri: '',
+              name: '',
+              type: '',
+              fileName: '',
+              id: '',
+            };
+          }
+        });
+        carboncertificate.map((_data, _index) => {
+          if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
+            carbonCertificateValues[_index] = {
+              uri: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                ?.file_path,
+              name: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                ?.file_name,
+              type: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                ?.file_ext,
+              fileName:
+                filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                  ?.file_name,
+              id: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                ?.file_id,
+            };
+          } else {
+            carbonCertificateValues[_index] = {
+              uri: '',
+              name: '',
+              type: '',
+              fileName: '',
+              id: '',
+            };
+          }
+        });
+        setCarboncertificate(carbonCertificateValues);
+        setAddressProof(values);
+        setIdentityProofIdentityPropf([
+          {
+            uri: filterLandUserImgsAddress?.[0]?.file_path || '',
+            name: filterLandUserImgsAddress?.[0]?.file_name || '',
+            type: filterLandUserImgsAddress?.[0]?.file_ext || '',
+            fileName: filterLandUserImgsAddress?.[0]?.file_name || '',
+            imageType: 'address',
+            file_path: filterLandUserImgsAddress?.[0]?.file_path || '',
+            file_id: filterLandUserImgsAddress?.[0]?.file_id || '',
+            id: filterLandUserImgsAddress?.[0]?.file_id || '',
+          },
+          {
+            uri: filterLandUserImgsIdentity?.[0]?.file_path || '',
+            name: filterLandUserImgsIdentity?.[0]?.file_name || '',
+            type: filterLandUserImgsIdentity?.[0]?.file_ext || '',
+            fileName: filterLandUserImgsIdentity?.[0]?.file_name || '',
+            imageType: 'identity',
+            file_path: filterLandUserImgsIdentity?.[0]?.file_path || '',
+            file_id: filterLandUserImgsIdentity?.[0]?.file_id || '',
+            id: filterLandUserImgsIdentity?.[0]?.file_id || '',
+          },
+        ]);
+      }
+      if (cropAndPlotDetails?.status === 200) {
+        const data = cropAndPlotDetails?.data?.data || {};
+        plotSiteUserLandDetails.map((dataLandDetails, index) => {
+          if (dataLandDetails?.rel_id == findData.value) {
+            if (
+              dataLandDetails?.status_level == 'APPROVED' ||
+              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
+              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
+              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
+            ) {
+              Alert.alert(
+                'Note',
+                'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
+                [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+                {cancelable: false},
+              );
+            }
 
               setstatuslevel(prev => ({
                 ...prev,
@@ -898,19 +899,16 @@ const LiveHood = ({
         Authorization: `${token}`,
       },
     );
-
-    console.log('seasonData', seasonData);
-
     let prodctionSeasionArray = [];
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
         value: data.season_info.fid,
-        label: data.season_info.name,
+        label: `${data.season_info.name} (${data.year})`,
         sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+        year: data.year,
+        originalName: data.season_info.name,
       }));
     }
-
-    console.log('prodctionSeasionArray', prodctionSeasionArray);
     if (prodctionSeasionArray) {
       setProductionSeason(prodctionSeasionArray);
     }
@@ -973,14 +971,15 @@ const LiveHood = ({
       productionSeason: item.label,
       productionSeasonValue: item.value,
       productionSeasonSdId: item.sd_id,
-      livelihoodType: '',
-      livelihoodTypeValue: '',
-      produceName: '',
-      produceNameValue: '',
-      produceVariety: '',
-      produceVarietyValue: '',
-      productionProcess: '',
-      productionProcessValue: '',
+      productionSeasonYear: item.year,
+      // livelihoodType: '',
+      // livelihoodTypeValue: '',
+      // produceName: '',
+      // produceNameValue: '',
+      // produceVariety: '',
+      // produceVarietyValue: '',
+      // productionProcess: '',
+      // productionProcessValue: '',
     }));
   }, []);
   const handleAddDatalivelihoodType = useCallback(async item => {

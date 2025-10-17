@@ -98,6 +98,12 @@ const ActivityReportAWD = ({navigation}) => {
   const {dbname, lan_id, token, user_id} = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
   //GQR-67
+  const today = new Date();
+
+  // 7 days ago
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(today.getDate() - 7);
+
   const [minimumSelectableDate, setMinimumSelectableDate] = useState(
     new Date(),
   );
@@ -1776,7 +1782,8 @@ const ActivityReportAWD = ({navigation}) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
-                maximumDate={new Date()}
+                minimumDate={sevenDaysAgo}
+                maximumDate={today}
               />
               {modalVisibleRecordFirstItem ? (
                 <SoundRecord

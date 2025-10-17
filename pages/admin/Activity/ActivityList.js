@@ -254,7 +254,7 @@ function ActivityList({navigation}) {
               options={OPTIONS_CARBON}
             />
           ),
-          height: 140 ,
+          height: 160,
           zIndex: 1000,
         });
       } else {

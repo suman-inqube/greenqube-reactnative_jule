@@ -62,6 +62,11 @@ const audioRecorderPlayer =
     : AudioRecorderPlayer;
 const ActivityReport = ({navigation}) => {
   //GQR-67
+  const today = new Date();
+
+  // 7 days ago
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(today.getDate() - 7);
   const {
     loginUser_data,
     LoadingScreen,
@@ -1208,7 +1213,8 @@ const ActivityReport = ({navigation}) => {
               newDate={newFromDate}
               setOpenDate={setActivityPreDate}
               handleDatePicker={handleDatePicker2}
-              maximumDate={new Date()}
+              minimumDate={sevenDaysAgo}
+              maximumDate={today}
             />
 
             {modalVisibleRecordFirstItem ? (
