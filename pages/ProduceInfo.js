@@ -46,6 +46,8 @@ import FloatingActionButton from './Components/FloatingActionButton';
 import {axiosPost, axiosGet} from './utils/api';
 import {ROUTES} from './utils/Routes';
 const ProduceInfo = () => {
+  const today = new Date();
+
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
   const route = useRoute();
@@ -1656,6 +1658,7 @@ const ProduceInfo = () => {
                         onCancel={() => {
                           setOpencycleStarts(false);
                         }}
+                        maximumDate={today}
                       />
                     </View>
                   </View>

@@ -75,6 +75,8 @@ const FarmerLiveHood = ({
   //basudev
   const navigation = useNavigation();
   //GQR-67
+  const today = new Date();
+
   const {
     loginUser_data,
     t,
@@ -1922,6 +1924,7 @@ const FarmerLiveHood = ({
         newDate={newDate}
         setOpenDate={setopenCycleStart}
         handleDatePicker={handleDatePicker}
+        maximumDate={today}
       />
       <DatePickerComp
         openDate={penCycleEnd}
@@ -1945,6 +1948,7 @@ const FarmerLiveHood = ({
         }
         setOpenDate={setopenCycleEnd}
         handleDatePicker={handleDatePicker2}
+        maximumDate={new Date()}
       />
       {/* <CustomHeader
           path="FarmerDashboard"

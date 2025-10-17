@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { memo } from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import React, {memo} from 'react';
 import DatePicker from 'react-native-date-picker';
 
 const DatePickerComp = ({
@@ -8,7 +8,8 @@ const DatePickerComp = ({
   setOpenDate,
   handleDatePicker,
   minimumDate,
-  title
+  maximumDate,
+  title,
 }) => {
   return (
     <DatePicker
@@ -17,7 +18,8 @@ const DatePickerComp = ({
       open={openDate}
       date={newDate || new Date()} // Default to today if no date passed
       minimumDate={minimumDate || null} // If no minimumDate, allow all
-      onConfirm={(item) => {
+      maximumDate={maximumDate || null}
+      onConfirm={item => {
         handleDatePicker(item);
         setOpenDate(false);
       }}
