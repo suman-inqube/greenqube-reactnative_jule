@@ -295,15 +295,15 @@ const LiveHood = ({
         }),
         // LandUnitsquare_metre(dbname, lan_id, token),
 
-        axiosGet(
-          ROUTES.GET.PRODUCTION_SEASON({
-            lanId: lan_id,
-            crop_type_id: '',
-            crop_name_id: '',
-          }),
-          '',
-          {information: `${dbname},${lan_id}`},
-        ),
+        // axiosGet(
+        //   ROUTES.GET.PRODUCTION_SEASON({
+        //     lanId: lan_id,
+        //     crop_type_id: '',
+        //     crop_name_id: '',
+        //   }),
+        //   '',
+        //   {information: `${dbname},${lan_id}`},
+        // ),
         // ProductionSeasonAndApi(dbname, lan_id, ''),
 
         getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
@@ -426,6 +426,7 @@ const LiveHood = ({
         // ),
       ]);
       setPlotId(findData.value);
+      console.log('getPlotDoc', getPlotDoc?.status);
       if (getPlotDoc?.status == 200) {
         const {count} = getPlotDoc?.data?.data;
         const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
@@ -526,6 +527,7 @@ const LiveHood = ({
           },
         ]);
       }
+      console.log('cropAndPlotDetails', cropAndPlotDetails);
       if (cropAndPlotDetails?.status === 200) {
         const data = cropAndPlotDetails?.data?.data || {};
         plotSiteUserLandDetails.map((dataLandDetails, index) => {
@@ -901,14 +903,14 @@ const LiveHood = ({
       },
     );
 
-    console.log('seasonData', seasonData);
-
     let prodctionSeasionArray = [];
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
         value: data.season_info.fid,
-        label: data.season_info.name,
+        label: `${data.season_info.name} (${data.year})`,
         sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+        year: data.year,
+        originalName: data.season_info.name,
       }));
     }
 
@@ -975,14 +977,15 @@ const LiveHood = ({
       productionSeason: item.label,
       productionSeasonValue: item.value,
       productionSeasonSdId: item.sd_id,
-      livelihoodType: '',
-      livelihoodTypeValue: '',
-      produceName: '',
-      produceNameValue: '',
-      produceVariety: '',
-      produceVarietyValue: '',
-      productionProcess: '',
-      productionProcessValue: '',
+      productionSeasonYear: item.year,
+      // livelihoodType: '',
+      // livelihoodTypeValue: '',
+      // produceName: '',
+      // produceNameValue: '',
+      // produceVariety: '',
+      // produceVarietyValue: '',
+      // productionProcess: '',
+      // productionProcessValue: '',
     }));
   }, []);
   const handleAddDatalivelihoodType = useCallback(async item => {
