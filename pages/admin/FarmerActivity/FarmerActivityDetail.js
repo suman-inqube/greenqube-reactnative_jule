@@ -63,15 +63,22 @@ const FarmerActivityDetail = () => {
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-
       if (activityDetailsRes?.status == 200) {
-        console.log('Activity details:', activityDetailsRes.data.data.rows);
-
-        return activityDetailsRes.data;
+        return activityDetailsRes.data.rows;
       }
     } catch (error) {
       console.error('Error fetching activity details:', error);
     }
+  };
+
+  const getFilePaths = (files, ext, max = 3) => {
+    if (!files) return Array(max).fill('');
+    return files
+      .filter(f => f.file_ext === ext)
+      .slice(0, max)
+      .map(f => f.file_path)
+      .concat(Array(max).fill(''))
+      .slice(0, max);
   };
 
   const onPageLoad = async () => {
@@ -81,11 +88,33 @@ const FarmerActivityDetail = () => {
     // ]);
 
     const farmerFound = route.params;
+    let agriFiles = [];
 
     if (farmerFound?.uact_id) {
       const activityDetails = await fetchActivityDetails(farmerFound.uact_id);
+      agriFiles = activityDetails?.[0]?.agri_files || [];
     }
 
+    if (agriFiles.length === 0 && farmerFound?.agri_files) {
+      agriFiles = farmerFound.agri_files;
+    }
+
+    if (agriFiles.length > 0) {
+      const imageFiles = getFilePaths(agriFiles, 'image/jpeg', 3);
+      const audioFiles = getFilePaths(agriFiles, 'audio/mp3', 3);
+
+      setSelectedImage({
+        firstItem: imageFiles[0],
+        secondItem: imageFiles[1],
+        thirdItem: imageFiles[2],
+      });
+
+      setSelectedRecord({
+        firstItemRecord: audioFiles[0],
+        secondItemRecord: audioFiles[1],
+        thirdItemRecord: audioFiles[2],
+      });
+    }
     if (farmerFound?.type == 'carbon_activity') {
       const PipeListDetailsRes = await axiosGet(
         ROUTES.GET.PIPE_LIST_DETAILS({

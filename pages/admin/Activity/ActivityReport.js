@@ -50,6 +50,8 @@ import {isWithin20Meters} from '../../Common/calculateAreaFun';
 import {Colors, Fonts, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {axiosGet, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 // import useRecorder from '../../utils/useRecorder';
 import {captureRef} from 'react-native-view-shot';
@@ -296,12 +298,19 @@ const ActivityReport = ({navigation}) => {
       cycleEnd: '',
     });
     if (isOnline) {
-      var response = await plotAgainstFarmerAPI(
-        dbname,
-        lan_id,
+      var response = await axiosGet(
+        ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+          farmerID: currentfarmerId,
+        }),
         token,
-        currentfarmerId,
+        {information: `${dbname},${lan_id}`},
       );
+      // plotAgainstFarmerAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   currentfarmerId,
+      // );
       await setItem('plotAgainstFarmer' + currentfarmerId, response);
     } else {
       var response = await getItem('plotAgainstFarmer' + currentfarmerId);
@@ -313,15 +322,21 @@ const ActivityReport = ({navigation}) => {
       }));
       setplotAll(dataArray);
       if (isOnline) {
-        var activityType_res = await activityTypeAPI(
-          dbname,
-          lan_id,
-          currentfarmerId,
+        var activityType_res = await axiosGet(
+          ROUTES.GET.ACTIVITY_TYPE_AWD(),
+          '',
+          {information: `${dbname},${lan_id},${currentfarmerId}`},
         );
+        // activityTypeAPI(
+        //   dbname,
+        //   lan_id,
+        //   currentfarmerId,
+        // );
         await setItem('activityType' + currentfarmerId, activityType_res);
       } else {
         var activityType_res = await getItem('activityType' + currentfarmerId);
       }
+      console.log('activityType_res', activityType_res.status);
       if (activityType_res) {
         const dataArray = activityType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -337,12 +352,21 @@ const ActivityReport = ({navigation}) => {
     const {latitude, longitude} = coords || {};
     setIsLoading(true);
     if (isOnline) {
-      var response = await produceAgainstPlotAPI(
-        dbname,
-        lan_id,
-        farmerID,
-        relId.value,
+      var response = await axiosGet(
+        ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+          relID: relId.value,
+        }),
+        '',
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+        },
       );
+      // produceAgainstPlotAPI(
+      //   dbname,
+      //   lan_id,
+      //   farmerID,
+      //   relId.value,
+      // );
       await setItem('produceAgainstPlot' + farmerID + relId.value, response);
     } else {
       var response = await getItem(
@@ -423,21 +447,43 @@ const ActivityReport = ({navigation}) => {
           // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
 
           var [productionStage_res, activitySchedule] = await Promise.all([
-            productionStageAPI(
-              dbname,
-              lan_id,
-              data.crop_type_id,
-              data.crop_name_id,
+            axiosGet(
+              ROUTES.GET.PRODUCTION_STAGE({
+                languageID: lan_id,
+                cropTypeId: data.crop_type_id,
+                cropNameID: data.crop_name_id,
+              }),
+              '',
+              {information: `${dbname},${lan_id}`},
             ),
-            activityScheduleAPI(
-              dbname,
-              lan_id,
+            // productionStageAPI(
+            //   dbname,
+            //   lan_id,
+            //   data.crop_type_id,
+            //   data.crop_name_id,
+            // ),
+
+            axiosGet(
+              ROUTES.GET.ACTIVITY_SCHEDULE_API({
+                type: 'user_activity',
+                plotId: relId.value,
+                cropId: data.crop_name_id,
+                cu_rel_id: data.cu_rel_id,
+              }),
               token,
-              'user_activity',
-              relId.value,
-              data.crop_name_id,
-              data.cu_rel_id,
+              {information: `${dbname},${lan_id}`},
             ),
+
+            // activityScheduleAPI(
+            //   dbname,
+            //   lan_id,
+            //   token,
+            //   'user_activity',
+            //   relId.value,
+            //   data.crop_name_id,
+            //   data.cu_rel_id,
+            // ),
+
             //  setItem(
             //    'productionStageAPI' +
             //      data.crop_type_id +
@@ -462,7 +508,6 @@ const ActivityReport = ({navigation}) => {
           );
           setproductionStageAll(dataArray);
         }
-
         if (activitySchedule.status == 200) {
           if (
             activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
@@ -626,15 +671,25 @@ const ActivityReport = ({navigation}) => {
         saveData.cu_rel_id,
         save_data,
       ),
-      activityScheduleAPI(
-        dbname,
-        lan_id,
+      axiosGet(
+        ROUTES.GET.ACTIVITY_SCHEDULE_API({
+          type: 'user_activity',
+          plotId: saveData.plot_id,
+          cropId: saveData.crop_name,
+          cu_rel_id: saveData.cu_rel_id,
+        }),
         token,
-        'user_activity',
-        saveData.plot_id,
-        saveData.crop_name,
-        saveData.cu_rel_id,
+        {information: `${dbname},${lan_id}`},
       ),
+      // activityScheduleAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   'user_activity',
+      //   saveData.plot_id,
+      //   saveData.crop_name,
+      //   saveData.cu_rel_id,
+      // ),
     ]);
 
     if (activitySchedule.status == 200) {
@@ -868,13 +923,21 @@ const ActivityReport = ({navigation}) => {
       formData.append('water_used', saveData.water_used);
       formData.append('power_used', saveData.power_used);
       if (isOnline) {
-        const database_res = await activitySaveAPI(
-          dbname,
-          lan_id,
-          token,
-          saveData.user_id,
+        const database_res = await axiosPost(
+          ROUTES.POST.ACTIVITY_SAVE,
           formData,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${saveData.user_id}`},
         );
+        // activitySaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   saveData.user_id,
+        //   formData,
+        // );
+        console.log('Save', database_res.status);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.navigate('activityList', {action: 'addData'});
@@ -913,15 +976,24 @@ const ActivityReport = ({navigation}) => {
   const handleActivityType = async item => {
     let dataArray = [];
     if (isOnline) {
-      var response = await activityInfoAPI(
-        dbname,
-        lan_id,
+      var response = await axiosGet(
+        ROUTES.GET.ACTIVITY_INFO({
+          cropType: CropType,
+          cropName: CropName,
+          actTypeID: item.value,
+        }),
         token,
-        farmerID,
-        CropType,
-        CropName,
-        item.value,
+        {information: `${dbname},${lan_id},${farmerID}`},
       );
+      // activityInfoAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   farmerID,
+      //   CropType,
+      //   CropName,
+      //   item.value,
+      // );
       await setItem(
         'activityInfo' + farmerID + CropType + CropName + item.value,
         response,

@@ -33,6 +33,8 @@ import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import TrackingInfromation from '../Components/TrackingInfromation';
+import MyErrorBoundary from '../Common/MyErrorBoundary';
+
 const HEADER_HEIGHT = 60;
 const FarmerDashboard = ({navigation}) => {
   const {
@@ -388,83 +390,85 @@ const FarmerDashboard = ({navigation}) => {
   );
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={styles.container}>
-        {isLoading ? (
-          <SkeletonScreenDashoard />
-        ) : (
-          <>
-            <Animated.View
-              style={[
-                styles.header,
-                {transform: [{translateY: headerTranslateY}]},
-              ]}>
-              {renderCustomHeader}
-            </Animated.View>
-
-            <Animated.View
-              style={[
-                styles.filterBar,
-                {transform: [{translateY: filterTranslateY}]},
-              ]}>
+      <MyErrorBoundary>
+        <SafeAreaView style={styles.container}>
+          {isLoading ? (
+            <SkeletonScreenDashoard />
+          ) : (
+            <>
               <Animated.View
-                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
-                <ImageBackground
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
-                  }}
-                  // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
-                  resizeMode="cover"
-                  style={styles.imageBackground}
-                  imageStyle={{opacity: 0.8}}>
-                  <View style={styles.overlay} />
-                  <View style={styles.bottomContent}>
-                    <CarouselSlider
-                      items={LOOP_ITEMS}
-                      itemWidth={105}
-                      itemFullWidth={10}
-                      visibleItems={3}
-                      spacing={14}
-                      onPress={_data => _data.onpress()}
-                      scrollSpeed={2500}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      backgroundColor: Colors.background_light,
-                      height: 20,
-                      position: 'relative',
-                      bottom: -0,
-                      borderTopRightRadius: 28,
-                      borderTopLeftRadius: 28,
-                    }}
-                  />
-                </ImageBackground>
+                style={[
+                  styles.header,
+                  {transform: [{translateY: headerTranslateY}]},
+                ]}>
+                {renderCustomHeader}
               </Animated.View>
-            </Animated.View>
 
-            <View style={{flex: 1}}>
-              <FlatList
-                nestedScrollEnabled={true}
-                contentContainerStyle={{
-                  paddingTop: HEADER_HEIGHT + INITIAL_IMAGE_HEIGHT,
-                  flexGrow: 1, // ensure pull works even when content small
-                }}
-                scrollEventThrottle={16}
-                showsVerticalScrollIndicator={false}
-                onScroll={handleScroll}
-                data={[]} // everything in header
-                keyExtractor={(item, index) => index.toString()}
-                alwaysBounceVertical={true}
-                removeClippedSubviews={true}
-                initialNumToRender={1}
-                maxToRenderPerBatch={2}
-                windowSize={5}
-                ListHeaderComponent={headerContent}
-              />
-            </View>
-          </>
-        )}
-      </SafeAreaView>
+              <Animated.View
+                style={[
+                  styles.filterBar,
+                  {transform: [{translateY: filterTranslateY}]},
+                ]}>
+                <Animated.View
+                  style={[styles.animatedHeaderImage, {height: imageHeight}]}>
+                  <ImageBackground
+                    source={{
+                      uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
+                    }}
+                    // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
+                    resizeMode="cover"
+                    style={styles.imageBackground}
+                    imageStyle={{opacity: 0.8}}>
+                    <View style={styles.overlay} />
+                    <View style={styles.bottomContent}>
+                      <CarouselSlider
+                        items={LOOP_ITEMS}
+                        itemWidth={105}
+                        itemFullWidth={10}
+                        visibleItems={3}
+                        spacing={14}
+                        onPress={_data => _data.onpress()}
+                        scrollSpeed={2500}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        backgroundColor: Colors.background_light,
+                        height: 20,
+                        position: 'relative',
+                        bottom: -0,
+                        borderTopRightRadius: 28,
+                        borderTopLeftRadius: 28,
+                      }}
+                    />
+                  </ImageBackground>
+                </Animated.View>
+              </Animated.View>
+
+              <View style={{flex: 1}}>
+                <FlatList
+                  nestedScrollEnabled={true}
+                  contentContainerStyle={{
+                    paddingTop: HEADER_HEIGHT + INITIAL_IMAGE_HEIGHT,
+                    flexGrow: 1, // ensure pull works even when content small
+                  }}
+                  scrollEventThrottle={16}
+                  showsVerticalScrollIndicator={false}
+                  onScroll={handleScroll}
+                  data={[]} // everything in header
+                  keyExtractor={(item, index) => index.toString()}
+                  alwaysBounceVertical={true}
+                  removeClippedSubviews={true}
+                  initialNumToRender={1}
+                  maxToRenderPerBatch={2}
+                  windowSize={5}
+                  ListHeaderComponent={headerContent}
+                />
+              </View>
+            </>
+          )}
+        </SafeAreaView>
+      </MyErrorBoundary>
     </FarmerDrawerScreenWrapper1>
   );
 };

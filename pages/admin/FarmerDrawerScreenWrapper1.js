@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React, { memo } from 'react';
+import {View, Text, StyleSheet} from 'react-native';
+import React, {memo} from 'react';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -7,10 +7,11 @@ import Animated, {
   withTiming,
   withSpring,
 } from 'react-native-reanimated';
-import { useDrawerProgress } from '@react-navigation/drawer';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Root } from '@sekizlipenguen/react-native-popup-confirm-toast';
-const FarmerDrawerScreenWrapper1 = ({ children }) => {
+import {useDrawerProgress} from '@react-navigation/drawer';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {Root} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import MyErrorBoundary from '../Common/MyErrorBoundary';
+const FarmerDrawerScreenWrapper1 = ({children}) => {
   const progress = useDrawerProgress();
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -20,17 +21,19 @@ const FarmerDrawerScreenWrapper1 = ({ children }) => {
     ],
     borderRadius: withSpring(
       interpolate(progress.value, [0, 1], [0, 30], 'clamp'),
-      { damping: 10 },
+      {damping: 10},
     ),
     overflow: 'hidden',
   }));
   return (
     <Root>
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#1d3122' }}>
-      <Animated.View style={[styles.container, animatedStyle]}>
-        {children}
-      </Animated.View>
-    </SafeAreaView>
+      <MyErrorBoundary>
+        <SafeAreaView style={{flex: 1, backgroundColor: '#1d3122'}}>
+          <Animated.View style={[styles.container, animatedStyle]}>
+            {children}
+          </Animated.View>
+        </SafeAreaView>
+      </MyErrorBoundary>
     </Root>
   );
 };
@@ -38,5 +41,5 @@ const FarmerDrawerScreenWrapper1 = ({ children }) => {
 export default memo(FarmerDrawerScreenWrapper1);
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {flex: 1},
 });
