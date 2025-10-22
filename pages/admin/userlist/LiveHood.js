@@ -737,7 +737,7 @@ const LiveHood = ({
           const getSeasonDateResArr = getSeasonDateRes?.data?.data?.rows?.map(data => ({
             value: data.season_info.fid,
             label: `${data.season_info.name} (${data.year})`,
-            sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+            sd_id: data.sd_id,
             year: data.year,
             originalName: data.season_info.name,
           }));
