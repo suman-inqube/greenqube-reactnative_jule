@@ -320,26 +320,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
         saveData.cu_rel_id,
       ),
     ]);
-
-    // if (productionStage_res.status == 200) {
-    //   console.log('status');
-
-    // var activitySchedule = activityScheduleAPI(
-    //     dbname,
-    //     lan_id,
-    //     token,
-    //     'carbon_activity',
-    //     saveData.plot_id,
-    //     saveData.crop_name,
-    //     saveData.cu_rel_id,
-    //   );
-    // console.log('activitySchedule status11');
-
-    // console.log(activitySchedule.status);
-
     if (activitySchedule.status == 200) {
-      // console.log('activitySchedule status11');
-
       setIsLoading(false);
 
       if (activitySchedule?.data?.data?.otherActivities.length > 0) {
@@ -355,16 +336,13 @@ const FarmerActivityReportAWD = ({navigation}) => {
               ' - ' +
               formatDate(element?.activity_end_date) +
               ')';
-            //  console.log("00",overdueData);
             setOverdueAct(prevItems => [...prevItems, overdueData]);
           }
-          // setOverdueAct(prevItems => [...prevItems, overdueData]);
         });
         const upcomingActivity =
           activitySchedule?.data?.data?.otherActivities?.find(
             item => item.days_until_start >= 0,
           );
-        // console.log(upcomingActivity.days_from);
         if (upcomingActivity != undefined) {
           const monthNames = [
             'January',
@@ -382,12 +360,6 @@ const FarmerActivityReportAWD = ({navigation}) => {
           ];
           const cycleDate =
             cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
-          // const cycleDate =
-          //   data.crop_cycl_start_date == null ||
-          //   data.crop_cycl_start_date == '2004-02-29'
-          //     ? data.sowing_date
-          //     : data.crop_cycl_start_date;
-
           const sdate = new Date(cycleDate);
           sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
           const smonth = monthNames[sdate.getMonth()];
@@ -425,7 +397,6 @@ const FarmerActivityReportAWD = ({navigation}) => {
         setLastAct(lastData);
       }
     }
-    // }
   };
 
   const handlePlot = useCallback(async relId => {
@@ -452,20 +423,13 @@ const FarmerActivityReportAWD = ({navigation}) => {
     //   var response = await getItem('produceAgainstPlot' + relId.value);
     // }
     if (response) {
-      // const { latitude, longitude } = await getCurrentLocation() || {};
       const latandlongArr =
         response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
           (_data, _index) => ({
-            // longitude: _data.longitude, latitude: _data.latitude
             longitude: parseFloat(_data.longitude),
             latitude: parseFloat(_data.latitude),
           }),
         );
-      // console.log("latlong",
-      //   JSON.stringify(
-      //     response?.data?.data?.land_info?.agri_land_user_latlongs,
-      //   ),
-      // );
       if (response?.data?.data?.land_info?.agri_land_user_latlongs.length > 2) {
         setIsGeoFence(true);
       } else {
@@ -583,11 +547,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
           setproductionStageAll(dataArray);
         }
         if (activitySchedule.status == 200) {
-          // console.log("lact1561",activitySchedule?.data?.data);
           if (
             activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
           ) {
-            // console.log("lact11")
             var lastData =
               activitySchedule?.data?.data?.lastActivity?.activityName
                 ?.categoryName +
@@ -1170,7 +1132,6 @@ const FarmerActivityReportAWD = ({navigation}) => {
           value: '',
           latlongs: {},
         });
-        console.log('response', response.status);
         if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [

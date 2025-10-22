@@ -6,15 +6,15 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import InputTextForm from '../../Common/InputTextForm';
 import TakePhoto from './TakePhoto';
 import RecordComp from './RecordComp';
-import { useRoute } from '@react-navigation/native';
-import { formatDateToDateName } from '../../Common/DateChanger';
+import {useRoute} from '@react-navigation/native';
+import {formatDateToDateName} from '../../Common/DateChanger';
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { PipeListDetails } from '../../../config/apiHere';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {PipeListDetails} from '../../../config/apiHere';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fonts} from '../../utils/Constants';
 import {axiosGet} from '../../utils/api';
@@ -30,7 +30,7 @@ const ActivityDetail = () => {
     SPSheet,
     loginUser_data,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data || {};
+  const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState({
@@ -61,7 +61,7 @@ const ActivityDetail = () => {
   });
   const [allFiles, setAllFiles] = useState([]);
   const [carbonActivity, setCarbonActivity] = useState([]);
-  const openImagePicker = item => { };
+  const openImagePicker = item => {};
   const getFilePaths = (files, ext, max = 3) => {
     if (!files) return Array(max).fill('');
     return files
@@ -85,8 +85,6 @@ const ActivityDetail = () => {
           token,
           {information: `${dbname},${lan_id}`},
         );
-
-        console.log('farmerFound', activity_files?.data?.rows[0]?.agri_files);
 
         // Extract files from API response
         agriFiles = activity_files?.data?.rows[0]?.agri_files || [];
@@ -198,7 +196,7 @@ const ActivityDetail = () => {
                   />
                 </View>
                 {farmerActivity?.cropActivitycategoryName != '' &&
-                  farmerActivity?.cropActivitycategoryName != null ? (
+                farmerActivity?.cropActivitycategoryName != null ? (
                   <>
                     <View style={styles.inputContainer}>
                       <InputTextForm
@@ -217,13 +215,14 @@ const ActivityDetail = () => {
                       {farmerActivity?.cropActivitycategoryName != null ? (
                         <InputTextForm
                           label={t('activity_name')}
-                          value={`${farmerActivity?.cropActivitycategoryName?.activity
-                            ?.categoryName
-                            } ${formatDateToDateName(
-                              farmerActivity?.act_start_date,
-                            )} - ${formatDateToDateName(
-                              farmerActivity?.act_to_date,
-                            )}`}
+                          value={`${
+                            farmerActivity?.cropActivitycategoryName?.activity
+                              ?.categoryName
+                          } ${formatDateToDateName(
+                            farmerActivity?.act_start_date,
+                          )} - ${formatDateToDateName(
+                            farmerActivity?.act_to_date,
+                          )}`}
                           editable={false}
                         />
                       ) : null}
@@ -240,7 +239,7 @@ const ActivityDetail = () => {
                           marginHorizontal: '2.5%',
                           marginBottom: 10,
                           shadowColor: '#000',
-                          shadowOffset: { width: 0, height: 4 },
+                          shadowOffset: {width: 0, height: 4},
                           shadowOpacity: 0.1,
                           shadowRadius: 8,
                           borderRightWidth: 1,
@@ -266,7 +265,7 @@ const ActivityDetail = () => {
                           <Text style={[styles.value]}>
                             {farmerActivity?.cropActivitycategoryName != null
                               ? farmerActivity?.cropActivitycategoryName
-                                ?.activity?.categoryName
+                                  ?.activity?.categoryName
                               : ''}
                           </Text>
                         </View>
@@ -352,7 +351,7 @@ const ActivityDetail = () => {
                               flexDirection: 'row',
                               marginBottom: 7,
                             }}>
-                            <Text style={[styles.label, { paddingVertical: 0 }]}>
+                            <Text style={[styles.label, {paddingVertical: 0}]}>
                               Instrument Name :
                             </Text>
                             <Text
@@ -376,36 +375,36 @@ const ActivityDetail = () => {
                                 }}>
                                 {_item.item.pipeFiles?.[0]?.file_path !=
                                   undefined && (
-                                    <View style={styles.imageContainer}>
-                                      <Image
-                                        source={{
-                                          uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
-                                        }}
-                                        style={{
-                                          width: 70,
-                                          height: 80,
-                                          borderRadius: 8,
-                                        }}
-                                        resizeMode="contain"
-                                      />
-                                    </View>
-                                  )}
+                                  <View style={styles.imageContainer}>
+                                    <Image
+                                      source={{
+                                        uri: `${_item.item?.pipeFiles?.[0]?.file_path}`,
+                                      }}
+                                      style={{
+                                        width: 70,
+                                        height: 80,
+                                        borderRadius: 8,
+                                      }}
+                                      resizeMode="contain"
+                                    />
+                                  </View>
+                                )}
                                 {_item.item.pipeFiles?.[1]?.file_path !=
                                   undefined && (
-                                    <View style={styles.imageContainer}>
-                                      <Image
-                                        source={{
-                                          uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
-                                        }}
-                                        style={{
-                                          width: 70,
-                                          height: 80,
-                                          borderRadius: 8,
-                                        }}
-                                        resizeMode="contain"
-                                      />
-                                    </View>
-                                  )}
+                                  <View style={styles.imageContainer}>
+                                    <Image
+                                      source={{
+                                        uri: `${_item.item.pipeFiles?.[1]?.file_path}`,
+                                      }}
+                                      style={{
+                                        width: 70,
+                                        height: 80,
+                                        borderRadius: 8,
+                                      }}
+                                      resizeMode="contain"
+                                    />
+                                  </View>
+                                )}
                               </View>
                             )}
                           </View>
@@ -500,7 +499,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     marginBottom: 15,
   },
-  inputContainer: { marginTop: '5%', marginHorizontal: 15 },
+  inputContainer: {marginTop: '5%', marginHorizontal: 15},
   detailRow: {
     // flexDirection: 'row',
     // justifyContent: 'space-between',
@@ -532,7 +531,7 @@ const styles = StyleSheet.create({
     padding: 5, // Adjust padding as needed
     borderRadius: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3, // For Android shadow

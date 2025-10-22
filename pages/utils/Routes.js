@@ -15,6 +15,7 @@ export const ROUTES = {
     DEALER_DAILY_SALES_REPORT_ADD: () => `optionRoute/salesReport`,
     ADD_USER_PIPE_ACTIVITY: `inputOutputRoute/addUserPipeActivity`,
     UPDATE_PIPE_ACTIVITY: `inputOutputRoute/updatePipeActivity`,
+    ACTIVITY_SAVE: `inputOutputRoute/addUserActivity`,
   },
 
   GET: {
@@ -317,6 +318,8 @@ export const ROUTES = {
       `loginSignupRoute/update/${user_id}`,
     UPDATE_LAND_CROP_DETAILS: ({land_rel_id = '', crop_rel_id = ''}) =>
       `landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`,
+
+    UPLOAD_FARMER_ID_ADD: () => `settingsRoute/uploadFarmerIdAdd`,
   },
 
   DELETE: {

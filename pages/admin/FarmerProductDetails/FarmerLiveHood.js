@@ -64,8 +64,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import {ROUTES} from '../../utils/Routes';
 import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const FarmerLiveHood = ({
   dataProps,
@@ -129,7 +129,9 @@ const FarmerLiveHood = ({
     unit: '',
     unitValue: '',
     productionSeason: '',
+    productionSeasonSdId: '', // ADD THIS
     productionSeasonValue: '',
+    productionSeasonYear: '',
     livelihoodType: '',
     livelihoodTypeValue: '',
     produceName: '',
@@ -265,12 +267,19 @@ const FarmerLiveHood = ({
           Accept: 'application/json',
         },
       };
-      const plotSiteApi = await problemPlotAgainstFarmerAPI(
-        dbname,
-        lan_id,
+      const plotSiteApi = await axiosGet(
+        ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
+          farmerID: user_id,
+        }),
         token,
-        user_id,
+        {information: `${dbname},${lan_id}`},
       );
+      // problemPlotAgainstFarmerAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      // );
       if (plotSiteApi?.status == 200) {
         // console.log(JSON.stringify(plotSiteApi?.data?.data))
         const dataArray = plotSiteApi?.data?.data.map(data => ({
@@ -287,8 +296,19 @@ const FarmerLiveHood = ({
         LandUnitsquare_metre_res,
       ] = await Promise.all([
         nearestLatLong(dbname, lan_id, token, latitude, longitude),
-        UnitConversonToDefault(dbname, lan_id, token),
-        PlotSiteUserLandDetails(dbname, lan_id, token, user_id),
+
+        axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
+          information: `${dbname},${lan_id}`,
+        }),
+        // UnitConversonToDefault(dbname, lan_id, token),
+        axiosGet(
+          ROUTES.GET.PLOT_SIDE_USER_LAND_DETAILS({
+            farmeruserID: user_id,
+          }),
+          token,
+          {information: `${dbname},${lan_id}`},
+        ),
+        // PlotSiteUserLandDetails(dbname, lan_id, token, user_id),
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
         terraintype_resAPI(axiosConfig),
@@ -452,9 +472,39 @@ const FarmerLiveHood = ({
       });
     }
   };
-  const handleDatePicker = item => {
-    const effective_date = effective_dates(item);
-    setFarmerData({...farmerData, cycleStartDate: effective_date});
+  const handleDatePicker = async item => {
+    const selectedDate = effective_dates(item);
+
+    const seasonData = await axiosGet(
+      ROUTES.GET.PRODUCE_SEASON({
+        from_date: selectedDate,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${user_id}`,
+        Authorization: `${token}`,
+      },
+    );
+
+    let prodctionSeasionArray = [];
+    if (seasonData?.status === 200) {
+      prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
+        value: data.season_info.fid,
+        label: `${data.season_info.name} (${data.year})`,
+        sd_id: data.sd_id,
+        year: data.year,
+        originalName: data.season_info.name,
+      }));
+    }
+
+    if (prodctionSeasionArray) {
+      setProductionSeason(prodctionSeasionArray);
+    }
+
+    setFarmerData(prev => ({
+      ...prev,
+      cycleStartDate: selectedDate,
+    }));
   };
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
@@ -544,14 +594,16 @@ const FarmerLiveHood = ({
       ...prev,
       productionSeason: item.label,
       productionSeasonValue: item.value,
-      livelihoodType: '',
-      livelihoodTypeValue: '',
-      produceName: '',
-      produceNameValue: '',
-      produceVariety: '',
-      produceVarietyValue: '',
-      productionProcess: '',
-      productionProcessValue: '',
+      productionSeasonSdId: item.sd_id,
+      productionSeasonYear: item.year,
+      // livelihoodType: '',
+      // livelihoodTypeValue: '',
+      // produceName: '',
+      // produceNameValue: '',
+      // produceVariety: '',
+      // produceVarietyValue: '',
+      // productionProcess: '',
+      // productionProcessValue: '',
     }));
   }, []);
   const handleAddDatalivelihoodType = useCallback(async item => {
@@ -675,22 +727,32 @@ const FarmerLiveHood = ({
     crop_type_id,
     crop_name_id,
   ) => {
-    const productSeasonresRes = await ProductionSeasonAndApi(
-      dbName,
-      languageID,
-      crop_type_id,
-      crop_name_id,
+    const productSeasonresRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_SEASON({
+        lanId: languageID,
+        crop_type_id: crop_type_id,
+        crop_name_id: crop_name_id,
+      }),
+      '',
+      {information: `${dbName},${languageID}`},
     );
+
+    // ProductionSeasonAndApi(
+    //   dbName,
+    //   languageID,
+    //   crop_type_id,
+    //   crop_name_id,
+    // );
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr = [];
       const livelihoodTypeArr = [];
       const produceNameArr = [];
-      productSeasonresRes.data.data?.crop_season?.map((data, index) => {
-        productSeasonresResArr.push({
-          value: data.fid,
-          label: data.name,
-        });
-      });
+      // productSeasonresRes.data.data?.crop_season?.map((data, index) => {
+      //   productSeasonresResArr.push({
+      //     value: data.fid,
+      //     label: data.name,
+      //   });
+      // });
       productSeasonresRes.data.data?.crop_type?.map((data, index) => {
         livelihoodTypeArr.push({
           value: data.fid,
@@ -703,7 +765,7 @@ const FarmerLiveHood = ({
           label: data.crop_name.name,
         });
       });
-      setProductionSeason(productSeasonresResArr);
+      // setProductionSeason(productSeasonresResArr);
       setLivelihoodType(livelihoodTypeArr);
       setProduceName(produceNameArr);
     }
@@ -715,12 +777,21 @@ const FarmerLiveHood = ({
     crop_name_id,
   ) => {
     const produceVariety = [];
-    const productSeasonresRes = await ProductionSeasonAndApi(
-      dbName,
-      languageID,
-      crop_type_id,
-      crop_name_id,
+    const productSeasonresRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_SEASON({
+        lanId: languageID,
+        crop_type_id: crop_type_id,
+        crop_name_id: crop_name_id,
+      }),
+      '',
+      {information: `${dbName},${languageID}`},
     );
+    // ProductionSeasonAndApi(
+    //   dbName,
+    //   languageID,
+    //   crop_type_id,
+    //   crop_name_id,
+    // );
     productSeasonresRes.data.data.crop_variety.map((data, index) => {
       produceVariety.push({
         value: data.crop_variety.fid,
@@ -731,7 +802,12 @@ const FarmerLiveHood = ({
   };
   const produceVarietyAPI = async (dbName, languageID) => {
     const productionProcessArr = [];
-    const productionProcessRes = await ProductionProcessAPI(dbName, languageID);
+    const productionProcessRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_PROCESS({}),
+      '',
+      {information: `${dbName},${languageID}`},
+    );
+    // ProductionProcessAPI(dbName, languageID);
     if (productionProcessRes?.status == 200) {
       productionProcessRes.data.data.rows.map((data, index) => {
         productionProcessArr.push({value: data.fid, label: data.name});
@@ -740,7 +816,12 @@ const FarmerLiveHood = ({
     }
   };
   const productionProcessAPI = async (dbName, languageID) => {
-    const ProductionUnitRes = await ProductionUnitAPI(dbName, languageID);
+    const ProductionUnitRes = await axiosGet(
+      ROUTES.GET.PRODUCTION_UNIT({}),
+      '',
+      {information: `${dbName},${languageID}`},
+    );
+    // ProductionUnitAPI(dbName, languageID);
     if (ProductionUnitRes?.status == 200) {
       const productionUnitArr = ProductionUnitRes.data.data.rows.map(data => ({
         value: data.fid,
@@ -933,15 +1014,22 @@ const FarmerLiveHood = ({
               formdata.append('plot_image', data);
             }
           });
-          const AddLandCropDetails_res = await AddLandCropDetailsAPI(
-            dbname,
-            lan_id,
-            user_id,
-            token,
+          const AddLandCropDetails_res = await axiosPost(
+            ROUTES.POST.ADD_LAND_CROP_DETAIL({}),
             formdata,
-            '',
-            '',
+            token,
+            false,
+            {information: `${dbname},${lan_id},${user_id}`},
           );
+          // AddLandCropDetailsAPI(
+          //   dbname,
+          //   lan_id,
+          //   user_id,
+          //   token,
+          //   formdata,
+          //   '',
+          //   '',
+          // );
           if (AddLandCropDetails_res?.status === 200) {
             Toast.show({text: t('l_c_add_succ'), ...AlertMesg[0]});
             onTabPress(0);
@@ -1011,15 +1099,25 @@ const FarmerLiveHood = ({
             dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
           }
           let save_data = qs.stringify(dataToSend);
-          const updateLandCropdetails_res = await UpdateLandCropdetailsAPI(
-            dbname,
-            lan_id,
-            user_id,
+          const updateLandCropdetails_res = await axiosPut(
+            ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
+              land_rel_id: farmerData.land_rel_id,
+              crop_rel_id: farmerData.cu_rel_id,
+            }),
+            dataToSend,
             token,
-            save_data,
-            farmerData.land_rel_id,
-            farmerData.cu_rel_id,
+            true,
+            {information: `${dbname},${lan_id},${user_id}`},
           );
+          // UpdateLandCropdetailsAPI(
+          //   dbname,
+          //   lan_id,
+          //   user_id,
+          //   token,
+          //   save_data,
+          //   farmerData.land_rel_id,
+          //   farmerData.cu_rel_id,
+          // );
           // if (filterAddressImage.length != 0) {
           addressProof.map((data, index) => {
             if (data.name != '' && data.value == 1) {
@@ -1159,13 +1257,32 @@ const FarmerLiveHood = ({
         getPlotDoc,
         nearestLatLong_res,
       ] = await Promise.all([
-        ProductionSeasonAndApi(dbname, lan_id, ''),
-        livelihoodCropAndPlotDetailsAPI(
-          dbname,
-          lan_id,
-          user_id,
-          findData.value,
+        axiosGet(
+          ROUTES.GET.PRODUCTION_SEASON({
+            lanId: lan_id,
+            crop_type_id: '',
+            crop_name_id: '',
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
         ),
+        // // ProductionSeasonAndApi(dbname, lan_id, ''),
+
+        axiosGet(
+          ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+            relID: findData.value,
+          }),
+          '', // No authorization token needed
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+          },
+        ),
+        // livelihoodCropAndPlotDetailsAPI(
+        //   dbname,
+        //   lan_id,
+        //   user_id,
+        //   findData.value,
+        // ),
         getPlotDocAPI(dbname, lan_id, token, user_id, findData.value),
         nearestLatLong(
           dbname,
@@ -1279,6 +1396,7 @@ const FarmerLiveHood = ({
           },
         ]);
       }
+
       if (cropAndPlotDetails?.status === 200) {
         // if (cropAndPlotDetails.data.data.count != 0) {
         const data = cropAndPlotDetails?.data?.data;
@@ -2323,7 +2441,7 @@ const FarmerLiveHood = ({
               }
             })}
 
-          <DropdownForm
+          {/* <DropdownForm
             label={t('addcrop_select_cultivating_season')}
             required={true}
             data={productionSeason}
@@ -2332,7 +2450,7 @@ const FarmerLiveHood = ({
             disable={
               edit == '' ? (harvested == 'same produce' ? true : false) : edit
             }
-          />
+          /> */}
           <DropdownForm
             label={t('addcrop_croptype')}
             required={true}
@@ -2431,6 +2549,16 @@ const FarmerLiveHood = ({
               />
             </View>
           </TouchableOpacity>
+          <DropdownForm
+            label={t('addcrop_select_cultivating_season')}
+            required={true}
+            data={productionSeason}
+            onChange={handleAddDataproductionSeason}
+            val={farmerData.productionSeason}
+            disable={
+              edit == '' ? (harvested == 'same produce' ? true : false) : edit
+            }
+          />
           <TouchableOpacity
             onPress={() =>
               harvested != '' || userData == 'addUserData' || addPlot == true

@@ -359,397 +359,398 @@ const LiveHood = ({
 
   const handlePlot = useCallback(
     async findData => {
-      setIsLoading(true);
-      setPhotoDeletedValue([]);
-      setHarvested('');
-      let locationLength = 0;
-      setPlotEdit(true);
-      setupdateRelId(findData.value);
-      const [
-        productSeasonresRes,
-        cropAndPlotDetails,
-        getPlotDoc,
-        fusedLocation,
-        nearestLatLong_res,
-      ] = await Promise.all([
-        axiosGet(
-          ROUTES.GET.PRODUCTION_SEASON({
-            lanId: lan_id,
-            crop_type_id: '',
-            crop_name_id: '',
-          }),
-          '',
-          {information: `${dbname},${lan_id}`},
-        ),
-        // ProductionSeasonAndApi(dbname, lan_id, ''),
+      try {
+        setIsLoading(true);
+        setPhotoDeletedValue([]);
+        setHarvested('');
+        let locationLength = 0;
+        setPlotEdit(true);
+        setupdateRelId(findData.value);
+        const [
+          productSeasonresRes,
+          cropAndPlotDetails,
+          getPlotDoc,
+          nearestLatLong_res,
+        ] = await Promise.all([
+          axiosGet(
+            ROUTES.GET.PRODUCTION_SEASON({
+              lanId: lan_id,
+              crop_type_id: '',
+              crop_name_id: '',
+            }),
+            '',
+            {information: `${dbname},${lan_id}`},
+          ),
 
-        axiosGet(
-          ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
-            relID: findData.value,
-          }),
-          '', // No authorization token needed
-          {
-            information: `${dbname},${lan_id},${farmeruserID}`,
-          },
-        ),
+          axiosGet(
+            ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+              relID: findData.value,
+            }),
+            '', // No authorization token needed
+            {
+              information: `${dbname},${lan_id},${farmeruserID}`,
+            },
+          ),
+          getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
+          axiosPost(
+            ROUTES.POST.NEAREST_LATLONG,
+            {
+              latitude: coords?.latitude,
+              longitude: coords?.longitude,
+              distance: 200,
+              data_limit: 100,
+            },
+            token,
+            false,
+            {
+              information: `${dbname},${lan_id}`,
+            },
+          ),
 
-        // livelihoodCropAndPlotDetailsAPI(
-        //   dbname,
-        //   lan_id,
-        //   farmeruserID,
-        //   findData.value,
-        // ),
-        getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
-        getItem('fusedLocation'),
-
-        axiosPost(
-          ROUTES.POST.NEAREST_LATLONG,
-          {
-            latitude: findData?.latitude,
-            longitude: findData?.longitude,
-            distance: 200,
-            data_limit: 100,
-          },
-          token,
-          false,
-          {
-            information: `${dbname},${lan_id}`,
-          },
-        ),
-
-        // nearestLatLong(
-        //   dbname,
-        //   lan_id,
-        //   token,
-        //   findData?.latitude,
-        //   findData?.longitude,
-        // ),
-      ]);
-      setPlotId(findData.value);
-      console.log('getPlotDoc', getPlotDoc?.status);
-      if (getPlotDoc?.status == 200) {
-        const {count} = getPlotDoc?.data?.data;
-        const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
-        const values = [...addressProof];
-        const carbonCertificateValues = [...carboncertificate];
-        const filteredPlotImages = plot_img.filter(
-          item => item.term_type === 'plot_image',
-        );
-        const filteredCarbonAgreement = plot_img.filter(
-          item => item.term_type === 'carbon_agreement',
-        );
-        const filteredSignature = plot_img.filter(
-          item => item.term_type === 'signature',
-        );
-        const filterLandUserImgsAddress = landUserImgs.filter(
-          item => item.term_type === 'farmer_address',
-        );
-        const filterLandUserImgsIdentity = landUserImgs.filter(
-          item => item.term_type === 'farmer_identity',
-        );
-        if (filteredSignature.length > 0) {
-          setSignature(prev => ({
-            ...prev,
-            uri: filteredSignature[filteredSignature.length - 1]?.file_path,
-            name: filteredSignature[filteredSignature.length - 1]?.file_name,
-            type: filteredSignature[filteredSignature.length - 1]?.file_ext,
-            fileName:
-              filteredSignature[filteredSignature.length - 1]?.file_name,
-            id: filteredSignature[filteredSignature.length - 1]?.file_id,
-          }));
-        }
-        addressProof.map((_data, _index) => {
-          if (filteredPlotImages[_index] !== undefined && count > 0) {
-            values[_index] = {
-              uri: filteredPlotImages[_index]?.file_path,
-              name: filteredPlotImages[_index]?.file_name,
-              type: filteredPlotImages[_index]?.file_ext,
-              fileName: filteredPlotImages[_index]?.file_name,
-              id: filteredPlotImages[_index]?.file_id,
-            };
-          } else {
-            values[_index] = {
-              uri: '',
-              name: '',
-              type: '',
-              fileName: '',
-              id: '',
-            };
-          }
-        });
-        carboncertificate.map((_data, _index) => {
-          if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
-            carbonCertificateValues[_index] = {
-              uri: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                ?.file_path,
-              name: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                ?.file_name,
-              type: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                ?.file_ext,
-              fileName:
-                filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_name,
-              id: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                ?.file_id,
-            };
-          } else {
-            carbonCertificateValues[_index] = {
-              uri: '',
-              name: '',
-              type: '',
-              fileName: '',
-              id: '',
-            };
-          }
-        });
-        setCarboncertificate(carbonCertificateValues);
-        setAddressProof(values);
-        setIdentityProofIdentityPropf([
-          {
-            uri: filterLandUserImgsAddress?.[0]?.file_path || '',
-            name: filterLandUserImgsAddress?.[0]?.file_name || '',
-            type: filterLandUserImgsAddress?.[0]?.file_ext || '',
-            fileName: filterLandUserImgsAddress?.[0]?.file_name || '',
-            imageType: 'address',
-            file_path: filterLandUserImgsAddress?.[0]?.file_path || '',
-            file_id: filterLandUserImgsAddress?.[0]?.file_id || '',
-            id: filterLandUserImgsAddress?.[0]?.file_id || '',
-          },
-          {
-            uri: filterLandUserImgsIdentity?.[0]?.file_path || '',
-            name: filterLandUserImgsIdentity?.[0]?.file_name || '',
-            type: filterLandUserImgsIdentity?.[0]?.file_ext || '',
-            fileName: filterLandUserImgsIdentity?.[0]?.file_name || '',
-            imageType: 'identity',
-            file_path: filterLandUserImgsIdentity?.[0]?.file_path || '',
-            file_id: filterLandUserImgsIdentity?.[0]?.file_id || '',
-            id: filterLandUserImgsIdentity?.[0]?.file_id || '',
-          },
+          // nearestLatLong(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   findData?.latitude,
+          //   findData?.longitude,
+          // ),
         ]);
-      }
-      console.log('cropAndPlotDetails', cropAndPlotDetails);
-      if (cropAndPlotDetails?.status === 200) {
-        const data = cropAndPlotDetails?.data?.data || {};
-        plotSiteUserLandDetails.map((dataLandDetails, index) => {
-          if (dataLandDetails?.rel_id == findData.value) {
-            if (
-              dataLandDetails?.status_level == 'APPROVED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
-            ) {
-              Alert.alert(
-                'Note',
-                'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-                [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-                {cancelable: false},
-              );
-            }
+        setPlotId(findData.value);
 
-            setstatuslevel(prev => ({
+        if (getPlotDoc?.status == 200) {
+          const {count} = getPlotDoc?.data?.data;
+          const {plot_img, landUserImgs} =
+            getPlotDoc?.data?.data?.rows[0] || {};
+          const values = [...addressProof];
+          const carbonCertificateValues = [...carboncertificate];
+          const filteredPlotImages = plot_img.filter(
+            item => item.term_type === 'plot_image',
+          );
+          const filteredCarbonAgreement = plot_img.filter(
+            item => item.term_type === 'carbon_agreement',
+          );
+          const filteredSignature = plot_img.filter(
+            item => item.term_type === 'signature',
+          );
+          const filterLandUserImgsAddress = landUserImgs.filter(
+            item => item.term_type === 'farmer_address',
+          );
+          const filterLandUserImgsIdentity = landUserImgs.filter(
+            item => item.term_type === 'farmer_identity',
+          );
+          if (filteredSignature.length > 0) {
+            setSignature(prev => ({
               ...prev,
-              label: dataLandDetails?.status_level,
-              value: dataLandDetails?.status_level,
+              uri: filteredSignature[filteredSignature.length - 1]?.file_path,
+              name: filteredSignature[filteredSignature.length - 1]?.file_name,
+              type: filteredSignature[filteredSignature.length - 1]?.file_ext,
+              fileName:
+                filteredSignature[filteredSignature.length - 1]?.file_name,
+              id: filteredSignature[filteredSignature.length - 1]?.file_id,
             }));
-            if (new Date() < new Date(data.harvesting_date) != true) {
-              setModalVisible(true);
-              setOutofRange(false);
-            } else {
-              setEdit(true);
-            }
-            setIsLoading(false);
-            // setArea(data.land_info?.google_area);
-            if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-              setArea(
-                Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                  Number(data.land_info?.google_area),
-              );
-            } else {
-              setArea(data.land_info?.google_area);
-            }
-            setFarmerData(prev => ({
-              ...prev,
-              createdBy: user_id,
-              plot_no: data?.land_info?.plot_no,
-              cu_rel_id: data?.cu_rel_id,
-              land_rel_id: findData?.value,
-              daag_no: dataLandDetails?.daag_no,
-              khatian_no: dataLandDetails?.khatian_no,
-              plant_number: dataLandDetails?.plant_number,
-              land_size: dataLandDetails?.land_size,
-              plot_Site: findData?.value,
-              plot_Site_Name: findData?.label,
-              expectedProduction: data?.yield_amount,
-              cycleStartDate: data?.sowing_date,
-              cycleEndDate: data?.harvesting_date.substring(-1, 10),
-              terrainType: dataLandDetails?.terrain_type?.name,
-              terrainTypeValue: dataLandDetails?.terrain_type?.fid,
-              landType: dataLandDetails?.lan_type?.name,
-              landTypeValue: dataLandDetails?.lan_type?.fid,
-              soilType: dataLandDetails?.soil_type?.name,
-              soilTypeValue: dataLandDetails?.soil_type?.fid,
-              unit: dataLandDetails?.land_unit?.name,
-              unitValue: dataLandDetails?.land_unit?.fid,
-              productionSeason: data?.crop_season?.name,
-              productionSeasonValue: data?.crop_season?.fid,
-              livelihoodType: data?.crop_type?.name,
-              livelihoodTypeValue: data?.crop_type?.fid,
-              produceName: data?.crop_name?.name,
-              produceNameValue: data?.crop_name?.fid,
-              produceVariety: data?.crop_variety?.name,
-              produceVarietyValue: data?.crop_variety?.fid,
-              productionProcess: data?.farmer_production_system?.name,
-              productionProcessValue: data?.farmer_production_system?.fid,
-              unitProduct: data?.agri_unit && data?.agri_unit?.unit_name,
-              unitProductValue: data?.agri_unit && data?.agri_unit?.fid,
-              unit_value: dataLandDetails?.land_unit?.unit_value,
-              google_area: data.land_info?.google_area,
-              IOTId: data.land_info?.device_no,
-              IOTLatlat: data.land_info?.device_lat,
-              IOTLatLong: data.land_info?.device_long,
-              crop_cycl_start_date: data.crop_cycl_start_date,
-              ConvertedreportedLandsize:
-                Number(dataLandDetails?.land_unit?.defined_unit_value) *
-                Number(dataLandDetails?.land_size),
-            }));
-            return;
           }
-        });
-        const agri_land_user_latlongs = data.land_info.agri_land_user_latlongs;
-        // const values = [...location];
-        const values = [{latitude: '', longitude: ''}];
-
-        if (values.length < agri_land_user_latlongs.length) {
-          values[0] = {
-            latitude: plotSiteUserLandDetails[0]?.latitude,
-            longitude: plotSiteUserLandDetails[0]?.longitude,
-          };
-          agri_land_user_latlongs.map((data, index) => {
-            locationLength = index;
-            if (data?.latitude != '') {
-              values[index] = {
-                latitude: data?.latitude,
-                longitude: data?.longitude,
+          addressProof.map((_data, _index) => {
+            if (filteredPlotImages[_index] !== undefined && count > 0) {
+              values[_index] = {
+                uri: filteredPlotImages[_index]?.file_path,
+                name: filteredPlotImages[_index]?.file_name,
+                type: filteredPlotImages[_index]?.file_ext,
+                fileName: filteredPlotImages[_index]?.file_name,
+                id: filteredPlotImages[_index]?.file_id,
+              };
+            } else {
+              values[_index] = {
+                uri: '',
+                name: '',
+                type: '',
+                fileName: '',
+                id: '',
               };
             }
           });
-          setLocation(values);
-          setmainLocation(values);
-          setPreviousPlotLatlong(values);
-          if (locationLength >= 2 == true) {
-            const parsedTargetArray = values.map(item => ({
-              latitude: parseFloat(item.latitude),
-              longitude: parseFloat(item.longitude),
-            }));
-            const index = nearPolSet.findIndex(
-              subArray =>
-                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
-            );
-
-            const foundArray = nearPolSet.filter(
-              item => !isEqualCoordinatesArray(item, parsedTargetArray),
-            );
-            setnearPolSet(foundArray);
-            setPolygons(foundArray);
-          } else {
-            // GRQ-1131
-            // setPolygons([]);
-            setPolygons(nearPolSet);
-          }
-          setLocationType('api_lication');
-        } else {
-          const values = [];
-          values[0] = {
-            latitude: plotSiteUserLandDetails[0]?.latitude,
-            longitude: plotSiteUserLandDetails[0]?.longitude,
-          };
-          location.map((locationData, index) => {
-            if (agri_land_user_latlongs[index] != undefined) {
-              locationLength = index;
-              values[index] = {
-                latitude: agri_land_user_latlongs[index]?.latitude,
-                longitude: agri_land_user_latlongs[index]?.longitude,
+          carboncertificate.map((_data, _index) => {
+            if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
+              carbonCertificateValues[_index] = {
+                uri: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                  ?.file_path,
+                name: filteredCarbonAgreement[
+                  filteredCarbonAgreement.length - 1
+                ]?.file_name,
+                type: filteredCarbonAgreement[
+                  filteredCarbonAgreement.length - 1
+                ]?.file_ext,
+                fileName:
+                  filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                    ?.file_name,
+                id: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
+                  ?.file_id,
               };
             } else {
-              if (agri_land_user_latlongs[0] == undefined) {
-                values[index + 1] = {latitude: '', longitude: ''};
-              } else {
-                values[index] = {latitude: '', longitude: ''};
+              carbonCertificateValues[_index] = {
+                uri: '',
+                name: '',
+                type: '',
+                fileName: '',
+                id: '',
+              };
+            }
+          });
+          setCarboncertificate(carbonCertificateValues);
+          setAddressProof(values);
+          setIdentityProofIdentityPropf([
+            {
+              uri: filterLandUserImgsAddress?.[0]?.file_path || '',
+              name: filterLandUserImgsAddress?.[0]?.file_name || '',
+              type: filterLandUserImgsAddress?.[0]?.file_ext || '',
+              fileName: filterLandUserImgsAddress?.[0]?.file_name || '',
+              imageType: 'address',
+              file_path: filterLandUserImgsAddress?.[0]?.file_path || '',
+              file_id: filterLandUserImgsAddress?.[0]?.file_id || '',
+              id: filterLandUserImgsAddress?.[0]?.file_id || '',
+            },
+            {
+              uri: filterLandUserImgsIdentity?.[0]?.file_path || '',
+              name: filterLandUserImgsIdentity?.[0]?.file_name || '',
+              type: filterLandUserImgsIdentity?.[0]?.file_ext || '',
+              fileName: filterLandUserImgsIdentity?.[0]?.file_name || '',
+              imageType: 'identity',
+              file_path: filterLandUserImgsIdentity?.[0]?.file_path || '',
+              file_id: filterLandUserImgsIdentity?.[0]?.file_id || '',
+              id: filterLandUserImgsIdentity?.[0]?.file_id || '',
+            },
+          ]);
+        }
+        if (cropAndPlotDetails?.status === 200) {
+          const data = cropAndPlotDetails?.data?.data || {};
+          plotSiteUserLandDetails.map((dataLandDetails, index) => {
+            if (dataLandDetails?.rel_id == findData.value) {
+              if (
+                dataLandDetails?.status_level == 'APPROVED' ||
+                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
+                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
+              ) {
+                Alert.alert(
+                  'Note',
+                  'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
+                  [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+                  {cancelable: false},
+                );
               }
+
+              setstatuslevel(prev => ({
+                ...prev,
+                label: dataLandDetails?.status_level,
+                value: dataLandDetails?.status_level,
+              }));
+              if (new Date() < new Date(data.harvesting_date) != true) {
+                setModalVisible(true);
+                setOutofRange(false);
+              } else {
+                setEdit(true);
+              }
+              setIsLoading(false);
+              // setArea(data.land_info?.google_area);
+              if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+                setArea(
+                  Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+                    Number(data.land_info?.google_area),
+                );
+              } else {
+                setArea(data.land_info?.google_area);
+              }
+              setFarmerData(prev => ({
+                ...prev,
+                createdBy: user_id,
+                plot_no: data?.land_info?.plot_no,
+                cu_rel_id: data?.cu_rel_id,
+                land_rel_id: findData?.value,
+                daag_no: dataLandDetails?.daag_no,
+                khatian_no: dataLandDetails?.khatian_no,
+                plant_number: dataLandDetails?.plant_number,
+                land_size: dataLandDetails?.land_size,
+                plot_Site: findData?.value,
+                plot_Site_Name: findData?.label,
+                expectedProduction: data?.yield_amount,
+                cycleStartDate: data?.sowing_date,
+                cycleEndDate: data?.harvesting_date.substring(-1, 10),
+                terrainType: dataLandDetails?.terrain_type?.name,
+                terrainTypeValue: dataLandDetails?.terrain_type?.fid,
+                landType: dataLandDetails?.lan_type?.name,
+                landTypeValue: dataLandDetails?.lan_type?.fid,
+                soilType: dataLandDetails?.soil_type?.name,
+                soilTypeValue: dataLandDetails?.soil_type?.fid,
+                unit: dataLandDetails?.land_unit?.name,
+                unitValue: dataLandDetails?.land_unit?.fid,
+                productionSeason: data?.crop_season?.name,
+                productionSeasonValue: data?.crop_season?.fid,
+                livelihoodType: data?.crop_type?.name,
+                livelihoodTypeValue: data?.crop_type?.fid,
+                produceName: data?.crop_name?.name,
+                produceNameValue: data?.crop_name?.fid,
+                produceVariety: data?.crop_variety?.name,
+                produceVarietyValue: data?.crop_variety?.fid,
+                productionProcess: data?.farmer_production_system?.name,
+                productionProcessValue: data?.farmer_production_system?.fid,
+                unitProduct: data?.agri_unit && data?.agri_unit?.unit_name,
+                unitProductValue: data?.agri_unit && data?.agri_unit?.fid,
+                unit_value: dataLandDetails?.land_unit?.unit_value,
+                google_area: data.land_info?.google_area,
+                IOTId: data.land_info?.device_no,
+                IOTLatlat: data.land_info?.device_lat,
+                IOTLatLong: data.land_info?.device_long,
+                crop_cycl_start_date: data.crop_cycl_start_date,
+                ConvertedreportedLandsize:
+                  Number(dataLandDetails?.land_unit?.defined_unit_value) *
+                  Number(dataLandDetails?.land_size),
+              }));
+              return;
             }
           });
-          setLocation(values);
-          setmainLocation(values);
-          setPreviousPlotLatlong(values);
-          if (locationLength >= 2 == true) {
-            const parsedTargetArray = values.map(item => ({
-              latitude: parseFloat(item.latitude),
-              longitude: parseFloat(item.longitude),
-            }));
-            const index = nearPolSet.findIndex(
-              subArray =>
-                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
-            );
-            const foundArray = nearPolSet.filter(
-              item => !isEqualCoordinatesArray(item, parsedTargetArray),
-            );
-            setnearPolSet(foundArray);
-            setPolygons(foundArray);
+          const agri_land_user_latlongs =
+            data.land_info.agri_land_user_latlongs;
+          // const values = [...location];
+          const values = [{latitude: '', longitude: ''}];
+
+          if (values.length < agri_land_user_latlongs.length) {
+            values[0] = {
+              latitude: plotSiteUserLandDetails[0]?.latitude,
+              longitude: plotSiteUserLandDetails[0]?.longitude,
+            };
+            agri_land_user_latlongs.map((data, index) => {
+              locationLength = index;
+              if (data?.latitude != '') {
+                values[index] = {
+                  latitude: data?.latitude,
+                  longitude: data?.longitude,
+                };
+              }
+            });
+            setLocation(values);
+            setmainLocation(values);
+            setPreviousPlotLatlong(values);
+            if (locationLength >= 2 == true) {
+              const parsedTargetArray = values.map(item => ({
+                latitude: parseFloat(item.latitude),
+                longitude: parseFloat(item.longitude),
+              }));
+              const index = nearPolSet.findIndex(
+                subArray =>
+                  JSON.stringify(subArray) ===
+                  JSON.stringify(parsedTargetArray),
+              );
+
+              const foundArray = nearPolSet.filter(
+                item => !isEqualCoordinatesArray(item, parsedTargetArray),
+              );
+              setnearPolSet(foundArray);
+              setPolygons(foundArray);
+            } else {
+              // GRQ-1131
+              // setPolygons([]);
+              setPolygons(nearPolSet);
+            }
+            setLocationType('api_lication');
           } else {
-            setPolygons(nearPolSet);
+            const values = [];
+            values[0] = {
+              latitude: plotSiteUserLandDetails[0]?.latitude,
+              longitude: plotSiteUserLandDetails[0]?.longitude,
+            };
+            location.map((locationData, index) => {
+              if (agri_land_user_latlongs[index] != undefined) {
+                locationLength = index;
+                values[index] = {
+                  latitude: agri_land_user_latlongs[index]?.latitude,
+                  longitude: agri_land_user_latlongs[index]?.longitude,
+                };
+              } else {
+                if (agri_land_user_latlongs[0] == undefined) {
+                  values[index + 1] = {latitude: '', longitude: ''};
+                } else {
+                  values[index] = {latitude: '', longitude: ''};
+                }
+              }
+            });
+            setLocation(values);
+            setmainLocation(values);
+            setPreviousPlotLatlong(values);
+            if (locationLength >= 2 == true) {
+              const parsedTargetArray = values.map(item => ({
+                latitude: parseFloat(item.latitude),
+                longitude: parseFloat(item.longitude),
+              }));
+              const index = nearPolSet.findIndex(
+                subArray =>
+                  JSON.stringify(subArray) ===
+                  JSON.stringify(parsedTargetArray),
+              );
+              const foundArray = nearPolSet.filter(
+                item => !isEqualCoordinatesArray(item, parsedTargetArray),
+              );
+              setnearPolSet(foundArray);
+              setPolygons(foundArray);
+            } else {
+              setPolygons(nearPolSet);
+            }
+            setLocationType('api_lication');
           }
-          setLocationType('api_lication');
-        }
-        //basudev out of range
-        // if (agri_land_user_latlongs.length > 1) {
-        //   const { latitude, longitude } = fusedLocation;
-        //   const is20Meters = isWithin20Meters(
-        //     { latitude, longitude },
-        //     agri_land_user_latlongs,
-        //     40
-        //   );
-        //   if (is20Meters?.length !== 0) {
-        //     setOutofRange(false);
-        //   } else {
-        //     setOutofRange(true);
-        //   }
-        // } else {
-        //   setOutofRange(false);
-        // }
-        if (data?.add_new_crop === true) {
-          setAdd_new_crop(true);
-        } else {
-          setAdd_new_crop(false);
-        }
-      }
-      console.log('productSeasonresRes', productSeasonresRes);
-      if (productSeasonresRes?.status === 200) {
-        const productSeasonresResArr =
-          productSeasonresRes?.data?.data?.crop_season.map(data => ({
-            value: data?.fid,
-            label: data?.name,
-          }));
-        const livelihoodTypeArr =
-          productSeasonresRes?.data?.data?.crop_type.map(data => ({
-            value: data?.fid,
-            label: data?.name,
-          }));
-        setProductionSeason(productSeasonresResArr);
-        setLivelihoodType(livelihoodTypeArr);
-      }
-      if (nearestLatLong_res?.status == 200) {
-        if (nearestLatLong_res.data.data.length > 0) {
-          setnearPolData(nearestLatLong_res.data.data);
-          groupedData = groupByRelId(nearestLatLong_res.data.data);
-          if (
-            statuslevel == 'APPROVED' ||
-            statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
-            statuslevel == 'CARBON_DOCUMENTS_APPROVED'
-          ) {
-            setnearPolSet(groupedData);
-            setPolygons(groupedData);
+          //basudev out of range
+          // if (agri_land_user_latlongs.length > 1) {
+          //   const { latitude, longitude } = fusedLocation;
+          //   const is20Meters = isWithin20Meters(
+          //     { latitude, longitude },
+          //     agri_land_user_latlongs,
+          //     40
+          //   );
+          //   if (is20Meters?.length !== 0) {
+          //     setOutofRange(false);
+          //   } else {
+          //     setOutofRange(true);
+          //   }
+          // } else {
+          //   setOutofRange(false);
+          // }
+          if (data?.add_new_crop === true) {
+            setAdd_new_crop(true);
+          } else {
+            setAdd_new_crop(false);
           }
         }
+        if (productSeasonresRes?.status === 200) {
+          const productSeasonresResArr =
+            productSeasonresRes?.data?.data?.crop_season.map(data => ({
+              value: data?.fid,
+              label: data?.name,
+            }));
+          const livelihoodTypeArr =
+            productSeasonresRes?.data?.data?.crop_type.map(data => ({
+              value: data?.fid,
+              label: data?.name,
+            }));
+          setProductionSeason(productSeasonresResArr);
+          setLivelihoodType(livelihoodTypeArr);
+        }
+        if (nearestLatLong_res?.status == 200) {
+          if (nearestLatLong_res.data.data.length > 0) {
+            setnearPolData(nearestLatLong_res.data.data);
+            const groupedData = groupByRelId(nearestLatLong_res.data.data);
+            if (
+              statuslevel == 'APPROVED' ||
+              statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
+              statuslevel == 'CARBON_DOCUMENTS_APPROVED'
+            ) {
+              setnearPolSet(groupedData);
+              setPolygons(groupedData);
+            }
+          }
+        }
+      } catch (error) {
+        setIsLoading(false);
+        Toast.show({
+          text: typeof error == 'object' ? JSON.stringify(error) : error,
+          ...AlertMesg[0],
+        });
       }
     },
     [
@@ -758,6 +759,7 @@ const LiveHood = ({
       landUnitsquareMetre,
       plotSiteUserLandDetails,
       statuslevel,
+      coords,
     ],
   );
 
@@ -903,7 +905,6 @@ const LiveHood = ({
         Authorization: `${token}`,
       },
     );
-
     let prodctionSeasionArray = [];
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
@@ -914,8 +915,6 @@ const LiveHood = ({
         originalName: data.season_info.name,
       }));
     }
-
-    console.log('prodctionSeasionArray', prodctionSeasionArray);
     if (prodctionSeasionArray) {
       setProductionSeason(prodctionSeasionArray);
     }

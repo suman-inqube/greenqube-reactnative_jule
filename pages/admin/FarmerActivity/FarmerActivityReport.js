@@ -470,7 +470,6 @@ const FarmerActivityReport = ({navigation}) => {
     } else {
       var response = await getItem('produceAgainstPlot' + relId.value);
     }
-    console.log('response', response.status);
     if (response) {
       //basudev nayak
       // const { latitude, longitude } = await getCurrentLocation() || {};
@@ -1092,7 +1091,6 @@ const FarmerActivityReport = ({navigation}) => {
     } else {
       var activityType_res = await getItem('activityType' + user_id);
     }
-    console.log('activityType_res', activityType_res.status);
     if (activityType_res) {
       setIsLoading(false);
       const dataArray = [];
