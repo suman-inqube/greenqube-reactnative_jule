@@ -202,7 +202,7 @@ export const ROUTES = {
       crop_name_id = '',
     }) =>
       `cropRoute/getCropRelationDropdown/${languageId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`,
-    PRODUCE_SEASON: ({from_date, to_date = ''}) =>
+    PRODUCE_SEASON: ({from_date='', to_date = ''}) =>
       `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
 
     PRODUCE_NAME_LIST: ({languag = '', livelihoodType = ''}) =>
@@ -308,7 +308,7 @@ export const ROUTES = {
     SUPERVISOR_DATA_LIST: ({company_id = ''}) =>
       `agentRoute/listAgentByCompanyID/${company_id}`,
 
-    PRODUCE_SEASON: ({from_date, to_date = ''}) =>
+    PRODUCE_SEASON: ({from_date='', to_date = ''}) =>
       `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
   },
 
