@@ -371,7 +371,7 @@ const LiveHood = ({
           cropAndPlotDetails,
           getPlotDoc,
           nearestLatLong_res,
-          getSeasonDateRes
+          getSeasonDateRes,
         ] = await Promise.all([
           axiosGet(
             ROUTES.GET.PRODUCTION_SEASON({
@@ -418,8 +418,9 @@ const LiveHood = ({
         setPlotId(findData.value);
 
         if (getPlotDoc?.status == 200) {
-          const { count } = getPlotDoc?.data?.data;
-          const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
+          const {count} = getPlotDoc?.data?.data;
+          const {plot_img, landUserImgs} =
+            getPlotDoc?.data?.data?.rows[0] || {};
           const values = [...addressProof];
           const carbonCertificateValues = [...carboncertificate];
           const filteredPlotImages = plot_img.filter(
@@ -472,10 +473,12 @@ const LiveHood = ({
               carbonCertificateValues[_index] = {
                 uri: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
                   ?.file_path,
-                name: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_name,
-                type: filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
-                  ?.file_ext,
+                name: filteredCarbonAgreement[
+                  filteredCarbonAgreement.length - 1
+                ]?.file_name,
+                type: filteredCarbonAgreement[
+                  filteredCarbonAgreement.length - 1
+                ]?.file_ext,
                 fileName:
                   filteredCarbonAgreement[filteredCarbonAgreement.length - 1]
                     ?.file_name,
@@ -530,8 +533,8 @@ const LiveHood = ({
                 Alert.alert(
                   'Note',
                   'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-                  [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-                  { cancelable: false },
+                  [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+                  {cancelable: false},
                 );
               }
 
@@ -728,13 +731,15 @@ const LiveHood = ({
           setLivelihoodType(livelihoodTypeArr);
         }
         if (getSeasonDateRes?.status == 200) {
-          const getSeasonDateResArr = getSeasonDateRes?.data?.data?.rows?.map(data => ({
-            value: data.season_info.fid,
-            label: `${data.season_info.name} (${data.year})`,
-            sd_id: data.sd_id,
-            year: data.year,
-            originalName: data.season_info.name,
-          }));
+          const getSeasonDateResArr = getSeasonDateRes?.data?.data?.rows?.map(
+            data => ({
+              value: data.season_info.fid,
+              label: `${data.season_info.name} (${data.year})`,
+              sd_id: data.sd_id,
+              year: data.year,
+              originalName: data.season_info.name,
+            }),
+          );
           setProductionSeason(getSeasonDateResArr);
         }
         if (nearestLatLong_res?.status == 200) {
@@ -1144,6 +1149,16 @@ const LiveHood = ({
       {information: `${dbname},${languageID}`},
     );
 
+    console.log(
+      'API123',
+      ROUTES.GET.PRODUCTION_SEASON({
+        lanId: languageID,
+        crop_type_id: crop_type_id,
+        crop_name_id: crop_name_id,
+      }),
+      '',
+      {information: `${dbname},${languageID}`},
+    );
     // ProductionSeasonAndApi(
     //   dbName,
     //   languageID,
@@ -2544,10 +2559,10 @@ const LiveHood = ({
               data={productionSeason}
               onChange={handleAddDataproductionSeason}
               val={farmerData.productionSeason}
-            // disable={edit}
-            disable={
-              edit == '' ? (harvested == 'same produce' ? true : false) : edit
-            }
+              // disable={edit}
+              disable={
+                edit == '' ? (harvested == 'same produce' ? true : false) : edit
+              }
             />
             <View style={{marginBottom: 50}}>
               <TouchableOpacity

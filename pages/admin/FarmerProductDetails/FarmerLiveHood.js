@@ -736,13 +736,23 @@ const FarmerLiveHood = ({
       '',
       {information: `${dbName},${languageID}`},
     );
-
+    console.log(
+      'API',
+      ROUTES.GET.PRODUCTION_SEASON({
+        lanId: languageID,
+        crop_type_id: crop_type_id,
+        crop_name_id: crop_name_id,
+      }),
+      '',
+      {information: `${dbName},${languageID}`},
+    );
     // ProductionSeasonAndApi(
     //   dbName,
     //   languageID,
     //   crop_type_id,
     //   crop_name_id,
     // );
+    console.log('productSeasonresRes', productSeasonresRes);
     if (productSeasonresRes?.status === 200) {
       const productSeasonresResArr = [];
       const livelihoodTypeArr = [];
@@ -765,9 +775,11 @@ const FarmerLiveHood = ({
           label: data.crop_name.name,
         });
       });
+      Alert.alert('Not');
       // setProductionSeason(productSeasonresResArr);
       setLivelihoodType(livelihoodTypeArr);
       setProduceName(produceNameArr);
+      console.log('produceNameArr', produceNameArr);
     }
   };
   const produceNameAPI = async (
@@ -1461,7 +1473,7 @@ const FarmerLiveHood = ({
               soilTypeValue: dataLandDetails?.soil_type?.fid,
               unit: dataLandDetails?.land_unit?.name,
               unitValue: dataLandDetails?.land_unit?.fid,
-              productionSeason: data?.crop_season?.name,
+              productionSeason: `${data?.crop_season?.name} (${data?.cropSeasonTime?.year})`,
               productionSeasonValue: data?.crop_season?.fid,
               livelihoodType: data?.crop_type?.name,
               livelihoodTypeValue: data?.crop_type?.fid,
