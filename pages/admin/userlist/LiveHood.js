@@ -72,7 +72,7 @@ import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 const LiveHood = ({
   sendDataToParent,
   dataProps,
@@ -231,7 +231,14 @@ const LiveHood = ({
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
+
       const {latitude, longitude} = coords || {};
+      var latlong;
+      if (latitude == '' && longitude == '') {
+        latlong = await getHighAccuracyLocation();
+      }
+      const lat = latitude === '' ? latlong.latitude : latitude;
+      const lon = longitude === '' ? latlong.longitude : longitude;
       setreferencelatLong({latitude, longitude});
       const axiosConfig = {
         headers: {
@@ -239,6 +246,7 @@ const LiveHood = ({
           Accept: 'application/json',
         },
       };
+
       const [
         nearestLatLong_res,
         unitConversion_res,
@@ -268,7 +276,7 @@ const LiveHood = ({
         //     information: `${dbname},${lan_id}`,
         //   },
         // ),
-        nearestLatLong(dbname, lan_id, token, latitude, longitude),
+        nearestLatLong(dbname, lan_id, token, lat, lon),
 
         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
           information: `${dbname},${lan_id}`,
@@ -360,6 +368,13 @@ const LiveHood = ({
   const handlePlot = useCallback(
     async findData => {
       try {
+        const {latitude, longitude} = coords || {};
+        var latlong;
+        if (latitude == '' && longitude == '') {
+          latlong = await getHighAccuracyLocation();
+        }
+        const lat = latitude === '' ? latlong.latitude : latitude;
+        const lon = longitude === '' ? latlong.longitude : longitude;
         setIsLoading(true);
         setPhotoDeletedValue([]);
         setHarvested('');
@@ -396,8 +411,8 @@ const LiveHood = ({
           axiosPost(
             ROUTES.POST.NEAREST_LATLONG,
             {
-              latitude: coords?.latitude,
-              longitude: coords?.longitude,
+              latitude: lat,
+              longitude: lon,
               distance: 200,
               data_limit: 100,
             },

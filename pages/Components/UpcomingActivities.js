@@ -10,7 +10,11 @@ import React, {useState, memo} from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import moment from 'moment';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const UpcomingActivities = ({uiState, t}) => {
+  const [activeTab, setActiveTab] = useState('Upcoming');
+
   const [upcomingActivities, setUpcomingActivities] = useState([
     {
       id: 1,
@@ -26,13 +30,60 @@ const UpcomingActivities = ({uiState, t}) => {
 
       status: 'Upcoming',
     },
-    // {
-    //   id: 3,
-    //   title: 'Coming soon...',
-    //   date: '2025-11-22',
-    //   status: 'Upcoming',
-    // },
+    {
+      id: 3,
+      title: 'Coming soon...',
+      date: '2025-11-22',
+      status: 'Upcoming',
+    },
   ]);
+
+  const [pendingActivities, setPendingActivities] = useState([
+    {
+      id: 1,
+      title: 'Soil Testing',
+      date: '2025-11-20',
+      status: 'Pending',
+    },
+    {
+      id: 2,
+      title: 'Weed Control',
+      date: '2025-11-25',
+      status: 'Pending',
+    },
+    {
+      id: 3,
+      title: 'Equipment Maintenance',
+      date: '2025-11-30',
+      status: 'Pending',
+    },
+  ]);
+
+  const handlePlusButtonPress = () => {
+    if (activeTab === 'Upcoming') {
+      // Navigate to Upcoming Activity screen
+      // navigation.navigate('UpcomingActivityScreen');
+    } else {
+      // Navigate to Pending screen
+      // navigation.navigate('PendingActivityScreen');
+    }
+  };
+
+  const renderActivityItem = ({item}) => (
+    <View style={styles.activityItem}>
+      <View style={styles.activityIndicator} />
+      <View style={styles.activityDetails}>
+        <Text style={styles.activityTitle}>{item.title}</Text>
+        <View style={styles.activityMeta}>
+          <Text style={styles.activityDate}>
+            {moment(item.date).format('MMM D, YYYY')}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+  const currentActivities =
+    activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
   return (
     <ScrollView>
       <View style={styles.mainProfileContainer}>
@@ -72,27 +123,45 @@ const UpcomingActivities = ({uiState, t}) => {
             </View>
           </View>
           <View style={styles.upcomingActivitiesContainer}>
-            <Text style={styles.upcomingActivitiesTitle}>
-              {t('upcomming_act')}
-            </Text>
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === 'Upcoming' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('Upcoming')}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'Upcoming' && styles.activeTabText,
+                  ]}>
+                  Upcoming
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tab,
+                  activeTab === 'Pending' && styles.activeTab,
+                ]}
+                onPress={() => setActiveTab('Pending')}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'Pending' && styles.activeTabText,
+                  ]}>
+                  Pending
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.plusButton}
+                onPress={handlePlusButtonPress}>
+                <MaterialIcons name="arrow-forward" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
             <FlatList
-              data={upcomingActivities}
+              data={currentActivities}
               keyExtractor={item => item.id.toString()}
-              renderItem={({item}) => (
-                <View style={styles.activityItem}>
-                  <View style={styles.activityIndicator} />
-                  <View style={styles.activityDetails}>
-                    {/* <Marquee speed={0.3} spacing={100} fade={true}> */}
-                    <Text style={styles.activityTitle}>{item.title}</Text>
-                    {/* </Marquee> */}
-                    <View style={styles.activityMeta}>
-                      <Text style={styles.activityDate}>
-                        {moment(item.date).format('MMM D, YYYY')}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              )}
+              renderItem={renderActivityItem}
               // contentContainerStyle={styles.activitiesListContainer}
               maxToRenderPerBatch={8}
               windowSize={5}
@@ -120,7 +189,7 @@ const styles = StyleSheet.create({
     // marginTop: 30,
   },
   profileDetails: {
-    flex: 1,
+    flex: 0.45,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -163,10 +232,10 @@ const styles = StyleSheet.create({
   },
 
   upcomingActivitiesContainer: {
-    flex: 1,
+    flex: 0.55,
     backgroundColor: 'rgba(0, 0, 0, 0.37)',
-    padding: 10,
-    justifyContent: 'center',
+    // padding: 10,
+    // justifyContent: 'center',
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
   },
@@ -222,10 +291,74 @@ const styles = StyleSheet.create({
     // marginLeft: 20,
   },
   userTitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'white',
     fontFamily: 'Poppins-SemiBold',
     textAlign: 'left',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'white',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#4CAF50',
+  },
+  tabText: {
+    fontSize: 13.5,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  activeTabText: {
+    color: 'white',
+  },
+  plusButton: {
+    paddingTop: 8,
+    paddingRight: 5,
+  },
+  // activityItem: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   alignSelf: 'center',
+  //   justifyContent: 'center',
+  //   borderBottomWidth: 0.5,
+  //   borderBottomColor: 'white',
+  //   paddingVertical: 8,
+  // },
+  activityIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 4,
+    backgroundColor: '#4CAF50',
+    marginLeft: 5,
+  },
+  activityDetails: {
+    flex: 1,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activityTitle: {
+    fontSize: 13,
+    color: '#e3fae7',
+    fontFamily: 'Poppins-SemiBold',
+    marginBottom: 2,
+  },
+  activityMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  activityDate: {
+    fontSize: 12,
+    color: '#e3f3fa',
+    fontFamily: 'Poppins-Regular',
   },
 });
 export default memo(UpcomingActivities);

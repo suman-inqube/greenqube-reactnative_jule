@@ -70,6 +70,7 @@ import {use} from 'i18next';
 import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {captureRef} from 'react-native-view-shot';
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 const ActivityReportAWD = ({navigation}) => {
   //GQR-67
   const {
@@ -114,6 +115,11 @@ const ActivityReportAWD = ({navigation}) => {
     label: '',
     value: '',
     phone: '',
+  });
+  const [dafaultLatLon, setDefaultLatLon] = useState({
+    latitude: 22.15454,
+    longitude: 22.515451,
+    accuracy: 5,
   });
   const [farmerID, setFarmerID] = useState();
   const [plotAll, setPlotAll] = useState([]);
@@ -322,6 +328,12 @@ const ActivityReportAWD = ({navigation}) => {
     async relId => {
       try {
         const {latitude, longitude} = coords || {};
+        var latlong;
+        if (latitude == '' && longitude == '') {
+          latlong = await getHighAccuracyLocation();
+        }
+        const lat = latitude === '' ? latlong.latitude : latitude;
+        const lon = longitude === '' ? latlong.longitude : longitude;
         setIsLoading(true);
         if (isOnline) {
           var [response] = await Promise.all([
@@ -372,10 +384,7 @@ const ActivityReportAWD = ({navigation}) => {
             );
           if (latandlongArr.length != 0) {
             setPlotPolygon(latandlongArr);
-            const inside = isPointInPolygon(
-              {latitude, longitude},
-              latandlongArr,
-            );
+            const inside = isPointInPolygon({lat, lon}, latandlongArr);
             if (inside) {
               setOutofRange(true);
               setOutofRangeCheck(true);
@@ -418,8 +427,8 @@ const ActivityReportAWD = ({navigation}) => {
               cu_rel_id: data.cu_rel_id,
               cycle_start_date: cycle_start_date,
               crop_season: data?.crop_season?.fid,
-              latitude: coords?.latitude,
-              longitude: coords?.longitude,
+              latitude: lat,
+              longitude: lon,
               growth_stage: '',
               act_ref_type: '',
               act_to_date: '',
@@ -1116,9 +1125,15 @@ const ActivityReportAWD = ({navigation}) => {
           var database_res;
           if (coords != null) {
             const {latitude, longitude} = coords || {};
+            var latlong;
+            if (latitude == '' && longitude == '') {
+              latlong = await getHighAccuracyLocation();
+            }
+            const lat = latitude === '' ? latlong.latitude : latitude;
+            const lon = longitude === '' ? latlong.longitude : longitude;
             const distances = getDistance(selectPipeList.latlongs, {
-              latitude,
-              longitude,
+              lat,
+              lon,
             });
             console.log(distances);
             if (distances < 10) {
@@ -1394,11 +1409,19 @@ const ActivityReportAWD = ({navigation}) => {
   }, []);
   const onPageLoad = async () => {
     try {
+      const {latitude, longitude} = coords || {};
+      var latlong;
+      if (latitude == '' && longitude == '') {
+        latlong = await getHighAccuracyLocation();
+      }
+      const lat = latitude === '' ? latlong.latitude : latitude;
+      const lon = longitude === '' ? latlong.longitude : longitude;
+      setDefaultLatLon({latitude: lat, longitude: lon, accuracy: 10});
       setSaveData(prev => ({
         ...prev,
         act_pattern: 'schedule',
-        latitude: coords.latitude,
-        longitude: coords.longitude,
+        latitude: lat,
+        longitude: lon,
       }));
       setisActiveMenu(true);
     } catch (error) {
@@ -1646,9 +1669,16 @@ const ActivityReportAWD = ({navigation}) => {
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
-  const TakePhoto = useCallback(() => {
+  const TakePhoto = useCallback(async () => {
     //    const hasPermission = requestCameraPermission();
     // if (!hasPermission) return;
+    const {latitude, longitude} = coords || {};
+    var latlong;
+    if (latitude == '' && longitude == '') {
+      latlong = await getHighAccuracyLocation();
+    }
+    const lat = latitude === '' ? latlong.latitude : latitude;
+    const lon = longitude === '' ? latlong.longitude : longitude;
     const options = {
       mediaType: 'photo',
       includeBase64: true,
@@ -1716,8 +1746,8 @@ const ActivityReportAWD = ({navigation}) => {
             setSelectedImagePipe(prev => ({
               ...prev,
               [cameraItem]: `file://${path}`,
-              [`${cameraItem}Lat`]: coords?.latitude,
-              [`${cameraItem}Long`]: coords?.longitude,
+              [`${cameraItem}Lat`]: lat,
+              [`${cameraItem}Long`]: lon,
             }));
             setModalVisibleMap(false);
             console.log('Watermarked image saved:', path);
@@ -1762,7 +1792,7 @@ const ActivityReportAWD = ({navigation}) => {
                   setModalVisibleMap={setModalVisibleMap}
                   plotPolygon={plotPolygon}
                   TakePhoto={TakePhoto}
-                  location={coords}
+                  location={coords.latitude == '' ? dafaultLatLon : coords}
                   setOutOfRange={setOutofRange}
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}

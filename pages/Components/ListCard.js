@@ -28,6 +28,8 @@ const ListCard = ({
   cardSubtitleStyle,
   titleStyle,
   animationDelay = 100,
+  showRejectedStatus = false,
+  rejectionReason = '',
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-50)).current; // Start from left (-50)
@@ -35,7 +37,6 @@ const ListCard = ({
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Stagger the animation based on index
     const delay = index * animationDelay; // 100ms delay between each card
 
     Animated.parallel([
@@ -180,6 +181,11 @@ const ListCard = ({
               </Text>
             )}
           </View>
+          {showRejectedStatus && (
+            <View style={styles.rejectedContainer}>
+              <Text style={styles.rejectedText}>Rejected</Text>
+            </View>
+          )}
           {renderIcon() && (
             <View style={styles.cardFooter}>{renderIcon()}</View>
           )}
@@ -299,6 +305,18 @@ const styles = StyleSheet.create({
   },
   rejected: {
     color: '#b83535', // Red for rejected
+    fontFamily: 'Poppins-SemiBold',
+  },
+  rejectedContainer: {
+    backgroundColor: '#b83535',
+    paddingHorizontal: 5,
+    // paddingVertical: 4,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  rejectedText: {
+    color: 'white',
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
   },
 });

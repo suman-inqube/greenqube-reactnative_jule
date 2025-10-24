@@ -148,6 +148,7 @@ const Market = () => {
         iconColor="#206708ff"
         borderColor={activeTab === 0 ? '#d10000ff' : '#206708ff'} //
         showChevron={false}
+        showRejectedStatus={true}
         cardStyle={styles.listCard}></ListCard>
     );
   };

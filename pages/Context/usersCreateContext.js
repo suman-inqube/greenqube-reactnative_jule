@@ -184,6 +184,11 @@ const UserCreateContextProvider = props => {
   // };
 
   // --------- WATCH POSITION (Reusable Function) ----------
+  // Geolocation.setRNConfiguration({
+  //   skipPermissionRequests: false,
+  //   authorizationLevel: 'whenInUse',
+  //   locationProvider: 'auto', // or 'playServices' for Android
+  // });
   const startWatchingLocation = async () => {
     const hasPermission = await requestPermission();
     if (!hasPermission) {

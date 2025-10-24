@@ -2985,6 +2985,7 @@ export const nearestLatLong = async (
       information: `${dbName},${lan_id}`,
     },
   };
+  console.log('LAT', inputBody);
   try {
     let response = await axios.post(
       `${config.BASE_URL}settingsRoute/nearestPlots`,
@@ -2994,6 +2995,7 @@ export const nearestLatLong = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response, '', 'nearestLatLong');
+    console.log('nearestLatLong', error.response);
     return error.response;
   }
 };
