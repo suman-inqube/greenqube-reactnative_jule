@@ -29,7 +29,6 @@ import { Colors, Fonts } from '../../utils/Constants';
 import { axiosGet } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 import ModernUserCard from '../../Components/ModernUserCard';
 
 const UserList = ({ navigation }) => {
@@ -173,9 +172,9 @@ const UserList = ({ navigation }) => {
       handleFilterResult: handleFilterResult,
       handleFilterRemove: handleFilterRemove,
       navigationBarHeight: 0,
-      height: 100
+      height: 120
     });
-  },[filterItem,searchFarmerPhone]);
+  }, [filterItem, searchFarmerPhone]);
 
   const handleFilterResult = useCallback(
     ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {

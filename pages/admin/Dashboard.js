@@ -54,7 +54,8 @@ const Dashboard = ({ navigation }) => {
     isOnline,
     Toast,
     AlertMesg,
-    coords, AllFarmerList, loginUser_data
+    coords, AllFarmerList, loginUser_data, startWatchingLocation,
+    stopWatchingLocation,
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -259,8 +260,12 @@ const Dashboard = ({ navigation }) => {
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
+      startWatchingLocation();
     });
-    return () => task.cancel();
+    return () => {
+      task.cancel();
+      stopWatchingLocation();
+    };
   }, []);
   useEffect(() => {
     const { agri_user_addresses, dbname, lan_id, token, user_id } = loginUser_data || {}

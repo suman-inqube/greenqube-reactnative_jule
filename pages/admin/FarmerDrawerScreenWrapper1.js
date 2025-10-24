@@ -1,18 +1,18 @@
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, StatusBar} from 'react-native';
 import React, {memo} from 'react';
 import Animated, {
   interpolate,
   useAnimatedStyle,
-  withDelay,
-  withTiming,
   withSpring,
 } from 'react-native-reanimated';
 import {useDrawerProgress} from '@react-navigation/drawer';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Root} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import MyErrorBoundary from '../Common/MyErrorBoundary';
+
 const FarmerDrawerScreenWrapper1 = ({children}) => {
   const progress = useDrawerProgress();
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -25,10 +25,22 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
     ),
     overflow: 'hidden',
   }));
+
   return (
     <Root>
       <MyErrorBoundary>
-        <SafeAreaView style={{flex: 1, backgroundColor: '#1d3122'}}>
+        <SafeAreaView
+          style={{flex: 1, backgroundColor: '#1d3122'}}
+          edges={['top', 'right', 'bottom', 'left']}>
+          
+          {/* 👇 Add your StatusBar here
+          <StatusBar
+            translucent={false}         // false = StatusBar takes up space
+            backgroundColor="#1d3122"   // match your background
+            barStyle="light-content"    // or "dark-content" depending on background
+            animated={true}
+          /> */}
+
           <Animated.View style={[styles.container, animatedStyle]}>
             {children}
           </Animated.View>
