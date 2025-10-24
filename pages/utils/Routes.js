@@ -203,7 +203,7 @@ export const ROUTES = {
       crop_name_id = '',
     }) =>
       `cropRoute/getCropRelationDropdown/${languageId}?crop_type_id=${crop_type_id}&crop_name_id=${crop_name_id}`,
-    PRODUCE_SEASON: ({from_date='', to_date = ''}) =>
+    PRODUCE_SEASON: ({from_date = '', to_date = ''}) =>
       `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
 
     PRODUCE_NAME_LIST: ({languag = '', livelihoodType = ''}) =>
@@ -281,8 +281,8 @@ export const ROUTES = {
     }) =>
       `landRoute/plotPipesLatLong?plot_fid=${plot_fid}&act_name_fid=&crop_name=${cropfid}&cu_rel_fid=${cu_rel_id}`,
 
-    UNIQUE_PIPE_NAME: ({plot_id = '', cu_rel_id = ''}) =>
-      `inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
+    UNIQUE_PIPE_NAME: ({plot_id = '', cu_rel_id = '', act_name_fid = ''}) =>
+      `inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}&act_name_fid=${act_name_fid}`,
 
     ACTIVITY_TYPE_AWD: () =>
       `categoryRoute/list/1/1/2?categoryType=carbon_activity_type&search_key=`,
@@ -309,7 +309,7 @@ export const ROUTES = {
     SUPERVISOR_DATA_LIST: ({company_id = ''}) =>
       `agentRoute/listAgentByCompanyID/${company_id}`,
 
-    PRODUCE_SEASON: ({from_date='', to_date = ''}) =>
+    PRODUCE_SEASON: ({from_date = '', to_date = ''}) =>
       `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
   },
 

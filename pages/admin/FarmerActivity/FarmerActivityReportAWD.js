@@ -66,6 +66,8 @@ import ActivityMap from '../../Common/ActivityMap';
 import {isPointInPolygon, getDistance} from 'geolib';
 import {captureRef} from 'react-native-view-shot';
 const FarmerActivityReportAWD = ({navigation}) => {
+  const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(today.getDate() - 10);
   const {
     InputTextForm,
     DropdownForm,
@@ -1522,6 +1524,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
+                minimumDate={tenDaysAgo}
+                maximumDate={today}
               />
               {modalVisibleRecordFirstItem ? (
                 <SoundRecord

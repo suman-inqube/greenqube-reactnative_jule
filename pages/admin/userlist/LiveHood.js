@@ -784,6 +784,7 @@ const LiveHood = ({
     );
   };
   useEffect(() => {
+    onPageLoad();
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
       startWatchingLocation();

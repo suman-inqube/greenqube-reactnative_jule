@@ -17,19 +17,24 @@ import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
 } from 'react-native-android-location-enabler';
-import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
+import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
   showCarbonFlag,
 } from '../../config/apiHere';
-import { useTranslation } from 'react-i18next';
-import { AlertMesg } from '../Common/ToastAlert';
-import { Root, Toast, Popup, SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import { onBackPress } from '../Common/BackPressHandler';
+import {useTranslation} from 'react-i18next';
+import {AlertMesg} from '../Common/ToastAlert';
+import {
+  Root,
+  Toast,
+  Popup,
+  SPSheet,
+} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {onBackPress} from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
 import i18next from 'i18next';
-import { getNavigationBarHeight } from 'react-native-android-navbar-height';
+import {getNavigationBarHeight} from 'react-native-android-navbar-height';
 const ImagePlaceHolderCircle = lazy(() =>
   import('../Common/ImagePlaceHolderCircle'),
 );
@@ -49,8 +54,8 @@ const axios = lazy(() => import('axios'));
 const userCreateContext = createContext();
 const userListContext = createContext('adduser');
 const UserCreateContextProvider = props => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
   const [loginUser_data, setloginUser_data] = useState({});
@@ -98,6 +103,85 @@ const UserCreateContextProvider = props => {
       return false;
     }
   };
+  //-------- WATCH POSITION for indoor (Reusable Function) ----------//
+  // const startWatchingLocation = async () => {
+  //   const hasPermission = await requestPermission();
+  //   if (!hasPermission) {
+  //     Alert.alert('Permission Required', 'Location permission not granted.');
+  //     return;
+  //   }
+
+  //   // 🚫 STRICT - REQUIRES GPS TO BE ENABLED
+  //   const gpsEnabled = await ensureGpsEnabled();
+  //   if (!gpsEnabled) {
+  //     Alert.alert('Enable GPS', 'Please enable GPS to use location services.', [
+  //       {
+  //         text: 'Enable',
+  //         onPress: async () => {
+  //           try {
+  //             await promptForEnableLocationIfNeeded();
+  //           } catch (err) {
+  //             console.warn('GPS enable request failed', err);
+  //           }
+  //         },
+  //       },
+  //       {text: 'Cancel', style: 'cancel'},
+  //     ]);
+  //     return;
+  //   }
+
+  //   if (watchIdRef.current) {
+  //     Geolocation.clearWatch(watchIdRef.current);
+  //   }
+
+  //   watchIdRef.current = Geolocation.watchPosition(
+  //     pos => {
+  //       console.log('Location received:', pos);
+  //       if (!pos || !pos.coords) {
+  //         // 🚫 AGGRESSIVE - SHOWS ALERTS FOR EVERY ERROR
+  //         Alert.alert('Unable to fetch location. Please try again.');
+  //         return;
+  //       }
+
+  //       setCoords(prev => {
+  //         if (
+  //           prev.latitude === pos.coords.latitude &&
+  //           prev.longitude === pos.coords.longitude &&
+  //           prev.accuracy === pos.coords.accuracy
+  //         ) {
+  //           return prev;
+  //         }
+  //         return {
+  //           latitude: pos.coords.latitude,
+  //           longitude: pos.coords.longitude,
+  //           accuracy: pos.coords.accuracy,
+  //           timestamp: pos.timestamp,
+  //         };
+  //       });
+  //     },
+  //     err => {
+  //       console.error('Location error:', err);
+  //       // 🚫 AGGRESSIVE - SHOWS ALERTS FOR EVERY ERROR
+  //       if (err.code === 1) {
+  //         Alert.alert('Permission Denied', 'Location permission denied.');
+  //       } else if (err.code === 2) {
+  //         Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
+  //       } else if (err.code === 3) {
+  //         Alert.alert('Timeout', 'Location request timed out.');
+  //       } else {
+  //         Alert.alert('Unable to get location. Please try again.');
+  //       }
+  //     },
+  //     {
+  //       enableHighAccuracy: false, // Still better for indoor
+  //       distanceFilter: 10,
+  //       interval: 10000,
+  //       fastestInterval: 5000,
+  //       timeout: 15000,
+  //       maximumAge: 30000,
+  //     },
+  //   );
+  // };
 
   // --------- WATCH POSITION (Reusable Function) ----------
   const startWatchingLocation = async () => {
@@ -119,7 +203,7 @@ const UserCreateContextProvider = props => {
             }
           },
         },
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
       ]);
       return;
     }
@@ -130,7 +214,7 @@ const UserCreateContextProvider = props => {
     }
     watchIdRef.current = Geolocation.watchPosition(
       pos => {
-        console.log("pos i",pos )
+        console.log('pos i', pos);
         if (!pos || !pos.coords) {
           Alert.alert('Unable to fetch location. Please try again.');
           return;
@@ -264,8 +348,8 @@ const UserCreateContextProvider = props => {
         } else if (loginUser_data?.userType == 3) {
           supervisorId = loginUser_data?.user_id;
         }
-        const { company, country_id } = companyLanguage_data;
-        const { option_value } = resCarbonFlag?.data?.data || {};
+        const {company, country_id} = companyLanguage_data;
+        const {option_value} = resCarbonFlag?.data?.data || {};
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({
@@ -296,7 +380,7 @@ const UserCreateContextProvider = props => {
           kccNumber: data?.kcc_number,
           FcmUserToken: data?.FcmUserToken,
           agri_user_addresses: data.agri_user_addresses,
-          agri_crop_user_rels: data.agri_crop_user_rels
+          agri_crop_user_rels: data.agri_crop_user_rels,
         }));
         const dataArrayPhone = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
@@ -306,7 +390,7 @@ const UserCreateContextProvider = props => {
           kccNumber: data?.kcc_number,
           FcmUserToken: data?.FcmUserToken,
           agri_user_addresses: data.agri_user_addresses,
-          agri_crop_user_rels: data.agri_crop_user_rels
+          agri_crop_user_rels: data.agri_crop_user_rels,
         }));
         setFarmerData([dataArrayName, dataArrayPhone]);
         const PlotArray = responsePlot?.data?.data.map(data => ({
@@ -402,4 +486,4 @@ const UserCreateContextProvider = props => {
   );
 };
 
-export { userListContext, UserCreateContextProvider, userCreateContext };
+export {userListContext, UserCreateContextProvider, userCreateContext};

@@ -101,8 +101,8 @@ const ActivityReportAWD = ({navigation}) => {
   const today = new Date();
 
   // 7 days ago
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(today.getDate() - 7);
+  const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(today.getDate() - 10);
 
   const [minimumSelectableDate, setMinimumSelectableDate] = useState(
     new Date(),
@@ -700,15 +700,16 @@ const ActivityReportAWD = ({navigation}) => {
       // );
       var [
         // setCycleDate,
-         activitySchedule] = await Promise.all([
-           // setCycleDateAPI(
-           //   dbname,
-           //   lan_id,
-           //   farmerID,
-           //   token,
-           //   saveData.cu_rel_id,
-           //   save_data,
-           // ),
+        activitySchedule,
+      ] = await Promise.all([
+        // setCycleDateAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmerID,
+        //   token,
+        //   saveData.cu_rel_id,
+        //   save_data,
+        // ),
         axiosGet(
           ROUTES.GET.ACTIVITY_SCHEDULE_API({
             type: 'carbon_activity',
@@ -1233,6 +1234,7 @@ const ActivityReportAWD = ({navigation}) => {
           value: '',
           latlongs: {},
         });
+        console.log('response', response);
         if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [
@@ -1336,6 +1338,7 @@ const ActivityReportAWD = ({navigation}) => {
           ROUTES.GET.UNIQUE_PIPE_NAME({
             plot_id: saveData.plot_id,
             cu_rel_id: saveData.cu_rel_id,
+            act_name_fid: item?.act_master_id,
           }),
           token,
           {information: `${dbname},${lan_id},${farmerID}`},
@@ -1782,7 +1785,7 @@ const ActivityReportAWD = ({navigation}) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
-                minimumDate={sevenDaysAgo}
+                minimumDate={tenDaysAgo}
                 maximumDate={today}
               />
               {modalVisibleRecordFirstItem ? (
