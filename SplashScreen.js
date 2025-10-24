@@ -330,7 +330,7 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <MyErrorBoundary>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        {/* <StatusBar barStyle="light-content" backgroundColor="transparent" translucent /> */}
         <ImageBackground
           source={require('./pages/Common/images/crystal_splash_screen.jpg')}
           style={styles.backgroundImage}

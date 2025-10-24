@@ -52,6 +52,11 @@ import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {captureRef} from 'react-native-view-shot';
 const FarmerActivityReport = ({navigation}) => {
+  const today = new Date();
+
+  // 7 days ago
+  const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(today.getDate() - 10);
   const {
     InputTextForm,
     DropdownForm,
@@ -1206,7 +1211,8 @@ const FarmerActivityReport = ({navigation}) => {
             newDate={newFromDate}
             setOpenDate={setActivityPreDate}
             handleDatePicker={handleDatePicker2}
-            maximumDate={new Date()}
+            minimumDate={tenDaysAgo}
+            maximumDate={today}
           />
           {modalVisibleRecordFirstItem ? (
             <SoundRecord

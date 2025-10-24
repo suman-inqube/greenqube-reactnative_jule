@@ -301,9 +301,12 @@ export const farmerAgainstSupervisorAPI = async (
   };
   // console.log(dbName, languageID, userId)
   console.log({
-      'information': `${dbName},${languageID},${userId}`,
-  })
-  console.log(config.BASE_URL + 'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=');
+    information: `${dbName},${languageID},${userId}`,
+  });
+  console.log(
+    config.BASE_URL +
+      'loginSignupRoute/listuser/1/0/2?search_key=&userType=2&createdBy=',
+  );
   try {
     let response = await axios.get(
       config.BASE_URL +
@@ -703,9 +706,12 @@ export const activitySaveAPI = async (
       authorization: `${token}`,
     },
   };
-  console.log( "888",   `${config.BASE_URL}inputOutputRoute/addUserActivity`,
-      inputData,
-      axiosHeaders,);
+  console.log(
+    '888',
+    `${config.BASE_URL}inputOutputRoute/addUserActivity`,
+    inputData,
+    axiosHeaders,
+  );
   console.log(inputData);
   console.log(`${config.BASE_URL}inputOutputRoute/addUserActivity`);
   try {
@@ -3086,7 +3092,7 @@ export const getUniquePipeNames = async (
   token,
   farmerID,
   plot_id,
-  act_master_id,
+  act_name_fid,
   cu_rel_id,
 ) => {
   const axiosHeaders = {
@@ -3098,7 +3104,7 @@ export const getUniquePipeNames = async (
   try {
     let response = await axios.get(
       // `${config.BASE_URL}landRoute/plotPipes?plot_fid=${plot_id}&act_name_fid=${act_master_id}&pipe_id=`,
-      `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}`,
+      `${config.BASE_URL}inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}&act_name_fid=${act_name_fid}`,
       axiosHeaders,
     );
 

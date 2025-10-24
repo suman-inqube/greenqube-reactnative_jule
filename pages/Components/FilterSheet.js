@@ -389,7 +389,7 @@ export const openFilterSheet = (props) => {
       console.warn('openFilterSheet: No props provided');
       return;
     }
-    const sheetHeight = filterItem === '' ? height  : 200 ;
+    const sheetHeight = filterItem === '' ? height  : 220 ;
     const finalHeight = Math.max(sheetHeight, height);
     SPSheet.show({
       component: () => <FilterSheetContent {...props} />,

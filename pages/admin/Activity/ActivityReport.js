@@ -67,8 +67,8 @@ const ActivityReport = ({navigation}) => {
   const today = new Date();
 
   // 7 days ago
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(today.getDate() - 7);
+  const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(today.getDate() - 10);
   const {
     loginUser_data,
     LoadingScreen,
@@ -1285,7 +1285,7 @@ const ActivityReport = ({navigation}) => {
               newDate={newFromDate}
               setOpenDate={setActivityPreDate}
               handleDatePicker={handleDatePicker2}
-              minimumDate={sevenDaysAgo}
+              minimumDate={tenDaysAgo}
               maximumDate={today}
             />
 
