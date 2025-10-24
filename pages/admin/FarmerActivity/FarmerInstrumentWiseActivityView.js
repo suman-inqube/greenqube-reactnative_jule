@@ -719,15 +719,22 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
               )
             }
           />
-
-          <View style={styles.prevNextPage}>
+          <PaginationNav
+            isLoading={isLoading}
+            page={page}
+            totalPages={totalPages}
+            onPrev={() => setPage(p => Math.max(1, p - 1))}
+            onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+            t={t}
+          />
+          {/* <View style={styles.prevNextPage}>
             <TouchableOpacity onPress={() => handlePage('previous')}>
               <Text style={styles.title}>{t('prev_page')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handlePage('next')}>
               <Text style={styles.title}>{t('next_page')}</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </Root>
     </FarmerDrawerScreenWrapper1>

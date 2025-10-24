@@ -103,26 +103,6 @@ const UserCreateContextProvider = props => {
       return false;
     }
   };
-  const requestLocationPermission = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const fineLocationGranted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      
-      const coarseLocationGranted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
-      );
-
-      return fineLocationGranted === PermissionsAndroid.RESULTS.GRANTED || 
-             coarseLocationGranted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-      console.warn('Permission error:', err);
-      return false;
-    }
-  }
-  return true;
-};
   //-------- WATCH POSITION for indoor (Reusable Function) ----------//
   // const startWatchingLocation = async () => {
   //   const hasPermission = await requestPermission();
@@ -205,7 +185,7 @@ const UserCreateContextProvider = props => {
 
   // --------- WATCH POSITION (Reusable Function) ----------
   const startWatchingLocation = async () => {
-    const hasPermission = await requestLocationPermission();
+    const hasPermission = await requestPermission();
     if (!hasPermission) {
       Alert.alert('Permission Required', 'Location permission not granted.');
       return;
