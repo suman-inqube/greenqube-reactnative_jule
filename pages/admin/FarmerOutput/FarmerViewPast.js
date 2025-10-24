@@ -166,7 +166,7 @@ const FarmerViewPast = ({navigation}) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
-        height: 140,
+        height: 210,
       });
     } catch (error) {
       console.log(error);

@@ -21,15 +21,15 @@ import {
   activityListInstrumentWise,
   farmerByNameAPI,
 } from '../../../config/apiHere';
-import { useIsFocused, useRoute, useNavigation } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {useIsFocused, useRoute, useNavigation} from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import CollapsibleCard from '../../Common/CollapsibleCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors } from '../../utils/Constants';
+import {Colors} from '../../utils/Constants';
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 import PaginationNav from '../../Components/PaginationNav';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const InstrumentWiseActivityView = () => {
   const navigation = useNavigation();
@@ -58,10 +58,10 @@ const InstrumentWiseActivityView = () => {
     farmerData,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
-  const { pageNo } = dbLanTokUsr;
+  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
+  const {pageNo} = dbLanTokUsr;
   const route = useRoute();
-  const { params } = route;
+  const {params} = route;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
@@ -112,7 +112,7 @@ const InstrumentWiseActivityView = () => {
               // carbonType: carbonType,
             }),
             token,
-            { information: `${dbName},${languageId},${supervisorId}` },
+            {information: `${dbName},${languageId},${supervisorId}`},
           );
           if (response?.status == 200) {
             await setItem('activityList', response);
@@ -148,7 +148,7 @@ const InstrumentWiseActivityView = () => {
     fatchActivityListAPI(dbname, lan_id, token, user_id, page, '', '', '', '');
   }, [page]);
 
-  const renderItem = useCallback(({ item }) => {
+  const renderItem = useCallback(({item}) => {
     return (
       <TouchableOpacity
         onPress={() =>
@@ -157,10 +157,64 @@ const InstrumentWiseActivityView = () => {
         <CollapsibleCard
           width="100%"
           header={
-            <View style={{ height: 30 }}>
-              <Text style={[styles.titleHeader, { fontSize: 15 }]}>
-                {item?.pipe_name}
-              </Text>
+            <View
+              style={{
+                height: 30,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View
+                  style={{
+                    backgroundColor: '#e8f5e8',
+                    paddingHorizontal: 8,
+                    paddingVertical: 2,
+                    borderRadius: 4,
+                    marginRight: 10,
+                  }}>
+                  <Text
+                    style={[
+                      styles.titleHeader,
+                      {fontSize: 14, color: '#155724'},
+                    ]}>
+                    {item?.pipe_name}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    backgroundColor: '#ffe3cdff',
+                    paddingHorizontal: 6,
+                    paddingVertical: 2,
+                    borderRadius: 4,
+                    marginRight: 10,
+                  }}>
+                  <Text
+                    style={[
+                      styles.titleHeader,
+                      {fontSize: 14, color: '#853804ff'},
+                    ]}>
+                    {item?.pipeUser?.userName}
+                  </Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  backgroundColor: '#d1ecf1',
+                  paddingHorizontal: 8,
+                  paddingVertical: 2,
+                  borderRadius: 4,
+                }}>
+                <Text
+                  style={[
+                    styles.titleHeader,
+                    {fontSize: 14, color: '#0c5460'},
+                  ]}>
+                  {item?.pipeLand?.plot_no}
+                </Text>
+              </View>
             </View>
           }
           content={
@@ -190,7 +244,7 @@ const InstrumentWiseActivityView = () => {
                   <Text style={styles.title}>{t('act_name')}</Text>
                   <Text style={styles.title}>{t('instrument_name')}</Text>
                 </View>
-                <View style={{ marginLeft: 10 }}>
+                <View style={{marginLeft: 10}}>
                   <Text style={styles.title}>: {item?.pipeUser?.userName}</Text>
                   <Text style={styles.title}>
                     : {item?.pipeUser?.contactNumber}
@@ -292,7 +346,7 @@ const InstrumentWiseActivityView = () => {
                                                 color="green"
                                                 iconFamily="Feather"
                                               /> */}
-                  <Text style={{ color: '#155724', fontSize: 14 }}>
+                  <Text style={{color: '#155724', fontSize: 14}}>
                     {item.status_label}
                   </Text>
                 </View>
@@ -318,7 +372,7 @@ const InstrumentWiseActivityView = () => {
                                                 color="green"
                                                 iconFamily="Feather"
                                               /> */}
-                  <Text style={{ color: '#155724', fontSize: 14 }}>
+                  <Text style={{color: '#155724', fontSize: 14}}>
                     SUBMITTED
                   </Text>
                 </View>
@@ -344,7 +398,7 @@ const InstrumentWiseActivityView = () => {
                                             color="#FF5252"
                                             iconFamily="AntDesign"
                                           /> */}
-                  <Text style={{ color: '#721C24', fontSize: 14 }}>
+                  <Text style={{color: '#721C24', fontSize: 14}}>
                     CARBON REJECTED
                   </Text>
                 </View>
@@ -365,7 +419,7 @@ const InstrumentWiseActivityView = () => {
                     // borderColor: "#b8f8a9",
                     height: 38,
                   }}>
-                  <Text style={{ color: '#155724', fontSize: 14 }}>VERIFIED</Text>
+                  <Text style={{color: '#155724', fontSize: 14}}>VERIFIED</Text>
                 </View>
               )}
               {item.status_label == 'PENDING' && (
@@ -390,7 +444,7 @@ const InstrumentWiseActivityView = () => {
                                             color="#ffc107"
                                             iconFamily="MaterialCommunityIcons"
                                           /> */}
-                  <Text style={{ color: '#856404', fontSize: 14 }}>
+                  <Text style={{color: '#856404', fontSize: 14}}>
                     {item.status_label}
                   </Text>
                 </View>
@@ -416,7 +470,7 @@ const InstrumentWiseActivityView = () => {
                                             color="#FF5252"
                                             iconFamily="AntDesign"
                                           /> */}
-                  <Text style={{ color: '#721C24', fontSize: 14 }}>
+                  <Text style={{color: '#721C24', fontSize: 14}}>
                     {item.status_label}
                   </Text>
                 </View>
@@ -549,7 +603,7 @@ const InstrumentWiseActivityView = () => {
             }
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
-            style={{ padding: 10 }}
+            style={{padding: 10}}
             renderItem={renderItem}
             windowSize={5}
             removeClippedSubviews={true}
@@ -574,7 +628,7 @@ const styles = StyleSheet.create({
   wrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,
@@ -611,7 +665,7 @@ const styles = StyleSheet.create({
   OptionWrapper: {
     borderColor: '#efe9e9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.5,
     shadowRadius: 2,
     borderRadius: 7,
@@ -675,9 +729,58 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
   },
   titleHeader: {
-    color: '#256c07ff',
+    color: '#256c07',
+    fontFamily: 'Poppins-Regular',
+    // fontFamily: 'Poppins-SemiBold',
+    lineHeight: 16,
+    fontSize: 12,
+  },
+  titleHeader1: {
+    color: '#34900d',
     fontFamily: 'Poppins-SemiBold',
-    lineHeight: 25,
-    fontSize: 14,
+    lineHeight: 16,
+    fontSize: 12,
+  },
+
+  // Add new styles for the header
+  headerContainer: {
+    height: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#256c07',
+  },
+  infoBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginRight: 10,
+  },
+  pipeBadge: {
+    backgroundColor: '#e8f5e8',
+  },
+  userBadge: {
+    backgroundColor: '#fff3cd',
+  },
+  plotBadge: {
+    backgroundColor: '#d1ecf1',
+  },
+  badgeText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  pipeText: {
+    color: '#155724',
+  },
+  userText: {
+    color: '#856404',
+  },
+  plotText: {
+    color: '#0c5460',
   },
 });
