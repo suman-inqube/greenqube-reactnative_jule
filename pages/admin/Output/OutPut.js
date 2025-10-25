@@ -373,17 +373,18 @@ const OutPut = ({navigation}) => {
                       </View>
                       <View style={styles.cardContent}>
                         <View style={styles.infoRow}>
-                          <Text style={styles.infoLabel}>{t('name')}:</Text>
-                          <Text style={styles.infoValue} numberOfLines={1}>
+                          <Text style={styles.infoLabel}>
+                            {' '}
                             {item?.users?.userName.substring(0, 10)}
                             {item?.users?.userName.length > 10 ? '...' : null}
                           </Text>
+                          {/* <Text style={styles.infoValue} numberOfLines={1}>
+                            {item?.users?.userName.substring(0, 10)}
+                            {item?.users?.userName.length > 10 ? '...' : null}
+                          </Text> */}
                         </View>
                         <View style={styles.infoRow}>
                           <Text style={styles.infoLabel}>
-                            {t('ist_variety')}:
-                          </Text>
-                          <Text style={styles.infoValue}>
                             {item.io_crop_variety &&
                               item.io_crop_variety.name.substring(0, 10)}
                             {item.io_crop_variety &&
@@ -391,12 +392,23 @@ const OutPut = ({navigation}) => {
                               ? '...'
                               : null}
                           </Text>
+                          {/* <Text style={styles.infoValue}>
+                            {item.io_crop_variety &&
+                              item.io_crop_variety.name.substring(0, 10)}
+                            {item.io_crop_variety &&
+                            item.io_crop_variety.name.length > 14
+                              ? '...'
+                              : null}
+                          </Text> */}
                         </View>
                         <View style={styles.infoRow}>
-                          <Text style={styles.infoLabel}>{t('date')}:</Text>
-                          <Text style={styles.infoValue}>
+                          <Text style={styles.infoLabel}>
+                            {' '}
                             {formatDateToMMDDYYYY(item.date)}
                           </Text>
+                          {/* <Text style={styles.infoValue}>
+                            {formatDateToMMDDYYYY(item.date)}
+                          </Text> */}
                         </View>
                       </View>
                     </TouchableOpacity>

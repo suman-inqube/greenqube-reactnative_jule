@@ -76,7 +76,7 @@ const Market = () => {
           information: `${dbname},${lan_id},${user_id}`,
         },
       );
-      // console.log('ddd', response?.status);
+      console.log('ddd', response);
       if (response?.status === 200) {
         setTotalPages(Math.ceil(response?.data?.data.count / 20));
         // console.log(JSON.stringify(response?.data?.data));
@@ -124,33 +124,62 @@ const Market = () => {
     () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
     [],
   );
-  const renderListItem = ({item, index}) => {
-    const {farmer_data, plot_no} = item || {};
 
-    const cardItems = [
-      {
-        label: t('number_caps'),
-        value: farmer_data?.contactNumber || 'N/A',
-      },
-      {
-        label: 'Plot Name',
-        value: plot_no || 'N/A',
-      },
-    ];
-    return (
-      <ListCard
-        onPress={() => detailItem(item)}
-        title={farmer_data?.userName || 'Unknown Farmer'}
-        items={cardItems}
-        index={index}
-        iconName="edit-square"
-        iconSize={16}
-        iconColor="#206708ff"
-        borderColor={activeTab === 0 ? '#d10000ff' : '#206708ff'} //
-        showChevron={false}
-        showRejectedStatus={true}
-        cardStyle={styles.listCard}></ListCard>
-    );
+  const renderListItem = ({item, index}) => {
+    console.log('item', item);
+    const {farmer_data, plot_no, comment, plot_size, mouza_name} = item || {};
+
+    if (activeTab === 0) {
+      const cardItems = [
+        {
+          value: plot_no || 'N/A',
+          comment: comment || 'N/A',
+        },
+      ];
+      return (
+        <ListCard
+          onPress={() => detailItem(item)}
+          title={farmer_data?.userName || 'Unknown Farmer'}
+          items={cardItems}
+          index={index}
+          iconName="edit-square"
+          iconSize={16}
+          iconColor="#206708ff"
+          borderColor="#d10000ff"
+          showChevron={false}
+          showItemLabel={false}
+          showRejectedStatus={true}
+          cardStyle={styles.listCard}
+        />
+      );
+    } else {
+      const cardItems = [
+        {
+          label: farmer_data?.contactNumber || 'N/A',
+          value: plot_no || 'N/A',
+        },
+        // {
+        //   label: plot_size || 'N/A', // Plot size on left
+        //   value: mouza_name || 'N/A', // Mouza name on right
+        // },
+      ];
+      return (
+        <ListCard
+          onPress={() => detailItem(item)}
+          title={farmer_data?.userName || 'Unknown Farmer'}
+          items={cardItems}
+          index={index}
+          iconName="edit-square"
+          iconSize={16}
+          iconColor="#206708ff"
+          borderColor="#206708ff"
+          showChevron={false}
+          showItemLabel={true}
+          showRejectedStatus={false}
+          cardStyle={styles.listCard}
+        />
+      );
+    }
   };
   return (
     <FarmerDrawerScreenWrapper1>

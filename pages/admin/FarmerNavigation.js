@@ -57,6 +57,8 @@ import AudioPlayerView from '../Common/AudioPlayerView';
 import {Colors} from '../utils/Constants';
 import FarmerInstrumentWiseActivityView from './FarmerActivity/FarmerInstrumentWiseActivityView';
 import FarmerInstrumentWiseActivityDetails from './FarmerActivity/FarmerInstrumentWiseActivityDetails';
+import FarmerUpcomingActivity from './FarmerActivity/FarmerUpcomingActivity';
+import FarmerPendingActivity from './FarmerActivity/FarmerPendingActivity';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -110,6 +112,14 @@ const FarmerMainStack = () => (
     <Stack.Screen
       name="FarmerActivityDetail"
       component={FarmerActivityDetail}
+    />
+    <Stack.Screen
+      name="FarmerUpcomingActivity"
+      component={FarmerUpcomingActivity}
+    />
+    <Stack.Screen
+      name="FarmerPendingActivity"
+      component={FarmerPendingActivity}
     />
     <Stack.Screen name="FarmerProfile" component={FarmerProfile} />
     <Stack.Screen
