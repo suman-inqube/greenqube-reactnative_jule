@@ -35,6 +35,8 @@ const LoanRequest = lazy(() => import('./Loan/LoanRequest'));
 const Training = lazy(() => import('./Training/Training'));
 const Market = lazy(() => import('./Markect/Market'));
 const PlotStatusUpdate = lazy(() => import('./Markect/PlotStatusUpdate'));
+const UpcomingActivity = lazy(() => import('./Activity/UpcomingActivity'));
+const PendingActivity = lazy(() => import('./Activity/PendingActivity'));
 
 const TrainingList = lazy(() => import('./Training/TrainingList'));
 const UsefulInformation = lazy(() =>
@@ -164,6 +166,8 @@ function AdminStack() {
       <Stack.Screen name="PastEnquiry" component={PastEnquiries} />
       <Stack.Screen name="activityList" component={ActivityList} />
       <Stack.Screen name="activityReport" component={ActivityReport} />
+      <Stack.Screen name="UpcomingActivity" component={UpcomingActivity} />
+      <Stack.Screen name="PendingActivity" component={PendingActivity} />
       <Stack.Screen name="ActivityReportAWD" component={ActivityReportAWD} />
       <Stack.Screen name="activityDetail" component={ActivityDetail} />
       <Stack.Screen name="Profile" component={Profile} />

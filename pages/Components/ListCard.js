@@ -30,6 +30,7 @@ const ListCard = ({
   animationDelay = 100,
   showRejectedStatus = false,
   rejectionReason = '',
+  showItemLabel = true,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-50)).current; // Start from left (-50)
@@ -208,17 +209,41 @@ const ListCard = ({
                 ],
               },
             ]}>
-            <Text style={styles.label}>{item.label}:</Text>
-            <Text
-              style={[
-                styles.value,
-                item.valueStyle,
-                status && getStatusColor(status),
-              ]}
-              numberOfLines={item.numberOfLines || 1}
-              ellipsizeMode={item.ellipsizeMode || 'tail'}>
-              {item.value}
-            </Text>
+            {showItemLabel ? (
+              <>
+                {/* Label on the left */}
+                <Text
+                  style={styles.label}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {item.label}
+                </Text>
+                {/* Value on the right */}
+                <Text
+                  style={[
+                    styles.value,
+                    item.valueStyle,
+                    status && getStatusColor(status),
+                  ]}
+                  numberOfLines={1}
+                  ellipsizeMode={item.ellipsizeMode || 'tail'}>
+                  {item.value}
+                </Text>
+              </>
+            ) : (
+              // For rejected plots with comment layout (if you still want this option)
+              <>
+                <Text style={[styles.value, {flex: 1, textAlign: 'left'}]}>
+                  {item.value}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode={item.ellipsizeMode || 'tail'}
+                  style={[styles.value, {flex: 1, textAlign: 'right'}]}>
+                  {item?.comment}
+                </Text>
+              </>
+            )}
           </Animated.View>
         ))}
       </TouchableOpacity>
@@ -280,6 +305,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 5,
     paddingHorizontal: 10,
   },
@@ -287,12 +313,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.text,
     fontFamily: 'Poppins-SemiBold',
+    flex: 1, // Take available space on left
+    textAlign: 'left', // Align text to left
   },
   value: {
     fontSize: 13,
     color: Colors.text,
     fontFamily: 'Poppins-Regular',
-    textAlign: 'right',
+    flex: 1, // Take available space on right
+    textAlign: 'right', // Align text to right
   },
   // Status-based styles
   approved: {

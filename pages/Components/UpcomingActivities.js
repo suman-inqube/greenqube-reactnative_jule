@@ -11,8 +11,10 @@ import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import moment from 'moment';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useNavigation} from '@react-navigation/native';
 
-const UpcomingActivities = ({uiState, t}) => {
+const UpcomingActivities = ({uiState, t, loginUserData, dashboardType}) => {
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Upcoming');
 
   const [upcomingActivities, setUpcomingActivities] = useState([
@@ -59,13 +61,35 @@ const UpcomingActivities = ({uiState, t}) => {
     },
   ]);
 
+  const getUserRoleText = () => {
+    if (!loginUserData) return '';
+
+    const userRole = loginUserData.user_role?.role_name;
+
+    if (
+      userRole &&
+      (userRole.toLowerCase() === 'admin' ||
+        userRole.toLowerCase() === 'supervisor' ||
+        userRole.toLowerCase() === 'agent')
+    ) {
+      return 'Supervisor';
+    } else {
+      return 'Farmer';
+    }
+  };
   const handlePlusButtonPress = () => {
     if (activeTab === 'Upcoming') {
-      // Navigate to Upcoming Activity screen
-      // navigation.navigate('UpcomingActivityScreen');
+      if (dashboardType === 'Supervisor') {
+        navigation.navigate('UpcomingActivity');
+      } else {
+        navigation.navigate('FarmerUpcomingActivity');
+      }
     } else {
-      // Navigate to Pending screen
-      // navigation.navigate('PendingActivityScreen');
+      if (dashboardType === 'Supervisor') {
+        navigation.navigate('PendingActivity');
+      } else {
+        navigation.navigate('FarmerPendingActivity');
+      }
     }
   };
 
@@ -117,6 +141,7 @@ const UpcomingActivities = ({uiState, t}) => {
                 ellipsizeMode="tail">
                 {uiState.userName}
               </Text>
+              <Text style={styles.userRole}>{dashboardType}</Text>
               {/* {companyName && (
                       <Text style={styles.companyName}>{t(companyName)}</Text>
                     )} */}
@@ -137,6 +162,13 @@ const UpcomingActivities = ({uiState, t}) => {
                   ]}>
                   Upcoming
                 </Text>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'Upcoming' && styles.activeTabText,
+                  ]}>
+                  Activity
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -150,6 +182,13 @@ const UpcomingActivities = ({uiState, t}) => {
                     activeTab === 'Pending' && styles.activeTabText,
                   ]}>
                   Pending
+                </Text>
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === 'Pending' && styles.activeTabText,
+                  ]}>
+                  Activity
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -274,7 +313,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activityTitle: {
-    fontSize: 13,
+    fontSize: 12.5,
     color: '#e3fae7',
     fontFamily: 'Poppins-SemiBold',
     marginBottom: 2,
@@ -298,8 +337,8 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    marginBottom: 10,
-    borderBottomWidth: 1,
+    marginBottom: 5,
+    borderBottomWidth: 0.5,
     borderBottomColor: 'white',
   },
   tab: {
@@ -312,7 +351,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#4CAF50',
   },
   tabText: {
-    fontSize: 13.5,
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: 'Poppins-SemiBold',
   },
@@ -345,20 +384,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  activityTitle: {
-    fontSize: 13,
-    color: '#e3fae7',
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: 2,
-  },
+
   activityMeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   activityDate: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#e3f3fa',
     fontFamily: 'Poppins-Regular',
+  },
+  userRole: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  activityText: {
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
 });
 export default memo(UpcomingActivities);

@@ -61,6 +61,9 @@ const ViewModalPast = props => {
                 <View style={styles.itemContainer}>
                   {props.outputSingle.inout_plot_rel == null ? (
                     <View style={styles.detailRow}>
+                      <View style={styles.iconContainer}>
+                        <MaterialIcons name="badge" size={20} color="#165A2B" />
+                      </View>
                       <View style={styles.textContainer}>
                         <Text style={styles.valueText}>{t('name')} :</Text>
                         <Text style={styles.labelText}>

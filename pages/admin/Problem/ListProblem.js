@@ -67,11 +67,11 @@ const ListProblem = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const handleProblem = async (
     pageNo,
-    search_uid='',
-    from_date='',
-    to_date='',
-    farmer_mobile='',
-    search_key_type='',
+    search_uid = '',
+    from_date = '',
+    to_date = '',
+    farmer_mobile = '',
+    search_key_type = '',
   ) => {
     try {
       setIsLoading(true);
@@ -245,18 +245,21 @@ const ListProblem = ({navigation}) => {
                         </View>
                         <View style={styles.cardContent}>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('name')}:</Text>
-                            <Text style={styles.infoValue} numberOfLines={1}>
+                            <Text style={styles.infoLabel}>
+                              {' '}
                               {item.agri_user?.userName || 'N/A'}
                             </Text>
+                            {/* <Text style={styles.infoValue} numberOfLines={1}>
+                              {item.agri_user?.userName || 'N/A'}
+                            </Text> */}
                           </View>
                           <View style={styles.infoRow}>
                             <Text style={styles.infoLabel}>
-                              {t('far_list_number')}:
-                            </Text>
-                            <Text style={styles.infoValue}>
                               {item.agri_user?.contactNumber || 'N/A'}
                             </Text>
+                            {/* <Text style={styles.infoValue}>
+                              {item.agri_user?.contactNumber || 'N/A'}
+                            </Text> */}
                           </View>
                         </View>
                       </TouchableOpacity>

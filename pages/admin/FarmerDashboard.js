@@ -314,7 +314,11 @@ const FarmerDashboard = ({navigation}) => {
   const headerContent = useMemo(
     () => (
       <>
-        <UpcomingActivities t={t} uiState={uiState} />
+        <UpcomingActivities
+          t={t}
+          uiState={uiState}
+          loginUserData={loginUser_data}
+        />
         <TrackingInfromation
           latestActivities={dataState.latestActivities}
           t={t}
