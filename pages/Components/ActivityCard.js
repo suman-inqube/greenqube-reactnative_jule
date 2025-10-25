@@ -1,12 +1,12 @@
-import React, {useState, useEffect, useRef, memo, useCallback} from 'react';
-import {View, Text, TouchableOpacity, Animated, StyleSheet} from 'react-native';
+import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
+import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import {
   getStatusColor,
   getProduceEmoji,
   formatDate,
   effective_dates,
 } from '../utils/helpers';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 
 const ActivityCard = ({
   activity,
@@ -85,7 +85,7 @@ const ActivityCard = ({
             <View
               style={[
                 styles.produceIcon,
-                {backgroundColor: statusColor + '15'},
+                { backgroundColor: statusColor + '15' },
               ]}>
               <Text style={styles.emoji}>
                 {getProduceEmoji(activity?.cropName?.name)}
@@ -95,7 +95,7 @@ const ActivityCard = ({
               <Text style={styles.produceName}>{activity?.cropName?.name}</Text>
               <Text style={styles.plotSite}>
                 {/* {activity?.land_info?.plot_no} */}
-                 {activity?.agri_user?.userName}
+                {activity?.agri_user?.userName}
               </Text>
             </View>
           </View>
@@ -112,7 +112,7 @@ const ActivityCard = ({
       {expanded && (
         <Animated.View
           style={{
-            height: animatedHeight,
+            height: animatedHeight - 100,
             opacity: animatedOpacity,
             overflow: 'hidden',
             paddingHorizontal: 16,
@@ -120,7 +120,7 @@ const ActivityCard = ({
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => navigation.navigate(path, activity)}
-            style={{paddingVertical: 10}}>
+            style={{ paddingVertical: 10 }}>
             <View style={styles.farmerSection}>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>{t('select_pond')}:</Text>
@@ -174,28 +174,27 @@ const ActivityCard = ({
                 </Text>
               </View> */}
             </View>
-
-            <View style={styles.deviationRow}>
-              <Text style={styles.label}>{t('deviation')}:</Text>
-              <Text
-                style={[
-                  styles.deviationValue,
-                  {color: activity?.deviation > 0 ? '#EF4444' : '#10B981'},
-                ]}>
-                {activity?.deviation}
-                {t('days')}
-              </Text>
-            </View>
-
-            <View style={styles.activityTypeRow}>
-              <Text style={styles.label}>{t('activity_type')}:</Text>
-              <Text style={styles.value}>
-                {activity?.typeActivity?.categoryName || 'Not specified'}
-              </Text>
-            </View>
           </TouchableOpacity>
         </Animated.View>
       )}
+      <View style={[styles.deviationRow, { paddingHorizontal: 16, paddingBottom: 12 }]}>
+        <Text style={styles.label}>{t('deviation')}:</Text>
+        <Text
+          style={[
+            styles.deviationValue,
+            { color: activity?.deviation > 0 ? '#EF4444' : '#10B981' },
+          ]}>
+          {activity?.deviation}
+          {t('days')}
+        </Text>
+      </View>
+
+      <View style={[styles.activityTypeRow, { paddingHorizontal: 16, paddingBottom: 16 }]}>
+        <Text style={styles.label}>{t('activity_type')}:</Text>
+        <Text style={styles.value}>
+          {activity?.typeActivity?.categoryName || 'Not specified'}
+        </Text>
+      </View>
     </Animated.View>
   );
 };
@@ -211,7 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -222,8 +221,8 @@ const styles = StyleSheet.create({
     // borderTopColor: Colors.border,
     // borderBottomColor: Colors.border,
     // borderLeftWidth: 4,
-    borderWidth:1,
-    borderColor:Colors.border,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   cardContent: {
     padding: 20,
@@ -383,7 +382,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,

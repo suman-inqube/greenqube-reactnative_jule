@@ -85,7 +85,7 @@ const FarmerActivityList = ({navigation}) => {
       CARBON_TYPE: CARBON_TYPE,
       carbonType: carbonType,
       navigationBarHeight: navigationBarHeight,
-      height: 150,
+      height: 210,
     });
   }, [fromDate, toDate, filterItem]);
   const handleFilterResult = useCallback(

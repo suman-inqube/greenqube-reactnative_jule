@@ -35,7 +35,6 @@ import {onBackPress} from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
 import i18next from 'i18next';
 import {getNavigationBarHeight} from 'react-native-android-navbar-height';
-
 const ImagePlaceHolderCircle = lazy(() =>
   import('../Common/ImagePlaceHolderCircle'),
 );
@@ -52,10 +51,8 @@ const Filter = lazy(() => import('../Common/Filter'));
 const DatePicker = lazy(() => import('react-native-date-picker'));
 const config = lazy(() => import('../../config'));
 const axios = lazy(() => import('axios'));
-
 const userCreateContext = createContext();
 const userListContext = createContext('adduser');
-
 const UserCreateContextProvider = props => {
   const {netConnection} = DeviceInfo();
   const {t} = useTranslation();
@@ -72,13 +69,7 @@ const UserCreateContextProvider = props => {
     accuracy: '',
     timestamp: '',
   });
-  
   const watchIdRef = useRef(null);
-  const fallbackTimeoutRef = useRef(null);
-  const locationRetryCountRef = useRef(0);
-  const hasValidLocationRef = useRef(false);
-  const MAX_RETRIES = 3;
-
   const requestPermission = async () => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
@@ -112,372 +103,186 @@ const UserCreateContextProvider = props => {
       return false;
     }
   };
+  //-------- WATCH POSITION for indoor (Reusable Function) ----------//
+  // const startWatchingLocation = async () => {
+  //   const hasPermission = await requestPermission();
+  //   if (!hasPermission) {
+  //     Alert.alert('Permission Required', 'Location permission not granted.');
+  //     return;
+  //   }
 
-  // 🔥 ENHANCED: Comprehensive coordinate validation
-  const isValidCoordinate = (lat, lng, accuracy) => {
-    // Check for null/undefined
-    if (lat == null || lng == null || accuracy == null) {
-      return false;
-    }
-    
-    // Check type and NaN
-    if (typeof lat !== 'number' || typeof lng !== 'number' || typeof accuracy !== 'number') {
-      return false;
-    }
-    
-    if (isNaN(lat) || isNaN(lng) || isNaN(accuracy)) {
-      return false;
-    }
-    
-    // Check valid ranges
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return false;
-    }
-    
-    // Check for zero coordinates (common error case)
-    if (lat === 0 && lng === 0) {
-      return false;
-    }
-    
-    return true;
-  };
+  //   // 🚫 STRICT - REQUIRES GPS TO BE ENABLED
+  //   const gpsEnabled = await ensureGpsEnabled();
+  //   if (!gpsEnabled) {
+  //     Alert.alert('Enable GPS', 'Please enable GPS to use location services.', [
+  //       {
+  //         text: 'Enable',
+  //         onPress: async () => {
+  //           try {
+  //             await promptForEnableLocationIfNeeded();
+  //           } catch (err) {
+  //             console.warn('GPS enable request failed', err);
+  //           }
+  //         },
+  //       },
+  //       {text: 'Cancel', style: 'cancel'},
+  //     ]);
+  //     return;
+  //   }
 
-  // 🔥 ENHANCED: Process location with null safety
-  const processLocationUpdate = (pos) => {
-    console.log('📍 Raw position data:', pos);
-    
-    // Comprehensive null and undefined checks
-    if (!pos) {
-      console.warn('🚫 Position object is null or undefined');
-      return { isValid: false, error: 'No position data', data: null };
-    }
-    
-    if (!pos.coords) {
-      console.warn('🚫 Position coordinates are null or undefined');
-      return { isValid: false, error: 'No coordinates data', data: null };
-    }
-    
-    // Safely destructure with fallbacks
-    const { 
-      latitude = null, 
-      longitude = null, 
-      accuracy = null,
-      altitude = null,
-      heading = null,
-      speed = null
-    } = pos.coords || {};
-    
-    // Enhanced validation
-    if (!isValidCoordinate(latitude, longitude, accuracy)) {
-      console.warn('🚫 Invalid coordinates:', { latitude, longitude, accuracy });
-      return { isValid: false, error: 'Invalid coordinates', data: null };
-    }
-    
-    // Success case
-    return {
-      isValid: true,
-      error: null,
-      data: {
-        latitude,
-        longitude,
-        accuracy: accuracy || 0,
-        altitude: altitude || 0,
-        heading: heading || 0,
-        speed: speed || 0,
-        timestamp: pos.timestamp || Date.now(),
-      }
-    };
-  };
+  //   if (watchIdRef.current) {
+  //     Geolocation.clearWatch(watchIdRef.current);
+  //   }
 
-  const getOptimizedLocationConfig = () => {
-    const baseConfig = {
-      enableHighAccuracy: true,
-      distanceFilter: 5,
-      maximumAge: 0,
-    };
+  //   watchIdRef.current = Geolocation.watchPosition(
+  //     pos => {
+  //       console.log('Location received:', pos);
+  //       if (!pos || !pos.coords) {
+  //         // 🚫 AGGRESSIVE - SHOWS ALERTS FOR EVERY ERROR
+  //         Alert.alert('Unable to fetch location. Please try again.');
+  //         return;
+  //       }
 
-    if (Platform.OS === 'android') {
-      return {
-        ...baseConfig,
-        interval: 5000,
-        fastestInterval: 2000,
-        timeout: 15000,
-      };
+  //       setCoords(prev => {
+  //         if (
+  //           prev.latitude === pos.coords.latitude &&
+  //           prev.longitude === pos.coords.longitude &&
+  //           prev.accuracy === pos.coords.accuracy
+  //         ) {
+  //           return prev;
+  //         }
+  //         return {
+  //           latitude: pos.coords.latitude,
+  //           longitude: pos.coords.longitude,
+  //           accuracy: pos.coords.accuracy,
+  //           timestamp: pos.timestamp,
+  //         };
+  //       });
+  //     },
+  //     err => {
+  //       console.error('Location error:', err);
+  //       // 🚫 AGGRESSIVE - SHOWS ALERTS FOR EVERY ERROR
+  //       if (err.code === 1) {
+  //         Alert.alert('Permission Denied', 'Location permission denied.');
+  //       } else if (err.code === 2) {
+  //         Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
+  //       } else if (err.code === 3) {
+  //         Alert.alert('Timeout', 'Location request timed out.');
+  //       } else {
+  //         Alert.alert('Unable to get location. Please try again.');
+  //       }
+  //     },
+  //     {
+  //       enableHighAccuracy: false, // Still better for indoor
+  //       distanceFilter: 10,
+  //       interval: 10000,
+  //       fastestInterval: 5000,
+  //       timeout: 15000,
+  //       maximumAge: 30000,
+  //     },
+  //   );
+  // };
+
+  // --------- WATCH POSITION (Reusable Function) ----------
+  // Geolocation.setRNConfiguration({
+  //   skipPermissionRequests: false,
+  //   authorizationLevel: 'whenInUse',
+  //   locationProvider: 'auto', // or 'playServices' for Android
+  // });
+  const startWatchingLocation = async () => {
+    const hasPermission = await requestPermission();
+    if (!hasPermission) {
+      Alert.alert('Permission Required', 'Location permission not granted.');
+      return;
+    }
+    const gpsEnabled = await ensureGpsEnabled();
+    if (!gpsEnabled) {
+      Alert.alert('Enable GPS', 'Please enable GPS to use location services.', [
+        {
+          text: 'Enable',
+          onPress: async () => {
+            try {
+              await promptForEnableLocationIfNeeded();
+            } catch (err) {
+              console.warn('GPS enable request failed', err);
+            }
+          },
+        },
+        {text: 'Cancel', style: 'cancel'},
+      ]);
+      return;
     }
 
-    return {
-      ...baseConfig,
-      interval: 5000,
-      timeout: 15000,
-    };
-  };
-
-  // 🔥 ENHANCED: Watch Position with robust null handling
-  const startWatchingLocation = async (isRetry = false) => {
-    try {
-      console.log(`🚀 Starting location watch... Retry: ${isRetry}, Count: ${locationRetryCountRef.current}`);
-      
-      if (isRetry) {
-        locationRetryCountRef.current += 1;
-        if (locationRetryCountRef.current >= MAX_RETRIES) {
-          Alert.alert(
-            'Location Service', 
-            'Unable to get stable location. Please:\n• Check GPS signal\n• Move to open area\n• Restart location service',
-            [
-              {
-                text: 'Try Again',
-                onPress: () => {
-                  locationRetryCountRef.current = 0;
-                  startWatchingLocation();
-                }
-              },
-              { text: 'Cancel' }
-            ]
-          );
+    // Clear previous watch before starting a new one
+    if (watchIdRef.current) {
+      Geolocation.clearWatch(watchIdRef.current);
+    }
+    watchIdRef.current = Geolocation.watchPosition(
+      pos => {
+        console.log('pos i', pos);
+        if (!pos || !pos.coords) {
+          Alert.alert('Unable to fetch location. Please try again.');
           return;
         }
-        
-        // Add progressive delay between retries
-        await new Promise(resolve => setTimeout(resolve, locationRetryCountRef.current * 2000));
-      } else {
-        locationRetryCountRef.current = 0;
-        hasValidLocationRef.current = false;
-      }
 
-      const hasPermission = await requestPermission();
-      if (!hasPermission) {
-        Alert.alert('Permission Required', 'Location permission not granted.');
-        return;
-      }
-
-      const gpsEnabled = await ensureGpsEnabled();
-      if (!gpsEnabled) {
-        Alert.alert('Enable GPS', 'Please enable GPS to use location services.', [
-          {
-            text: 'Enable',
-            onPress: async () => {
-              try {
-                await promptForEnableLocationIfNeeded();
-                setTimeout(() => startWatchingLocation(true), 1000);
-              } catch (err) {
-                console.warn('GPS enable request failed', err);
-              }
-            },
-          },
-          {text: 'Cancel', style: 'cancel'},
-        ]);
-        return;
-      }
-
-      // Clear previous watch
-      if (watchIdRef.current) {
-        Geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
-      }
-
-      // Clear existing timeouts
-      if (fallbackTimeoutRef.current) {
-        clearTimeout(fallbackTimeoutRef.current);
-        fallbackTimeoutRef.current = null;
-      }
-
-      console.log('🎯 Setting up enhanced location watcher...');
-      
-      // 🔥 ENHANCED: WatchPosition with comprehensive error handling
-      watchIdRef.current = Geolocation.watchPosition(
-        // Success callback with null-safe processing
-        (pos) => {
-          console.log('📍 Location update received');
-          
-          const result = processLocationUpdate(pos);
-          
-          if (!result.isValid) {
-            console.log(`❌ Invalid location: ${result.error}`);
-            
-            // Only retry if we haven't gotten any valid location yet
-            if (!hasValidLocationRef.current && !isRetry && locationRetryCountRef.current < MAX_RETRIES) {
-              console.log('🔄 Auto-retrying due to invalid location...');
-              startWatchingLocation(true);
-            }
-            return;
+        setCoords(prev => {
+          if (
+            prev.latitude === pos.coords.latitude &&
+            prev.longitude === pos.coords.longitude &&
+            prev.accuracy === pos.coords.accuracy
+          ) {
+            return prev; // No change
           }
+          return {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            timestamp: pos.timestamp,
+          };
+        });
+      },
+      err => {
+        console.error('Location error:', err);
+        if (err.code === 1) {
+          Alert.alert('Permission Denied', 'Location permission denied.');
+        } else if (err.code === 2) {
+          Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
+        } else if (err.code === 3) {
+          Alert.alert('Timeout', 'Location request timed out.');
+        } else {
+          Alert.alert('Unable to get location. Please try again.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 5,
+        interval: 5000,
+        fastestInterval: 2000,
+        timeout: 20000,
+        maximumAge: 0,
+      },
+    );
 
-          // ✅ Valid location received
-          console.log('✅ Valid location coordinates:', {
-            lat: result.data.latitude,
-            lng: result.data.longitude,
-            accuracy: result.data.accuracy
-          });
-          
-          hasValidLocationRef.current = true;
-          locationRetryCountRef.current = 0;
-
-          // Clear fallback timeout
-          if (fallbackTimeoutRef.current) {
-            clearTimeout(fallbackTimeoutRef.current);
-            fallbackTimeoutRef.current = null;
-          }
-
-          // Update state only if coordinates changed
-          setCoords(prev => {
-            if (
-              prev.latitude === result.data.latitude &&
-              prev.longitude === result.data.longitude &&
-              prev.accuracy === result.data.accuracy
-            ) {
-              return prev;
-            }
-            
-            return result.data;
-          });
-        },
-        
-        // Error callback
-        (err) => {
-          console.error('🚨 Location error:', err);
-          
-          // Handle different error types
-          switch (err.code) {
-            case 1: // PERMISSION_DENIED
-              console.error('Location permission denied');
-              Alert.alert(
-                'Location Permission',
-                'Please enable location permissions in app settings.',
-                [
-                  { text: 'OK' },
-                  { text: 'Cancel', style: 'cancel' }
-                ]
-              );
-              break;
-              
-            case 2: // POSITION_UNAVAILABLE
-              console.error('Position unavailable');
-              if (locationRetryCountRef.current < MAX_RETRIES) {
-                console.log('🔄 Retrying for position unavailable...');
-                startWatchingLocation(true);
-              }
-              break;
-              
-            case 3: // TIMEOUT
-              console.error('Location timeout');
-              if (locationRetryCountRef.current < MAX_RETRIES) {
-                console.log('🔄 Retrying after timeout...');
-                startWatchingLocation(true);
-              }
-              break;
-              
-            default:
-              console.error('Unknown location error:', err);
-              if (locationRetryCountRef.current < MAX_RETRIES) {
-                startWatchingLocation(true);
-              }
-          }
-        },
-        
-        getOptimizedLocationConfig()
-      );
-
-      // Enhanced fallback for initial location acquisition
-      if (!hasValidLocationRef.current) {
-        fallbackTimeoutRef.current = setTimeout(() => {
-          if (!hasValidLocationRef.current) {
-            console.warn('⏰ No valid location received within timeout period');
-            Alert.alert(
-              'GPS Signal Required',
-              'No GPS signal detected. Please ensure:\n• Location is enabled\n• You are in open area\n• High accuracy mode is on',
-              [
-                {
-                  text: 'Retry',
-                  onPress: () => {
-                    stopWatchingLocation();
-                    startWatchingLocation(true);
-                  }
-                },
-                { 
-                  text: 'Continue Anyway',
-                  onPress: () => {
-                    // Optionally set default coordinates or keep trying in background
-                    console.log('User chose to continue without location');
-                  }
-                }
-              ]
-            );
-          }
-        }, 20000);
-      }
-
-    } catch (error) {
-      console.error('❌ Critical error in startWatchingLocation:', error);
-    }
+    // Fallback if no location update within 15 sec
+    // setTimeout(() => {
+    //   if (!coords.latitude || !coords.longitude) {
+    //     Alert.alert('No GPS response. Please move to open sky or enable GPS.');
+    //   }
+    // }, 15000);
   };
 
   const stopWatchingLocation = () => {
-    console.log('🛑 Stopping location watch...');
-    
     if (watchIdRef.current) {
       Geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
-    }
-    
-    if (fallbackTimeoutRef.current) {
-      clearTimeout(fallbackTimeoutRef.current);
-      fallbackTimeoutRef.current = null;
-    }
-    
-    locationRetryCountRef.current = 0;
-  };
-
-  // Manual location refresh
-  const refreshLocation = () => {
-    console.log('🔃 Manual location refresh requested');
-    stopWatchingLocation();
-    startWatchingLocation();
-  };
-
-  // Get location status
-  const getLocationStatus = () => {
-    if (!coords.latitude || !coords.longitude) {
-      return {
-        status: 'no_location',
-        message: 'No location data available',
-        hasValidLocation: false
-      };
-    }
-    
-    if (coords.accuracy > 50) {
-      return {
-        status: 'poor_accuracy',
-        message: `Location accuracy: ${coords.accuracy?.toFixed(1)}m`,
-        hasValidLocation: true
-      };
-    }
-    
-    return {
-      status: 'good',
-      message: `Location accuracy: ${coords.accuracy?.toFixed(1)}m`,
-      hasValidLocation: true
-    };
-  };
-
-  // Initialize location
-  const initializeLocation = async () => {
-    try {
-      await startWatchingLocation();
-    } catch (error) {
-      console.error('Location initialization failed:', error);
     }
   };
 
   // ---------- INIT: Start Watching Once ----------
   useEffect(() => {
-    initializeLocation();
-    
-    return () => {
-      stopWatchingLocation();
-    };
+    startWatchingLocation();
+    return () => stopWatchingLocation();
   }, []);
-
-  // ... REST OF YOUR EXISTING CODE (AllFarmerList, etc. remains the same)
 
   // ---------- API: Get Farmers ----------
   const AllFarmerList = async () => {
@@ -600,7 +405,7 @@ const UserCreateContextProvider = props => {
         setPlotAll(PlotArray);
       }
     } catch (error) {
-      console.error('Error in AllFarmerList:', error);
+      console.error(error);
     }
   };
 
@@ -630,10 +435,8 @@ const UserCreateContextProvider = props => {
       isOnline: netConnection,
       coords,
       setCoords,
-      startWatchingLocation: initializeLocation,
+      startWatchingLocation,
       stopWatchingLocation,
-      refreshLocation,
-      getLocationStatus,
       t,
       AlertMesg,
       onBackPress,

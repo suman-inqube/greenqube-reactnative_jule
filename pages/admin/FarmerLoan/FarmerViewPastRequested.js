@@ -92,7 +92,6 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
   };
 
   const filterOptionShow = async () => {
-    Alert.alert('done');
     try {
       const {openFilterSheet} = await import('../../Components/FilterSheet');
       openFilterSheet({
@@ -113,7 +112,7 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
         carbonFlag: false,
         CARBON_TYPE: [],
         navigationBarHeight: navigationBarHeight,
-        height: 140,
+        height: 210,
       });
     } catch (error) {
       console.log(error);

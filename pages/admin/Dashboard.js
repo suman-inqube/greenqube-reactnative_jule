@@ -21,28 +21,28 @@ import {
   BackHandler,
   RefreshControl,
   Linking,
-  InteractionManager
+  InteractionManager,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { userCreateContext } from '../Context/usersCreateContext';
-import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
+import {userCreateContext} from '../Context/usersCreateContext';
+import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
 import CarouselSlider from '../Components/CarouselSlider';
 import TrackingInfromation from '../Components/TrackingInfromation';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
-import { Colors } from '../utils/Constants';
-import { axiosGet } from '../utils/api';
-import { ROUTES } from '../utils/Routes';
+import {Colors} from '../utils/Constants';
+import {axiosGet} from '../utils/api';
+import {ROUTES} from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
-import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
+import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
-import { getDashboardItems } from '../utils/dashboardItems';
-import { Fenced_Rejected_Plot_List } from '../../config/apiHere';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import {getDashboardItems} from '../utils/dashboardItems';
+import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 
 // const HEADER_HEIGHT = 60;
-const Dashboard = ({ navigation }) => {
+const Dashboard = ({navigation}) => {
   const isFocused = useIsFocused();
   useDoubleBackToExit();
   const {
@@ -54,7 +54,10 @@ const Dashboard = ({ navigation }) => {
     isOnline,
     Toast,
     AlertMesg,
-    coords, AllFarmerList, loginUser_data, startWatchingLocation,
+    coords,
+    AllFarmerList,
+    loginUser_data,
+    startWatchingLocation,
     stopWatchingLocation,
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
@@ -140,7 +143,7 @@ const Dashboard = ({ navigation }) => {
           PERMISSIONS_TYPE.fineLocation,
           PERMISSIONS_TYPE.notifications,
         ]),
-        AllFarmerList()
+        AllFarmerList(),
       ]);
 
       // keep all computations in local vars first
@@ -153,7 +156,7 @@ const Dashboard = ({ navigation }) => {
       let defaultLand = false;
 
       const login = loginUser_data || {};
-      const { dbname, lan_id, token, agri_user_addresses, user_id } = login;
+      const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
 
       if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
         const [
@@ -162,8 +165,12 @@ const Dashboard = ({ navigation }) => {
           FARMER_USEFULL_INFO_LIST,
           PLOT_STATUS,
         ] = await Promise.all([
-          axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, { information: `${dbname},${lan_id}` }),
-          axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, { information: `${dbname},${lan_id}` }),
+          axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, {
+            information: `${dbname},${lan_id}`,
+          }),
+          axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, {
+            information: `${dbname},${lan_id}`,
+          }),
           axiosGet(
             ROUTES.GET.USEFULL_INFO_LIST({
               userId: user_id,
@@ -175,7 +182,7 @@ const Dashboard = ({ navigation }) => {
               subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
             }),
             '',
-            { information: `${dbname},${lan_id}` },
+            {information: `${dbname},${lan_id}`},
           ),
 
           axiosGet(
@@ -186,7 +193,7 @@ const Dashboard = ({ navigation }) => {
               searchBy: '',
             }),
             token,
-            { information: `${dbname},${lan_id},${user_id}` },
+            {information: `${dbname},${lan_id},${user_id}`},
           ),
           // axiosGet(
           //   ROUTES.GET.LIST_USER_ACTIVITY({
@@ -226,7 +233,6 @@ const Dashboard = ({ navigation }) => {
         if (PLOT_STATUS?.status === 200) {
           plotStatus = PLOT_STATUS.data?.data?.rows || [];
         }
-
       }
 
       // single batched state updates
@@ -268,36 +274,38 @@ const Dashboard = ({ navigation }) => {
     };
   }, []);
   useEffect(() => {
-    const { agri_user_addresses, dbname, lan_id, token, user_id } = loginUser_data || {}
+    console.log('1. uiState:', uiState);
+    console.log('2. loginUser_data:', loginUser_data);
+    const {agri_user_addresses, dbname, lan_id, token, user_id} =
+      loginUser_data || {};
     let plotStatus = [];
     var usefulInfoList = [];
     const USEFULL_Call = async () => {
-      const [FARMER_USEFULL_INFO_LIST,
-        PLOT_STATUS,] = await Promise.all([
-          axiosGet(
-            ROUTES.GET.USEFULL_INFO_LIST({
-              userId: user_id,
-              userType: 'supervisor',
-              post: 'general_info',
-              titleSearch: '',
-              state_id: agri_user_addresses[0]?.agri_state.fid,
-              district_id: agri_user_addresses[0]?.agri_district.fid,
-              subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
-            }),
-            '',
-            { information: `${dbname},${lan_id}` },
-          ),
-          axiosGet(
-            ROUTES.GET.Fenced_Rejected_Plot_List({
-              page: 1,
-              status_level: 'REJECTED',
-              geo_type: '',
-              searchBy: '',
-            }),
-            token,
-            { information: `${dbname},${lan_id},${user_id}` },
-          ),
-        ])
+      const [FARMER_USEFULL_INFO_LIST, PLOT_STATUS] = await Promise.all([
+        axiosGet(
+          ROUTES.GET.USEFULL_INFO_LIST({
+            userId: user_id,
+            userType: 'supervisor',
+            post: 'general_info',
+            titleSearch: '',
+            state_id: agri_user_addresses[0]?.agri_state.fid,
+            district_id: agri_user_addresses[0]?.agri_district.fid,
+            subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
+          }),
+          '',
+          {information: `${dbname},${lan_id}`},
+        ),
+        axiosGet(
+          ROUTES.GET.Fenced_Rejected_Plot_List({
+            page: 1,
+            status_level: 'REJECTED',
+            geo_type: '',
+            searchBy: '',
+          }),
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
+        ),
+      ]);
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
       }
@@ -308,18 +316,18 @@ const Dashboard = ({ navigation }) => {
         plotStatus,
         usefulInfoList,
       });
-    }
+    };
     USEFULL_Call();
-  }, [isFocused])
+  }, [isFocused]);
   const exit = useCallback(() => {
     Alert.alert(
       `${t('app_name')}`,
       `${t('close_app')}`,
       [
-        { text: `${t('cancle')}`, onPress: () => { }, style: 'cancel' },
-        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
+        {text: `${t('cancle')}`, onPress: () => {}, style: 'cancel'},
+        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
     return true;
   }, [t]);
@@ -373,7 +381,7 @@ const Dashboard = ({ navigation }) => {
               onPress={CompanyWebsiteOpen}
               style={styles.bottomContainer}>
               <ImageForm
-                source={{ uri: uiState.bottomBanner }}
+                source={{uri: uiState.bottomBanner}}
                 resizeMode="cover"
                 height={220}
                 width={'100%'}
@@ -431,7 +439,7 @@ const Dashboard = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.header,
-                { transform: [{ translateY: headerTranslateY }] },
+                {transform: [{translateY: headerTranslateY}]},
               ]}>
               {renderCustomHeader}
             </Animated.View>
@@ -439,10 +447,10 @@ const Dashboard = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.filterBar,
-                { transform: [{ translateY: filterTranslateY }] },
+                {transform: [{translateY: filterTranslateY}]},
               ]}>
               <Animated.View
-                style={[styles.animatedHeaderImage, { height: imageHeight }]}>
+                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
                 <ImageBackground
                   source={{
                     uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
@@ -450,7 +458,7 @@ const Dashboard = ({ navigation }) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{ opacity: 0.6 }}>
+                  imageStyle={{opacity: 0.6}}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -478,7 +486,7 @@ const Dashboard = ({ navigation }) => {
               </Animated.View>
             </Animated.View>
 
-            <View style={{ flex: 1, overflow: 'hidden' }}>
+            <View style={{flex: 1, overflow: 'hidden'}}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -519,7 +527,7 @@ const Dashboard = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background_light },
+  container: {flex: 1, backgroundColor: Colors.background_light},
   header: {
     // height: 60 - 10,
     position: 'absolute',
@@ -532,7 +540,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     zIndex: 99999,
@@ -552,8 +560,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#003c04',
     zIndex: 9999,
   },
-  imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
-  overlay: { ...StyleSheet.absoluteFillObject },
+  imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
+  overlay: {...StyleSheet.absoluteFillObject},
   bottomContent: {
     paddingBottom: 10,
     paddingTop: 15,
