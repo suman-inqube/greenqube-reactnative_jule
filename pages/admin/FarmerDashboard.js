@@ -171,6 +171,15 @@ const FarmerDashboard = ({navigation}) => {
   };
   const onPageLoad = async () => {
     setIsLoading(true);
+    console.log(
+      'Api----',
+      ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+        supervisor_id: user_id,
+        type: 'carbon_activity',
+      }),
+      token,
+      {information: `${dbname},${lan_id},${user_id}`},
+    );
     try {
       const [
         userNameData,
@@ -199,7 +208,11 @@ const FarmerDashboard = ({navigation}) => {
 
       const {dbname, lan_id, token, agri_user_addresses, user_id} =
         loginUser_data || {};
-      const [USER_ACTIVITY, FARMER_USEFULL_INFO_LIST] = await Promise.all([
+      const [
+        USER_ACTIVITY,
+        FARMER_USEFULL_INFO_LIST,
+        ALL_ACTIVITY_SCHEDULE_RES,
+      ] = await Promise.all([
         axiosGet(
           ROUTES.GET.USER_ACTIVITY({
             pageNO: 1,
@@ -225,9 +238,14 @@ const FarmerDashboard = ({navigation}) => {
           '',
           {information: `${dbname},${lan_id}`},
         ),
-        console.log(
-          'dashboard USER_ACTIVITY',
-          ROUTES.GET.FARMER_USEFULL_INFO_LIST,
+
+        axiosGet(
+          ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+            supervisor_id: user_id,
+            type: 'carbon_activity',
+          }),
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
         ),
       ]);
       const logoImgToSet = logoImage || logoImageData || null;

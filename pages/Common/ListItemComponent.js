@@ -44,11 +44,16 @@ const ListItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
       activeOpacity={0.7}>
       <View style={styles.listImageContainer}>
         {imageUri ? (
-          <Image source={{uri: imageUri}} style={styles.listImage} />
+          <Image
+            source={{uri: imageUri}}
+            style={styles.listImage}
+            resizeMode="contain"
+          />
         ) : (
           <Image
             source={require('./images/greenqube_logo.png')}
             style={styles.listImage}
+            resizeMode="contain"
           />
         )}
       </View>

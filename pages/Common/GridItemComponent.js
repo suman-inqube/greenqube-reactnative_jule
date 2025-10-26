@@ -43,11 +43,16 @@ const GridItemComponent = ({item, onPress, getAnimationValue, noticeList}) => {
       activeOpacity={0.7}>
       <View style={styles.gridImageContainer}>
         {imageUri ? (
-          <ImageForm source={{uri: imageUri}} style={styles.gridImage} />
+          <ImageForm
+            source={{uri: imageUri}}
+            style={styles.gridImage}
+            resizeMode="contain"
+          />
         ) : (
           <ImageForm
             source={require('./images/greenqube_logo.png')}
             style={styles.gridImage}
+            resizeMode="contain"
           />
         )}
       </View>
@@ -88,11 +93,11 @@ const styles = StyleSheet.create({
   gridImage: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#ffffffff',
   },
   gridContent: {
     padding: 8,
-    // backgroundColor: '',
+    backgroundColor: '#f4fff9ff',
   },
   gridTitle: {
     fontSize: 14,

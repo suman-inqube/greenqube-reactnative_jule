@@ -127,7 +127,16 @@ const Market = () => {
 
   const renderListItem = ({item, index}) => {
     console.log('item', item);
-    const {farmer_data, plot_no, comment, plot_size, mouza_name} = item || {};
+    const {
+      farmer_data,
+      plot_no,
+      comment,
+      plot_size,
+      mouza_name,
+      land_size,
+      landUsrAdd,
+      land_convert_size,
+    } = item || {};
 
     if (activeTab === 0) {
       const cardItems = [
@@ -158,10 +167,10 @@ const Market = () => {
           label: farmer_data?.contactNumber || 'N/A',
           value: plot_no || 'N/A',
         },
-        // {
-        //   label: plot_size || 'N/A', // Plot size on left
-        //   value: mouza_name || 'N/A', // Mouza name on right
-        // },
+        {
+          label: `${land_size || 'N/A'} Acre`,
+          value: landUsrAdd?.agri_subdivision?.subdiv_name || 'N/A',
+        },
       ];
       return (
         <ListCard

@@ -311,6 +311,9 @@ export const ROUTES = {
 
     PRODUCE_SEASON: ({from_date = '', to_date = ''}) =>
       `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
+
+    ALL_ACTIVITY_SCHEDULE: ({type = '', supervisor_id = ''}) =>
+      `settingsRoute/allActivitySchedule?type=${type}&supervisor_id=${supervisor_id}`,
   },
 
   PUT: {

@@ -107,6 +107,11 @@ const LiveHood = ({
   const {farmeruserID, agri_land_user_rels} = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dafaultLatLon, setDefaultLatLon] = useState({
+    latitude: 22.15454,
+    longitude: 22.515451,
+    accuracy: 5,
+  });
   const [farmerData, setFarmerData] = useState({
     createdBy: '',
     plot_no: '',
@@ -240,6 +245,7 @@ const LiveHood = ({
       const lat = latitude === '' ? latlong.latitude : latitude;
       const lon = longitude === '' ? latlong.longitude : longitude;
       setreferencelatLong({latitude, longitude});
+      setDefaultLatLon({latitude: lat, longitude: lon, accuracy: 10});
       const axiosConfig = {
         headers: {
           information: `${dbname},${lan_id}`,
@@ -961,14 +967,20 @@ const LiveHood = ({
   const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
     const {latitude, longitude} = coords || {};
+    var latlong;
+    if (latitude == '' && longitude == '') {
+      latlong = await getHighAccuracyLocation();
+    }
+    const lat = latitude === '' ? latlong.latitude : latitude;
+    const lon = longitude === '' ? latlong.longitude : longitude;
     if (
       coords != null &&
       // longitude.toString().length == 10 &&
       // latitude.toString().length == 10 &&
-      latitude > 0 &&
-      longitude > 0
+      lat > 0 &&
+      lon > 0
     ) {
-      values[index] = {latitude: latitude, longitude: longitude};
+      values[index] = {latitude: lat, longitude: lon};
       setLocation(values);
       const filteredDatalatLong = values.filter(
         item => item?.latitude !== '' && item?.latitude != 0,
@@ -1911,10 +1923,16 @@ const LiveHood = ({
   const handleCurrentLatLongIOT = useCallback(async () => {
     try {
       const {latitude, longitude} = coords || {};
+      var latlong;
+      if (latitude == '' && longitude == '') {
+        latlong = await getHighAccuracyLocation();
+      }
+      const lat = latitude === '' ? latlong.latitude : latitude;
+      const lon = longitude === '' ? latlong.longitude : longitude;
       setFarmerData(prev => ({
         ...prev,
-        IOTLatlat: longitude,
-        IOTLatLong: latitude,
+        IOTLatlat: lat,
+        IOTLatLong: lon,
       }));
     } catch (error) {
       console.log('Error in handleCurrentLatLongIOT', error);
@@ -2707,7 +2725,7 @@ const LiveHood = ({
               baselatLong={referencelatLong}
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
-              coords={coords}
+              coords={coords.latitude == '' ? dafaultLatLon : coords}
             />
           </Modal>
         )}

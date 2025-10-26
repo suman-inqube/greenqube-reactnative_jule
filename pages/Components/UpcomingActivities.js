@@ -6,60 +6,80 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState, memo} from 'react';
+import React, {useState, memo, useMemo} from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import moment from 'moment';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 
-const UpcomingActivities = ({uiState, t, loginUserData, dashboardType}) => {
+const UpcomingActivities = ({
+  uiState,
+  t,
+  loginUserData,
+  dashboardType,
+  activitySchedule,
+}) => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Upcoming');
+  const transformedData = useMemo(() => {
+    const upcomingActivities = [];
+    const pendingActivities = [];
+    console.log('Raw activitySchedule:', activitySchedule);
+    if (!activitySchedule || !Array.isArray(activitySchedule)) {
+      console.log('activitySchedule is undefined or not an array');
+      return {
+        upcoming: [],
+        pending: [],
+      };
+    }
+    activitySchedule.forEach(farmerData => {
+      const farmerName = farmerData.farmer?.userName || 'Unknown Farmer';
 
-  const [upcomingActivities, setUpcomingActivities] = useState([
-    {
-      id: 1,
-      title: 'Fertilizer Spray',
-      date: '2025-11-22',
+      if (
+        farmerData.upcomingActivities &&
+        farmerData.upcomingActivities.length > 0
+      ) {
+        farmerData.upcomingActivities.forEach(activity => {
+          upcomingActivities.push({
+            id: `${farmerData.farmer.user_id}-${activity.act_rid}`,
+            activityName: activity.activityName?.categoryName || 'Activity',
+            farmerName: farmerName,
+            status: 'Upcoming',
+          });
+        });
+      }
 
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      title: 'Pipe Installation',
-      date: '2025-11-28',
+      if (
+        farmerData.overdueActivities &&
+        farmerData.overdueActivities.length > 0
+      ) {
+        farmerData.overdueActivities.forEach(activity => {
+          pendingActivities.push({
+            id: `${farmerData.farmer.user_id}-${activity.act_rid}-overdue`,
+            activityName: activity.activityName?.categoryName || 'Activity',
+            farmerName: farmerName,
+            status: 'Pending',
+          });
+        });
+      }
+    });
+    console.log('Transformed upcoming:', upcomingActivities);
+    console.log('Transformed pending:', pendingActivities);
 
-      status: 'Upcoming',
-    },
-    {
-      id: 3,
-      title: 'Coming soon...',
-      date: '2025-11-22',
-      status: 'Upcoming',
-    },
-  ]);
+    return {
+      upcoming: upcomingActivities.slice(0, 3),
+      pending: pendingActivities.slice(0, 3),
+    };
+  }, [activitySchedule]);
 
-  const [pendingActivities, setPendingActivities] = useState([
-    {
-      id: 1,
-      title: 'Soil Testing',
-      date: '2025-11-20',
-      status: 'Pending',
-    },
-    {
-      id: 2,
-      title: 'Weed Control',
-      date: '2025-11-25',
-      status: 'Pending',
-    },
-    {
-      id: 3,
-      title: 'Equipment Maintenance',
-      date: '2025-11-30',
-      status: 'Pending',
-    },
-  ]);
+  const currentActivities = useMemo(() => {
+    if (activeTab === 'Upcoming') {
+      return transformedData.upcoming;
+    } else {
+      return transformedData.pending;
+    }
+  }, [activeTab, transformedData]);
 
   const getUserRoleText = () => {
     if (!loginUserData) return '';
@@ -97,17 +117,24 @@ const UpcomingActivities = ({uiState, t, loginUserData, dashboardType}) => {
     <View style={styles.activityItem}>
       <View style={styles.activityIndicator} />
       <View style={styles.activityDetails}>
-        <Text style={styles.activityTitle}>{item.title}</Text>
+        <Text style={styles.activityTitle}> {item.activityName}</Text>
         <View style={styles.activityMeta}>
-          <Text style={styles.activityDate}>
-            {moment(item.date).format('MMM D, YYYY')}
-          </Text>
+          <Text style={styles.activityDate}>{item.farmerName}</Text>
         </View>
       </View>
     </View>
   );
-  const currentActivities =
-    activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
+  const renderEmptyState = () => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyStateText}>
+        {activeTab === 'Upcoming'
+          ? 'No upcoming activities'
+          : 'No pending activities'}
+      </Text>
+    </View>
+  );
+  // const currentActivities =
+  //   activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
   return (
     <ScrollView>
       <View style={styles.mainProfileContainer}>
@@ -201,6 +228,7 @@ const UpcomingActivities = ({uiState, t, loginUserData, dashboardType}) => {
               data={currentActivities}
               keyExtractor={item => item.id.toString()}
               renderItem={renderActivityItem}
+              ListEmptyComponent={renderEmptyState}
               // contentContainerStyle={styles.activitiesListContainer}
               maxToRenderPerBatch={8}
               windowSize={5}
@@ -404,6 +432,17 @@ const styles = StyleSheet.create({
   activityText: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.8)',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+  },
+  emptyState: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyStateText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',
   },

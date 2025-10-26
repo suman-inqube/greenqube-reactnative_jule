@@ -176,6 +176,7 @@ const CustomHeader = memo(
         livehood: t('Livelihood'),
         PlotStatusUpdate: t('PlotStatusUpdate'),
         Market: t('Plot Status'),
+        UpcomingActivity: t('upcomming_act'),
       }),
 
       [t],
