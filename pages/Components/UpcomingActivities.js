@@ -30,7 +30,7 @@ const UpcomingActivities = ({
       console.log('activitySchedule is undefined or not an array');
       return {
         upcoming: [],
-        pending: [],
+        overdue: [],
       };
     }
     activitySchedule.forEach(farmerData => {
@@ -59,17 +59,17 @@ const UpcomingActivities = ({
             id: `${farmerData.farmer.user_id}-${activity.act_rid}-overdue`,
             activityName: activity.activityName?.categoryName || 'Activity',
             farmerName: farmerName,
-            status: 'Pending',
+            status: 'overdue',
           });
         });
       }
     });
     console.log('Transformed upcoming:', upcomingActivities);
-    console.log('Transformed pending:', pendingActivities);
+    console.log('Transformed overdue:', pendingActivities);
 
     return {
       upcoming: upcomingActivities.slice(0, 3),
-      pending: pendingActivities.slice(0, 3),
+      overdue: pendingActivities.slice(0, 3),
     };
   }, [activitySchedule]);
 
@@ -77,7 +77,7 @@ const UpcomingActivities = ({
     if (activeTab === 'Upcoming') {
       return transformedData.upcoming;
     } else {
-      return transformedData.pending;
+      return transformedData.overdue;
     }
   }, [activeTab, transformedData]);
 
@@ -200,20 +200,20 @@ const UpcomingActivities = ({
               <TouchableOpacity
                 style={[
                   styles.tab,
-                  activeTab === 'Pending' && styles.activeTab,
+                  activeTab === 'overdue' && styles.activeTab,
                 ]}
-                onPress={() => setActiveTab('Pending')}>
+                onPress={() => setActiveTab('overdue')}>
                 <Text
                   style={[
                     styles.tabText,
-                    activeTab === 'Pending' && styles.activeTabText,
+                    activeTab === 'overdue' && styles.activeTabText,
                   ]}>
                   Pending
                 </Text>
                 <Text
                   style={[
                     styles.tabText,
-                    activeTab === 'Pending' && styles.activeTabText,
+                    activeTab === 'overdue' && styles.activeTabText,
                   ]}>
                   Activity
                 </Text>

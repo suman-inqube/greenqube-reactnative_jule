@@ -51,9 +51,6 @@ const UpcomingActivity = () => {
           // Use the correct data structure from API response
           const data = response?.data?.data?.data || [];
           setActivityList(Array.isArray(data) ? data : []);
-
-          // If your API supports pagination, set total pages
-          // setTotalPages(Math.ceil(response?.data?.count / 20));
         }
       } catch (error) {
         console.error('Error fetching activity schedule:', error);
@@ -65,14 +62,11 @@ const UpcomingActivity = () => {
     fetchActivitySchedule();
   }, [token, dbname, lan_id, user_id, page]);
 
-  // Render each activity item
   const renderActivityItem = ({item, index}) => {
-    // Extract data from the API response structure
     const farmerName = item?.farmer?.userName || 'Unknown Farmer';
     const plotName = item?.crop?.land_info?.plot_no || 'Unknown Plot';
     const contactNumber = item?.farmer?.contactNumber || 'N/A';
 
-    // Get upcoming activities
     const upcomingActivities = item?.upcomingActivities || [];
 
     return (

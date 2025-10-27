@@ -50,6 +50,8 @@ const FarmerDashboard = ({navigation}) => {
   const {dbname, lan_id, token, user_id, agri_user_addresses} =
     loginUser_data || {};
   const [refreshing, setRefreshing] = useState(false);
+  const [activitySchedule, setActivitySchedule] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const {
     headerTranslateY,
@@ -171,15 +173,7 @@ const FarmerDashboard = ({navigation}) => {
   };
   const onPageLoad = async () => {
     setIsLoading(true);
-    console.log(
-      'Api----',
-      ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-        supervisor_id: user_id,
-        type: 'carbon_activity',
-      }),
-      token,
-      {information: `${dbname},${lan_id},${user_id}`},
-    );
+
     try {
       const [
         userNameData,
@@ -241,8 +235,8 @@ const FarmerDashboard = ({navigation}) => {
 
         axiosGet(
           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-            supervisor_id: user_id,
             type: 'carbon_activity',
+            farmer_id: user_id,
           }),
           token,
           {information: `${dbname},${lan_id},${user_id}`},
@@ -261,12 +255,22 @@ const FarmerDashboard = ({navigation}) => {
       }));
       let latestActivities = [];
       let usefulInfoList = [];
+      let activityScheduleData = [];
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
 
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
+      }
+      console.log('UP', ALL_ACTIVITY_SCHEDULE_RES);
+      if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
+        // Handle both possible response structures like in the Dashboard component
+        activityScheduleData =
+          ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data ||
+          ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows ||
+          [];
+        setActivitySchedule(activityScheduleData);
       }
       setDataState({
         latestActivities,
@@ -336,6 +340,8 @@ const FarmerDashboard = ({navigation}) => {
           t={t}
           uiState={uiState}
           loginUserData={loginUser_data}
+          dashboardType="Farmer"
+          activitySchedule={activitySchedule}
         />
         <TrackingInfromation
           latestActivities={dataState.latestActivities}
