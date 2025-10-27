@@ -76,68 +76,69 @@ const PendingActivity = () => {
     const overdueActivities = item?.overdueActivities || [];
 
     return (
-      <View style={styles.activityItem}>
-        {/* Farmer Information */}
-        <View style={styles.farmerInfo}>
-          <View style={styles.nameRow}>
-            <Text style={styles.mainText}>{farmerName}</Text>
-            <Text style={styles.mainText}> {plotName}</Text>
-          </View>
-          {/* <Text style={styles.subText}> {contactNumber}</Text> */}
-        </View>
+      <>
+        {overdueActivities.length != 0 ? (
+          <View View style={styles.activityItem}>
+            {/* Farmer Information */}
 
-        {/* Plot Information */}
-        {/* <View style={styles.plotInfo}>
+            <View style={styles.farmerInfo}>
+              <View style={styles.nameRow}>
+                <Text style={styles.mainText}>{farmerName}</Text>
+                <Text style={styles.mainText}> {plotName}</Text>
+              </View>
+              {/* <Text style={styles.subText}> {contactNumber}</Text> */}
+            </View>
+
+            {/* Plot Information */}
+            {/* <View style={styles.plotInfo}>
           <Text style={styles.plotStatus}>
             Status: {item?.crop?.land_info?.plot_status || 'N/A'}
           </Text>
         </View> */}
 
-        {/* Upcoming Activities */}
-        <View style={styles.activitiesSection}>
-          {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
-          {overdueActivities.length > 0 ? (
-            overdueActivities.map((activity, activityIndex) => (
-              <View key={activityIndex} style={styles.activityDetail}>
-                <View style={styles.nameRow}>
-                  <Text style={styles.activityName}>
-                    •{' '}
-                    {activity?.activityName?.categoryName || 'Unknown Activity'}
-                  </Text>
-                  <Text style={styles.daysUntil}>
-                    {activity?.days_until_start || 0} days ago
-                  </Text>
-                </View>
-                {/* <Text style={styles.activityType}>
+            {/* Upcoming Activities */}
+            <View style={styles.activitiesSection}>
+              {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
+              {overdueActivities.length > 0 ? (
+                overdueActivities.map((activity, activityIndex) => (
+                  <View key={activityIndex} style={styles.activityDetail}>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.activityName}>
+                        •{' '}
+                        {activity?.activityName?.categoryName ||
+                          'Unknown Activity'}
+                      </Text>
+                      <Text style={styles.daysUntil}>
+                        {activity?.days_until_start || 0} days ago
+                      </Text>
+                    </View>
+                    {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
                 </Text> */}
 
-                <Text style={styles.activityDate}>
-                  Start:{' '}
-                  {new Date(activity?.activity_start_date).toLocaleDateString()}
-                </Text>
-                <Text style={styles.activityDate}>
-                  End:{' '}
-                  {new Date(activity?.activity_end_date).toLocaleDateString()}
-                </Text>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noActivities}>No upcoming activities</Text>
-          )}
-        </View>
-
-        {/* Crop Information */}
-        {/* <View style={styles.cropInfo}>
-          <Text style={styles.cropText}>
-            Sowing: {new Date(item?.crop?.sowing_date).toLocaleDateString()}
-          </Text>
-          <Text style={styles.cropText}>
-            Harvest:{' '}
-            {new Date(item?.crop?.harvesting_date).toLocaleDateString()}
-          </Text>
-        </View> */}
-      </View>
+                    <Text style={styles.activityDate}>
+                      Start:{' '}
+                      {new Date(
+                        activity?.activity_start_date,
+                      ).toLocaleDateString()}
+                    </Text>
+                    <Text style={styles.activityDate}>
+                      End:{' '}
+                      {new Date(
+                        activity?.activity_end_date,
+                      ).toLocaleDateString()}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.noActivities}>No upcoming activities</Text>
+              )}
+            </View>
+          </View>
+        ) : (
+          <></>
+        )}
+      </>
     );
   };
 
@@ -150,10 +151,10 @@ const PendingActivity = () => {
     </View>
   );
   onBackPress(() => {
-    navigation.navigate('FarmerDashboard');
+    navigation.navigate('Dashboard');
     return true;
   });
-  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
+  const HandlerGoBack = () => navigation.navigate('Dashboard');
 
   const renderCustomHeader = useMemo(
     () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,

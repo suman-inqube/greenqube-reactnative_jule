@@ -45,6 +45,7 @@ const UpcomingActivities = ({
             id: `${farmerData.farmer.user_id}-${activity.act_rid}`,
             activityName: activity.activityName?.categoryName || 'Activity',
             farmerName: farmerName,
+            date: activity?.days_until_start,
             status: 'Upcoming',
           });
         });
@@ -59,13 +60,12 @@ const UpcomingActivities = ({
             id: `${farmerData.farmer.user_id}-${activity.act_rid}-overdue`,
             activityName: activity.activityName?.categoryName || 'Activity',
             farmerName: farmerName,
+            date: activity?.days_until_start,
             status: 'overdue',
           });
         });
       }
     });
-    console.log('Transformed upcoming:', upcomingActivities);
-    console.log('Transformed overdue:', pendingActivities);
 
     return {
       upcoming: upcomingActivities.slice(0, 3),
@@ -113,21 +113,25 @@ const UpcomingActivities = ({
     }
   };
 
-  const renderActivityItem = ({item}) => (
-    <View style={styles.activityItem}>
-      <View style={styles.activityIndicator} />
-      <View style={styles.activityDetails}>
-        <Text style={styles.activityTitle}> {item.activityName}</Text>
-        <View style={styles.activityMeta}>
-          <Text style={styles.activityDate}>
-            {dashboardType === 'Supervisor'
-              ? item.farmerName
-              : `${item?.days_until_start || 0} days`}
-          </Text>
+  const renderActivityItem = ({item}) => {
+    console.log('item123', item);
+    return (
+      <View style={styles.activityItem}>
+        <View style={styles.activityIndicator} />
+        <View style={styles.activityDetails}>
+          <Text style={styles.activityTitle}> {item.activityName}</Text>
+          <View style={styles.activityMeta}>
+            <Text style={styles.activityDate}>
+              {dashboardType === 'Supervisor'
+                ? item.farmerName
+                : `${item?.date || 0} days`}
+            </Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
+
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Text style={styles.emptyStateText}>

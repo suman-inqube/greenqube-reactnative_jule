@@ -76,64 +76,64 @@ const FarmerUpcomingActivity = () => {
     const upcomingActivities = item?.upcomingActivities || [];
 
     return (
-      <View style={styles.activityItem}>
-        {/* Farmer Information */}
-        <View style={styles.farmerInfo}>
-          <Text style={styles.mainText}> {plotName}</Text>
-        </View>
+      <>
+        {upcomingActivities.length != 0 ? (
+          <View style={styles.activityItem}>
+            {/* Farmer Information */}
+            <View style={styles.farmerInfo}>
+              <Text style={styles.mainText}> {plotName}</Text>
+            </View>
 
-        {/* Plot Information */}
-        {/* <View style={styles.plotInfo}>
+            {/* Plot Information */}
+            {/* <View style={styles.plotInfo}>
           <Text style={styles.plotStatus}>
             Status: {item?.crop?.land_info?.plot_status || 'N/A'}
           </Text>
         </View> */}
 
-        {/* Upcoming Activities */}
-        <View style={styles.activitiesSection}>
-          {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
-          {upcomingActivities.length > 0 ? (
-            upcomingActivities.map((activity, activityIndex) => (
-              <View key={activityIndex} style={styles.activityDetail}>
-                <View style={styles.nameRow}>
-                  <Text style={styles.activityName}>
-                    •{' '}
-                    {activity?.activityName?.categoryName || 'Unknown Activity'}
-                  </Text>
-                  <Text style={styles.daysUntil}>
-                    {activity?.days_until_start || 0} days to go
-                  </Text>
-                </View>
-                {/* <Text style={styles.activityType}>
+            {/* Upcoming Activities */}
+            <View style={styles.activitiesSection}>
+              {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
+              {upcomingActivities.length > 0 ? (
+                upcomingActivities.map((activity, activityIndex) => (
+                  <View key={activityIndex} style={styles.activityDetail}>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.activityName}>
+                        •{' '}
+                        {activity?.activityName?.categoryName ||
+                          'Unknown Activity'}
+                      </Text>
+                      <Text style={styles.daysUntil}>
+                        {activity?.days_until_start || 0} days to go
+                      </Text>
+                    </View>
+                    {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
                 </Text> */}
 
-                <Text style={styles.activityDate}>
-                  Start:{' '}
-                  {new Date(activity?.activity_start_date).toLocaleDateString()}
-                </Text>
-                <Text style={styles.activityDate}>
-                  End:{' '}
-                  {new Date(activity?.activity_end_date).toLocaleDateString()}
-                </Text>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noActivities}>No upcoming activities</Text>
-          )}
-        </View>
-
-        {/* Crop Information */}
-        {/* <View style={styles.cropInfo}>
-          <Text style={styles.cropText}>
-            Sowing: {new Date(item?.crop?.sowing_date).toLocaleDateString()}
-          </Text>
-          <Text style={styles.cropText}>
-            Harvest:{' '}
-            {new Date(item?.crop?.harvesting_date).toLocaleDateString()}
-          </Text>
-        </View> */}
-      </View>
+                    <Text style={styles.activityDate}>
+                      Start:{' '}
+                      {new Date(
+                        activity?.activity_start_date,
+                      ).toLocaleDateString()}
+                    </Text>
+                    <Text style={styles.activityDate}>
+                      End:{' '}
+                      {new Date(
+                        activity?.activity_end_date,
+                      ).toLocaleDateString()}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.noActivities}>No upcoming activities</Text>
+              )}
+            </View>
+          </View>
+        ) : (
+          <></>
+        )}
+      </>
     );
   };
 
@@ -146,10 +146,10 @@ const FarmerUpcomingActivity = () => {
     </View>
   );
   onBackPress(() => {
-    navigation.navigate('Dashboard');
+    navigation.navigate('FarmerDashboard');
     return true;
   });
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   const renderCustomHeader = useMemo(
     () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
