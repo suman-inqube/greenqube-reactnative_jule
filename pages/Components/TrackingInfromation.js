@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Colors.lightText,
-    fontFamily: Fonts.Regular,
+    fontFamily: Fonts.SemiBold,
   },
 });
 export default memo(TrackingInformation);

@@ -12,14 +12,14 @@ import {
   StatusBar,
   Modal,
 } from 'react-native';
-import React, { useEffect, useState, useContext } from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import FilterDropDownForm from './Common/FilterDropDownForm';
 import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
-import { getItem, removeItem, setItem } from '../config/getDataFromStorage';
+import {getItem, removeItem, setItem} from '../config/getDataFromStorage';
 import {
   databaseListAPI,
   fpodetailsDataListAPI,
@@ -30,11 +30,16 @@ import {
 } from '../config/apiHere';
 import MessageDialog from './Common/MessageDialog';
 import i18next from './services/i18next';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
-import { Root, Toast, Popup, SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {
+  Root,
+  Toast,
+  Popup,
+  SPSheet,
+} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import Checkbox from './Common/CheckboxCom';
-import { AlertMesg } from './Common/ToastAlert';
+import {AlertMesg} from './Common/ToastAlert';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {
@@ -42,24 +47,24 @@ import {
   useIsFocused,
   StackActions,
 } from '@react-navigation/native';
-import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
+import {Permission, PERMISSIONS_TYPE} from './AppPermission/AppPermission';
 // import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 // import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
-import { userCreateContext } from './Context/usersCreateContext';
+import {userCreateContext} from './Context/usersCreateContext';
 import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
-import { axiosGet, axiosPost } from './utils/api';
-import { ROUTES } from './utils/Routes';
+import {axiosGet, axiosPost} from './utils/api';
+import {ROUTES} from './utils/Routes';
 import Container from '../Components/Container';
 
-const Login = ({ route }) => {
-  const { setlogoImage, settopBanner, AllFarmerList, t } =
+const Login = ({route}) => {
+  const {setlogoImage, settopBanner, AllFarmerList, t} =
     useContext(userCreateContext);
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const roleData = [
-    { label: t('login_farmer'), value: '2' },
-    { label: t('retailer'), value: '3' },
+    {label: t('login_farmer'), value: '2'},
+    {label: t('retailer'), value: '3'},
   ];
   const [checked, setChecked] = useState(false);
   // const { requestUserPermission, notificationListener } = NotificationServices();
@@ -170,7 +175,9 @@ const Login = ({ route }) => {
             lan_id,
             agri_user_addresses,
             microCompany,
-            db_company_id, user_id, token
+            db_company_id,
+            user_id,
+            token,
           } = loginUserdata;
           const details_company_res = await DetailsCompany(
             loginUserdata?.dbname,
@@ -217,9 +224,19 @@ const Login = ({ route }) => {
           });
           const [fpoDetailsList_res, reginalRes, defaultCurrRes] =
             await Promise.all([
-              axiosGet(ROUTES.GET.FPO_DETAILS({ compCode: loginUserdata.sa_company[0].company_code }), loginUserdata.token, { information: `${dbname},${lan_id},${user_id}` }),
-              axiosGet(ROUTES.GET.REGIONAL_DATA, token, { information: `${dbname},${lan_id}` }),
-              axiosGet(ROUTES.GET.DEFAULT_CURR, token, { information: `${dbname},${lan_id}` })
+              axiosGet(
+                ROUTES.GET.FPO_DETAILS({
+                  compCode: loginUserdata.sa_company[0].company_code,
+                }),
+                loginUserdata.token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(ROUTES.GET.REGIONAL_DATA, token, {
+                information: `${dbname},${lan_id}`,
+              }),
+              axiosGet(ROUTES.GET.DEFAULT_CURR, token, {
+                information: `${dbname},${lan_id}`,
+              }),
             ]);
           if (defaultCurrRes?.status === 200) {
             if (defaultCurrRes.data.data.rows.length > 0) {
@@ -236,9 +253,8 @@ const Login = ({ route }) => {
             }
           }
           if (fpoDetailsList_res?.status === 200) {
-
             //   i18next.changeLanguage(`${loginUserdata?.lan_id}`);
-            const { company_website } = fpoDetailsList_res.data[0];
+            const {company_website} = fpoDetailsList_res.data[0];
             var url_regex = /^(http|https)/;
             if (url_regex.test(String(company_website).toLowerCase()) == true) {
               await setItem('company_website', company_website);
@@ -368,7 +384,7 @@ const Login = ({ route }) => {
       ]);
     if (companyLanguage_data != '' && companyLanguage_data != null) {
       setCompanyLanguage(companyLanguage_data);
-      const { country_id, company, language } = companyLanguage_data;
+      const {country_id, company, language} = companyLanguage_data;
       checkPhoneNumber(country_id, company, language);
       if (companyFirstEntry == 1) {
         setStoreLoginUser({
@@ -411,7 +427,7 @@ const Login = ({ route }) => {
     if (company_res.status == 200) {
       let companyArray = [];
       company_res?.data?.data?.map((data, index) => {
-        const { company_id, agri_company, db_name } = data;
+        const {company_id, agri_company, db_name} = data;
         companyArray.push({
           value: company_id,
           label: agri_company.company_name,
@@ -437,8 +453,8 @@ const Login = ({ route }) => {
   }, [netConnection]);
   const onChangeConpany = async item => {
     try {
-      const { country_id, dbname, value, label } = item;
-      const { language } = companyLanguage;
+      const {country_id, dbname, value, label} = item;
+      const {language} = companyLanguage;
       setStoreLoginUser(prev => ({
         ...prev,
         company: value,
@@ -454,9 +470,13 @@ const Login = ({ route }) => {
   };
   const checkPhoneNumber = async (country_id, company, language) => {
     try {
-      const checkPhoneNumber = await axiosGet(ROUTES.GET.PHONE_DIGIT_CHECK({ country_id }), '', { information: `${company},${language}`, })
+      const checkPhoneNumber = await axiosGet(
+        ROUTES.GET.PHONE_DIGIT_CHECK({country_id}),
+        '',
+        {information: `${company},${language}`},
+      );
       if (checkPhoneNumber.status == 200) {
-        const { contact_no_digits } = checkPhoneNumber.data?.data;
+        const {contact_no_digits} = checkPhoneNumber.data?.data;
         setcontact_no_digits(contact_no_digits);
       }
     } catch (error) {
@@ -469,155 +489,158 @@ const Login = ({ route }) => {
   return (
     <Root>
       <Container>
-      {/* <ForegroundLocationService /> */}
-      <StatusBar barStyle="light-content" backgroundColor="#023316" />
-      <ScrollView>
-        <View style={styles.mainContainer}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require('../pages/Common/images/greenqube_logo.png')}
-              style={styles.logo}
-            />
-          </View>
-          <View style={styles.inputContainerView}>
-            {isLoading && (
-              <View style={styles.loadingScreen}>
-                <LoadingScreen />
+        {/* <ForegroundLocationService /> */}
+        <StatusBar barStyle="light-content" backgroundColor="#023316" />
+        <ScrollView>
+          <View style={styles.mainContainer}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../pages/Common/images/greenqube_logo.png')}
+                style={styles.logo}
+              />
+            </View>
+            <View style={styles.inputContainerView}>
+              {isLoading && (
+                <View style={styles.loadingScreen}>
+                  <LoadingScreen />
+                </View>
+              )}
+              <View style={styles.signInView}>
+                <Text style={styles.signInText}>{t('sign_in')}</Text>
+                <Text style={styles.signInSubText}>
+                  {t('Hello there, Please Sign In to Continue.')}
+                </Text>
               </View>
-            )}
-            <View style={styles.signInView}>
-              <Text style={styles.signInText}>{t('sign_in')}</Text>
-              <Text style={styles.signInSubText}>
-                {t('Hello there, sigh in to continue!')}
-              </Text>
-            </View>
 
-            <View style={styles.phoneNoView}>
-              <MaterialIcons
-                name="phone"
-                size={20}
-                style={styles.icon}
-                color="#767676"
-              />
-              <TextInput
-                style={styles.simpleInputTextStyle}
-                placeholderTextColor={'#8c8c8c'}
-                placeholder={t('enter_your_registered_Phone_no')}
-                keyboardType="numeric"
-                value={storeLoginUser.phone}
-                onChangeText={phone =>
-                  setStoreLoginUser({ ...storeLoginUser, phone: phone })
-                }
-                maxLength={contact_no_digits}
-              />
-            </View>
-
-            <View style={styles.passwordView}>
-              <MaterialIcons
-                name="lock"
-                size={18}
-                color="#767676"
-                style={styles.icon}
-              />
-              <TextInput
-                style={styles.simpleInputTextStyle}
-                placeholderTextColor={'#8c8c8c'}
-                placeholder={t('enter_your_Password')}
-                secureTextEntry={!showPassword}
-                onChangeText={password =>
-                  setStoreLoginUser({ ...storeLoginUser, password: password })
-                }
-                value={storeLoginUser.password}
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <View style={styles.phoneNoView}>
                 <MaterialIcons
-                  name={showPassword ? 'visibility' : 'visibility-off'}
-                  size={22}
-                  color="#8c8c8c"
+                  name="phone"
+                  size={20}
+                  style={styles.icon}
+                  color="#767676"
                 />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ marginTop: 20 }}>
-              <DropdownForm11
-                data={roleData}
-                label={t('select_role')}
-                searchPlaceholder="Search by role"
-                onChange={role =>
-                  setStoreLoginUser({ ...storeLoginUser, role: role.value })
-                }
-                val={storeLoginUser.role}
-                dropdownStyle={{
-                  width: '100%',
-                  borderWidth: 0.5,
-                  backgroundColor: '#f4f4f4',
-                }}
-              />
-            </View>
-
-            <View style={{ marginTop: 10 }}>
-              <CompanyDropdown
-                data={companyData}
-                label={t('select_company')}
-                onChange={company => onChangeConpany(company)}
-                val={companyLanguage.company_id}
-                diffLabel={companyLanguage.company_name}
-                selectedValue={storeLoginUser.company}
-                dropdownStyle={{
-                  width: '100%',
-                  borderWidth: 0.5,
-                  backgroundColor: '#f4f4f4',
-                }}
-              />
-            </View>
-
-            <View style={styles.checkBoxAndForgotPass}>
-              <View style={styles.rememberMeContainer}>
-                <TouchableOpacity
-                  style={[styles.checkbox, checked && styles.ifCheckedBox]}
-                  onPress={() => setChecked(!checked)}>
-                  {checked && (
-                    <MaterialIcons
-                      name="check"
-                      size={16}
-                      color="white"
-                      style={{ position: 'absolute' }}
-                    />
-                  )}
-                </TouchableOpacity>
-                <Text style={styles.rememberMe}>{t('Remember_me')}</Text>
+                <TextInput
+                  style={styles.simpleInputTextStyle}
+                  placeholderTextColor={'#8c8c8c'}
+                  placeholder={t('enter_your_registered_Phone_no')}
+                  keyboardType="numeric"
+                  value={storeLoginUser.phone}
+                  onChangeText={phone =>
+                    setStoreLoginUser({...storeLoginUser, phone: phone})
+                  }
+                  maxLength={contact_no_digits}
+                />
               </View>
+
+              <View style={styles.passwordView}>
+                <MaterialIcons
+                  name="lock"
+                  size={18}
+                  color="#767676"
+                  style={styles.icon}
+                />
+                <TextInput
+                  style={styles.simpleInputTextStyle}
+                  placeholderTextColor={'#8c8c8c'}
+                  placeholder={t('enter_your_Password')}
+                  secureTextEntry={!showPassword}
+                  onChangeText={password =>
+                    setStoreLoginUser({...storeLoginUser, password: password})
+                  }
+                  value={storeLoginUser.password}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}>
+                  <MaterialIcons
+                    name={showPassword ? 'visibility' : 'visibility-off'}
+                    size={22}
+                    color="#8c8c8c"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={{marginTop: 20}}>
+                <DropdownForm11
+                  data={roleData}
+                  label={t('select_role')}
+                  searchPlaceholder="Search by role"
+                  onChange={role =>
+                    setStoreLoginUser({...storeLoginUser, role: role.value})
+                  }
+                  val={storeLoginUser.role}
+                  dropdownStyle={{
+                    width: '100%',
+                    borderWidth: 0.5,
+                    backgroundColor: '#f4f4f4',
+                  }}
+                />
+              </View>
+
+              <View style={{marginTop: 10}}>
+                <CompanyDropdown
+                  data={companyData}
+                  label={t('select_company')}
+                  onChange={company => onChangeConpany(company)}
+                  val={companyLanguage.company_id}
+                  diffLabel={companyLanguage.company_name}
+                  selectedValue={storeLoginUser.company}
+                  dropdownStyle={{
+                    width: '100%',
+                    borderWidth: 0.5,
+                    backgroundColor: '#f4f4f4',
+                  }}
+                />
+              </View>
+
+              <View style={styles.checkBoxAndForgotPass}>
+                <View style={styles.rememberMeContainer}>
+                  <TouchableOpacity
+                    style={[styles.checkbox, checked && styles.ifCheckedBox]}
+                    onPress={() => setChecked(!checked)}>
+                    {checked && (
+                      <MaterialIcons
+                        name="check"
+                        size={16}
+                        color="white"
+                        style={{position: 'absolute'}}
+                      />
+                    )}
+                  </TouchableOpacity>
+                  <Text style={styles.rememberMe}>{t('Remember_me')}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('ForgotPassword')}>
+                  <Text style={styles.forgotPassword}>
+                    {t('forgot_Password')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               <TouchableOpacity
-                onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text style={styles.forgotPassword}>
-                  {t('forgot_Password')}
-                </Text>
+                style={[
+                  styles.signInButton,
+                  storeLoginUser.phone && storeLoginUser.password
+                    ? styles.signInButtonActive
+                    : styles.signInButtonInactive,
+                ]}
+                onPress={saveHandle}
+                disabled={!storeLoginUser.phone || !storeLoginUser.password}>
+                <Text style={styles.signInBtnText}>{t('sign_in')}</Text>
               </TouchableOpacity>
-            </View>
 
-            <TouchableOpacity
-              style={[
-                styles.signInButton,
-                storeLoginUser.phone && storeLoginUser.password
-                  ? styles.signInButtonActive
-                  : styles.signInButtonInactive,
-              ]}
-              onPress={saveHandle}
-              disabled={!storeLoginUser.phone || !storeLoginUser.password}>
-              <Text style={styles.signInBtnText}>{t('sign_in')}</Text>
-            </TouchableOpacity>
-
-            <View style={styles.signUpContainer}>
-              <Text style={styles.dontHaveAccount}>Don't have an account?</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                <Text style={styles.signUpText}>
-                  {t('Create')} {t('account')}
+              <View style={styles.signUpContainer}>
+                <Text style={styles.dontHaveAccount}>
+                  Don't have an account?
                 </Text>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                  <Text style={styles.signUpText}>
+                    {t('Create')} {t('account')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
       </Container>
     </Root>
   );

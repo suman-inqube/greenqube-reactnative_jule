@@ -12,6 +12,11 @@ const getDashboardItems = (t, navigateToPages) => [
     onpress: () => navigateToPages('userList'),
   },
   {
+    text: t('Plot Status'),
+    imageurl: require('../Common/images/plot_status1.png'),
+    onpress: () => navigateToPages('Market'),
+  },
+  {
     text: t('crop_prob_far_dash'),
     // imageurl: require('../Common/images/raise_problem_only.png'),
     imageurl: require('../Common/images/problem2.png'),
@@ -37,11 +42,7 @@ const getDashboardItems = (t, navigateToPages) => [
     imageurl: require('../Common/images/output1.png'),
     onpress: () => navigateToPages('OutPutList'),
   },
-  {
-    text: t('Plot Status'),
-    imageurl: require('../Common/images/plot_status1.png'),
-    onpress: () => navigateToPages('Market'),
-  },
+
   {
     text: t('useful_ninformation_dash'),
     // imageurl: require('../Common/images/dash_useful_information.png'),
