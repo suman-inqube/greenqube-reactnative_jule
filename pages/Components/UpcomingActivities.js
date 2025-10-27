@@ -119,7 +119,11 @@ const UpcomingActivities = ({
       <View style={styles.activityDetails}>
         <Text style={styles.activityTitle}> {item.activityName}</Text>
         <View style={styles.activityMeta}>
-          <Text style={styles.activityDate}>{item.farmerName}</Text>
+          <Text style={styles.activityDate}>
+            {dashboardType === 'Supervisor'
+              ? item.farmerName
+              : `${item?.days_until_start || 0} days`}
+          </Text>
         </View>
       </View>
     </View>

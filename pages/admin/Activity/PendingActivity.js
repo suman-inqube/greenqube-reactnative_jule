@@ -80,8 +80,8 @@ const PendingActivity = () => {
         {/* Farmer Information */}
         <View style={styles.farmerInfo}>
           <View style={styles.nameRow}>
-            {/* <Text style={styles.mainText}>{farmerName}</Text>
-            <Text style={styles.mainText}> {plotName}</Text> */}
+            <Text style={styles.mainText}>{farmerName}</Text>
+            <Text style={styles.mainText}> {plotName}</Text>
           </View>
           {/* <Text style={styles.subText}> {contactNumber}</Text> */}
         </View>
@@ -102,11 +102,11 @@ const PendingActivity = () => {
                 <View style={styles.nameRow}>
                   <Text style={styles.activityName}>
                     •{' '}
-                    {/* {activity?.activityName?.categoryName || 'Unknown Activity'} */}
+                    {activity?.activityName?.categoryName || 'Unknown Activity'}
                   </Text>
-                  {/* <Text style={styles.daysUntil}>
-                    {activity?.days_until_start || 0} days to go
-                  </Text> */}
+                  <Text style={styles.daysUntil}>
+                    {activity?.days_until_start || 0} days ago
+                  </Text>
                 </View>
                 {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
@@ -114,11 +114,11 @@ const PendingActivity = () => {
 
                 <Text style={styles.activityDate}>
                   Start:{' '}
-                  {/* {new Date(activity?.activity_start_date).toLocaleDateString()} */}
+                  {new Date(activity?.activity_start_date).toLocaleDateString()}
                 </Text>
                 <Text style={styles.activityDate}>
                   End:{' '}
-                  {/* {new Date(activity?.activity_end_date).toLocaleDateString()} */}
+                  {new Date(activity?.activity_end_date).toLocaleDateString()}
                 </Text>
               </View>
             ))
@@ -150,10 +150,10 @@ const PendingActivity = () => {
     </View>
   );
   onBackPress(() => {
-    navigation.navigate('Dashboard');
+    navigation.navigate('FarmerDashboard');
     return true;
   });
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   const renderCustomHeader = useMemo(
     () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
     padding: 10,
     borderRadius: 6,
-    // marginBottom: 8,
+    marginBottom: 5,
     borderLeftWidth: 3,
     borderLeftColor: '#4CAF50',
   },
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   daysUntil: {
     fontSize: 14,
     fontFamily: 'Poppins-SemiBold',
-    color: '#ff9e0dff',
+    color: '#ff0d0dff',
     marginBottom: 2,
   },
   noActivities: {
