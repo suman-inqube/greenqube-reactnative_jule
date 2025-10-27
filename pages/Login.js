@@ -488,7 +488,7 @@ const Login = ({ route }) => {
             <View style={styles.signInView}>
               <Text style={styles.signInText}>{t('sign_in')}</Text>
               <Text style={styles.signInSubText}>
-                {t('Hello there, sigh in to continue!')}
+                {t('Hello there, sign in to continue!')}
               </Text>
             </View>
 

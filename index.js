@@ -12,7 +12,7 @@ import { UserCreateContextProvider } from './pages/Context/usersCreateContext';
 import { Root as PopupRootProvider } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import ErrorScreen from './pages/Common/ErrorScreen';
 import MyErrorBoundary from './pages/Common/MyErrorBoundary';
-import RNRestart from 'react-native-restart'; // ✅ add this for native crash restart
+import RNRestart from 'react-native-restart';
 import './pages/services/i18next';
 import { checkAppVersion } from './pages/checkAppVersion';
 let isExceptionHandlerConfigured = false;
@@ -34,8 +34,6 @@ const configureExceptionHandlers = (setFatalError) => {
 
   const nativeExceptionHandler = (errorString) => {
     console.error('[Native Exception]', errorString);
-    // You can't show ErrorScreen after a native crash (bridge is dead)
-    // So restart the app safely
     RNRestart.Restart();
   };
 
@@ -44,10 +42,6 @@ const configureExceptionHandlers = (setFatalError) => {
 
   isExceptionHandlerConfigured = true;
 };
-
-/* -----------------------------------------------------------
-   Main Component (same structure, added render safety)
------------------------------------------------------------- */
 export default function Main() {
   const [fatalError, setFatalError] = useState(null);
 
@@ -65,7 +59,6 @@ export default function Main() {
   }, []);
 
   try {
-    // ✅ If a JS fatal error occurs, show ErrorScreen
     if (fatalError) {
       return <ErrorScreen error={fatalError} onRetry={handleRetry} />;
     }
@@ -80,7 +73,6 @@ export default function Main() {
        </MyErrorBoundary>
     );
   } catch (error) {
-    // ✅ Extra fallback for unexpected render crashes
     console.log('[Render Catch Fallback]', error);
     return <ErrorScreen error={error} onRetry={handleRetry} />;
   }
