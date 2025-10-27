@@ -109,7 +109,8 @@ const PendingActivity = () => {
                           'Unknown Activity'}
                       </Text>
                       <Text style={styles.daysUntil}>
-                        {activity?.days_until_start || 0} days ago
+                        {/* because api is sending nagetive value of days_until_start, we are multiplying by -1 */}
+                        {activity?.days_until_start * -1 || 0} days ago
                       </Text>
                     </View>
                     {/* <Text style={styles.activityType}>
