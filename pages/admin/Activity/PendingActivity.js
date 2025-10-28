@@ -71,6 +71,7 @@ const PendingActivity = () => {
     const farmerName = item?.farmer?.userName || 'Unknown Farmer';
     const plotName = item?.crop?.land_info?.plot_no || 'Unknown Plot';
     const contactNumber = item?.farmer?.contactNumber || 'N/A';
+    const showingDate = item?.overdueActivities[index]?.sowing_date;
 
     // Get upcoming activities
     const overdueActivities = item?.overdueActivities || [];
@@ -86,16 +87,16 @@ const PendingActivity = () => {
                 <Text style={styles.mainText}>{farmerName}</Text>
                 <Text style={styles.mainText}> {plotName}</Text>
               </View>
-              {/* <Text style={styles.subText}> {contactNumber}</Text> */}
+              <Text style={styles.subText}> {contactNumber}</Text>
+
+              <Text style={styles.activityDate}>
+                Sowing Date: {overdueActivities[0]?.sowing_date || 'N/A'}
+              </Text>
+              <Text style={styles.activityDate}>
+                Hervesting Date:{' '}
+                {overdueActivities[0]?.harvesting_date || 'N/A'}
+              </Text>
             </View>
-
-            {/* Plot Information */}
-            {/* <View style={styles.plotInfo}>
-          <Text style={styles.plotStatus}>
-            Status: {item?.crop?.land_info?.plot_status || 'N/A'}
-          </Text>
-        </View> */}
-
             {/* Upcoming Activities */}
             <View style={styles.activitiesSection}>
               {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
@@ -118,6 +119,26 @@ const PendingActivity = () => {
                 </Text> */}
 
                     <Text style={styles.activityDate}>
+                      Schedule date:{' '}
+                      {new Date(
+                        activity?.activity_start_date,
+                      ).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}{' '}
+                      -{' '}
+                      {new Date(activity?.activity_end_date).toLocaleDateString(
+                        'en-GB',
+                        {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        },
+                      )}
+                    </Text>
+
+                    {/* <Text style={styles.activityDate}>
                       Start:{' '}
                       {new Date(
                         activity?.activity_start_date,
@@ -128,7 +149,7 @@ const PendingActivity = () => {
                       {new Date(
                         activity?.activity_end_date,
                       ).toLocaleDateString()}
-                    </Text>
+                    </Text> */}
                   </View>
                 ))
               ) : (

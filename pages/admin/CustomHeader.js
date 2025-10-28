@@ -51,14 +51,15 @@ const RoundButton = memo(({onPress, imageSource, style}) => (
 ));
 
 const CompanyLogo = memo(({logoImage}) => (
-  <View style={styles.companyLogoContainer}>
-    <ImageForm
-      source={{uri: logoImage}}
-      resizeMode="contain"
-      height={45}
-      width={45}
-    />
-  </View>
+  // <View style={styles.companyLogoContainer}>
+
+  <ImageForm
+    source={{uri: logoImage}}
+    resizeMode="contain"
+    height={45}
+    width={45}
+  />
+  // </View>
 ));
 
 const BannerImage = memo(({topBanner}) =>
@@ -84,6 +85,7 @@ const CustomHeader = memo(
     show,
     filterOptionShow,
   }) => {
+    console.log('logoImage123', logoImage);
     const drawerStatus = useDrawerStatus();
     const {t} = useTranslation();
     const navigation = useNavigation();
@@ -177,6 +179,7 @@ const CustomHeader = memo(
         PlotStatusUpdate: t('PlotStatusUpdate'),
         Market: t('Plot Status'),
         UpcomingActivity: t('upcomming_act'),
+        PendingActivity: t('Pending Activity'),
       }),
 
       [t],
@@ -224,6 +227,7 @@ const CustomHeader = memo(
     );
 
     useEffect(() => {
+      console.log('LogoImage', LogoImage);
       navigation.closeDrawer();
     }, [navigation]);
     return (

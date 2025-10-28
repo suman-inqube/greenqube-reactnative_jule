@@ -58,6 +58,10 @@ const TrackingInformation = ({
 
     setActiveTab(tab);
   };
+
+  /**
+   *
+   */
   const handleIconPress = () => {
     if (activeTab === 'tracking') {
       // Navigate to tracking screen with optional parameters

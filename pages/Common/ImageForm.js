@@ -1,16 +1,23 @@
 import React from 'react';
 import FastImage from 'react-native-fast-image';
-const ImageForm = ({ source, width, height, resizeMode, borderRadius, style }) => {
+const ImageForm = ({
+  source,
+  width,
+  height,
+  resizeMode,
+  borderRadius,
+  style,
+}) => {
   return (
     <FastImage
-      source={typeof source === 'string' ? { uri: source } : source}
+      source={typeof source === 'string' ? {uri: source} : source}
       style={[
         {
           width,
           height,
           borderRadius,
         },
-        style, 
+        style,
       ]}
       resizeMode={
         resizeMode

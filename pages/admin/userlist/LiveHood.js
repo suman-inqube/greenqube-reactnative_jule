@@ -2521,7 +2521,7 @@ const LiveHood = ({
               }
             />
             <View style={styles.plotSiteUnit}>
-              <View style={{width: '45%'}}>
+              <View style={{width: '50%'}}>
                 <InputTextForm
                   label={t('expected_yield')}
                   keyboardType="number-pad"
@@ -2537,7 +2537,7 @@ const LiveHood = ({
                   // }
                 />
               </View>
-              <View style={{width: '45%'}}>
+              <View style={{width: '35%'}}>
                 <DropdownForm
                   label={`${t('select_unit_input')}`}
                   required={true}
