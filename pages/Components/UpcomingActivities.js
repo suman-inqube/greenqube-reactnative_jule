@@ -346,7 +346,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
+    marginLeft: 10,
   },
   activityTitle: {
     fontSize: 12.5,
@@ -413,12 +414,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#4CAF50',
     marginLeft: 5,
-  },
-  activityDetails: {
-    flex: 1,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   activityMeta: {

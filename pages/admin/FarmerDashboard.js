@@ -70,7 +70,6 @@ const FarmerDashboard = ({navigation}) => {
   });
   const [company_website, setcompany_website] = useState('');
   const navigateToPages = pageName => {
-    // console.log(pageName);
     if (netConnection) {
       if (pageName == 'Weather') {
         navigation.navigate(pageName, {latLong});
@@ -263,9 +262,7 @@ const FarmerDashboard = ({navigation}) => {
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }
-      console.log('UP', ALL_ACTIVITY_SCHEDULE_RES);
       if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-        // Handle both possible response structures like in the Dashboard component
         activityScheduleData =
           ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data ||
           ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows ||
