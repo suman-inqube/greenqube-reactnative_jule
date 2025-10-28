@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
-import { View, StyleSheet, Text, useColorScheme } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import React, {memo} from 'react';
+import {View, StyleSheet, Text, useColorScheme} from 'react-native';
+import {Dropdown} from 'react-native-element-dropdown';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
 
 const DropdownForm = ({
   color = '#4e4e4e',
@@ -18,8 +18,8 @@ const DropdownForm = ({
   const labelString = label
     ? label.charAt(0).toUpperCase() + label.slice(1)
     : '';
-// console.log('DropdownForm rendered', label||'');
-const safeData = Array.isArray(data) ? data : [];
+  // console.log('DropdownForm rendered', label||'');
+  const safeData = Array.isArray(data) ? data : [];
   return (
     <View>
       <View style={styles.labelContainer}>
@@ -27,7 +27,7 @@ const safeData = Array.isArray(data) ? data : [];
         {labelString ? (
           <>
             <Text
-              style={[styles.labelText, { color: color ?? 'black' }, labelStyle]}>
+              style={[styles.labelText, {color: color ?? 'black'}, labelStyle]}>
               {labelString}
             </Text>
             {required && <Text style={styles.requiredStar}> *</Text>}
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 5,
     paddingHorizontal: 8,
-    backgroundColor:Colors.background,
+    backgroundColor: Colors.background,
     width: '100%',
   },
   placeholderStyle: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: Colors.borderGreen,
     borderRadius: 5,
-    backgroundColor:Colors.background,
+    backgroundColor: Colors.background,
     padding: 4,
   },
   labelContainer: {
@@ -133,4 +133,3 @@ const styles = StyleSheet.create({
   },
 });
 export default memo(DropdownForm);
-

@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import {useDrawerProgress} from '@react-navigation/drawer';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import {Root} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import MyErrorBoundary from '../Common/MyErrorBoundary';
 
@@ -27,13 +27,13 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
   }));
 
   return (
-    <Root>
-      <MyErrorBoundary>
-        <SafeAreaView
-          style={{flex: 1, backgroundColor: '#1d3122'}}
-          edges={['top', 'right', 'bottom', 'left']}>
-          
-          {/* 👇 Add your StatusBar here
+    <SafeAreaProvider>
+      <SafeAreaView
+        style={{flex: 1, backgroundColor: '#1d3122'}}
+        edges={['top', 'right', 'bottom', 'left']}>
+        <Root>
+          <MyErrorBoundary>
+            {/* 👇 Add your StatusBar here
           <StatusBar
             translucent={false}         // false = StatusBar takes up space
             backgroundColor="#1d3122"   // match your background
@@ -41,12 +41,13 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
             animated={true}
           /> */}
 
-          <Animated.View style={[styles.container, animatedStyle]}>
-            {children}
-          </Animated.View>
-        </SafeAreaView>
-      </MyErrorBoundary>
-    </Root>
+            <Animated.View style={[styles.container, animatedStyle]}>
+              {children}
+            </Animated.View>
+          </MyErrorBoundary>
+        </Root>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

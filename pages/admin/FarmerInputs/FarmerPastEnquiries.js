@@ -350,13 +350,21 @@ const FarmerPastEnquiries = ({ navigation }) => {
                             {item.users && item.users.userName}
                           </Text>
                         </View>
-                        <View style={styles.infoRow}>
-                          <Text style={styles.infoLabel}>
-                            {t('far_list_number')} :
-                          </Text>
-                          <Text style={styles.infoValue}>
-                            {item.users && item.users.contactNumber}
-                          </Text>
+                        <View style={styles.cardContent}>
+                          <View style={styles.infoRow}>
+                            {/* <Text style={styles.infoLabel}>{t('name')}:</Text> */}
+                            <Text style={styles.infoValue} numberOfLines={1}>
+                              {item.users && item.users.userName}
+                            </Text>
+                          </View>
+                          <View style={styles.infoRow}>
+                            {/* <Text style={styles.infoLabel}>
+                              {t('far_list_number')} :
+                            </Text> */}
+                            <Text style={styles.infoValue}>
+                              {item.users && item.users.contactNumber}
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -485,9 +493,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   infoRow: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   infoLabel: {

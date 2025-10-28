@@ -82,7 +82,7 @@ const Training = () => {
         {information: `${dbname},${lan_id}`},
       );
       // noticeDetailsAPI(dbname, lan_id, token, noticeId);
-
+      console.log('response');
       if (response) {
         setNoticeDetails(response.data.data[0]);
         setNoticeFiles(response.data.data[0].agri_files);

@@ -311,6 +311,7 @@ const ActivityReportAWD = ({ navigation }) => {
             'activityType' + currentfarmerId,
           );
         }
+        console.log('activityType_res', activityType_res);
         if (activityType_res?.status == 200) {
           const dataArray = activityType_res?.data?.data?.rows.map(data => ({
             value: data.fid,
@@ -739,6 +740,8 @@ const ActivityReportAWD = ({ navigation }) => {
         //   saveData.cu_rel_id,
         // ),
       ]);
+      console.log('activitySchedule', activitySchedule.status);
+      Alert.alert('not 200');
       if (activitySchedule.status == 200) {
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
           var lastData =

@@ -1,5 +1,11 @@
 import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useMemo,
+  useCallback,
+} from 'react';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
 import {axiosGet} from '../../utils/api';
@@ -17,7 +23,10 @@ const UpcomingActivity = () => {
     loginUser_data,
     onBackPress,
     Root,
-
+    logoImage,
+    topBanner,
+    farmerData,
+    navigationBarHeight,
     // LoadingScreen: LoadingComponent,
   } = useContext(userCreateContext);
 
@@ -27,41 +36,98 @@ const UpcomingActivity = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filterOption, setFilterOption] = useState(false);
+  const [filterItem, setFilterItem] = useState('');
+  const [filterName, setFilterName] = useState('');
+  const [searchFarmerName, setSearchFarmerName] = useState('');
+  // const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
+  const [fromDate, setFromDate] = useState('');
 
-  // Fetch activity schedule data
-  useEffect(() => {
-    const fetchActivitySchedule = async () => {
-      if (!token || !user_id) return;
-
-      setLoading(true);
+  const filterOptionShow = useCallback(async () => {
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
+    openFilterSheet({
+      options: ['farmer', '', '', ''],
+      t: t,
+      dropdownData: farmerData,
+      filterItem: filterItem,
+      setFilterItem: setFilterItem,
+      setSearchFarmerName: setSearchFarmerName,
+      // setSearchFarmerPhone: setSearchFarmerPhone,
+      searchFarmerName: searchFarmerName,
+      // searchFarmerPhone: searchFarmerPhone,
+      title: 'Choose Status',
+      handleFilterResult: handleFilterResult,
+      handleFilterRemove: handleFilterRemove,
+      setFromDate: setFromDate,
+      setToDate: '',
+      fromDate: '',
+      toDate: '',
+      effective_dates: '',
+      navigationBarHeight: navigationBarHeight,
+      height: 210,
+    });
+  }, [filterItem, searchFarmerName]);
+  const handleFilterResult = useCallback(
+    ({filter, farmerName, sheetCarbonType}) => {
       try {
-        const response = await axiosGet(
-          ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-            type: 'carbon_activity',
-            supervisor_id: user_id,
-          }),
-          token,
-          {
-            information: `${dbname},${lan_id},${user_id}`,
-          },
-        );
+        setFilterItem(filter);
 
-        console.log('Activity Schedule Response:', response);
+        setSearchFarmerName({
+          label: farmerName?.label,
+          value: farmerName?.value,
+        });
 
-        if (response?.status === 200) {
-          // Use the correct data structure from API response
-          const data = response?.data?.data?.data || [];
-          setActivityList(Array.isArray(data) ? data : []);
-        }
-      } catch (error) {
-        console.error('Error fetching activity schedule:', error);
-      } finally {
-        setLoading(false);
+        onPageLoad(farmerName?.value);
+      } catch (error) {}
+    },
+    [filterItem, searchFarmerName],
+  );
+  const handleFilterRemove = () => {
+    try {
+      setSearchFarmerName({label: '', value: ''});
+
+      setFilterItem('');
+      onPageLoad();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  // Fetch activity schedule data
+
+  const onPageLoad = async (farmer_id = '') => {
+    if (!token || !user_id) return;
+
+    setLoading(true);
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+          type: 'carbon_activity',
+          supervisor_id: user_id,
+          farmer_id: farmer_id,
+        }),
+        token,
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+        },
+      );
+
+      if (response?.status === 200) {
+        // Use the correct data structure from API response
+        const data = response?.data?.data?.data || [];
+        setActivityList(Array.isArray(data) ? data : []);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching activity schedule:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    onPageLoad('', '', '', '');
+  }, []);
+  // fetchActivitySchedule();
 
-    fetchActivitySchedule();
-  }, [token, dbname, lan_id, user_id, page]);
+  //  [token, dbname, lan_id, user_id, page]);
 
   const renderActivityItem = ({item, index}) => {
     const farmerName = item?.farmer?.userName || 'Unknown Farmer';
@@ -82,10 +148,11 @@ const UpcomingActivity = () => {
               </View>
               <Text style={styles.subText}> {contactNumber}</Text>
               <Text style={styles.activityDate}>
-                Sowing Date: {upcomingActivities[0]?.sowing_date || 'N/A'}
+                {t('Sowing Date')} :{' '}
+                {upcomingActivities[0]?.sowing_date || 'N/A'}
               </Text>
               <Text style={styles.activityDate}>
-                Hervesting Date:{' '}
+                {t('Hervesting Date')} :{' '}
                 {upcomingActivities[0]?.harvesting_date || 'N/A'}
               </Text>
             </View>
@@ -110,7 +177,7 @@ const UpcomingActivity = () => {
                           'Unknown Activity'}
                       </Text>
                       <Text style={styles.daysUntil}>
-                        {activity?.days_until_start || 0} days to go
+                        {activity?.days_until_start || 0} {t('days to go')}
                       </Text>
                     </View>
                     {/* <Text style={styles.activityType}>
@@ -118,7 +185,7 @@ const UpcomingActivity = () => {
                 </Text> */}
 
                     <Text style={styles.activityDate}>
-                      Schedule date:{' '}
+                      {t('Schedule date')} :{' '}
                       {new Date(
                         activity?.activity_start_date,
                       ).toLocaleDateString('en-GB', {
@@ -162,19 +229,19 @@ const UpcomingActivity = () => {
     navigation.navigate('Dashboard');
     return true;
   });
-  const HandlerGoBack = () => navigation.navigate('Dashboard');
+  // const HandlerGoBack = () => navigation.navigate('Dashboard');
 
   const renderCustomHeader = useMemo(
     () => (
       <CustomHeader
         t={t}
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
         filterOptionShow={filterOptionShow}
       />
     ),
-    [],
+    [filterOptionShow],
   );
   return (
     <FarmerDrawerScreenWrapper1>

@@ -1093,7 +1093,14 @@
     "PlotStatusUpdate":"Plot Status Update",
     "Plot Status":"Plot Status",
     "no_rejected_plots":"No rejected plot",
-    "no_non_geofenced_plots":"No non geofenced plots"
+    "no_non_geofenced_plots":"No non geofenced plots",
+    "Activity":"Activity",
+    "Pending":"Pending",
+    "Upcoming":"Upcoming",
+    "Sowing Date":"Sowing Date",
+    "Hervesting Date":"Hervesting Date",
+    "days to go":"days to go",
+    "Schedule date":"Schedule date"
 
 
 

@@ -180,6 +180,8 @@ const CustomHeader = memo(
         Market: t('Plot Status'),
         UpcomingActivity: t('upcomming_act'),
         PendingActivity: t('Pending Activity'),
+        FarmerUpcomingActivity: t('upcomming_act'),
+        FarmerPendingActivity: t('Pending Activity'),
       }),
 
       [t],

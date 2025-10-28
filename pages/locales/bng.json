@@ -1083,7 +1083,14 @@
 "training_support_list": "প্রশিক্ষণের তালিকা",
 "Farmer_LiveHood": "জীবিকা",
 "Package_Item_Details": "প্যাকেজ আইটেম বিস্তারিত",
-    "Finance":"অর্থনীতি"
+    "Finance":"অর্থনীতি",
+ "Activity": "কার্যক্রম",
+  "Pending": "অপেক্ষমাণ",
+  "Upcoming": "আসন্ন",
+  "Sowing Date": "বপনের তারিখ",
+  "Hervesting Date": "ফসল কাটার তারিখ",
+  "days to go": "দিন বাকি",
+  "Schedule date": "নির্ধারিত তারিখ"   
 
 
 }

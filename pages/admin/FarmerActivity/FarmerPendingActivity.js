@@ -45,8 +45,6 @@ const FarmerPendingActivity = () => {
           },
         );
 
-        console.log('Activity Schedule Response:', response);
-
         if (response?.status === 200) {
           // Use the correct data structure from API response
           const data = response?.data?.data?.data || [];
@@ -81,10 +79,16 @@ const FarmerPendingActivity = () => {
           <View style={styles.activityItem}>
             {/* Farmer Information */}
             <View style={styles.farmerInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.mainText}>{farmerName}</Text>
-                <Text style={styles.mainText}> {plotName}</Text>
-              </View>
+              {/* <Text style={styles.mainText}>{farmerName}</Text> */}
+              <Text style={styles.mainText}> {plotName}</Text>
+              <Text style={styles.activityDate}>
+                Sowing Date: {overdueActivities[0]?.sowing_date || 'N/A'}
+              </Text>
+              <Text style={styles.activityDate}>
+                Hervesting Date:{' '}
+                {overdueActivities[0]?.harvesting_date || 'N/A'}
+              </Text>
+
               {/* <Text style={styles.subText}> {contactNumber}</Text> */}
             </View>
 
@@ -108,7 +112,7 @@ const FarmerPendingActivity = () => {
                           'Unknown Activity'}
                       </Text>
                       <Text style={styles.daysUntil}>
-                        {activity?.days_until_start || 0} days ago
+                        {activity?.days_until_start * -1 || 0} days ago
                       </Text>
                     </View>
                     {/* <Text style={styles.activityType}>
@@ -116,16 +120,23 @@ const FarmerPendingActivity = () => {
                 </Text> */}
 
                     <Text style={styles.activityDate}>
-                      Start:{' '}
+                      Schedule date:{' '}
                       {new Date(
                         activity?.activity_start_date,
-                      ).toLocaleDateString()}
-                    </Text>
-                    <Text style={styles.activityDate}>
-                      End:{' '}
-                      {new Date(
-                        activity?.activity_end_date,
-                      ).toLocaleDateString()}
+                      ).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}{' '}
+                      -{' '}
+                      {new Date(activity?.activity_end_date).toLocaleDateString(
+                        'en-GB',
+                        {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        },
+                      )}
                     </Text>
                   </View>
                 ))
