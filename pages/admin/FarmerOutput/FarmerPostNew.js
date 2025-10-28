@@ -7,8 +7,9 @@ import {
   ScrollView,
   BackHandler,
   Dimensions,
+  Alert,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   farmerAgainstSupervisorAPI,
   livelihoodNameVarietyLandrelAPI,
@@ -18,11 +19,13 @@ import {
   addModuleForView,
 } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import {useNavigation} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {plotHook} from '../../hooks/plotHook';
-import {Colors, Fronts} from '../../utils/Constants';
+import { useNavigation } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { plotHook } from '../../hooks/plotHook';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 const FarmerPostNew = props => {
   //GQR-67
   const {
@@ -42,9 +45,9 @@ const FarmerPostNew = props => {
     logoImage,
     topBanner,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id,agri_user_addresses } = loginUser_data;
   //GQR-67
-  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
+  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(
     dbname,
     lan_id,
     token,
@@ -85,122 +88,138 @@ const FarmerPostNew = props => {
     block: '',
   });
   const handlePlot = async relId => {
-    if (relId.label == 'other') {
-      setIsOther(true);
-      const farmer_all = await farmerAgainstSupervisorAPI(
-        dbname,
-        lan_id,
-        user_id,
-      );
-      const problemNameFound = farmer_all?.data?.data?.rows.find(
-        user => user.user_id === relId.user_id,
-      );
-      if (problemNameFound) {
-        setSaveData({
-          ...saveData,
-          type: '',
-          farmer_id: relId.user_id,
-          transaction_type: 2,
-          fulfill_status: 0,
-          state_name:
-            problemNameFound?.agri_user_addresses[0].agri_state.state_name,
-          district_name:
-            problemNameFound?.agri_user_addresses[0].agri_district
-              .district_name,
-          subdiv_name:
-            problemNameFound?.agri_user_addresses[0].agri_subdivision
-              .subdiv_name,
-          state_id: problemNameFound?.agri_user_addresses[0].state,
-          district_id: problemNameFound?.agri_user_addresses[0].district,
-          block_id: problemNameFound?.agri_user_addresses[0].subdivision,
-        });
-      }
-    } else {
-      setIsOther(false);
-      const [livelyhoodNameVerity, farmer_all] = await Promise.all([
-        livelihoodNameVarietyLandrelAPI(
-          dbname,
-          lan_id,
-          relId.user_id,
-          relId.value,
-        ),
-        farmerAgainstSupervisorAPI(dbname, lan_id, user_id),
-      ]);
-      if (livelyhoodNameVerity?.status == 200) {
-        const problemNameFound = farmer_all?.data?.data?.rows.find(
-          user => user.user_id === relId.user_id,
-        );
-        if (problemNameFound) {
-          if (
-            new Date(livelyhoodNameVerity?.data?.data?.harvesting_date) >
-            new Date()
-          ) {
-            await Promise.all([
-              setProduceName([
-                {
-                  value: livelyhoodNameVerity?.data?.data?.crop_name.fid,
-                  label: livelyhoodNameVerity?.data?.data?.crop_name.name,
-                },
-              ]),
-              setProduceVariety([
-                {
-                  value: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
-                  label: livelyhoodNameVerity?.data?.data?.crop_variety.name,
-                },
-              ]),
-              setLiveliHoodType([
-                {
-                  value: livelyhoodNameVerity?.data?.data?.crop_type.fid,
-                  label: livelyhoodNameVerity?.data?.data?.crop_type.name,
-                },
-              ]),
-              setNameVarityLivelihood({
-                ...nameVarityLivelihood,
-                name: livelyhoodNameVerity?.data?.data?.crop_name.fid,
-                varity: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
-                livelihood: livelyhoodNameVerity?.data?.data?.crop_type.fid,
-              }),
-              setSaveData({
-                ...saveData,
-                type: '',
-                farmer_id: relId.user_id,
-                land_rel_id: relId.value,
-                transaction_type: 2,
-                fulfill_status: 0,
-                state_name:
-                  problemNameFound?.agri_user_addresses[0].agri_state
-                    ?.state_name,
-                district_name:
-                  problemNameFound?.agri_user_addresses[0].agri_district
-                    ?.district_name,
-                subdiv_name:
-                  problemNameFound?.agri_user_addresses[0].agri_subdivision
-                    ?.subdiv_name,
-                state_id: problemNameFound?.agri_user_addresses[0].state,
-                district_id: problemNameFound?.agri_user_addresses[0].district,
-                block_id: problemNameFound?.agri_user_addresses[0].subdivision,
-                entity_type_id: livelyhoodNameVerity?.data?.data?.crop_type.fid,
-                entity_name_id: livelyhoodNameVerity?.data?.data?.crop_name.fid,
-                entity_variety_id:
-                  livelyhoodNameVerity?.data?.data?.crop_variety.fid,
-                others: '',
-              }),
-            ]);
-          } else {
-            // MessageDialog({ message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
-            Toast.show({
-              time: 3,
-              text: `${t('your_previous_crop_hervested')} ${t(
-                'add_a_new_crop',
-              )}`,
-              ...AlertMesg[0],
-            });
-            setTimeout(() => {
-              navigation.navigate('FarmerDashboard');
-            }, 1300);
-          }
+    try {
+      if (relId.label == 'other') {
+        setIsOther(true);
+        // const farmer_all = await farmerAgainstSupervisorAPI(
+        //   dbname,
+        //   lan_id,
+        //   user_id,
+        // );
+        const farmer_all = await axiosGet(
+          ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+            relID: relId.value,
+          }),
+          '',
+          {
+            information: `${dbname},${lan_id},${relId.user_id}`,
+          },
+        )
+
+          setSaveData({
+            ...saveData,
+            type: '',
+            farmer_id: relId.user_id,
+            transaction_type: 2,
+            fulfill_status: 0,
+            state_name:
+              agri_user_addresses[0].agri_state.state_name,
+            district_name:
+              agri_user_addresses[0].agri_district
+                .district_name,
+            subdiv_name:
+              agri_user_addresses[0].agri_subdivision
+                .subdiv_name,
+            state_id: agri_user_addresses[0].state,
+            district_id: agri_user_addresses[0].district,
+            block_id: agri_user_addresses[0].subdivision,
+          });
+
+      } else {
+        setIsOther(false);
+
+        const [livelyhoodNameVerity, farmer_all] = await Promise.all([
+          livelihoodNameVarietyLandrelAPI(
+            dbname,
+            lan_id,
+            relId.user_id,
+            relId.value,
+          ),
+          axiosGet(
+            ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+              relID: relId.value,
+            }),
+            '',
+            {
+              information: `${dbname},${lan_id},${user_id}`,
+            },
+          )
+        ]);
+        if (livelyhoodNameVerity?.status == 200) {
+          const problemNameFound = farmer_all;
+            if (
+              new Date(livelyhoodNameVerity?.data?.data?.harvesting_date) >
+              new Date()
+            ) {
+              await Promise.all([
+                setProduceName([
+                  {
+                    value: livelyhoodNameVerity?.data?.data?.crop_name.fid,
+                    label: livelyhoodNameVerity?.data?.data?.crop_name.name,
+                  },
+                ]),
+                setProduceVariety([
+                  {
+                    value: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
+                    label: livelyhoodNameVerity?.data?.data?.crop_variety.name,
+                  },
+                ]),
+                setLiveliHoodType([
+                  {
+                    value: livelyhoodNameVerity?.data?.data?.crop_type.fid,
+                    label: livelyhoodNameVerity?.data?.data?.crop_type.name,
+                  },
+                ]),
+                setNameVarityLivelihood({
+                  ...nameVarityLivelihood,
+                  name: livelyhoodNameVerity?.data?.data?.crop_name.fid,
+                  varity: livelyhoodNameVerity?.data?.data?.crop_variety.fid,
+                  livelihood: livelyhoodNameVerity?.data?.data?.crop_type.fid,
+                }),
+                setSaveData({
+                  ...saveData,
+                  type: '',
+                  farmer_id: relId.user_id,
+                  land_rel_id: relId.value,
+                  transaction_type: 2,
+                  fulfill_status: 0,
+                  state_name:
+                    agri_user_addresses[0].agri_state
+                      ?.state_name,
+                  district_name:
+                    agri_user_addresses[0].agri_district
+                      ?.district_name,
+                  subdiv_name:
+                    agri_user_addresses[0].agri_subdivision
+                      ?.subdiv_name,
+                  state_id: agri_user_addresses[0].state,
+                  district_id: agri_user_addresses[0].district,
+                  block_id: agri_user_addresses[0].subdivision,
+                  entity_type_id: livelyhoodNameVerity?.data?.data?.crop_type.fid,
+                  entity_name_id: livelyhoodNameVerity?.data?.data?.crop_name.fid,
+                  entity_variety_id:
+                    livelyhoodNameVerity?.data?.data?.crop_variety.fid,
+                  others: '',
+                }),
+              ]);
+            } else {
+              // MessageDialog({ message: `${t('your_previous_crop_hervested')} ${t('add_a_new_crop')}` })
+              Toast.show({
+                time: 3,
+                text: `${t('your_previous_crop_hervested')} ${t(
+                  'add_a_new_crop',
+                )}`,
+                ...AlertMesg[0],
+              });
+              setTimeout(() => {
+                navigation.navigate('FarmerDashboard');
+              }, 1300);
+            }
+      
         }
       }
+    } catch (error) {
+      console.log(error)
     }
   };
   const handleDatePicker = item => {
@@ -210,7 +229,7 @@ const FarmerPostNew = props => {
   const handleBackButtonClick = () => {
     if (nextpage == 2) {
       setApproximateDate('');
-      setSaveData({...saveData, land_rel_id: '', quantity: '', unit_id: ''});
+      setSaveData({ ...saveData, land_rel_id: '', quantity: '', unit_id: '' });
       setNameVarityLivelihood({
         ...nameVarityLivelihood,
         name: '',
@@ -289,10 +308,10 @@ const FarmerPostNew = props => {
       return false;
     }
     if (!saveData.unit_id) {
-      Toast.show({time: 2, text: `${t('select_unit_input')}`, ...AlertMesg[0]});
+      Toast.show({ time: 2, text: `${t('select_unit_input')}`, ...AlertMesg[0] });
       return false;
     } else if (approximateDate == '' && nextpage == 2) {
-      Toast.show({text: `${t('approximate_date')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('approximate_date')}`, ...AlertMesg[0] });
       return false;
     }
     return true;
@@ -362,7 +381,7 @@ const FarmerPostNew = props => {
             'outPut_user',
             1,
           );
-          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
           console.log('Toast ');
           navigation.navigate('FarmerViewPast');
         }
@@ -372,19 +391,20 @@ const FarmerPostNew = props => {
 
   useEffect(() => {
     onPageLoad();
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-    return () => {
-      BackHandler.removeEventListener(
-        'hardwareBackPress',
-        handleBackButtonClick,
-      );
-    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButtonClick,
+    );
+
+    return () => backHandler.remove(); // ✅ Correct cleanup
   }, [nextpage]);
+
 
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           <CustomHeader t={t} />
           <DatePickerComp
             openDate={openDatePicker}
@@ -395,7 +415,7 @@ const FarmerPostNew = props => {
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.fromContainer}>
-              <View style={{padding: 5}}>
+              <View style={{ padding: 5 }}>
                 {nextpage == 1 ? (
                   <>
                     <DropdownForm
@@ -409,7 +429,7 @@ const FarmerPostNew = props => {
                         label={t('other')}
                         value={saveData.others}
                         onChangeText={others =>
-                          setSaveData({...saveData, others: others})
+                          setSaveData({ ...saveData, others: others })
                         }
                       />
                     ) : (
@@ -420,6 +440,8 @@ const FarmerPostNew = props => {
                           required={true}
                           onChange={relId => handlePlot(relId)}
                           val={nameVarityLivelihood.livelihood}
+                          disable={true}
+
                         />
                         <DropdownForm
                           label={t('crop_name')}
@@ -427,6 +449,7 @@ const FarmerPostNew = props => {
                           required={true}
                           onChange={relId => handlePlot(relId)}
                           val={nameVarityLivelihood.name}
+                          disable={true}
                         />
                         <DropdownForm
                           label={t('crop_veriety')}
@@ -434,6 +457,7 @@ const FarmerPostNew = props => {
                           required={true}
                           onChange={relId => handlePlot(relId)}
                           val={nameVarityLivelihood.varity}
+                          disable={true}
                         />
                       </>
                     )}
@@ -448,15 +472,15 @@ const FarmerPostNew = props => {
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                       }}>
-                      <View style={{width: '45%'}}>
+                      <View style={{ width: '45%' }}>
                         <InputTextForm
                           label={t('quantity')}
                           onChangeText={item =>
-                            setSaveData({...saveData, quantity: item})
+                            setSaveData({ ...saveData, quantity: item })
                           }
                         />
                       </View>
-                      <View style={{width: '45%'}}>
+                      <View style={{ width: '45%' }}>
                         <DropdownForm
                           label={t('select_unit_input')}
                           data={unitData}
@@ -474,6 +498,7 @@ const FarmerPostNew = props => {
                           : t(`${regionaldatas.state}`)
                       }
                       value={saveData.state_name}
+                      editable={false}
                     />
                     <InputTextForm
                       label={
@@ -482,6 +507,7 @@ const FarmerPostNew = props => {
                           : t(`${regionaldatas.district}`)
                       }
                       value={saveData.district_name}
+                      editable={false}
                     />
                     <InputTextForm
                       label={
@@ -490,18 +516,19 @@ const FarmerPostNew = props => {
                           : t(`${regionaldatas.block}`)
                       }
                       value={saveData.subdiv_name}
+                      editable={false}
                     />
                     <View>
-                      <Text style={{color: '#000'}}>
+                      <Text style={{ color: '#000' }}>
                         {t('approximate_date')}
                       </Text>
                       <TouchableOpacity
                         style={styles.appromimateContainer}
                         onPress={() => setOpenDatePicker(!openDatePicker)}>
-                        <Text style={{color: '#000'}}>{approximateDate}</Text>
+                        <Text style={{ color: '#000' }}>{approximateDate}</Text>
                         <Image
                           source={require('../../Common/images/calendar.png')}
-                          style={{width: 30, height: 30}}
+                          style={{ width: 30, height: 30 }}
                         />
                       </TouchableOpacity>
                     </View>

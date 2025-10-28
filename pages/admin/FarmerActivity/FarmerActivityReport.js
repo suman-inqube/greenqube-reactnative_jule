@@ -1130,9 +1130,6 @@ const FarmerActivityReport = ({navigation}) => {
     });
     onPageLoad();
   }, [isOnline]);
-  const HandlerGoBack = () => {
-    navigation.navigate('FarmerActivityList');
-  };
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
     if (item == 'firstItem') {
@@ -1195,7 +1192,6 @@ const FarmerActivityReport = ({navigation}) => {
         <View style={styles.container}>
           <CustomHeader
             path="FarmerActivityList"
-            HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

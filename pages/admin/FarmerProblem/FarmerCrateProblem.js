@@ -148,14 +148,14 @@ const FarmerCreateProblem = ({ navigation }) => {
   const watermarkViewRef = useRef(null);
   const handlePlot = useCallback(async relId => {
     setShowingMenu(false);
-    setNameVarityStartEnd({
-      ...nameVarityStartEnd,
-      name: '',
-      varity: '',
-      cycleStarts: '',
-      cycleEnd: '',
-      production_process: '',
-    });
+    // setNameVarityStartEnd({
+    //   ...nameVarityStartEnd,
+    //   name: '',
+    //   varity: '',
+    //   cycleStarts: '',
+    //   cycleEnd: '',
+    //   production_process: '',
+    // });
     if (isOnline) {
       var response = await problemProduceAgainstPlotAPI(
         dbLanTokUsr.dbName,
@@ -167,7 +167,6 @@ const FarmerCreateProblem = ({ navigation }) => {
     } else {
       var response = await getItem('problemProduceAgainstPlot' + relId.value);
     }
-    console.log('problem plot', response.status);
     if (response?.status == 200) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -340,7 +339,7 @@ const FarmerCreateProblem = ({ navigation }) => {
         ',' +
         problem_name.label,
     }));
-  }, []);
+  }, [nameVarityStartEnd]);
   const onPageLoad = async () => {
     const { latitude, longitude } = coords || {};
     setfarmerID(user_id);

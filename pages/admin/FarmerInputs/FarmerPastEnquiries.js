@@ -9,23 +9,23 @@ import {
   SafeAreaView,
   RefreshControl,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   inputEnquiryViewAPI,
   FarmerinputPastEnquiryListAPI,
 } from '../../../config/apiHere';
 import FarmerPastEnquiriesModel from './FarmerPastEnquiriesModel';
 import Filter from '../../Common/FarmerFilter';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-const FarmerPastEnquiries = ({navigation}) => {
+const FarmerPastEnquiries = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -39,9 +39,9 @@ const FarmerPastEnquiries = ({navigation}) => {
     logoImage,
     topBanner,
     effective_dates,
-    Root,
+    navigationBarHeight
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(true);
@@ -65,13 +65,7 @@ const FarmerPastEnquiries = ({navigation}) => {
     grandTotal: '',
     disTotal: '',
   });
-  const filterOptionShow = () => {
-    if (!filterOption) {
-      setFilterOption(true);
-    } else {
-      setFilterOption(false);
-    }
-  };
+
   const onchangeFilterItem = value => {
     setFilterItem(value);
     setFilterOption(false);
@@ -110,15 +104,10 @@ const FarmerPastEnquiries = ({navigation}) => {
     }
     setPastEnquiries(true);
   };
-  const onPageLoad = async () => {
-    const response = await FarmerinputPastEnquiryListAPI(
-      dbname,
-      lan_id,
-      token,
-      user_id,
-      '',
-      '',
-    );
+  const onPageLoad = async (fromDate='',toDate='') => {
+    const response = await axiosGet(ROUTES.GET.INPUT_OUTPUT_ROUTE({ userId: user_id,fromDate:fromDate,toDate:toDate }), token, {
+      information: `${dbname},${lan_id}`
+    })
     if (response?.status == 200) {
       setInputPastEnquiryAll(response?.data?.data?.rows);
       setItem('input_past_enquiry_Data', response?.data?.data?.rows);
@@ -190,7 +179,6 @@ const FarmerPastEnquiries = ({navigation}) => {
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => navigation.navigate('FarmerInputList');
   const filterDataRemove = async () => {
     setFilterItem('');
     setFilterOption(false);
@@ -217,39 +205,91 @@ const FarmerPastEnquiries = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
+
+  const filterOptionShow = useCallback(async () => {
+    try {
+      const { openFilterSheet } = await import('../../Components/FilterSheet');
+      openFilterSheet({
+        options: ['', '', 'date'],
+        t: t,
+        dropdownData: [],
+        filterItem: filterItem,
+        setFilterItem: setFilterItem,
+        title: 'Choose Status',
+        handleFilterResult: handleFilterResult,
+        handleFilterRemove: handleFilterRemove,
+        setFromDate: setFromDate,
+        setToDate: setToDate,
+        fromDate: fromDate,
+        toDate: toDate,
+        effective_dates: effective_dates,
+        navigationBarHeight: navigationBarHeight,
+        height: 210,
+      });
+    } catch (error) {
+      console.error(error)
+    }
+  }, [fromDate, toDate, filterItem]);
+
+  const handleFilterResult = useCallback(
+    async ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+      try {
+       onPageLoad(fromDate, toDate)
+      } catch (error) { 
+        console.error(error)
+      }
+    },
+    [],
+  );
+  const handleFilterRemove = () => {
+    try {
+      setFilterItem('');
+      setFromDate('');
+      setToDate('');
+      setCarbonType({ label: '', value: '' });
+      fetchActivityListAPI(1, '', '', '', '', '');
+      setPage(1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+        t={t}
+      />
+    ),
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <>
-        <Root>
-          <View style={{flex: 1, backgroundColor: Colors.background_light}}>
-            <CustomHeader
-              path="FarmerInputList"
-              HandlerGoBack={HandlerGoBack}
-              logoImage={logoImage}
-              topBanner={topBanner}
-            />
-            <DatePickerComp
-              openDate={openFromDate}
-              newDate={newFromDate}
-              setOpenDate={setOpenFromDate}
-              handleDatePicker={handleDatePicker}
-            />
-            <DatePickerComp
-              openDate={openToDate}
-              newDate={newToDate}
-              setOpenDate={setOpenToDate}
-              handleDatePicker={handleDatePicker2}
-              minimumDate={
-                fromDate == ''
-                  ? ''
-                  : new Date(
-                      `${new Date(fromDate).getFullYear()}-${
-                        new Date(fromDate).getMonth() + 1
-                      }-${new Date(fromDate).getDate() + 1}`,
-                    )
-              }
-            />
-            <Filter
+        <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+          {renderCustomHeader}
+          <DatePickerComp
+            openDate={openFromDate}
+            newDate={newFromDate}
+            setOpenDate={setOpenFromDate}
+            handleDatePicker={handleDatePicker}
+          />
+          <DatePickerComp
+            openDate={openToDate}
+            newDate={newToDate}
+            setOpenDate={setOpenToDate}
+            handleDatePicker={handleDatePicker2}
+            minimumDate={
+              fromDate == ''
+                ? ''
+                : new Date(
+                  `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
+                  }-${new Date(fromDate).getDate() + 1}`,
+                )
+            }
+          />
+          {/* { <Filter
               //   title={t('past_enq')}
               filterItem={filterItem}
               filterOption={filterOption}
@@ -261,89 +301,88 @@ const FarmerPastEnquiries = ({navigation}) => {
               newToDate={toDate}
               filterDataRemove={filterDataRemove}
               onlyDate={true}
-            />
-            <FarmerPastEnquiriesModel
-              setModalVisible={setPastEnquiries}
-              modalVisible={pastEnquiries}
-              pastEnquirySingle={pastEnquirySingle}
-              pastEnquiryView={pastEnquiryView}
-              qty={result}
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgba(0,0,0,0.5)',
-              }}
-            />
+            />} */}
+          <FarmerPastEnquiriesModel
+            setModalVisible={setPastEnquiries}
+            modalVisible={pastEnquiries}
+            pastEnquirySingle={pastEnquirySingle}
+            pastEnquiryView={pastEnquiryView}
+            qty={result}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+          />
 
-            <FlatList
-              data={isLoading ? Array.from({length: 5}) : inputPastEnquiryAll}
-              renderItem={({item, index}) =>
-                isLoading ? (
-                  <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
-                ) : (
-                  <AnimatedCard
-                    item={item}
-                    child={
-                      <TouchableOpacity
-                        style={styles.problemCard}
-                        onPress={() =>
-                          navigateToPages(
-                            item.fid,
-                            dbname,
-                            lan_id,
-                            token,
-                            user_id,
-                          )
-                        }>
-                        <View style={styles.cardHeader}>
-                          <Text style={styles.problemTitle} numberOfLines={2}>
-                            {t('product_name')} :
-                            {item.ioProduPrice &&
-                              item.ioProduPrice.mk_product.product_name}
+          <FlatList
+            data={isLoading ? Array.from({ length: 5 }) : inputPastEnquiryAll}
+            renderItem={({ item, index }) =>
+              isLoading ? (
+                <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
+              ) : (
+                <AnimatedCard
+                  item={item}
+                  child={
+                    <TouchableOpacity
+                      style={styles.problemCard}
+                      onPress={() =>
+                        navigateToPages(
+                          item.fid,
+                          dbname,
+                          lan_id,
+                          token,
+                          user_id,
+                        )
+                      }>
+                      <View style={styles.cardHeader}>
+                        <Text style={styles.problemTitle} numberOfLines={2}>
+                          {t('product_name')} :
+                          {item.ioProduPrice &&
+                            item.ioProduPrice.mk_product.product_name}
+                        </Text>
+                      </View>
+                      <View style={styles.cardContent}>
+                        <View style={styles.infoRow}>
+                          <Text style={styles.infoLabel}>{t('name')}:</Text>
+                          <Text style={styles.infoValue} numberOfLines={1}>
+                            {item.users && item.users.userName}
                           </Text>
                         </View>
-                        <View style={styles.cardContent}>
-                          <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('name')}:</Text>
-                            <Text style={styles.infoValue} numberOfLines={1}>
-                              {item.users && item.users.userName}
-                            </Text>
-                          </View>
-                          <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>
-                              {t('far_list_number')} :
-                            </Text>
-                            <Text style={styles.infoValue}>
-                              {item.users && item.users.contactNumber}
-                            </Text>
-                          </View>
+                        <View style={styles.infoRow}>
+                          <Text style={styles.infoLabel}>
+                            {t('far_list_number')} :
+                          </Text>
+                          <Text style={styles.infoValue}>
+                            {item.users && item.users.contactNumber}
+                          </Text>
                         </View>
-                      </TouchableOpacity>
-                    }
-                    index={index}
-                  />
-                )
-              }
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  colors={[Colors.green]}
-                  tintColor={Colors.green}
+                      </View>
+                    </TouchableOpacity>
+                  }
+                  index={index}
                 />
-              }
-              keyExtractor={(item, index) => index}
-              onEndReachedThreshold={0.5}
-              contentContainerStyle={styles.listContainer}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={5}
-              updateCellsBatchingPeriod={20}
-              windowSize={5}
-            />
-          </View>
-        </Root>
+              )
+            }
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.green]}
+                tintColor={Colors.green}
+              />
+            }
+            keyExtractor={(item, index) => index}
+            onEndReachedThreshold={0.5}
+            contentContainerStyle={styles.listContainer}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={5}
+            updateCellsBatchingPeriod={20}
+            windowSize={5}
+          />
+        </View>
       </>
     </FarmerDrawerScreenWrapper1>
   );
@@ -417,7 +456,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

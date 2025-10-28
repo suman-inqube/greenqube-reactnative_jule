@@ -51,6 +51,7 @@ const audioRecorderPlayer =
 import DatePickerField from '../../Common/DatePickerField';
 import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const CrateProblemUser = ({navigation}) => {
   //GQR-66
   const {
@@ -755,188 +756,194 @@ const CrateProblemUser = ({navigation}) => {
     });
   };
   return (
-    <View style={styles.container}>
-      <CustomHeader
-        path="userList"
-        logoImage={logoImage}
-        topBanner={topBanner}
-      />
-      <DatePickerComp
-        openDate={addAffectedDate}
-        newDate={newFromDate}
-        title={t('agent_crop_problem_affected_date')}
-        setOpenDate={setaddAffectedDate}
-        handleDatePicker={handleDatePicker}
-      />
-      {/* <FormsTitle title={t('add_crop_problem')} /> */}
-      {modalVisibleRecordFirstItem ? (
-        <SoundRecord
-          modalVisibleRecord={modalVisibleRecordFirstItem}
-          setModalVisibleRecord={setModalVisibleRecordFirstItem}
-          onStartRecordFirstItem={onStartRecordFirstItem}
-          onStopRecordFirstItem={onStopRecordFirstItem}
-          soundRecord={soundRecordFirstItem}
+    <FarmerDrawerScreenWrapper1>
+      <View style={styles.container}>
+        <CustomHeader
+          path="userList"
+          logoImage={logoImage}
+          topBanner={topBanner}
         />
-      ) : null}
-      {modalVisibleRecordSecoundItem ? (
-        <SoundRecord
-          modalVisibleRecord={modalVisibleRecordSecoundItem}
-          setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-          onStartRecordFirstItem={onStartRecordSecoundItem}
-          onStopRecordFirstItem={onStopRecordSecoundItem}
-          soundRecord={soundRecordSecoundItem}
+        <DatePickerComp
+          openDate={addAffectedDate}
+          newDate={newFromDate}
+          title={t('agent_crop_problem_affected_date')}
+          setOpenDate={setaddAffectedDate}
+          handleDatePicker={handleDatePicker}
         />
-      ) : null}
-      {modalVisibleRecordThirdItem ? (
-        <SoundRecord
-          modalVisibleRecord={modalVisibleRecordThirdItem}
-          setModalVisibleRecord={setModalVisibleRecordThirdItem}
-          onStartRecordFirstItem={onStartRecordThirdItem}
-          onStopRecordFirstItem={onStopRecordThirdItem}
-          soundRecord={soundRecordThirdItem}
-        />
-      ) : null}
-      {isLoading ? (
-        <View style={styles.loadingScreen}>
-          <LoadingScreen />
+        {/* <FormsTitle title={t('add_crop_problem')} /> */}
+        {modalVisibleRecordFirstItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordFirstItem}
+            setModalVisibleRecord={setModalVisibleRecordFirstItem}
+            onStartRecordFirstItem={onStartRecordFirstItem}
+            onStopRecordFirstItem={onStopRecordFirstItem}
+            soundRecord={soundRecordFirstItem}
+          />
+        ) : null}
+        {modalVisibleRecordSecoundItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordSecoundItem}
+            setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+            onStartRecordFirstItem={onStartRecordSecoundItem}
+            onStopRecordFirstItem={onStopRecordSecoundItem}
+            soundRecord={soundRecordSecoundItem}
+          />
+        ) : null}
+        {modalVisibleRecordThirdItem ? (
+          <SoundRecord
+            modalVisibleRecord={modalVisibleRecordThirdItem}
+            setModalVisibleRecord={setModalVisibleRecordThirdItem}
+            onStartRecordFirstItem={onStartRecordThirdItem}
+            onStopRecordFirstItem={onStopRecordThirdItem}
+            soundRecord={soundRecordThirdItem}
+          />
+        ) : null}
+        {isLoading ? (
+          <View style={styles.loadingScreen}>
+            <LoadingScreen />
+          </View>
+        ) : null}
+        <View style={styles.fromContainer}>
+          <ScrollView>
+            <InputTextForm
+              label={t('farmer_name')}
+              value={searchFarmerName}
+              onChangeText={farmerName => handleSearch(farmerName)}
+              editable={false}
+            />
+            <InputTextForm
+              label={t('farmer_number')}
+              value={searchFarmerPhone}
+              editable={false}
+            />
+            <DropdownForm
+              label={t('plot')}
+              data={plotAll}
+              required={true}
+              onChange={relId => handlePlot(relId)}
+            />
+            {showingMenu ? (
+              <View style={styles.plotSiteContainer}>
+                <View style={styles.detailRow}>
+                  <Text style={[styles.label]}>{t('crop_name')}</Text>
+
+                  <Text style={[styles.value]}>{nameVarityStartEnd.name}</Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={[styles.label]}>{t('crop_veriety')}</Text>
+
+                  <Text style={[styles.value]}>
+                    {nameVarityStartEnd.varity}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={[styles.label]}>{t('showing_date')}</Text>
+
+                  <Text style={[styles.value]}>
+                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
+                  </Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={[styles.label]}>
+                    {t('harvesting_date_auto_calculated')}
+                  </Text>
+
+                  <Text style={styles.value}>
+                    {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              ''
+            )}
+            <DropdownForm
+              label={t('growth_stage')}
+              required={true}
+              data={productionStageAll}
+              onChange={production_stage =>
+                setSaveData({
+                  ...saveData,
+                  growth_stage: production_stage.value,
+                })
+              }
+            />
+            <DropdownForm
+              label={t('problem_type')}
+              required={true}
+              data={problemTypeAll}
+              onChange={item => handleProblemType(item)}
+            />
+            <DropdownForm
+              label={t('select_problem')}
+              required={true}
+              data={problemNameAll}
+              onChange={item => handleProblemName(item)}
+            />
+            {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
+            <DropdownForm
+              label={t('select_severity')}
+              required={true}
+              data={severityAll}
+              onChange={item =>
+                setSaveData({...saveData, severity_id: item.value})
+              }
+            />
+            <InputTextForm
+              label={t('production_system')}
+              value={nameVarityStartEnd.production_process}
+              editable={false}
+            />
+            <DatePickerField
+              label={t('agent_crop_problem_affected_date')}
+              value={affectedDate}
+              required={true}
+              onPress={() => setaddAffectedDate(true)}
+            />
+            <InputTextForm
+              label={t('enter_problem_title')}
+              onChangeText={item =>
+                setSaveData({...saveData, question_title: item})
+              }
+              value={saveData.question_title}
+            />
+            <InputTextForm
+              label={t('enter_problem_description')}
+              onChangeText={item =>
+                setSaveData({...saveData, question_desc: item})
+              }
+              value={saveData.question_desc}
+            />
+            <TakePhoto
+              openImagePicker={openImagePicker}
+              selectedImage={selectedImage}
+              title={t('take_a_photo_optional')}
+            />
+            <RecordComp
+              selectedRecord={selectedRecord}
+              title={t('record_your_comment_optional')}
+              // onPress={handleRecord}
+              setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
+              setModalVisibleRecordSecoundItem={
+                setModalVisibleRecordSecoundItem
+              }
+              setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
+              soundRecordFirstItem={soundRecordFirstItem}
+              soundRecordSecoundItem={soundRecordSecoundItem}
+              soundRecordThirdItem={soundRecordThirdItem}
+              cancelRecord={cancelRecord}
+              soundPlay={soundPlay}
+            />
+          </ScrollView>
         </View>
-      ) : null}
-      <View style={styles.fromContainer}>
-        <ScrollView>
-          <InputTextForm
-            label={t('farmer_name')}
-            value={searchFarmerName}
-            onChangeText={farmerName => handleSearch(farmerName)}
-            editable={false}
-          />
-          <InputTextForm
-            label={t('farmer_number')}
-            value={searchFarmerPhone}
-            editable={false}
-          />
-          <DropdownForm
-            label={t('plot')}
-            data={plotAll}
-            required={true}
-            onChange={relId => handlePlot(relId)}
-          />
-          {showingMenu ? (
-            <View style={styles.plotSiteContainer}>
-              <View style={styles.detailRow}>
-                <Text style={[styles.label]}>{t('crop_name')}</Text>
-
-                <Text style={[styles.value]}>{nameVarityStartEnd.name}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={[styles.label]}>{t('crop_veriety')}</Text>
-
-                <Text style={[styles.value]}>{nameVarityStartEnd.varity}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={[styles.label]}>{t('showing_date')}</Text>
-
-                <Text style={[styles.value]}>
-                  {formatDateToMMDDYYYY(nameVarityStartEnd.cycleStarts)}
-                </Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={[styles.label]}>
-                  {t('harvesting_date_auto_calculated')}
-                </Text>
-
-                <Text style={styles.value}>
-                  {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
-                </Text>
-              </View>
-            </View>
-          ) : (
-            ''
-          )}
-          <DropdownForm
-            label={t('growth_stage')}
-            required={true}
-            data={productionStageAll}
-            onChange={production_stage =>
-              setSaveData({
-                ...saveData,
-                growth_stage: production_stage.value,
-              })
-            }
-          />
-          <DropdownForm
-            label={t('problem_type')}
-            required={true}
-            data={problemTypeAll}
-            onChange={item => handleProblemType(item)}
-          />
-          <DropdownForm
-            label={t('select_problem')}
-            required={true}
-            data={problemNameAll}
-            onChange={item => handleProblemName(item)}
-          />
-          {/* <DropdownForm label="Severity" data={severityAll} onChange={item => console.log(item)} /> */}
-          <DropdownForm
-            label={t('select_severity')}
-            required={true}
-            data={severityAll}
-            onChange={item =>
-              setSaveData({...saveData, severity_id: item.value})
-            }
-          />
-          <InputTextForm
-            label={t('production_system')}
-            value={nameVarityStartEnd.production_process}
-            editable={false}
-          />
-          <DatePickerField
-            label={t('agent_crop_problem_affected_date')}
-            value={affectedDate}
-            required={true}
-            onPress={() => setaddAffectedDate(true)}
-          />
-          <InputTextForm
-            label={t('enter_problem_title')}
-            onChangeText={item =>
-              setSaveData({...saveData, question_title: item})
-            }
-            value={saveData.question_title}
-          />
-          <InputTextForm
-            label={t('enter_problem_description')}
-            onChangeText={item =>
-              setSaveData({...saveData, question_desc: item})
-            }
-            value={saveData.question_desc}
-          />
-          <TakePhoto
-            openImagePicker={openImagePicker}
-            selectedImage={selectedImage}
-            title={t('take_a_photo_optional')}
-          />
-          <RecordComp
-            selectedRecord={selectedRecord}
-            title={t('record_your_comment_optional')}
-            // onPress={handleRecord}
-            setModalVisibleRecordFirstItem={setModalVisibleRecordFirstItem}
-            setModalVisibleRecordSecoundItem={setModalVisibleRecordSecoundItem}
-            setModalVisibleRecordThirdItem={setModalVisibleRecordThirdItem}
-            soundRecordFirstItem={soundRecordFirstItem}
-            soundRecordSecoundItem={soundRecordSecoundItem}
-            soundRecordThirdItem={soundRecordThirdItem}
-            cancelRecord={cancelRecord}
-            soundPlay={soundPlay}
-          />
-        </ScrollView>
+        <ButtonForm
+          label={t('submit')}
+          onPress={() => handleSave()}
+          loading={isLoading}
+        />
+        <Root></Root>
       </View>
-      <ButtonForm
-        label={t('submit')}
-        onPress={() => handleSave()}
-        loading={isLoading}
-      />
-      <Root></Root>
-    </View>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

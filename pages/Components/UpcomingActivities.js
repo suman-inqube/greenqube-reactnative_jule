@@ -35,6 +35,7 @@ const UpcomingActivities = ({
     }
     activitySchedule.forEach(farmerData => {
       const farmerName = farmerData.farmer?.userName || 'Unknown Farmer';
+      const plotName = farmerData.crop?.land_info?.plot_no || 'No Plot';
 
       if (
         farmerData.upcomingActivities &&
@@ -45,6 +46,7 @@ const UpcomingActivities = ({
             id: `${farmerData.farmer.user_id}-${activity.act_rid}`,
             activityName: activity.activityName?.categoryName || 'Activity',
             farmerName: farmerName,
+            plot: plotName,
             date: activity?.days_until_start,
             status: 'Upcoming',
           });
@@ -60,6 +62,7 @@ const UpcomingActivities = ({
             id: `${farmerData.farmer.user_id}-${activity.act_rid}-overdue`,
             activityName: activity.activityName?.categoryName || 'Activity',
             farmerName: farmerName,
+            plot: plotName,
             date: activity?.days_until_start,
             status: 'overdue',
           });
@@ -120,13 +123,17 @@ const UpcomingActivities = ({
         <View style={styles.activityIndicator} />
         <View style={styles.activityDetails}>
           <Text style={styles.activityTitle}> {item.activityName}</Text>
-          <View style={styles.activityMeta}>
+
+          {/* <View style={styles.activityMeta}> */}
+          <View style={styles.nameRow}>
             <Text style={styles.activityDate}>
               {dashboardType === 'Supervisor'
                 ? item.farmerName
                 : `${item?.date || 0} days`}
             </Text>
+            <Text style={styles.plotName}>{item.plot}</Text>
           </View>
+          {/* </View> */}
         </View>
       </View>
     );
@@ -360,12 +367,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  activityDate: {
-    fontSize: 12,
-    color: '#e3f3fa',
-    fontFamily: 'Poppins-Regular',
-    // marginLeft: 20,
-  },
+  // activityDate: {
+  //   fontSize: 12,
+  //   color: '#e3f3fa',
+  //   fontFamily: 'Poppins-Regular',
+  //   // marginLeft: 20,
+  // },
   userTitle: {
     fontSize: 13,
     color: 'white',
@@ -425,6 +432,12 @@ const styles = StyleSheet.create({
     color: '#e3f3fa',
     fontFamily: 'Poppins-Regular',
   },
+  plotName: {
+    fontSize: 11.5,
+    color: '#e3f3fa',
+    fontFamily: 'Poppins-Regular',
+    paddingRight: 5,
+  },
   userRole: {
     fontSize: 13,
     color: 'rgba(255, 255, 255, 0.8)',
@@ -448,6 +461,11 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',
+  },
+  nameRow: {
+    flexDirection: 'row', // places items in a row
+    justifyContent: 'space-between', // pushes name to left, plot to right
+    // alignItems: 'center',
   },
 });
 export default memo(UpcomingActivities);

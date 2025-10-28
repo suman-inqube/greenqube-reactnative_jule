@@ -53,7 +53,6 @@ const Market = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      console.log('searchBy value:', searchBy, 'type:', typeof searchBy);
       // const response = await Fenced_Rejected_Plot_List(
       //   token,
       //   dbname,
@@ -76,7 +75,6 @@ const Market = () => {
           information: `${dbname},${lan_id},${user_id}`,
         },
       );
-      console.log('ddd', response);
       if (response?.status === 200) {
         setTotalPages(Math.ceil(response?.data?.data.count / 20));
         // console.log(JSON.stringify(response?.data?.data));
@@ -126,7 +124,6 @@ const Market = () => {
   );
 
   const renderListItem = ({item, index}) => {
-    console.log('item', item);
     const {
       farmer_data,
       plot_no,

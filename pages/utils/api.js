@@ -6,8 +6,8 @@ import CryptoJS from 'crypto-js';
 const SLOW_THRESHOLD = 3000;
 
 const instance = axios.create({
-  baseURL: 'https://mygreenqube.com:4003/',
-  // baseURL: 'http://134.209.155.11:4003/',
+  // baseURL: 'https://mygreenqube.com:4003/',
+  baseURL: 'http://134.209.155.11:4003/',
   timeout: 10000,
 });
 instance.interceptors.request.use(config => {
@@ -114,7 +114,7 @@ const handleError = error => {
       data: error.response.data || { message: 'Unknown error' },
     };
   }
-  Alert.alert('Error', 'Unable to connect to the server. Please try again.');
+  Alert.alert('Error', `${error}`);
   return { status: 500, data: { message: 'Connection error' } };
 };
 export const axiosGet = async (
@@ -134,6 +134,7 @@ export const axiosGet = async (
       signal: controller.signal,
     });
   } catch (error) {
+    // Alert.alert(error.message)
     throw handleError(error);
   }
 };

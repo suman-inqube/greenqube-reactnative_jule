@@ -17,6 +17,7 @@ const UpcomingActivity = () => {
     loginUser_data,
     onBackPress,
     Root,
+
     // LoadingScreen: LoadingComponent,
   } = useContext(userCreateContext);
 
@@ -80,6 +81,13 @@ const UpcomingActivity = () => {
                 <Text style={styles.mainText}> {plotName}</Text>
               </View>
               <Text style={styles.subText}> {contactNumber}</Text>
+              <Text style={styles.activityDate}>
+                Sowing Date: {upcomingActivities[0]?.sowing_date || 'N/A'}
+              </Text>
+              <Text style={styles.activityDate}>
+                Hervesting Date:{' '}
+                {upcomingActivities[0]?.harvesting_date || 'N/A'}
+              </Text>
             </View>
 
             {/* Plot Information */}
@@ -110,16 +118,23 @@ const UpcomingActivity = () => {
                 </Text> */}
 
                     <Text style={styles.activityDate}>
-                      Start:{' '}
+                      Schedule date:{' '}
                       {new Date(
                         activity?.activity_start_date,
-                      ).toLocaleDateString()}
-                    </Text>
-                    <Text style={styles.activityDate}>
-                      End:{' '}
-                      {new Date(
-                        activity?.activity_end_date,
-                      ).toLocaleDateString()}
+                      ).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}{' '}
+                      -{' '}
+                      {new Date(activity?.activity_end_date).toLocaleDateString(
+                        'en-GB',
+                        {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        },
+                      )}
                     </Text>
                   </View>
                 ))
@@ -150,7 +165,15 @@ const UpcomingActivity = () => {
   const HandlerGoBack = () => navigation.navigate('Dashboard');
 
   const renderCustomHeader = useMemo(
-    () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
+    () => (
+      <CustomHeader
+        t={t}
+        HandlerGoBack={HandlerGoBack}
+        logoImage={logoImage}
+        topBanner={topBanner}
+        filterOptionShow={filterOptionShow}
+      />
+    ),
     [],
   );
   return (

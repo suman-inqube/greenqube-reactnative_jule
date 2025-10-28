@@ -314,6 +314,7 @@ export const ROUTES = {
 
     ALL_ACTIVITY_SCHEDULE: ({type = '', supervisor_id = '', farmer_id = ''}) =>
       `settingsRoute/allActivitySchedule?type=${type}&supervisor_id=${supervisor_id}&farmer_id=${farmer_id}`,
+    INPUT_OUTPUT_ROUTE:({userId='',fromDate='',toDate=''})=>`inputOutputRoute/list/1/0/2?farmer_id=${userId}&transaction_type=1&entity_type_id=&from_date=${fromDate}&to_date=${toDate}`
   },
 
   PUT: {

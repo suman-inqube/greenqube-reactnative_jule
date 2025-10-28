@@ -10,14 +10,15 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-const {height} = Dimensions.get('window');
+import React, { useEffect, useState } from 'react';
+const { height } = Dimensions.get('window');
 import UniqueDateController from './UniqueDate';
 import moment from 'moment';
-import {Root} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { Root } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import LoadingScreen from '../../Common/LoadingScreen';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import CustomHeader from '../CustomHeader';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const options = {
   year: 'numeric',
   month: '2-digit',
@@ -31,7 +32,7 @@ const Weather = () => {
   const navigation = useNavigation();
   const route = useRoute();
   // const { latLong } = route.params;
-  const {weathermapReport, weathermapReportCity, IsLoading} =
+  const { weathermapReport, weathermapReportCity, IsLoading } =
     UniqueDateController();
   const [open, setopen] = useState('');
   const collapsing = date => {
@@ -45,7 +46,7 @@ const Weather = () => {
     navigation.navigate('FarmerDashboard');
   };
   return (
-    <Root>
+    <FarmerDrawerScreenWrapper1>
       {/* <StatusBar translucent backgroundColor="transparent" barStyle="light-content" style={{ marginTop: StatusBar.currentHeight }} /> */}
       <View style={styles.container}>
         <CustomHeader
@@ -71,8 +72,8 @@ const Weather = () => {
                     {`${weathermapReportCity?.name}, ${weathermapReportCity?.sys?.country}`}
                   </Text>
                   <View style={styles.th}>
-                    <Text style={[styles.text, {fontSize: 20}]}>Now</Text>
-                    <Text style={[styles.text, {fontSize: 60}]}>
+                    <Text style={[styles.text, { fontSize: 20 }]}>Now</Text>
+                    <Text style={[styles.text, { fontSize: 60 }]}>
                       {' '}
                       {weathermapReportCity?.main?.temp.toFixed(0)} °C
                     </Text>
@@ -80,7 +81,7 @@ const Weather = () => {
                   </View>
                   {/* <Text style={[styles.text, { fontSize: 20 }]}>{`${weathermapReportCity?.name}, ${weathermapReportCity?.sys?.country}`}</Text> */}
                 </View>
-                <View style={{height: 100}}>
+                <View style={{ height: 100 }}>
                   <ScrollView
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}>
@@ -91,7 +92,7 @@ const Weather = () => {
                       return (
                         <View
                           key={index}
-                          style={{alignItems: 'center', marginHorizontal: 10}}>
+                          style={{ alignItems: 'center', marginHorizontal: 10 }}>
                           <Text style={styles.text}>
                             {new_date[1].split(':')[0].length == 2
                               ? new_date[1].substring(0, 5)
@@ -102,7 +103,7 @@ const Weather = () => {
                             source={{
                               uri: `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
                             }}
-                            style={{width: 60, height: 50}}
+                            style={{ width: 60, height: 50 }}
                           />
                           <Text style={styles.text}>
                             {data.temp.toFixed(0)} °C{' '}
@@ -115,7 +116,7 @@ const Weather = () => {
                 <ScrollView showsVerticalScrollIndicator={false}>
                   {weathermapReport?.daily?.map((data, index) => {
                     return (
-                      <View key={index} style={{width: '100%'}}>
+                      <View key={index} style={{ width: '100%' }}>
                         <TouchableOpacity
                           key={index}
                           style={styles.tbody}
@@ -123,7 +124,7 @@ const Weather = () => {
                             collapsing(data.dt);
                           }}>
                           <Text
-                            style={[styles.text, {width: '33%', fontSize: 14}]}>
+                            style={[styles.text, { fontSize: 14 }]}>
                             {/* {index == 0 && 'Today'}{index == 1 && 'Tomorrow'} {index != 0 && index != 1 && days[new Date(data.dt_txt).getDay()]} */}
                             {new Date(data.dt * 1000)
                               .toUTCString()
@@ -135,15 +136,15 @@ const Weather = () => {
                               source={{
                                 uri: `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`,
                               }}
-                              style={{width: 60, height: 60}}
+                              style={{ width: 60, height: 60 }}
                             />
                           </View>
                           <Text
-                            style={[styles.text, {width: '33%', fontSize: 14}]}>
+                            style={[styles.text, {  fontSize: 14 }]}>
                             {data.weather[0].main}
                           </Text>
                           <Text
-                            style={[styles.text, {width: '33%', fontSize: 14}]}>
+                            style={[styles.text, {  fontSize: 14 }]}>
                             {data.temp.max.toFixed(0)}/
                             {data.temp.min.toFixed(0)}'°C'
                           </Text>
@@ -165,7 +166,7 @@ const Weather = () => {
                               }}>
                               <View
                                 style={{
-                                  width: '46%',
+                                  // width: '46%',
                                   marginHorizontal: '2%',
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
@@ -177,10 +178,10 @@ const Weather = () => {
                                     {data.temp.max.toFixed(0)} '°C'
                                   </Text>
                                 </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{ flexDirection: 'column' }}>
                                   <Image
                                     source={require('../../Common/images/min_temp.png')}
-                                    style={{width: 40, height: 40}}
+                                    style={{ width: 40, height: 40 }}
                                   />
                                 </View>
                               </View>
@@ -195,7 +196,7 @@ const Weather = () => {
                                 }}></View>
                               <View
                                 style={{
-                                  width: '46%',
+                                  // width: '46%',
                                   marginHorizontal: '2%',
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
@@ -207,10 +208,10 @@ const Weather = () => {
                                     {data.temp.min.toFixed(0)} '°C'
                                   </Text>
                                 </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{ flexDirection: 'column' }}>
                                   <Image
                                     source={require('../../Common/images/max_temp.png')}
-                                    style={{width: 40, height: 40}}
+                                    style={{ width: 40, height: 40 }}
                                   />
                                 </View>
                               </View>
@@ -224,7 +225,7 @@ const Weather = () => {
                               }}>
                               <View
                                 style={{
-                                  width: '46%',
+                                  // width: '46%',
                                   marginHorizontal: '2%',
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
@@ -237,10 +238,10 @@ const Weather = () => {
                                       styles.text_texp
                                     }>{`${data.wind_speed}`}</Text>
                                 </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{ flexDirection: 'column' }}>
                                   <Image
                                     source={require('../../Common/images/nnw_wind.png')}
-                                    style={{width: 40, height: 40}}
+                                    style={{ width: 40, height: 40 }}
                                   />
                                 </View>
                               </View>
@@ -255,7 +256,7 @@ const Weather = () => {
                                 }}></View>
                               <View
                                 style={{
-                                  width: '46%',
+                                  // width: '46%',
                                   marginHorizontal: '2%',
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
@@ -268,10 +269,10 @@ const Weather = () => {
                                       styles.text_texp
                                     }>{`${data.clouds} %`}</Text>
                                 </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{ flexDirection: 'column' }}>
                                   <Image
                                     source={require('../../Common/images/rain.png')}
-                                    style={{width: 40, height: 40}}
+                                    style={{ width: 40, height: 40 }}
                                   />
                                 </View>
                               </View>
@@ -285,7 +286,7 @@ const Weather = () => {
                               }}>
                               <View
                                 style={{
-                                  width: '46%',
+                                  // width: '46%',
                                   marginHorizontal: '2%',
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
@@ -297,10 +298,10 @@ const Weather = () => {
                                     {data.humidity} %
                                   </Text>
                                 </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{ flexDirection: 'column' }}>
                                   <Image
                                     source={require('../../Common/images/humidity.png')}
-                                    style={{width: 40, height: 40}}
+                                    style={{ width: 40, height: 40 }}
                                   />
                                 </View>
                               </View>
@@ -315,7 +316,7 @@ const Weather = () => {
                                 }}></View>
                               <View
                                 style={{
-                                  width: '46%',
+                                  // width: '46%',
                                   marginHorizontal: '2%',
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
@@ -327,10 +328,10 @@ const Weather = () => {
                                     {data.pressure} pa
                                   </Text>
                                 </View>
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{ flexDirection: 'column' }}>
                                   <Image
                                     source={require('../../Common/images/nnw_wind.png')}
-                                    style={{width: 40, height: 40}}
+                                    style={{ width: 40, height: 40 }}
                                   />
                                 </View>
                               </View>
@@ -348,7 +349,7 @@ const Weather = () => {
           )}
         </ImageBackground>
       </View>
-    </Root>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

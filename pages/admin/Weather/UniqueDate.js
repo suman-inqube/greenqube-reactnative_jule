@@ -8,6 +8,7 @@ import {
 import {getItem} from '../../../config/getDataFromStorage';
 import {addModuleForView} from '../../../config/apiHere';
 import {userCreateContext} from '../../Context/usersCreateContext';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 const UniqueDateController = () => {
   const {dbLanTokUsr} = useContext(userCreateContext);
   const {dbName, token, farmerId, languageId} = dbLanTokUsr;
@@ -16,7 +17,8 @@ const UniqueDateController = () => {
   const [accuweatherReport, setAccuweatherReport] = useState([]);
   const [IsLoading, setIsLoading] = useState(false);
   const onPageload = async () => {
-    const {latitude, longitude} = await getItem('fusedLocation');
+   try {
+     const {latitude, longitude} = await  getHighAccuracyLocation();;
     setIsLoading(true);
     const [openweathermap, dataservice, openweathermapLocation_res, res] =
       await Promise.all([
@@ -34,6 +36,7 @@ const UniqueDateController = () => {
           1,
         ),
       ]);
+          console.log("openweathermapLocation_res",openweathermapLocation_res)
     // if (dataservice?.status == 200) {
     //     const accuweather_res = await accuweatherAPI(dataservice.data.Key);
     //     if (accuweather_res?.status == 200) {
@@ -43,9 +46,13 @@ const UniqueDateController = () => {
     if (openweathermap?.status == 200) {
       setWeathermapReport(openweathermap.data);
     }
+
     if (openweathermapLocation_res?.status == 200) {
       setWeathermapReportCity(openweathermapLocation_res.data);
     }
+   } catch (error) {
+    console.error(error)
+   }
     setIsLoading(false);
   };
   useEffect(() => {
