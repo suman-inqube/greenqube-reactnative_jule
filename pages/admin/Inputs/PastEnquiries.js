@@ -153,6 +153,7 @@ const PastEnquiries = ({navigation}) => {
       // ),
       getItem('currency'),
     ]);
+    console.log('response123', response);
     if (response?.status === 200) {
       setIsLoading(false);
       setcurrency(curr);
@@ -249,6 +250,9 @@ const PastEnquiries = ({navigation}) => {
     ),
     [filterOptionShow],
   );
+  const filteredEnquiries = useMemo(() => {
+    return inputPastEnquiryAll.filter(item => item.type !== 'vendor_order');
+  }, [inputPastEnquiryAll]);
   return (
     <FarmerDrawerScreenWrapper1>
       <>
@@ -274,7 +278,7 @@ const PastEnquiries = ({navigation}) => {
             )}
 
             <FlatList
-              data={isLoading ? Array.from({length: 5}) : inputPastEnquiryAll}
+              data={isLoading ? Array.from({length: 5}) : filteredEnquiries}
               renderItem={({item, index}) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
@@ -302,15 +306,15 @@ const PastEnquiries = ({navigation}) => {
                         </View>
                         <View style={styles.cardContent}>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('name')}:</Text>
+                            {/* <Text style={styles.infoLabel}>{t('name')}:</Text> */}
                             <Text style={styles.infoValue} numberOfLines={1}>
                               {item.users && item.users.userName}
                             </Text>
                           </View>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>
+                            {/* <Text style={styles.infoLabel}>
                               {t('far_list_number')} :
-                            </Text>
+                            </Text> */}
                             <Text style={styles.infoValue}>
                               {item.users && item.users.contactNumber}
                             </Text>
@@ -443,9 +447,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   infoRow: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   infoLabel: {

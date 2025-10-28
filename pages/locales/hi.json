@@ -1044,5 +1044,12 @@
   "instrument_Wise_Activity_View": "Instrument Wise Activity View",
   "activity_Pipe_Images": "Activity Pipe Images",
   "please_update_both_image": "Please update both image.",
-  "activity_Pipe_List": "Activity Pipe List"
+  "activity_Pipe_List": "Activity Pipe List",
+  "Activity": "गतिविधि",
+  "Pending": "लंबित",
+  "Upcoming": "आगामी",
+  "Sowing Date": "बुवाई की तारीख",
+  "Hervesting Date": "कटाई की तारीख",
+  "days to go": "दिन बाकी",
+  "Schedule date": "निर्धारित तिथि"
 }

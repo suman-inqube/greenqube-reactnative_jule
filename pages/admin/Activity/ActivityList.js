@@ -4,7 +4,6 @@ import {
   View,
   FlatList,
   TouchableOpacity,
-  SafeAreaView,
   Animated,
   RefreshControl,
   InteractionManager,
@@ -38,6 +37,7 @@ import {AlertMesg} from '../../Common/ToastAlert';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import ActivityCard from '../../Components/ActivityCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+
 function ActivityList({navigation}) {
   //GQR-67
   const {
@@ -280,7 +280,7 @@ function ActivityList({navigation}) {
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
-          <SafeAreaView style={styles.container}>
+          <View style={styles.container}>
             {renderCustomHeader}
 
             <FlatList
@@ -335,7 +335,7 @@ function ActivityList({navigation}) {
               overlayColor="rgba(22, 17, 17, 0.35)"
               distanceToEdge={{vertical: 80, horizontal: 25}}
             />
-          </SafeAreaView>
+          </View>
         </Root>
       </MyErrorBoundary>
     </FarmerDrawerScreenWrapper1>

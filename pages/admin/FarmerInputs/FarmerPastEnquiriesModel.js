@@ -43,14 +43,16 @@ const FarmerPastEnquiriesModel = props => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={styles.header}>
-              <Text style={styles.headerText}>
-                {t('farmer_pastEnq_details')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => props.setModalVisible(!props.modalVisible)}
-                style={styles.closeButton}>
-                <MaterialIcons name="close" size={25} color="#a61e1e" />
-              </TouchableOpacity>
+              <View style={styles.headerContent}>
+                <Text style={styles.headerText}>
+                  {t('farmer_pastEnq_details')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => props.setModalVisible(!props.modalVisible)}
+                  style={styles.closeButton}>
+                  <MaterialIcons name="close" size={22} color="#a61e1e" />
+                </TouchableOpacity>
+              </View>
             </View>
             <ScrollView contentContainerStyle={styles.contentContainer}>
               <View style={styles.itemContainer}>
@@ -141,20 +143,11 @@ const FarmerPastEnquiriesModel = props => {
                         borderStyle: 'dotted',
                         borderColor: '#636363ff',
                       }}></View>
-                    <View style={styles.detailRow}>
-                      <View style={styles.iconContainer}>
-                        <MaterialIcons
-                          name="donut-large"
-                          size={20}
-                          color="#165A2B"
-                        />
-                      </View>
-                      <View style={styles.textContainer}>
-                        <Text style={styles.valueText}>
-                          {t('full_fill_status')}
-                        </Text>
-                        <Text style={styles.labelText}></Text>
-                      </View>
+                    <View style={styles.detailRowHeaader}>
+                      <Text style={styles.valueTextFull}>
+                        {t('full_fill_status')}
+                      </Text>
+                      <Text style={styles.labelText}></Text>
                     </View>
                     <View style={styles.detailRow}>
                       <View style={styles.iconContainer}>
@@ -311,29 +304,26 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.containerGreen,
   },
   header: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    padding: 5,
+    padding: 20,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
   headerText: {
     color: Colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
   closeButton: {
     backgroundColor: '#edd6d6',
-    borderRadius: 50,
-    alignItems: 'center',
-    height: 30,
-    width: 30,
+    borderRadius: 15,
+    height: 25,
+    width: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 170,
   },
   contentContainer: {
     padding: 16,
@@ -382,5 +372,19 @@ const styles = StyleSheet.create({
   itemText: {
     width: '50%',
     color: '#FFF',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailRowHeaader: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  valueTextFull: {
+    fontSize: 16,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
   },
 });

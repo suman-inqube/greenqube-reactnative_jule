@@ -25,9 +25,7 @@ const UpcomingActivities = ({
   const transformedData = useMemo(() => {
     const upcomingActivities = [];
     const pendingActivities = [];
-    console.log('Raw activitySchedule:', activitySchedule);
     if (!activitySchedule || !Array.isArray(activitySchedule)) {
-      console.log('activitySchedule is undefined or not an array');
       return {
         upcoming: [],
         overdue: [],
@@ -117,7 +115,7 @@ const UpcomingActivities = ({
   };
 
   const renderActivityItem = ({item}) => {
-    console.log('item123', item);
+    // console.log('item123', item);
     return (
       <View style={styles.activityItem}>
         <View style={styles.activityIndicator} />
@@ -129,7 +127,11 @@ const UpcomingActivities = ({
             <Text style={styles.activityDate}>
               {dashboardType === 'Supervisor'
                 ? item.farmerName
-                : `${item?.date || 0} days`}
+                : `${
+                    activeTab === 'overdue'
+                      ? item.date * -1 || 0
+                      : item.date || 0
+                  } ${activeTab === 'overdue' ? 'days ago' : 'days'}`}
             </Text>
             <Text style={styles.plotName}>{item.plot}</Text>
           </View>
@@ -202,14 +204,14 @@ const UpcomingActivities = ({
                     styles.tabText,
                     activeTab === 'Upcoming' && styles.activeTabText,
                   ]}>
-                  Upcoming
+                  {t('Upcoming')}
                 </Text>
                 <Text
                   style={[
                     styles.tabText,
                     activeTab === 'Upcoming' && styles.activeTabText,
                   ]}>
-                  Activity
+                  {t('Activity')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -223,14 +225,14 @@ const UpcomingActivities = ({
                     styles.tabText,
                     activeTab === 'overdue' && styles.activeTabText,
                   ]}>
-                  Pending
+                  {t('Pending')}
                 </Text>
                 <Text
                   style={[
                     styles.tabText,
                     activeTab === 'overdue' && styles.activeTabText,
                   ]}>
-                  Activity
+                  {t('Activity')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity

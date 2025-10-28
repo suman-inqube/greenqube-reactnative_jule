@@ -112,6 +112,7 @@ const FarmerInputList = ({navigation}) => {
       setItem('input_data', inputList.data.data.rows);
       setIsLoading(false);
     }
+    console.log('inputCategoryList', inputCategoryList);
     if (inputCategoryList) {
       const dataArray1 = [
         {

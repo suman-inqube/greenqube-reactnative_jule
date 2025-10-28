@@ -119,6 +119,7 @@ const FarmerPastEnquiries = ({navigation}) => {
       '',
       '',
     );
+    console.log('response555', response);
     if (response?.status == 200) {
       setInputPastEnquiryAll(response?.data?.data?.rows);
       setItem('input_past_enquiry_Data', response?.data?.data?.rows);
@@ -217,6 +218,7 @@ const FarmerPastEnquiries = ({navigation}) => {
       setRefreshing(false);
     });
   }, []);
+
   return (
     <FarmerDrawerScreenWrapper1>
       <>
@@ -224,7 +226,7 @@ const FarmerPastEnquiries = ({navigation}) => {
           <View style={{flex: 1, backgroundColor: Colors.background_light}}>
             <CustomHeader
               path="FarmerInputList"
-              HandlerGoBack={HandlerGoBack}
+              // HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />
@@ -305,15 +307,15 @@ const FarmerPastEnquiries = ({navigation}) => {
                         </View>
                         <View style={styles.cardContent}>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('name')}:</Text>
+                            {/* <Text style={styles.infoLabel}>{t('name')}:</Text> */}
                             <Text style={styles.infoValue} numberOfLines={1}>
                               {item.users && item.users.userName}
                             </Text>
                           </View>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>
+                            {/* <Text style={styles.infoLabel}>
                               {t('far_list_number')} :
-                            </Text>
+                            </Text> */}
                             <Text style={styles.infoValue}>
                               {item.users && item.users.contactNumber}
                             </Text>
@@ -446,9 +448,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   infoRow: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   infoLabel: {

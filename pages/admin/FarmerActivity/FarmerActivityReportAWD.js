@@ -66,6 +66,8 @@ import ActivityMap from '../../Common/ActivityMap';
 import {isPointInPolygon, getDistance} from 'geolib';
 import {captureRef} from 'react-native-view-shot';
 const FarmerActivityReportAWD = ({navigation}) => {
+  const today = new Date();
+
   const tenDaysAgo = new Date();
   tenDaysAgo.setDate(today.getDate() - 10);
   const {

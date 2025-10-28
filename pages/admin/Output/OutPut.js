@@ -374,9 +374,7 @@ const OutPut = ({navigation}) => {
                       <View style={styles.cardContent}>
                         <View style={styles.infoRow}>
                           <Text style={styles.infoLabel}>
-                            {' '}
-                            {item?.users?.userName.substring(0, 10)}
-                            {item?.users?.userName.length > 10 ? '...' : null}
+                            {item?.users?.userName || ''}
                           </Text>
                           {/* <Text style={styles.infoValue} numberOfLines={1}>
                             {item?.users?.userName.substring(0, 10)}
@@ -403,7 +401,6 @@ const OutPut = ({navigation}) => {
                         </View>
                         <View style={styles.infoRow}>
                           <Text style={styles.infoLabel}>
-                            {' '}
                             {formatDateToMMDDYYYY(item.date)}
                           </Text>
                           {/* <Text style={styles.infoValue}>

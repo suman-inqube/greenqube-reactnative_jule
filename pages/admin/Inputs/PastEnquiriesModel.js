@@ -44,7 +44,7 @@ const PastEnquiriesModel = props => {
                 <TouchableOpacity
                   onPress={() => props.setModalVisible(!props.modalVisible)}
                   style={styles.closeButton}>
-                  <MaterialIcons name="close" size={25} color="#a61e1e" />
+                  <MaterialIcons name="close" size={22} color="#a61e1e" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -173,20 +173,11 @@ const PastEnquiriesModel = props => {
                         borderStyle: 'dotted',
                         borderColor: '#636363ff',
                       }}></View>
-                    <View style={styles.detailRow}>
-                      <View style={styles.iconContainer}>
-                        <MaterialIcons
-                          name="donut-large"
-                          size={20}
-                          color="#165A2B"
-                        />
-                      </View>
-                      <View style={styles.textContainer}>
-                        <Text style={styles.valueText}>
-                          {props.t('full_fill_status')}
-                        </Text>
-                        <Text style={styles.labelText}></Text>
-                      </View>
+                    <View style={styles.detailRowHeaader}>
+                      <Text style={styles.valueTextFull}>
+                        {props.t('full_fill_status')}
+                      </Text>
+                      <Text style={styles.labelText}></Text>
                     </View>
                     <View style={styles.detailRow}>
                       <View style={styles.iconContainer}>
@@ -344,7 +335,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   modalView: {
-    width: '90%',
+    width: '95%',
     maxHeight: '80%',
     backgroundColor: 'white',
     borderRadius: 12,
@@ -360,7 +351,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.containerGreen,
   },
   header: {
-    padding: 10,
+    padding: 20,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
@@ -374,15 +365,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: Colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
   closeButton: {
     backgroundColor: '#edd6d6',
     borderRadius: 15,
-    height: 30,
-    width: 30,
+    height: 25,
+    width: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -400,6 +391,11 @@ const styles = StyleSheet.create({
     // height: 62,
     elevation: 5,
   },
+  detailRowHeaader: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
   iconContainer: {
     width: 36,
     height: 36,
@@ -422,6 +418,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
     fontFamily: 'Poppins-Medium',
+  },
+  valueTextFull: {
+    fontSize: 16,
+    color: Colors.text,
+    fontFamily: 'Poppins-SemiBold',
   },
   itemContainer: {},
   item: {
