@@ -169,7 +169,7 @@ const FarmerPendingActivity = () => {
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
   const renderCustomHeader = useMemo(
-    () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
+    () => <CustomHeader t={t} />,
     [],
   );
   return (

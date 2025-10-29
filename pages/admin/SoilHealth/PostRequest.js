@@ -33,7 +33,7 @@ const PostRequest = () => {
       <Root>
         <View style={styles.container}>
           <CustomHeader
-            HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')}
+            // HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')}
             logoImage={logoImage}
             topBanner={topBanner}
           />

@@ -157,15 +157,15 @@ const FarmerListProblem = ({navigation}) => {
                         activeOpacity={0.7}>
                         <View style={styles.cardHeader}>
                           <Text style={styles.problemTitle} numberOfLines={2}>
-                            {t('problem_title')} :{' '}
+                            {t('problem_title')} :{}
                             {item.question_title?.length > 30
-                              ? `${item.question_title.substring(0, 30)}...`
+                              ? `${item.question_title.substring(0, 30)}`
                               : item.question_title}
                           </Text>
                         </View>
                         <View style={styles.cardContent}>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('date')} :</Text>
+                            {/* <Text style={styles.infoLabel}>{t('date')} :</Text> */}
                             <Text style={styles.infoValue} numberOfLines={1}>
                               {formatDateToMMDDYYYY(item.updated_at)}
                             </Text>
@@ -357,10 +357,10 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 16,
   },
-  infoRow: {
-    flexDirection: 'row',
+infoRow: {
+    // flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   infoLabel: {

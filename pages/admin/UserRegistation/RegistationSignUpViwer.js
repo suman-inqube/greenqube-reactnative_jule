@@ -345,7 +345,7 @@ const RegistationSignUpViwer = () => {
     () => (
       <CustomHeader
         path="RegistationSignUpViwer"
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
       />

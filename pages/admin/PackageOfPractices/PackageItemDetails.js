@@ -12,7 +12,7 @@ const PackageItemDetails = () => {
   return (
     <View style={styles.container}>
       <CustomHeader
-        HandlerGoBack={() => HandlerGoBack('PackageOfPracticesDetails')}
+        // HandlerGoBack={() => HandlerGoBack('PackageOfPracticesDetails')}
         logoImage={logoImage}
         topBanner={topBanner}
       />

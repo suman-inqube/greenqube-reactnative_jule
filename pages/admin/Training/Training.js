@@ -101,7 +101,7 @@ const Training = () => {
       <View style={{flex: 1, backgroundColor: Colors.background}}>
         <CustomHeader
           path="Dashboard"
-          HandlerGoBack={HandlerGoBack}
+          // HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

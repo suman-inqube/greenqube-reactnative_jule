@@ -22,7 +22,7 @@ const InsuranceEnquiry = () => {
     <View style={{flex: 1, height: Dimensions.get('window').height / 2}}>
       <CustomHeader
         path={'Dashboard'}
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
       />

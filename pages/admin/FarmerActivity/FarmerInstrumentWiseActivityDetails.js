@@ -55,6 +55,8 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     firstItemType: '',
     secondItemType: '',
   });
+    const [tempImage, setTempImage] = useState(null);
+    const [tempText, setTempText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const HandlerGoBack = () => {
@@ -271,7 +273,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
           ) : null}
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

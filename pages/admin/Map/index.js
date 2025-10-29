@@ -15,16 +15,16 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import MapView, {Polygon, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
-import {getItem} from '../../../config/getDataFromStorage';
+import MapView, { Polygon, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { getItem } from '../../../config/getDataFromStorage';
 import Geolocation from '@react-native-community/geolocation';
-import {getDistance} from 'geolib';
+import { getDistance } from 'geolib';
 import * as geolib from 'geolib';
-import {isWithin20Meters} from '../../Common/calculateAreaFun';
+import { isWithin20Meters } from '../../Common/calculateAreaFun';
 import SuggestiveSearchInput from '../../Common/SuggestiveSearchInput';
-import {getMapLocation} from '../../../config/apiHere';
+import { getMapLocation } from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
-import {Colors} from '../../utils/Constants';
+import { Colors } from '../../utils/Constants';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FloatingActionButton from '../../Components/FloatingActionButton';
@@ -71,7 +71,7 @@ const Map = ({
   const [drawingReference, setDrawingReference] = useState(null);
   const [selectedArea, setSelectedArea] = useState(0);
   const [coordinatesCurrent, setCoordinatesCurrent] = useState([]);
-  const [marker, setMarker] = useState({lat: 0, lng: 0});
+  const [marker, setMarker] = useState({ lat: 0, lng: 0 });
 
   // Refs to track mounted state and prevent memory leaks
   const isMountedRef = useRef(true);
@@ -88,7 +88,9 @@ const Map = ({
       }
     };
   }, []);
-
+  useEffect(() => {
+    console.log("useEff", newPolygon)
+  }, [])
   /** Memoized coordinate validation */
   const isValidCoordinate = useCallback((latitude, longitude) => {
     return (
@@ -235,12 +237,37 @@ const Map = ({
   }, [newPolygon, landUnitsquareMetre]);
 
   /** Update selected area only when calculated area changes */
+  // useEffect(() => {
+  //   if (isMountedRef.current) {
+  //     setSelectedArea(calculatedArea);
+  //   }
+  // }, [calculatedArea]);
   useEffect(() => {
-    if (isMountedRef.current) {
-      setSelectedArea(calculatedArea);
-    }
-  }, [calculatedArea]);
-
+    const cleanedCoordinates = location
+      ?.filter(
+        coord =>
+          coord.latitude !== undefined &&
+          coord.longitude !== undefined &&
+          coord.latitude !== null &&
+          coord.longitude !== null &&
+          coord.latitude !== '' &&
+          coord.longitude !== '',
+      )
+      ?.map(coord => ({
+        latitude:
+          typeof coord.latitude === 'string'
+            ? parseFloat(coord.latitude)
+            : coord.latitude,
+        longitude:
+          typeof coord.longitude === 'string'
+            ? parseFloat(coord.longitude)
+            : coord.longitude,
+      }));
+    setCoordinatesCurrent(cleanedCoordinates);
+  }, [location]);
+  useEffect(() => {
+    // alert(JSON.stringify(coordinatesCurrent))
+  }, [coordinatesCurrent])
   /** Memoized coordinate processing with validation */
   const processedCoordinates = useMemo(() => {
     if (!location || !Array.isArray(location)) return [];
@@ -264,33 +291,33 @@ const Map = ({
             : coord.longitude;
 
         return isValidCoordinate(latitude, longitude)
-          ? {latitude, longitude}
+          ? { latitude, longitude }
           : null;
       })
       .filter(Boolean);
-  }, [location, isValidCoordinate]);
+  }, [location, isValidCoordinate,newPolygon]);
 
   /** Update coordinates only when processed coordinates change */
-  useEffect(() => {
-    if (isMountedRef.current) {
-      setCoordinatesCurrent(processedCoordinates);
-    }
-  }, [processedCoordinates]);
+  // useEffect(() => {
+  //   // if (isMountedRef.current) {
+  //     setCoordinatesCurrent(processedCoordinates);
+  //   // }
+  // }, [processedCoordinates]);
 
   /** Optimized drawing reference setup */
   useEffect(() => {
     if (!editing || drawingReference || !coords) return;
 
-    const {latitude, longitude} = coords;
+    const { latitude, longitude } = coords;
     if (isValidCoordinate(latitude, longitude) && isMountedRef.current) {
-      setDrawingReference({latitude, longitude});
+      setDrawingReference({ latitude, longitude });
     }
   }, [editing, drawingReference, coords, isValidCoordinate]);
 
   /** Memoized clear function with error handling */
-  const clearMapGetDistance = useCallback(() => {
-    if (!isMountedRef.current) return;
-
+  const clearMapGetDistance = () => {
+    // if (!isMountedRef.current) return;
+ setCoordinatesCurrent([]);
     try {
       if (type === 'livehoood') {
         clearNewPolygon();
@@ -314,24 +341,26 @@ const Map = ({
     } catch (err) {
       console.warn('Clear error:', err);
       // Fallback to clear anyway if there's an error
-      clearNewPolygon();
+      // clearNewPolygon();
     }
-  }, [drawingReference, location, type, clearNewPolygon]);
+  };
 
   /** Optimized map press handler with memoized dependencies */
-  const handleMapPressGetDistance = useCallback(
+  const handleMapPressGetDistance =
+    // useCallback
+    // (
     event => {
       if (!isMountedRef.current || !event?.nativeEvent?.coordinate) return;
 
       try {
-        const {latitude, longitude} = event.nativeEvent.coordinate;
+        const { latitude, longitude } = event.nativeEvent.coordinate;
 
         if (!isValidCoordinate(latitude, longitude)) {
           console.warn('Invalid coordinates from map press');
           return;
         }
 
-        const pressedPoint = {latitude, longitude};
+        const pressedPoint = { latitude, longitude };
 
         if (type === 'livehoood') {
           handleMapPress(event);
@@ -362,33 +391,34 @@ const Map = ({
       } catch (err) {
         console.warn('Press error:', err);
       }
-    },
-    [
-      type,
-      editing,
-      drawingReference,
-      currentLocation,
-      newPolygon,
-      handleMapPress,
-      isValidCoordinate,
-    ],
-  );
+    }
+  // [
+  //   type,
+  //   editing,
+  //   drawingReference,
+  //   currentLocation,
+  //   newPolygon,
+  //   handleMapPress,
+  //   isValidCoordinate,
+  // ],
+  // );
 
   /** Optimized select handler with validation */
-  const handleSelect = useCallback(
+  const handleSelect =
+    // useCallback(
     item => {
       // if (!isMountedRef.current || !item) return;
       // console.log(item)
-      const {lat, lng} = item;
+      const { lat, lng } = item;
       if (isValidCoordinate(lat, lng)) {
-        setMarker({lat, lng});
+        setMarker({ lat, lng });
         animateToLocation(lat, lng);
       } else {
         console.warn('Invalid coordinates from search selection');
       }
-    },
-    [animateToLocation, isValidCoordinate],
-  );
+    }
+  //   [animateToLocation, isValidCoordinate],
+  // );
 
   /** Memoized action handler */
   const handleActionPress = useCallback(
@@ -429,7 +459,7 @@ const Map = ({
   const handleGpsButtonPress = useCallback(() => {
     // if (!isMountedRef.current || !coords) return;
 
-    const {latitude, longitude} = coords;
+    const { latitude, longitude } = coords;
     if (isValidCoordinate(latitude, longitude)) {
       animateToLocation(latitude, longitude);
     } else {
@@ -453,7 +483,7 @@ const Map = ({
       return null;
     }
     return (
-      <Marker coordinate={{latitude: marker.lat, longitude: marker.lng}} />
+      <Marker coordinate={{ latitude: marker.lat, longitude: marker.lng }} />
     );
   }, [marker.lat, marker.lng, isValidCoordinate]);
 
@@ -489,7 +519,22 @@ const Map = ({
       return <Marker key={`new-polygon-marker-${idx}`} coordinate={coord} />;
     });
   }, [newPolygon, isValidCoordinate]);
-
+  const renderPolygons = useMemo(() => {
+    return (
+      <>
+        {coordinatesCurrent.length > 0 ?
+          <Polygon
+            coordinates={coordinatesCurrent}
+            fillColor="rgba(139, 236, 11, 0.73)"
+            strokeColor="rgb(1, 255, 1)"
+            strokeWidth={2}
+          />
+          :
+          <></>
+        }
+      </>
+    )
+  }, [coordinatesCurrent,polygons])
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -510,7 +555,7 @@ const Map = ({
         showsUserLocation
         followsUserLocation
         showsCompass
-        compassOffset={{x: 20, y: 20}}
+        compassOffset={{ x: 20, y: 20 }}
         minZoomLevel={15}
         showsScale
         zoomTapEnabled
@@ -521,16 +566,31 @@ const Map = ({
         zoomEnabled
         pitchEnabled>
         {polygonComponents}
-
-        {coordinatesCurrent.length > 0 && (
+        {/* {polygons.map((polygon, index) => {
+          if (polygon.length >= 3) {
+            return (
+              <Polygon
+                key={index}
+                coordinates={polygon}
+                fillColor="rgba(167, 3, 3, 0.66)"
+                strokeColor="rgb(240, 9, 9)"
+                strokeWidth={2}
+                name="MyPolygon"
+                focusable={true}
+                onFocus={() => console.log('Polygon focused')}
+              />
+            );
+          }
+        })} */}
+        {/* {coordinatesCurrent.length > 0 && (
           <Polygon
             coordinates={coordinatesCurrent}
             fillColor="rgba(139, 236, 11, 0.73)"
             strokeColor="rgb(1, 255, 1)"
             strokeWidth={2}
           />
-        )}
-
+        )} */}
+        {renderPolygons}
         {newPolygon.length > 0 && (
           <Polygon
             coordinates={newPolygon}
@@ -560,7 +620,7 @@ const Map = ({
         actions={actions}
         color={Colors.useGreen}
         overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{vertical: 80, horizontal: 25}}
+        distanceToEdge={{ vertical: 80, horizontal: 25 }}
         onPressItem={handleActionPress}
         openOnMount={editing}
       />
@@ -587,8 +647,8 @@ const Map = ({
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#F5FCFF'},
-  map: {...StyleSheet.absoluteFillObject},
+  container: { flex: 1, backgroundColor: '#F5FCFF' },
+  map: { ...StyleSheet.absoluteFillObject },
   searchIcon: {
     top: 12,
     left: 10,
@@ -616,7 +676,7 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 4,
   },
-  areaText: {fontSize: 15, color: '#FFF'},
+  areaText: { fontSize: 15, color: '#FFF' },
   searchBox: {
     width: '95%',
     position: 'absolute',
@@ -631,7 +691,7 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 100,
     backgroundColor: '#fff',
-    shadowOffset: {width: 1, height: 1},
+    shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     shadowColor: '#000',
@@ -648,7 +708,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowOffset: {width: 1, height: 1},
+    shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     shadowColor: '#000',

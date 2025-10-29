@@ -1293,7 +1293,7 @@ const FarmerLoanRequest = ({}) => {
           ) : null}
           <CustomHeader
             path="FarmerDashboard"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

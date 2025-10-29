@@ -119,7 +119,9 @@ const Market = () => {
 
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   const renderCustomHeader = useMemo(
-    () => <CustomHeader t={t} HandlerGoBack={HandlerGoBack} />,
+    () => <CustomHeader t={t} 
+    // HandlerGoBack={HandlerGoBack}
+     />,
     [],
   );
 

@@ -435,7 +435,7 @@ const FarmerWantToBuy = ({navigation}) => {
         />
         <CustomHeader
           path={'FarmerInputList'}
-          HandlerGoBack={HandlerGoBack}
+          // HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

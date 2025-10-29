@@ -72,7 +72,7 @@ const PackageOfPracticesDetails = () => {
   return (
     <FarmerDrawerScreenWrapper1>
       <CustomHeader
-        HandlerGoBack={() => HandlerGoBack('PackageOfPractices', '')}
+        // HandlerGoBack={() => HandlerGoBack('PackageOfPractices', '')}
         banner={true}
       />
 

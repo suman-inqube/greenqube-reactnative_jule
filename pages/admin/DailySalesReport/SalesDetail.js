@@ -37,7 +37,7 @@ const SalesDetail = () => {
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <CustomHeader
           path="DailySalesReport"
-          HandlerGoBack={HandlerGoBack}
+          // HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

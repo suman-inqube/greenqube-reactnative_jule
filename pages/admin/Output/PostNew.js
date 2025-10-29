@@ -506,6 +506,7 @@ const PostNew = ({ navigation }) => {
                         onChangeText={item =>
                           setSaveData(prev => ({ ...prev, others: item }))
                         }
+                        
                       />
                     ) : (
                       <>
@@ -570,6 +571,7 @@ const PostNew = ({ navigation }) => {
                           : t(`${regionaldatas.state}`)
                       }
                       value={saveData.state_name}
+                           editable={false}
                     />
                     <InputTextForm
                       label={
@@ -578,6 +580,7 @@ const PostNew = ({ navigation }) => {
                           : t(`${regionaldatas.district}`)
                       }
                       value={saveData.district_name}
+                           editable={false}
                     />
                     <InputTextForm
                       label={
@@ -586,6 +589,7 @@ const PostNew = ({ navigation }) => {
                           : t(`${regionaldatas.block}`)
                       }
                       value={saveData.subdiv_name}
+                           editable={false}
                     />
                     <DatePickerField
                       label={t('approximate_date')}

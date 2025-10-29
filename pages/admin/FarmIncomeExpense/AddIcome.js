@@ -360,7 +360,7 @@ const AddIcome = ({navigation}) => {
           />
           <CustomHeader
             path="FarmIncomeExpenseList"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

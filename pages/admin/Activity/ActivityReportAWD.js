@@ -694,6 +694,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const setCycleDate = async () => {
     try {
       setIsButtonDisabled(true);
+      setOverdueAct([]);
       let save_data = qs.stringify({
         crop_cycl_start_date:
           cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate,
@@ -740,8 +741,6 @@ const ActivityReportAWD = ({ navigation }) => {
         //   saveData.cu_rel_id,
         // ),
       ]);
-      console.log('activitySchedule', activitySchedule.status);
-      Alert.alert('not 200');
       if (activitySchedule.status == 200) {
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
           var lastData =

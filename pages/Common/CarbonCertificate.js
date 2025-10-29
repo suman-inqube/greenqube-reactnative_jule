@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import DocumentPicker, {types,pick} from '@react-native-documents/picker';
 import {createPdf} from 'react-native-images-to-pdf'; // Assuming you need to import this
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
@@ -59,7 +59,7 @@ const CarbonCertificate = ({
   const onHandleDocumentSelection = useCallback(
     async (imageType, index) => {
       try {
-        const response = await DocumentPicker.pick({
+        const response = await pick({
           presentationStyle: 'fullScreen',
           type: [types.pdf, types.images],
         });
@@ -308,6 +308,7 @@ const CarbonCertificate = ({
             ) : (
               <></>
             )}
+            
             {status_level === 'CARBON_DOCUMENTS_REJECTED' ||
             status_level === 'APPROVED' ? (
               <TouchableOpacity

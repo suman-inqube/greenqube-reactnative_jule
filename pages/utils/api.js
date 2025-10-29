@@ -3,8 +3,9 @@ import NetInfo from '@react-native-community/netinfo';
 import { Alert, NativeModules } from 'react-native';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
+import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from '../Common/ToastAlert';
 const SLOW_THRESHOLD = 3000;
-
 const instance = axios.create({
   // baseURL: 'https://mygreenqube.com:4003/',
   baseURL: 'http://134.209.155.11:4003/',
@@ -26,10 +27,15 @@ instance.interceptors.request.use(config => {
         if (start) {
           const duration = new Date().getTime() - start;
           if (duration > SLOW_THRESHOLD) {
-            Alert.alert(
-              'Slow Network',
-              `Request took ${duration} ms — network seems slow.`,
-            );
+            // Alert.alert(
+            //   'Slow Network',
+            //   // `Request took ${duration} ms — network seems slow.`,
+            // );
+            Toast.show({
+              time: 2,
+              text: `Your Network is Slow. Please switch to a better network or Wait for sometime to improve the network.`,
+              ...AlertMesg[0],
+            });
           }
         }
         try {
@@ -77,11 +83,19 @@ const isFormData = data => data instanceof FormData;
 const isInternetAvailable = async () => {
   const state = await NetInfo.fetch();
   if (!state.isConnected) {
-    Alert.alert('No Network', 'You are not connected to a network.');
+    Toast.show({
+      time: 2,
+      text: `You are not connected to a network.`,
+      ...AlertMesg[0],
+    });
     return false;
   }
   if (!state.isInternetReachable) {
-    Alert.alert('No Internet', 'You are connected but have no internet access.');
+    Toast.show({
+      time: 2,
+      text: `You are connected but have no internet access.`,
+      ...AlertMesg[0],
+    });
     return false;
   }
   // try {
@@ -105,7 +119,12 @@ const handleError = error => {
     return { status: 499, data: { message: 'Request cancelled' } };
   }
   if (error.code === 'ECONNABORTED') {
-    Alert.alert('Timeout', 'The request took too long. Please try again.');
+     Toast.show({
+      time: 2,
+      text: `The request took too long. Please try again.`,
+      ...AlertMesg[0],
+    });
+    // Alert.alert('Timeout', 'The request took too long. Please try again.');
     return { status: 408, data: { message: 'Request timed out' } };
   }
   if (error.response) {
@@ -114,7 +133,6 @@ const handleError = error => {
       data: error.response.data || { message: 'Unknown error' },
     };
   }
-  Alert.alert('Error', `${error}`);
   return { status: 500, data: { message: 'Connection error' } };
 };
 export const axiosGet = async (
@@ -123,11 +141,11 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
-  console.log("url",url)
+  // console.log("url",url)
   if (!(await isInternetAvailable()))
     return Promise.reject({ status: 0, data: { message: 'No internet' } });
   const controller = abortController || new AbortController();
-  console.log(url,extraHeaders)
+  // console.log(url,extraHeaders)
   try {
     return await instance.get(url, {
       headers: { ...(token && { Authorization: token }), ...extraHeaders },

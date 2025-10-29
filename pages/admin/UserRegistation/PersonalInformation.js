@@ -559,7 +559,7 @@ const PersonalInformation = () => {
     () => (
       <CustomHeader
         path={path != '' ? path : 'Dashboard'}
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
       />

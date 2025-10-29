@@ -294,7 +294,7 @@ const FarmerCreateProblem = ({ navigation }) => {
         }
       });
     },
-    [myphotoAll, myTitleAll],
+    [myphotoAll, myTitleAll,selectedImage],
   );
 
   const handleDatePicker = item => {

@@ -15,7 +15,7 @@ const SoilHealthManagement = () => {
     <FarmerDrawerScreenWrapper1>
       <View style={styles.container}>
         <CustomHeader
-          HandlerGoBack={() => HandlerGoBack('FarmerDashboard')}
+          // HandlerGoBack={() => HandlerGoBack('FarmerDashboard')}
           logoImage={logoImage}
           topBanner={topBanner}
         />

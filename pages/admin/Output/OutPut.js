@@ -209,7 +209,7 @@ const OutPut = ({navigation}) => {
   ) => {
     setIsLoading(true);
     const outputList = await axiosGet(
-      ROUTES.GET.INPUT_OUTPUT_ROUTE({
+      ROUTES.GET.INPUT_OUTPUT_ROUTE_OUTPUT({
         farmer_id: farmer_id,
         from_date,
         to_date,
@@ -374,7 +374,8 @@ const OutPut = ({navigation}) => {
                       <View style={styles.cardContent}>
                         <View style={styles.infoRow}>
                           <Text style={styles.infoLabel}>
-                            {item?.users?.userName || ''}
+                            {item?.users?.userName.substring(0, 10)}
+                            {item?.users?.userName.length > 10 ? '...' : null}
                           </Text>
                           {/* <Text style={styles.infoValue} numberOfLines={1}>
                             {item?.users?.userName.substring(0, 10)}

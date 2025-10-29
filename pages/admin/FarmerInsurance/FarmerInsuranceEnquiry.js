@@ -24,7 +24,7 @@ const FarmerInsuranceEnquiry = ({navigation}) => {
       {/* <View style={{flex: 1, height: Dimensions.get('window').height / 2}}> */}
       <CustomHeader
         path={'FarmerDashboard'}
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
       />

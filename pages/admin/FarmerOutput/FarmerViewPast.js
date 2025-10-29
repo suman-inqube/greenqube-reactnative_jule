@@ -347,7 +347,7 @@ const FarmerViewPast = ({navigation}) => {
                         </View>
                         <View style={styles.cardContent}>
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('name')} : </Text>
+                            {/* <Text style={styles.infoLabel}>{t('name')} : </Text> */}
                             <Text style={styles.infoValue} numberOfLines={1}>
                               {item.users.userName.substring(0, 10)}
 
@@ -357,22 +357,22 @@ const FarmerViewPast = ({navigation}) => {
 
                           {item.io_crop_variety && (
                             <View style={styles.infoRow}>
-                              <Text style={styles.infoLabel}>
+                              {/* <Text style={styles.infoLabel}>
                                 {t('ist_variety')}:{' '}
-                              </Text>
+                              </Text> */}
                               <Text style={styles.infoValue} numberOfLines={1}>
                                 {item.io_crop_variety &&
                                   item.io_crop_variety.name.substring(0, 14)}
                                 {item.io_crop_variety &&
                                 item.io_crop_variety.name.length > 14
-                                  ? '...'
+                                  ? ''
                                   : null}
                               </Text>
                             </View>
                           )}
 
                           <View style={styles.infoRow}>
-                            <Text style={styles.infoLabel}>{t('date')} :</Text>
+                            {/* <Text style={styles.infoLabel}>{t('date')} :</Text> */}
                             <Text style={styles.infoValue} numberOfLines={1}>
                               {formatDateToMMDDYYYY(item.date)}
                             </Text>
@@ -522,10 +522,10 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 16,
   },
-  infoRow: {
-    flexDirection: 'row',
+infoRow: {
+    // flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   infoLabel: {

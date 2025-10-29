@@ -7,7 +7,7 @@ const InputTextForm = ({
   value,
   color = '#4e4e4e',
   label,
-  onChangeText,
+  onChangeText = () => {},
   keyboardType = 'default',
   onBlur,
   refname,

@@ -26,7 +26,7 @@ const Calculator = () => {
     <FarmerDrawerScreenWrapper1>
       <Root>
         <CustomHeader
-          HandlerGoBack={HandlerGoBack}
+          // HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

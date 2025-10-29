@@ -173,7 +173,7 @@ const FarmerRequestForInsurance = ({}) => {
         <Root>
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

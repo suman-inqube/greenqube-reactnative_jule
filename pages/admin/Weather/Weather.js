@@ -51,7 +51,7 @@ const Weather = () => {
       <View style={styles.container}>
         <CustomHeader
           path="FarmerDashboard"
-          HandlerGoBack={HandlerGoBack}
+          // HandlerGoBack={HandlerGoBack}
           banner={true}
         />
         <ImageBackground

@@ -255,7 +255,7 @@ const FarmerAddExpense = ({navigation}) => {
           />
           <CustomHeader
             path="FarmerFarmIncomeExpenseList"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

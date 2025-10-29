@@ -443,7 +443,9 @@ const WantToBuy = ({ navigation }) => {
                 setOpenDate={setOpenDatePicker}
                 handleDatePicker={handleDatePicker}
             />}
-            <CustomHeader path={'InputList'} HandlerGoBack={HandlerGoBack} />
+            <CustomHeader path={'InputList'} 
+            // HandlerGoBack={HandlerGoBack} 
+            />
             <FormsTitle title={t('want_to_buy_seed_de')} />
             <SafeAreaView>
                 {

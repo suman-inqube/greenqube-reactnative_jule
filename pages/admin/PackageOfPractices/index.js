@@ -46,7 +46,7 @@ const PackageOfPractices = () => {
           productFilter={productFilter}
         />
         <CustomHeader
-          HandlerGoBack={() => HandlerGoBack('FarmerDashboard', '')}
+          // HandlerGoBack={() => HandlerGoBack('FarmerDashboard', '')}
           logoImage={logoImage}
           topBanner={topBanner}
         />

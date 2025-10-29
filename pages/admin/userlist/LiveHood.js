@@ -105,6 +105,11 @@ const LiveHood = ({
   const navigation = useNavigation();
   const route = useRoute();
   const { farmeruserID, agri_land_user_rels } = route.params;
+    const [polygons, setPolygons] = useState([]);
+  const [newPolygon, setNewPolygon] = useState([]);
+  const [editing, setEditing] = useState(false);
+  const [area, setArea] = useState(0);
+  const [showModal, setShowModal] = useState(false);
   const [plotEdit, setPlotEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [dafaultLatLon, setDefaultLatLon] = useState({
@@ -428,14 +433,18 @@ const LiveHood = ({
               information: `${dbname},${lan_id}`,
             },
           ),
-          // nearestLatLong(
-          //   dbname,
-          //   lan_id,
-          //   token,
-          //   findData?.latitude,
-          //   findData?.longitude,
-          // ),
+          axiosGet(
+            ROUTES.GET.PRODUCE_SEASON({
+              from_date: '', to_date: ''
+            }),
+            '',
+            {
+              information: `${dbname},${lan_id},${user_id}`,
+              Authorization: `${token}`,
+            },
+          )
         ]);
+        console.log("aaa",getSeasonDateRes)
         setPlotId(findData.value);
 
         if (getPlotDoc?.status == 200) {
@@ -603,7 +612,7 @@ const LiveHood = ({
                 soilTypeValue: dataLandDetails?.soil_type?.fid,
                 unit: dataLandDetails?.land_unit?.name,
                 unitValue: dataLandDetails?.land_unit?.fid,
-                productionSeason: `${data?.cropSeasonTime?.year ? data?.crop_season?.name + ' (' + (data?.cropSeasonTime?.year)+')' : ""}`,
+                productionSeason: `${data?.crop_season?.name}  ${data?.cropSeasonTime?.year ?' (' + (data?.cropSeasonTime?.year) + ')': ""}`,
                 productionSeasonValue: data?.crop_season?.fid,
                 livelihoodType: data?.crop_type?.name,
                 livelihoodTypeValue: data?.crop_type?.fid,
@@ -939,6 +948,13 @@ const LiveHood = ({
         Authorization: `${token}`,
       },
     );
+    setFarmerData(prev => ({
+      ...prev,
+      productionSeason: "",
+      productionSeasonValue: "",
+      productionSeasonSdId: "",
+      productionSeasonYear: "",
+    }));
     let prodctionSeasionArray = [];
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
@@ -949,10 +965,7 @@ const LiveHood = ({
         originalName: data.season_info.name,
       }));
     }
-    if (prodctionSeasionArray) {
-      setProductionSeason(prodctionSeasionArray);
-    }
-
+    setProductionSeason(prodctionSeasionArray);
     setFarmerData(prev => ({
       ...prev,
       cycleStartDate: selectedDate,
@@ -1702,11 +1715,7 @@ const LiveHood = ({
     }));
   }, []);
   // GRQ-1130
-  const [polygons, setPolygons] = useState([]);
-  const [newPolygon, setNewPolygon] = useState([]);
-  const [editing, setEditing] = useState(false);
-  const [area, setArea] = useState(0);
-  const [showModal, setShowModal] = useState(false);
+
   const handleMapPress = event => {
     if (!editing) return;
     if (
@@ -1718,7 +1727,7 @@ const LiveHood = ({
       ].includes(statuslevel.label)
     ) {
       const { latitude, longitude } = event.nativeEvent.coordinate;
-      groupedData = groupByRelId(nearPolData);
+      groupByRelId(nearPolData);
       setNewPolygon([...newPolygon, { latitude, longitude, editing: true }]);
     }
   };
@@ -1804,8 +1813,11 @@ const LiveHood = ({
     }
   };
 
-  const clearNewPolygon = () => {
-    setFarmerData(prev => ({ ...prev, google_area: 0 }));
+  const clearNewPolygon = (item) => {
+    console.log(newPolygon,"try")
+    try {
+        //  setNewPolygon([]);
+      setFarmerData(prev => ({ ...prev, google_area: 0 }));
     if (userData == 'addUserData' || addPlot == true) {
       setNewPolygon([]);
       setPolygons(nearPolSet);
@@ -1813,7 +1825,8 @@ const LiveHood = ({
       setArea(0);
     } else {
       if (statuslevel.label != 'APPROVED') {
-        setNewPolygon([]);
+         setNewPolygon([]);
+         console.log(newPolygon,"set newPolygon try")
         setPolygons(nearPolSet);
         removesetLocation();
         const value = [...nearPolSet];
@@ -1826,20 +1839,24 @@ const LiveHood = ({
             : 0,
         }));
         const isEqualUnordered = (arr1, arr2) => {
-          if (arr1.length !== arr2.length) return false;
+          if (arr1?.length !== arr2?.length) return false;
           const sortedArr1 = arr1.map(obj => JSON.stringify(obj)).sort();
           const sortedArr2 = arr2.map(obj => JSON.stringify(obj)).sort();
           return sortedArr1.every((item, index) => item === sortedArr2[index]);
         };
-
-        if (isEqualUnordered(convertedCoordinates, value[value.length - 1])) {
+        console.log(value,"value")
+        if (isEqualUnordered(convertedCoordinates, value[value?.length])) {
           value.pop();
           setArea(0);
         }
-        if (location.length > 1) {
+        if (location?.length > 1) {
           setPolygons(value);
         }
+                console.log("set newPolygon",value)
       }
+    }
+    } catch (error) {
+      console.error(error)
     }
   };
   const removesetLocation = () => {
@@ -2589,18 +2606,18 @@ const LiveHood = ({
                 </View>
               </TouchableOpacity>
             </View>
-                 <View style={{marginTop:25}}>
-            <DropdownForm
-              label={t('addcrop_select_cultivating_season')}
-              required={true}
-              data={productionSeason}
-              onChange={handleAddDataproductionSeason}
-              val={farmerData.productionSeason}
-              // disable={edit}
-              disable={
-                edit == '' ? (harvested == 'same produce' ? true : false) : edit
-              }
-            />
+            <View style={{ marginTop: 25 }}>
+              <DropdownForm
+                label={t('addcrop_select_cultivating_season')}
+                required={true}
+                data={productionSeason}
+                onChange={handleAddDataproductionSeason}
+                val={farmerData.productionSeason}
+                // disable={edit}
+                disable={
+                  edit == '' ? (harvested == 'same produce' ? true : false) : edit
+                }
+              />
             </View>
             <View style={{ marginBottom: 50 }}>
               <TouchableOpacity
@@ -2729,7 +2746,7 @@ const LiveHood = ({
               baselatLong={referencelatLong}
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
-              coords={coords.latitude == '' ? dafaultLatLon : coords}
+              coords={coords}
             />
           </Modal>
         )}

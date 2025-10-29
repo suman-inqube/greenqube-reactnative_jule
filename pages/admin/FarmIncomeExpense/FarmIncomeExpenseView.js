@@ -94,7 +94,7 @@ const FarmIncomeExpenseView = ({route}) => {
       <View style={{flex: 1, backgroundColor: Colors.pageBackground}}>
         <CustomHeader
           path={'FarmIncomeExpenseList'}
-          HandlerGoBack={HandlerGoBack}
+          // HandlerGoBack={HandlerGoBack}
           logoImage={logoImage}
           topBanner={topBanner}
         />

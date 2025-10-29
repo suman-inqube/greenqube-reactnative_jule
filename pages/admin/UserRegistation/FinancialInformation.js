@@ -225,7 +225,7 @@ const FinancialInformation = () => {
     () => (
       <CustomHeader
         path={path != '' ? path : 'PersonalInformation'}
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
       />

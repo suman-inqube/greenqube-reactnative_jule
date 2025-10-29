@@ -170,7 +170,7 @@ const TrainingList = () => {
         <View style={styles.container}>
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

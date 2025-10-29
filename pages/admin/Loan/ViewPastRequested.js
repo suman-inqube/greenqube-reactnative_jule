@@ -229,7 +229,7 @@ const LoanViewPastRequested = ({setActiveBtn}) => {
     () => (
       <CustomHeader
         path="Dashboard"
-        HandlerGoBack={HandlerGoBack}
+        // HandlerGoBack={HandlerGoBack}
         logoImage={logoImage}
         topBanner={topBanner}
         filterOptionShow={filterOptionShow}

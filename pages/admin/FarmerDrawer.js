@@ -133,8 +133,34 @@ const FarmerDrawer = props => {
       {cancelable: false},
     );
   };
+  // const removeData = async () => {
+  //   if (netConnection) {
+  //     await Promise.all([
+  //       removeItem('logoImageData'),
+  //       removeItem('loginUser_data'),
+  //       removeItem('profileImgData'),
+  //       removeItem('userNameData'),
+  //       removeItem('userType'),
+  //       removeItem('bottomBannerData'),
+  //       removeItem('topBannerData'),
+  //       removeItem('currency'),
+  //       removeItem('fcmToken'),
+  //       removeItem('company_website'),
+  //       removeItem('side_menu_option'),
+  //     ]);
+  //     const popAction = StackActions.pop(1);
+  //     navigation.dispatch(popAction);
+  //     navigation.navigate('Login');
+  //   } else {
+  //     Alert.alert('You are offline hence cannot proceed');
+  //   }
+  // };
   const removeData = async () => {
     if (netConnection) {
+      // Only remove specific items, keep rememberData if "Remember Me" was checked
+      const rememberData = await getItem('rememberData');
+      const shouldRemember = rememberData && rememberData.contactNumber;
+
       await Promise.all([
         removeItem('logoImageData'),
         removeItem('loginUser_data'),
@@ -148,9 +174,10 @@ const FarmerDrawer = props => {
         removeItem('company_website'),
         removeItem('side_menu_option'),
       ]);
-      const popAction = StackActions.pop(1);
-      navigation.dispatch(popAction);
-      navigation.navigate('Login');
+      if (!shouldRemember) {
+        await removeItem('rememberData');
+      }
+      navigation.dispatch(StackActions.replace('Login'));
     } else {
       Alert.alert('You are offline hence cannot proceed');
     }

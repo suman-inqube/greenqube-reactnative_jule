@@ -272,7 +272,7 @@ const FarmerViewModalPast = props => {
                               props.pastEnquiryView.length - 1
                             ].pro_status == 'fully'
                               ? t('closed')
-                              : t('pending_')}
+                              : t('pending')}
                           </Text>
                         </View>
                       </View>

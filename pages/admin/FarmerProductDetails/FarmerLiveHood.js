@@ -486,6 +486,13 @@ const FarmerLiveHood = ({
         Authorization: `${token}`,
       },
     );
+      setFarmerData(prev => ({
+      ...prev,
+      productionSeason: "",
+      productionSeasonValue: "",
+      productionSeasonSdId: "",
+      productionSeasonYear: "",
+    }));
     let prodctionSeasionArray = [];
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
@@ -1456,7 +1463,7 @@ const FarmerLiveHood = ({
               soilTypeValue: dataLandDetails?.soil_type?.fid,
               unit: dataLandDetails?.land_unit?.name,
               unitValue: dataLandDetails?.land_unit?.fid,
-              productionSeason: `${data?.cropSeasonTime?.year ? data?.crop_season?.name + ' (' + (data?.cropSeasonTime?.year)+')' : ""}`,
+              productionSeason: `${data?.crop_season?.name}  ${data?.cropSeasonTime?.year ?' (' + (data?.cropSeasonTime?.year) + ')': ""}`,
               productionSeasonValue: data?.crop_season?.fid,
               livelihoodType: data?.crop_type?.name,
               livelihoodTypeValue: data?.crop_type?.fid,
@@ -2699,7 +2706,7 @@ const FarmerLiveHood = ({
             baselatLong={referencelatLong}
             handleRegionChangeComplete={handleRegionChangeComplete}
             isLoading={isLoading}
-            coords={coords.latitude == '' ? dafaultLatLon : coords}
+            coords={coords}
           />
         </Modal>
       )}

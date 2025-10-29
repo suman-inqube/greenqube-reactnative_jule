@@ -291,7 +291,7 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
           ) : null}
           <CustomHeader
             path="Dashboard"
-            HandlerGoBack={HandlerGoBack}
+            // HandlerGoBack={HandlerGoBack}
             logoImage={logoImage}
             topBanner={topBanner}
           />

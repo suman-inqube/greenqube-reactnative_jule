@@ -97,7 +97,7 @@ const FarmerChangePassword = ({navigation}) => {
           <View style={styles.container}>
             <CustomHeader
               path="FarmerDashboard"
-              HandlerGoBack={HandlerGoBack}
+              // HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />

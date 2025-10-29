@@ -31,7 +31,7 @@ const MySoil = () => {
     <FarmerDrawerScreenWrapper1>
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <CustomHeader
-          HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')}
+          // HandlerGoBack={() => HandlerGoBack('SoilHealthManagement')}
           logoImage={logoImage}
           topBanner={topBanner}
         />

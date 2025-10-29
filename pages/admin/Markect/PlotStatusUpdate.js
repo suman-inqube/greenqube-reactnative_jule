@@ -71,6 +71,7 @@ import { getActionsMapView } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import { ROUTES } from '../../utils/Routes';
 import { axiosPost } from '../../utils/api';
+import { goBack } from '../../utils/NavigationUtils';
 const PlotStatusUpdate = () => {
   //GQR-65
   const {
@@ -1639,7 +1640,8 @@ const PlotStatusUpdate = () => {
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
           Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-          navigation.navigate('Market');
+          // navigation.navigate('Market');
+          goBack();
         }
         setIsLoading(false);
       }
@@ -1949,7 +1951,7 @@ const PlotStatusUpdate = () => {
           <View style={{ flex: 1, backgroundColor: 'white' }}>
             <CustomHeader
               path="Market"
-              HandlerGoBack={HandlerGoBack}
+              // HandlerGoBack={HandlerGoBack}
               logoImage={logoImage}
               topBanner={topBanner}
             />

@@ -261,7 +261,7 @@ const FarmerLoanEnquiryDetail = () => {
                         </View>
                     </View>
                 </Modal>
-                <CustomHeader path={'FarmerLoan'} HandlerGoBack={HandlerGoBack} logoImage={logoImage} topBanner={topBanner} />
+                <CustomHeader path={'FarmerLoan'}  logoImage={logoImage} topBanner={topBanner} />
                 <FormsTitle title={'Loan Enquiry Detail'} />
                 <ScrollView>
                     <View style={styles.container}>
