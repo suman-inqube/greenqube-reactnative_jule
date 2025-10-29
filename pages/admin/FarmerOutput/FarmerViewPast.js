@@ -341,7 +341,7 @@ const FarmerViewPast = ({navigation}) => {
                               item.io_crop_name.name.substring(0, 5)}
                             {item.io_crop_name &&
                             item.io_crop_name.name.length > 6
-                              ? '...'
+                              ? ''
                               : null}
                           </Text>
                         </View>
@@ -351,7 +351,7 @@ const FarmerViewPast = ({navigation}) => {
                             <Text style={styles.infoValue} numberOfLines={1}>
                               {item.users.userName.substring(0, 10)}
 
-                              {item.users.userName.length > 10 ? '...' : null}
+                              {item.users.userName.length > 10 ? '' : null}
                             </Text>
                           </View>
 
