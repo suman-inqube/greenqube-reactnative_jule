@@ -160,9 +160,11 @@ const FarmerPastEnquiriesModel = props => {
                       <View style={styles.textContainer}>
                         <Text style={styles.valueText}>{t('qty')} :</Text>
                         <Text style={styles.labelText}>
-                          {props.qty.qty} -{' '}
+                          {props.qty.qty}
+
+                          {/* -{' '}
                           {props.pastEnquiryView[0].farmerorder &&
-                            props.pastEnquiryView[0].farmerorder.unit_id}
+                            props.pastEnquiryView[0].farmerorder.unit_id} */}
                         </Text>
                       </View>
                     </View>

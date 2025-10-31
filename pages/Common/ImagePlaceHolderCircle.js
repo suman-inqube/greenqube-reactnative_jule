@@ -21,7 +21,7 @@ const ImagePlaceHolderCircle = ({openImagePicker, selectedImage}) => {
         <Image
           source={{uri: imageUrl}}
           style={styles.image}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       ) : (
         <Image

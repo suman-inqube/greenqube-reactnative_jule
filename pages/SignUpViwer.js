@@ -22,6 +22,7 @@ import { userCreateContext } from './Context/usersCreateContext';
 import LoadingScreen from './Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Fonts } from './utils/Constants';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 const SignUpViwer = () => {
   //GQR-65
   const { AllFarmerList, Toast, Root, AlertMesg, t } =
@@ -383,6 +384,10 @@ const SignUpViwer = () => {
   }, []);
 
   return (
+    <SafeAreaProvider>
+                 <SafeAreaView
+                       style={{flex: 1, backgroundColor: '#1d3122'}}
+                       edges={['top', 'right', 'bottom', 'left']}>
     <Root>
       <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
         <View
@@ -822,6 +827,8 @@ const SignUpViwer = () => {
         </View>
       </View>
     </Root>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

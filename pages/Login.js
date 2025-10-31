@@ -630,7 +630,7 @@ const Login = ({route}) => {
 
               <View style={styles.signUpContainer}>
                 <Text style={styles.dontHaveAccount}>
-                  Don't have an account?
+                  {t('Dont have an account?')}
                 </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
                   <Text style={styles.signUpText}>

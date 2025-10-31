@@ -6,10 +6,10 @@ import React, {
   useRef,
   useEffect,
 } from 'react';
-import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
-import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import FilterDropdown from '../Common/FilterDropdown';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 const RadioForm = lazy(() => import('../Common/RadioForm'));
 const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
 
@@ -65,9 +65,9 @@ const FilterSheetContent = React.memo(
     }, []);
     const filterOptions = useMemo(
       () => [
-        {key: 'farmer', type: FILTER_TYPES.FARMER, label: 'farmer_name'},
-        {key: 'phone', type: FILTER_TYPES.PHONE, label: 'farmer_number'},
-        {key: 'date', type: FILTER_TYPES.DATE, label: 'date'},
+        { key: 'farmer', type: FILTER_TYPES.FARMER, label: 'farmer_name' },
+        { key: 'phone', type: FILTER_TYPES.PHONE, label: 'farmer_number' },
+        { key: 'date', type: FILTER_TYPES.DATE, label: 'date' },
         {
           key: 'carbon',
           type: FILTER_TYPES.CARBON,
@@ -77,7 +77,7 @@ const FilterSheetContent = React.memo(
       ],
       [carbonFlag],
     );
-    const emptyObject = useMemo(() => ({label: '', value: ''}), []);
+    const emptyObject = useMemo(() => ({ label: '', value: '' }), []);
     const handleSelect = useCallback(
       value => {
         if (!isMountedRef.current) return;
@@ -165,8 +165,8 @@ const FilterSheetContent = React.memo(
     const handleDropdownChange = useCallback((item, fieldType) => {
       if (!isMountedRef.current) return;
 
-      const {label = '', value = ''} = item || {};
-      const newItem = {label, value};
+      const { label = '', value = '' } = item || {};
+      const newItem = { label, value };
 
       switch (fieldType) {
         case DROPDOWN_NAMES.FARMER:
@@ -185,15 +185,14 @@ const FilterSheetContent = React.memo(
 
     const handleApplyFilter = useCallback(() => {
       if (!isMountedRef.current) return;
-
       try {
         handleFilterResult?.({
           filter: selectedValue,
           fromDate: sheetFromDate,
           toDate: sheetToDate,
-          farmerName: sheetFarmerName,
-          farmerPhone: sheetFarmerPhone,
-          sheetCarbonType: sheetCarbonType,
+          farmerName: selectedValue == "Farmer/Product Name" ? sheetFarmerName : { label: "", value: "" },
+          farmerPhone:selectedValue == "PhoneNumber" ? sheetFarmerPhone: { label: "", value: "" },
+          sheetCarbonType: selectedValue == "Carbon" ?sheetCarbonType:{ label: "", value: "" },
         });
         SPSheet.hide();
       } catch (error) {
@@ -261,7 +260,7 @@ const FilterSheetContent = React.memo(
         sheetCarbonType,
       ],
     );
-    const DateButton = React.memo(({onPress, text, placeholder}) => (
+    const DateButton = React.memo(({ onPress, text, placeholder }) => (
       <TouchableOpacity style={styles.dateButton} onPress={onPress}>
         <Text style={styles.dateText}>
           {text || t?.(placeholder) || placeholder}
@@ -392,10 +391,9 @@ const FilterSheetContent = React.memo(
               sheetFromDate == ''
                 ? ''
                 : new Date(
-                    `${new Date(sheetFromDate).getFullYear()}-${
-                      new Date(sheetFromDate).getMonth() + 1
-                    }-${new Date(sheetFromDate).getDate() + 1}`,
-                  )
+                  `${new Date(sheetFromDate).getFullYear()}-${new Date(sheetFromDate).getMonth() + 1
+                  }-${new Date(sheetFromDate).getDate() + 1}`,
+                )
             }
           />
         )}
@@ -408,7 +406,7 @@ const FilterSheetContent = React.memo(
 FilterSheetContent.displayName = 'FilterSheetContent';
 export const openFilterSheet = props => {
   try {
-    const {navigationBarHeight = 0, height = 0, filterItem = ''} = props || {};
+    const { navigationBarHeight = 0, height = 0, filterItem = '' } = props || {};
     if (!props) {
       console.warn('openFilterSheet: No props provided');
       return;
@@ -428,8 +426,8 @@ export const openFilterSheet = props => {
 };
 
 const styles = StyleSheet.create({
-  container: {justifyContent: 'center'},
-  radioContainer: {padding: 10, justifyContent: 'center'},
+  container: { justifyContent: 'center' },
+  radioContainer: { padding: 10, justifyContent: 'center' },
   filterContainer: {
     width: '90%',
     marginHorizontal: '5%',

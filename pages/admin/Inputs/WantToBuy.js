@@ -52,7 +52,7 @@ const WantToBuy = ({navigation}) => {
     DropdownForm,
     ButtonFormBottom,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
   //GQR-67
   const unitFarm = [
     {
@@ -231,51 +231,72 @@ const WantToBuy = ({navigation}) => {
   //     }
   //   }
   // }, []);
- const handlePlot = async (relId) => {
-        const farmer_all = await farmerAgainstSupervisorAPI(dbname, lan_id, farmerID)
-        const problemNameFound = farmer_all.data.data.rows.find(user => user.user_id === relId.user_id);
-        setSaveData({
-            ...saveData,
-            type: "",
-            farmer_id: relId.user_id,
-            land_rel_id: relId.value,
-            land_rel_id_label: relId.label,
-            transaction_type: 1,
-            fulfill_status: 0,
-            created_at: relId.created_at,
-            state_name: problemNameFound?.agri_user_addresses[0]?.agri_state?.state_name,
-            district_name: problemNameFound?.agri_user_addresses[0]?.agri_district?.district_name,
-            subdiv_name: problemNameFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
-            state_id: problemNameFound?.agri_user_addresses[0]?.state,
-            district_id: problemNameFound?.agri_user_addresses[0]?.district,
-            subdiv_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
-        })
-        const response = await problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, relId.value)
-        if (response) {
-            setNameVarityStartEnd({
-                ...nameVarityStartEnd,
-                name: response?.data?.data?.crop_name.name,
-                varity: response?.data?.data?.crop_variety.name,
-                cycleStarts: response?.data?.data?.sowing_date,//sowing_date
-                cycleEnd: response?.data?.data?.harvesting_date,
-                production_process: response?.data?.data?.farmer_production_system.name,
+  const handlePlot = async relId => {
+    console.log('Plot selected:', relId);
+    console.log('saveData:', saveData);
 
-            })
-            const dateString = response?.data?.data?.harvesting_date;
-            const harvesting_date = new Date(dateString);
-            const currentDate = new Date();
-            if (harvesting_date > currentDate) {
-                setShowingMenu(true)
-            } else {
-                // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-                setSearchFarmerName('')
-                setSearchFarmerPhone('')
-                setplotAll([])
-                setModalVisible(true);
-                // navigation.navigate('Dashboard');
-            }
-        }
+    const farmer_all = await axiosGet(
+      ROUTES.GET.LIST_USER({user_id: farmerID}),
+      '',
+      {information: `${dbname},${lan_id},${farmerID}`},
+    );
+
+    // farmerAgainstSupervisorAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    // );
+    console.log('farmerAgainstSupervisorAPI', farmer_all);
+    const problemNameFound = farmer_all.data.data.rows.find(
+      user => user.user_id === relId.user_id,
+    );
+    setSaveData({
+      ...saveData,
+      type: '',
+      farmer_id: relId.user_id,
+      land_rel_id: relId.value,
+      land_rel_id_label: relId.label,
+      transaction_type: 1,
+      fulfill_status: 0,
+      created_at: relId.created_at,
+      state_name: agri_user_addresses[0]?.agri_state?.state_name,
+      district_name: agri_user_addresses[0]?.agri_district?.district_name,
+      subdiv_name: agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
+      state_id: agri_user_addresses[0]?.state,
+      district_id: agri_user_addresses[0]?.district,
+      subdiv_id: agri_user_addresses[0]?.subdivision,
+    });
+    const response = await problemProduceAgainstPlotAPI(
+      dbname,
+      lan_id,
+      farmerID,
+      relId.value,
+    );
+    console.log('abc', response);
+    if (response) {
+      setNameVarityStartEnd({
+        ...nameVarityStartEnd,
+        name: response?.data?.data?.crop_name.name,
+        varity: response?.data?.data?.crop_variety.name,
+        cycleStarts: response?.data?.data?.sowing_date, //sowing_date
+        cycleEnd: response?.data?.data?.harvesting_date,
+        production_process: response?.data?.data?.farmer_production_system.name,
+      });
+      const dateString = response?.data?.data?.harvesting_date;
+      const harvesting_date = new Date(dateString);
+      const currentDate = new Date();
+      if (harvesting_date > currentDate) {
+        setShowingMenu(true);
+      } else {
+        // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+        setSearchFarmerName('');
+        setSearchFarmerPhone('');
+        setplotAll([]);
+        setModalVisible(true);
+        // navigation.navigate('Dashboard');
+      }
     }
+  };
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setSaveData(prev => ({...prev, date: effective_date}));
@@ -521,7 +542,7 @@ const WantToBuy = ({navigation}) => {
       );
 
       // farmerByNameAPI(dbname, lan_id, token, user_id);
-
+      console.log('response1111', response);
       if (response?.status == 200) {
         const dataArray = response.data.data.rows.map(data => ({
           value: data.user_id,
@@ -541,15 +562,14 @@ const WantToBuy = ({navigation}) => {
     }
   };
 
-useEffect(() => {
-  const backHandler = BackHandler.addEventListener(
-    'hardwareBackPress',
-    handleBackButtonClick,
-  );
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackButtonClick,
+    );
 
-  return () => backHandler.remove();
-}, [formStep]);
-
+    return () => backHandler.remove();
+  }, [formStep]);
 
   useEffect(() => {
     onPageLoad();
@@ -661,7 +681,7 @@ useEffect(() => {
                 <InputTextForm
                   label={t('category')}
                   value={saveData.category}
-                    editable={false}
+                  editable={false}
                 />
 
                 <InputTextForm
@@ -707,17 +727,17 @@ useEffect(() => {
                 <InputTextForm
                   label={t('farmer_reg_state')}
                   value={saveData.state_name}
-                    editable={false}
+                  editable={false}
                 />
                 <InputTextForm
                   label={t('select_district_county')}
                   value={saveData.district_name}
-                    editable={false}
+                  editable={false}
                 />
                 <InputTextForm
                   label={t('select_block_sub_county_upzila')}
                   value={saveData.subdiv_name}
-                    editable={false}
+                  editable={false}
                 />
                 <View>
                   <Text style={{color: '#000'}}>{t('approximate_date')}</Text>

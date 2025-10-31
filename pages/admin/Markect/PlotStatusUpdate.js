@@ -72,6 +72,7 @@ import FloatingActionButton from '../../Components/FloatingActionButton';
 import { ROUTES } from '../../utils/Routes';
 import { axiosPost } from '../../utils/api';
 import { goBack } from '../../utils/NavigationUtils';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 const PlotStatusUpdate = () => {
   //GQR-65
   const {
@@ -124,6 +125,7 @@ const PlotStatusUpdate = () => {
     unitValue: '',
     productionSeason: '',
     productionSeasonValue: '',
+    productionSeasonSdId:'',
     livelihoodType: '',
     livelihoodTypeValue: '',
     produceName: '',
@@ -296,7 +298,7 @@ const PlotStatusUpdate = () => {
           },
         ),
       ]);
-      setreferencelatLong({ latitude, longitude });
+      setreferencelatLong({ latitude: lat, longitude: lon });
       if (nearestLatLong_res?.status == 200) {
         if (nearestLatLong_res.data.data.length > 0) {
           setnearPolData(nearestLatLong_res.data.data);
@@ -365,7 +367,14 @@ const PlotStatusUpdate = () => {
   };
 
   const handlePlot = async findData => {
+    // const { latitude, longitude } = coords || {};
     const { latitude, longitude } = coords || {};
+    var latlong;
+    if (latitude == '' && longitude == '') {
+      latlong = await getHighAccuracyLocation();
+    }
+    const lat = latitude === '' ? latlong.latitude : latitude;
+    const lon = longitude === '' ? latlong.longitude : longitude;
 
     const axiosConfig = {
       headers: {
@@ -404,7 +413,7 @@ const PlotStatusUpdate = () => {
         findData.value,
       ),
       getPlotDocAPI(dbname, lan_id, token, farmer_data.user_id, findData.value),
-      nearestLatLong(dbname, lan_id, token, latitude, longitude),
+      nearestLatLong(dbname, lan_id, token, lat, lon),
 
       terraintype_resAPI(dbname, lan_id, 'terrain_type'),
       soilType_resAPI(dbname, lan_id, 'soil_type'),
@@ -418,7 +427,7 @@ const PlotStatusUpdate = () => {
     setPlotId(findData.value);
     ////////////////////
 
-    setreferencelatLong({ latitude, longitude });
+    setreferencelatLong({ latitude: lat, longitude: lon });
     if (nearestLatLong_res?.status == 200) {
       if (nearestLatLong_res.data.data.length > 0) {
         setnearPolData(nearestLatLong_res.data.data);
@@ -643,8 +652,9 @@ const PlotStatusUpdate = () => {
             soilTypeValue: dataLandDetails?.soil_type?.fid,
             unit: dataLandDetails?.land_unit?.name,
             unitValue: dataLandDetails?.land_unit?.fid,
-            productionSeason: `${data?.cropSeasonTime?.year ? data?.crop_season?.name + ' (' + (data?.cropSeasonTime?.year)+')' : ""}`,
+            productionSeason: `${data?.cropSeasonTime?.year ? data?.crop_season?.name + ' (' + (data?.cropSeasonTime?.year) + ')' : ""}`,
             productionSeasonValue: data?.crop_season?.fid,
+            productionSeasonSdId: data?.season_date_fid,
             livelihoodType: data?.crop_type?.name,
             livelihoodTypeValue: data?.crop_type?.fid,
             produceName: data?.crop_name?.name,
@@ -871,6 +881,7 @@ const PlotStatusUpdate = () => {
       unitValue: '',
       productionSeason: '',
       productionSeasonValue: '',
+      productionSeasonSdId: '',
       livelihoodType: '',
       livelihoodTypeValue: '',
       produceName: '',
@@ -922,6 +933,7 @@ const PlotStatusUpdate = () => {
         ...farmerData,
         productionSeason: '',
         productionSeasonValue: '',
+        productionSeasonSdId: '',
         livelihoodType: '',
         livelihoodTypeValue: '',
         produceName: '',
@@ -943,7 +955,7 @@ const PlotStatusUpdate = () => {
       });
     }
   };
- const handleDatePicker = async item => {
+  const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
     const seasonData = await axiosGet(
       ROUTES.GET.PRODUCE_SEASON({
@@ -1454,7 +1466,6 @@ const PlotStatusUpdate = () => {
         file_delete_ids: photoDeletedvalidValues?.toString(),
       });
       const filterAddressImage = addressProof.filter(item => item.name !== '');
-
       if (userData == 'addUserData') {
         addressProof.map((data, index) => {
           if (data.name != '') {
@@ -1501,6 +1512,7 @@ const PlotStatusUpdate = () => {
           khatian_no: farmerData.khatian_no,
           plant_number: farmerData.plant_number,
           terrain_type_id: farmerData.terrainTypeValue,
+          season_date_fid: farmerData.productionSeasonSdId,
           lan_type_id: farmerData.landTypeValue,
           soil_type_id: farmerData.soilTypeValue,
           land_unit_id: farmerData.unitValue,
@@ -1640,8 +1652,10 @@ const PlotStatusUpdate = () => {
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
           Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-          // navigation.navigate('Market');
-          goBack();
+          navigation.navigate('Dashboard');
+          // goBack();
+        }else {
+          Toast.show({ text: updateLandCropdetails_res?.data?.error?.errorMessage, ...AlertMesg[0] });
         }
         setIsLoading(false);
       }
@@ -2517,7 +2531,7 @@ const PlotStatusUpdate = () => {
                     />
                   </View>
                 </View>
-                
+
                 <TouchableOpacity
                   onPress={() =>
                     harvested != '' || userData == 'addUserData'
@@ -2548,28 +2562,28 @@ const PlotStatusUpdate = () => {
                     />
                   </View>
                 </TouchableOpacity>
-                <View style={{marginTop:25}}>
+                <View style={{ marginTop: 25 }}>
                   <DropdownForm
-                  label={t('addcrop_select_cultivating_season')}
-                  requred={true}
-                  data={productionSeason}
-                  onChange={item => {
-                    handleAddDataproductionSeason(
-                      item,
-                      'productionSeason',
-                      'productionSeasonValue',
-                    );
-                  }}
-                  val={farmerData.productionSeason}
-                  // disable={edit}
-                  disable={
-                    edit == ''
-                      ? harvested == 'same produce'
-                        ? true
-                        : false
-                      : edit
-                  }
-                />
+                    label={t('addcrop_select_cultivating_season')}
+                    requred={true}
+                    data={productionSeason}
+                    onChange={item => {
+                      handleAddDataproductionSeason(
+                        item,
+                        'productionSeason',
+                        'productionSeasonValue',
+                      );
+                    }}
+                    val={farmerData.productionSeason}
+                    // disable={edit}
+                    disable={
+                      edit == ''
+                        ? harvested == 'same produce'
+                          ? true
+                          : false
+                        : edit
+                    }
+                  />
                 </View>
                 <TouchableOpacity
                   onPress={() =>
@@ -2676,6 +2690,7 @@ const PlotStatusUpdate = () => {
                   baselatLong={referencelatLong}
                   handleRegionChangeComplete={handleRegionChangeComplete}
                   isLoading={isLoading}
+
                 />
               </Modal>
             )}

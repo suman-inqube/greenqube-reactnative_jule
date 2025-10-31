@@ -3,12 +3,19 @@ import {
   Text,
   View,
   ScrollView,
-  Dimensions,Image
+  Dimensions,
+  Image,
 } from 'react-native';
-import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+} from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import { launchCamera } from 'react-native-image-picker';
+import {launchCamera} from 'react-native-image-picker';
 import {
   problemProduceAgainstPlotAPI,
   problemProductionStageAPI,
@@ -25,17 +32,17 @@ const audioRecorderPlayer =
     ? new AudioRecorderPlayer()
     : AudioRecorderPlayer;
 import RNFS from 'react-native-fs';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import { useIsFocused } from '@react-navigation/native';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import {useIsFocused} from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { plotHook } from '../../hooks/plotHook';
-import { Colors, Fronts } from '../../utils/Constants';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {plotHook} from '../../hooks/plotHook';
+import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import DatePickerField from '../../Common/DatePickerField';
-import { captureRef } from 'react-native-view-shot';
-const FarmerCreateProblem = ({ navigation }) => {
+import {captureRef} from 'react-native-view-shot';
+const FarmerCreateProblem = ({navigation}) => {
   //GQR-67
   const {
     dbLanTokUsr,
@@ -60,10 +67,10 @@ const FarmerCreateProblem = ({ navigation }) => {
     isOnline,
     coords,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, owner, FcmUserToken } = loginUser_data;
-  const { farmerId, supervisorId } = dbLanTokUsr;
+  const {dbname, lan_id, token, user_id, owner, FcmUserToken} = loginUser_data;
+  const {farmerId, supervisorId} = dbLanTokUsr;
   //GQR-67
-  const { problemPlotAgainstFarmer, plotAll, setplotAll } = plotHook(
+  const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
     token,
@@ -146,6 +153,14 @@ const FarmerCreateProblem = ({ navigation }) => {
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
+
+  const addPhoto = useCallback(newPhoto => {
+    setmyPhotoAll(prev => [...prev, newPhoto]);
+  }, []);
+
+  const addTitle = useCallback(newTitle => {
+    setMyTitleAll(prev => [...prev, newTitle]);
+  }, []);
   const handlePlot = useCallback(async relId => {
     setShowingMenu(false);
     // setNameVarityStartEnd({
@@ -200,15 +215,15 @@ const FarmerCreateProblem = ({ navigation }) => {
           );
           await setItem(
             'problemProductionStage' +
-            response?.data?.data?.crop_type_id +
-            response?.data?.data?.crop_name_id,
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'problemProductionStage' +
-            response?.data?.data?.crop_type_id +
-            response?.data?.data?.crop_name_id,
+              response?.data?.data?.crop_type_id +
+              response?.data?.data?.crop_name_id,
           );
         }
 
@@ -270,13 +285,14 @@ const FarmerCreateProblem = ({ navigation }) => {
                 width: 800,
                 height: 800,
               });
-              const fileName = response.assets[0].fileName || `photo_${timestamp}.jpg`;
+              const fileName =
+                response.assets[0].fileName || `photo_${timestamp}.jpg`;
               const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
               await RNFS.copyFile(uri, destPath);
               const path = destPath;
               setTempImage(null);
               setTempText('');
-              setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
+              setSelectedImage(prev => ({...prev, [item]: `file://${path}`}));
               const newPhoto = {
                 uri: `file://${path}`,
                 type: 'image/jpeg',
@@ -294,13 +310,13 @@ const FarmerCreateProblem = ({ navigation }) => {
         }
       });
     },
-    [myphotoAll, myTitleAll,selectedImage],
+    [myphotoAll, myTitleAll, selectedImage],
   );
 
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData(prev => ({ ...prev, affected_date: effective_date }));
+    setSaveData(prev => ({...prev, affected_date: effective_date}));
   };
   const handleProblemType = useCallback(
     problem_type => {
@@ -328,23 +344,26 @@ const FarmerCreateProblem = ({ navigation }) => {
     },
     [problemAll],
   );
-  const handleProblemName = useCallback(problem_name => {
-    setSaveData(prev => ({
-      ...prev,
-      problem_name_id: problem_name.value,
-      question_title:
-        nameVarityStartEnd.name +
-        ',' +
-        nameVarityStartEnd.question_title1 +
-        ',' +
-        problem_name.label,
-    }));
-  }, [nameVarityStartEnd]);
+  const handleProblemName = useCallback(
+    problem_name => {
+      setSaveData(prev => ({
+        ...prev,
+        problem_name_id: problem_name.value,
+        question_title:
+          nameVarityStartEnd.name +
+          ',' +
+          nameVarityStartEnd.question_title1 +
+          ',' +
+          problem_name.label,
+      }));
+    },
+    [nameVarityStartEnd],
+  );
   const onPageLoad = async () => {
-    const { latitude, longitude } = coords || {};
+    const {latitude, longitude} = coords || {};
     setfarmerID(user_id);
     problemPlotAgainstFarmer(dbname, lan_id, token, user_id, isOnline);
-    setSaveData(prev => ({ ...prev, latitude: latitude, longitude: longitude }));
+    setSaveData(prev => ({...prev, latitude: latitude, longitude: longitude}));
     if (isOnline) {
       var [problemName_res, severity_res] = await Promise.all([
         problemTypeNameAPI(dbname, lan_id, token),
@@ -375,7 +394,7 @@ const FarmerCreateProblem = ({ navigation }) => {
   };
   const validateForm = () => {
     if (!saveData.plot_id) {
-      Toast.show({ time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('pl_en_plot_name_first'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.growth_stage) {
@@ -395,11 +414,11 @@ const FarmerCreateProblem = ({ navigation }) => {
       return false;
     }
     if (!saveData.problem_name_id) {
-      Toast.show({ time: 2, text: t('please_select_problem'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('please_select_problem'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.severity_id) {
-      Toast.show({ time: 2, text: t('please_select_severity'), ...AlertMesg[0] });
+      Toast.show({time: 2, text: t('please_select_severity'), ...AlertMesg[0]});
       return false;
     }
     if (!saveData.affected_date) {
@@ -417,6 +436,15 @@ const FarmerCreateProblem = ({ navigation }) => {
     return true;
   };
   const handleSave = async () => {
+    console.log('Final saveData before API call:', saveData);
+    console.log('Selected images:', selectedImage);
+    console.log('Sound records:', {
+      firstItem: soundRecordFirstItem,
+      secondItem: soundRecordSecoundItem,
+      thirdItem: soundRecordThirdItem,
+    });
+    console.log('Photos to upload:', myphotoAll);
+    console.log('Titles to upload:', myTitleAll);
     if (validateForm()) {
       let array = [];
       const formData = new FormData();
@@ -478,6 +506,7 @@ const FarmerCreateProblem = ({ navigation }) => {
           farmerID,
           formData,
         );
+        console.log('API Response:', database_res);
         if (database_res.status === 200) {
           addModuleForView(
             dbLanTokUsr.dbName,
@@ -489,7 +518,7 @@ const FarmerCreateProblem = ({ navigation }) => {
             'problem_user',
             1,
           );
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
           setTimeout(() => {
             navigation.navigate('FarmerListProblem');
           }, 1000);
@@ -586,7 +615,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -595,7 +624,7 @@ const FarmerCreateProblem = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -648,26 +677,26 @@ const FarmerCreateProblem = ({ navigation }) => {
     SPSheet.show({
       component: () => <AudioPlayerView path={path} />,
       dragFromTopOnly: true,
-      onCloseComplete: () => { },
-      onOpenComplete: () => { },
+      onCloseComplete: () => {},
+      onOpenComplete: () => {},
       height: 260,
     });
   }, []);
   const handleGrowthStage = useCallback(
-    item => setSaveData(saveData => ({ ...saveData, growth_stage: item.value })),
+    item => setSaveData(saveData => ({...saveData, growth_stage: item.value})),
     [],
   );
   const handleChangeQuestionTitle = useCallback(
     item =>
-      setSaveData(saveData => ({ ...saveData, question_title: item.value })),
+      setSaveData(saveData => ({...saveData, question_title: item.value})),
     [],
   );
   const handleChangeQuestionDescription = useCallback(
-    item => setSaveData(saveData => ({ ...saveData, question_desc: item.value })),
+    item => setSaveData(saveData => ({...saveData, question_desc: item.value})),
     [],
   );
   const handleSeverityChange = useCallback(
-    item => setSaveData(saveData => ({ ...saveData, severity_id: item.value })),
+    item => setSaveData(saveData => ({...saveData, severity_id: item.value})),
     [],
   );
   const handleActivityPerFromDate = useCallback(() => {
@@ -804,24 +833,23 @@ const FarmerCreateProblem = ({ navigation }) => {
                 onChangeText={handleChangeQuestionDescription}
                 value={saveData.question_desc}
               />
-               <View style={styles.hiddenContainer}>
-                              {tempImage && (
-                                <View
-                                  ref={watermarkViewRef}
-                                  style={styles.watermarkView}
-                                  collapsable={false}
-                                >
-                                  <Image
-                                    source={{ uri: tempImage }}
-                                    style={styles.watermarkImage}
-                                    resizeMode="cover"
-                                  />
-                                  <View style={styles.watermarkTextContainer}>
-                                    <Text style={styles.watermarkText}>{tempText}</Text>
-                                  </View>
-                                </View>
-                              )}
-                            </View>
+              <View style={styles.hiddenContainer}>
+                {tempImage && (
+                  <View
+                    ref={watermarkViewRef}
+                    style={styles.watermarkView}
+                    collapsable={false}>
+                    <Image
+                      source={{uri: tempImage}}
+                      style={styles.watermarkImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.watermarkTextContainer}>
+                      <Text style={styles.watermarkText}>{tempText}</Text>
+                    </View>
+                  </View>
+                )}
+              </View>
               <TakePhoto
                 openImagePicker={openImagePicker}
                 selectedImage={selectedImage}
@@ -845,7 +873,7 @@ const FarmerCreateProblem = ({ navigation }) => {
             </View>
           </View>
         </ScrollView>
-        <View style={{ marginTop: 10 }}>
+        <View style={{marginTop: 10}}>
           <ButtonForm label={t('submit')} onPress={() => handleSave()} />
         </View>
         <Root></Root>
@@ -904,7 +932,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -1016,7 +1044,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginLeft: 5,
   },
-  
 
   hiddenContainer: {
     position: 'absolute',
@@ -1050,5 +1077,5 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginTop: 20,
-  }
+  },
 });

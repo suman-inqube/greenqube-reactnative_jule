@@ -46,13 +46,9 @@ const PlotListFarmer = () => {
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [addPlot, setAddPlot] = useState(false);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const onTabPress = (index, data) => {
+  const onTabPress = (index, data= {}) => {
     setActiveTab(index);
-    if (data) {
-      setDataProps(data);
-    } else {
-      setDataProps({});
-    }
+    setDataProps(data);
     scrollRef.current?.scrollTo({x: Number(index) * width, animated: true});
   };
   const {loginUser_data, t, Root, CustomHeader, effective_dates} =

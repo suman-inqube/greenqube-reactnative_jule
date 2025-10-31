@@ -66,6 +66,7 @@ import ActivityMap from '../../Common/ActivityMap';
 import { isPointInPolygon, getDistance } from 'geolib';
 import { captureRef } from 'react-native-view-shot';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import { showAIValidationError } from '../../utils/showAIValidationError';
 const FarmerActivityReportAWD = ({ navigation }) => {
   const today = new Date();
   const tenDaysAgo = new Date();
@@ -203,6 +204,12 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     varity: '',
     cycleStarts: '',
     cycleEnd: '',
+    productionSeasonSdId: '',
+  });
+  const [dafaultLatLon, setDefaultLatLon] = useState({
+    latitude: 22.15454,
+    longitude: 22.515451,
+    accuracy: 5,
   });
   const [myphoto, setmyPhoto] = useState(null);
   const [myphotoAll, setmyPhotoAll] = useState([]);
@@ -412,6 +419,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       cycleStarts: '',
       cycleEnd: '',
       production_process: '',
+      productionSeasonSdId: '',
     }));
     if (isOnline) {
       var response = await produceAgainstPlotAPI(
@@ -490,6 +498,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           varity: data.crop_variety.name,
           cycleStarts: data.sowing_date,
           cycleEnd: data.harvesting_date,
+          productionSeasonSdId: data.season_date_fid,
         }));
         setSaveData(prev => ({
           ...prev,
@@ -930,6 +939,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       formData.append('growth_stage', saveData.growth_stage);
       formData.append('act_perform_date', saveData.act_perform_date);
       formData.append('act_pattern', 'schedule');
+      formData.append('season_date_fid', nameVarityStartEnd.productionSeasonSdId);
       if (saveData.act_pattern === 'schedule') {
         formData.append('act_ref_type', saveData.act_ref_type);
         formData.append('act_to_date', saveData.act_to_date);
@@ -1032,6 +1042,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       formData.append('material_used', saveData.material_used);
       formData.append('water_used', saveData.water_used);
       formData.append('power_used', saveData.power_used);
+      formData.append('app_version', "104");
       var database_res;
       if (isOnline) {
         if (saveData.field_type == 'add') {
@@ -1070,11 +1081,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           }
         }
         if (database_res?.status === 400) {
-          Toast.show({
-            text: database_res.data?.error?.errorMessage?.message,
-            ...AlertMesg[0],
-          });
-          return;
+          showAIValidationError(database_res);
         }
         if (database_res?.status == 200) {
           navigation.navigate('FarmerActivityList', { action: 'addData' });
@@ -1299,6 +1306,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     }
     const lat = latitude === '' ? latlong.latitude : latitude;
     const lon = longitude === '' ? latlong.longitude : longitude;
+    setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
     setSaveData(prev => ({
       ...prev,
       act_pattern: 'schedule',
@@ -1535,7 +1543,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                   setModalVisibleMap={setModalVisibleMap}
                   plotPolygon={plotPolygon}
                   TakePhoto={TakePhoto}
-                  location={location}
+                  location={coords.latitude == '' ? dafaultLatLon : coords}
                   setOutOfRange={setOutofRange}
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}

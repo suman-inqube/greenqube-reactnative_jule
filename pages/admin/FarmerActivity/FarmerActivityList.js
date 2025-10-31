@@ -124,19 +124,20 @@ const FarmerActivityList = ({navigation}) => {
     }
   };
   const fetchActivityListAPI = async (
-    pageNo,
+    pageNo='',
     search_key_type = '',
     fromDateParams = '',
     toDateParams = '',
     carbonTypeParams,
   ) => {
     setIsLoading(true);
+    var response ;
     if (isOnline) {
-      var response = await axiosGet(
+       response = await axiosGet(
         ROUTES.GET.LIST_USER_ACITYLIST_E({
           pageNO: pageNo,
           carbonType:
-            carbonTypeParams == undefined ? carbonType.value : carbonTypeParams,
+            carbonTypeParams == '' ? carbonType.value : carbonTypeParams,
           userID: user_id,
           search_key:
             search_key_type && search_key_type !== 'carbon'
@@ -148,15 +149,15 @@ const FarmerActivityList = ({navigation}) => {
                 ? searchFarmerPhone?.label
                 : ''
               : '',
-          from_date: fromDateParams == undefined ? fromDate : fromDateParams,
-          to_date: toDateParams == undefined ? toDate : toDateParams,
+          from_date: fromDateParams == '' ? fromDate : fromDateParams,
+          to_date: toDateParams == '' ? toDate : toDateParams,
         }),
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
       await setItem('farmerActivityList' + user_id, response);
     } else {
-      var response = await getItem('farmerActivityList' + user_id);
+       response = await getItem('farmerActivityList' + user_id);
     }
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response?.data?.data.count / 20));
@@ -202,7 +203,7 @@ const FarmerActivityList = ({navigation}) => {
             options={OPTIONS_CARBON_FARMER}
           />
         ),
-        height: 140,
+        height: 210,
         zIndex: 1000,
       });
     } else {

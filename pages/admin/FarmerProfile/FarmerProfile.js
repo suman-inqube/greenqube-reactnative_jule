@@ -759,7 +759,7 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
                       openImagePicker={openImagePicker}
                       selectedImage={selectedImage}
                     />
-                    <Text style={styles.userName}>{farmerData.userName}</Text>
+                    {/* <Text style={styles.userName}>{farmerData.userName}</Text> */}
                   </View>
                   <View style={styles.inputContainer}>
                     <InputTextForm

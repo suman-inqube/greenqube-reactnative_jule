@@ -19,7 +19,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
 // Replace with your actual API key
-const GOOGLE_API_KEY = 'AIzaSyDZUR2UHEteHVQgwiGA7XJNOV5lHe0r8m4';
+const GOOGLE_API_KEY = 'AIzaSyBGTMfBKCZ9NJ57HX1NPm5hCnzK6_CYVD8';
 
 // Enhanced Colors and Fonts
 const Colors = {
@@ -67,7 +67,8 @@ const SuggestiveSearchInput = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   // 🔹 Optimized debounced search function
-  const debouncedSearch = useCallback(
+  const debouncedSearch =
+  //  useCallback(
     async searchQuery => {
       if (searchQuery.length < minQueryLength) {
         setSuggestions([]);
@@ -92,7 +93,6 @@ const SuggestiveSearchInput = ({
             timeout: 10000, // 10 second timeout
           },
         );
-
         if (response.data.status === 'OK') {
           const limitedSuggestions = response.data.predictions.slice(
             0,
@@ -112,9 +112,9 @@ const SuggestiveSearchInput = ({
       } finally {
         setLoading(false);
       }
-    },
-    [countryCode, maxSuggestions, minQueryLength],
-  );
+    }
+    // [countryCode, maxSuggestions, minQueryLength],
+  // );
 
   // 🔹 Effect for handling search with debounce
   useEffect(() => {
@@ -306,7 +306,7 @@ const SuggestiveSearchInput = ({
                 }
               : {},
           ]}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setShowModal(false)}>
             <MaterialIcons
@@ -315,7 +315,7 @@ const SuggestiveSearchInput = ({
               color="#424242ff"
               style={styles.icon}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TextInput
             ref={textInputRef}
             placeholder={placeholder}

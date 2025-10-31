@@ -25,7 +25,7 @@ const Financial = lazy(() => import('./pages/Financial'));
 const FinancialUpdate = lazy(() => import('./pages/FinancialUpdate'));
 const ProduceInfo = lazy(() => import('./pages/ProduceInfo'));
 const ProduceInfoUpdate = lazy(() => import('./pages/ProduceInfoUpdate'));
-
+import withSecurityCheck from './pages/SecurityCheck/withSecurityCheck';
 import {userCreateContext} from './pages/Context/usersCreateContext';
 import {addModuleForView} from './config/apiHere';
 import './ignoreWarnings';
@@ -33,10 +33,33 @@ import {navigationRef} from './pages/utils/NavigationUtils';
 const Stack = createNativeStackNavigator();
 // import { Provider as PaperProvider } from 'react-native-paper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-function App() {
+const App = withSecurityCheck(() => {
   const routeNameRef = useRef();
   const {loginUser_data} = useContext(userCreateContext) || {};
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
+
+
+
+  // useEffect(() => {
+  //   const unsubscribe = navigationRef.addListener('state', () => {
+  //     if (navigationRef.isReady()) {
+  //       const state = navigationRef.getRootState();
+  //       console.log('🔍 Full Navigation Tree:', JSON.stringify(state, null, 2));
+
+  //       const currentRoute = navigationRef.getCurrentRoute();
+  //       const currentRouteName = currentRoute?.name;
+  //       const previousRouteName = routeNameRef.current;
+
+  //       if (previousRouteName !== currentRouteName) {
+  //         console.log('📍 Route changed:', previousRouteName, '➡️', currentRouteName);
+  //       }
+
+  //       routeNameRef.current = currentRouteName;
+  //     }
+  //   });
+
+  //   return unsubscribe;
+  // }, [navigationRef]);
   return (
     // <PaperProvider>
     <SafeAreaProvider>
@@ -49,7 +72,7 @@ function App() {
           onStateChange={async () => {
             const previousRouteName = routeNameRef.current;
             const currentRouteName = navigationRef.getCurrentRoute().name;
-
+console.log("currentRouteName",currentRouteName)
             if (previousRouteName !== currentRouteName) {
               switch (currentRouteName) {
                 case 'FarmerFarmIncomeExpenseList':
@@ -189,7 +212,7 @@ function App() {
     </SafeAreaProvider>
     // </PaperProvider>
   );
-}
+})
 
 export default App;
 

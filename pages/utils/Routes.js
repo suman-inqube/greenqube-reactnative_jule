@@ -13,8 +13,8 @@ export const ROUTES = {
     ADD_INSURANCE: () => `insuranceRoute/add`,
     FARMER_INCOME_EXPENSE_SAVE: () => `cropRoute/addUserCropRels`,
     DEALER_DAILY_SALES_REPORT_ADD: () => `optionRoute/salesReport`,
-    ADD_USER_PIPE_ACTIVITY: `inputOutputRoute/addUserPipeActivity`,
-    UPDATE_PIPE_ACTIVITY: `inputOutputRoute/updatePipeActivity`,
+    // ADD_USER_PIPE_ACTIVITY: `inputOutputRoute/addUserPipeActivity`,
+    // UPDATE_PIPE_ACTIVITY: `inputOutputRoute/updatePipeActivity`,
     ACTIVITY_SAVE: `inputOutputRoute/addUserActivity`,
   },
 
@@ -115,8 +115,9 @@ export const ROUTES = {
       status_level,
       geo_type,
       searchBy = '',
+      supervisor_id='',
     }) =>
-      `landRoute/plotNotification/1/${page}/3?supervisor=&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+      `landRoute/plotNotification/1/${page}/3?supervisor=${supervisor_id}&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
     USER_ACTIVITY_DETAILS: ({uact_id}) =>
       `inputOutputRoute/detailsUserActivity_e?uact_id=${uact_id}`,
     INPUT_LIST_API: ({category_id = ''}) =>

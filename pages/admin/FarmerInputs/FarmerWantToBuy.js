@@ -26,6 +26,8 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fronts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 
 const FarmerWantToBuy = ({navigation}) => {
   //GQR-67
@@ -48,7 +50,7 @@ const FarmerWantToBuy = ({navigation}) => {
     effective_dates,
     isOnline,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const {dbname, lan_id, token, user_id, agri_user_addresses} = loginUser_data;
   const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
@@ -88,12 +90,20 @@ const FarmerWantToBuy = ({navigation}) => {
   const [approximateDate, setApproximateDate] = useState('');
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
   const handlePlot = async relId => {
-    const farmer_all = await farmerAgainstSupervisorAPI(
-      dbname,
-      lan_id,
-      farmerID,
+    const farmer_all = await axiosGet(
+      ROUTES.GET.LIST_USER({
+        user_id: farmerID,
+      }),
+      '',
+      {information: `${dbname},${lan_id},${farmerID}`},
     );
+    // farmerAgainstSupervisorAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    // );
     const problemNameFound = farmer_all?.data?.data?.rows.find(
       user => user.user_id === relId.user_id,
     );
@@ -110,15 +120,12 @@ const FarmerWantToBuy = ({navigation}) => {
       land_rel_id: relId.value,
       transaction_type: 1,
       fulfill_status: 0,
-      state_name:
-        problemNameFound?.agri_user_addresses[0]?.agri_state?.state_name,
-      district_name:
-        problemNameFound?.agri_user_addresses[0]?.agri_district?.district_name,
-      subdiv_name:
-        problemNameFound?.agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
-      state_id: problemNameFound?.agri_user_addresses[0]?.state,
-      district_id: problemNameFound?.agri_user_addresses[0]?.district,
-      subdiv_id: problemNameFound?.agri_user_addresses[0]?.subdivision,
+      state_name: agri_user_addresses[0]?.agri_state?.state_name,
+      district_name: agri_user_addresses[0]?.agri_district?.district_name,
+      subdiv_name: agri_user_addresses[0]?.agri_subdivision?.subdiv_name,
+      state_id: agri_user_addresses[0]?.state,
+      district_id: agri_user_addresses[0]?.district,
+      subdiv_id: agri_user_addresses[0]?.subdivision,
     });
     const response = await problemProduceAgainstPlotAPI(
       dbname,
@@ -416,7 +423,7 @@ const FarmerWantToBuy = ({navigation}) => {
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => navigation.navigate('FarmerInputList');
+  // const HandlerGoBack = () => navigation.navigate('FarmerInputList');
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('FarmerDashboard');
@@ -531,14 +538,19 @@ const FarmerWantToBuy = ({navigation}) => {
                 <InputTextForm
                   label={t('farmer_reg_state')}
                   value={saveData.state_name}
+                  editable={false}
                 />
                 <InputTextForm
                   label={t('select_district_county')}
                   value={saveData.district_name}
+                  editable={false}
+
                 />
                 <InputTextForm
                   label={t('select_block_sub_county_upzila')}
                   value={saveData.subdiv_name}
+                  editable={false}
+
                 />
                 <View>
                   <Text style={{color: '#000'}}>{t('approximate_date')}</Text>

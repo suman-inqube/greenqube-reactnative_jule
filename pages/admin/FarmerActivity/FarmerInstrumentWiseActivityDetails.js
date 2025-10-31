@@ -16,6 +16,7 @@ import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import { captureRef } from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import { showAIValidationError } from '../../utils/showAIValidationError';
 const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
   const location = useLocationTracking();
   const {
@@ -148,6 +149,9 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         token,
         formData,
       );
+      if(updateActivityPipeImages?.status === 400){
+        showAIValidationError(updateActivityPipeImages)
+      }
       if (updateActivityPipeImages?.status === 200) {
         Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
         setTimeout(() => {

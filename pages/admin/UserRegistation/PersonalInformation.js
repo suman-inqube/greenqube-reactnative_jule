@@ -729,6 +729,7 @@ const PersonalInformation = () => {
                           label={t('new_reg_password')}
                           onChangeText={handleAddDataPass}
                           value={farmerData.password}
+                          required={true}
                         />
                         <PasswordComp
                           setPasswordVisibility={setcPasswordVisibility}
@@ -736,6 +737,7 @@ const PersonalInformation = () => {
                           label={t('new_reg_confirm_password')}
                           onChangeText={handleAddDataCPass}
                           value={farmerData.cpassword}
+                          required={true}
                         />
                         <ProofAndIdentityPropfComp
                           identityProofIdentityPropf={

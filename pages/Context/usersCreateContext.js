@@ -17,24 +17,24 @@ import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
 } from 'react-native-android-location-enabler';
-import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
+import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
   showCarbonFlag,
 } from '../../config/apiHere';
-import {useTranslation} from 'react-i18next';
-import {AlertMesg} from '../Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
+import { AlertMesg } from '../Common/ToastAlert';
 import {
   Root,
   Toast,
   Popup,
   SPSheet,
 } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {onBackPress} from '../Common/BackPressHandler';
+import { onBackPress } from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
 import i18next from 'i18next';
-import {getNavigationBarHeight} from 'react-native-android-navbar-height';
+import { getNavigationBarHeight } from 'react-native-android-navbar-height';
 const ImagePlaceHolderCircle = lazy(() =>
   import('../Common/ImagePlaceHolderCircle'),
 );
@@ -54,8 +54,8 @@ const axios = lazy(() => import('axios'));
 const userCreateContext = createContext();
 const userListContext = createContext('adduser');
 const UserCreateContextProvider = props => {
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
   const [loginUser_data, setloginUser_data] = useState({});
@@ -208,7 +208,7 @@ const UserCreateContextProvider = props => {
             }
           },
         },
-        {text: 'Cancel', style: 'cancel'},
+        { text: 'Cancel', style: 'cancel' },
       ]);
       return;
     }
@@ -217,51 +217,54 @@ const UserCreateContextProvider = props => {
     if (watchIdRef.current) {
       Geolocation.clearWatch(watchIdRef.current);
     }
-    watchIdRef.current = Geolocation.watchPosition(
-      pos => {
-        console.log('pos i', pos);
-        if (!pos || !pos.coords) {
-          Alert.alert('Unable to fetch location. Please try again.');
-          return;
-        }
+    // watchIdRef.current = Geolocation.watchPosition(
+    //   pos => {
+    //     console.log('pos i', pos);
+    //     if (!pos || !pos.coords) {
+    //       Alert.alert('Unable to fetch location. Please try again.');
+    //       return;
+    //     }
 
-        setCoords(prev => {
-          if (
-            prev.latitude === pos.coords.latitude &&
-            prev.longitude === pos.coords.longitude &&
-            prev.accuracy === pos.coords.accuracy
-          ) {
-            return prev; // No change
-          }
-          return {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            timestamp: pos.timestamp,
-          };
-        });
-      },
-      err => {
-        console.error('Location error:', err);
-        if (err.code === 1) {
-          Alert.alert('Permission Denied', 'Location permission denied.');
-        } else if (err.code === 2) {
-          Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
-        } else if (err.code === 3) {
-          Alert.alert('Timeout', 'Location request timed out.');
-        } else {
-          Alert.alert('Unable to get location. Please try again.');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        distanceFilter: 5,
-        interval: 5000,
-        fastestInterval: 2000,
-        timeout: 20000,
-        maximumAge: 0,
-      },
-    );
+    //     setCoords(prev => {
+    //       if (
+    //         prev.latitude === pos.coords.latitude &&
+    //         prev.longitude === pos.coords.longitude &&
+    //         prev.accuracy === pos.coords.accuracy
+    //       ) {
+    //         return prev; // No change
+    //       }
+    //       return {
+    //         latitude: pos.coords.latitude,
+    //         longitude: pos.coords.longitude,
+    //         accuracy: pos.coords.accuracy,
+    //         timestamp: pos.timestamp,
+    //       };
+    //     });
+    //   },
+    //   err => {
+    //     console.error('Location error:', err);
+    //     if (err.code === 1) {
+    //       Alert.alert('Permission Denied', 'Location permission denied.');
+    //     } else if (err.code === 2) {
+    //       Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
+    //     } else if (err.code === 3) {
+    //       Alert.alert('Timeout', 'Location request timed out.');
+    //     } else {
+    //       Alert.alert('Unable to get location. Please try again.');
+    //     }
+    //   },
+    //   {
+    //     enableHighAccuracy: true,       // Forces GPS (fine location)
+    //     accuracy: { android: 'high', ios: 'best' }, // iOS + Android hint
+    //     distanceFilter: 0,              // 0 = every movement
+    //     interval: 3000,                 // request every 3 sec
+    //     fastestInterval: 1000,          // deliver updates faster if available
+    //     timeout: 20000,                 // wait up to 20 sec for GPS fix
+    //     maximumAge: 0,                  // don’t reuse cached positions
+    //     forceRequestLocation: true,     // (Android) always request fresh location
+    //     showLocationDialog: true,       // (Android) automatically prompt for GPS
+    //   },
+    // );
 
     // Fallback if no location update within 15 sec
     // setTimeout(() => {
@@ -272,10 +275,10 @@ const UserCreateContextProvider = props => {
   };
 
   const stopWatchingLocation = () => {
-    if (watchIdRef.current) {
-      Geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
+    // if (watchIdRef.current) {
+    //   Geolocation.clearWatch(watchIdRef.current);
+    //   watchIdRef.current = null;
+    // }
   };
 
   // ---------- INIT: Start Watching Once ----------
@@ -353,8 +356,8 @@ const UserCreateContextProvider = props => {
         } else if (loginUser_data?.userType == 3) {
           supervisorId = loginUser_data?.user_id;
         }
-        const {company, country_id} = companyLanguage_data;
-        const {option_value} = resCarbonFlag?.data?.data || {};
+        const { company, country_id } = companyLanguage_data;
+        const { option_value } = resCarbonFlag?.data?.data || {};
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({
@@ -491,4 +494,4 @@ const UserCreateContextProvider = props => {
   );
 };
 
-export {userListContext, UserCreateContextProvider, userCreateContext};
+export { userListContext, UserCreateContextProvider, userCreateContext };

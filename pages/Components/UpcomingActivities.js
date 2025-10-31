@@ -152,6 +152,7 @@ const UpcomingActivities = ({
   );
   // const currentActivities =
   //   activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
+  console.log(uiState)
   return (
     <ScrollView>
       <View style={styles.mainProfileContainer}>

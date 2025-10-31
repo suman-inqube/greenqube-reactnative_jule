@@ -6,7 +6,6 @@ import { Alert, Linking, Platform } from 'react-native';
 const ForegroundLocationService = () => {
     const subscriptionRef = useRef(null);
     const lastSavedTimeRef = useRef(0); // for debouncing
-
     useEffect(() => {
         const startLocationUpdates = async () => {
             try {

@@ -189,11 +189,7 @@ const PastEnquiriesModel = props => {
                       </View>
                       <View style={styles.textContainer}>
                         <Text style={styles.valueText}>{props.t('qty')} :</Text>
-                        <Text style={styles.labelText}>
-                          {props.qty.qty} -{' '}
-                          {props?.pastEnquiryView[0]?.farmerorder &&
-                            props?.pastEnquiryView[0]?.farmerorder.unit_id}
-                        </Text>
+                        <Text style={styles.labelText}>{props.qty.qty}</Text>
                         {/* <Text style={styles.modelItemTitle}>:  {props?.pastEnquiryView[0]?.farmerorder && props?.pastEnquiryView[0]?.farmerorder.unit_id}</Text> */}
                       </View>
                     </View>

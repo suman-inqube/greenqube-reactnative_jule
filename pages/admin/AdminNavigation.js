@@ -1,8 +1,8 @@
-import React, {Suspense, lazy} from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import React, { Suspense, lazy } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
-import {Colors} from '../utils/Constants';
+import { Colors } from '../utils/Constants';
 
 const Stack = createNativeStackNavigator();
 
@@ -92,7 +92,7 @@ function AdminStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: {backgroundColor: 'transparent'},
+        contentStyle: { backgroundColor: 'transparent' },
 
         // 🔄 Screen transition
         animation: 'slide_from_bottom', // others: 'fade', 'slide_from_left', 'slide_from_bottom', 'simple_push'
@@ -117,7 +117,7 @@ function AdminStack() {
         },
 
         // 🎬 Custom transition interpolator (advanced)
-        cardStyleInterpolator: ({current, layouts}) => ({
+        cardStyleInterpolator: ({ current, layouts }) => ({
           cardStyle: {
             transform: [
               {
@@ -210,6 +210,10 @@ function AdminStack() {
       <Stack.Screen
         name="PlotSiteProduceInformation"
         component={PlotSiteProduceInformation}
+        options={{
+          unmountOnBlur: false,
+          gestureEnabled: false,
+        }}
       />
       <Stack.Screen
         name="RegistationSignUpViwer"
@@ -246,13 +250,13 @@ const AdminNavigation = () => {
       borderBottomColor: '#baffa0',
       marginHorizontal: 20,
     },
-    drawerLabelStyle: {marginLeft: -20},
+    drawerLabelStyle: { marginLeft: -20 },
     drawerStyle: {
       backgroundColor: Colors.drawer,
       width: '65%',
       marginLeft: -0.2,
     },
-    sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
+    sceneContainerStyle: { backgroundColor: Colors.drawer, zIndex: 100 },
   };
   return (
     <Drawer.Navigator
@@ -261,7 +265,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}
-        options={{title: 'Admin Dashboard'}}
+        options={{ title: 'Admin Dashboard' }}
       />
     </Drawer.Navigator>
   );

@@ -163,13 +163,13 @@ const ActivityMap = ({
           </MapView>
         </View>
 
-        {/* {outofRange && ( */}
+        {outofRange && (
         <TouchableOpacity
           style={styles.captureButton}
           onPress={() => TakePhoto()}>
           <Text style={styles.captureIcon}>📷</Text>
         </TouchableOpacity>
-        {/* )} */}
+        )}
       </View>
     </Modal>
   );

@@ -8,6 +8,7 @@ import {
   Dimensions,
   SafeAreaView,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import React, {
   useState,
@@ -16,22 +17,22 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   inputEnquiryViewAPI,
   FarmerinputPastEnquiryListAPI,
 } from '../../../config/apiHere';
 import FarmerPastEnquiriesModel from './FarmerPastEnquiriesModel';
 import Filter from '../../Common/FarmerFilter';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-const FarmerPastEnquiries = ({navigation}) => {
+const FarmerPastEnquiries = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -47,7 +48,7 @@ const FarmerPastEnquiries = ({navigation}) => {
     effective_dates,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(true);
@@ -100,9 +101,14 @@ const FarmerPastEnquiries = ({navigation}) => {
         disTotal = disTotal + parseFloat(data.sdiscount);
         total = total + parseFloat(data.total_samount);
       });
+
+      const quantityDisplay = EnquiryFound
+        ? `${qty}/${EnquiryFound.pp_qty} ${EnquiryFound.unit_id}`
+        : `${qty}`;
+
       setresult({
         ...result,
-        qty: qty,
+        qty: quantityDisplay,
         total: total,
         grandTotal: grandTotal,
         disTotal: disTotal,
@@ -222,7 +228,7 @@ const FarmerPastEnquiries = ({navigation}) => {
 
   const filterOptionShow = useCallback(async () => {
     try {
-      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      const { openFilterSheet } = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['', '', 'date'],
         t: t,
@@ -256,6 +262,8 @@ const FarmerPastEnquiries = ({navigation}) => {
     }) => {
       try {
         onPageLoad(fromDate, toDate);
+        setFromDate(fromDate)
+        setToDate(toDate)
       } catch (error) {
         console.error(error);
       }
@@ -267,9 +275,7 @@ const FarmerPastEnquiries = ({navigation}) => {
       setFilterItem('');
       setFromDate('');
       setToDate('');
-      setCarbonType({label: '', value: ''});
-      fetchActivityListAPI(1, '', '', '', '', '');
-      setPage(1);
+      onPageLoad();
     } catch (error) {
       console.log(error);
     }
@@ -288,7 +294,7 @@ const FarmerPastEnquiries = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <>
-        <View style={{flex: 1, backgroundColor: Colors.background_light}}>
+        <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
           {renderCustomHeader}
           <DatePickerComp
             openDate={openFromDate}
@@ -305,10 +311,9 @@ const FarmerPastEnquiries = ({navigation}) => {
               fromDate == ''
                 ? ''
                 : new Date(
-                    `${new Date(fromDate).getFullYear()}-${
-                      new Date(fromDate).getMonth() + 1
-                    }-${new Date(fromDate).getDate() + 1}`,
-                  )
+                  `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
+                  }-${new Date(fromDate).getDate() + 1}`,
+                )
             }
           />
           {/* { <Filter
@@ -339,8 +344,8 @@ const FarmerPastEnquiries = ({navigation}) => {
           />
 
           <FlatList
-            data={isLoading ? Array.from({length: 5}) : inputPastEnquiryAll}
-            renderItem={({item, index}) =>
+            data={isLoading ? Array.from({ length: 5 }) : inputPastEnquiryAll}
+            renderItem={({ item, index }) =>
               isLoading ? (
                 <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
               ) : (
@@ -479,7 +484,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

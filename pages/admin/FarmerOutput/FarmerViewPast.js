@@ -18,23 +18,23 @@ import React, {
   useMemo,
   useEffect,
 } from 'react';
-import {useFocusEffect, useRoute} from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   FarmeroutputListAPI,
   outputEnquiryViewAPI,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import MessageDialog from '../../Common/MessageDialog';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {getActionsPostNewOutputFarmer} from '../../utils/options';
+import { getActionsPostNewOutputFarmer } from '../../utils/options';
 import AnimatedCard from '../../Components/AnimatedCard';
-import {FloatingAction} from 'react-native-floating-action';
+import { FloatingAction } from 'react-native-floating-action';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-const FarmerViewPast = ({navigation}) => {
+const FarmerViewPast = ({ navigation }) => {
   //GQR-67
   const {
     CustomHeader,
@@ -50,7 +50,7 @@ const FarmerViewPast = ({navigation}) => {
     Toast,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const route = useRoute();
   const [farmerData, setFarmerData] = useState([]);
@@ -117,7 +117,7 @@ const FarmerViewPast = ({navigation}) => {
     } else {
       ///basudev
       // MessageDialog({ title: 'Require', message: 'Please Select First data.' })
-      Toast.show({time: 3, text: 'Please Select First data.', ...AlertMesg[0]});
+      Toast.show({ time: 3, text: 'Please Select First data.', ...AlertMesg[0] });
     }
   };
   const navigateToPages = async (fid, dbname, lan_id, token, user_id) => {
@@ -141,13 +141,13 @@ const FarmerViewPast = ({navigation}) => {
         qty = qty + parseFloat(data.pro_qty);
         total = total + parseFloat(data.grand_total);
       });
-      setresult({...result, qty: qty, total: total});
+      setresult({ ...result, qty: qty, total: total });
     }
     setModalVisible(true);
   };
   const filterOptionShow = async () => {
     try {
-      const {openFilterSheet} = await import('../../Components/FilterSheet');
+      const { openFilterSheet } = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['', '', 'date', ''],
         // onchangeFilterItem: onchangeFilterItem,
@@ -173,7 +173,7 @@ const FarmerViewPast = ({navigation}) => {
     }
   };
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
         setFilterItem(filter);
         setFromDate(fromDate);
@@ -190,55 +190,13 @@ const FarmerViewPast = ({navigation}) => {
     },
     [],
   );
-  const handleFilterRemove = () => {};
-  // const handleFilter = async search => {
-  //   if (filterName === 'Farmer/Product Name') {
-  //     setSearchFarmerPhone('');
-  //     setSearchFarmerName(search);
-  //     const result = farmerData.filter(item =>
-  //       item.label.toLowerCase().includes(search.toLowerCase()),
-  //     );
-  //     if (search == '') {
-  //       setSearchResultsList(false);
-  //       setOutputListAll(outputListAllRaw);
-  //     } else {
-  //       let tempData = outputListAll.filter(item => {
-  //         return (
-  //           item.users.userName.toLowerCase().indexOf(search.toLowerCase()) > -1
-  //         );
-  //       });
-  //       setOutputListAll(tempData);
-  //       setSearchResultsList(true);
-  //     }
-  //     if (result) {
-  //       setSearchResults(result);
-  //     }
-  //   } else if (filterName === 'PhoneNumber') {
-  //     setSearchFarmerName('');
-  //     setSearchFarmerPhone(search);
-  //     const result = farmerData.filter(item =>
-  //       item.phone.toLowerCase().includes(search.toLowerCase()),
-  //     );
-  //     if (search == '') {
-  //       setSearchResultsList(false);
-  //       setOutputListAll(outputListAllRaw);
-  //     } else {
-  //       let tempData = outputListAll.filter(item => {
-  //         return (
-  //           item.users.contactNumber
-  //             .toLowerCase()
-  //             .indexOf(search.toLowerCase()) > -1
-  //         );
-  //       });
-  //       setOutputListAll(tempData);
-  //       // setData(tempData);
-  //       setSearchResultsList(true);
-  //     }
-  //     if (result) {
-  //       setSearchResults(result);
-  //     }
-  //   }
-  // };
+  const handleFilterRemove = () => {
+    setFilterItem('');
+    setFromDate('');
+    setToDate('');
+    onPageLoad();
+  };
+
   const onPageLoad = async (fromDate = '', toDate = '') => {
     const outputList = await FarmeroutputListAPI(
       dbname,
@@ -297,7 +255,7 @@ const FarmerViewPast = ({navigation}) => {
             // marginBottom: 10,
           }}>
           {renderCustomHeader}
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             {modalVisible && (
               <ViewModalPast
                 setModalVisible={setModalVisible}
@@ -314,8 +272,8 @@ const FarmerViewPast = ({navigation}) => {
               />
             )}
             <FlatList
-              data={isLoading ? Array.from({length: 5}) : outputListAll}
-              renderItem={({item, index}) =>
+              data={isLoading ? Array.from({ length: 5 }) : outputListAll}
+              renderItem={({ item, index }) =>
                 isLoading ? (
                   <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
                 ) : (
@@ -340,7 +298,7 @@ const FarmerViewPast = ({navigation}) => {
                             {item.io_crop_name &&
                               item.io_crop_name.name.substring(0, 5)}
                             {item.io_crop_name &&
-                            item.io_crop_name.name.length > 6
+                              item.io_crop_name.name.length > 6
                               ? ''
                               : null}
                           </Text>
@@ -364,7 +322,7 @@ const FarmerViewPast = ({navigation}) => {
                                 {item.io_crop_variety &&
                                   item.io_crop_variety.name.substring(0, 14)}
                                 {item.io_crop_variety &&
-                                item.io_crop_variety.name.length > 14
+                                  item.io_crop_variety.name.length > 14
                                   ? ''
                                   : null}
                               </Text>
@@ -413,7 +371,7 @@ const FarmerViewPast = ({navigation}) => {
             }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
+            distanceToEdge={{ vertical: 80, horizontal: 25 }}
           />
         </SafeAreaView>
       </Root>
@@ -495,7 +453,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',
@@ -522,7 +480,7 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 16,
   },
-infoRow: {
+  infoRow: {
     // flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',

@@ -21,6 +21,7 @@ import Geolocation from '@react-native-community/geolocation';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 import {Colors, Fronts} from './utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 const Financial = () => {
   const {t} = useTranslation();
   const navigation = useNavigation();
@@ -130,7 +131,10 @@ const Financial = () => {
     onPageLoad();
   }, []);
   return (
-    <>
+    <SafeAreaProvider>
+       <SafeAreaView
+             style={{flex: 1, backgroundColor: '#1d3122'}}
+             edges={['top', 'right', 'bottom', 'left']}>
       <ForegroundLocationService />
       <View style={styles.mainConatiner}>
         <View
@@ -579,7 +583,8 @@ const Financial = () => {
           />
         </View>
       </View>
-    </>
+ </SafeAreaView>
+ </SafeAreaProvider>
   );
 };
 

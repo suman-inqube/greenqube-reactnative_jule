@@ -20,7 +20,7 @@ import React, {
   useRef,
 } from 'react';
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import DocumentPicker, {types,pick} from '@react-native-documents/picker';
 import {
   farmerDocAPI,
   problemPlotAgainstFarmerAPI,
@@ -381,7 +381,7 @@ const LoanRequest = ({setActiveBtn}) => {
   };
   const handleDocumentSelection = async (data, index, objData, p1, par) => {
     try {
-      const response = await DocumentPicker.pick({
+      const response = await pick({
         presentationStyle: 'fullScreen',
         type: [types.pdf, types.images],
       });

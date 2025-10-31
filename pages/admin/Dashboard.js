@@ -40,7 +40,7 @@ import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
 import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
-
+import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
   const isFocused = useIsFocused();
@@ -243,14 +243,11 @@ const Dashboard = ({navigation}) => {
         if (FARMER_USEFULL_INFO_LIST?.status === 200) {
           usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
         }
-        console.log('PLOT_STATUS', PLOT_STATUS.status);
         if (PLOT_STATUS?.status === 200) {
           plotStatus = PLOT_STATUS.data?.data?.rows || [];
         }
-        console.log('ALL_ACTIVITY_SCHEDULE_RES2222', ALL_ACTIVITY_SCHEDULE_RES);
         if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
           activitySchedule = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data || [];
-          console.log('Activity Schedule Data:', activitySchedule);
         }
       }
 
@@ -295,8 +292,6 @@ const Dashboard = ({navigation}) => {
   }, []);
 
   useEffect(() => {
-    console.log('1. uiState:', uiState);
-    console.log('2. loginUser_data:', loginUser_data);
     const {agri_user_addresses, dbname, lan_id, token, user_id} =
       loginUser_data || {};
     let plotStatus = [];
@@ -342,10 +337,6 @@ const Dashboard = ({navigation}) => {
       if (PLOT_STATUS?.status === 200) {
         plotStatus = PLOT_STATUS.data?.data?.rows || [];
       }
-      console.log(
-        'ALL_ACTIVITY_SCHEDULE_RES1111',
-        ALL_ACTIVITY_SCHEDULE_RES.status,
-      );
       if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
         activitySchedule = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows || [];
       }
@@ -396,6 +387,7 @@ const Dashboard = ({navigation}) => {
   const headerContent = useMemo(
     () => (
       <>
+      <ForegroundLocationService />
         <UpcomingActivities
           t={t}
           uiState={uiState}

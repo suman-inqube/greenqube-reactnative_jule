@@ -9,19 +9,19 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ButtonForm from './Common/ButtonForm';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
 import axios from 'axios';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
-import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
-import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from './Common/ToastAlert';
-import {useTranslation} from 'react-i18next';
+import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
+import { Root, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from './Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
 import DeviceInfo from './DeviceInfo';
 import Map from './admin/Map';
@@ -31,7 +31,7 @@ import {
   convertedArrayLatLong,
   calculatePolygonArea,
 } from './Common/calculateAreaFun';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
 import {
   LandUnitArea,
@@ -39,19 +39,21 @@ import {
   nearestLatLong,
 } from '../config/apiHere';
 import * as turf from '@turf/turf';
-import {Colors, Fonts} from './utils/Constants';
+import { Colors, Fonts } from './utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {getActionsMapView} from './utils/options';
+import { getActionsMapView } from './utils/options';
 import FloatingActionButton from './Components/FloatingActionButton';
-import {axiosPost, axiosGet} from './utils/api';
-import {ROUTES} from './utils/Routes';
+import { axiosPost, axiosGet } from './utils/api';
+import { ROUTES } from './utils/Routes';
+import MyErrorBoundary from './Common/MyErrorBoundary';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 const ProduceInfo = () => {
   const today = new Date();
 
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const route = useRoute();
-  const {pagename, arrayIndex, locationData} = route.params;
+  const { pagename, arrayIndex, locationData } = route.params;
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
@@ -85,11 +87,11 @@ const ProduceInfo = () => {
     ConvertedreportedLandsize: 0,
   });
   const [landProof, setLandProof] = useState([
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
   ]);
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -226,52 +228,18 @@ const ProduceInfo = () => {
         defaultLandUnitAreaRes,
         UnitConversonToDefault_res,
       ] = await Promise.all([
-        axiosGet(ROUTES.GET.SOIL_TYPE(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.soiltypeAPI, axiosConfig),
-
-        axiosGet(ROUTES.GET.TERRAIN_TYPE(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.terraintypeAPI, axiosConfig),
-
-        axiosGet(ROUTES.GET.LAND_TYPE(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.landtypeAPI, axiosConfig),
+        axios.get(config.soiltypeAPI, axiosConfig),
+        axios.get(config.terraintypeAPI, axiosConfig),
+        axios.get(config.landtypeAPI, axiosConfig),
         axios.get(prodctionSeasionAPI, axiosConfig1),
         axios.get(prodctionSeasionAPI, axiosConfig1),
-
-        axiosGet(ROUTES.GET.LAND_UNIT(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.landunitAPI, axiosConfig),
-
-        axiosGet(ROUTES.GET.PRODUCTION_PROCESS(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.productionProcessAPI, axiosConfig),
-
-        axiosGet(ROUTES.GET.PRODUCTION_UNIT(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.produceProductionUnitAPI, axiosConfig),
-
-        axiosGet(ROUTES.GET.LAND_UNIT_AREA(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.defaultLandUnitArea, axiosConfig),
-
-        axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), '', {
-          information: `${dbname},${language_id}`,
-        }),
-        // axios.get(config.UnitConversonToDefault, axiosConfig),
+        axios.get(config.landunitAPI, axiosConfig),
+        axios.get(config.productionProcessAPI, axiosConfig),
+        axios.get(config.produceProductionUnitAPI, axiosConfig),
+        axios.get(config.defaultLandUnitArea, axiosConfig),
+        axios.get(config.UnitConversonToDefault, axiosConfig),
       ]);
-
       let i = 0;
-
-      console.log('UnitConversonToDefault', UnitConversonToDefault_res.status);
       if (UnitConversonToDefault_res.status == 200) {
         if (UnitConversonToDefault_res.data.data?.count > 0) {
           UnitConversonToDefault_res.data.data.rows.forEach(element => {
@@ -287,7 +255,6 @@ const ProduceInfo = () => {
       if (i > 0) {
         setConvertionLUState(true);
       }
-      console.log('defaultLandUnitAreaRes', defaultLandUnitAreaRes.status);
 
       if (defaultLandUnitAreaRes.status == 200) {
         if (defaultLandUnitAreaRes.data.data?.count > 0) {
@@ -298,8 +265,6 @@ const ProduceInfo = () => {
           });
         }
       }
-
-      console.log('soil_type', soilType_res.status);
       if (soilType_res.status == 200) {
         if (soilType_res.data.data.count > 0) {
           soilType_res.data.data.rows.forEach(element => {
@@ -310,8 +275,6 @@ const ProduceInfo = () => {
           });
         }
       }
-      console.log('terraintype_res', terraintype_res.status);
-
       if (terraintype_res.status == 200) {
         if (terraintype_res.data.data.count > 0) {
           terraintype_res.data.data.rows.forEach(element => {
@@ -322,9 +285,6 @@ const ProduceInfo = () => {
           });
         }
       }
-
-      console.log('landType_res', landType_res.status);
-
       if (landType_res.status == 200) {
         if (landType_res.data.data.count > 0) {
           landType_res.data.data.rows.forEach(element => {
@@ -335,8 +295,6 @@ const ProduceInfo = () => {
           });
         }
       }
-      console.log('livelihoodType_res', livelihoodType_res);
-
       if (livelihoodType_res.status == 200) {
         if (livelihoodType_res.data.data) {
           livelihoodType_res.data.data.crop_type.forEach(element => {
@@ -347,9 +305,6 @@ const ProduceInfo = () => {
           });
         }
       }
-
-      console.log('prodctionSeasion_res', prodctionSeasion_res.status);
-
       if (prodctionSeasion_res.status == 200) {
         if (prodctionSeasion_res.data.data) {
           prodctionSeasion_res.data.data.crop_season.forEach(element => {
@@ -360,8 +315,6 @@ const ProduceInfo = () => {
           });
         }
       }
-      console.log('landUnit_res', landUnit_res.status);
-
       if (landUnit_res.status == 200) {
         if (landUnit_res.data.data.count > 0) {
           landUnit_res.data.data.rows.forEach(element => {
@@ -373,8 +326,6 @@ const ProduceInfo = () => {
           });
         }
       }
-      console.log('productionProcess_res', productionProcess_res.status);
-
       if (productionProcess_res.status == 200) {
         if (productionProcess_res.data.data.count > 0) {
           productionProcess_res.data.data.rows.forEach(element => {
@@ -385,11 +336,6 @@ const ProduceInfo = () => {
           });
         }
       }
-      console.log(
-        'produceProductionUnit_res',
-        produceProductionUnit_res.status,
-      );
-
       if (produceProductionUnit_res.status == 200) {
         if (produceProductionUnit_res.data.data) {
           produceProductionUnit_res.data.data.rows.forEach(element => {
@@ -443,9 +389,9 @@ const ProduceInfo = () => {
     if (livelihoodTypeArray) {
       setlivelihoodTypeData(livelihoodTypeArray);
     }
-    if (prodctionSeasionArray) {
-      setprodctionSeasionData(prodctionSeasionArray);
-    }
+    // if (prodctionSeasionArray) {
+    //   setprodctionSeasionData(prodctionSeasionArray);
+    // }
     if (landUnitArray) {
       setlandUnitData(landUnitArray);
     }
@@ -627,20 +573,45 @@ const ProduceInfo = () => {
       console.log('Error in produceVariety API', error);
     }
   };
-  const handlecycleStart = item => {
-    const dt = new Date(item);
-    const x = dt.toISOString().split('T');
-    const x1 = x[0].split('-');
-    const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setStartDate(cycleStarts);
-    setstoreProduceInfo({...storeProduceInfo, cycleStarts: cycleStarts});
+  const handlecycleStart = async (item) => {
+    try {
+      const dt = new Date(item);
+      const x = dt.toISOString().split('T');
+      const x1 = x[0].split('-');
+      const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
+      setStartDate(cycleStarts);
+      setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts,prodctionSeasion: "", });
+      const seasonData = await axiosGet(
+        ROUTES.GET.PRODUCE_SEASON({
+          from_date: cycleStarts,
+        }),
+        '',
+        {
+          information: `${dbName},${lanID}`
+        },
+      );
+      if (seasonData?.status === 200) {
+        const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
+          value: data.season_info.fid,
+          label: `${data.season_info.name} (${data.year})`,
+          sd_id: data.sd_id,
+        }));
+        setprodctionSeasionData(seasonDataArr);
+
+      } else {
+        setprodctionSeasionData([]);
+        Toast.show({ text: seasonData?.data?.error?.errorMessage, ...AlertMesg[0] });
+      }
+    } catch (error) {
+      Toast.show({ text: error?.response?.data?.error?.errorMessage, ...AlertMesg[0] });
+    }
   };
   const handlecycleEnd = async item => {
     const dt = new Date(item);
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
+    setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
   };
   const validationData = () => {
     if (!storeProduceInfo.plotSiteName) {
@@ -676,7 +647,7 @@ const ProduceInfo = () => {
       return false;
     }
     if (!storeProduceInfo.plotSize) {
-      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
+      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
       return false;
     }
     if (!storeProduceInfo?.landUnit) {
@@ -808,8 +779,8 @@ const ProduceInfo = () => {
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [{text: 'OK', onPress: () => console.log(area)}],
-          {cancelable: false},
+          [{ text: 'OK', onPress: () => console.log(area) }],
+          { cancelable: false },
         );
         setIsLoading(false);
         return;
@@ -850,12 +821,12 @@ const ProduceInfo = () => {
         100;
       if (deviation >= -5 && deviation <= 5) {
       } else {
-        setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+        setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [{text: 'OK', onPress: () => console.log(area)}],
-          {cancelable: false},
+          [{ text: 'OK', onPress: () => console.log(area) }],
+          { cancelable: false },
         );
         setIsLoading(false);
         return;
@@ -892,7 +863,7 @@ const ProduceInfo = () => {
   };
   const onPageLoad = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
     let groupedData;
     const [storeSignup_data, storePersnolInfo_data] = await Promise.all([
       getItem('storeSignup_data'),
@@ -915,7 +886,7 @@ const ProduceInfo = () => {
         }),
         // LandUnitsquare_metre(dbName, languageID),
       ]);
-    setreferencelatLong({latitude, longitude});
+    setreferencelatLong({ latitude, longitude });
 
     console.log('nearestLatLong_res', nearestLatLong_res.status);
     if (nearestLatLong_res.status == 200) {
@@ -926,7 +897,7 @@ const ProduceInfo = () => {
 
     console.log('LAND-UNIT-AREA', LandUnitArea_res?.status);
     if (LandUnitArea_res?.status == 200) {
-      const {count, rows} = LandUnitArea_res?.data?.data || {};
+      const { count, rows } = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
         setLandAreaUnit(rows);
       } else {
@@ -936,7 +907,7 @@ const ProduceInfo = () => {
 
     console.log('LandUnitsquare_metre_res', LandUnitsquare_metre_res?.status);
     if (LandUnitsquare_metre_res?.status == 200) {
-      const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
+      const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
         setLandUnitsquareMetre(rows);
       } else {
@@ -969,8 +940,8 @@ const ProduceInfo = () => {
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [{text: 'OK', onPress: () => console.log(area)}],
-          {cancelable: false},
+          [{ text: 'OK', onPress: () => console.log(area) }],
+          { cancelable: false },
         );
         setIsLoading(false);
         return;
@@ -987,14 +958,14 @@ const ProduceInfo = () => {
           setAreaSQMeter(0);
           setstoreProduceInfoInArray([
             ...storeProduceInfoInArray,
-            {storeProduceInfo: storeProduceInfo, location: location, landProof},
+            { storeProduceInfo: storeProduceInfo, location: location, landProof },
           ]);
           setLandProof([
-            {uri: '', name: '', type: '', fileName: ''},
-            {uri: '', name: '', type: '', fileName: ''},
-            {uri: '', name: '', type: '', fileName: ''},
-            {uri: '', name: '', type: '', fileName: ''},
-            {uri: '', name: '', type: '', fileName: ''},
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
           ]);
         }
       }
@@ -1012,7 +983,7 @@ const ProduceInfo = () => {
     setstoreProduceInfoInArray(values);
   };
   const [location, setLocation] = useState([
-    {latitude: '', longitude: ''},
+    { latitude: '', longitude: '' },
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
@@ -1020,7 +991,7 @@ const ProduceInfo = () => {
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({latitude: '', longitude: ''}),
+        (val, idx) => ({ latitude: '', longitude: '' }),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -1029,13 +1000,13 @@ const ProduceInfo = () => {
       setPolygons([]);
     } else {
       setPolygons([]);
-      setLocation([...location, {latitude: '', longitude: ''}]);
+      setLocation([...location, { latitude: '', longitude: '' }]);
     }
   };
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
     const values = [...location];
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
 
     if (
       fusedLocation != null &&
@@ -1044,7 +1015,7 @@ const ProduceInfo = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = {latitude: latitude, longitude: longitude};
+      values[index] = { latitude: latitude, longitude: longitude };
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       if (filteredDatalatLong.length >= 3) {
@@ -1055,7 +1026,7 @@ const ProduceInfo = () => {
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-              geolib.getAreaOfPolygon(filteredDatalatLong),
+            geolib.getAreaOfPolygon(filteredDatalatLong),
           );
           setstoreProduceInfo({
             ...storeProduceInfo,
@@ -1092,8 +1063,8 @@ const ProduceInfo = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const {latitude, longitude} = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, {latitude, longitude}]);
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, { latitude, longitude }]);
   };
   const undoMark = () => {
     try {
@@ -1137,8 +1108,8 @@ const ProduceInfo = () => {
         Alert.alert(
           'Overlap Detected',
           'Coordinates are overlapping',
-          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          {cancelable: false},
+          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+          { cancelable: false },
         );
         return;
       }
@@ -1150,7 +1121,7 @@ const ProduceInfo = () => {
       setShowModal(false);
       setArea(
         Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+        geolib.getAreaOfPolygon(newPolygon),
       );
       setAreaSQMeter(geolib.getAreaOfPolygon(newPolygon));
       setstoreProduceInfo({
@@ -1169,7 +1140,7 @@ const ProduceInfo = () => {
   };
 
   const clearNewPolygon = () => {
-    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
+    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
     setNewPolygon([]);
     // setPolygons([]);
     setPolygons(nearPolSet);
@@ -1182,14 +1153,14 @@ const ProduceInfo = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      {latitude: '', longitude: ''},
+      { latitude: '', longitude: '' },
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
   };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
     setstoreProduceInfo({
       ...storeProduceInfo,
       IOTLatlat: latitude,
@@ -1199,7 +1170,7 @@ const ProduceInfo = () => {
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
   const handleRegionChangeComplete = async newRegion => {
-    const {latitude, longitude} = newRegion;
+    const { latitude, longitude } = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1241,7 +1212,10 @@ const ProduceInfo = () => {
     }, 3000);
   };
   return (
-    <>
+<SafeAreaProvider>
+             <SafeAreaView
+                   style={{flex: 1, backgroundColor: '#1d3122'}}
+                   edges={['top', 'right', 'bottom', 'left']}>
       <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
       <View style={styles.mainContainer}>
         <View
@@ -1287,13 +1261,13 @@ const ProduceInfo = () => {
               </Text>
             </View>
             <View style={styles.firatFormContainer}>
-              <View style={{alignItems: 'center'}}>
+              <View style={{ alignItems: 'center' }}>
                 <Image
                   source={require('../pages/Common/images/logo.png')}
                   style={styles.logo}
                 />
               </View>
-              <View style={{paddingHorizontal: 10}}>
+              <View style={{ paddingHorizontal: 10 }}>
                 <InputTextForm
                   label={t('pre_plot_name')}
                   required={true}
@@ -1308,21 +1282,21 @@ const ProduceInfo = () => {
                 <InputTextForm
                   label={t('daag_no')}
                   onChangeText={item =>
-                    setstoreProduceInfo({...storeProduceInfo, daagNo: item})
+                    setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
                   }
                   value={storeProduceInfo.daagNo}
                 />
                 <InputTextForm
                   label={t('khatian_no')}
                   onChangeText={item =>
-                    setstoreProduceInfo({...storeProduceInfo, khatianNo: item})
+                    setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
                   }
                   value={storeProduceInfo.khatianNo}
                 />
                 <InputTextForm
                   label={t('no_of_plants')}
                   onChangeText={item =>
-                    setstoreProduceInfo({...storeProduceInfo, noOfPlants: item})
+                    setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
                   }
                   value={storeProduceInfo.noOfPlants}
                 />
@@ -1343,7 +1317,7 @@ const ProduceInfo = () => {
                   required={true}
                   data={landTypeData}
                   onChange={item => {
-                    setstoreProduceInfo({...storeProduceInfo, landType: item});
+                    setstoreProduceInfo({ ...storeProduceInfo, landType: item });
                   }}
                   val={storeProduceInfo.landType.label}
                 />
@@ -1352,7 +1326,7 @@ const ProduceInfo = () => {
                   required={true}
                   data={soilTypeData}
                   onChange={item => {
-                    setstoreProduceInfo({...storeProduceInfo, soilType: item});
+                    setstoreProduceInfo({ ...storeProduceInfo, soilType: item });
                   }}
                   val={storeProduceInfo.soilType.label}
                 />
@@ -1361,7 +1335,7 @@ const ProduceInfo = () => {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <View style={{width: '45%'}}>
+                  <View style={{ width: '45%' }}>
                     <InputTextForm
                       label={t('addland_landsize')}
                       required={true}
@@ -1378,7 +1352,7 @@ const ProduceInfo = () => {
                       keyboardType="numeric"
                     />
                   </View>
-                  <View style={{width: '45%'}}>
+                  <View style={{ width: '45%' }}>
                     {/* <DropdownForm label="Unit" color="red" data={landUnitData} onChange={item => { setstoreProduceInfo({ ...storeProduceInfo, landUnit: item }) }} val={storeProduceInfo.landUnit} /> */}
                     <DropdownForm
                       label={t('addland_unit')}
@@ -1395,21 +1369,20 @@ const ProduceInfo = () => {
                     <InputTextForm
                       label={
                         t('Converted reported Land size ') +
-                        `${
-                          landAreaUnit?.[0]?.defined_unit_value
-                            ? `(${landAreaUnit?.[0]?.unit_name})`
-                            : '(Square meter)'
+                        `${landAreaUnit?.[0]?.defined_unit_value
+                          ? `(${landAreaUnit?.[0]?.unit_name})`
+                          : '(Square meter)'
                         }`
                       }
                       value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
                       editable={false}
                     />
                   )}
-                <View style={{marginTop: 10}}>
+                <View style={{ marginTop: 10 }}>
                   <InputTextForm
                     label={t('Enter IOT Device Id')}
                     onChangeText={item =>
-                      setstoreProduceInfo({...storeProduceInfo, IOTId: item})
+                      setstoreProduceInfo({ ...storeProduceInfo, IOTId: item })
                     }
                     value={storeProduceInfo.IOTId}
                   />
@@ -1466,18 +1439,17 @@ const ProduceInfo = () => {
                   stateValue={landProof}
                   disable={true}
                   InputTextFormEdit={true}
-                  // photoDeletedValue={photoDeletedValue}
-                  // setPhotoDeletedValue={setPhotoDeletedValue}
-                  // loginUser_data={loginUser_data}
+                // photoDeletedValue={photoDeletedValue}
+                // setPhotoDeletedValue={setPhotoDeletedValue}
+                // loginUser_data={loginUser_data}
                 />
                 {area != 0 && area != null && (
                   <InputTextForm
                     label={
                       t('Calculated Map Area ') +
-                      `${
-                        landAreaUnit?.[0]?.defined_unit_value
-                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                          : '(Square meter)'
+                      `${landAreaUnit?.[0]?.defined_unit_value
+                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                        : '(Square meter)'
                       }`
                     }
                     value={area.toString()}
@@ -1527,7 +1499,7 @@ const ProduceInfo = () => {
                     );
                   })} */}
 
-                <DropdownForm
+                {/* <DropdownForm
                   label={t('addcrop_cultivating_season')}
                   required={true}
                   data={prodctionSeasionData}
@@ -1541,7 +1513,7 @@ const ProduceInfo = () => {
                     });
                   }}
                   val={storeProduceInfo.prodctionSeasion.label}
-                />
+                /> */}
                 <DropdownForm
                   label={t('addcrop_croptype')}
                   required={true}
@@ -1604,7 +1576,7 @@ const ProduceInfo = () => {
                   }}
                   val={storeProduceInfo.produceProductionUnit.label}
                 />
-                <View style={{marginVertical: 10}}>
+                <View style={{ marginVertical: 10 }}>
                   <View
                     style={{
                       flexDirection: 'row',
@@ -1663,7 +1635,21 @@ const ProduceInfo = () => {
                     </View>
                   </View>
                 </View>
-                <View style={{marginVertical: 10}}>
+                <View style={{ marginTop: 5 }}>
+                  <DropdownForm
+                    label={t('addcrop_cultivating_season')}
+                    required={true}
+                    data={prodctionSeasionData}
+                    onChange={item => {
+                      setstoreProduceInfo({
+                        ...storeProduceInfo,
+                        prodctionSeasion: item,
+                      });
+                    }}
+                    val={storeProduceInfo.prodctionSeasion.label}
+                  />
+                </View>
+                <View style={{ marginVertical: 10 }}>
                   <View
                     style={{
                       flexDirection: 'row',
@@ -1711,35 +1697,31 @@ const ProduceInfo = () => {
                           storeProduceInfo.cycleStarts == ''
                             ? newdate
                             : new Date(
-                                `${new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getFullYear()}-${
-                                  new Date(
-                                    storeProduceInfo.cycleStarts,
-                                  ).getMonth() + 1
-                                }-${
-                                  new Date(
-                                    storeProduceInfo.cycleStarts,
-                                  ).getDate() + 1
-                                }`,
-                              )
+                              `${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getFullYear()}-${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getMonth() + 1
+                              }-${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getDate() + 1
+                              }`,
+                            )
                         }
                         minimumDate={
                           storeProduceInfo.cycleStarts == ''
                             ? ''
                             : new Date(
-                                `${new Date(
-                                  storeProduceInfo.cycleStarts,
-                                ).getFullYear()}-${
-                                  new Date(
-                                    storeProduceInfo.cycleStarts,
-                                  ).getMonth() + 1
-                                }-${
-                                  new Date(
-                                    storeProduceInfo.cycleStarts,
-                                  ).getDate() + 1
-                                }`,
-                              )
+                              `${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getFullYear()}-${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getMonth() + 1
+                              }-${new Date(
+                                storeProduceInfo.cycleStarts,
+                              ).getDate() + 1
+                              }`,
+                            )
                         }
                         onConfirm={item => {
                           handlecycleEnd(item);
@@ -1754,13 +1736,13 @@ const ProduceInfo = () => {
                 </View>
                 <TouchableOpacity
                   onPress={saveInObject}
-                  style={{alignItems: 'center'}}
+                  style={{ alignItems: 'center' }}
                   activeOpacity={0.7}>
                   <Text style={styles.addBtn}>
                     {t('click_to_add_more_plot')}
                   </Text>
                 </TouchableOpacity>
-                <View style={{marginBottom: 10}}>
+                <View style={{ marginBottom: 10 }}>
                   {storeProduceInfoInArray.map((data, index) => {
                     return (
                       <View style={styles.moreContainer} key={index}>
@@ -1812,7 +1794,7 @@ const ProduceInfo = () => {
           onPressItem={() => setShowModal(!showModal)}
           showBackground={true}
           overlayColor="rgba(22, 17, 17, 0.35)"
-          distanceToEdge={{vertical: 80, horizontal: 25}}
+          distanceToEdge={{ vertical: 80, horizontal: 25 }}
         />
 
         <ButtonForm
@@ -1851,7 +1833,7 @@ const ProduceInfo = () => {
             //basudev
             location={location}
             baselatLong={referencelatLong}
-            statuslevel={''}
+            statuslevel={'PENDING'}
             type="livehoood"
             handleRegionChangeComplete={handleRegionChangeComplete}
             isLoading={isLoading}
@@ -1860,7 +1842,8 @@ const ProduceInfo = () => {
       )}
 
       <Root></Root>
-    </>
+      </SafeAreaView>
+      </SafeAreaProvider>
   );
 };
 export default ProduceInfo;
@@ -1878,7 +1861,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-SemiBold',
   },
-  mainContainer: {flex: 1, backgroundColor: 'white'},
+  mainContainer: { flex: 1, backgroundColor: 'white' },
 
   formContainer: {
     // backgroundColor: Colors.background, // marginTop: 30,

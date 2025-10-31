@@ -60,7 +60,7 @@ import FloatingActionButton from '../../Components/FloatingActionButton';
 import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
 import { axiosGet, axiosPut, axiosPost } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
-
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 const PlotSiteProduceInformation = () => {
   //GQR-65
   const today = new Date();
@@ -239,7 +239,9 @@ const PlotSiteProduceInformation = () => {
   //GQR-65
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
-    const { latitude, longitude } = coords;
+    // const { latitude, longitude } = coords;
+    const { latitude, longitude } = await getHighAccuracyLocation();
+    
     let groupedData;
     var terraintypeArray = [];
     var landTypeArray = [];
@@ -334,7 +336,6 @@ const PlotSiteProduceInformation = () => {
         // LandUnitsquare_metre(dbName, languageId, token),
       ]);
       setreferencelatLong({ latitude, longitude });
-      console.log('nearestLatLong_res.status', nearestLatLong_res.status);
       if (nearestLatLong_res.status == 200) {
         groupedData = groupByRelId(nearestLatLong_res.data.data);
         setnearPolSet(groupByRelId(nearestLatLong_res.data.data));
@@ -695,6 +696,7 @@ const PlotSiteProduceInformation = () => {
     setproduceVarietyData(produceVarietyArray);
   };
   const handlecycleStart = async item => {
+    var prodctionSeasionArray=[];
     const seasonData = await axiosGet(
       ROUTES.GET.PRODUCE_SEASON({
         from_date: effective_dates(item),
@@ -705,12 +707,6 @@ const PlotSiteProduceInformation = () => {
         Authorization: `${token}`,
       },
     );
-    setstoreProduceInfo(prev => ({
-      ...prev,
-      prodctionSeasion: "",
-      prodctionSeasionSdId: "",
-      prodctionSeasionValue: "",
-    }));
 
     if (seasonData?.status === 200) {
       prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
@@ -719,12 +715,13 @@ const PlotSiteProduceInformation = () => {
         sd_id: data.sd_id,
       }));
     }
-    console.log('prodctionSeasionArray', prodctionSeasionArray);
     if (prodctionSeasionArray) {
       setprodctionSeasionData(prodctionSeasionArray);
     }
     const cycleStarts = effective_dates(item);
-    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts });
+    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts,     prodctionSeasion: "",
+      prodctionSeasionSdId: "",
+      prodctionSeasionValue: "", });
   };
   const handlecycleEnd = async item => {
     const cycleEnds = effective_dates(item);
@@ -1040,7 +1037,8 @@ const PlotSiteProduceInformation = () => {
 
   const handleCurrentLatLong = async index => {
     const values = [...location];
-    const { latitude, longitude } = coords;
+    // const { latitude, longitude } = coords;
+        const { latitude, longitude } = await getHighAccuracyLocation();
     if (longitude != '' && latitude != '') {
       values[index] = { latitude: latitude, longitude: longitude };
       setLocation(values);
@@ -1078,7 +1076,8 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const handleCurrentLatLongIOT = async () => {
-    const { latitude, longitude } = coords || {};
+    // const { latitude, longitude } = coords || {};
+        const { latitude, longitude } = await getHighAccuracyLocation();
     setstoreProduceInfo(prev => ({
       ...prev,
       IOTLatlat: latitude,
@@ -1125,16 +1124,16 @@ const PlotSiteProduceInformation = () => {
         }
       });
       // stop
-      // if (!overlapFound) {
-      // } else {
-      //   Alert.alert(
-      //     'Overlap Detected',
-      //     'Coordinates are overlapping',
-      //     [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-      //     {cancelable: false},
-      //   );
-      //   return;
-      // }
+      if (!overlapFound) {
+      } else {
+        Alert.alert(
+          'Overlap Detected',
+          'Coordinates are overlapping',
+          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          {cancelable: false},
+        );
+        return;
+      }
       // stop
       // setPolygons([newPolygon]);
       // setPolygons(nearPolSet);
@@ -1340,12 +1339,12 @@ const PlotSiteProduceInformation = () => {
       prodctionSeasion: item.label,
       prodctionSeasionSdId: item.sd_id,
       prodctionSeasionValue: item.value,
-      livelihoodType: '',
-      livelihoodTypeValue: '',
-      produceName: '',
-      produceNameValue: '',
-      produceVariety: '',
-      produceVarietyValue: '',
+      // livelihoodType: '',
+      // livelihoodTypeValue: '',
+      // produceName: '',
+      // produceNameValue: '',
+      // produceVariety: '',
+      // produceVarietyValue: '',
     }));
   }, []);
 
@@ -1886,7 +1885,7 @@ const PlotSiteProduceInformation = () => {
               //basudev
               location={location}
               baselatLong={referencelatLong}
-              statuslevel={''}
+              statuslevel={'PENDING'}
               type="livehoood"
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}

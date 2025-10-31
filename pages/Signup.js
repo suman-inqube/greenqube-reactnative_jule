@@ -41,6 +41,8 @@ import DeviceInfo from './DeviceInfo';
 import {Colors, Fonts} from './utils/Constants';
 import {axiosPost, axiosGet} from './utils/api';
 import {ROUTES} from './utils/Routes';
+import MyErrorBoundary from './Common/MyErrorBoundary';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 const Signup = () => {
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : -40;
@@ -410,8 +412,12 @@ const Signup = () => {
   }, [netConnection]);
 
   return (
-    <>
+    <SafeAreaProvider>
+     <SafeAreaView
+        style={{flex: 1, backgroundColor: '#1d3122'}}
+        edges={['top', 'right', 'bottom', 'left']}>
       <Root>
+      <>
         {/* <StatusBar barStyle="light-content" backgroundColor={"#003c04"} /> */}
         <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
         <View style={styles.container}>
@@ -549,8 +555,10 @@ const Signup = () => {
              */}
           </View>
         </View>
+      </>
       </Root>
-    </>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

@@ -322,21 +322,16 @@ const ActivityReport = ({navigation}) => {
       }));
       setplotAll(dataArray);
       if (isOnline) {
-        var activityType_res = await axiosGet(
-          ROUTES.GET.ACTIVITY_TYPE_AWD(),
-          '',
-          {information: `${dbname},${lan_id},${currentfarmerId}`},
-        );
-        // activityTypeAPI(
-        //   dbname,
-        //   lan_id,
-        //   currentfarmerId,
+        // var activityType_res = await axiosGet(
+        //   ROUTES.GET.ACTIVITY_TYPE_AWD(),
+        //   '',
+        //   {information: `${dbname},${lan_id},${currentfarmerId}`},
         // );
+     var activityType_res = activityTypeAPI(dbname, lan_id, currentfarmerId);  
         await setItem('activityType' + currentfarmerId, activityType_res);
       } else {
         var activityType_res = await getItem('activityType' + currentfarmerId);
       }
-      console.log('activityType_res', activityType_res.status);
       if (activityType_res) {
         const dataArray = activityType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -418,7 +413,7 @@ const ActivityReport = ({navigation}) => {
           ...nameVarityStartEnd,
           name: data.crop_name.name,
           varity: data.crop_variety.name,
-          cycleStarts: cycle_start_date,
+          cycleStarts: data.sowing_date,
           cycleEnd: data.harvesting_date,
         });
         setSaveData({
@@ -923,26 +918,32 @@ const ActivityReport = ({navigation}) => {
       formData.append('water_used', saveData.water_used);
       formData.append('power_used', saveData.power_used);
       if (isOnline) {
-        const database_res = await axiosPost(
-          ROUTES.POST.ACTIVITY_SAVE,
-          formData,
-          token,
-          false,
-          {information: `${dbname},${lan_id},${saveData.user_id}`},
-        );
-        // activitySaveAPI(
-        //   dbname,
-        //   lan_id,
-        //   token,
-        //   saveData.user_id,
+        // const database_res = await axiosPost(
+        //   ROUTES.POST.ACTIVITY_SAVE,
         //   formData,
+        //   token,
+        //   false,
+        //   {information: `${dbname},${lan_id},${saveData.user_id}`},
         // );
-        console.log('Save', database_res.status);
+       const database_res = await activitySaveAPI(
+          dbname,
+          lan_id,
+          token,
+          saveData.user_id,
+          formData,
+        );
+        console.log('Save', database_res);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
+           navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
           Toast.show({
+            text: database_res?.data?.error?.errorMessage,
+            ...AlertMesg[0],
+          });
+        }else{
+             Toast.show({
             text: database_res?.data?.error?.errorMessage,
             ...AlertMesg[0],
           });
@@ -960,6 +961,7 @@ const ActivityReport = ({navigation}) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
+         navigation.popToTop();
         navigation.navigate('activityList', {action: 'addData'});
       }
     }
@@ -1109,7 +1111,7 @@ const ActivityReport = ({navigation}) => {
   const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
-  const onStartRecordFirstItem = async () => {
+const onStartRecordFirstItem = async () => {
     try {
       const path = `${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
       await RNFS.mkdir(RNFS.DocumentDirectoryPath);
@@ -1122,57 +1124,16 @@ const ActivityReport = ({navigation}) => {
           recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
         });
 
-        // Stop recording after 60 seconds (60000 ms)
         if (e.currentPosition >= 60000) {
           await onStopRecordFirstItem();
           setModalVisibleRecordFirstItem(false);
         }
-
-        return;
       });
     } catch (error) {
-      console.error('Error starting recorder:', error);
+      console.error('Error starting recorder (first):', error);
     }
   };
 
-  const onStartRecordSecoundItem = async () => {
-    // const path = RNFS.DocumentDirectoryPath + '/secoundItem.mp3';
-    // await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    // await audioRecorderPlayer.startRecorder(path);
-    // audioRecorderPlayer.addRecordBackListener(e => {
-    //   setSoundRecordSecoundItem({
-    //     isLoggingIn: true,
-    //     recordSecs: e.currentPosition,
-    //     recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-    //   });
-    //   if (
-    //     audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
-    //   ) {
-    //     onStopRecordSecoundItem();
-    //     setModalVisibleRecordSecoundItem(false);
-    //   }
-    //   return;
-    // });
-  };
-  const onStartRecordThirdItem = async () => {
-    // const path = RNFS.DocumentDirectoryPath + '/thirdItem.mp3';
-    // await RNFS.mkdir(RNFS.DocumentDirectoryPath);
-    // await audioRecorderPlayer.startRecorder(path);
-    // audioRecorderPlayer.addRecordBackListener(e => {
-    //   setSoundRecordThirdItem({
-    //     isLoggingIn: true,
-    //     recordSecs: e.currentPosition,
-    //     recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-    //   });
-    //   if (
-    //     audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)) >= '00:59:80'
-    //   ) {
-    //     onStopRecordThirdItem();
-    //     setModalVisibleRecordThirdItem(false);
-    //   }
-    //   return;
-    // });
-  };
   const onStopRecordFirstItem = async () => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
@@ -1181,66 +1142,125 @@ const ActivityReport = ({navigation}) => {
         isLoggingIn: false,
         recordSecs: 0,
         recordTime: '00:00:00',
+        result,
       });
-      console.log('Recording stopped:', result);
+      console.log('Recording stopped (first):', result);
     } catch (error) {
-      console.error('Error stopping recorder:', error);
+      console.error('Error stopping recorder (first):', error);
+    }
+  };
+
+  // ✅ SECOND RECORD
+  const onStartRecordSecoundItem = async () => {
+    try {
+      const path = `${RNFS.DocumentDirectoryPath}/secoundItem.mp3`;
+      await RNFS.mkdir(RNFS.DocumentDirectoryPath);
+      await audioRecorderPlayer.startRecorder(path);
+
+      audioRecorderPlayer.addRecordBackListener(async e => {
+        setSoundRecordSecoundItem({
+          isLoggingIn: true,
+          recordSecs: e.currentPosition,
+          recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+        });
+
+        if (e.currentPosition >= 60000) {
+          await onStopRecordSecoundItem();
+          setModalVisibleRecordSecoundItem(false);
+        }
+      });
+    } catch (error) {
+      console.error('Error starting recorder (second):', error);
     }
   };
 
   const onStopRecordSecoundItem = useCallback(async () => {
-    // if (record == "firstItem") {
-    // try {
-    //   const result = await audioRecorderPlayer.stopRecorder();
-    //   audioRecorderPlayer.removeRecordBackListener();
-    //   setSoundRecordSecoundItem({isLoggingIn: false, result: result});
-    //   // console.log("Stopped recording:", result);
-    //   // navigation.navigate(navPath, { result: result,name:name });
-    // } catch (error) {
-    //   console.error('Error stopping the recording:', error);
-    // }
-    // }
+    try {
+      const result = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+      setSoundRecordSecoundItem({
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result,
+      });
+      console.log('Recording stopped (second):', result);
+    } catch (error) {
+      console.error('Error stopping recorder (second):', error);
+    }
   }, []);
+
+  // ✅ THIRD RECORD
+  const onStartRecordThirdItem = async () => {
+    try {
+      const path = `${RNFS.DocumentDirectoryPath}/thirdItem.mp3`;
+      await RNFS.mkdir(RNFS.DocumentDirectoryPath);
+      await audioRecorderPlayer.startRecorder(path);
+
+      audioRecorderPlayer.addRecordBackListener(async e => {
+        setSoundRecordThirdItem({
+          isLoggingIn: true,
+          recordSecs: e.currentPosition,
+          recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+        });
+
+        if (e.currentPosition >= 60000) {
+          await onStopRecordThirdItem();
+          setModalVisibleRecordThirdItem(false);
+        }
+      });
+    } catch (error) {
+      console.error('Error starting recorder (third):', error);
+    }
+  };
+
   const onStopRecordThirdItem = useCallback(async () => {
-    // if (record == "firstItem") {
-    // try {
-    //   const result = await audioRecorderPlayer.stopRecorder();
-    //   audioRecorderPlayer.removeRecordBackListener();
-    //   setSoundRecordThirdItem({isLoggingIn: false, result: result});
-    //   // console.log("Stopped recording:", result);
-    //   // navigation.navigate(navPath, { result: result,name:name });
-    // } catch (error) {
-    //   console.error('Error stopping the recording:', error);
-    // }
-    // }
+    try {
+      const result = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+      setSoundRecordThirdItem({
+        isLoggingIn: false,
+        recordSecs: 0,
+        recordTime: '00:00:00',
+        result,
+      });
+      console.log('Recording stopped (third):', result);
+    } catch (error) {
+      console.error('Error stopping recorder (third):', error);
+    }
   }, []);
-  const cancelRecord = async item => {
-    // await audioRecorderPlayer.stopPlayer();
-    // if (item == 'firstItem') {
-    //   setSoundRecordFirstItem({
-    //     item: '1',
-    //     isLoggingIn: false,
-    //     recordSecs: 0,
-    //     recordTime: '00:00:00',
-    //     result: '',
-    //   });
-    // } else if (item == 'secoundItem') {
-    //   setSoundRecordSecoundItem({
-    //     item: '2',
-    //     isLoggingIn: false,
-    //     recordSecs: 0,
-    //     recordTime: '00:00:00',
-    //     result: '',
-    //   });
-    // } else if (item == 'thirdItem') {
-    //   setSoundRecordThirdItem({
-    //     item: '3',
-    //     isLoggingIn: false,
-    //     recordSecs: 0,
-    //     recordTime: '00:00:00',
-    //     result: '',
-    //   });
-    // }
+
+  // ✅ CANCEL RECORD
+  const cancelRecord = async (item) => {
+    try {
+      await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+
+      if (item === 'firstItem') {
+        setSoundRecordFirstItem({
+          isLoggingIn: false,
+          recordSecs: 0,
+          recordTime: '00:00:00',
+          result: '',
+        });
+      } else if (item === 'secoundItem') {
+        setSoundRecordSecoundItem({
+          isLoggingIn: false,
+          recordSecs: 0,
+          recordTime: '00:00:00',
+          result: '',
+        });
+      } else if (item === 'thirdItem') {
+        setSoundRecordThirdItem({
+          isLoggingIn: false,
+          recordSecs: 0,
+          recordTime: '00:00:00',
+          result: '',
+        });
+      }
+    } catch (error) {
+      console.error('Error cancelling record:', error);
+    }
   };
   const soundPlay = async item => {
     let path;

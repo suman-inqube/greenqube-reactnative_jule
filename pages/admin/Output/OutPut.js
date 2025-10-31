@@ -7,6 +7,7 @@ import {
   Image,
   RefreshControl,
   Dimensions,
+  Alert,
 } from 'react-native';
 import ViewModalPast from './ViewModalPast';
 import React, {
@@ -304,12 +305,11 @@ const OutPut = ({navigation}) => {
       setToDate('');
       setSearchFarmerName({label: '', value: ''});
       setSearchFarmerPhone({label: '', value: ''});
-      setCarbonType({label: '', value: ''});
       setFilterItem('');
       onPageLoad();
       setPage(1);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   const handleSPSheetShow = useCallback(() => {
@@ -367,7 +367,7 @@ const OutPut = ({navigation}) => {
                             item.io_crop_name.name.substring(0, 5)}
                           {item.io_crop_name &&
                           item.io_crop_name.name.length > 6
-                            ? '...'
+                            ? ''
                             : null}
                         </Text>
                       </View>
@@ -375,7 +375,7 @@ const OutPut = ({navigation}) => {
                         <View style={styles.infoRow}>
                           <Text style={styles.infoLabel}>
                             {item?.users?.userName.substring(0, 10)}
-                            {item?.users?.userName.length > 10 ? '...' : null}
+                            {item?.users?.userName.length > 10 ? '' : null}
                           </Text>
                           {/* <Text style={styles.infoValue} numberOfLines={1}>
                             {item?.users?.userName.substring(0, 10)}
@@ -388,7 +388,7 @@ const OutPut = ({navigation}) => {
                               item.io_crop_variety.name.substring(0, 10)}
                             {item.io_crop_variety &&
                             item.io_crop_variety.name.length > 14
-                              ? '...'
+                              ? ''
                               : null}
                           </Text>
                           {/* <Text style={styles.infoValue}>

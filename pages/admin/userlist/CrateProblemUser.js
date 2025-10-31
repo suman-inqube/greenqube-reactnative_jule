@@ -23,6 +23,8 @@ import RecordComp from '../Activity/RecordComp';
 import {launchCamera} from 'react-native-image-picker';
 import Marker, {Position} from 'react-native-image-marker';
 import ButtonForm from '../../Common/ButtonForm';
+import {captureRef} from 'react-native-view-shot';
+
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
@@ -99,6 +101,9 @@ const CrateProblemUser = ({navigation}) => {
   const [problemTypeAll, setProblemTypeAll] = useState([]);
   const [problemNameAll, setProblemNameAll] = useState([]);
   const [severityAll, setSeverityAll] = useState([]);
+  const [tempImage, setTempImage] = useState(null);
+  const [tempText, setTempText] = useState('');
+  const watermarkViewRef = useRef(null);
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
     name: '',
     varity: '',
@@ -185,7 +190,6 @@ const CrateProblemUser = ({navigation}) => {
     //   farmerID,
     //   relId.value,
     // );
-    console.log('PRODUCE', response.status);
     if (response) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -230,7 +234,7 @@ const CrateProblemUser = ({navigation}) => {
         //   response?.data?.data?.crop_type_id,
         //   response?.data?.data?.crop_name_id,
         // );
-        console.log('PRODUCE-STAGE', productionStage_res.status);
+
 
         if (productionStage_res) {
           const dataArray = [];
@@ -258,76 +262,93 @@ const CrateProblemUser = ({navigation}) => {
     }
     setIsLoading(false);
   };
-  const openImagePicker = item => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-    launchCamera(options, async response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.error) {
-        console.log('Camera Error: ', response.error);
-      } else {
-        const timestamp = Date.now();
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        const options = {
-          backgroundImage: {
-            src: imageUri,
-            scale: 1,
-          },
-          watermarkTexts: [
-            {
-              text: `${saveData.latitude},${
-                saveData.longitude
-              },${new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              }).format(timestamp)}`,
+  const openImagePicker = useCallback(
+    item => {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
 
-              positionOptions: {
-                position: Position.bottomLeft,
-              },
-              style: {
-                color: '#df2020',
-                fontSize: 2,
-                fontName: 'Arial',
-                textBackgroundStyle: {
-                  padding: '10% 10%',
-                  color: '#00000000',
-                },
-              },
-            },
-          ],
-          scale: 1,
-          quality: 100,
+      launchCamera(options, async response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+        } else {
+          const timestamp = Date.now();
+          let imageUri = response.uri || response.assets?.[0]?.uri;
 
-          filename: `${response.assets[0].fileName}`,
-          saveFormat: `${response.assets[0].type}`,
-          maxSize: 1000,
-        };
-        let path = await Marker.markText(options);
-        setSelectedImage({
-          ...selectedImage,
-          [item]: `file://${path}`,
-        });
-        const newPhoto = {
-          uri: `file://${path}`,
-          type: 'image/jpeg',
-          name: `file://${path}`,
-        };
-        addPhoto(newPhoto);
-        const newTitle = {};
-        addTitle(newTitle);
-      }
-    });
-  };
+          // Create watermark text
+          const watermarkText = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+
+          // Set temporary image for watermarking
+          setTempImage(imageUri);
+          setTempText(
+            `${saveData.latitude},${saveData.longitude},${watermarkText}`,
+          );
+
+          setTimeout(async () => {
+            try {
+              // Capture the watermarked view
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 0.8,
+                width: 800,
+                height: 800,
+              });
+
+              // Save to permanent storage
+              const fileName =
+                response.assets[0].fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+              await RNFS.copyFile(uri, destPath);
+
+              // Update UI and state
+              setSelectedImage({
+                ...selectedImage,
+                [item]: `file://${destPath}`,
+              });
+
+              const newPhoto = {
+                uri: `file://${destPath}`,
+                type: 'image/jpeg',
+                name: `${fileName}`,
+              };
+              addPhoto(newPhoto);
+              const newTitle = {};
+              addTitle(newTitle);
+            } catch (error) {
+              console.log('Capture Error:', error);
+              // Fallback: use original image without watermark
+              setSelectedImage({
+                ...selectedImage,
+                [item]: imageUri,
+              });
+              const newPhoto = {
+                uri: imageUri,
+                type: 'image/jpeg',
+                name: response.assets[0].fileName || `photo_${timestamp}.jpg`,
+              };
+              addPhoto(newPhoto);
+            } finally {
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 1000);
+        }
+      });
+    },
+    [myphotoAll, myTitleAll, saveData.latitude, saveData.longitude],
+  );
   const addPhoto = newPhoto => {
     setmyPhotoAll([...myphotoAll, newPhoto]);
   };
@@ -411,7 +432,7 @@ const CrateProblemUser = ({navigation}) => {
         console.log('Location permission denied');
       }
     } catch (err) {
-      console.warn(err);
+      console.warn('err', err);
     }
   };
   const onPageLoad = async () => {
@@ -437,7 +458,7 @@ const CrateProblemUser = ({navigation}) => {
         }),
         // problemSeverityAPI(dbname, lan_id),
       ]);
-      console.log('PROBLEM-NAME', problemName_res?.status);
+
       if (problemName_res?.status == 200) {
         setProblemAll(problemName_res?.data?.data);
         const dataArray = problemName_res?.data?.data.map(element => ({
@@ -446,7 +467,7 @@ const CrateProblemUser = ({navigation}) => {
         }));
         setProblemTypeAll(dataArray);
       }
-      console.log('severity_res?.status ', severity_res?.status);
+  
       if (severity_res?.status == 200) {
         const dataArray = severity_res?.data?.data?.rows.map(element => ({
           value: element.fid,
@@ -611,7 +632,7 @@ const CrateProblemUser = ({navigation}) => {
           navigation.navigate('userList');
         }, 1500);
       }
-      setIsLoading(true);
+      setIsLoading(false);
     }
   };
   const onStartRecordFirstItem = async () => {
@@ -770,6 +791,7 @@ const CrateProblemUser = ({navigation}) => {
           setOpenDate={setaddAffectedDate}
           handleDatePicker={handleDatePicker}
         />
+
         {/* <FormsTitle title={t('add_crop_problem')} /> */}
         {modalVisibleRecordFirstItem ? (
           <SoundRecord
@@ -914,6 +936,23 @@ const CrateProblemUser = ({navigation}) => {
               }
               value={saveData.question_desc}
             />
+            <View style={styles.hiddenContainer}>
+              {tempImage && (
+                <View
+                  ref={watermarkViewRef}
+                  style={styles.watermarkView}
+                  collapsable={false}>
+                  <Image
+                    source={{uri: tempImage}}
+                    style={styles.watermarkImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.watermarkTextContainer}>
+                    <Text style={styles.watermarkText}>{tempText}</Text>
+                  </View>
+                </View>
+              )}
+            </View>
             <TakePhoto
               openImagePicker={openImagePicker}
               selectedImage={selectedImage}
@@ -1092,5 +1131,36 @@ const styles = StyleSheet.create({
     top: '50%',
     zIndex: 999,
     left: '45%',
+  },
+
+  hiddenContainer: {
+    position: 'absolute',
+    left: -9999,
+    top: -9999,
+    width: 200,
+    height: 200,
+  },
+  watermarkView: {
+    width: 200,
+    height: 200,
+    backgroundColor: '#000',
+  },
+  watermarkImage: {
+    width: '100%',
+    height: '100%',
+  },
+  watermarkTextContainer: {
+    position: 'absolute',
+    bottom: 5,
+    left: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+  },
+  watermarkText: {
+    color: '#df2020',
+    fontSize: 8,
+    fontWeight: 'bold',
+    fontFamily: 'Arial',
   },
 });

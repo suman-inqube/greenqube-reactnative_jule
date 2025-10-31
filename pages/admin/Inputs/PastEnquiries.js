@@ -8,6 +8,7 @@ import {
   PermissionsAndroid,
   SafeAreaView,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import React, {
   useState,
@@ -111,9 +112,14 @@ const PastEnquiries = ({navigation}) => {
           disTotal = disTotal + parseFloat(data.sdiscount);
           total = total + parseFloat(data.total_samount);
         });
+
+        const quantityDisplay = EnquiryFound
+          ? `${qty}/${EnquiryFound.pp_qty} ${EnquiryFound.unit_id}`
+          : `${qty}`;
+
         setresult({
           ...result,
-          qty: qty,
+          qty: quantityDisplay,
           total: total,
           grandTotal: grandTotal,
           disTotal: disTotal,
@@ -223,7 +229,9 @@ const PastEnquiries = ({navigation}) => {
         // );
 
         onPageLoad(farmerName?.value, farmerPhone?.label, fromDate, toDate);
-      } catch (error) {}
+      } catch (error) {
+        console.error(error)
+      }
     },
     [filterItem, fromDate, toDate, searchFarmerName, searchFarmerPhone],
   );
@@ -236,7 +244,7 @@ const PastEnquiries = ({navigation}) => {
       setFilterItem('');
       onPageLoad();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   const renderCustomHeader = useMemo(

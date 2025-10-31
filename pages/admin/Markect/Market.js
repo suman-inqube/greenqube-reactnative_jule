@@ -69,6 +69,7 @@ const Market = () => {
           geo_type: nonGeofenced,
           page: page,
           searchBy: searchBy,
+          supervisor_id:user_id
         }),
         token,
         {

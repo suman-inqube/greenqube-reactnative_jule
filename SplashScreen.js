@@ -103,7 +103,6 @@ const SplashScreen = ({ navigation }) => {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       const company_res = await axiosGet(ROUTES.GET.DATABASE_LIST(), '');
-      console.log(JSON.stringify(company_res.data))
       if (!isMountedRef.current) return;
       if (company_res?.status === 200 && company_res?.data?.data) {
         setState(prev => ({

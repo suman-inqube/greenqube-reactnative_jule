@@ -105,7 +105,7 @@ const LiveHood = ({
   const navigation = useNavigation();
   const route = useRoute();
   const { farmeruserID, agri_land_user_rels } = route.params;
-    const [polygons, setPolygons] = useState([]);
+  const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
   const [editing, setEditing] = useState(false);
   const [area, setArea] = useState(0);
@@ -115,7 +115,6 @@ const LiveHood = ({
   const [dafaultLatLon, setDefaultLatLon] = useState({
     latitude: 22.15454,
     longitude: 22.515451,
-    accuracy: 5,
   });
   const [farmerData, setFarmerData] = useState({
     createdBy: '',
@@ -242,15 +241,19 @@ const LiveHood = ({
     try {
       setIsLoading(true);
 
-      const { latitude, longitude } = coords || {};
-      var latlong;
-      if (latitude == '' && longitude == '') {
-        latlong = await getHighAccuracyLocation();
-      }
-      const lat = latitude === '' ? latlong.latitude : latitude;
-      const lon = longitude === '' ? latlong.longitude : longitude;
+      // const { latitude, longitude } = coords || {};
+      // var latlong;
+      // if (latitude == '' && longitude == '') {
+      //   latlong = await getHighAccuracyLocation();
+      // }
+      const fusedLocation = await getItem('fusedLocation');
+      const { latitude, longitude } = fusedLocation;
+      // const lat = latitude === '' ? latlong.latitude : latitude;
+      // const lon = longitude === '' ? latlong.longitude : longitude;
+      const lat = latitude;
+      const lon = longitude;
       setreferencelatLong({ latitude, longitude });
-      setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
+      setDefaultLatLon({ latitude: lat, longitude: lon, });
       const axiosConfig = {
         headers: {
           information: `${dbname},${lan_id}`,
@@ -372,6 +375,7 @@ const LiveHood = ({
         text: JSON.stringify(error),
         ...AlertMesg[0],
       });
+      console.error(error)
       CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
     }
   }, [coords]);
@@ -379,7 +383,7 @@ const LiveHood = ({
   const handlePlot = useCallback(
     async findData => {
       try {
-        const { latitude, longitude } = coords || {};
+        const { latitude, longitude } = await getItem('fusedLocation') || {};
         var latlong;
         if (latitude == '' && longitude == '') {
           latlong = await getHighAccuracyLocation();
@@ -444,7 +448,7 @@ const LiveHood = ({
             },
           )
         ]);
-        console.log("aaa",getSeasonDateRes)
+        console.log("aaa", getSeasonDateRes)
         setPlotId(findData.value);
 
         if (getPlotDoc?.status == 200) {
@@ -612,8 +616,9 @@ const LiveHood = ({
                 soilTypeValue: dataLandDetails?.soil_type?.fid,
                 unit: dataLandDetails?.land_unit?.name,
                 unitValue: dataLandDetails?.land_unit?.fid,
-                productionSeason: `${data?.crop_season?.name}  ${data?.cropSeasonTime?.year ?' (' + (data?.cropSeasonTime?.year) + ')': ""}`,
+                productionSeason: `${data?.crop_season?.name}${data?.cropSeasonTime?.year ? '(' + (data?.cropSeasonTime?.year) + ')' : ""}`,
                 productionSeasonValue: data?.crop_season?.fid,
+                productionSeasonSdId: data?.season_date_fid,
                 livelihoodType: data?.crop_type?.name,
                 livelihoodTypeValue: data?.crop_type?.fid,
                 produceName: data?.crop_name?.name,
@@ -814,7 +819,7 @@ const LiveHood = ({
     );
   };
   useEffect(() => {
-    onPageLoad();
+    // onPageLoad();
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
       startWatchingLocation();
@@ -936,6 +941,9 @@ const LiveHood = ({
     }
   };
   const handleDatePicker = async item => {
+    console.log(edit == '' ? (harvested == 'same produce' || harvested=="add new Produce"  ? false : true) : edit)
+    console.log("******************")
+    console.log(harvested,edit)
     const selectedDate = effective_dates(item);
 
     const seasonData = await axiosGet(
@@ -979,7 +987,7 @@ const LiveHood = ({
 
   const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
-    const { latitude, longitude } = coords || {};
+    const { latitude, longitude } = await getItem('fusedLocation') || {};
     var latlong;
     if (latitude == '' && longitude == '') {
       latlong = await getHighAccuracyLocation();
@@ -1293,7 +1301,7 @@ const LiveHood = ({
     const locationArry = [];
     const latlongArr = [];
     if (location?.[0]?.editing == true && statuslevel.label != '') {
-      const { latitude, longitude } = coords || {};
+      const { latitude, longitude } = await getItem('fusedLocation') || {};
       var latlong;
       if (latitude == '' && longitude == '') {
         latlong = await getHighAccuracyLocation();
@@ -1431,6 +1439,7 @@ const LiveHood = ({
       formdata.append('land_size', farmerData.land_size);
       formdata.append('land_convert_size', land_convert_size_value);
       formdata.append('crop_season_id', farmerData.productionSeasonValue);
+      formdata.append('season_date_fid', farmerData.productionSeasonSdId);
       formdata.append('crop_type_id', farmerData.livelihoodTypeValue);
       formdata.append('crop_name_id', farmerData.produceNameValue);
       formdata.append('crop_variety_id', farmerData.produceVarietyValue);
@@ -1468,26 +1477,29 @@ const LiveHood = ({
             formdata.append('plot_image', data);
           }
         });
-        const AddLandCropDetails_res = await axiosPost(
-          ROUTES.POST.ADD_LAND_CROP_DETAIL({}),
-          formdata,
-          token,
-          false,
-          { information: `${dbname},${lan_id},${farmeruserID}` },
-        );
-        // AddLandCropDetailsAPI(
-        //   dbname,
-        //   lan_id,
-        //   farmeruserID,
-        //   token,
+        // const AddLandCropDetails_res = await axiosPost(
+        //   ROUTES.POST.ADD_LAND_CROP_DETAIL({}),
         //   formdata,
-        //   '',
-        //   '',
+        //   token,
+        //   false,
+        //   { information: `${dbname},${lan_id},${farmeruserID}` },
         // );
+        const AddLandCropDetails_res = await AddLandCropDetailsAPI(
+          dbname,
+          lan_id,
+          farmeruserID,
+          token,
+          formdata,
+          '',
+          '',
+        );
         if (AddLandCropDetails_res?.status === 200) {
+          setIsLoading(false);
           removesetLocation();
           Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
           onTabPress(0);
+        } else {
+          Toast.show({ text: AddLandCropDetails_res?.data?.error?.errorMessage, ...AlertMesg[0] });
         }
       } else {
         var cusCropCyclStartDate = '2004-02-29';
@@ -1525,6 +1537,7 @@ const LiveHood = ({
           longitude: latlongArr[0]?.longitude,
           status: 1,
           crop_season_id: farmerData.productionSeasonValue,
+          season_date_fid: farmerData.productionSeasonSdId,
           crop_type_id: farmerData.livelihoodTypeValue,
           crop_name_id: farmerData.produceNameValue,
           crop_variety_id: farmerData.produceVarietyValue,
@@ -1552,7 +1565,7 @@ const LiveHood = ({
         }
         let save_data = qs.stringify(dataToSend);
         let updateLandCropdetails_res = {};
-
+console.log("dataToSenddataToSenddataToSend",dataToSend)
         updateLandCropdetails_res = await axiosPut(
           ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
             land_rel_id: farmerData.land_rel_id,
@@ -1663,6 +1676,9 @@ const LiveHood = ({
           removesetLocation();
           Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
           onTabPress(0);
+        } else {
+          setIsLoading(false);
+          Toast.show({ text: updateLandCropdetails_res?.data?.error?.errorMessage, ...AlertMesg[0] });
         }
         setIsLoading(false);
       }
@@ -1771,7 +1787,7 @@ const LiveHood = ({
         });
         // setPolygons([newPolygon]);
         //basudev
-        // if (!overlapFound) {
+        if (!overlapFound) {
         setPolygons([...nearPolSet, newPolygon]);
         setNewPolygon([]);
         setLocation(newPolygon);
@@ -1790,14 +1806,14 @@ const LiveHood = ({
         } else {
           setArea(geolib.getAreaOfPolygon(newPolygon));
         }
-        // } else {
-        //   Alert.alert(
-        //     'Overlap Detected',
-        //     'Coordinates are overlapping',
-        //     [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-        //     {cancelable: false},
-        //   );
-        // }
+        } else {
+          Alert.alert(
+            'Overlap Detected',
+            'Coordinates are overlapping',
+            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+            {cancelable: false},
+          );
+        }
       } else {
         // setArea(0);
         Alert.alert(
@@ -1814,47 +1830,46 @@ const LiveHood = ({
   };
 
   const clearNewPolygon = (item) => {
-    console.log(newPolygon,"try")
     try {
-        //  setNewPolygon([]);
+      //  setNewPolygon([]);
       setFarmerData(prev => ({ ...prev, google_area: 0 }));
-    if (userData == 'addUserData' || addPlot == true) {
-      setNewPolygon([]);
-      setPolygons(nearPolSet);
-      removesetLocation();
-      setArea(0);
-    } else {
-      if (statuslevel.label != 'APPROVED') {
-         setNewPolygon([]);
-         console.log(newPolygon,"set newPolygon try")
+      if (userData == 'addUserData' || addPlot == true) {
+        setNewPolygon([]);
         setPolygons(nearPolSet);
         removesetLocation();
-        const value = [...nearPolSet];
-        const convertedCoordinates = location?.map(coord => ({
-          latitude: coord.latitude
-            ? parseFloat(String(coord.latitude).trim() || '0')
-            : 0,
-          longitude: coord.longitude
-            ? parseFloat(String(coord.longitude).trim() || '0')
-            : 0,
-        }));
-        const isEqualUnordered = (arr1, arr2) => {
-          if (arr1?.length !== arr2?.length) return false;
-          const sortedArr1 = arr1.map(obj => JSON.stringify(obj)).sort();
-          const sortedArr2 = arr2.map(obj => JSON.stringify(obj)).sort();
-          return sortedArr1.every((item, index) => item === sortedArr2[index]);
-        };
-        console.log(value,"value")
-        if (isEqualUnordered(convertedCoordinates, value[value?.length])) {
-          value.pop();
-          setArea(0);
+        setArea(0);
+      } else {
+        if (statuslevel.label != 'APPROVED') {
+          setNewPolygon([]);
+          console.log(newPolygon, "set newPolygon try")
+          setPolygons(nearPolSet);
+          removesetLocation();
+          const value = [...nearPolSet];
+          const convertedCoordinates = location?.map(coord => ({
+            latitude: coord.latitude
+              ? parseFloat(String(coord.latitude).trim() || '0')
+              : 0,
+            longitude: coord.longitude
+              ? parseFloat(String(coord.longitude).trim() || '0')
+              : 0,
+          }));
+          const isEqualUnordered = (arr1, arr2) => {
+            if (arr1?.length !== arr2?.length) return false;
+            const sortedArr1 = arr1.map(obj => JSON.stringify(obj)).sort();
+            const sortedArr2 = arr2.map(obj => JSON.stringify(obj)).sort();
+            return sortedArr1.every((item, index) => item === sortedArr2[index]);
+          };
+          console.log(value, "value")
+          if (isEqualUnordered(convertedCoordinates, value[value?.length])) {
+            value.pop();
+            setArea(0);
+          }
+          if (location?.length > 1) {
+            setPolygons(value);
+          }
+          console.log("set newPolygon", value)
         }
-        if (location?.length > 1) {
-          setPolygons(value);
-        }
-                console.log("set newPolygon",value)
       }
-    }
     } catch (error) {
       console.error(error)
     }
@@ -1945,7 +1960,7 @@ const LiveHood = ({
   }, []);
   const handleCurrentLatLongIOT = useCallback(async () => {
     try {
-      const { latitude, longitude } = coords || {};
+      const { latitude, longitude } = await getItem('fusedLocation') || {};
       var latlong;
       if (latitude == '' && longitude == '') {
         latlong = await getHighAccuracyLocation();
@@ -2615,7 +2630,7 @@ const LiveHood = ({
                 val={farmerData.productionSeason}
                 // disable={edit}
                 disable={
-                  edit == '' ? (harvested == 'same produce' ? true : false) : edit
+                  edit == '' ? (harvested == 'same produce'|| harvested=="add new Produce"  ? false : harvested==""?false:true) : edit
                 }
               />
             </View>
@@ -2746,7 +2761,8 @@ const LiveHood = ({
               baselatLong={referencelatLong}
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
-              coords={coords}
+              coords={dafaultLatLon}
+
             />
           </Modal>
         )}

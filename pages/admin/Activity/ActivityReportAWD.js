@@ -71,6 +71,7 @@ import { axiosGet, axiosPost } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import { captureRef } from 'react-native-view-shot';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import { showAIValidationError } from '../../utils/showAIValidationError';
 const ActivityReportAWD = ({ navigation }) => {
   //GQR-67
   const {
@@ -165,7 +166,6 @@ const ActivityReportAWD = ({ navigation }) => {
     plot_Name: '',
     crop_name: '',
     crop_variety: '',
-    cycle_start_date: '',
     growth_stage: '',
     act_perform_date: '',
     cu_rel_id: '',
@@ -178,6 +178,7 @@ const ActivityReportAWD = ({ navigation }) => {
     varity: '',
     cycleStarts: '',
     cycleEnd: '',
+    productionSeasonSdId: '',
   });
   // const [myphoto, setmyPhoto] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -269,6 +270,7 @@ const ActivityReportAWD = ({ navigation }) => {
         varity: '',
         cycleStarts: '',
         cycleEnd: '',
+        productionSeasonSdId: '',
       });
       if (isOnline) {
         var response = await axiosGet(
@@ -414,8 +416,9 @@ const ActivityReportAWD = ({ navigation }) => {
               ...prev,
               name: data.crop_name.name,
               varity: data.crop_variety.name,
-              cycleStarts: cycle_start_date,
+              cycleStarts: data.sowing_date,
               cycleEnd: data.harvesting_date,
+              productionSeasonSdId: data.season_date_fid,
             }));
             setSaveData(prev => ({
               ...prev,
@@ -424,7 +427,7 @@ const ActivityReportAWD = ({ navigation }) => {
               plot_Name: relId.label,
               crop_name: data.crop_name.fid,
               crop_variety: data.crop_variety.fid,
-              cycle_start_date: cycle_start_date,
+              // cycle_start_date: cycle_start_date,
               cu_rel_id: data.cu_rel_id,
               cycle_start_date: cycle_start_date,
               crop_season: data?.crop_season?.fid,
@@ -691,10 +694,157 @@ const ActivityReportAWD = ({ navigation }) => {
     const month = monthNames[date.getMonth()];
     return `${day} ${month}, ${year}`;
   };
+  // const setCycleDate = async () => {
+  //   try {
+  //     setIsButtonDisabled(true);
+  //     setOverdueAct([]);
+  //     let save_data = qs.stringify({
+  //       crop_cycl_start_date:
+  //         cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate,
+  //     });
+  //     // const productionStage_res = await setCycleDateAPI(dbname, lan_id, user_id, token, saveData.cu_rel_id, save_data);
+  //     // var activitySchedule = activityScheduleAPI(
+  //     //   dbname,
+  //     //   lan_id,
+  //     //   token,
+  //     //   'carbon_activity',
+  //     //   saveData.plot_id,
+  //     //   saveData.crop_name,
+  //     //   saveData.cu_rel_id,
+  //     // );
+  //     var [
+  //       // setCycleDate,
+  //       activitySchedule,
+  //     ] = await Promise.all([
+  //       // setCycleDateAPI(
+  //       //   dbname,
+  //       //   lan_id,
+  //       //   farmerID,
+  //       //   token,
+  //       //   saveData.cu_rel_id,
+  //       //   save_data,
+  //       // ),
+  //       axiosGet(
+  //         ROUTES.GET.ACTIVITY_SCHEDULE_API({
+  //           type: 'carbon_activity',
+  //           plotId: saveData.plot_id,
+  //           cropId: saveData.crop_name,
+  //           cu_rel_id: saveData.cu_rel_id,
+  //         }),
+  //         token,
+  //         { information: `${dbname},${lan_id}` },
+  //       ),
+  //       // activityScheduleAPI(
+  //       //   dbname,
+  //       //   lan_id,
+  //       //   token,
+  //       //   'carbon_activity',
+  //       //   saveData.plot_id,
+  //       //   saveData.crop_name,
+  //       //   saveData.cu_rel_id,
+  //       // ),
+  //     ]);
+  //     if (activitySchedule.status == 200) {
+  //       if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
+  //         var lastData =
+  //           activitySchedule?.data?.data?.lastActivity?.activityName
+  //             ?.categoryName +
+  //           ' (' +
+  //           formatDate(
+  //             activitySchedule?.data?.data?.lastActivity?.act_start_date,
+  //           ) +
+  //           ' - ' +
+  //           formatDate(
+  //             activitySchedule?.data?.data?.lastActivity?.act_to_date,
+  //           ) +
+  //           ')';
+
+  //         setLastAct(lastData);
+  //       }
+
+  //       if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+  //         activitySchedule?.data?.data?.otherActivities.forEach(function (
+  //           element,
+  //         ) {
+  //           var overdueData;
+  //           if (element?.days_until_start < 0) {
+  //             overdueData =
+  //               element?.activityName.categoryName +
+  //               ' (' +
+  //               formatDate(element?.activity_start_date) +
+  //               ' - ' +
+  //               formatDate(element?.activity_end_date) +
+  //               ')';
+  //             //  console.log("00",overdueData);
+  //             setOverdueAct(prevItems => [...prevItems, overdueData]);
+  //           }
+  //           // setOverdueAct(prevItems => [...prevItems, overdueData]);
+  //         });
+  //         const upcomingActivity =
+  //           activitySchedule?.data?.data?.otherActivities?.find(
+  //             item => item.days_until_start >= 0,
+  //           );
+  //         // console.log(upcomingActivity.days_from);
+  //         if (upcomingActivity != undefined) {
+  //           const monthNames = [
+  //             'January',
+  //             'February',
+  //             'March',
+  //             'April',
+  //             'May',
+  //             'June',
+  //             'July',
+  //             'August',
+  //             'September',
+  //             'October',
+  //             'November',
+  //             'December',
+  //           ];
+  //           const cycleDate =
+  //             cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate;
+  //           // const cycleDate =
+  //           //   data.crop_cycl_start_date == null ||
+  //           //   data.crop_cycl_start_date == '2004-02-29'
+  //           //     ? data.sowing_date
+  //           //     : data.crop_cycl_start_date;
+
+  //           const sdate = new Date(cycleDate);
+  //           sdate.setDate(sdate.getDate() + upcomingActivity?.days_from);
+  //           const smonth = monthNames[sdate.getMonth()];
+  //           const sday = sdate.getDate();
+  //           const syear = sdate.getFullYear();
+  //           const startDate = `${smonth} ${sday}, ${syear}`;
+  //           const edate = new Date(cycleDate);
+  //           edate.setDate(edate.getDate() + upcomingActivity?.days_to);
+  //           const emonth = monthNames[edate.getMonth()];
+  //           const eday = edate.getDate();
+  //           const eyear = edate.getFullYear();
+  //           const endDate = `${emonth} ${eday}, ${eyear}`;
+  //           const startDateEndDate = `${startDate}-${endDate}`;
+
+  //           setUpcomingAct(
+  //             upcomingActivity?.activityName?.categoryName +
+  //             ' (' +
+  //             startDateEndDate +
+  //             ')',
+  //           );
+  //         }
+  //         // console.log(
+  //         //   upcomingActivity?.activityName?.categoryName +
+  //         //     ' (' +
+  //         //     startDateEndDate +
+  //         //     ')',
+  //         // );
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error(error)
+  //     CrashlyticsRecordError(error, 'ActivityReportAWD', 'setCycleDate');
+  //   }
+  // };
   const setCycleDate = async () => {
     try {
       setIsButtonDisabled(true);
-      setOverdueAct([]);
       let save_data = qs.stringify({
         crop_cycl_start_date:
           cycleDtartDate == '' ? saveData.cycle_start_date : cycleDtartDate,
@@ -709,38 +859,26 @@ const ActivityReportAWD = ({ navigation }) => {
       //   saveData.crop_name,
       //   saveData.cu_rel_id,
       // );
-      var [
-        // setCycleDate,
-        activitySchedule,
-      ] = await Promise.all([
-        // setCycleDateAPI(
-        //   dbname,
-        //   lan_id,
-        //   farmerID,
-        //   token,
-        //   saveData.cu_rel_id,
-        //   save_data,
-        // ),
-        axiosGet(
-          ROUTES.GET.ACTIVITY_SCHEDULE_API({
-            type: 'carbon_activity',
-            plotId: saveData.plot_id,
-            cropId: saveData.crop_name,
-            cu_rel_id: saveData.cu_rel_id,
-          }),
+      var [setCycleDate, activitySchedule] = await Promise.all([
+        setCycleDateAPI(
+          dbname,
+          lan_id,
+          farmerID,
           token,
-          { information: `${dbname},${lan_id}` },
+          saveData.cu_rel_id,
+          save_data,
         ),
-        // activityScheduleAPI(
-        //   dbname,
-        //   lan_id,
-        //   token,
-        //   'carbon_activity',
-        //   saveData.plot_id,
-        //   saveData.crop_name,
-        //   saveData.cu_rel_id,
-        // ),
+        activityScheduleAPI(
+          dbname,
+          lan_id,
+          token,
+          'carbon_activity',
+          saveData.plot_id,
+          saveData.crop_name,
+          saveData.cu_rel_id,
+        ),
       ]);
+
       if (activitySchedule.status == 200) {
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
           var lastData =
@@ -962,6 +1100,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const handleSave = async () => {
     Keyboard.dismiss();
     if (validateForm()) {
+      setIsLoading(true);
       const formData = new FormData();
       // formData.append("act_title", "");
       // myphotoAll.forEach((photo) => {
@@ -1004,6 +1143,7 @@ const ActivityReportAWD = ({ navigation }) => {
       formData.append('act_perform_date', saveData.act_perform_date);
       // formData.append("act_pattern", "carbon");
       formData.append('act_pattern', saveData.act_pattern);
+      formData.append('season_date_fid', nameVarityStartEnd.productionSeasonSdId);
 
       if (saveData.act_pattern === 'schedule') {
         formData.append('act_ref_type', saveData.act_ref_type);
@@ -1101,30 +1241,33 @@ const ActivityReportAWD = ({ navigation }) => {
       formData.append('water_used', saveData.water_used);
       formData.append('power_used', saveData.power_used);
       formData.append('cu_rel_fid', saveData.cu_rel_id);
+      formData.append('app_version', "104");
+
       // Geolocation.clearWatch(watchIdSaveData);
+      var database_res;
       if (isOnline) {
         if (saveData.field_type == 'add') {
-          var database_res = await axiosPost(
-            ROUTES.POST.ADD_USER_PIPE_ACTIVITY,
-            formData,
-            token,
-            false,
-            {
-              information: `${dbname},${lan_id},${saveData.user_id}`,
-              pipe_count: pipeDetails.length,
-            },
-          );
-
-          // addUserPipeActivity(
-          //   dbname,
-          //   lan_id,
-          //   token,
-          //   saveData.user_id,
+          // database_res = await axiosPost(
+          //   ROUTES.POST.ADD_USER_PIPE_ACTIVITY,
           //   formData,
-          //   pipeDetails.length,
+          //   token,
+          //   false,
+          //   {
+          //     information: `${dbname},${lan_id},${saveData.user_id}`,
+          //     pipe_count: pipeDetails.length,
+          //   },
           // );
+          // console.error("saveData.field_type",database_res)
+
+          database_res = await addUserPipeActivity(
+            dbname,
+            lan_id,
+            token,
+            saveData.user_id,
+            formData,
+            pipeDetails.length,
+          );
         } else {
-          var database_res;
           if (coords != null) {
             const { latitude, longitude } = coords || {};
             var latlong;
@@ -1138,15 +1281,23 @@ const ActivityReportAWD = ({ navigation }) => {
               lon,
             });
             if (distances < 10) {
-              database_res = await axiosPost(
-                ROUTES.POST.UPDATE_PIPE_ACTIVITY,
-                formData,
+              // database_res = await axiosPost(
+              //   ROUTES.POST.UPDATE_PIPE_ACTIVITY,
+              //   formData,
+              //   token,
+              //   false,
+              //   {
+              //     information: `${dbname},${lan_id},${saveData.user_id}`,
+              //     pipe_count: 1,
+              //   },
+              // );
+              database_res = await addPrevPipeActivity(
+                dbname,
+                lan_id,
                 token,
-                false,
-                {
-                  information: `${dbname},${lan_id},${saveData.user_id}`,
-                  pipe_count: 1,
-                },
+                saveData.user_id,
+                formData,
+                1,
               );
             } else {
               Toast.show({
@@ -1167,14 +1318,12 @@ const ActivityReportAWD = ({ navigation }) => {
           // );
         }
         if (database_res?.status === 400) {
-          Toast.show({
-            text: database_res.data?.error?.errorMessage?.message,
-            ...AlertMesg[0],
-          });
-          return;
+          showAIValidationError(database_res);
+              setIsLoading(false);
         }
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
+          navigation.popToTop();
           navigation.navigate('activityList', { action: 'addData' });
         } else if (database_res?.status == 409) {
           Toast.show({
@@ -1195,8 +1344,10 @@ const ActivityReportAWD = ({ navigation }) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
+        navigation.popToTop();
         navigation.navigate('activityList', { action: 'addData' });
       }
+      setIsLoading(false);
     }
   };
 
@@ -1674,7 +1825,7 @@ const ActivityReportAWD = ({ navigation }) => {
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [pipeDetails]);
   const [modalVisibleMap, setModalVisibleMap] = useState(false);
   const [plotPolygon, setPlotPolygon] = useState([]);
   const [cameraItem, setCameraItem] = useState('');
