@@ -227,32 +227,6 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
     setactivityAll(activityAllRow);
     setSearchResultsList(false);
   };
-  const HandlerGoBack = () => {
-    setFilterItem('');
-    setFilterOption(false);
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setSearchResultsList(false);
-    setfromDate('');
-    setToDate('');
-    // setactivityAll([]);
-    // setactivityAllRow([]);
-    navigation.navigate('FarmerDashboard');
-  };
-  const handleBackPress = () => {
-    setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
-    setFilterItem('');
-    setFilterOption(false);
-    setSearchFarmerName('');
-    setSearchFarmerPhone('');
-    setSearchResultsList(false);
-    setfromDate('');
-    setToDate('');
-    // setactivityAll([]);
-    // setactivityAllRow([]);
-    navigation.navigate('FarmerDashboard');
-    return true;
-  };
   useEffect(() => {
     if (isFocused) {
       if (
@@ -263,7 +237,6 @@ const FarmerInstrumentWiseActivityView = ({navigation}) => {
       ) {
         onPageLoad();
       }
-      onBackPress(handleBackPress);
     }
   }, [isFocused]);
   useEffect(() => {

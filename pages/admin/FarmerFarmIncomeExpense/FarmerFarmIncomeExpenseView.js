@@ -187,15 +187,23 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
                     <View key={index}>
                       {data.inexType && data.inexType.taxonomy === 'expense' ? (
                         <View style={styles.flatListItem} key={index}>
-                          <Text style={styles.text}>
-                            {data.inexType &&
-                              data.inexType.inexName &&
-                              data.inexType.inexName.categoryName}
-                          </Text>
-                          <Text style={styles.text}>
-                            {formatDateToDateName(data.date)}
-                          </Text>
-                          <Text style={styles.text}>{data.amount}</Text>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.inexType &&
+                                data.inexType.inexName &&
+                                data.inexType.inexName.categoryName}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {formatDateToDateName(data.date)}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.amount}
+                            </Text>
+                          </View>
                         </View>
                       ) : (
                         ''
@@ -231,15 +239,23 @@ const FarmerFarmIncomeExpenseView = ({route}) => {
                     <View key={index}>
                       {data.inexType && data.inexType.taxonomy === 'income' ? (
                         <View style={styles.flatListItem2} key={index}>
-                          <Text style={styles.text}>
-                            {data.inexType &&
-                              data.inexType.inexName &&
-                              data.inexType.inexName.categoryName}
-                          </Text>
-                          <Text style={styles.text}>
-                            {formatDateToDateName(data.date)}
-                          </Text>
-                          <Text style={styles.text}>{data.amount}</Text>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.inexType &&
+                                data.inexType.inexName &&
+                                data.inexType.inexName.categoryName}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {formatDateToDateName(data.date)}
+                            </Text>
+                          </View>
+                          <View style={styles.textContainer}>
+                            <Text style={styles.text} numberOfLines={2}>
+                              {data.amount}
+                            </Text>
+                          </View>
                         </View>
                       ) : (
                         ''
@@ -401,25 +417,21 @@ const styles = StyleSheet.create({
   },
   flatListItem: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    // marginVertical: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#FFF',
     paddingVertical: 15,
-    // borderRadius: 10,
     elevation: 5,
-    // borderBottomWidth: 1,
     borderWidth: 0.5,
     borderColor: 'red',
   },
   flatListItem2: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    // marginVertical: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#FFF',
     paddingVertical: 15,
-    // borderRadius: 10,
     elevation: 5,
-    // borderBottomWidth: 1,
     borderWidth: 0.5,
     borderColor: 'green',
   },
@@ -475,5 +487,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     textAlign: 'right',
     alignSelf: 'flex-end',
+  },
+  textContainer: {
+    flex: 1,
+    marginHorizontal: 15,
+    justifyContent: 'center',
   },
 });
