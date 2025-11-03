@@ -141,11 +141,11 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
-  // console.log("url",url)
+  console.log("url",url)
   if (!(await isInternetAvailable()))
     return Promise.reject({ status: 0, data: { message: 'No internet' } });
   const controller = abortController || new AbortController();
-  // console.log(url,extraHeaders)
+  console.log(url,extraHeaders)
   try {
     return await instance.get(url, {
       headers: { ...(token && { Authorization: token }), ...extraHeaders },

@@ -7,10 +7,10 @@ const withSecurityCheck = (WrappedComponent) => {
     const [isSecure, setIsSecure] = useState(true);
     const [checked, setChecked] = useState(false);
     useEffect(() => {
-      // if (__DEV__) {
-      //   setChecked(true);
-      //   return;
-      // }
+      if (__DEV__) {
+        setChecked(true);
+        return;
+      }
       const handleAppStateChange = async (nextAppState) => {
         if (nextAppState !== 'active') return;
         try {

@@ -352,10 +352,14 @@ const Login = ({route}) => {
               }
             }
           }
+        }else{
+          console.log(userIno)
         }
       } catch (error) {
+         let errorMessage = 'Invalid login details. Please try again.';
         Toast.show({
-          text: `${error?.data?.error?.errorMessage}`,
+          // text: ${error?.data?.error?.errorMessage},
+          text: errorMessage,
           ...AlertMesg[0],
         });
         setIsLoading(false);
