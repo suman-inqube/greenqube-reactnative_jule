@@ -194,6 +194,7 @@ const Dashboard = ({navigation}) => {
               status_level: 'REJECTED',
               geo_type: '',
               searchBy: '',
+              supervisor_id:user_id
             }),
             token,
             {information: `${dbname},${lan_id},${user_id}`},

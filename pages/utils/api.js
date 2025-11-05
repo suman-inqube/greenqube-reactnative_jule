@@ -7,8 +7,8 @@ import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import { AlertMesg } from '../Common/ToastAlert';
 const SLOW_THRESHOLD = 3000;
 const instance = axios.create({
-  // baseURL: 'https://mygreenqube.com:4003/',
-  baseURL: 'http://134.209.155.11:4003/',
+  baseURL: 'https://mygreenqube.com:4003/',
+  // baseURL: 'http://134.209.155.11:4003/',
   timeout: 10000,
 });
 instance.interceptors.request.use(config => {

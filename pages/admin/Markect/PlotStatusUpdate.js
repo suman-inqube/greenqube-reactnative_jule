@@ -43,7 +43,9 @@ import config from '../../../config';
 import axios from 'axios';
 import { useRoute, useNavigation } from '@react-navigation/native';
 const qs = require('qs');
-import HarvestedModel from './../userlist/HarvestedModel';
+// import HarvestedModel from './../userlist/HarvestedModel';
+import HarvestedModel from '../../Common/HarvestedModel';
+
 import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 //GQR-65
 import { userCreateContext } from '../../Context/usersCreateContext';
@@ -919,42 +921,49 @@ const PlotStatusUpdate = () => {
     fileName: '',
     id: '',
   });
-  const handleHarvested = async data => {
-    setHarvested(data);
-    setEdit('');
-    if (data === 'same produce') {
-      setfarmerData({
-        ...farmerData,
-        cycleStartDate: '',
-        cycleEndDate: '',
-      });
+   const handleHarvested = async data => {
+    if (data == 'Yes') {
+      navigation.navigate('Dashboard');
     } else {
-      setfarmerData({
-        ...farmerData,
-        productionSeason: '',
-        productionSeasonValue: '',
-        productionSeasonSdId: '',
-        livelihoodType: '',
-        livelihoodTypeValue: '',
-        produceName: '',
-        produceNameValue: '',
-        produceVariety: '',
-        produceVarietyValue: '',
-        productionProcess: '',
-        productionProcessValue: '',
-        unitProduct: '',
-        unitProductValue: '',
-        unit_value: '',
-        expectedProduction: '',
-        cycleStartDate: '',
-        cycleEndDate: '',
-        IOTId: '',
-        IOTLatLong: '',
-        IOTLatlat: '',
-        crop_cycl_start_date: '',
-      });
+      navigation.navigate('Dashboard');
     }
   };
+  // const handleHarvested = async data => {
+  //   setHarvested(data);
+  //   setEdit('');
+  //   if (data === 'same produce') {
+  //     setfarmerData({
+  //       ...farmerData,
+  //       cycleStartDate: '',
+  //       cycleEndDate: '',
+  //     });
+  //   } else {
+  //     setfarmerData({
+  //       ...farmerData,
+  //       productionSeason: '',
+  //       productionSeasonValue: '',
+  //       productionSeasonSdId: '',
+  //       livelihoodType: '',
+  //       livelihoodTypeValue: '',
+  //       produceName: '',
+  //       produceNameValue: '',
+  //       produceVariety: '',
+  //       produceVarietyValue: '',
+  //       productionProcess: '',
+  //       productionProcessValue: '',
+  //       unitProduct: '',
+  //       unitProductValue: '',
+  //       unit_value: '',
+  //       expectedProduction: '',
+  //       cycleStartDate: '',
+  //       cycleEndDate: '',
+  //       IOTId: '',
+  //       IOTLatLong: '',
+  //       IOTLatlat: '',
+  //       crop_cycl_start_date: '',
+  //     });
+  //   }
+  // };
   const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
     const seasonData = await axiosGet(
@@ -2011,12 +2020,18 @@ const PlotStatusUpdate = () => {
               </View>
             ) : null}
             {modalVisible && (
-              <HarvestedModel
-                setModalVisible={setModalVisible}
-                modalVisible={modalVisible}
-                handleHarvested={handleHarvested}
-                status={statuslevel.label}
-              />
+              // <HarvestedModel
+              //   setModalVisible={setModalVisible}
+              //   modalVisible={modalVisible}
+              //   handleHarvested={handleHarvested}
+              //   status={statuslevel.label}
+              // />
+                <HarvestedModel
+                  setModalVisible={setModalVisible}
+                  modalVisible={modalVisible}
+                  handleHarvested={handleHarvested}
+                  // status={statuslevel.label}
+                />
             )}
 
             <ScrollView

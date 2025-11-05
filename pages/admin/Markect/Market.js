@@ -76,6 +76,7 @@ const Market = () => {
           information: `${dbname},${lan_id},${user_id}`,
         },
       );
+      console.log("response",response)
       if (response?.status === 200) {
         setTotalPages(Math.ceil(response?.data?.data.count / 20));
         // console.log(JSON.stringify(response?.data?.data));
