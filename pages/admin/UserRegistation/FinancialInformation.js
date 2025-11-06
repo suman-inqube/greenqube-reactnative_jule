@@ -40,6 +40,9 @@ const FinancialInformation = () => {
     topBanner,
     effective_dates,
     Root,
+    locationSettings,
+    setLocationSettings,
+    startWatchingLocation,
   } = useContext(userCreateContext);
   useSingleBackToNavigate("PersonalInformation")
   const navigation = useNavigation();
@@ -93,6 +96,14 @@ const FinancialInformation = () => {
     setLifeInsurance(!isLifeInsurance);
   };
   const onPageLoad = async () => {
+    setLocationSettings(prev => ({
+      ...prev,
+      enableHighAccuracy: true,
+      distanceFilter: 0,
+      interval: 10000,
+      fastestInterval: 5000,
+    }));
+    startWatchingLocation();
     const [currency_res] = await Promise.all([getItem('currency')]);
     setCurrencyt(currency_res);
   };

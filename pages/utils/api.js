@@ -6,9 +6,11 @@ import CryptoJS from 'crypto-js';
 import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import { AlertMesg } from '../Common/ToastAlert';
 const SLOW_THRESHOLD = 3000;
+import { DEV_URL, PROD_URL, APP_ENV } from '@env';
+const API_URL = APP_ENV === 'dev' ? DEV_URL : PROD_URL;
 const instance = axios.create({
-  baseURL: 'https://mygreenqube.com:4003/',
-  // baseURL: 'http://134.209.155.11:4003/',
+  // baseURL: 'https://mygreenqube.com:4003/',
+  baseURL: API_URL,
   timeout: 10000,
 });
 instance.interceptors.request.use(config => {

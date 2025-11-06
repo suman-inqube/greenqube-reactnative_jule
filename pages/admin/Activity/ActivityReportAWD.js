@@ -72,6 +72,7 @@ import { ROUTES } from '../../utils/Routes';
 import { captureRef } from 'react-native-view-shot';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
+import { Logout } from '../../Logout';
 const ActivityReportAWD = ({ navigation }) => {
   //GQR-67
   const {
@@ -1319,7 +1320,7 @@ const ActivityReportAWD = ({ navigation }) => {
         }
         if (database_res?.status === 400) {
           showAIValidationError(database_res);
-              setIsLoading(false);
+          setIsLoading(false);
         }
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
@@ -1572,7 +1573,11 @@ const ActivityReportAWD = ({ navigation }) => {
   }, []);
   const onPageLoad = async () => {
     try {
-      const { latitude, longitude } = coords || {};
+      const { latitude, longitude, mocked } = coords || {};
+      if (mocked == true) {
+        Logout();
+        navigation.navigate("Login");
+      }
       var latlong;
       if (latitude == '' && longitude == '') {
         latlong = await getHighAccuracyLocation();

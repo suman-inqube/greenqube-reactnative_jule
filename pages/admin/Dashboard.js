@@ -24,25 +24,26 @@ import {
   InteractionManager,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import {userCreateContext} from '../Context/usersCreateContext';
-import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
+import { userCreateContext } from '../Context/usersCreateContext';
+import { LandUnitArea, UnitConversonToDefault } from '../../config/apiHere';
 import CarouselSlider from '../Components/CarouselSlider';
 import TrackingInfromation from '../Components/TrackingInfromation';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
-import {Colors} from '../utils/Constants';
-import {axiosGet} from '../utils/api';
-import {ROUTES} from '../utils/Routes';
+import { Colors } from '../utils/Constants';
+import { axiosGet } from '../utils/api';
+import { ROUTES } from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
-import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
+import { Permission, PERMISSIONS_TYPE } from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
-import {getDashboardItems} from '../utils/dashboardItems';
-import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
-import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+import { getDashboardItems } from '../utils/dashboardItems';
+import { Fenced_Rejected_Plot_List } from '../../config/apiHere';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
+import { Logout } from '../Logout';
 // const HEADER_HEIGHT = 60;
-const Dashboard = ({navigation}) => {
+const Dashboard = ({ navigation }) => {
   const isFocused = useIsFocused();
   useDoubleBackToExit();
   const {
@@ -59,6 +60,7 @@ const Dashboard = ({navigation}) => {
     loginUser_data,
     startWatchingLocation,
     stopWatchingLocation,
+    setLocationSettings,
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -158,7 +160,7 @@ const Dashboard = ({navigation}) => {
       let defaultLand = false;
 
       const login = loginUser_data || {};
-      const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
+      const { dbname, lan_id, token, agri_user_addresses, user_id } = login;
 
       if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
         const [
@@ -185,7 +187,7 @@ const Dashboard = ({navigation}) => {
               subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
             }),
             '',
-            {information: `${dbname},${lan_id}`},
+            { information: `${dbname},${lan_id}` },
           ),
 
           axiosGet(
@@ -194,10 +196,10 @@ const Dashboard = ({navigation}) => {
               status_level: 'REJECTED',
               geo_type: '',
               searchBy: '',
-              supervisor_id:user_id
+              supervisor_id: user_id
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           ),
 
           axiosGet(
@@ -206,7 +208,7 @@ const Dashboard = ({navigation}) => {
               type: 'carbon_activity',
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           ),
 
           // axiosGet(
@@ -284,21 +286,33 @@ const Dashboard = ({navigation}) => {
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
-      startWatchingLocation();
     });
     return () => {
       task.cancel();
-      stopWatchingLocation();
+      // stopWatchingLocation();
     };
   }, []);
 
   useEffect(() => {
-    const {agri_user_addresses, dbname, lan_id, token, user_id} =
+    const { mocked } = coords
+    // if (mocked == true) {
+    //   Logout();
+    //   navigation.navigate("Login");
+    // }
+    const { agri_user_addresses, dbname, lan_id, token, user_id } =
       loginUser_data || {};
     let plotStatus = [];
     var usefulInfoList = [];
     let activitySchedule = [];
     const USEFULL_Call = async () => {
+      setLocationSettings(prev => ({
+        ...prev,
+        enableHighAccuracy: true,
+        distanceFilter: 5,
+        interval: 10000,
+        fastestInterval: 5000,
+      }));
+      startWatchingLocation();
       const [FARMER_USEFULL_INFO_LIST, PLOT_STATUS, ALL_ACTIVITY_SCHEDULE_RES] =
         await Promise.all([
           axiosGet(
@@ -312,7 +326,7 @@ const Dashboard = ({navigation}) => {
               subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
             }),
             '',
-            {information: `${dbname},${lan_id}`},
+            { information: `${dbname},${lan_id}` },
           ),
           axiosGet(
             ROUTES.GET.Fenced_Rejected_Plot_List({
@@ -322,14 +336,14 @@ const Dashboard = ({navigation}) => {
               searchBy: '',
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           ),
           axiosGet(
             ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
               supervisor_id: user_id,
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           ),
         ]);
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
@@ -355,10 +369,10 @@ const Dashboard = ({navigation}) => {
       `${t('app_name')}`,
       `${t('close_app')}`,
       [
-        {text: `${t('cancle')}`, onPress: () => {}, style: 'cancel'},
-        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
+        { text: `${t('cancle')}`, onPress: () => { }, style: 'cancel' },
+        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
     return true;
   }, [t]);
@@ -388,7 +402,7 @@ const Dashboard = ({navigation}) => {
   const headerContent = useMemo(
     () => (
       <>
-      <ForegroundLocationService />
+        <ForegroundLocationService />
         <UpcomingActivities
           t={t}
           uiState={uiState}
@@ -419,7 +433,7 @@ const Dashboard = ({navigation}) => {
               onPress={CompanyWebsiteOpen}
               style={styles.bottomContainer}>
               <ImageForm
-                source={{uri: uiState.bottomBanner}}
+                source={{ uri: uiState.bottomBanner }}
                 resizeMode="cover"
                 height={220}
                 width={'100%'}
@@ -477,7 +491,7 @@ const Dashboard = ({navigation}) => {
             <Animated.View
               style={[
                 styles.header,
-                {transform: [{translateY: headerTranslateY}]},
+                { transform: [{ translateY: headerTranslateY }] },
               ]}>
               {renderCustomHeader}
             </Animated.View>
@@ -485,10 +499,10 @@ const Dashboard = ({navigation}) => {
             <Animated.View
               style={[
                 styles.filterBar,
-                {transform: [{translateY: filterTranslateY}]},
+                { transform: [{ translateY: filterTranslateY }] },
               ]}>
               <Animated.View
-                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
+                style={[styles.animatedHeaderImage, { height: imageHeight }]}>
                 <ImageBackground
                   source={{
                     uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
@@ -496,7 +510,7 @@ const Dashboard = ({navigation}) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{opacity: 0.6}}>
+                  imageStyle={{ opacity: 0.6 }}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -524,7 +538,7 @@ const Dashboard = ({navigation}) => {
               </Animated.View>
             </Animated.View>
 
-            <View style={{flex: 1, overflow: 'hidden'}}>
+            <View style={{ flex: 1, overflow: 'hidden' }}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -565,7 +579,7 @@ const Dashboard = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.background_light},
+  container: { flex: 1, backgroundColor: Colors.background_light },
   header: {
     // height: 60 - 10,
     position: 'absolute',
@@ -578,7 +592,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     zIndex: 99999,
@@ -598,8 +612,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#003c04',
     zIndex: 9999,
   },
-  imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
-  overlay: {...StyleSheet.absoluteFillObject},
+  imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
+  overlay: { ...StyleSheet.absoluteFillObject },
   bottomContent: {
     paddingBottom: 10,
     paddingTop: 15,

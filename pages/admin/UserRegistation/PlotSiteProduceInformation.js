@@ -239,9 +239,9 @@ const PlotSiteProduceInformation = () => {
   //GQR-65
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
-    // const { latitude, longitude } = coords;
-    const { latitude, longitude } = await getHighAccuracyLocation();
-    
+    const { latitude, longitude } = coords;
+    // const { latitude, longitude } = await getHighAccuracyLocation();
+
     let groupedData;
     var terraintypeArray = [];
     var landTypeArray = [];
@@ -696,7 +696,7 @@ const PlotSiteProduceInformation = () => {
     setproduceVarietyData(produceVarietyArray);
   };
   const handlecycleStart = async item => {
-    var prodctionSeasionArray=[];
+    var prodctionSeasionArray = [];
     const seasonData = await axiosGet(
       ROUTES.GET.PRODUCE_SEASON({
         from_date: effective_dates(item),
@@ -719,9 +719,11 @@ const PlotSiteProduceInformation = () => {
       setprodctionSeasionData(prodctionSeasionArray);
     }
     const cycleStarts = effective_dates(item);
-    setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts,     prodctionSeasion: "",
+    setstoreProduceInfo({
+      ...storeProduceInfo, cycleStarts: cycleStarts, prodctionSeasion: "",
       prodctionSeasionSdId: "",
-      prodctionSeasionValue: "", });
+      prodctionSeasionValue: "",
+    });
   };
   const handlecycleEnd = async item => {
     const cycleEnds = effective_dates(item);
@@ -1038,7 +1040,7 @@ const PlotSiteProduceInformation = () => {
   const handleCurrentLatLong = async index => {
     const values = [...location];
     // const { latitude, longitude } = coords;
-        const { latitude, longitude } = await getHighAccuracyLocation();
+    const { latitude, longitude } = await getHighAccuracyLocation();
     if (longitude != '' && latitude != '') {
       values[index] = { latitude: latitude, longitude: longitude };
       setLocation(values);
@@ -1076,8 +1078,8 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const handleCurrentLatLongIOT = async () => {
-    // const { latitude, longitude } = coords || {};
-        const { latitude, longitude } = await getHighAccuracyLocation();
+    const { latitude, longitude } = coords || {};
+    // const { latitude, longitude } = await getHighAccuracyLocation();
     setstoreProduceInfo(prev => ({
       ...prev,
       IOTLatlat: latitude,
@@ -1129,8 +1131,8 @@ const PlotSiteProduceInformation = () => {
         Alert.alert(
           'Overlap Detected',
           'Coordinates are overlapping',
-          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          {cancelable: false},
+          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+          { cancelable: false },
         );
         return;
       }
@@ -1700,7 +1702,7 @@ const PlotSiteProduceInformation = () => {
                         onCancel={() => {
                           setOpencycleStarts(false);
                         }}
-                        // maximumDate={today}
+                      // maximumDate={today}
                       />
                     </TouchableOpacity>
                   </View>

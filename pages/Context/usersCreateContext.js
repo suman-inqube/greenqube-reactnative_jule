@@ -68,6 +68,18 @@ const UserCreateContextProvider = props => {
     longitude: '',
     accuracy: '',
     timestamp: '',
+    mocked:'',
+  });
+  const [locationSettings, setLocationSettings] = useState({
+    enableHighAccuracy: true,
+    accuracy: { android: 'high', ios: 'best' },
+    distanceFilter: 5,
+    interval: 3000,
+    fastestInterval: 1000,
+    timeout: 20000,
+    maximumAge: 0,
+    forceRequestLocation: true,
+    showLocationDialog: true,
   });
   const watchIdRef = useRef(null);
   const requestPermission = async () => {
@@ -103,92 +115,6 @@ const UserCreateContextProvider = props => {
       return false;
     }
   };
-  //-------- WATCH POSITION for indoor (Reusable Function) ----------//
-  // const startWatchingLocation = async () => {
-  //   const hasPermission = await requestPermission();
-  //   if (!hasPermission) {
-  //     Alert.alert('Permission Required', 'Location permission not granted.');
-  //     return;
-  //   }
-
-  //   // 🚫 STRICT - REQUIRES GPS TO BE ENABLED
-  //   const gpsEnabled = await ensureGpsEnabled();
-  //   if (!gpsEnabled) {
-  //     Alert.alert('Enable GPS', 'Please enable GPS to use location services.', [
-  //       {
-  //         text: 'Enable',
-  //         onPress: async () => {
-  //           try {
-  //             await promptForEnableLocationIfNeeded();
-  //           } catch (err) {
-  //             console.warn('GPS enable request failed', err);
-  //           }
-  //         },
-  //       },
-  //       {text: 'Cancel', style: 'cancel'},
-  //     ]);
-  //     return;
-  //   }
-
-  //   if (watchIdRef.current) {
-  //     Geolocation.clearWatch(watchIdRef.current);
-  //   }
-
-  //   watchIdRef.current = Geolocation.watchPosition(
-  //     pos => {
-  //       console.log('Location received:', pos);
-  //       if (!pos || !pos.coords) {
-  //         // 🚫 AGGRESSIVE - SHOWS ALERTS FOR EVERY ERROR
-  //         Alert.alert('Unable to fetch location. Please try again.');
-  //         return;
-  //       }
-
-  //       setCoords(prev => {
-  //         if (
-  //           prev.latitude === pos.coords.latitude &&
-  //           prev.longitude === pos.coords.longitude &&
-  //           prev.accuracy === pos.coords.accuracy
-  //         ) {
-  //           return prev;
-  //         }
-  //         return {
-  //           latitude: pos.coords.latitude,
-  //           longitude: pos.coords.longitude,
-  //           accuracy: pos.coords.accuracy,
-  //           timestamp: pos.timestamp,
-  //         };
-  //       });
-  //     },
-  //     err => {
-  //       console.error('Location error:', err);
-  //       // 🚫 AGGRESSIVE - SHOWS ALERTS FOR EVERY ERROR
-  //       if (err.code === 1) {
-  //         Alert.alert('Permission Denied', 'Location permission denied.');
-  //       } else if (err.code === 2) {
-  //         Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
-  //       } else if (err.code === 3) {
-  //         Alert.alert('Timeout', 'Location request timed out.');
-  //       } else {
-  //         Alert.alert('Unable to get location. Please try again.');
-  //       }
-  //     },
-  //     {
-  //       enableHighAccuracy: false, // Still better for indoor
-  //       distanceFilter: 10,
-  //       interval: 10000,
-  //       fastestInterval: 5000,
-  //       timeout: 15000,
-  //       maximumAge: 30000,
-  //     },
-  //   );
-  // };
-
-  // --------- WATCH POSITION (Reusable Function) ----------
-  // Geolocation.setRNConfiguration({
-  //   skipPermissionRequests: false,
-  //   authorizationLevel: 'whenInUse',
-  //   locationProvider: 'auto', // or 'playServices' for Android
-  // });
   const startWatchingLocation = async () => {
     const hasPermission = await requestPermission();
     if (!hasPermission) {
@@ -238,6 +164,7 @@ const UserCreateContextProvider = props => {
             longitude: pos.coords.longitude,
             accuracy: pos.coords.accuracy,
             timestamp: pos.timestamp,
+            mocked:pos.mocked,
           };
         });
       },
@@ -253,17 +180,7 @@ const UserCreateContextProvider = props => {
           Alert.alert('Unable to get location. Please try again.');
         }
       },
-      {
-        enableHighAccuracy: true,       // Forces GPS (fine location)
-        accuracy: { android: 'high', ios: 'best' }, // iOS + Android hint
-        distanceFilter: 0,              // 0 = every movement
-        interval: 3000,                 // request every 3 sec
-        fastestInterval: 1000,          // deliver updates faster if available
-        timeout: 20000,                 // wait up to 20 sec for GPS fix
-        maximumAge: 0,                  // don’t reuse cached positions
-        forceRequestLocation: true,     // (Android) always request fresh location
-        showLocationDialog: true,       // (Android) automatically prompt for GPS
-      },
+      locationSettings
     );
 
     // Fallback if no location update within 15 sec
@@ -286,6 +203,12 @@ const UserCreateContextProvider = props => {
     startWatchingLocation();
     return () => stopWatchingLocation();
   }, []);
+  useEffect(() => {
+    if (watchIdRef.current) {
+      stopWatchingLocation();
+      startWatchingLocation();
+    }
+  }, [locationSettings]);
 
   // ---------- API: Get Farmers ----------
   const AllFarmerList = async () => {
@@ -440,6 +363,7 @@ const UserCreateContextProvider = props => {
       setCoords,
       startWatchingLocation,
       stopWatchingLocation,
+      setLocationSettings,
       t,
       AlertMesg,
       onBackPress,
@@ -484,6 +408,7 @@ const UserCreateContextProvider = props => {
       topBanner,
       plotAll,
       navigationBarHeight,
+      locationSettings,
     ],
   );
 

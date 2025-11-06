@@ -11,14 +11,14 @@ import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import Marker, { Position } from 'react-native-image-marker';
 import { launchCamera } from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
-import useLocationTracking from '../../Common/useLocationTracking';
+// import useLocationTracking from '../../Common/useLocationTracking';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import { captureRef } from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
 const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
-  const location = useLocationTracking();
+  // const location = useLocationTracking();
   const {
     loginUser_data,
     t,
@@ -31,7 +31,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     CustomHeader,
     ButtonFormBottom,
     logoImage,
-    topBanner,
+    topBanner,coords
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id } = loginUser_data;
 
@@ -204,12 +204,12 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         }
 
         // ✅ Handle location safely
-        let { latitude, longitude } = location || {};
-        if (!latitude || !longitude) {
-          const loc = await getHighAccuracyLocation();
-          latitude = loc?.latitude;
-          longitude = loc?.longitude;
-        }
+        let { latitude, longitude } = coords || {};
+        // if (!latitude || !longitude) {
+        //   const loc = await getHighAccuracyLocation();
+        //   latitude = loc?.latitude;
+        //   longitude = loc?.longitude;
+        // }
 
         const timestamp = Date.now();
         const formattedTime = new Intl.DateTimeFormat('en-US', {

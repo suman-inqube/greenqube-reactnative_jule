@@ -35,7 +35,7 @@ const Stack = createNativeStackNavigator();
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 const App = withSecurityCheck(() => {
   const routeNameRef = useRef();
-  const {loginUser_data} = useContext(userCreateContext) || {};
+  const {loginUser_data,coords} = useContext(userCreateContext) || {};
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
 
 

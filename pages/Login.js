@@ -11,6 +11,9 @@ import {
   Button,
   StatusBar,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useEffect, useState, useContext} from 'react';
 import Logo from './Common/Logo';
@@ -48,7 +51,7 @@ import {
   StackActions,
 } from '@react-navigation/native';
 import {Permission, PERMISSIONS_TYPE} from './AppPermission/AppPermission';
-// import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
+import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 // import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
 import {userCreateContext} from './Context/usersCreateContext';
@@ -352,11 +355,11 @@ const Login = ({route}) => {
               }
             }
           }
-        }else{
-          console.log(userIno)
+        } else {
+          console.log(userIno);
         }
       } catch (error) {
-         let errorMessage = 'Invalid login details. Please try again.';
+        let errorMessage = 'Invalid login details. Please try again.';
         Toast.show({
           // text: ${error?.data?.error?.errorMessage},
           text: errorMessage,
@@ -493,158 +496,177 @@ const Login = ({route}) => {
   return (
     <Root>
       <Container>
-        {/* <ForegroundLocationService /> */}
+         <ForegroundLocationService /> 
         <StatusBar barStyle="light-content" backgroundColor="#023316" />
-        <ScrollView>
-          <View style={styles.mainContainer}>
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../pages/Common/images/greenqube_logo.png')}
-                style={styles.logo}
-              />
-            </View>
-            <View style={styles.inputContainerView}>
-              {isLoading && (
-                <View style={styles.loadingScreen}>
-                  <LoadingScreen />
-                </View>
-              )}
-              <View style={styles.signInView}>
-                <Text style={styles.signInText}>{t('sign_in')}</Text>
-                <Text style={styles.signInSubText}>
-                  {t('Hello there, Please Sign In to Continue.')}
-                </Text>
-              </View>
-
-              <View style={styles.phoneNoView}>
-                <MaterialIcons
-                  name="phone"
-                  size={20}
-                  style={styles.icon}
-                  color="#767676"
-                />
-                <TextInput
-                  style={styles.simpleInputTextStyle}
-                  placeholderTextColor={'#8c8c8c'}
-                  placeholder={t('enter_your_registered_Phone_no')}
-                  keyboardType="numeric"
-                  value={storeLoginUser.phone}
-                  onChangeText={phone =>
-                    setStoreLoginUser({...storeLoginUser, phone: phone})
-                  }
-                  maxLength={contact_no_digits}
-                />
-              </View>
-
-              <View style={styles.passwordView}>
-                <MaterialIcons
-                  name="lock"
-                  size={18}
-                  color="#767676"
-                  style={styles.icon}
-                />
-                <TextInput
-                  style={styles.simpleInputTextStyle}
-                  placeholderTextColor={'#8c8c8c'}
-                  placeholder={t('enter_your_Password')}
-                  secureTextEntry={!showPassword}
-                  onChangeText={password =>
-                    setStoreLoginUser({...storeLoginUser, password: password})
-                  }
-                  value={storeLoginUser.password}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}>
-                  <MaterialIcons
-                    name={showPassword ? 'visibility' : 'visibility-off'}
-                    size={22}
-                    color="#8c8c8c"
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView
+              contentContainerStyle={styles.scrollContainer}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled">
+              <View style={styles.mainContainer}>
+                <View style={styles.logoContainer}>
+                  <Image
+                    source={require('../pages/Common/images/greenqube_logo.png')}
+                    style={styles.logo}
                   />
-                </TouchableOpacity>
-              </View>
-
-              <View style={{marginTop: 20}}>
-                <DropdownForm11
-                  data={roleData}
-                  label={t('select_role')}
-                  searchPlaceholder="Search by role"
-                  onChange={role =>
-                    setStoreLoginUser({...storeLoginUser, role: role.value})
-                  }
-                  val={storeLoginUser.role}
-                  dropdownStyle={{
-                    width: '100%',
-                    borderWidth: 0.5,
-                    backgroundColor: '#f4f4f4',
-                  }}
-                />
-              </View>
-
-              <View style={{marginTop: 10}}>
-                <CompanyDropdown
-                  data={companyData}
-                  label={t('select_company')}
-                  onChange={company => onChangeConpany(company)}
-                  val={companyLanguage.company_id}
-                  diffLabel={companyLanguage.company_name}
-                  selectedValue={storeLoginUser.company}
-                  dropdownStyle={{
-                    width: '100%',
-                    borderWidth: 0.5,
-                    backgroundColor: '#f4f4f4',
-                  }}
-                />
-              </View>
-
-              <View style={styles.checkBoxAndForgotPass}>
-                <View style={styles.rememberMeContainer}>
-                  <TouchableOpacity
-                    style={[styles.checkbox, checked && styles.ifCheckedBox]}
-                    onPress={() => setChecked(!checked)}>
-                    {checked && (
-                      <MaterialIcons
-                        name="check"
-                        size={16}
-                        color="white"
-                        style={{position: 'absolute'}}
-                      />
-                    )}
-                  </TouchableOpacity>
-                  <Text style={styles.rememberMe}>{t('Remember_me')}</Text>
                 </View>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('ForgotPassword')}>
-                  <Text style={styles.forgotPassword}>
-                    {t('forgot_Password')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                <View style={styles.inputContainerView}>
+                  {isLoading && (
+                    <View style={styles.loadingScreen}>
+                      <LoadingScreen />
+                    </View>
+                  )}
+                  <View style={styles.signInView}>
+                    <Text style={styles.signInText}>{t('sign_in')}</Text>
+                    <Text style={styles.signInSubText}>
+                      {t('Hello there, Please Sign In to Continue.')}
+                    </Text>
+                  </View>
 
-              <TouchableOpacity
-                style={[
-                  styles.signInButton,
-                  storeLoginUser.phone && storeLoginUser.password
-                    ? styles.signInButtonActive
-                    : styles.signInButtonInactive,
-                ]}
-                onPress={saveHandle}
-                disabled={!storeLoginUser.phone || !storeLoginUser.password}>
-                <Text style={styles.signInBtnText}>{t('sign_in')}</Text>
-              </TouchableOpacity>
+                  <View style={styles.phoneNoView}>
+                    <MaterialIcons
+                      name="phone"
+                      size={20}
+                      style={styles.icon}
+                      color="#767676"
+                    />
+                    <TextInput
+                      style={styles.simpleInputTextStyle}
+                      placeholderTextColor={'#8c8c8c'}
+                      placeholder={t('enter_your_registered_Phone_no')}
+                      keyboardType="numeric"
+                      value={storeLoginUser.phone}
+                      onChangeText={phone =>
+                        setStoreLoginUser({...storeLoginUser, phone: phone})
+                      }
+                      maxLength={contact_no_digits}
+                    />
+                  </View>
 
-              <View style={styles.signUpContainer}>
-                <Text style={styles.dontHaveAccount}>
-                  {t('Dont have an account?')}
-                </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                  <Text style={styles.signUpText}>
-                    {t('Create')} {t('account')}
-                  </Text>
-                </TouchableOpacity>
+                  <View style={styles.passwordView}>
+                    <MaterialIcons
+                      name="lock"
+                      size={18}
+                      color="#767676"
+                      style={styles.icon}
+                    />
+                    <TextInput
+                      style={styles.simpleInputTextStyle}
+                      placeholderTextColor={'#8c8c8c'}
+                      placeholder={t('enter_your_Password')}
+                      secureTextEntry={!showPassword}
+                      onChangeText={password =>
+                        setStoreLoginUser({
+                          ...storeLoginUser,
+                          password: password,
+                        })
+                      }
+                      value={storeLoginUser.password}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}>
+                      <MaterialIcons
+                        name={showPassword ? 'visibility' : 'visibility-off'}
+                        size={22}
+                        color="#8c8c8c"
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={{marginTop: 20}}>
+                    <DropdownForm11
+                      data={roleData}
+                      label={t('select_role')}
+                      searchPlaceholder="Search by role"
+                      onChange={role =>
+                        setStoreLoginUser({...storeLoginUser, role: role.value})
+                      }
+                      val={storeLoginUser.role}
+                      dropdownStyle={{
+                        width: '100%',
+                        borderWidth: 0.5,
+                        backgroundColor: '#f4f4f4',
+                      }}
+                    />
+                  </View>
+
+                  <View style={{marginTop: 10}}>
+                    <CompanyDropdown
+                      data={companyData}
+                      label={t('select_company')}
+                      onChange={company => onChangeConpany(company)}
+                      val={companyLanguage.company_id}
+                      diffLabel={companyLanguage.company_name}
+                      selectedValue={storeLoginUser.company}
+                      dropdownStyle={{
+                        width: '100%',
+                        borderWidth: 0.5,
+                        backgroundColor: '#f4f4f4',
+                      }}
+                    />
+                  </View>
+
+                  <View style={styles.checkBoxAndForgotPass}>
+                    <View style={styles.rememberMeContainer}>
+                      <TouchableOpacity
+                        style={[
+                          styles.checkbox,
+                          checked && styles.ifCheckedBox,
+                        ]}
+                        onPress={() => setChecked(!checked)}>
+                        {checked && (
+                          <MaterialIcons
+                            name="check"
+                            size={16}
+                            color="white"
+                            style={{position: 'absolute'}}
+                          />
+                        )}
+                      </TouchableOpacity>
+                      <Text style={styles.rememberMe}>{t('Remember_me')}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('ForgotPassword')}>
+                      <Text style={styles.forgotPassword}>
+                        {t('forgot_Password')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.signInButton,
+                      storeLoginUser.phone && storeLoginUser.password
+                        ? styles.signInButtonActive
+                        : styles.signInButtonInactive,
+                    ]}
+                    onPress={saveHandle}
+                    disabled={
+                      !storeLoginUser.phone || !storeLoginUser.password
+                    }>
+                    <Text style={styles.signInBtnText}>{t('sign_in')}</Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.signUpContainer}>
+                    <Text style={styles.dontHaveAccount}>
+                      {t('Dont have an account?')}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('Signup')}>
+                      <Text style={styles.signUpText}>
+                        {t('Create')} {t('account')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
-        </ScrollView>
+            </ScrollView>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Container>
     </Root>
   );
@@ -653,6 +675,13 @@ const Login = ({route}) => {
 export default Login;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+
   mainContainer: {
     flex: 1,
     paddingHorizontal: 20,

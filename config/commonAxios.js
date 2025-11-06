@@ -5,13 +5,14 @@ import {NativeModules} from 'react-native';
  
 // const secretKey = 'greenQube_96740_64428'; // Must match encryption key
 let instance;
-
+import { DEV_URL, PROD_URL, APP_ENV } from '@env';
+const API_URL = APP_ENV === 'dev' ? DEV_URL : PROD_URL;
 const commonAxios = async () => {
 const {ConfigModule} = NativeModules;
 
   try {
-    // const baseURL = "http://134.209.155.11:4003/";
-    const baseURL = "https://mygreenqube.com:4003/";
+    const baseURL = API_URL;
+    // const baseURL = "https://mygreenqube.com:4003/";
      
      const encKey = "greenQube_96740_64428";
 
