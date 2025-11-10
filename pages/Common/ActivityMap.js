@@ -22,6 +22,8 @@ const ActivityMap = ({
   outofRange,
   setOutOfRange,
   pipeLatLong,
+  replaceImgKey,
+  TakePhotoReplaceImage
 }) => {
   const mapRef = useRef(null);
   const animatedHeading = useRef(new Animated.Value(0)).current;
@@ -157,7 +159,7 @@ const ActivityMap = ({
         {outofRange && (
           <TouchableOpacity
             style={styles.captureButton}
-            onPress={() => TakePhoto()}
+            onPress={() => TakePhoto(replaceImgKey)}
           >
             <Text style={styles.captureIcon}>📷</Text>
           </TouchableOpacity>

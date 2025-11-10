@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Alert, BackHandler, AppState, View, Text, Linking } from 'react-native';
 import JailMonkey from 'jail-monkey';
 import VersionCheck from 'react-native-version-check';
+import { userCreateContext } from '../Context/usersCreateContext';
 const withSecurityCheck = (WrappedComponent) => {
   return (props) => {
+     const {coords} = useContext(userCreateContext) || {};
     const [isSecure, setIsSecure] = useState(true);
     const [checked, setChecked] = useState(false);
     useEffect(() => {
@@ -47,6 +49,10 @@ const withSecurityCheck = (WrappedComponent) => {
               );
               return;
             }
+          }
+          if(coords.mocked==true){
+             setIsSecure(false);
+             return;
           }
           setIsSecure(true);
         } catch (error) {

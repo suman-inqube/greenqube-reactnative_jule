@@ -184,7 +184,6 @@ export const axiosPost = async (
       signal: controller.signal,
     });
   } catch (error) {
-    Alert.alert(error)
     throw handleError(error);
   }
 };

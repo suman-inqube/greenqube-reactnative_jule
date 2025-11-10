@@ -33,7 +33,7 @@ export const CrashlyticsRecordError = async (error, screen_name = "", api = "") 
     },
     data: data
   };
-
+console.error(data)
   try {
     const response = await axios.request(config);
     console.log("response", response)

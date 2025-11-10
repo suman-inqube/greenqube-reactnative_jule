@@ -375,7 +375,7 @@ export default function Map({
           // }}
           onPress={handleMapPressGetDistance}
           showsUserLocation={true}
-          followsUserLocation={true}
+          // followsUserLocation={true}
           showsCompass={true}
           compassOffset={{x: 20, y: 20}}
           minZoomLevel={15}

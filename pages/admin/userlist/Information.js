@@ -500,23 +500,23 @@ const Information = ({sendDataToParent, farmerID}) => {
           file_delete_ids: photoDeletedValue.toString(),
         });
         const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
-          axiosPut(
-            ROUTES.PUT.USER_PROFILE_UPDATE({
-              user_id: farmeruserID,
-            }),
-            formData,
-            token,
-            '',
-            {information: `${dbname},${lan_id},${user_id}`},
-          ),
-          // UserInformationUpdate(
-          //   dbname,
-          //   lan_id,
-          //   user_id,
-          //   token,
-          //   farmeruserID,
+          // axiosPut(
+          //   ROUTES.PUT.USER_PROFILE_UPDATE({
+          //     user_id: farmeruserID,
+          //   }),
           //   formData,
+          //   token,
+          //   '',
+          //   {information: `${dbname},${lan_id},${user_id}`},
           // ),
+          UserInformationUpdate(
+            dbname,
+            lan_id,
+            user_id,
+            token,
+            farmeruserID,
+            formData,
+          ),
 
           onlyUpdateIdAddrFile(
             dbname,

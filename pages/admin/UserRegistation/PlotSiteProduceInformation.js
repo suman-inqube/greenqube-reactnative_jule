@@ -240,6 +240,7 @@ const PlotSiteProduceInformation = () => {
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
     const { latitude, longitude } = coords;
+    console.error(coords)
     // const { latitude, longitude } = await getHighAccuracyLocation();
 
     let groupedData;
