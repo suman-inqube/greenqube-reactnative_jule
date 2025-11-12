@@ -71,7 +71,7 @@ const CompanyDropdown = ({
   };
 
   const filteredData = useMemo(() => {
-    if (!searchText.trim()) return [];
+    // if (!searchText.trim()) return [];
     return data.filter(item =>
       item.label.toLowerCase().includes(searchText.toLowerCase()),
     );
@@ -126,7 +126,17 @@ const CompanyDropdown = ({
             dropdownListStyle,
             {width, height},
           ]}
-          containerStyle={[styles.containerStyle, modalContainerStyle]}
+          containerStyle={[
+            styles.containerStyle,
+            modalContainerStyle,
+            {
+              justifyContent: 'flex-start', // Align content to the top
+              alignItems: 'center', // Optional: center horizontally
+              // Add top padding (status bar / header spacing)
+              marginTop: 20,
+              marginBottom: 100,
+            },
+          ]}
           placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
           selectedTextStyle={[styles.selectedTextStyle, selectedTextStyle]}
           inputSearchStyle={[styles.inputSearchStyle, inputSearchStyle]}

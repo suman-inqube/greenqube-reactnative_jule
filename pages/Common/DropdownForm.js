@@ -38,7 +38,7 @@ const DropdownForm = ({
       {/* Dropdown */}
       <View style={styles.container}>
         <Dropdown
-          mode="default"
+          mode="modal"
           style={styles.dropdown}
           containerStyle={styles.dropdownContainerStyle}
           placeholderStyle={styles.placeholderStyle}

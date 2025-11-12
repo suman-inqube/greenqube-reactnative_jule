@@ -1,4 +1,4 @@
-import React, {useState, memo, useRef, useMemo} from 'react';
+import React, { useState, memo, useRef, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,7 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import { Dropdown } from 'react-native-element-dropdown';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const DropdownForm = ({
@@ -99,10 +99,10 @@ const DropdownForm = ({
       <View
         style={[
           styles.itemContainer,
-          selected && {backgroundColor: '#13743e'},
+          selected && { backgroundColor: '#13743e' },
         ]}>
         <View style={styles.itemTextWrapper}>
-          <Text style={[styles.itemText, selected && {color: 'white'}]}>
+          <Text style={[styles.itemText, selected && { color: 'white' }]}>
             {item.label}
           </Text>
         </View>
@@ -123,7 +123,7 @@ const DropdownForm = ({
         </Text>
         <View style={styles.container}>
           <Dropdown
-            mode="default"
+            mode="modal"
             style={[styles.dropdown, dropdownStyle]}
             placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
             selectedTextStyle={[styles.selectedTextStyle, selectedTextStyle]}
@@ -146,7 +146,7 @@ const DropdownForm = ({
             dropdownStyle={[
               styles.dropdownStyle,
               dropdownListStyle,
-              {width, height},
+              { width, height },
             ]}
             containerStyle={[styles.containerStyle, modalContainerStyle]}
             // activeColor="#345f44"
