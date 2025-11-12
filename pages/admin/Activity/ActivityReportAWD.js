@@ -72,6 +72,7 @@ import { ROUTES } from '../../utils/Routes';
 import { captureRef } from 'react-native-view-shot';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
+import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 const ActivityReportAWD = ({ navigation }) => {
   //GQR-67
   const {
@@ -1353,6 +1354,7 @@ const ActivityReportAWD = ({ navigation }) => {
 
   const handleActivityType = useCallback(
     async item => {
+      console.error(item)
       try {
         let dataArray = [];
         var response;
@@ -1375,6 +1377,7 @@ const ActivityReportAWD = ({ navigation }) => {
           //   CropName,
           //   item.value,
           // );
+          console.log(JSON.stringify(response.data))
           if (response?.status == 200) {
             await setItem(
               'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1945,7 +1948,7 @@ const ActivityReportAWD = ({ navigation }) => {
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
-          <>
+          <SecurityWrapper coords={coords}>
             <View style={styles.container}>
               {modalVisibleMap && (
                 <ActivityMap
@@ -2372,7 +2375,7 @@ const ActivityReportAWD = ({ navigation }) => {
                 loading={isLoading}
               />
             </View>
-          </>
+          </SecurityWrapper>
         </Root>
       </MyErrorBoundary>
     </FarmerDrawerScreenWrapper1>

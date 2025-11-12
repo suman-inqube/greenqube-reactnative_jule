@@ -67,6 +67,7 @@ import { isPointInPolygon, getDistance } from 'geolib';
 import { captureRef } from 'react-native-view-shot';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
+import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 const FarmerActivityReportAWD = ({ navigation }) => {
   const today = new Date();
   const tenDaysAgo = new Date();
@@ -1535,7 +1536,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
-          <>
+           <SecurityWrapper coords={coords}>
             <View style={styles.container}>
               {modalVisibleMap && (
                 <ActivityMap
@@ -1988,7 +1989,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               </View>
               <Root></Root>
             </View>
-          </>
+          </SecurityWrapper>
         </Root>
       </MyErrorBoundary>
     </FarmerDrawerScreenWrapper1>

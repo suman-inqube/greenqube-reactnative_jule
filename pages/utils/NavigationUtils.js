@@ -38,3 +38,11 @@ export async function push(routeName, params) {
 export async function prepareNavigation() {
     navigationRef.isReady()
 }
+export function resetTo(name, params = {}) {
+  if (navigationRef.isReady()) {
+    navigationRef.reset({
+      index: 0,
+      routes: [{name, params}],
+    });
+  }
+}

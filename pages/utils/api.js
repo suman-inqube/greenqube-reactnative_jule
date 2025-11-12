@@ -5,6 +5,21 @@ import qs from 'qs';
 import CryptoJS from 'crypto-js';
 import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import { AlertMesg } from '../Common/ToastAlert';
+import { getItem, removeItem } from '../../config/getDataFromStorage';
+import { resetTo } from './NavigationUtils';
+const STORAGE_KEYS = [
+  'logoImageData',
+  'loginUser_data',
+  'profileImgData',
+  'userNameData',
+  'userType',
+  'bottomBannerData',
+  'topBannerData',
+  'currency',
+  'fcmToken',
+  'company_website',
+];
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 3000;
 const instance = axios.create({
   baseURL: 'https://mygreenqube.com:4003/',
@@ -114,18 +129,33 @@ const isInternetAvailable = async () => {
   return true;
 };
 
-const handleError = error => {
+const handleError = async (error) => {
   if (axios.isCancel(error) || error.name === 'AbortError') {
     return { status: 499, data: { message: 'Request cancelled' } };
   }
   if (error.code === 'ECONNABORTED') {
-     Toast.show({
+    Toast.show({
       time: 2,
       text: `The request took too long. Please try again.`,
       ...AlertMesg[0],
     });
     // Alert.alert('Timeout', 'The request took too long. Please try again.');
     return { status: 408, data: { message: 'Request timed out' } };
+  }
+  if (error?.response?.status === 401) {
+    Toast.show({
+      time: 2,
+      text: "Your service token got expire please login again.",
+      ...AlertMesg[0],
+    });
+    try {
+      await delay(3000);
+      resetTo('Login', { locale: getItem('loginUser_data').lan_id ? getItem('loginUser_data').lan_id?.toString() : 1 });
+      await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
+    } catch (error) {
+      console.error('Error during logout:', error);
+      Alert.alert('Error occurred during logout');
+    }
   }
   if (error.response) {
     return {
@@ -141,11 +171,11 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
-  console.log("url",url)
+  console.log("url", url)
   if (!(await isInternetAvailable()))
     return Promise.reject({ status: 0, data: { message: 'No internet' } });
   const controller = abortController || new AbortController();
-  console.log(url,extraHeaders)
+  console.log(url, extraHeaders)
   try {
     return await instance.get(url, {
       headers: { ...(token && { Authorization: token }), ...extraHeaders },

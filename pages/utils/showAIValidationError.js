@@ -30,7 +30,7 @@ export const showAIValidationError = (response) => {
 
   Toast.show({
     text: toastMessage,
-    timing: 14000,
+    // timing: 14000,
     ...AlertMesg[0],
   });
 };
