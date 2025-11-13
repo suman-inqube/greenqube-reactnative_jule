@@ -73,6 +73,7 @@ import { captureRef } from 'react-native-view-shot';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
+import PipeDetailsCard from '../../../Components/PipeDetailsCard';
 const ActivityReportAWD = ({ navigation }) => {
   //GQR-67
   const {
@@ -152,6 +153,10 @@ const ActivityReportAWD = ({ navigation }) => {
     secondItemRecord: '',
     thirdItemRecord: '',
   });
+  const [replaceImgKey, setReplaceImgKey] = useState({
+    arrayPosition: "",
+    imgPosition: "",
+  })
   const [saveData, setSaveData] = useState({
     act_title: '',
     type: 'user_activity',
@@ -314,7 +319,6 @@ const ActivityReportAWD = ({ navigation }) => {
             'activityType' + currentfarmerId,
           );
         }
-        console.log('activityType_res', activityType_res);
         if (activityType_res?.status == 200) {
           const dataArray = activityType_res?.data?.data?.rows.map(data => ({
             value: data.fid,
@@ -978,18 +982,10 @@ const ActivityReportAWD = ({ navigation }) => {
     }
   };
   const validateForm = () => {
-    if (!saveData.user_id) {
-      Toast.show({
-        time: 2,
-        text: `${t('please_enter_farmer_name')}`,
-        ...AlertMesg[0],
-      });
-      return false;
-    }
     if (!saveData.plot_id) {
       Toast.show({
         time: 2,
-        text: `${t('pl_en_plot_name_first')}`,
+        text: t('pl_en_plot_name_first'),
         ...AlertMesg[0],
       });
       return false;
@@ -997,7 +993,7 @@ const ActivityReportAWD = ({ navigation }) => {
     if (!saveData.cycle_start_date) {
       Toast.show({
         time: 2,
-        text: `${t('please_select_sowing_date_first')}`,
+        text: t('please_select_sowing_date_first'),
         ...AlertMesg[0],
       });
       return false;
@@ -1005,17 +1001,19 @@ const ActivityReportAWD = ({ navigation }) => {
     if (!saveData.growth_stage) {
       Toast.show({
         time: 2,
-        text: t('please_select_cultiveting_season_first'),
+        text: t('please_select_growth_stage'),
         ...AlertMesg[0],
       });
       return false;
     }
-    // if (isButtonDisabled == false) {
-    //     Toast.show({
-    //         time: 2, text: 'Please set cycle start date', ...AlertMesg[0]
-    //     })
-    //     return false;
-    // }
+    if (isButtonDisabled == false) {
+      Toast.show({
+        time: 2,
+        text: t('please_select_sowing_date_first'),
+        ...AlertMesg[0],
+      });
+      return false;
+    }
     if (saveData.act_pattern === 'schedule') {
       if (!saveData.act_ref_type) {
         Toast.show({
@@ -1028,12 +1026,13 @@ const ActivityReportAWD = ({ navigation }) => {
       if (!saveData.act_ref) {
         Toast.show({
           time: 2,
-          text: `${t('pls_enter_activity_date')}`,
+          text: t('Please_enter_activity'),
           ...AlertMesg[0],
         });
         return false;
       }
     }
+
     if (saveData.field_type == 'add') {
       if (pipeDetails.length == 0) {
         Toast.show({
@@ -1076,7 +1075,7 @@ const ActivityReportAWD = ({ navigation }) => {
     if (!saveData.latitude) {
       Toast.show({
         time: 2,
-        text: t('gps alert dialog message'),
+        text: t('gpsalertdialogmessage'),
         ...AlertMesg[0],
       });
       return false;
@@ -1085,273 +1084,219 @@ const ActivityReportAWD = ({ navigation }) => {
       Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
       return false;
     }
+
     if (!isGeoFence) {
       Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
-      // Alert.alert('You are out of range');
+
       return;
     }
     if (!outofRangeCheck) {
       Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
-      // Alert.alert('You are out of range');
+
       return;
     }
-
     return true;
   };
   const handleSave = async () => {
-    Keyboard.dismiss();
-    if (validateForm()) {
-      setIsLoading(true);
-      const formData = new FormData();
-      // formData.append("act_title", "");
-      // myphotoAll.forEach((photo) => {
-      //     formData.append("photo", photo);
-      // });
-
-      formData.append('type', 'carbon_activity');
-      if (soundRecordFirstItem.result != '') {
-        formData.append('audio', {
-          name: 'firstItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
-        });
-      }
-      if (soundRecordSecoundItem.result != '') {
-        formData.append('audio', {
-          name: 'secoundItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
-        });
-      }
-      if (soundRecordThirdItem.result != '') {
-        formData.append('audio', {
-          name: 'thirdItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
-        });
-      }
-      // formData.append("latitude", saveData.latitude);
-      // formData.append("longitude", saveData.longitude);
-      formData.append('user_id', saveData.user_id);
-      formData.append('plot_id', saveData.plot_id);
-      formData.append('crop_name', saveData.crop_name);
-      formData.append('crop_season', saveData.crop_season);
-      formData.append('act_master_id', saveData.act_master_id);
-      // formData.append('cu_rel_fid', saveData.cu_rel_id);
-      formData.append('crop_variety', saveData.crop_variety);
-      formData.append('cycle_start_date', saveData.cycle_start_date);
-      formData.append('growth_stage', saveData.growth_stage);
-      formData.append('act_perform_date', saveData.act_perform_date);
-      // formData.append("act_pattern", "carbon");
-      formData.append('act_pattern', saveData.act_pattern);
-      formData.append('season_date_fid', nameVarityStartEnd.productionSeasonSdId);
-
-      if (saveData.act_pattern === 'schedule') {
-        formData.append('act_ref_type', saveData.act_ref_type);
-        formData.append('act_to_date', saveData.act_to_date);
-        // formData.append("act_start_date", saveData.act_start_date);
-        formData.append('act_start_date', saveData.act_start_date);
-        formData.append('act_ref', saveData.act_ref);
-        if (saveData.field_type == 'add') {
-          const pipe_data = pipeDetails.map(_data => {
-            const { selectedImagePipe, pipe_name } = _data;
-            const { firstItemLat, firstItemLong, secondItemLat, secondItemLong } =
-              selectedImagePipe || {};
-            const pipe_lattlong = [];
-            if (firstItemLat != '') {
-              pipe_lattlong.push({
-                latitude: firstItemLat?.toString(),
-                longitude: firstItemLong?.toString() || '',
-              });
-            }
-            if (secondItemLat != '') {
-              pipe_lattlong.push({
-                latitude: secondItemLat?.toString(),
-                longitude: secondItemLong?.toString() || '',
-              });
-            }
-            return {
-              pipe_name,
-              pipe_lattlong,
-            };
-          });
-          formData.append('pipe_data', JSON.stringify(pipe_data));
-        } else {
-          const latlong = [];
-          if (selectedImagePipe?.firstItem != '') {
-            latlong.push({
-              latitude: selectedImagePipe.firstItemLat,
-              longitude: selectedImagePipe.firstItemLong,
-            });
-          }
-          if (selectedImagePipe?.secondItem != '') {
-            latlong.push({
-              latitude: selectedImagePipe.secondItemLat,
-              longitude: selectedImagePipe.secondItemLong,
-            });
-          }
-          const pipe_data = [{ pipe_id: selectPipeList.value, latlong: latlong }];
-          if (latlong.length != 0) {
-            formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
-          }
-        }
-        if (saveData.field_type == 'add') {
-          pipeDetails.map((_data, _index) => {
-            const { selectedImagePipe } = _data;
-            const { firstItem, secondItem } = selectedImagePipe || {};
-            const firstItemfileName = firstItem.split('/').pop();
-            const secondItemfileName = secondItem.split('/').pop();
-            if (firstItemfileName != '') {
-              formData.append(`pipe_image_${_index + 1}`, {
-                uri: firstItem,
-                type: 'image/jpeg',
-                name: firstItemfileName,
-              });
-            }
-            if (secondItemfileName != '') {
-              formData.append(`pipe_image_${_index + 1}`, {
-                uri: secondItem,
-                type: 'image/jpeg',
-                name: secondItemfileName,
-              });
-            }
-          });
-        } else {
-          const pipe_image = [];
-          if (selectedImagePipe?.firstItem != '') {
-            pipe_image.push({
-              uri: selectedImagePipe?.firstItem,
-              type: 'image/jpeg',
-              name: selectedImagePipe?.firstItem.split('/').pop(),
-            });
-          }
-          if (selectedImagePipe?.secondItem != '') {
-            pipe_image.push({
-              uri: selectedImagePipe.secondItem,
-              type: 'image/jpeg',
-              name: selectedImagePipe.secondItem.split('/').pop(),
-            });
-          }
-          pipe_image.map((_data, _index) => {
-            formData.append(`pipe_files[0]`, _data);
-          });
-        }
-      }
-      formData.append('act_desc', saveData.act_desc);
-      formData.append('material_used', saveData.material_used);
-      formData.append('water_used', saveData.water_used);
-      formData.append('power_used', saveData.power_used);
-      formData.append('cu_rel_fid', saveData.cu_rel_id);
-      formData.append('app_version', "104");
-
-      // Geolocation.clearWatch(watchIdSaveData);
-      var database_res;
-      if (isOnline) {
-        if (saveData.field_type == 'add') {
-          // database_res = await axiosPost(
-          //   ROUTES.POST.ADD_USER_PIPE_ACTIVITY,
-          //   formData,
-          //   token,
-          //   false,
-          //   {
-          //     information: `${dbname},${lan_id},${saveData.user_id}`,
-          //     pipe_count: pipeDetails.length,
-          //   },
-          // );
-          // console.error("saveData.field_type",database_res)
-
-          database_res = await addUserPipeActivity(
-            dbname,
-            lan_id,
-            token,
-            saveData.user_id,
-            formData,
-            pipeDetails.length,
-          );
-        } else {
-          if (coords != null) {
-            const { latitude, longitude } = coords || {};
-            var latlong;
-            if (latitude == '' && longitude == '') {
-              latlong = await getHighAccuracyLocation();
-            }
-            const lat = latitude === '' ? latlong.latitude : latitude;
-            const lon = longitude === '' ? latlong.longitude : longitude;
-            const distances = getDistance(selectPipeList.latlongs, {
-              lat,
-              lon,
-            });
-            if (distances < 10) {
-              // database_res = await axiosPost(
-              //   ROUTES.POST.UPDATE_PIPE_ACTIVITY,
-              //   formData,
-              //   token,
-              //   false,
-              //   {
-              //     information: `${dbname},${lan_id},${saveData.user_id}`,
-              //     pipe_count: 1,
-              //   },
-              // );
-              database_res = await addPrevPipeActivity(
-                dbname,
-                lan_id,
-                token,
-                saveData.user_id,
-                formData,
-                1,
-              );
-            } else {
-              Toast.show({
-                text: t('You are not in your exact pipe location'),
-                ...AlertMesg[0],
-              });
-            }
-          } else {
-            Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
-          }
-          // addPrevPipeActivity(
-          //   dbname,
-          //   lan_id,
-          //   token,
-          //   saveData.user_id,
-          //   formData,
-          //   1,
-          // );
-        }
-        if (database_res?.status === 400) {
-          showAIValidationError(database_res);
-              setIsLoading(false);
-        }
-        if (database_res?.status == 200) {
-          AnalyticsLogEvent('activity_report', 'activity_report');
-          navigation.popToTop();
-          navigation.navigate('activityList', { action: 'addData' });
-        } else if (database_res?.status == 409) {
-          Toast.show({
-            text: database_res?.data?.error?.errorMessage,
-            ...AlertMesg[0],
-          });
-        }
-      } else {
-        formData.append('farmerID', saveData.user_id);
-        let timeStamp = Date.now();
-        await setItem('off' + timeStamp, formData);
-        let offlineDataArr = await getItem('offlineSupervisorActivityData');
-        if (offlineDataArr) {
-          await setItem(
-            'offlineSupervisorActivityData',
-            offlineDataArr + ',' + 'off' + timeStamp,
-          );
-        } else {
-          await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
-        }
-        navigation.popToTop();
-        navigation.navigate('activityList', { action: 'addData' });
-      }
+     Keyboard.dismiss();
+     if (validateForm()) {
+       const hasFailed = pipeDetails.some(pipeGroup =>
+         pipeGroup[1].some(img => img.status === 'failed')
+       );
+ 
+       if (hasFailed) {
+         Toast.show({
+           text: "❌ Some images failed!",
+           ...AlertMesg[0],
+         });
+         console.log("❌ Some images failed!");
+         return;
+       }
+ 
+       const formData = new FormData();
+       formData.append('act_title', '');
+       formData.append('type', 'carbon_activity');
+       if (soundRecordFirstItem.result != '') {
+         formData.append('audio', {
+           name: 'firstItem.mp3',
+           type: 'audio/mp3',
+           uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
+         });
+       }
+       if (soundRecordSecoundItem.result != '') {
+         formData.append('audio', {
+           name: 'secoundItem.mp3',
+           type: 'audio/mp3',
+           uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
+         });
+       }
+       if (soundRecordThirdItem.result != '') {
+         formData.append('audio', {
+           name: 'thirdItem.mp3',
+           type: 'audio/mp3',
+           uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
+         });
+       }
+       formData.append('user_id', saveData.user_id);
+       formData.append('plot_id', saveData.plot_id);
+       formData.append('crop_name', saveData.crop_name);
+       formData.append('crop_season', saveData.crop_season);
+       formData.append('act_master_id', saveData.act_master_id);
+       formData.append('cu_rel_fid', saveData.cu_rel_id);
+       formData.append('crop_variety', saveData.crop_variety);
+       formData.append('cycle_start_date', saveData.cycle_start_date);
+       formData.append('growth_stage', saveData.growth_stage);
+       formData.append('act_perform_date', saveData.act_perform_date);
+       formData.append('act_pattern', 'schedule');
+       formData.append('season_date_fid', nameVarityStartEnd.productionSeasonSdId);
+       if (saveData.act_pattern === 'schedule') {
+         formData.append('act_ref_type', saveData.act_ref_type);
+         formData.append('act_to_date', saveData.act_to_date);
+         formData.append('act_start_date', saveData.act_start_date);
+         formData.append('act_ref', saveData.act_ref);
+         if (saveData.field_type == 'add') {
+           let pipe_data = [];
+           pipeDetails.map((__data, _index) => {
+             let pipe_lattlong = [];
+             __data[1].map((__dataItem, _e) => {
+               if (__dataItem.imageURL!=""&& __dataItem?.status=="") {
+                 formData.append(`pipe_image_${_index + 1}`, {
+                   uri: __dataItem.imageURL,
+                   type: 'image/jpeg',
+                   name: __dataItem.imageName,
+                 });
+               }
+               pipe_lattlong.push({
+                 latitude: __dataItem.lat?.toString(),
+                 longitude: __dataItem.lon?.toString(),
+               });
+             });
+             pipe_data.push({
+               pipe_name: __data[0]?.pipe_name,
+               pipe_lattlong: pipe_lattlong,
+             });
+           });
+           formData.append('pipe_data', JSON.stringify(pipe_data));
+         } else {
+           const pipe_image = [];
+           let pipe_lattlong = [];
+           pipeDetails.map((__data, _index) => {
+             __data[1].map((__dataItem, _e) => {
+               if (__dataItem.imageURL!="" &&__dataItem?.status=="") {
+                 pipe_image.push({
+                   uri: __dataItem.imageURL,
+                   type: 'image/jpeg',
+                   name: __dataItem.imageName,
+                 });
+               }
+               pipe_lattlong.push({
+                 latitude: __dataItem.lat?.toString(),
+                 longitude: __dataItem.lon?.toString(),
+               });
+             });
+           });
+           const pipe_data = [{ pipe_id: selectPipeList.value, latlong: pipe_lattlong }];
+           if (pipe_lattlong.length != 0) {
+             formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
+           }
+           pipe_image.map((_data, _index) => {
+             formData.append(`pipe_files[0]`, _data);
+           });
+         }
+       }
+       formData.append('act_desc', saveData.act_desc);
+       formData.append('material_used', saveData.material_used);
+       formData.append('water_used', saveData.water_used);
+       formData.append('power_used', saveData.power_used);
+       formData.append('app_version', "104");
+       var database_res;
+       if (isOnline) {
+         if (saveData.field_type == 'add') {
+           database_res = await addUserPipeActivity(
+             dbname,
+             lan_id,
+             token,
+             farmerID,
+             formData,
+             pipeDetails.length,
+           );
+         } else {
+           if (coords != null) {
+             const { latitude, longitude } = coords || {};
+             const distances = getDistance(selectPipeList.latlongs, {
+               latitude,
+               longitude,
+             });
+             if (distances < 10) {
+               database_res = await addPrevPipeActivity(
+                 dbname,
+                 lan_id,
+                 token,
+                 farmerID,
+                 formData,
+                 1,
+               );
+             } else {
+               Toast.show({
+                 text: t('You are not in your exact pipe location'),
+                 ...AlertMesg[0],
+               });
+             }
+           } else {
+             Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+           }
+         }
+         if (database_res?.status === 400) {
+           showAIValidationError(database_res);
+           const cleanFileName = (name) => name.replace(/^\d+-/, "");
+           const failedNamesSet = database_res?.data?.error?.errorMessage?.failed.map(i => cleanFileName(i.image_name));
+           const failedSet = new Set(failedNamesSet);
+           const updatedPipeDetails = pipeDetails.map(pipeGroup => {
+             return pipeGroup.map(item => {
+               // Check if this item is an array of images
+               if (Array.isArray(item)) {
+                 return item.map(img => {
+                   const isFailed = [...failedSet].some(failedName =>
+                     img.imageName.includes(failedName)
+                   );
+                   return {
+                     ...img,
+                     status: isFailed ? "failed" : "accepted"
+                   };
+                 });
+               }
+               return item; // pipe_name object untouched
+             });
+           });
+           setPipeDetails(updatedPipeDetails)
+           showAIValidationError(database_res);
+           setIsLoading(false);
+         }
+         if (database_res?.status == 200) {
+           navigation.navigate('FarmerActivityList', { action: 'addData' });
+         } else if (database_res?.status == 409) {
+           Toast.show({
+             text: database_res?.data?.error?.errorMessage,
+             ...AlertMesg[0],
+           });
+         }
+       } else {
+         let timeStamp = Date.now();
+         await setItem('off' + timeStamp, formData);
+         let offlineDataArr = await getItem('offlineSupervisorActivityData');
+         if (offlineDataArr) {
+           await setItem(
+             'offlineSupervisorActivityData',
+             offlineDataArr + ',' + 'off' + timeStamp,
+           );
+         } else {
+           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
+         }
+         navigation.navigate('FarmerActivityList', { action: 'addData' });
+       }
+     }
       setIsLoading(false);
-    }
-  };
-
+   };
   const handleActivityType = useCallback(
     async item => {
       console.error(item)
@@ -1782,8 +1727,8 @@ const ActivityReportAWD = ({ navigation }) => {
   const handleActivityPipeNumber = useCallback(text => {
     setPipeNumber(text);
   }, []);
-  const addMorePipe = useCallback(() => {
-    if (pipeNumber == '') {
+  const addMorePipe = useCallback((field_type) => {
+    if (pipeNumber == '' && field_type == 'add') {
       Toast.show({
         time: 2,
         text: `${t('Please enter pipe name')}`,
@@ -1801,7 +1746,22 @@ const ActivityReportAWD = ({ navigation }) => {
     } else {
       setPipeDetails([
         ...pipeDetails,
-        { pipe_name: pipeNumber, selectedImagePipe },
+        [{ pipe_name: pipeNumber }, [
+          {
+            imageURL: selectedImagePipe.firstItem,
+            imageName: selectedImagePipe.firstItemfileName,
+            status: "",
+            lat: selectedImagePipe.firstItemLat,
+            lon: selectedImagePipe.firstItemLong,
+          },
+          {
+            imageURL: selectedImagePipe.secondItem,
+            imageName: selectedImagePipe.secondItemfileName,
+            status: "",
+            lat: selectedImagePipe.secondItemLat,
+            lon: selectedImagePipe.secondItemLong,
+          },
+        ]],
       ]);
       setSelectedImagePipe(prev => ({
         ...prev,
@@ -1811,6 +1771,8 @@ const ActivityReportAWD = ({ navigation }) => {
         secondItem: '',
         secondItemLat: '',
         secondItemLong: '',
+        firstItemfileName: '',
+        secondItemfileName: '',
       }));
       setPipeNumber('');
     }
@@ -1835,10 +1797,9 @@ const ActivityReportAWD = ({ navigation }) => {
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
-  const TakePhoto = useCallback(async () => {
+ const TakePhoto = useCallback(async (replaceImgKey) => {
     const { latitude, longitude } = coords || {};
     let latlong;
-
     if (!latitude || !longitude) {
       latlong = await getHighAccuracyLocation();
     }
@@ -1851,6 +1812,7 @@ const ActivityReportAWD = ({ navigation }) => {
       includeBase64: true,
       maxHeight: 800,
       maxWidth: 800,
+      includeExtra: true,
     };
 
     launchCamera(options, async response => {
@@ -1875,8 +1837,6 @@ const ActivityReportAWD = ({ navigation }) => {
         }
 
         const timestamp = Date.now();
-
-        // ✅ Create watermark text (Date + Time + Lat + Lon)
         const formattedDate = new Intl.DateTimeFormat('en-US', {
           year: 'numeric',
           month: '2-digit',
@@ -1905,14 +1865,30 @@ const ActivityReportAWD = ({ navigation }) => {
 
             setTempImage(null);
             setTempText('');
-
-            setSelectedImagePipe(prev => ({
-              ...prev,
-              [cameraItem]: `file://${destPath}`,
-              [`${cameraItem}Lat`]: lat,
-              [`${cameraItem}Long`]: lon,
-            }));
-
+            if (replaceImgKey.arrayPosition === "") {
+              setSelectedImagePipe(prev => ({
+                ...prev,
+                [cameraItem]: `file://${destPath}`,
+                [`${cameraItem}fileName`]: fileName,
+                [`${cameraItem}Lat`]: lat,
+                [`${cameraItem}Long`]: lon,
+              }));
+            } else {
+              const { arrayPosition, imgPosition } = replaceImgKey;
+              setPipeDetails(prev => {
+                const updated = JSON.parse(JSON.stringify(prev));
+                const currentImage = updated[arrayPosition][1][imgPosition];
+                updated[arrayPosition][1][imgPosition] = {
+                  ...currentImage,
+                  imageURL: `file://${destPath}`,
+                  imageName: fileName,
+                  status: "",
+                  lat,
+                  lon,
+                };
+                return updated;
+              });
+            }
             setModalVisibleMap(false);
             console.log('Watermarked image saved:', destPath);
           } catch (error) {
@@ -1927,8 +1903,14 @@ const ActivityReportAWD = ({ navigation }) => {
         setModalVisibleMap(false);
       }
     });
-  }, [cameraItem, setSelectedImagePipe, setModalVisibleMap]);
-
+  }, [cameraItem, setSelectedImagePipe, setModalVisibleMap, replaceImgKey, TakePhotoFailed]);
+  const TakePhotoFailed = (_index, imgIndex) => {
+    setReplaceImgKey({
+      arrayPosition: _index.toString(),
+      imgPosition: imgIndex.toString(),
+    })
+    setModalVisibleMap(true);
+  }
   const handlegrowth_stage = useCallback(growth_stage => {
     setSaveData(prev => ({ ...prev, growth_stage: growth_stage.value }));
   }, []);
@@ -1944,6 +1926,11 @@ const ActivityReportAWD = ({ navigation }) => {
   const handlepower_used = useCallback(power_used => {
     setSaveData(prev => ({ ...prev, power_used: power_used }));
   }, []);
+  const pipeEdit = (_index) => {
+    const values = [...pipeDetails];
+    values.splice(_index, 1);
+    setPipeDetails(values);
+  }
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -1951,7 +1938,7 @@ const ActivityReportAWD = ({ navigation }) => {
           <SecurityWrapper coords={coords}>
             <View style={styles.container}>
               {modalVisibleMap && (
-                <ActivityMap
+                 <ActivityMap
                   modalVisibleMap={modalVisibleMap}
                   setModalVisibleMap={setModalVisibleMap}
                   plotPolygon={plotPolygon}
@@ -1960,6 +1947,7 @@ const ActivityReportAWD = ({ navigation }) => {
                   setOutOfRange={setOutofRange}
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}
+                  replaceImgKey={replaceImgKey}
                 />
               )}
               <CustomHeader
@@ -2276,13 +2264,28 @@ const ActivityReportAWD = ({ navigation }) => {
                                     backgroundColor: 'green',
                                     borderRadius: 50,
                                   }}
-                                  onPress={() => addMorePipe()}>
+                                  onPress={() => addMorePipe(saveData.field_type)}>
                                   <Text style={{ color: '#FFF' }}>
                                     Save and Add Instrument
                                   </Text>
                                 </TouchableOpacity>
                               )}
-                              <View style={{ marginTop: 10 }}>
+                              {saveData.field_type == 'select' && pipeDetails.length == 0 && (
+                                <TouchableOpacity
+                                  style={{
+                                    alignSelf: 'flex-end',
+                                    paddingVertical: 10,
+                                    paddingHorizontal: 20,
+                                    backgroundColor: 'green',
+                                    borderRadius: 50,
+                                  }}
+                                  onPress={() => addMorePipe(saveData.field_type)}>
+                                  <Text style={{ color: '#FFF' }}>
+                                    Save and Update Instrument
+                                  </Text>
+                                </TouchableOpacity>
+                              )}
+                              {/* <View style={{ marginTop: 10 }}>
                                 {pipeDetails.map((_data, _index) => (
                                   <TouchableOpacity
                                     style={{
@@ -2317,7 +2320,12 @@ const ActivityReportAWD = ({ navigation }) => {
                                     </TouchableOpacity>
                                   </TouchableOpacity>
                                 ))}
-                              </View>
+                              </View> */}
+                              <PipeDetailsCard
+                                pipeDetails={pipeDetails}
+                                pipeEdit={pipeEdit}
+                                TakePhotoFailed={TakePhotoFailed}
+                              />
                             </View>
                           </View>
                         )}

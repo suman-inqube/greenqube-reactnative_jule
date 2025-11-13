@@ -39,7 +39,12 @@ import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
 import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
-import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
@@ -61,6 +66,7 @@ const Dashboard = ({navigation}) => {
     stopWatchingLocation,
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
+  const route = useRoute();
 
   const {
     headerTranslateY,
@@ -90,7 +96,7 @@ const Dashboard = ({navigation}) => {
     activitySchedule: [],
   });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigateToPages = useCallback(
     pageName => {
       if (isOnline) {
@@ -118,56 +124,42 @@ const Dashboard = ({navigation}) => {
     },
     [isOnline, navigation, uiState.convertionLUState, Toast, AlertMesg],
   );
-  const onPageLoad = useCallback(async type => {
-    if (type != 'refreshing') {
-      setIsLoading(true);
-    }
-    try {
-      const [
-        bottomBannerData,
-        userNameData,
-        profileImgData,
-        loginUser_data,
-        company_website,
-        logoImageData,
-        topBannerData,
-      ] = await Promise.all([
-        getItem('bottomBannerData'),
-        getItem('userNameData'),
-        getItem('profileImgData'),
-        getItem('loginUser_data'),
-        getItem('company_website'),
-        getItem('logoImageData'),
-        getItem('topBannerData'),
-        Permission.requestMultiple([
-          PERMISSIONS_TYPE.microphone,
-          PERMISSIONS_TYPE.fineLocation,
-          PERMISSIONS_TYPE.notifications,
-        ]),
-        AllFarmerList(),
-      ]);
+  const onPageLoad = useCallback(
+    async type => {
+      if (!loginUser_data) {
+        return;
+      }
+      try {
+        const login = loginUser_data || {};
+        const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
 
-      // keep all computations in local vars first
-      const logoImgToSet = logoImage || logoImageData || null;
-      const topBannerToSet = topBanner || topBannerData || null;
-
-      let plotStatus = [];
-      var usefulInfoList = [];
-      let activitySchedule = [];
-      let convertionLUState = false;
-      let defaultLand = false;
-
-      const login = loginUser_data || {};
-      const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
-
-      if (dbname && lan_id && token && agri_user_addresses?.length > 0) {
+        let plotStatus = [];
+        var usefulInfoList = [];
+        let activitySchedule = [];
+        let convertionLUState = false;
+        let defaultLand = false;
         const [
+          bottomBannerData,
+          userNameData,
+          profileImgData,
+
+          company_website,
+          logoImageData,
+          topBannerData,
           UnitConversonToDefault_res,
           LandUnitArea_res,
           FARMER_USEFULL_INFO_LIST,
           PLOT_STATUS,
           ALL_ACTIVITY_SCHEDULE_RES,
         ] = await Promise.all([
+          getItem('bottomBannerData'),
+          getItem('userNameData'),
+          getItem('profileImgData'),
+          // getItem('loginUser_data'),
+          getItem('company_website'),
+          getItem('logoImageData'),
+          getItem('topBannerData'),
+
           axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, {
             information: `${dbname},${lan_id}`,
           }),
@@ -194,7 +186,7 @@ const Dashboard = ({navigation}) => {
               status_level: 'REJECTED',
               geo_type: '',
               searchBy: '',
-              supervisor_id:user_id
+              supervisor_id: user_id,
             }),
             token,
             {information: `${dbname},${lan_id},${user_id}`},
@@ -208,19 +200,13 @@ const Dashboard = ({navigation}) => {
             token,
             {information: `${dbname},${lan_id},${user_id}`},
           ),
+          Permission.requestMultiple([
+            PERMISSIONS_TYPE.microphone,
+            PERMISSIONS_TYPE.fineLocation,
+            PERMISSIONS_TYPE.notifications,
+          ]),
 
-          // axiosGet(
-          //   ROUTES.GET.LIST_USER_ACTIVITY({
-          //     pageNO: 1,
-          //     carbonType: '',
-          //     userID: '',
-          //     searchItem: '',
-          //     from_date: '',
-          //     to_date: '',
-          //   }),
-          //   token,
-          //   {information: `${dbname},${lan_id},${user_id}`},
-          // ),
+          AllFarmerList(),
         ]);
         let missingCount = 0;
         if (UnitConversonToDefault_res?.status === 200) {
@@ -250,36 +236,49 @@ const Dashboard = ({navigation}) => {
         if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
           activitySchedule = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data || [];
         }
+        const logoImgToSet = logoImage || logoImageData || null;
+        const topBannerToSet = topBanner || topBannerData || null;
+
+        setUiState(prev => ({
+          ...prev,
+          bottomBanner: bottomBannerData,
+          userName: userNameData,
+          profileImg: profileImgData,
+          company_website: company_website || prev.company_website,
+          logoImg: logoImgToSet,
+          topBannerImg: topBannerToSet,
+          defaultLand,
+          convertionLUState,
+        }));
+
+        setDataState({
+          plotStatus,
+          usefulInfoList,
+          activitySchedule,
+        });
+
+        setIsLoading(false);
+
+        // single batched state updates
+      } catch (error) {
+        console.log('catch', error);
+        Toast?.show({
+          text: error,
+          ...AlertMesg?.[0],
+        });
+        setIsLoading(false);
       }
+    },
+    [loginUser_data],
+  );
 
-      // single batched state updates
-      setUiState(prev => ({
-        ...prev,
-        bottomBanner: bottomBannerData,
-        userName: userNameData,
-        profileImg: profileImgData,
-        company_website: company_website || prev.company_website,
-        logoImg: logoImgToSet,
-        topBannerImg: topBannerToSet,
-        defaultLand,
-        convertionLUState,
-      }));
+  useEffect(() => {
+    if (route?.params?.action === 'plotStatusUpdated') {
+      // Toast.show({text: t('Updated'), ...AlertMesg[0]});
 
-      setDataState({
-        plotStatus,
-        usefulInfoList,
-        activitySchedule,
-      });
-
-      setIsLoading(false);
-    } catch (error) {
-      Toast?.show({
-        text: error,
-        ...AlertMesg?.[0],
-      });
-      setIsLoading(false);
+      onPageLoad();
     }
-  }, []);
+  }, [route?.params]);
 
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
@@ -292,63 +291,6 @@ const Dashboard = ({navigation}) => {
     };
   }, []);
 
-  useEffect(() => {
-    const {agri_user_addresses, dbname, lan_id, token, user_id} =
-      loginUser_data || {};
-    let plotStatus = [];
-    var usefulInfoList = [];
-    let activitySchedule = [];
-    const USEFULL_Call = async () => {
-      const [FARMER_USEFULL_INFO_LIST, PLOT_STATUS, ALL_ACTIVITY_SCHEDULE_RES] =
-        await Promise.all([
-          axiosGet(
-            ROUTES.GET.USEFULL_INFO_LIST({
-              userId: user_id,
-              userType: 'supervisor',
-              post: 'general_info',
-              titleSearch: '',
-              state_id: agri_user_addresses[0]?.agri_state.fid,
-              district_id: agri_user_addresses[0]?.agri_district.fid,
-              subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
-            }),
-            '',
-            {information: `${dbname},${lan_id}`},
-          ),
-          axiosGet(
-            ROUTES.GET.Fenced_Rejected_Plot_List({
-              page: 1,
-              status_level: 'REJECTED',
-              geo_type: '',
-              searchBy: '',
-            }),
-            token,
-            {information: `${dbname},${lan_id},${user_id}`},
-          ),
-          axiosGet(
-            ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-              supervisor_id: user_id,
-            }),
-            token,
-            {information: `${dbname},${lan_id},${user_id}`},
-          ),
-        ]);
-      if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-        usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
-      }
-      if (PLOT_STATUS?.status === 200) {
-        plotStatus = PLOT_STATUS.data?.data?.rows || [];
-      }
-      if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-        activitySchedule = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows || [];
-      }
-      setDataState({
-        plotStatus,
-        usefulInfoList,
-        activitySchedule,
-      });
-    };
-    USEFULL_Call();
-  }, [isFocused]);
 
   const exit = useCallback(() => {
     Alert.alert(
@@ -364,7 +306,7 @@ const Dashboard = ({navigation}) => {
   }, [t]);
 
   const CompanyWebsiteOpen = useCallback(() => {
-    if (uiState.company_website && uiState.company_website !== '') {
+    if (uiState.company_website && uiState.company_website !== '' && uiState.company_website !="https://null"&& uiState.company_website !="null") {
       Linking.openURL(uiState.company_website).catch(() => {
         Alert.alert('Cannot open website');
       });
@@ -388,7 +330,7 @@ const Dashboard = ({navigation}) => {
   const headerContent = useMemo(
     () => (
       <>
-      <ForegroundLocationService />
+        <ForegroundLocationService />
         <UpcomingActivities
           t={t}
           uiState={uiState}
@@ -565,7 +507,7 @@ const Dashboard = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.background_light},
+  container: {flex: 1, backgroundColor: Colors.background},
   header: {
     // height: 60 - 10,
     position: 'absolute',
