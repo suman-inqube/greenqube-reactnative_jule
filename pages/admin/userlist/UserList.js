@@ -63,7 +63,6 @@ const UserList = ({ navigation }) => {
   const userCount = useMemo(() => state.userList?.count || 0, [state.userList]);
   const hasUsers = useMemo(() => userCount > 0, [userCount]);
 
-  // API calls with error handling
   const fetchUserList = useCallback(
     async (pageNo = 1, search_key_phone = '') => {
       try {
@@ -77,6 +76,12 @@ const UserList = ({ navigation }) => {
           token,
           { information: `${dbname},${lan_id},${user_id}` },
         );
+        console.log(  ROUTES.GET.AGENT_ROUTE({
+            page: pageNo,
+            search_key: search_key_phone,
+          }),
+          token,
+          { information: `${dbname},${lan_id},${user_id}` })
         if (response.status === 200) {
           const { count, no_of_item_per_page, rows } = response.data || {};
           const totalPages = Math.ceil(count / no_of_item_per_page);

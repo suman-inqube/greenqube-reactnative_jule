@@ -281,76 +281,12 @@ const Dashboard = ({navigation}) => {
   }, [route?.params]);
 
   useEffect(() => {
-    onPageLoad();
-    // const task = InteractionManager.runAfterInteractions(() => {
-    //   console.log('1111');
-    //   onPageLoad();
-    //   console.log('22256');
-    //   startWatchingLocation();
-    // });
-    // return () => {
-    //   task.cancel();
-    //   stopWatchingLocation();
-    // };
-  }, []);
+    if (route?.params?.action === 'plotStatusUpdated') {
+      // Toast.show({text: t('Updated'), ...AlertMesg[0]});
 
-  // useEffect(() => {
-  //   const {agri_user_addresses, dbname, lan_id, token, user_id} =
-  //     loginUser_data || {};
-  //   let plotStatus = [];
-  //   var usefulInfoList = [];
-  //   let activitySchedule = [];
-  //   const USEFULL_Call = async () => {
-  //     const [FARMER_USEFULL_INFO_LIST, PLOT_STATUS, ALL_ACTIVITY_SCHEDULE_RES] =
-  //       await Promise.all([
-  //         axiosGet(
-  //           ROUTES.GET.USEFULL_INFO_LIST({
-  //             userId: user_id,
-  //             userType: 'supervisor',
-  //             post: 'general_info',
-  //             titleSearch: '',
-  //             state_id: agri_user_addresses[0]?.agri_state.fid,
-  //             district_id: agri_user_addresses[0]?.agri_district.fid,
-  //             subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
-  //           }),
-  //           '',
-  //           {information: `${dbname},${lan_id}`},
-  //         ),
-  //         axiosGet(
-  //           ROUTES.GET.Fenced_Rejected_Plot_List({
-  //             page: 1,
-  //             status_level: 'REJECTED',
-  //             geo_type: '',
-  //             searchBy: '',
-  //           }),
-  //           token,
-  //           {information: `${dbname},${lan_id},${user_id}`},
-  //         ),
-  //         axiosGet(
-  //           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-  //             supervisor_id: user_id,
-  //           }),
-  //           token,
-  //           {information: `${dbname},${lan_id},${user_id}`},
-  //         ),
-  //       ]);
-  //     if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-  //       usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
-  //     }
-  //     if (PLOT_STATUS?.status === 200) {
-  //       plotStatus = PLOT_STATUS.data?.data?.rows || [];
-  //     }
-  //     if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-  //       activitySchedule = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows || [];
-  //     }
-  //     setDataState({
-  //       plotStatus,
-  //       usefulInfoList,
-  //       activitySchedule,
-  //     });
-  //   };
-  //   USEFULL_Call();
-  // }, [isFocused]);
+      onPageLoad();
+    }
+  }, [route?.params]);
 
   const exit = useCallback(() => {
     Alert.alert(
@@ -366,7 +302,12 @@ const Dashboard = ({navigation}) => {
   }, [t]);
 
   const CompanyWebsiteOpen = useCallback(() => {
-    if (uiState.company_website && uiState.company_website !== '') {
+    if (
+      uiState.company_website &&
+      uiState.company_website !== '' &&
+      uiState.company_website != 'https://null' &&
+      uiState.company_website != 'null'
+    ) {
       Linking.openURL(uiState.company_website).catch(() => {
         Alert.alert('Cannot open website');
       });

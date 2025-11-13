@@ -8,8 +8,8 @@ import { AlertMesg } from '../Common/ToastAlert';
 // ================================
 // ⚙️ Configuration
 // ================================
-const BASE_URL = 'https://mygreenqube.com:4003/';
-// const BASE_URL = 'http://134.209.155.11:4003/';
+// const BASE_URL = 'https://mygreenqube.com:4003/';
+const BASE_URL = 'http://134.209.155.11:4003/';
 const TIMEOUT = 10000;
 const SLOW_THRESHOLD = 3000;
 const ENC_KEY = 'greenQube_96740_64428';
