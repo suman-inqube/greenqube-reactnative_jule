@@ -41,14 +41,14 @@ import {
 } from '../Loan/LoanAPI';
 import config from '../../../config';
 import axios from 'axios';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 const qs = require('qs');
 // import HarvestedModel from './../userlist/HarvestedModel';
 import HarvestedModel from '../../Common/HarvestedModel';
 
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 //GQR-65
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import Map from '../Map';
 import * as geolib from 'geolib';
 import {
@@ -59,22 +59,22 @@ import {
 } from '../../Common/calculateAreaFun';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import CarbonCertificate from '../../Common/CarbonCertificate';
-const timeoutConfig = { timeout: 5000 };
-import { getDistance } from 'geolib';
-import { APP_MAP_RANGE_POLYGON } from '@env';
+const timeoutConfig = {timeout: 5000};
+import {getDistance} from 'geolib';
+import {APP_MAP_RANGE_POLYGON} from '@env';
 import * as turf from '@turf/turf';
 
 import SignatureCapture from '../../Common/SignaturePad';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { getActionsMapView } from '../../utils/options';
+import {getActionsMapView} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
-import { ROUTES } from '../../utils/Routes';
-import { axiosPost } from '../../utils/api';
-import { goBack } from '../../utils/NavigationUtils';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import {ROUTES} from '../../utils/Routes';
+import {axiosPost} from '../../utils/api';
+import {goBack} from '../../utils/NavigationUtils';
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 const PlotStatusUpdate = () => {
   //GQR-65
   const {
@@ -95,12 +95,12 @@ const PlotStatusUpdate = () => {
     ButtonForm,
     coords,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
+  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
   var watchId = useRef(null);
-  const { farmer_data, rel_id, plot_no, comment } = route.params;
+  const {farmer_data, rel_id, plot_no, comment} = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [farmerData, setfarmerData] = useState({
@@ -127,7 +127,7 @@ const PlotStatusUpdate = () => {
     unitValue: '',
     productionSeason: '',
     productionSeasonValue: '',
-    productionSeasonSdId:'',
+    productionSeasonSdId: '',
     livelihoodType: '',
     livelihoodTypeValue: '',
     produceName: '',
@@ -148,11 +148,11 @@ const PlotStatusUpdate = () => {
     crop_cycl_start_date: '',
   });
   const [addressProof, setAddressProof] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: ''},
   ]);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
@@ -186,12 +186,12 @@ const PlotStatusUpdate = () => {
   const [unitAll, setUnitAll] = useState([]);
   const [unitAllVal, setUnitAllVal] = useState([]);
   const [location, setLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
   ]);
   const [mainLocation, setmainLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
   ]);
   const [locationType, setLocationType] = useState('location_tap');
   const [newDate, setnewDate] = useState(new Date());
@@ -216,7 +216,7 @@ const PlotStatusUpdate = () => {
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [nearPolSet, setnearPolSet] = useState([]);
   const [nearPolData, setnearPolData] = useState([]);
-  const [statuslevel, setstatuslevel] = useState({ label: '', value: '' });
+  const [statuslevel, setstatuslevel] = useState({label: '', value: ''});
   const [updateRelId, setupdateRelId] = useState('');
   const [particularLocSet, setparticularLocSet] = useState([]);
   const [referencelatLong, setreferencelatLong] = useState({
@@ -234,7 +234,7 @@ const PlotStatusUpdate = () => {
       if (isNaN(latitude) || isNaN(longitude)) {
         return result;
       }
-      const newItem = { latitude, longitude };
+      const newItem = {latitude, longitude};
       if (!result[item.rel_id]) {
         result[item.rel_id] = [];
       }
@@ -248,7 +248,7 @@ const PlotStatusUpdate = () => {
     try {
       // console.log('par==', JSON.stringify(route.params));
       setIsLoading(true);
-      const { latitude, longitude } = coords || {};
+      const {latitude, longitude} = coords || {};
       var latlong;
       if (latitude == '' && longitude == '') {
         latlong = await getHighAccuracyLocation();
@@ -300,7 +300,7 @@ const PlotStatusUpdate = () => {
           },
         ),
       ]);
-      setreferencelatLong({ latitude: lat, longitude: lon });
+      setreferencelatLong({latitude: lat, longitude: lon});
       if (nearestLatLong_res?.status == 200) {
         if (nearestLatLong_res.data.data.length > 0) {
           setnearPolData(nearestLatLong_res.data.data);
@@ -339,7 +339,7 @@ const PlotStatusUpdate = () => {
       }
 
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -347,7 +347,7 @@ const PlotStatusUpdate = () => {
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -370,7 +370,7 @@ const PlotStatusUpdate = () => {
 
   const handlePlot = async findData => {
     // const { latitude, longitude } = coords || {};
-    const { latitude, longitude } = coords || {};
+    const {latitude, longitude} = coords || {};
     var latlong;
     if (latitude == '' && longitude == '') {
       latlong = await getHighAccuracyLocation();
@@ -429,7 +429,7 @@ const PlotStatusUpdate = () => {
     setPlotId(findData.value);
     ////////////////////
 
-    setreferencelatLong({ latitude: lat, longitude: lon });
+    setreferencelatLong({latitude: lat, longitude: lon});
     if (nearestLatLong_res?.status == 200) {
       if (nearestLatLong_res.data.data.length > 0) {
         setnearPolData(nearestLatLong_res.data.data);
@@ -468,7 +468,7 @@ const PlotStatusUpdate = () => {
     }
 
     if (LandUnitArea_res?.status == 200) {
-      const { count, rows } = LandUnitArea_res?.data?.data || {};
+      const {count, rows} = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
         setLandAreaUnit(rows);
       } else {
@@ -476,7 +476,7 @@ const PlotStatusUpdate = () => {
       }
     }
     if (LandUnitsquare_metre_res?.status == 200) {
-      const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+      const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
         setLandUnitsquareMetre(rows);
       } else {
@@ -496,8 +496,8 @@ const PlotStatusUpdate = () => {
 
     if (getPlotDoc?.status == 200) {
       // console.log('getPlotDoc', getPlotDoc?.data?.data?.rows[0]);
-      const { count } = getPlotDoc?.data?.data;
-      const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
+      const {count} = getPlotDoc?.data?.data;
+      const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
       const values = [...addressProof];
       const carbonCertificateValues = [...carboncertificate];
       const filteredPlotImages = plot_img.filter(
@@ -534,7 +534,7 @@ const PlotStatusUpdate = () => {
             id: filteredPlotImages[_index]?.file_id,
           };
         } else {
-          values[_index] = { uri: '', name: '', type: '', fileName: '', id: '' };
+          values[_index] = {uri: '', name: '', type: '', fileName: '', id: ''};
         }
       });
       carboncertificate.map((_data, _index) => {
@@ -602,8 +602,8 @@ const PlotStatusUpdate = () => {
             Alert.alert(
               'Note',
               'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-              [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-              { cancelable: false },
+              [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+              {cancelable: false},
             );
           }
 
@@ -654,7 +654,14 @@ const PlotStatusUpdate = () => {
             soilTypeValue: dataLandDetails?.soil_type?.fid,
             unit: dataLandDetails?.land_unit?.name,
             unitValue: dataLandDetails?.land_unit?.fid,
-            productionSeason: `${data?.cropSeasonTime?.year ? data?.crop_season?.name + ' (' + (data?.cropSeasonTime?.year) + ')' : ""}`,
+            productionSeason: `${
+              data?.cropSeasonTime?.year
+                ? data?.crop_season?.name +
+                  ' (' +
+                  data?.cropSeasonTime?.year +
+                  ')'
+                : ''
+            }`,
             productionSeasonValue: data?.crop_season?.fid,
             productionSeasonSdId: data?.season_date_fid,
             livelihoodType: data?.crop_type?.name,
@@ -682,7 +689,7 @@ const PlotStatusUpdate = () => {
       });
       const agri_land_user_latlongs = data.land_info.agri_land_user_latlongs;
       // const values = [...location];
-      const values = [{ latitude: '', longitude: '' }];
+      const values = [{latitude: '', longitude: ''}];
 
       if (values.length < agri_land_user_latlongs.length) {
         values[0] = {
@@ -737,9 +744,9 @@ const PlotStatusUpdate = () => {
             };
           } else {
             if (agri_land_user_latlongs[0] == undefined) {
-              values[index + 1] = { latitude: '', longitude: '' };
+              values[index + 1] = {latitude: '', longitude: ''};
             } else {
-              values[index] = { latitude: '', longitude: '' };
+              values[index] = {latitude: '', longitude: ''};
             }
           }
         });
@@ -805,7 +812,7 @@ const PlotStatusUpdate = () => {
           label: data?.name,
         }));
       const livelihoodTypeArr = productSeasonresRes?.data?.data?.crop_type.map(
-        data => ({ value: data?.fid, label: data?.name }),
+        data => ({value: data?.fid, label: data?.name}),
       );
       setProductionSeason(productSeasonresResArr);
       setLivelihoodType(livelihoodTypeArr);
@@ -904,15 +911,15 @@ const PlotStatusUpdate = () => {
       crop_cycl_start_date: '',
     });
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
     ]);
   };
   const [carboncertificate, setCarboncertificate] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: ''},
   ]);
   const [signature, setSignature] = useState({
     uri: '',
@@ -921,7 +928,7 @@ const PlotStatusUpdate = () => {
     fileName: '',
     id: '',
   });
-   const handleHarvested = async data => {
+  const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('Dashboard');
     } else {
@@ -996,11 +1003,11 @@ const PlotStatusUpdate = () => {
     }));
   };
   const handleDatePicker2 = item =>
-    setfarmerData({ ...farmerData, cycleEndDate: effective_dates(item) });
+    setfarmerData({...farmerData, cycleEndDate: effective_dates(item)});
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({ latitude: '', longitude: '' }),
+        (val, idx) => ({latitude: '', longitude: ''}),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -1008,11 +1015,11 @@ const PlotStatusUpdate = () => {
       setPolygons([]);
     } else {
       setPolygons([]);
-      setLocation([...location, { latitude: '', longitude: '' }]);
+      setLocation([...location, {latitude: '', longitude: ''}]);
     }
   };
   const handleCurrentLatLong = async index => {
-    const { latitude, longitude } = coords || {};
+    const {latitude, longitude} = coords || {};
 
     const values = [...location];
     if (
@@ -1021,7 +1028,7 @@ const PlotStatusUpdate = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = { latitude: latitude, longitude: longitude };
+      values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(
         item => item?.latitude !== '' && item?.latitude != 0,
@@ -1036,7 +1043,7 @@ const PlotStatusUpdate = () => {
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(filteredDatalatLong),
+              geolib.getAreaOfPolygon(filteredDatalatLong),
           );
         } else {
           setArea(geolib.getAreaOfPolygon(filteredDatalatLong));
@@ -1088,7 +1095,7 @@ const PlotStatusUpdate = () => {
           Number(selectUnitValue) * Number(farmerData.land_size),
       });
     } else {
-      setfarmerData({ ...farmerData, [name]: item.label, [value]: item.value });
+      setfarmerData({...farmerData, [name]: item.label, [value]: item.value});
       if (name === 'terrainType') {
         livelihoodTypeAPI(dbname, lan_id, item.value, '');
       }
@@ -1126,7 +1133,6 @@ const PlotStatusUpdate = () => {
       produceVarietyValue: '',
     });
     livelihoodTypeAPI(dbname, lan_id, item.value, '');
-
   };
   const handleAddDataproduceName = async (item, name, value) => {
     setfarmerData({
@@ -1245,10 +1251,10 @@ const PlotStatusUpdate = () => {
           label: data?.name,
         }));
       const livelihoodTypeArr = productSeasonresRes?.data?.data?.crop_type.map(
-        data => ({ value: data?.fid, label: data?.name }),
+        data => ({value: data?.fid, label: data?.name}),
       );
       const produceNameArr = productSeasonresRes?.data?.data?.crop_name.map(
-        data => ({ value: data.crop_name?.fid, label: data.crop_name?.name }),
+        data => ({value: data.crop_name?.fid, label: data.crop_name?.name}),
       );
       setProductionSeason(productSeasonresResArr);
       setLivelihoodType(livelihoodTypeArr);
@@ -1282,7 +1288,7 @@ const PlotStatusUpdate = () => {
     const productionProcessRes = await ProductionProcessAPI(dbName, languageID);
     if (productionProcessRes?.status == 200) {
       const productionProcessArr = productionProcessRes?.data?.data?.rows.map(
-        data => ({ value: data?.fid, label: data?.name }),
+        data => ({value: data?.fid, label: data?.name}),
       );
       setProductionProcess(productionProcessArr);
     }
@@ -1291,7 +1297,7 @@ const PlotStatusUpdate = () => {
     const ProductionUnitRes = await ProductionUnitAPI(dbName, languageID);
     if (ProductionUnitRes?.status == 200) {
       const productionUnitArr = ProductionUnitRes?.data?.data?.rows.map(
-        data => ({ value: data?.fid, label: data.unit_name }),
+        data => ({value: data?.fid, label: data.unit_name}),
       );
       setProductionUnit(productionUnitArr);
     }
@@ -1301,10 +1307,10 @@ const PlotStatusUpdate = () => {
     const locationArry = [];
     const latlongArr = [];
     if (location?.[0]?.editing == true && statuslevel.label != '') {
-      const { latitude, longitude } = coords || {};
+      const {latitude, longitude} = coords || {};
 
       const distances = previousPlotLatlong.map(p =>
-        getDistance(p, { latitude, longitude }),
+        getDistance(p, {latitude, longitude}),
       );
       const minDistance = Math.min(...distances);
     }
@@ -1337,8 +1343,8 @@ const PlotStatusUpdate = () => {
           Alert.alert(
             'Deviation',
             'The deviation between reported area and google area is not within 5%',
-            [{ text: 'OK', onPress: () => console.log(area) }],
-            { cancelable: false },
+            [{text: 'OK', onPress: () => console.log(area)}],
+            {cancelable: false},
           );
           setIsLoading(false);
           return;
@@ -1350,11 +1356,11 @@ const PlotStatusUpdate = () => {
     location.map((data, index) => {
       if (data?.latitude != '' && data?.latitude != undefined) {
         locationArry.push('latitude');
-        latlongArr.push({ latitude: data?.latitude, longitude: data?.longitude });
+        latlongArr.push({latitude: data?.latitude, longitude: data?.longitude});
       }
     });
     if (farmerData.plot_Site_Name == '') {
-      Toast.show({ text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0]});
     } else if (farmerData.terrainTypeValue == '') {
       Toast.show({
         text: `${t('please_select_terrain_type_first')}`,
@@ -1371,9 +1377,9 @@ const PlotStatusUpdate = () => {
         ...AlertMesg[0],
       });
     } else if (farmerData.unitValue == '') {
-      Toast.show({ text: `${t('please_select_unit_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_unit_first')}`, ...AlertMesg[0]});
     } else if (farmerData.land_size == '') {
-      Toast.show({ text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
     } else if (locationArry.length == 0) {
       Toast.show({
         text: `${t('please_submit_location_first')}`,
@@ -1405,15 +1411,15 @@ const PlotStatusUpdate = () => {
         ...AlertMesg[0],
       });
     } else if (farmerData.expectedProduction == '') {
-      Toast.show({ text: `${t('please_give_yeild_size')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_give_yeild_size')}`, ...AlertMesg[0]});
     } else if (farmerData.unitProductValue == '') {
-      Toast.show({ text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0]});
     } else if (farmerData.cycleStartDate == '') {
-      Toast.show({ text: 'Please Select Planting Date', ...AlertMesg[0] });
+      Toast.show({text: 'Please Select Planting Date', ...AlertMesg[0]});
     } else if (farmerData.cycleEndDate == '') {
-      Toast.show({ text: `${t('select_enddate_first')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_enddate_first')}`, ...AlertMesg[0]});
     } else if (defaultLand === false) {
-      Toast.show({ text: 'Please set default unit', ...AlertMesg[0] });
+      Toast.show({text: 'Please set default unit', ...AlertMesg[0]});
     } else if (convertionLUState === true) {
       Toast.show({
         text: 'Please add the unit equivalent factor to default unit',
@@ -1492,7 +1498,7 @@ const PlotStatusUpdate = () => {
         );
         if (AddLandCropDetails_res?.status === 200) {
           removesetLocation();
-          Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
+          Toast.show({text: t('l_c_add_succ'), ...AlertMesg[0]});
         }
       } else {
         var cusCropCyclStartDate = '2004-02-29';
@@ -1587,8 +1593,8 @@ const PlotStatusUpdate = () => {
           Alert.alert(
             'File',
             addPlotImageAPIRes.data?.error?.errorMessage,
-            [{ text: 'OK', onPress: () => console.log(area) }],
-            { cancelable: false },
+            [{text: 'OK', onPress: () => console.log(area)}],
+            {cancelable: false},
           );
           setIsLoading(false);
           return;
@@ -1597,7 +1603,7 @@ const PlotStatusUpdate = () => {
         if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
           const formdatauploadFarmerIdAdd = new FormData();
           if (identityProofIdentityPropf[0]?.id == '') {
-            const { uri, type, name } = identityProofIdentityPropf[0];
+            const {uri, type, name} = identityProofIdentityPropf[0];
             formdatauploadFarmerIdAdd.append('farmer_address', {
               uri,
               type,
@@ -1605,7 +1611,7 @@ const PlotStatusUpdate = () => {
             });
           }
           if (identityProofIdentityPropf[1]?.id == '') {
-            const { uri, type, name } = identityProofIdentityPropf[1];
+            const {uri, type, name} = identityProofIdentityPropf[1];
             formdatauploadFarmerIdAdd.append('farmer_identity', {
               uri,
               type,
@@ -1660,11 +1666,14 @@ const PlotStatusUpdate = () => {
         }
         if (updateLandCropdetails_res?.status === 200) {
           removesetLocation();
-          Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-          navigation.navigate('Dashboard');
+          Toast.show({text: t('Updated'), ...AlertMesg[0]});
+          navigation.navigate('Dashboard', {action: 'plotStatusUpdated'});
           // goBack();
-        }else {
-          Toast.show({ text: updateLandCropdetails_res?.data?.error?.errorMessage, ...AlertMesg[0] });
+        } else {
+          Toast.show({
+            text: updateLandCropdetails_res?.data?.error?.errorMessage,
+            ...AlertMesg[0],
+          });
         }
         setIsLoading(false);
       }
@@ -1674,7 +1683,7 @@ const PlotStatusUpdate = () => {
     setOutofRange(false);
     setAddPlot(true);
     //basude stop
-    setstatuslevel({ label: '', value: '' });
+    setstatuslevel({label: '', value: ''});
     setUserData('addUserData');
     setPlotEdit(true);
     setPolygons(nearPolSet);
@@ -1686,7 +1695,7 @@ const PlotStatusUpdate = () => {
     removesetLocation();
   };
   const handleAddUserData = (name, data) => {
-    setfarmerData({ ...farmerData, [`${name}`]: data });
+    setfarmerData({...farmerData, [`${name}`]: data});
   };
   const handleAddUserDataland_size = (name, data) => {
     setfarmerData({
@@ -1712,10 +1721,10 @@ const PlotStatusUpdate = () => {
         'CARBON_DOCUMENTS_REJECTED',
       ].includes(statuslevel.label)
     ) {
-      const { latitude, longitude } = event.nativeEvent.coordinate;
+      const {latitude, longitude} = event.nativeEvent.coordinate;
       groupedData = groupByRelId(nearPolData);
       // setNewPolygon([...newPolygon, { latitude, longitude }]);
-      setNewPolygon([...newPolygon, { latitude, longitude, editing: true }]);
+      setNewPolygon([...newPolygon, {latitude, longitude, editing: true}]);
     }
   };
   const undoMark = () => {
@@ -1772,7 +1781,7 @@ const PlotStatusUpdate = () => {
           if (landUnitsquareMetre?.[0]?.defined_unit_value) {
             setArea(
               Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-              geolib.getAreaOfPolygon(newPolygon),
+                geolib.getAreaOfPolygon(newPolygon),
             );
           } else {
             setArea(geolib.getAreaOfPolygon(newPolygon));
@@ -1781,8 +1790,8 @@ const PlotStatusUpdate = () => {
           Alert.alert(
             'Overlap Detected',
             'Coordinates are overlapping',
-            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-            { cancelable: false },
+            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+            {cancelable: false},
           );
         }
       } else {
@@ -1790,8 +1799,8 @@ const PlotStatusUpdate = () => {
         Alert.alert(
           'Error',
           'A polygon requires at least 3 points.',
-          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-          { cancelable: false },
+          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          {cancelable: false},
         );
       }
       setLocationType('polygon_tap');
@@ -1801,7 +1810,7 @@ const PlotStatusUpdate = () => {
   };
 
   const clearNewPolygon = () => {
-    setfarmerData({ ...farmerData, google_area: 0 });
+    setfarmerData({...farmerData, google_area: 0});
     // if (userData == 'addUserData' || addPlot == true) {
     //   setNewPolygon([]);
     //   setPolygons(nearPolSet);
@@ -1844,7 +1853,7 @@ const PlotStatusUpdate = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -1852,7 +1861,7 @@ const PlotStatusUpdate = () => {
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
   const handleRegionChangeComplete = async newRegion => {
-    const { latitude, longitude } = newRegion;
+    const {latitude, longitude} = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1906,14 +1915,14 @@ const PlotStatusUpdate = () => {
   };
   const handleIOTId = async (itemName, text) => {
     try {
-      setfarmerData({ ...farmerData, IOTId: text });
+      setfarmerData({...farmerData, IOTId: text});
     } catch (error) {
       console.log('Error in handleIOTId', error);
     }
   };
   const handleCurrentLatLongIOT = async () => {
     try {
-      const { latitude, longitude } = coords || {};
+      const {latitude, longitude} = coords || {};
 
       setfarmerData({
         ...farmerData,
@@ -1971,7 +1980,7 @@ const PlotStatusUpdate = () => {
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
-          <View style={{ flex: 1, backgroundColor: 'white' }}>
+          <View style={{flex: 1, backgroundColor: 'white'}}>
             <CustomHeader
               path="Market"
               // HandlerGoBack={HandlerGoBack}
@@ -1992,17 +2001,19 @@ const PlotStatusUpdate = () => {
                 farmerData.cycleStartDate == ''
                   ? issuenewDate
                   : new Date(
-                    `${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1
-                    }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-                  )
+                      `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                        new Date(farmerData.cycleStartDate).getMonth() + 1
+                      }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+                    )
               }
               minimumDate={
                 farmerData.cycleStartDate == ''
                   ? ''
                   : new Date(
-                    `${new Date(farmerData.cycleStartDate).getFullYear()}-${new Date(farmerData.cycleStartDate).getMonth() + 1
-                    }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
-                  )
+                      `${new Date(farmerData.cycleStartDate).getFullYear()}-${
+                        new Date(farmerData.cycleStartDate).getMonth() + 1
+                      }-${new Date(farmerData.cycleStartDate).getDate() + 1}`,
+                    )
               }
               setOpenDate={setopenCycleEnd}
               handleDatePicker={handleDatePicker2}
@@ -2026,18 +2037,18 @@ const PlotStatusUpdate = () => {
               //   handleHarvested={handleHarvested}
               //   status={statuslevel.label}
               // />
-                <HarvestedModel
-                  setModalVisible={setModalVisible}
-                  modalVisible={modalVisible}
-                  handleHarvested={handleHarvested}
-                  // status={statuslevel.label}
-                />
+              <HarvestedModel
+                setModalVisible={setModalVisible}
+                modalVisible={modalVisible}
+                handleHarvested={handleHarvested}
+                // status={statuslevel.label}
+              />
             )}
 
             <ScrollView
-              style={{ padding: 16 }}
+              style={{padding: 16}}
               showsVerticalScrollIndicator={false}>
-              <View style={{ marginBottom: 40 }}>
+              <View style={{marginBottom: 40}}>
                 {statuslevel.label == 'REJECTED' && (
                   <View
                     style={{
@@ -2104,7 +2115,7 @@ const PlotStatusUpdate = () => {
                   onChange={item => {
                     handleAddData(item, 'terrainType', 'terrainTypeValue');
                   }}
-                // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+                  // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
                 />
                 <DropdownForm
                   label={t('select_land_type')}
@@ -2114,7 +2125,7 @@ const PlotStatusUpdate = () => {
                     handleAddData(item, 'landType', 'landTypeValue');
                   }}
                   val={farmerData.landType}
-                // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+                  // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
                 />
                 <DropdownForm
                   label={t('addland_soil_type_dv')}
@@ -2124,10 +2135,10 @@ const PlotStatusUpdate = () => {
                     handleAddData(item, 'soilType', 'soilTypeValue');
                   }}
                   val={farmerData.soilType}
-                // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+                  // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
                 />
                 <View style={styles.plotSiteUnit}>
-                  <View style={{ width: '45%' }}>
+                  <View style={{width: '45%'}}>
                     <InputTextForm
                       label={t('pre_land_size')}
                       requred={true}
@@ -2138,15 +2149,15 @@ const PlotStatusUpdate = () => {
                       // editable={InputTextFormEdit}
                       editable={
                         statuslevel.label == 'APPROVED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                           ? false
                           : true
                       }
                     />
                   </View>
-                  <View style={{ width: '45%', }}>
+                  <View style={{width: '45%'}}>
                     {/* /// size */}
                     <DropdownForm
                       label={t('select_unit')}
@@ -2158,9 +2169,9 @@ const PlotStatusUpdate = () => {
                       val={farmerData.unit}
                       disable={
                         statuslevel.label == 'APPROVED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                           ? true
                           : false
                       }
@@ -2171,9 +2182,10 @@ const PlotStatusUpdate = () => {
                   <InputTextForm
                     label={
                       t('Converted reported Land size ') +
-                      `${landAreaUnit?.[0]?.defined_unit_value
-                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                        : '(Square meter)'
+                      `${
+                        landAreaUnit?.[0]?.defined_unit_value
+                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                          : '(Square meter)'
                       }`
                     }
                     value={farmerData?.ConvertedreportedLandsize.toString()}
@@ -2194,18 +2206,18 @@ const PlotStatusUpdate = () => {
                   loginUser_data={loginUser_data}
                   disable={
                     statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                       ? false
                       : statuslevel.label == 'PENDING' ||
                         statuslevel.label == 'REJECTED'
-                        ? false
-                        : true
+                      ? false
+                      : true
                   }
                   InputTextFormEdit={InputTextFormEdit}
                 />
-                <View style={{ marginTop: 15 }}>
+                <View style={{marginTop: 15}}>
                   <ProofAndIdentityPropfComp
                     identityProofIdentityPropf={identityProofIdentityPropf}
                     t={t}
@@ -2218,20 +2230,20 @@ const PlotStatusUpdate = () => {
                     status_level={statuslevel.label}
                     InputTextFormEdit={
                       statuslevel.label == 'PENDING' ||
-                        statuslevel.label == 'REJECTED'
+                      statuslevel.label == 'REJECTED'
                         ? true
                         : false
                     }
                     disable={
                       statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                         ? false
                         : statuslevel.label == 'PENDING' ||
                           statuslevel.label == 'REJECTED'
-                          ? false
-                          : true
+                        ? false
+                        : true
                     }
                   />
                 </View>
@@ -2260,9 +2272,10 @@ const PlotStatusUpdate = () => {
                     <InputTextForm
                       label={
                         t('Calculated Map Area ') +
-                        `${landAreaUnit?.[0]?.defined_unit_value
-                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                          : '(Square meter)'
+                        `${
+                          landAreaUnit?.[0]?.defined_unit_value
+                            ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                            : '(Square meter)'
                         }`
                       }
                       value={area.toString()}
@@ -2271,13 +2284,13 @@ const PlotStatusUpdate = () => {
                     />
                   </>
                 )}
-                <View style={{ marginTop: 10 }}>
+                <View style={{marginTop: 10}}>
                   <InputTextForm
                     label={t('Enter IOT Id')}
                     onChangeText={text => handleIOTId('IOTId', text)}
                     value={farmerData.IOTId}
-                  // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
-                  // editable={InputTextFormEdit}
+                    // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
+                    // editable={InputTextFormEdit}
                   />
                 </View>
                 <View style={styles.locationContainer}>
@@ -2356,11 +2369,11 @@ const PlotStatusUpdate = () => {
                             key={index}
                             onPress={() =>
                               data?.latitude != 10 &&
-                                data?.latitude.length != ''
+                              data?.latitude.length != ''
                                 ? ''
                                 : dataProps?.status_level != 'APPROVED'
-                                  ? handleCurrentLatLong(index)
-                                  : ''
+                                ? handleCurrentLatLong(index)
+                                : ''
                             }
                             style={styles.locationStatusInactive}>
                             <MaterialIcons
@@ -2377,11 +2390,11 @@ const PlotStatusUpdate = () => {
                             key={index}
                             onPress={() =>
                               data?.latitude != 10 &&
-                                data?.latitude.length != ''
+                              data?.latitude.length != ''
                                 ? ''
                                 : dataProps?.status_level != 'APPROVED'
-                                  ? handleCurrentLatLong(index)
-                                  : ''
+                                ? handleCurrentLatLong(index)
+                                : ''
                             }
                             style={styles.locationStatusInactive}>
                             <MaterialIcons
@@ -2508,7 +2521,7 @@ const PlotStatusUpdate = () => {
                   }
                 />
                 <View style={styles.plotSiteUnit}>
-                  <View style={{ width: '45%' }}>
+                  <View style={{width: '45%'}}>
                     <InputTextForm
                       label={t('expected_yield')}
                       keyboardType="number-pad"
@@ -2517,16 +2530,16 @@ const PlotStatusUpdate = () => {
                       onChangeText={text =>
                         handleAddUserData('expectedProduction', text)
                       }
-                    // editable={
-                    //   edit == ''
-                    //     ? harvested == 'same produce'
-                    //       ? false
-                    //       : true
-                    //     : !edit
-                    // }
+                      // editable={
+                      //   edit == ''
+                      //     ? harvested == 'same produce'
+                      //       ? false
+                      //       : true
+                      //     : !edit
+                      // }
                     />
                   </View>
-                  <View style={{ width: '45%' }}>
+                  <View style={{width: '45%'}}>
                     <DropdownForm
                       label={`${t('select_unit_input')}`}
                       requred={true}
@@ -2535,14 +2548,14 @@ const PlotStatusUpdate = () => {
                         handleAddData(item, 'unitProduct', 'unitProductValue');
                       }}
                       val={farmerData.unitProduct}
-                    // disable={edit}
-                    // disable={
-                    //   edit == ''
-                    //     ? harvested == 'same produce'
-                    //       ? true
-                    //       : false
-                    //     : edit
-                    // }
+                      // disable={edit}
+                      // disable={
+                      //   edit == ''
+                      //     ? harvested == 'same produce'
+                      //       ? true
+                      //       : false
+                      //     : edit
+                      // }
                     />
                   </View>
                 </View>
@@ -2567,17 +2580,17 @@ const PlotStatusUpdate = () => {
                     </Text>
                   </View>
                   <View style={styles.calenderContainer}>
-                    <Text style={{ color: '#000' }}>
+                    <Text style={{color: '#000'}}>
                       {' '}
                       {farmerData.cycleStartDate}
                     </Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                     />
                   </View>
                 </TouchableOpacity>
-                <View style={{ marginTop: 25 }}>
+                <View style={{marginTop: 25}}>
                   <DropdownForm
                     label={t('addcrop_select_cultivating_season')}
                     requred={true}
@@ -2620,12 +2633,12 @@ const PlotStatusUpdate = () => {
                     <Text style={styles.requiredStar}> *</Text>
                   </View>
                   <View style={styles.calenderContainer}>
-                    <Text style={{ color: '#000' }}>
+                    <Text style={{color: '#000'}}>
                       {farmerData.cycleEndDate}
                     </Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}
-                      style={{ width: 20, height: 20 }}
+                      style={{width: 20, height: 20}}
                     />
                   </View>
                 </TouchableOpacity>
@@ -2634,8 +2647,8 @@ const PlotStatusUpdate = () => {
                   statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                   statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
                   statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-                  carbonFlag == true ? (
-                  <View style={{ marginTop: 15 }}>
+                carbonFlag == true ? (
+                  <View style={{marginTop: 15}}>
                     <CarbonCertificate
                       identityProofIdentityPropf={carboncertificate}
                       t={t}
@@ -2653,8 +2666,8 @@ const PlotStatusUpdate = () => {
                           : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                             statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                             statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                            ? false
-                            : true
+                          ? false
+                          : true
                       }
                       InputTextFormEdit={
                         statuslevel.label == 'APPROVED' ? true : false
@@ -2705,7 +2718,6 @@ const PlotStatusUpdate = () => {
                   baselatLong={referencelatLong}
                   handleRegionChangeComplete={handleRegionChangeComplete}
                   isLoading={isLoading}
-
                 />
               </Modal>
             )}
@@ -2724,7 +2736,7 @@ const PlotStatusUpdate = () => {
             onPressItem={() => setShowModal(!showModal)}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{ vertical: 80, horizontal: 25 }}
+            distanceToEdge={{vertical: 80, horizontal: 25}}
           />
           <ButtonForm
             label={t('submit')}
@@ -2735,7 +2747,6 @@ const PlotStatusUpdate = () => {
             label={t('submit')}
             onPress={() => handleUserListUpdate()}
           /> */}
-
         </Root>
       </MyErrorBoundary>
     </FarmerDrawerScreenWrapper1>

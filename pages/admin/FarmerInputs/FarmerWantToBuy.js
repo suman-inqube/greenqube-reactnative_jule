@@ -185,6 +185,7 @@ const FarmerWantToBuy = ({navigation}) => {
     let entity_variety_id = item.value;
     let pp_qty = item.pp_qty;
     const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
+    console.log('unitRes', unitRes);
     if (unitRes?.status == 200) {
       const rows = unitRes?.data?.data?.rows[0];
       const defined_unit_value = inputSingle.agri_product_prices.filter(
@@ -544,13 +545,11 @@ const FarmerWantToBuy = ({navigation}) => {
                   label={t('select_district_county')}
                   value={saveData.district_name}
                   editable={false}
-
                 />
                 <InputTextForm
                   label={t('select_block_sub_county_upzila')}
                   value={saveData.subdiv_name}
                   editable={false}
-
                 />
                 <View>
                   <Text style={{color: '#000'}}>{t('approximate_date')}</Text>

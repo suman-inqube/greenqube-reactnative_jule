@@ -38,7 +38,7 @@ const DropdownForm = ({
       {/* Dropdown */}
       <View style={styles.container}>
         <Dropdown
-          mode="default"
+          mode="modal"
           style={styles.dropdown}
           containerStyle={styles.dropdownContainerStyle}
           placeholderStyle={styles.placeholderStyle}
@@ -56,9 +56,11 @@ const DropdownForm = ({
           onChange={onChange}
           value={val}
           disable={disable}
-          keyboardAvoiding
+          // keyboardAvoiding
           showsVerticalScrollIndicator={false}
           iconColor={Colors.borderGreen}
+          keyboardAvoiding={true}
+          keyboardShouldPersistTaps="handled"
           activeColor={Colors.containerGreen}
         />
       </View>

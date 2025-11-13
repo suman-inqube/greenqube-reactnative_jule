@@ -123,7 +123,7 @@ const DropdownForm = ({
         </Text>
         <View style={styles.container}>
           <Dropdown
-            mode="default"
+            mode="modal"
             style={[styles.dropdown, dropdownStyle]}
             placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
             selectedTextStyle={[styles.selectedTextStyle, selectedTextStyle]}
@@ -132,7 +132,7 @@ const DropdownForm = ({
             iconStyle={[styles.iconStyle, iconStyle]}
             data={filteredData}
             search
-            maxHeight={300}
+            maxHeight={250}
             labelField="label"
             valueField="value"
             placeholder={!val ? dropdownPlaceholder : String(val)}

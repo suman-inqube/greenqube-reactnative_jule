@@ -85,7 +85,6 @@ const CustomHeader = memo(
     show,
     filterOptionShow,
   }) => {
-    console.log('logoImage123', "logoImage");
     const drawerStatus = useDrawerStatus();
     const {t} = useTranslation();
     const navigation = useNavigation();

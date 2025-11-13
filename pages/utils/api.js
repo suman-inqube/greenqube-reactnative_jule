@@ -1,24 +1,24 @@
 import axios from 'axios';
 import NetInfo from '@react-native-community/netinfo';
-import { Alert, NativeModules } from 'react-native';
+import {Alert, NativeModules} from 'react-native';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
-import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import { AlertMesg } from '../Common/ToastAlert';
+import {Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {AlertMesg} from '../Common/ToastAlert';
 const SLOW_THRESHOLD = 3000;
 const instance = axios.create({
-  baseURL: 'https://mygreenqube.com:4003/',
-  // baseURL: 'http://134.209.155.11:4003/',
+  // baseURL: 'https://mygreenqube.com:4003/',
+  baseURL: 'http://134.209.155.11:4003/',
   timeout: 10000,
 });
 instance.interceptors.request.use(config => {
-  config.metadata = { startTime: new Date().getTime() };
+  config.metadata = {startTime: new Date().getTime()};
   return config;
 });
 (async () => {
   try {
     // const { ConfigModule } = NativeModules;
-    const encKey = "greenQube_96740_64428";
+    const encKey = 'greenQube_96740_64428';
 
     instance.interceptors.response.use(
       response => {
@@ -52,10 +52,8 @@ instance.interceptors.request.use(config => {
               mode: CryptoJS.mode.CBC,
               padding: CryptoJS.pad.Pkcs7,
             });
-            const parsed = JSON.parse(
-              decrypted.toString(CryptoJS.enc.Utf8),
-            );
-            return { data: parsed, status: 200 };
+            const parsed = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+            return {data: parsed, status: 200};
           }
         } catch (err) {
           console.error('Decryption failed:', err);
@@ -116,24 +114,24 @@ const isInternetAvailable = async () => {
 
 const handleError = error => {
   if (axios.isCancel(error) || error.name === 'AbortError') {
-    return { status: 499, data: { message: 'Request cancelled' } };
+    return {status: 499, data: {message: 'Request cancelled'}};
   }
   if (error.code === 'ECONNABORTED') {
-     Toast.show({
+    Toast.show({
       time: 2,
       text: `The request took too long. Please try again.`,
       ...AlertMesg[0],
     });
     // Alert.alert('Timeout', 'The request took too long. Please try again.');
-    return { status: 408, data: { message: 'Request timed out' } };
+    return {status: 408, data: {message: 'Request timed out'}};
   }
   if (error.response) {
     return {
       status: error.response.status || 500,
-      data: error.response.data || { message: 'Unknown error' },
+      data: error.response.data || {message: 'Unknown error'},
     };
   }
-  return { status: 500, data: { message: 'Connection error' } };
+  return {status: 500, data: {message: 'Connection error'}};
 };
 export const axiosGet = async (
   url,
@@ -141,14 +139,14 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
-  console.log("url",url)
+  console.log('url', url);
   if (!(await isInternetAvailable()))
-    return Promise.reject({ status: 0, data: { message: 'No internet' } });
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
-  console.log(url,extraHeaders)
+  console.log(url, extraHeaders);
   try {
     return await instance.get(url, {
-      headers: { ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {...(token && {Authorization: token}), ...extraHeaders},
       signal: controller.signal,
     });
   } catch (error) {
@@ -166,7 +164,7 @@ export const axiosPost = async (
   abortController = null,
 ) => {
   if (!(await isInternetAvailable()))
-    return Promise.reject({ status: 0, data: { message: 'No internet' } });
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   let contentType = 'application/json';
   if (isFormData(body)) contentType = 'multipart/form-data';
@@ -176,13 +174,13 @@ export const axiosPost = async (
     return await instance.post(url, payload, {
       headers: {
         'Content-Type': contentType,
-        ...(token && { Authorization: token }),
+        ...(token && {Authorization: token}),
         ...extraHeaders,
       },
       signal: controller.signal,
     });
   } catch (error) {
-    Alert.alert(error)
+    Alert.alert(error);
     throw handleError(error);
   }
 };
@@ -196,7 +194,7 @@ export const axiosPut = async (
   abortController = null,
 ) => {
   if (!(await isInternetAvailable()))
-    return Promise.reject({ status: 0, data: { message: 'No internet' } });
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   let contentType = 'application/json';
   if (isFormData(body)) contentType = 'multipart/form-data';
@@ -206,7 +204,7 @@ export const axiosPut = async (
     return await instance.put(url, payload, {
       headers: {
         'Content-Type': contentType,
-        ...(token && { Authorization: token }),
+        ...(token && {Authorization: token}),
         ...extraHeaders,
       },
       signal: controller.signal,
@@ -223,11 +221,11 @@ export const axiosDelete = async (
   abortController = null,
 ) => {
   if (!(await isInternetAvailable()))
-    return Promise.reject({ status: 0, data: { message: 'No internet' } });
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   try {
     return await instance.delete(url, {
-      headers: { ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {...(token && {Authorization: token}), ...extraHeaders},
       signal: controller.signal,
     });
   } catch (error) {
@@ -243,13 +241,13 @@ export const axiosPatch = async (
   abortController = null,
 ) => {
   if (!(await isInternetAvailable()))
-    return Promise.reject({ status: 0, data: { message: 'No internet' } });
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   try {
     return await instance.patch(url, body, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        ...(token && { Authorization: token }),
+        ...(token && {Authorization: token}),
         ...extraHeaders,
       },
       signal: controller.signal,
