@@ -16,7 +16,7 @@ import RNRestart from 'react-native-restart';
 import './pages/services/i18next';
 import { checkAppVersion } from './pages/checkAppVersion';
 let isExceptionHandlerConfigured = false;
-
+import { Root } from '@sekizlipenguen/react-native-popup-confirm-toast';
 /* -----------------------------------------------------------
    Exception Handlers (same logic, improved safety)
 ------------------------------------------------------------ */
@@ -67,7 +67,9 @@ export default function Main() {
       <MyErrorBoundary>
         <UserCreateContextProvider>
           <PopupRootProvider>
+            <Root>
             <App />
+            </Root>
           </PopupRootProvider>
         </UserCreateContextProvider>
        </MyErrorBoundary>

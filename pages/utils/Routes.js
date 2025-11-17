@@ -324,6 +324,7 @@ export const ROUTES = {
       farmer_mobile = '',
     }) =>
       `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
+      LIST_CO_FARMERS:({land_fid})=>`settingsRoute/listCoFarmers/1/1/2?land_fid=${land_fid}`
   },
 
   PUT: {

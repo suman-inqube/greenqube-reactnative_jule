@@ -170,10 +170,11 @@ const UserCreateContextProvider = props => {
     watchIdRef.current = Geolocation.watchPosition(
       pos => {
         if (!pos || !pos.coords) return;
-
-        console.log(
-          `📍 lat:${pos.coords.latitude}, lon:${pos.coords.longitude}, acc:${pos.coords.accuracy}m, mocked:${pos.mocked}`,
-        );
+        if (__DEV__) {
+          console.log(
+            `📍 lat:${pos.coords.latitude}, lon:${pos.coords.longitude}, acc:${pos.coords.accuracy}m, mocked:${pos.mocked}`,
+          );
+        }
         if (pos.mocked === true) {
           handleMockDetected();
           return;
@@ -227,7 +228,7 @@ const UserCreateContextProvider = props => {
         p => {
           if (p?.mocked === true) handleMockDetected();
         },
-        () => {},
+        () => { },
         { enableHighAccuracy: true, timeout: 10000 },
       );
     }, 10000);

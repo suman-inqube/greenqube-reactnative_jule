@@ -9,6 +9,7 @@ import {
   Modal,
   Alert,
   InteractionManager,
+  Dimensions,
 } from 'react-native';
 import React, {
   useState,
@@ -73,6 +74,10 @@ import { ROUTES } from '../../utils/Routes';
 import { getActionsPlot } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import CoFarmer from '../../Components/CoFarmer';
+import CoFarmerCard from '../../../Components/CoFarmerCard';
+import ListOfCoFarmer from '../../Components/ListOfCoFarmer';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const LiveHood = ({
   sendDataToParent,
   dataProps,
@@ -234,6 +239,17 @@ const LiveHood = ({
     latitude: 0,
     longitude: 0,
   });
+  const [modalVisibleCoFarmer, setModalVisibleCoFarmer] = useState(false);
+  const [ListOFmodalVisibleCoFarmer, setListOfModalVisibleCoFarmer] = useState(false);
+  const [coFarmerDetails, setCoFarmerDetails] = useState({
+    name: '',
+    phone: '',
+    CoFarmer: '',
+    govtId: '',
+    govtIdType: '',
+    gotIdName: '',
+  });
+  const [conFarmerList, setConFarmerList] = useState([]);
   const [outofRange, setOutofRange] = useState(false);
   const [previousPlotLatlong, setPreviousPlotLatlong] = useState([]);
   const [add_new_crop, setAdd_new_crop] = useState(false);
@@ -241,18 +257,18 @@ const LiveHood = ({
     try {
       setIsLoading(true);
 
-      // const { latitude, longitude } = coords || {};
-      // var latlong;
-      // if (latitude == '' && longitude == '') {
-      //   latlong = await getHighAccuracyLocation();
-      // }
-      const fusedLocation = await getItem('fusedLocation');
-      const { latitude, longitude } = fusedLocation;
-      // const lat = latitude === '' ? latlong.latitude : latitude;
-      // const lon = longitude === '' ? latlong.longitude : longitude;
-      const lat = latitude;
-      const lon = longitude;
-      setreferencelatLong({ latitude, longitude });
+      const { latitude, longitude } = coords || {};
+      var latlong;
+      if (latitude == '' && longitude == '') {
+        latlong = await getHighAccuracyLocation();
+      }
+      // const fusedLocation = await getItem('fusedLocation');
+      // const { latitude, longitude } = fusedLocation;
+      const lat = latitude === '' ? latlong.latitude : latitude;
+      const lon = longitude === '' ? latlong.longitude : longitude;
+      // const lat = latitude;
+      // const lon = longitude;
+      setreferencelatLong({ latitude: lat, longitude: lon });
       setDefaultLatLon({ latitude: lat, longitude: lon, });
       const axiosConfig = {
         headers: {
@@ -383,7 +399,7 @@ const LiveHood = ({
   const handlePlot = useCallback(
     async findData => {
       try {
-        const { latitude, longitude } = await getItem('fusedLocation') || {};
+        const { latitude, longitude } = coords;
         var latlong;
         if (latitude == '' && longitude == '') {
           latlong = await getHighAccuracyLocation();
@@ -448,7 +464,6 @@ const LiveHood = ({
             },
           )
         ]);
-        console.log("aaa", getSeasonDateRes)
         setPlotId(findData.value);
 
         if (getPlotDoc?.status == 200) {
@@ -731,21 +746,21 @@ const LiveHood = ({
             setLocationType('api_lication');
           }
           //basudev out of range
-          // if (agri_land_user_latlongs.length > 1) {
-          //   const { latitude, longitude } = fusedLocation;
-          //   const is20Meters = isWithin20Meters(
-          //     { latitude, longitude },
-          //     agri_land_user_latlongs,
-          //     40
-          //   );
-          //   if (is20Meters?.length !== 0) {
-          //     setOutofRange(false);
-          //   } else {
-          //     setOutofRange(true);
-          //   }
-          // } else {
-          //   setOutofRange(false);
-          // }
+          if (agri_land_user_latlongs.length > 1) {
+            const { latitude, longitude } = coords;
+            const is20Meters = isWithin20Meters(
+              { latitude, longitude },
+              agri_land_user_latlongs,
+              40
+            );
+            if (is20Meters?.length !== 0) {
+              setOutofRange(false);
+            } else {
+              setOutofRange(true);
+            }
+          } else {
+            setOutofRange(false);
+          }
           if (data?.add_new_crop === true) {
             setAdd_new_crop(true);
           } else {
@@ -793,7 +808,6 @@ const LiveHood = ({
         }
       } catch (error) {
         setIsLoading(false);
-
         Toast.show({
           text: typeof error == 'object' ? JSON.stringify(error) : error,
           ...AlertMesg[0],
@@ -941,11 +955,7 @@ const LiveHood = ({
     }
   };
   const handleDatePicker = async item => {
-    console.log(edit == '' ? (harvested == 'same produce' || harvested=="add new Produce"  ? false : true) : edit)
-    console.log("******************")
-    console.log(harvested,edit)
     const selectedDate = effective_dates(item);
-
     const seasonData = await axiosGet(
       ROUTES.GET.PRODUCE_SEASON({
         from_date: selectedDate,
@@ -1189,17 +1199,6 @@ const LiveHood = ({
     crop_name_id,
   ) => {
     const productSeasonresRes = await axiosGet(
-      ROUTES.GET.PRODUCTION_SEASON({
-        lanId: languageID,
-        crop_type_id: crop_type_id,
-        crop_name_id: crop_name_id,
-      }),
-      '',
-      { information: `${dbname},${languageID}` },
-    );
-
-    console.log(
-      'API123',
       ROUTES.GET.PRODUCTION_SEASON({
         lanId: languageID,
         crop_type_id: crop_type_id,
@@ -1565,7 +1564,7 @@ const LiveHood = ({
         }
         let save_data = qs.stringify(dataToSend);
         let updateLandCropdetails_res = {};
-console.log("dataToSenddataToSenddataToSend",dataToSend)
+        console.log("dataToSenddataToSenddataToSend", dataToSend)
         updateLandCropdetails_res = await axiosPut(
           ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
             land_rel_id: farmerData.land_rel_id,
@@ -1788,30 +1787,30 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
         // setPolygons([newPolygon]);
         //basudev
         if (!overlapFound) {
-        setPolygons([...nearPolSet, newPolygon]);
-        setNewPolygon([]);
-        setLocation(newPolygon);
-        setEditing(false);
-        setShowModal(false);
-        // setArea(calculateAreaFun(newPolygon));
-        setFarmerData(prev => ({
-          ...prev,
-          google_area: geolib.getAreaOfPolygon(newPolygon),
-        }));
-        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-          setArea(
-            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
-          );
-        } else {
-          setArea(geolib.getAreaOfPolygon(newPolygon));
-        }
+          setPolygons([...nearPolSet, newPolygon]);
+          setNewPolygon([]);
+          setLocation(newPolygon);
+          setEditing(false);
+          setShowModal(false);
+          // setArea(calculateAreaFun(newPolygon));
+          setFarmerData(prev => ({
+            ...prev,
+            google_area: geolib.getAreaOfPolygon(newPolygon),
+          }));
+          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+            setArea(
+              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(newPolygon),
+            );
+          } else {
+            setArea(geolib.getAreaOfPolygon(newPolygon));
+          }
         } else {
           Alert.alert(
             'Overlap Detected',
             'Coordinates are overlapping',
-            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-            {cancelable: false},
+            [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+            { cancelable: false },
           );
         }
       } else {
@@ -2076,6 +2075,53 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
     },
     [farmerData.land_size],
   );
+  const [editIndex, setEditIndex] = useState(null);
+  const handleAddCoFarmer = () => {
+    if (editIndex !== null) {
+      const updatedList = [...conFarmerList];
+      updatedList[editIndex] = coFarmerDetails;
+      setConFarmerList(updatedList);
+      setEditIndex(null);
+    } else {
+      setConFarmerList([...conFarmerList, coFarmerDetails]);
+    }
+    setCoFarmerDetails({
+      name: '', phone: '', govtId: '',
+      govtIdType: '',
+      gotIdName: '',
+    });
+    setEditIndex(null);
+    setModalVisibleCoFarmer(false);
+  }
+
+  const handleEdit = (_data, _index) => {
+    setEditIndex(_index);
+    setCoFarmerDetails(_data)
+    setModalVisibleCoFarmer(true);
+
+  };
+  const handleDelete = (_data, _index) => {
+    const newList = [...conFarmerList];
+    newList.splice(_index, 1);
+    setConFarmerList(newList);
+
+  };
+  const handleCoFarmerCheck = (value, label, index) => {
+    setConFarmerList(prev =>
+      prev.map((item, i) => {
+        if (i === index) {
+          return {
+            ...item,
+            CoFarmer: item.CoFarmer ? "" : true
+          };
+        }
+        return {
+          ...item,
+          CoFarmer: item.CoFarmer
+        };
+      })
+    );
+  };
   return (
     <MyErrorBoundary>
       <>
@@ -2085,9 +2131,9 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
           newDate={newDate}
           setOpenDate={setopenCycleStart}
           handleDatePicker={handleDatePicker}
-          // minimumDate={new Date()}
-          // minimumDate={today}
-          // maximumDate={today}
+        // minimumDate={new Date()}
+        // minimumDate={today}
+        // maximumDate={today}
         />
         <DatePickerComp
           openDate={penCycleEnd}
@@ -2110,6 +2156,43 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
           setOpenDate={setopenCycleEnd}
           handleDatePicker={handleDatePicker2}
         />
+        <Modal visible={modalVisibleCoFarmer} transparent animationType="fade">
+          <View style={styles.overlay}>
+            <CoFarmer
+              title="CO-Farmer"
+              coFarmerDetails={coFarmerDetails}
+              setCoFarmerDetails={setCoFarmerDetails}
+              onCancel={() => {
+                setCoFarmerDetails({
+                  name: '', phone: '', govtId: '',
+                  govtIdType: '',
+                  gotIdName: '',
+                }); setModalVisibleCoFarmer(false)
+              }}
+              onSave={() => {
+                handleAddCoFarmer();
+              }}
+              unitAll={unitAll}
+              unit_valueArr={farmerData.unit_valueArr}
+            />
+          </View>
+        </Modal>
+        <Modal visible={ListOFmodalVisibleCoFarmer} transparent animationType="fade" onRequestClose={() => setListOfModalVisibleCoFarmer(false)}  >
+          <View style={styles.overlayLisCoFarmer}>
+            <View style={styles.modalBox}>
+              <ListOfCoFarmer
+                dbname={dbname}
+                lan_id={lan_id}
+                token={token}
+                user_id={user_id}
+                farmeruserID={farmeruserID}
+                plotId={plotId}
+                isLoading={isLoading} setIsLoading={setIsLoading}
+              />
+            </View>
+          </View>
+        </Modal>
+
         {isLoading ? (
           <View style={styles.LoadingScreen}>
             <LoadingScreen />
@@ -2122,7 +2205,6 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
             handleHarvested={handleHarvested}
           />
         )}
-
         <ScrollView
           style={{
             marginTop: 7,
@@ -2269,6 +2351,17 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
                 editable={false}
               />
             )}
+            {conFarmerList.map((_data, _index) => (
+              <CoFarmerCard
+                key={_index}
+                data={_data}
+                index={_index}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                handleCoFarmerCheck={handleCoFarmerCheck}
+              />
+            ))}
+
             <ProofAndIdentityPropfComp
               t={t}
               title={t('address_proof')}
@@ -2630,7 +2723,7 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
                 val={farmerData.productionSeason}
                 // disable={edit}
                 disable={
-                  edit == '' ? (harvested == 'same produce'|| harvested=="add new Produce"  ? false : harvested==""?false:true) : edit
+                  edit == '' ? (harvested == 'same produce' || harvested == "add new Produce" ? false : harvested == "" ? false : true) : edit
                 }
               />
             </View>
@@ -2714,11 +2807,15 @@ console.log("dataToSenddataToSenddataToSend",dataToSend)
         />
         <FloatingActionButton
           position="right"
-          actions={getActionsPlot(t, styles, Colors, plotEdit, addPlot)}
+          actions={getActionsPlot(t, styles, Colors, plotEdit, addPlot, activeTab)}
           color={Colors.useGreen}
           onPressItem={name => {
             if (name == 'MapView') {
               setShowModal(!showModal);
+            } else if (name == "coFarmer") {
+              setModalVisibleCoFarmer((prev) => !prev)
+            } else if (name == "coFarmerList") {
+              setListOfModalVisibleCoFarmer((prev) => !prev)
             } else {
               handleUserData();
             }
@@ -3006,5 +3103,136 @@ const styles = StyleSheet.create({
     // marginBottom: -20,
     // marginLeft: 20,
     marginTop: 10,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayLisCoFarmer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+  width: '90%',
+  maxHeight: SCREEN_HEIGHT * 0.7,
+  backgroundColor: '#fff',
+  borderRadius: 12,
+  padding: 10,
+},
+  card: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: "#10b981",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    overflow: "hidden",
+    minHeight: 95,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+
+  greenBorder: {
+    width: 5,
+    backgroundColor: "#10b981",
+  },
+
+  content: {
+    flex: 1,
+    padding: 16,
+    justifyContent: "center",
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  nameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  name: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1f2937",
+    marginRight: 8,
+  },
+
+  badge: {
+    backgroundColor: "#d1fae5",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+
+  badgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#10b981",
+  },
+
+  actionButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+
+  editButton: {
+    backgroundColor: "#dbeafe",
+    padding: 8,
+    borderRadius: 10,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#3b82f6",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  deleteButton: {
+    backgroundColor: "#fee2e2",
+    padding: 8,
+    borderRadius: 10,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#ef4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  phoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  subText: {
+    fontSize: 15,
+    color: "#6b7280",
+    fontWeight: "500",
+  },
+
+  rightAccent: {
+    width: 3,
+    backgroundColor: "#d1fae5",
   },
 });
