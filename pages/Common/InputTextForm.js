@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View, TextInput, useColorScheme } from 'react-native';
-import React, { memo } from 'react';
+import {StyleSheet, Text, View, TextInput, useColorScheme} from 'react-native';
+import React, {memo} from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
 const sanitizeInput = text => text.replace(/<\/?[^>]+(>|$)/g, '');
 const InputTextForm = ({
   value,
@@ -26,7 +26,7 @@ const InputTextForm = ({
     : '';
 
   return (
-    <View style={{ marginBottom: 15 }}>
+    <View style={{marginBottom: 15}}>
       {/* Label Row */}
       <View style={styles.labelContainer}>
         {iconName && (
@@ -37,7 +37,7 @@ const InputTextForm = ({
             style={styles.labelIcon}
           />
         )}
-        <Text style={[styles.title, { color }]}>{labelString}</Text>
+        <Text style={[styles.title, {color}]}>{labelString}</Text>
         {required && <Text style={styles.requiredStar}> *</Text>}
       </View>
 
@@ -46,7 +46,7 @@ const InputTextForm = ({
         style={[
           styles.inputField,
           !editable && styles.disabledInput,
-          { borderColor: Colors.borderGreen, minHeight: 48, },
+          {borderColor: Colors.borderGreen, minHeight: 48},
         ]}
         onChangeText={onChangeText}
         onBlur={() => {
@@ -78,13 +78,11 @@ const InputTextForm = ({
         })}
         onContentSizeChange={e =>
           e.nativeEvent.contentSize.height > 48 &&
-          (e.target.setNativeProps({
-            style: { height: e.nativeEvent.contentSize.height },
-          }))
+          e.target.setNativeProps({
+            style: {height: e.nativeEvent.contentSize.height},
+          })
         }
       />
-
-
     </View>
   );
 };
@@ -118,7 +116,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: Colors.text,
     //  borderColor: '#d1d5db',
-    borderColor: Colors.borderGreen
+    borderColor: Colors.borderGreen,
   },
   disabledInput: {
     backgroundColor: '#f3f4f6',

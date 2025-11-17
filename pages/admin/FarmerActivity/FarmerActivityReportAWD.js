@@ -63,13 +63,13 @@ import {plotHook} from '../../hooks/plotHook';
 import HarvestedModel from '../../Common/HarvestedModel';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import ActivityMap from '../../Common/ActivityMap';
-import { isPointInPolygon, getDistance } from 'geolib';
-import { captureRef } from 'react-native-view-shot';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { showAIValidationError } from '../../utils/showAIValidationError';
+import {isPointInPolygon, getDistance} from 'geolib';
+import {captureRef} from 'react-native-view-shot';
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import {showAIValidationError} from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
-const FarmerActivityReportAWD = ({ navigation }) => {
+const FarmerActivityReportAWD = ({navigation}) => {
   const today = new Date();
   const tenDaysAgo = new Date();
   tenDaysAgo.setDate(today.getDate() - 10);
@@ -171,9 +171,9 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     result: '',
   });
   const [replaceImgKey, setReplaceImgKey] = useState({
-    arrayPosition: "",
-    imgPosition: "",
-  })
+    arrayPosition: '',
+    imgPosition: '',
+  });
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
@@ -224,6 +224,88 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     value: '',
     latlongs: {},
   });
+  const pipe_fieldType = useRef(2);
+  // const checkPipeDistance = (currentLat, currentLon) => {
+  //   try {
+  //     console.error('pipeLatLong', pipeLatLong);
+  //     const prePipeCheck = isWithin20Meters(
+  //       {currentLat, currentLon},
+  //       pipeLatLong,
+  //       40,
+  //     );
+  //     console.log('prePipeCheck', prePipeCheck);
+  //   } catch (error) {
+  //     console.log('error', error);
+  //   }
+  // };
+  const checkPipeDistance = async (currentLat, currentLon) => {
+    try {
+      // Get fresh coordinates each time this function is called
+      const {latitude, longitude} = coords || {};
+      let freshLatLong;
+
+      if (!latitude || !longitude) {
+        freshLatLong = await getHighAccuracyLocation();
+      }
+
+      const lat = currentLat || latitude || freshLatLong?.latitude || 0;
+      const lon = currentLon || longitude || freshLatLong?.longitude || 0;
+      console.error('Checking pipe distance with coordinates:', {lat, lon});
+
+      console.error('Checking pipe distance with coordinates:', {lat, lon});
+
+      const allPipes = [...pipeLatLong];
+
+      pipeDetails.forEach(pipeGroup => {
+        const pipeName = pipeGroup[0]?.pipe_name;
+        const firstImage = pipeGroup[1]?.[0];
+        if (firstImage && firstImage.lat && firstImage.lon) {
+          allPipes.push({
+            latitude: firstImage.lat,
+            longitude: firstImage.lon,
+            name: pipeName || 'New Pipe',
+            color: '#000000',
+          });
+        }
+      });
+
+      console.log('All pipes to check against:', allPipes);
+
+      if (allPipes.length === 0) {
+        console.log('No existing pipe');
+        return true;
+      }
+
+      for (const existingPipe of allPipes) {
+        console.log('Checking against pipe:', existingPipe);
+        const distance = getDistance(
+          {latitude: lat, longitude: lon},
+          {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
+        );
+
+        console.log(
+          `Distance to pipe "${existingPipe.name}": ${Math.round(
+            distance,
+          )} meters`,
+        );
+
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{text: 'OK', style: 'cancel'}],
+          );
+          return false;
+        }
+      }
+
+      console.log('No pipes within 20 meters');
+      return true;
+    } catch (error) {
+      console.log('Error in checkPipeDistance:', error);
+      return true; // Allow proceeding if there's an error
+    }
+  };
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
   const openImagePicker = item => {
     const options = {
@@ -911,15 +993,15 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     Keyboard.dismiss();
     if (validateForm()) {
       const hasFailed = pipeDetails.some(pipeGroup =>
-        pipeGroup[1].some(img => img.status === 'failed')
+        pipeGroup[1].some(img => img.status === 'failed'),
       );
 
       if (hasFailed) {
         Toast.show({
-          text: "❌ Some images failed!",
+          text: '❌ Some images failed!',
           ...AlertMesg[0],
         });
-        console.log("❌ Some images failed!");
+        console.log('❌ Some images failed!');
         return;
       }
       setIsLoading(true);
@@ -972,7 +1054,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           pipeDetails.map((__data, _index) => {
             let pipe_lattlong = [];
             __data[1].map((__dataItem, _e) => {
-              if (__dataItem.imageURL != "" && __dataItem?.status == "") {
+              if (__dataItem.imageURL != '' && __dataItem?.status == '') {
                 formData.append(`pipe_image_${_index + 1}`, {
                   uri: __dataItem.imageURL,
                   type: 'image/jpeg',
@@ -995,7 +1077,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
           let pipe_lattlong = [];
           pipeDetails.map((__data, _index) => {
             __data[1].map((__dataItem, _e) => {
-              if (__dataItem.imageURL != "" && __dataItem?.status == "") {
+              if (__dataItem.imageURL != '' && __dataItem?.status == '') {
                 pipe_image.push({
                   uri: __dataItem.imageURL,
                   type: 'image/jpeg',
@@ -1008,7 +1090,9 @@ const FarmerActivityReportAWD = ({ navigation }) => {
               });
             });
           });
-          const pipe_data = [{ pipe_id: selectPipeList.value, latlong: pipe_lattlong }];
+          const pipe_data = [
+            {pipe_id: selectPipeList.value, latlong: pipe_lattlong},
+          ];
           if (pipe_lattlong.length != 0) {
             formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
           }
@@ -1102,26 +1186,29 @@ const FarmerActivityReportAWD = ({ navigation }) => {
         }
         if (database_res?.status === 400) {
           showAIValidationError(database_res);
-          const cleanFileName = (name) => name.replace(/^\d+-/, "");
-          const failedNamesSet = database_res?.data?.error?.errorMessage?.failed.map(i => cleanFileName(i.image_name));
+          const cleanFileName = name => name.replace(/^\d+-/, '');
+          const failedNamesSet =
+            database_res?.data?.error?.errorMessage?.failed.map(i =>
+              cleanFileName(i.image_name),
+            );
           const failedSet = new Set(failedNamesSet);
           const updatedPipeDetails = pipeDetails.map(pipeGroup => {
             return pipeGroup.map(item => {
               if (Array.isArray(item)) {
                 return item.map(img => {
                   const isFailed = [...failedSet].some(failedName =>
-                    img.imageName.includes(failedName)
+                    img.imageName.includes(failedName),
                   );
                   return {
                     ...img,
-                    status: isFailed ? "failed" : "accepted"
+                    status: isFailed ? 'failed' : 'accepted',
                   };
                 });
               }
               return item; // pipe_name object untouched
             });
           });
-          setPipeDetails(updatedPipeDetails)
+          setPipeDetails(updatedPipeDetails);
           showAIValidationError(database_res);
           setIsLoading(false);
         }
@@ -1155,16 +1242,6 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       try {
         let dataArray = [];
         var response;
-        console.log(
-          'activityInfo55' +
-            farmerID +
-            ',,' +
-            CropType +
-            ',,' +
-            CropName +
-            ',,' +
-            item.value,
-        );
         if (isOnline) {
           var response = await activityInfoAPI(
             dbname,
@@ -1276,60 +1353,68 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     const day1 = date1.getDate().toString().padStart(2, '0');
     const act_to_date = `${year1}-${month1}-${day1}`;
 
-        const act_start_date1 = item.start_date;
-        ``;
-        const date2 = new Date(act_start_date1);
-        const year2 = date2.getFullYear();
-        const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
-        const day2 = date2.getDate().toString().padStart(2, '0');
-        const act_start_date = `${year2}-${month2}-${day2}`;
-        setSaveData(prev => ({
-          ...prev,
-          // act_to_date: item.end_date,
-          act_to_date: act_to_date,
-          // act_start_date: item.start_date,
-          act_start_date: act_start_date,
-          act_ref: item.value,
-          act_master_id: item?.act_master_id,
-          field_type: item?.field_type || '',
-        }));
-        setselectPipeList({
-          ...selectPipeList,
-          label: '',
-          value: '',
-          latlongs: {},
-        });
+    const act_start_date1 = item.start_date;
+    ``;
+    const date2 = new Date(act_start_date1);
+    const year2 = date2.getFullYear();
+    const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+    const day2 = date2.getDate().toString().padStart(2, '0');
+    const act_start_date = `${year2}-${month2}-${day2}`;
+    setSaveData(prev => ({
+      ...prev,
+      // act_to_date: item.end_date,
+      act_to_date: act_to_date,
+      // act_start_date: item.start_date,
+      act_start_date: act_start_date,
+      act_ref: item.value,
+      act_master_id: item?.act_master_id,
+      field_type: item?.field_type || '',
+    }));
+    if (item?.field_type == 'add') {
+      console.log('111111111111111111');
 
-        if (PipeListDetailsRes?.status == 200) {
-          const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
-            (_data, _index) => ({
-              value: _data.pipe_pid,
-              label: _data.pipe_name,
-              latlongs: _data?.latlongs?.[0] || {},
-            }),
-          );
-          setPipeListDetailsResArr(pipeDetailsArr);
-          if (PipeListDetailsRes?.data?.data?.length == 0) {
-            Keyboard.dismiss();
-            Toast.show({
-              time: 2,
-              text: `${t('No pipe found in ' + item.label)}`,
-              ...AlertMesg[0],
-            });
-          }
-        } else {
-          setPipeListDetailsResArr([]);
-        }
-      } catch (error) {
-        CrashlyticsRecordError(
-          error,
-          'ActivityReportAWD',
-          'handleActivityType',
-        );
+      pipe_fieldType.current = 1;
+    } else {
+      console.log('000000000000000');
+      pipe_fieldType.current = 0;
+    }
+    setselectPipeList({
+      ...selectPipeList,
+      label: '',
+      value: '',
+      latlongs: {},
+    });
+    const PipeListDetailsRes = await getUniquePipeNames(
+      dbname,
+      lan_id,
+      token,
+      farmerID,
+      saveData.plot_id,
+      item?.act_master_id,
+      saveData.cu_rel_id,
+    );
+    console.log('PipeListDetailsRess', PipeListDetailsRes);
+    if (PipeListDetailsRes?.status == 200) {
+      const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
+        (_data, _index) => ({
+          value: _data.pipe_pid,
+          label: _data.pipe_name,
+          latlongs: _data?.latlongs?.[0] || {},
+        }),
+      );
+      setPipeListDetailsResArr(pipeDetailsArr);
+      if (PipeListDetailsRes?.data?.data?.length == 0) {
+        Keyboard.dismiss();
+        Toast.show({
+          time: 2,
+          text: `${t('No pipe found in ' + item.label)}`,
+          ...AlertMesg[0],
+        });
       }
-    },
-    [farmerID, saveData.plot_id, saveData.cu_rel_id],
-  );
+    } else {
+      setPipeListDetailsResArr([]);
+    }
+  }, []);
   const requestLivePermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -1413,7 +1498,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
   const handleActivityPipeNumber = useCallback(text => {
     setPipeNumber(text);
   }, []);
-  const addMorePipe = (field_type) => {
+  const addMorePipe = field_type => {
     if (pipeNumber == '' && field_type == 'add') {
       Toast.show({
         time: 2,
@@ -1433,22 +1518,25 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       // selectedImagePipe, status: ""
       setPipeDetails([
         ...pipeDetails,
-        [{ pipe_name: pipeNumber }, [
-          {
-            imageURL: selectedImagePipe.firstItem,
-            imageName: selectedImagePipe.firstItemfileName,
-            status: "",
-            lat: selectedImagePipe.firstItemLat,
-            lon: selectedImagePipe.firstItemLong,
-          },
-          {
-            imageURL: selectedImagePipe.secondItem,
-            imageName: selectedImagePipe.secondItemfileName,
-            status: "",
-            lat: selectedImagePipe.secondItemLat,
-            lon: selectedImagePipe.secondItemLong,
-          },
-        ]],
+        [
+          {pipe_name: pipeNumber},
+          [
+            {
+              imageURL: selectedImagePipe.firstItem,
+              imageName: selectedImagePipe.firstItemfileName,
+              status: '',
+              lat: selectedImagePipe.firstItemLat,
+              lon: selectedImagePipe.firstItemLong,
+            },
+            {
+              imageURL: selectedImagePipe.secondItem,
+              imageName: selectedImagePipe.secondItemfileName,
+              status: '',
+              lat: selectedImagePipe.secondItemLat,
+              lon: selectedImagePipe.secondItemLong,
+            },
+          ],
+        ],
       ]);
       setSelectedImagePipe(prev => ({
         ...prev,
@@ -1464,11 +1552,11 @@ const FarmerActivityReportAWD = ({ navigation }) => {
       setPipeNumber('');
     }
   };
-  const pipeEdit = (_index) => {
+  const pipeEdit = _index => {
     const values = [...pipeDetails];
     values.splice(_index, 1);
     setPipeDetails(values);
-  }
+  };
 
   const [modalVisibleMap, setModalVisibleMap] = useState(false);
   const [plotPolygon, setPlotPolygon] = useState([]);
@@ -1480,123 +1568,142 @@ const FarmerActivityReportAWD = ({ navigation }) => {
     setCameraItem(item);
     setModalVisibleMap(true);
   }, []);
-  const TakePhoto = useCallback(async (replaceImgKey) => {
-    const { latitude, longitude } = coords || {};
-    let latlong;
+  const TakePhoto = useCallback(
+    async replaceImgKey => {
+      const {latitude, longitude} = coords || {};
+      let latlong;
 
-    // If coords are empty, fetch current location
-    if (!latitude || !longitude) {
-      latlong = await getHighAccuracyLocation();
-    }
-
-    const lat = latitude || latlong?.latitude || 0;
-    const lon = longitude || latlong?.longitude || 0;
-
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 800,
-      maxWidth: 800,
-    };
-
-    launchCamera(options, async response => {
-      try {
-        if (!response) {
-          CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-          return;
-        }
-        if (response.didCancel) {
-          console.log('User cancelled camera');
-          return;
-        }
-        if (response.errorCode) {
-          console.log('Camera Error:', response.errorMessage);
-          return;
-        }
-
-        const asset = response.assets?.[0];
-        if (!asset?.uri) {
-          CustomAlert('Error', 'No image captured', true, 'OK');
-          return;
-        }
-
-        const timestamp = Date.now();
-
-        // ✅ Combine Date-Time + Lat-Long in watermark text
-        const dateTime = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).format(timestamp);
-
-        const watermarkText = `${dateTime}\nLat: ${lat}, Lon: ${lon}`;
-
-        // Set temporary image and text for watermark view
-        setTempImage(asset.uri);
-        setTempText(watermarkText);
-        setTimeout(async () => {
-          try {
-            const uri = await captureRef(watermarkViewRef, {
-              format: 'jpg',
-              quality: 2,
-              width: 800,
-              height: 800,
-            });
-            const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-            const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-            await RNFS.copyFile(uri, destPath);
-            const path = destPath;
-            setTempImage(null);
-            setTempText('');
-            if (replaceImgKey.arrayPosition === "") {
-              setSelectedImagePipe(prev => ({
-                ...prev,
-                [cameraItem]: `file://${path}`,
-                [`${cameraItem}fileName`]: fileName,
-                [`${cameraItem}Lat`]: lat,
-                [`${cameraItem}Long`]: lon,
-              }));
-            } else {
-              const { arrayPosition, imgPosition } = replaceImgKey;
-              setPipeDetails(prev => {
-                const updated = JSON.parse(JSON.stringify(prev));
-                const currentImage = updated[arrayPosition][1][imgPosition];
-                updated[arrayPosition][1][imgPosition] = {
-                  ...currentImage,
-                  imageURL: `file://${destPath}`,
-                  imageName: fileName,
-                  status: "",
-                  lat,
-                  lon,
-                };
-                return updated;
-              });
-            }
-            setModalVisibleMap(false);
-            console.log('✅ Watermarked image saved:', path);
-          } catch (error) {
-            console.error('Capture Error:', error);
-            setTempImage(null);
-            setTempText('');
-          }
-        }, 500);
-      } catch (error) {
-        console.error('TakePhoto Error:', error);
-      } finally {
-        setModalVisibleMap(false);
+      // If coords are empty, fetch current location
+      if (!latitude || !longitude) {
+        latlong = await getHighAccuracyLocation();
       }
-    });
-  }, [cameraItem, setSelectedImagePipe, setModalVisibleMap, replaceImgKey, TakePhotoFailed]);
+
+      const lat = latitude || latlong?.latitude || 0;
+      const lon = longitude || latlong?.longitude || 0;
+
+      console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
+      console.log('field_type1233', pipe_fieldType.current);
+      if (pipe_fieldType.current === 1) {
+        const isPipeInstall = await checkPipeDistance(lat, lon);
+        if (!isPipeInstall) {
+          return;
+        }
+      }
+
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
+
+      launchCamera(options, async response => {
+        try {
+          if (!response) {
+            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+            return;
+          }
+          if (response.didCancel) {
+            console.log('User cancelled camera');
+            return;
+          }
+          if (response.errorCode) {
+            console.log('Camera Error:', response.errorMessage);
+            return;
+          }
+
+          const asset = response.assets?.[0];
+          if (!asset?.uri) {
+            CustomAlert('Error', 'No image captured', true, 'OK');
+            return;
+          }
+
+          const timestamp = Date.now();
+
+          // ✅ Combine Date-Time + Lat-Long in watermark text
+          const dateTime = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+
+          const watermarkText = `${dateTime}\nLat: ${lat}, Lon: ${lon}`;
+
+          // Set temporary image and text for watermark view
+          setTempImage(asset.uri);
+          setTempText(watermarkText);
+          setTimeout(async () => {
+            try {
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 2,
+                width: 800,
+                height: 800,
+              });
+              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+              await RNFS.copyFile(uri, destPath);
+              const path = destPath;
+              setTempImage(null);
+              setTempText('');
+              if (replaceImgKey.arrayPosition === '') {
+                setSelectedImagePipe(prev => ({
+                  ...prev,
+                  [cameraItem]: `file://${path}`,
+                  [`${cameraItem}fileName`]: fileName,
+                  [`${cameraItem}Lat`]: lat,
+                  [`${cameraItem}Long`]: lon,
+                }));
+              } else {
+                const {arrayPosition, imgPosition} = replaceImgKey;
+                setPipeDetails(prev => {
+                  const updated = JSON.parse(JSON.stringify(prev));
+                  const currentImage = updated[arrayPosition][1][imgPosition];
+                  updated[arrayPosition][1][imgPosition] = {
+                    ...currentImage,
+                    imageURL: `file://${destPath}`,
+                    imageName: fileName,
+                    status: '',
+                    lat,
+                    lon,
+                  };
+                  return updated;
+                });
+              }
+              setModalVisibleMap(false);
+              console.log('✅ Watermarked image saved:', path);
+            } catch (error) {
+              console.error('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 500);
+        } catch (error) {
+          console.error('TakePhoto Error:', error);
+        } finally {
+          setModalVisibleMap(false);
+        }
+      });
+    },
+    [
+      cameraItem,
+      setSelectedImagePipe,
+      setModalVisibleMap,
+      replaceImgKey,
+      TakePhotoFailed,
+      coords,
+    ],
+  );
   const TakePhotoFailed = (_index, imgIndex) => {
     setReplaceImgKey({
       arrayPosition: _index.toString(),
       imgPosition: imgIndex.toString(),
-    })
+    });
     setModalVisibleMap(true);
-  }
+  };
 
   const handleActivityPipe = useCallback(_item => {
     const {pipeFiles, pipeLatLong, label, value, latlongs} = _item || {};
@@ -1962,27 +2069,32 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                                         backgroundColor: 'green',
                                         borderRadius: 50,
                                       }}
-                                      onPress={() => addMorePipe(saveData.field_type)}>
-                                      <Text style={{ color: '#FFF' }}>
+                                      onPress={() =>
+                                        addMorePipe(saveData.field_type)
+                                      }>
+                                      <Text style={{color: '#FFF'}}>
                                         Save and Add Instrument
                                       </Text>
                                     </TouchableOpacity>
                                   )}
-                                  {saveData.field_type == 'select' && pipeDetails.length == 0 && (
-                                    <TouchableOpacity
-                                      style={{
-                                        alignSelf: 'flex-end',
-                                        paddingVertical: 10,
-                                        paddingHorizontal: 20,
-                                        backgroundColor: 'green',
-                                        borderRadius: 50,
-                                      }}
-                                      onPress={() => addMorePipe(saveData.field_type)}>
-                                      <Text style={{ color: '#FFF' }}>
-                                        Save and Update Instrument
-                                      </Text>
-                                    </TouchableOpacity>
-                                  )}
+                                  {saveData.field_type == 'select' &&
+                                    pipeDetails.length == 0 && (
+                                      <TouchableOpacity
+                                        style={{
+                                          alignSelf: 'flex-end',
+                                          paddingVertical: 10,
+                                          paddingHorizontal: 20,
+                                          backgroundColor: 'green',
+                                          borderRadius: 50,
+                                        }}
+                                        onPress={() =>
+                                          addMorePipe(saveData.field_type)
+                                        }>
+                                        <Text style={{color: '#FFF'}}>
+                                          Save and Update Instrument
+                                        </Text>
+                                      </TouchableOpacity>
+                                    )}
                                   {/* <View style={{ marginTop: 10 }}>
                                     {pipeDetails.map((_data, _index) => (
                                       <TouchableOpacity
@@ -2013,7 +2125,7 @@ const FarmerActivityReportAWD = ({ navigation }) => {
                                           }>
                                           <Image
                                             source={require('../../Common/images/cross.png')}
-                                            style={{width: 20, height: 20}}
+                                            style={{ width: 20, height: 20 }}
                                           />
                                         </TouchableOpacity>
                                       </TouchableOpacity>

@@ -74,6 +74,7 @@ import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import {showAIValidationError} from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
+import {isWithin20Meters} from '../../Common/calculateAreaFun';
 const ActivityReportAWD = ({navigation}) => {
   //GQR-67
   const {
@@ -111,6 +112,7 @@ const ActivityReportAWD = ({navigation}) => {
   const [minimumSelectableDate, setMinimumSelectableDate] = useState(
     new Date(),
   );
+
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -225,7 +227,88 @@ const ActivityReportAWD = ({navigation}) => {
     lastAct: '',
     upcomingAct: '',
   });
+  const pipe_fieldType = useRef(2);
+  // const checkPipeDistance = (currentLat, currentLon) => {
+  //   try {
+  //     console.error('pipeLatLong', pipeLatLong);
+  //     const prePipeCheck = isWithin20Meters(
+  //       {currentLat, currentLon},
+  //       pipeLatLong,
+  //       40,
+  //     );
+  //     console.log('prePipeCheck', prePipeCheck);
+  //   } catch (error) {
+  //     console.log('error', error);
+  //   }
+  // };
+  const checkPipeDistance = async (currentLat, currentLon) => {
+    try {
+      // Get fresh coordinates each time this function is called
+      const {latitude, longitude} = coords || {};
+      let freshLatLong;
 
+      if (!latitude || !longitude) {
+        freshLatLong = await getHighAccuracyLocation();
+      }
+
+      const lat = currentLat || latitude || freshLatLong?.latitude || 0;
+      const lon = currentLon || longitude || freshLatLong?.longitude || 0;
+      console.error('Checking pipe distance with coordinates:', {lat, lon});
+
+      console.error('Checking pipe distance with coordinates:', {lat, lon});
+
+      const allPipes = [...pipeLatLong];
+
+      pipeDetails.forEach(pipeGroup => {
+        const pipeName = pipeGroup[0]?.pipe_name;
+        const firstImage = pipeGroup[1]?.[0];
+        if (firstImage && firstImage.lat && firstImage.lon) {
+          allPipes.push({
+            latitude: firstImage.lat,
+            longitude: firstImage.lon,
+            name: pipeName || 'New Pipe',
+            color: '#000000',
+          });
+        }
+      });
+
+      console.log('All pipes to check against:', allPipes);
+
+      if (allPipes.length === 0) {
+        console.log('No existing pipe');
+        return true;
+      }
+
+      for (const existingPipe of allPipes) {
+        console.log('Checking against pipe:', existingPipe);
+        const distance = getDistance(
+          {latitude: lat, longitude: lon},
+          {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
+        );
+
+        console.log(
+          `Distance to pipe "${existingPipe.name}": ${Math.round(
+            distance,
+          )} meters`,
+        );
+
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{text: 'OK', style: 'cancel'}],
+          );
+          return false;
+        }
+      }
+
+      console.log('No pipes within 20 meters');
+      return true;
+    } catch (error) {
+      console.log('Error in checkPipeDistance:', error);
+      return true; // Allow proceeding if there's an error
+    }
+  };
   const requestCameraPermission = async () => {
     const result = await request(
       Platform.OS === 'android'
@@ -1307,7 +1390,6 @@ const ActivityReportAWD = ({navigation}) => {
   };
   const handleActivityType = useCallback(
     async item => {
-      console.error(item);
       try {
         let dataArray = [];
         var response;
@@ -1330,7 +1412,7 @@ const ActivityReportAWD = ({navigation}) => {
           //   CropName,
           //   item.value,
           // );
-          console.log(JSON.stringify(response.data));
+          // console.log(JSON.stringify(response.data));
           if (response?.status == 200) {
             await setItem(
               'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1409,6 +1491,8 @@ const ActivityReportAWD = ({navigation}) => {
               field_type: element?.activity?.field_type,
             });
           });
+          // console.log('dataArray', JSON.stringify(dataArray));
+
           if (isButtonDisabled) {
             setActivityInfoAll(dataArray);
           }
@@ -1452,6 +1536,14 @@ const ActivityReportAWD = ({navigation}) => {
           act_master_id: item?.act_master_id,
           field_type: item?.field_type || '',
         }));
+        if (item?.field_type == 'add') {
+          // console.log('111111111111111111');
+
+          pipe_fieldType.current = 1;
+        } else {
+          // console.log('000000000000000');
+          pipe_fieldType.current = 0;
+        }
         setSelectedImagePipe(prev => ({
           ...prev,
           firstItem: '',
@@ -1817,13 +1909,22 @@ const ActivityReportAWD = ({navigation}) => {
     async replaceImgKey => {
       const {latitude, longitude} = coords || {};
       let latlong;
+      console.log(' TakePhoto - ', {latitude, longitude});
       if (!latitude || !longitude) {
         latlong = await getHighAccuracyLocation();
       }
 
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
-
+      console.log(' TakePhoto - Final coordinates for photo:', {lat, lon});
+      // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
+      // console.log('field_type1233', pipe_fieldType.current);
+      if (pipe_fieldType.current === 1) {
+        const isPipeInstall = await checkPipeDistance(lat, lon);
+        if (!isPipeInstall) {
+          return;
+        }
+      }
       const options = {
         mediaType: 'photo',
         includeBase64: true,
@@ -1925,8 +2026,10 @@ const ActivityReportAWD = ({navigation}) => {
       cameraItem,
       setSelectedImagePipe,
       setModalVisibleMap,
+      pipeLatLong,
       replaceImgKey,
       TakePhotoFailed,
+      coords,
     ],
   );
   const TakePhotoFailed = (_index, imgIndex) => {
