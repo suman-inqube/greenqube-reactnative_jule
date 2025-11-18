@@ -11,8 +11,8 @@ const ListOfCoFarmer = ({
         const onPageload = async () => {
             setIsLoading(true)
             try {
-                const response = await axiosGet(ROUTES.GET.LIST_CO_FARMERS({ land_fid: "2bacabeb-6448-48fb-8eb4-fc6a24ceb2d0" }), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY4MjU4YjE3LTJkYjQtNGZlYy1hZTYzLWNlYjE0MmExZWZjOCIsImlhdCI6MTYxMTI5NTU4NywiZXhwIjoxNjExOTAwMzg3fQ.NI85dnIUDSxzuon-E-C8sd2nZlQzW99dthuTSDNMPuo", {
-                    information: "paddy_carbon_pr_53158,1,01e61545-72af-4b56-bfb9-74b605049d17"
+                const response = await axiosGet(ROUTES.GET.LIST_CO_FARMERS({ land_fid: plotId }), token, {
+                    information: `${dbname},${lan_id},${user_id}`
                     // `${dbname},${lan_id},${farmeruserID}`,
                 });
                 if (response?.status == 200) {
@@ -38,6 +38,13 @@ const ListOfCoFarmer = ({
             <FlatList
                 data={coFarmerList}
                 keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={{ borderRadius: 16,backgroundColor: '#faf9f9ff',padding:10 }}
+                ListHeaderComponent={
+                    <View style={styles.headerContainer}>
+                        <Text style={styles.headerTitle}>Co-Farmers</Text>
+                        <Text style={styles.headerCount}>Total: {coFarmerList.length}</Text>
+                    </View>
+                }
                 renderItem={({ item, index }) => {
                     const isLast = index === coFarmerList.length - 1;
 
@@ -68,7 +75,7 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         backgroundColor: '#fff',
-        borderRadius: 12,
+        // borderRadius: 12,
         // marginVertical: 6,
         // marginHorizontal: 10,
         shadowColor: '#000',
@@ -111,6 +118,25 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingVertical: 20
+    },
+    headerContainer: {
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        backgroundColor: '#f7f7f7',
+        borderBottomWidth: 1,
+        borderColor: '#e0e0e0',
+        marginBottom: 5
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#2ecc71',
+    },
+    headerCount: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#555',
+        marginTop: 2,
     }
 
 
