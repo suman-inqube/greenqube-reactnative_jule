@@ -152,7 +152,7 @@ const UpcomingActivities = ({
   );
   // const currentActivities =
   //   activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
-  console.log(uiState)
+  console.log(uiState);
   return (
     <ScrollView>
       <View style={styles.mainProfileContainer}>
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 4,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#6ef372ff',
     marginLeft: 5,
   },
   activityDetails: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#4CAF50',
+    borderBottomColor: '#6ef372ff',
   },
   tabText: {
     fontSize: 12,
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 4,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#6ef372ff',
     marginLeft: 5,
   },
 

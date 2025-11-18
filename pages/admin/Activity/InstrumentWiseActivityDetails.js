@@ -1,24 +1,30 @@
-import { StyleSheet, Text, View, Image, Alert } from 'react-native';
-import React, { useContext, useEffect, useState, useRef, useCallback } from 'react';
+import {StyleSheet, Text, View, Image, Alert} from 'react-native';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from 'react';
 import ButtonFormBottom from '../../Common/ButtonFormBottom';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { useRoute, useIsFocused } from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {useRoute, useIsFocused} from '@react-navigation/native';
 import {
   ActivityPipeImages,
   addActivityPipeImages,
 } from '../../../config/apiHere';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
-import Marker, { Position } from 'react-native-image-marker';
-import { launchCamera } from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
 import useLocationTracking from '../../Common/useLocationTracking';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { captureRef } from 'react-native-view-shot';
+import {captureRef} from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { showAIValidationError } from '../../utils/showAIValidationError';
-const InstrumentWiseActivityDetails = ({ navigation }) => {
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import {showAIValidationError} from '../../utils/showAIValidationError';
+const InstrumentWiseActivityDetails = ({navigation}) => {
   const location = useLocationTracking();
   const {
     loginUser_data,
@@ -39,12 +45,12 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
     logoImage,
     topBanner,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   const route = useRoute();
   const isFocused = useIsFocused();
   const [pipeimage, setPipeimage] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
   ]);
   const [pipeName, setpipeName] = useState('');
   const [selectedImagePipe, setSelectedImagePipe] = useState({
@@ -65,15 +71,15 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const HandlerGoBack = () => {
     setPipeimage([
-      { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
+      {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
     ]);
     navigation.navigate('InstrumentWiseActivityView');
   };
   const watermarkViewRef = useRef(null);
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
-  const { params } = route;
+  const {params} = route;
   const onPageLoad = async () => {
     try {
       setIsLoading(true);
@@ -86,8 +92,9 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
         params?.act_name_fid,
         params?.pipe_id,
       );
+      console.log('pipeRes', pipeRes);
       if (pipeRes?.status == 200) {
-        const { rows, count } = pipeRes?.data?.data;
+        const {rows, count} = pipeRes?.data?.data;
         if (count > 0) {
           rows.map(item => {
             if (item?.pipe_id === params?.pipe_id) {
@@ -127,7 +134,7 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
   }, []);
   const handleImgUpdate = async () => {
     setIsLoading(true);
-    console.log("selectedImagePipe", selectedImagePipe.firstItem)
+    console.log('selectedImagePipe', selectedImagePipe.firstItem);
     var imgCount = 0;
     const formData = new FormData();
     if (selectedImagePipe.firstItemid == '') {
@@ -165,10 +172,10 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
         //   ...AlertMesg[0],
         // });
         // return;
-        showAIValidationError(updateActivityPipeImages)
+        showAIValidationError(updateActivityPipeImages);
       }
       if (updateActivityPipeImages?.status === 200) {
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           navigation.navigate('InstrumentWiseActivityView');
         }, 1500);
@@ -193,99 +200,104 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
     setIsLoading(false);
   };
 
-  const openImagePickerPipe = useCallback(async cameraItem => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 800,
-      maxWidth: 800,
-    };
+  const openImagePickerPipe = useCallback(
+    async cameraItem => {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
 
-    launchCamera(options, async response => {
-      try {
-        if (!response) {
-          CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-          return;
-        }
-        if (response.didCancel) return;
-        if (response.errorCode) {
-          CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-          return;
-        }
-
-        const asset = response.assets?.[0];
-        if (!asset?.uri) {
-          CustomAlert('Error', 'No image captured', true, 'OK');
-          return;
-        }
-
-        // ✅ Handle location safely
-        let { latitude, longitude } = location || {};
-        if (!latitude || !longitude) {
-          const loc = await getHighAccuracyLocation();
-          latitude = loc?.latitude;
-          longitude = loc?.longitude;
-        }
-
-        const timestamp = Date.now();
-        const formattedTime = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).format(timestamp);
-
-        const watermarkText = `Lat: ${latitude?.toFixed(6)}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
-
-        // ✅ Step 1: Render watermark overlay
-        setTempImage(asset.uri);
-        setTempText(watermarkText);
-
-        // ✅ Step 2: Wait for the view to render, then capture it
-        setTimeout(async () => {
-          try {
-            const uri = await captureRef(watermarkViewRef, {
-              format: 'jpg',
-              quality: 1,
-            });
-
-            const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-            const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-
-            await RNFS.copyFile(uri, destPath);
-
-            // ✅ Step 3: Save image + coordinates
-            setSelectedImagePipe(prev => ({
-              ...prev,
-              [cameraItem]: `file://${destPath}`,
-              [`${cameraItem}Lat`]: latitude,
-              [`${cameraItem}id`]: '',
-              [`${cameraItem}Long`]: longitude,
-              [`${cameraItem}Name`]: fileName,
-              [`${cameraItem}Type`]: asset.type,
-            }));
-
-            setTempImage(null);
-            setTempText('');
-            console.log('✅ Watermarked image saved:', destPath);
-          } catch (error) {
-            console.log('Capture Error:', error);
-            setTempImage(null);
-            setTempText('');
+      launchCamera(options, async response => {
+        try {
+          if (!response) {
+            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+            return;
           }
-        }, 500);
-      } catch (error) {
-        console.log('Catch Error:', error);
-        CustomAlert('Catch Error', String(error), true, 'OK');
-      }
-    });
-  }, [location, setSelectedImagePipe]);
+          if (response.didCancel) return;
+          if (response.errorCode) {
+            CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+            return;
+          }
+
+          const asset = response.assets?.[0];
+          if (!asset?.uri) {
+            CustomAlert('Error', 'No image captured', true, 'OK');
+            return;
+          }
+
+          // ✅ Handle location safely
+          let {latitude, longitude} = location || {};
+          if (!latitude || !longitude) {
+            const loc = await getHighAccuracyLocation();
+            latitude = loc?.latitude;
+            longitude = loc?.longitude;
+          }
+
+          const timestamp = Date.now();
+          const formattedTime = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+
+          const watermarkText = `Lat: ${latitude?.toFixed(
+            6,
+          )}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
+
+          // ✅ Step 1: Render watermark overlay
+          setTempImage(asset.uri);
+          setTempText(watermarkText);
+
+          // ✅ Step 2: Wait for the view to render, then capture it
+          setTimeout(async () => {
+            try {
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 1,
+              });
+
+              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+              await RNFS.copyFile(uri, destPath);
+
+              // ✅ Step 3: Save image + coordinates
+              setSelectedImagePipe(prev => ({
+                ...prev,
+                [cameraItem]: `file://${destPath}`,
+                [`${cameraItem}Lat`]: latitude,
+                [`${cameraItem}id`]: '',
+                [`${cameraItem}Long`]: longitude,
+                [`${cameraItem}Name`]: fileName,
+                [`${cameraItem}Type`]: asset.type,
+              }));
+
+              setTempImage(null);
+              setTempText('');
+              console.log('✅ Watermarked image saved:', destPath);
+            } catch (error) {
+              console.log('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 500);
+        } catch (error) {
+          console.log('Catch Error:', error);
+          CustomAlert('Catch Error', String(error), true, 'OK');
+        }
+      });
+    },
+    [location, setSelectedImagePipe],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
           {isLoading ? (
             <View style={styles.LoadingScreen}>
               <LoadingScreen />
@@ -330,14 +342,12 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
                 style={styles.watermarkView}
                 collapsable={false}>
                 <Image
-                  source={{ uri: tempImage }}
+                  source={{uri: tempImage}}
                   style={styles.watermarkImage}
                   resizeMode="cover"
                 />
                 <View style={styles.watermarkTextContainer}>
-                  <Text style={styles.watermarkText}>
-                    {tempText}
-                  </Text>
+                  <Text style={styles.watermarkText}>{tempText}</Text>
                 </View>
               </View>
             )}

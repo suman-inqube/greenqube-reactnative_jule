@@ -281,12 +281,15 @@ const Dashboard = ({navigation}) => {
   }, [route?.params]);
 
   useEffect(() => {
-    if (route?.params?.action === 'plotStatusUpdated') {
-      // Toast.show({text: t('Updated'), ...AlertMesg[0]});
-
+    const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
-    }
-  }, [route?.params]);
+      startWatchingLocation();
+    });
+    return () => {
+      task.cancel();
+      stopWatchingLocation();
+    };
+  }, []);
 
   const exit = useCallback(() => {
     Alert.alert(

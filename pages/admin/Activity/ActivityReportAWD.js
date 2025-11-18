@@ -253,10 +253,6 @@ const ActivityReportAWD = ({navigation}) => {
 
       const lat = currentLat || latitude || freshLatLong?.latitude || 0;
       const lon = currentLon || longitude || freshLatLong?.longitude || 0;
-      console.error('Checking pipe distance with coordinates:', {lat, lon});
-
-      console.error('Checking pipe distance with coordinates:', {lat, lon});
-
       const allPipes = [...pipeLatLong];
 
       pipeDetails.forEach(pipeGroup => {
@@ -271,25 +267,15 @@ const ActivityReportAWD = ({navigation}) => {
           });
         }
       });
-
-      console.log('All pipes to check against:', allPipes);
-
       if (allPipes.length === 0) {
         console.log('No existing pipe');
         return true;
       }
 
       for (const existingPipe of allPipes) {
-        console.log('Checking against pipe:', existingPipe);
         const distance = getDistance(
           {latitude: lat, longitude: lon},
           {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
-        );
-
-        console.log(
-          `Distance to pipe "${existingPipe.name}": ${Math.round(
-            distance,
-          )} meters`,
         );
 
         if (distance < 20) {
@@ -301,8 +287,6 @@ const ActivityReportAWD = ({navigation}) => {
           return false;
         }
       }
-
-      console.log('No pipes within 20 meters');
       return true;
     } catch (error) {
       console.log('Error in checkPipeDistance:', error);
@@ -1909,14 +1893,12 @@ const ActivityReportAWD = ({navigation}) => {
     async replaceImgKey => {
       const {latitude, longitude} = coords || {};
       let latlong;
-      console.log(' TakePhoto - ', {latitude, longitude});
       if (!latitude || !longitude) {
         latlong = await getHighAccuracyLocation();
       }
 
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
-      console.log(' TakePhoto - Final coordinates for photo:', {lat, lon});
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
       if (pipe_fieldType.current === 1) {
