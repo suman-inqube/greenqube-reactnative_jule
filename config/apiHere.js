@@ -3114,7 +3114,7 @@ export const getUniquePipeNames = async (
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
-    return console.log('error in activityInfoAPI ' + error.response);
+    return console.log(error.response);
   }
 };
 
@@ -3327,20 +3327,18 @@ export const ActivityPipeImages = async (
   act_name_fid,
   pipe_id,
 ) => {
-  console.log('api1111111');
-  const instance = await getAxiosInstance();
   const axiosHeaders = {
     headers: {
       authorization: `${token}`,
-      information: `${dbName},${language},${userId}`,
+      information: ` ${dbName},${language},${userId}`,
     },
   };
-
   try {
-    // let response = await instance.get(
-    //   `${config.BASE_URL}inputOutputRoute/pipeImages_e2?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
+    // let response = await axios.get(
+    //   ${config.BASE_URL}inputOutputRoute/pipeImages_e2?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id},
     //   axiosHeaders,
     // );
+    const instance = await getAxiosInstance();
     let response = await instance.get(
       `${config.BASE_URL}inputOutputRoute/pipeImages_e2?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
       {
@@ -3354,10 +3352,8 @@ export const ActivityPipeImages = async (
       data: response,
       status: 200,
     };
-    console.log('resultJson', resultJson);
 
     return resultJson;
-    // return response;
   } catch (error) {
     CrashlyticsRecordError(error.response);
     return error.response;

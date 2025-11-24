@@ -48,7 +48,7 @@ function CoFarmerComponent({
     }
   };
 
-  const isValid = coFarmerDetails.govtId;
+  const isValid = coFarmerDetails.govtId && coFarmerDetails.phone;
 
   return (
     <KeyboardAvoidingView
@@ -60,9 +60,22 @@ function CoFarmerComponent({
         showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Text style={styles.title}>{title}</Text>
-
+          <Text style={styles.label}>Farmer Name</Text>
+          <InputField
+            placeholder="Enter Farmer Name"
+            // keyboardType="numeric"
+            keyboardType="default"
+            // maxLength={10}
+            value={coFarmerDetails.name}
+            onChangeText={text =>
+              setCoFarmerDetails(prev => ({
+                ...prev,
+                name: text,
+              }))
+            }
+          />
           {/* Phone Number */}
-          <Text style={styles.label}>Farmer's Phone No (Optional)</Text>
+          <Text style={styles.label}>Farmer's Phone No</Text>
           <InputField
             placeholder="Enter phone number"
             keyboardType="numeric"

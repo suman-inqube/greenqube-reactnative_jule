@@ -1,23 +1,23 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
 import ButtonFormBottom from '../../Common/ButtonFormBottom';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { useRoute, useIsFocused } from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {useRoute, useIsFocused} from '@react-navigation/native';
 import {
   ActivityPipeImages,
   addActivityPipeImages,
 } from '../../../config/apiHere';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
-import Marker, { Position } from 'react-native-image-marker';
-import { launchCamera } from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
 import useLocationTracking from '../../Common/useLocationTracking';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { captureRef } from 'react-native-view-shot';
+import {captureRef} from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { showAIValidationError } from '../../utils/showAIValidationError';
-const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import {showAIValidationError} from '../../utils/showAIValidationError';
+const FarmerInstrumentWiseActivityDetails = ({navigation}) => {
   const location = useLocationTracking();
   const {
     loginUser_data,
@@ -33,14 +33,14 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     logoImage,
     topBanner,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
 
   const route = useRoute();
   const isFocused = useIsFocused();
   const [pipeName, setpipeName] = useState('');
   const [addressProof, setAddressProof] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
   ]);
   const [selectedImagePipe, setSelectedImagePipe] = useState({
     firstItem: '',
@@ -56,14 +56,14 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     firstItemType: '',
     secondItemType: '',
   });
-    const [tempImage, setTempImage] = useState(null);
-    const [tempText, setTempText] = useState('');
+  const [tempImage, setTempImage] = useState(null);
+  const [tempText, setTempText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const HandlerGoBack = () => {
     navigation.navigate('FarmerInstrumentWiseActivityView');
   };
-  const { params } = route;
+  const {params} = route;
   const onPageLoad = async () => {
     try {
       setIsLoading(true);
@@ -77,7 +77,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         params?.pipe_id,
       );
       if (pipeRes?.status == 200) {
-        const { rows, count } = pipeRes?.data?.data;
+        const {rows, count} = pipeRes?.data?.data?.pipeData;
         if (count > 0) {
           rows.map(item => {
             if (item?.pipe_id === params?.pipe_id) {
@@ -149,11 +149,11 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         token,
         formData,
       );
-      if(updateActivityPipeImages?.status === 400){
-        showAIValidationError(updateActivityPipeImages)
+      if (updateActivityPipeImages?.status === 400) {
+        showAIValidationError(updateActivityPipeImages);
       }
       if (updateActivityPipeImages?.status === 200) {
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           navigation.navigate('FarmerInstrumentWiseActivityView');
         }, 1500);
@@ -204,7 +204,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         }
 
         // ✅ Handle location safely
-        let { latitude, longitude } = location || {};
+        let {latitude, longitude} = location || {};
         if (!latitude || !longitude) {
           const loc = await getHighAccuracyLocation();
           latitude = loc?.latitude;
@@ -221,7 +221,9 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
           second: '2-digit',
         }).format(timestamp);
 
-        const watermarkText = `Lat: ${latitude?.toFixed(6)}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
+        const watermarkText = `Lat: ${latitude?.toFixed(
+          6,
+        )}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
 
         // ✅ Step 1: Render watermark overlay
         setTempImage(asset.uri);
@@ -269,7 +271,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
           {isLoading ? (
             <View style={styles.LoadingScreen}>
               <LoadingScreen />
@@ -314,14 +316,12 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
                 style={styles.watermarkView}
                 collapsable={false}>
                 <Image
-                  source={{ uri: tempImage }}
+                  source={{uri: tempImage}}
                   style={styles.watermarkImage}
                   resizeMode="cover"
                 />
                 <View style={styles.watermarkTextContainer}>
-                  <Text style={styles.watermarkText}>
-                    {tempText}
-                  </Text>
+                  <Text style={styles.watermarkText}>{tempText}</Text>
                 </View>
               </View>
             )}

@@ -114,7 +114,7 @@ const InstrumentWiseActivityView = () => {
             token,
             {information: `${dbName},${languageId},${supervisorId}`},
           );
-          console.log('Pipe', response);
+          // console.log('Pipe', response);
           if (response?.status == 200) {
             await setItem('activityList', response);
           }

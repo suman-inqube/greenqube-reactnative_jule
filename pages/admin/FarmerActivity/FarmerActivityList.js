@@ -124,16 +124,16 @@ const FarmerActivityList = ({navigation}) => {
     }
   };
   const fetchActivityListAPI = async (
-    pageNo='',
+    pageNo = '',
     search_key_type = '',
     fromDateParams = '',
     toDateParams = '',
     carbonTypeParams,
   ) => {
     setIsLoading(true);
-    var response ;
+    var response;
     if (isOnline) {
-       response = await axiosGet(
+      response = await axiosGet(
         ROUTES.GET.LIST_USER_ACITYLIST_E({
           pageNO: pageNo,
           carbonType:
@@ -157,8 +157,9 @@ const FarmerActivityList = ({navigation}) => {
       );
       await setItem('farmerActivityList' + user_id, response);
     } else {
-       response = await getItem('farmerActivityList' + user_id);
+      response = await getItem('farmerActivityList' + user_id);
     }
+    console.log('response111', response);
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response?.data?.data.count / 20));
       setActivityAll(response?.data?.data.rows);

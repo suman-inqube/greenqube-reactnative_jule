@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 4,
-    backgroundColor: '#6ef372ff',
+    backgroundColor: '#4CAF50',
     marginLeft: 5,
   },
   activityDetails: {
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#6ef372ff',
+    borderBottomColor: '#4CAF50',
   },
   tabText: {
     fontSize: 12,
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 4,
-    backgroundColor: '#6ef372ff',
+    backgroundColor: '#4CAF50',
     marginLeft: 5,
   },
 

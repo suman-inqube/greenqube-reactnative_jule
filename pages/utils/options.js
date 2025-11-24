@@ -103,25 +103,37 @@ const getActionsPlot = (
 ) => {
   const actions = [];
   if (activeTab == 1) {
-    actions.push(
-      {
-        text: t('Add CO-Farmer'),
-        name: 'coFarmer',
-        position: 2,
-        color: Colors.useGreen,
-        textStyle: styles.actionText,
-        textBackground: '#ffffffff',
-        icon: require('../Common/images/co-farmer.png'),
-      }, {
-      text: t('List CO-Farmer'),
-      name: 'coFarmerList',
-      position: 2,
-      color: Colors.useGreen,
-      textStyle: styles.actionText,
-      textBackground: '#ffffffff',
-      icon: require('../Common/images/checklist.png'),
+    if (!addPlot) {
+      actions.push(
+        {
+          text: t('Add CO-Farmer'),
+          name: 'coFarmer',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/co-farmer.png'),
+        },
+        {
+          text: t('Add List CO-Farmer'),
+          name: 'AddCoFarmerList',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/checklist.png'),
+        },
+        {
+          text: t('List CO-Farmer'),
+          name: 'coFarmerList',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/checklist.png'),
+        }
+      )
     }
-    )
   }
   if (isEnable || addPlot) {
     actions.push({

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
+import React, {useState, useRef, useEffect, useCallback, memo} from 'react';
 import {
   StyleSheet,
   View,
@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import MapView, { Polygon, Marker, Callout } from 'react-native-maps';
-import { isPointInPolygon } from 'geolib';
+import MapView, {Polygon, Marker, Callout} from 'react-native-maps';
+import {isPointInPolygon} from 'geolib';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const ActivityMap = ({
   modalVisibleMap,
@@ -23,7 +23,7 @@ const ActivityMap = ({
   setOutOfRange,
   pipeLatLong,
   replaceImgKey,
-  TakePhotoReplaceImage
+  TakePhotoReplaceImage,
 }) => {
   const mapRef = useRef(null);
   const animatedHeading = useRef(new Animated.Value(0)).current;
@@ -56,7 +56,7 @@ const ActivityMap = ({
 
   // Update camera heading (optional animation)
   useEffect(() => {
-    const listener = animatedHeading.addListener(({ value }) => {
+    const listener = animatedHeading.addListener(({value}) => {
       if (mapRef.current && location) {
         mapRef.current.setCamera(
           {
@@ -65,16 +65,16 @@ const ActivityMap = ({
             zoom: 18,
             pitch: 45,
           },
-          { duration: 300 }
+          {duration: 300},
         );
       }
     });
     return () => animatedHeading.removeListener(listener);
   }, [animatedHeading, location]);
 
-  const groupByCoordinates = (points) => {
+  const groupByCoordinates = points => {
     const groups = {};
-    points.forEach((p) => {
+    points.forEach(p => {
       if (!p) return;
       const key = `${p.latitude},${p.longitude}`;
       if (!groups[key]) groups[key] = [];
@@ -98,13 +98,12 @@ const ActivityMap = ({
       visible={modalVisibleMap}
       onRequestClose={() => {
         setModalVisibleMap(false);
-      }}
-    >
+      }}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <MapView
             ref={mapRef}
-            style={[styles.map, { width, height }]}
+            style={[styles.map, {width, height}]}
             mapType="hybrid"
             showsUserLocation
             followsUserLocation
@@ -115,8 +114,7 @@ const ActivityMap = ({
               zoom: 18,
               pitch: 45,
               heading: currentHeading,
-            }}
-          >
+            }}>
             {plotPolygon?.length > 0 && (
               <Polygon
                 coordinates={plotPolygon}
@@ -145,22 +143,20 @@ const ActivityMap = ({
                         ? polygon.color
                         : 'blue'
                     }
-                    onPress={() => setSelectedMarker(polygon)} 
-                  >
+                    onPress={() => setSelectedMarker(polygon)}>
                     <Callout>
-                      <Text style={{ color: '#000' }}>{polygon?.name}</Text>
+                      <Text style={{color: '#000'}}>{polygon?.name}</Text>
                     </Callout>
                   </Marker>
                 );
-              })
+              }),
             )}
           </MapView>
         </View>
         {outofRange && (
           <TouchableOpacity
             style={styles.captureButton}
-            onPress={() => TakePhoto(replaceImgKey)}
-          >
+            onPress={() => TakePhoto(replaceImgKey)}>
             <Text style={styles.captureIcon}>📷</Text>
           </TouchableOpacity>
         )}
@@ -171,8 +167,7 @@ const ActivityMap = ({
                 textAlign: 'center',
                 color: '#000',
                 fontWeight: 'bold',
-              }}
-            >
+              }}>
               {selectedMarker?.name || 'Unnamed Marker'}
             </Text>
             {selectedMarker?.description && (
@@ -181,8 +176,7 @@ const ActivityMap = ({
                   textAlign: 'center',
                   color: '#444',
                   marginTop: 4,
-                }}
-              >
+                }}>
                 {selectedMarker.description}
               </Text>
             )}
@@ -235,7 +229,7 @@ const styles = StyleSheet.create({
     elevation: 6,
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowRadius: 4,
   },
 });

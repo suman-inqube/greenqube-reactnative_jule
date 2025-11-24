@@ -1348,7 +1348,7 @@ const ActivityReportAWD = ({navigation}) => {
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
-          navigation.navigate('FarmerActivityList', {action: 'addData'});
+          navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -1367,7 +1367,8 @@ const ActivityReportAWD = ({navigation}) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        navigation.navigate('FarmerActivityList', {action: 'addData'});
+        navigation.popToTop();
+        navigation.navigate('activityList', {action: 'addData'});
       }
     }
     setIsLoading(false);

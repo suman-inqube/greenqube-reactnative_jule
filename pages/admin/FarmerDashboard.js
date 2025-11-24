@@ -255,13 +255,14 @@ const FarmerDashboard = ({navigation}) => {
       let latestActivities = [];
       let usefulInfoList = [];
       let activityScheduleData = [];
+
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
-
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }
+
       if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
         activityScheduleData =
           ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data ||

@@ -250,9 +250,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
 
       const lat = currentLat || latitude || freshLatLong?.latitude || 0;
       const lon = currentLon || longitude || freshLatLong?.longitude || 0;
-      console.error('Checking pipe distance with coordinates:', {lat, lon});
+      // console.error('Checking pipe distance with coordinates:', {lat, lon});
 
-      console.error('Checking pipe distance with coordinates:', {lat, lon});
+      // console.error('Checking pipe distance with coordinates:', {lat, lon});
 
       const allPipes = [...pipeLatLong];
 
@@ -269,25 +269,25 @@ const FarmerActivityReportAWD = ({navigation}) => {
         }
       });
 
-      console.log('All pipes to check against:', allPipes);
+      // console.log('All pipes to check against:', allPipes);
 
       if (allPipes.length === 0) {
-        console.log('No existing pipe');
+        // console.log('No existing pipe');
         return true;
       }
 
       for (const existingPipe of allPipes) {
-        console.log('Checking against pipe:', existingPipe);
+        // console.log('Checking against pipe:', existingPipe);
         const distance = getDistance(
           {latitude: lat, longitude: lon},
           {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
         );
 
-        console.log(
-          `Distance to pipe "${existingPipe.name}": ${Math.round(
-            distance,
-          )} meters`,
-        );
+        // console.log(
+        //   `Distance to pipe "${existingPipe.name}": ${Math.round(
+        //     distance,
+        //   )} meters`,
+        // );
 
         if (distance < 20) {
           Alert.alert(
@@ -299,7 +299,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
         }
       }
 
-      console.log('No pipes within 20 meters');
+      // console.log('No pipes within 20 meters');
       return true;
     } catch (error) {
       console.log('Error in checkPipeDistance:', error);
@@ -521,6 +521,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
     // else {
     //   var response = await getItem('produceAgainstPlot' + relId.value);
     // }
+
+    // console.log('data123', response);
     if (response) {
       const latandlongArr =
         response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
@@ -601,6 +603,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           crop_season: data?.crop_season?.fid,
           field_type: '',
         }));
+        // console.log('data.cu_rel_id', data.cu_rel_id);
         setsinglePlot(response?.data?.data);
         setCropType(response?.data?.data?.crop_type.fid);
         setCropName(response?.data?.data?.crop_name.fid);
@@ -1029,7 +1032,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
         });
       }
-      formData.append('user_id', saveData.user_id);
+      formData.append('user_id', farmerID);
       formData.append('plot_id', saveData.plot_id);
       formData.append('crop_name', saveData.crop_name);
       formData.append('crop_season', saveData.crop_season);
@@ -1158,6 +1161,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
             formData,
             pipeDetails.length,
           );
+          // console.log('farmerID111', farmerID);
+          // console.log('formData', formData);
         } else {
           if (coords != null) {
             const {latitude, longitude} = coords || {};
@@ -1212,6 +1217,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
           showAIValidationError(database_res);
           setIsLoading(false);
         }
+        // console.log('database_res', database_res);
+        // console.log('farmerID', farmerID);
         if (database_res?.status == 200) {
           navigation.navigate('FarmerActivityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
@@ -1371,11 +1378,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
       field_type: item?.field_type || '',
     }));
     if (item?.field_type == 'add') {
-      console.log('111111111111111111');
-
       pipe_fieldType.current = 1;
     } else {
-      console.log('000000000000000');
+      // console.log('000000000000000');
       pipe_fieldType.current = 0;
     }
     setselectPipeList({
@@ -1384,6 +1389,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
       value: '',
       latlongs: {},
     });
+
     const PipeListDetailsRes = await getUniquePipeNames(
       dbname,
       lan_id,
@@ -1391,9 +1397,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
       farmerID,
       saveData.plot_id,
       item?.act_master_id,
-      saveData.cu_rel_id,
+      saveData?.cu_rel_id,
     );
-    console.log('PipeListDetailsRess', PipeListDetailsRes);
+    // console.log('PipeListDetailsRess', PipeListDetailsRes);
     if (PipeListDetailsRes?.status == 200) {
       const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
         (_data, _index) => ({
@@ -1581,8 +1587,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
 
-      console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
-      console.log('field_type1233', pipe_fieldType.current);
+      // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
+      // console.log('field_type1233', pipe_fieldType.current);
+
       if (pipe_fieldType.current === 1) {
         const isPipeInstall = await checkPipeDistance(lat, lon);
         if (!isPipeInstall) {
