@@ -74,6 +74,7 @@ import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import {showAIValidationError} from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
+import {isWithin20Meters} from '../../Common/calculateAreaFun';
 const ActivityReportAWD = ({navigation}) => {
   //GQR-67
   const {
@@ -111,6 +112,7 @@ const ActivityReportAWD = ({navigation}) => {
   const [minimumSelectableDate, setMinimumSelectableDate] = useState(
     new Date(),
   );
+
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
@@ -225,7 +227,72 @@ const ActivityReportAWD = ({navigation}) => {
     lastAct: '',
     upcomingAct: '',
   });
+  const pipe_fieldType = useRef(2);
+  // const checkPipeDistance = (currentLat, currentLon) => {
+  //   try {
+  //     console.error('pipeLatLong', pipeLatLong);
+  //     const prePipeCheck = isWithin20Meters(
+  //       {currentLat, currentLon},
+  //       pipeLatLong,
+  //       40,
+  //     );
+  //     console.log('prePipeCheck', prePipeCheck);
+  //   } catch (error) {
+  //     console.log('error', error);
+  //   }
+  // };
+  const checkPipeDistance = async (currentLat, currentLon) => {
+    try {
+      // Get fresh coordinates each time this function is called
+      const {latitude, longitude} = coords || {};
+      let freshLatLong;
 
+      if (!latitude || !longitude) {
+        freshLatLong = await getHighAccuracyLocation();
+      }
+
+      const lat = currentLat || latitude || freshLatLong?.latitude || 0;
+      const lon = currentLon || longitude || freshLatLong?.longitude || 0;
+      const allPipes = [...pipeLatLong];
+
+      pipeDetails.forEach(pipeGroup => {
+        const pipeName = pipeGroup[0]?.pipe_name;
+        const firstImage = pipeGroup[1]?.[0];
+        if (firstImage && firstImage.lat && firstImage.lon) {
+          allPipes.push({
+            latitude: firstImage.lat,
+            longitude: firstImage.lon,
+            name: pipeName || 'New Pipe',
+            color: '#000000',
+          });
+        }
+      });
+      if (allPipes.length === 0) {
+        console.log('No existing pipe');
+        return true;
+      }
+
+      for (const existingPipe of allPipes) {
+        const distance = getDistance(
+          {latitude: lat, longitude: lon},
+          {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
+        );
+
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{text: 'OK', style: 'cancel'}],
+          );
+          return false;
+        }
+      }
+      return true;
+    } catch (error) {
+      console.log('Error in checkPipeDistance:', error);
+      return true; // Allow proceeding if there's an error
+    }
+  };
   const requestCameraPermission = async () => {
     const result = await request(
       Platform.OS === 'android'
@@ -981,11 +1048,135 @@ const ActivityReportAWD = ({navigation}) => {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'setCycleDate');
     }
   };
+  // const validateForm = () => {
+  //   if (!saveData.plot_id) {
+  //     Toast.show({
+  //       time: 2,
+  //       text: t('pl_en_plot_name_first'),
+  //       ...AlertMesg[0],
+  //     });
+  //     return false;
+  //   }
+  //   if (!saveData.cycle_start_date) {
+  //     Toast.show({
+  //       time: 2,
+  //       text: t('please_select_sowing_date_first'),
+  //       ...AlertMesg[0],
+  //     });
+  //     return false;
+  //   }
+  //   if (!saveData.growth_stage) {
+  //     Toast.show({
+  //       time: 2,
+  //       text: t('please_select_growth_stage'),
+  //       ...AlertMesg[0],
+  //     });
+  //     return false;
+  //   }
+  //   if (isButtonDisabled == false) {
+  //     Toast.show({
+  //       time: 2,
+  //       text: t('please_select_sowing_date_first'),
+  //       ...AlertMesg[0],
+  //     });
+  //     return false;
+  //   }
+  //   if (saveData.act_pattern === 'schedule') {
+  //     if (!saveData.act_ref_type) {
+  //       Toast.show({
+  //         time: 2,
+  //         text: t('Please_enter_activity_type'),
+  //         ...AlertMesg[0],
+  //       });
+  //       return false;
+  //     }
+  //     if (!saveData.act_ref) {
+  //       Toast.show({
+  //         time: 2,
+  //         text: t('Please_enter_activity'),
+  //         ...AlertMesg[0],
+  //       });
+  //       return false;
+  //     }
+  //   }
+
+  //   if (saveData.field_type == 'add') {
+  //     if (pipeDetails.length == 0) {
+  //       Toast.show({
+  //         time: 2,
+  //         text: t('Please add pipe properly'),
+  //         ...AlertMesg[0],
+  //       });
+  //       return false;
+  //     }
+  //   }
+  //   if (saveData.field_type == 'select') {
+  //     if (selectPipeList.value == '') {
+  //       Toast.show({
+  //         time: 2,
+  //         text: t('Please select pipe'),
+  //         ...AlertMesg[0],
+  //       });
+  //       return false;
+  //     }
+  //     if (
+  //       selectedImagePipe?.firstItem == '' ||
+  //       selectedImagePipe?.secondItem == ''
+  //     ) {
+  //       Toast.show({
+  //         time: 2,
+  //         text: t('Please enter pipe image'),
+  //         ...AlertMesg[0],
+  //       });
+  //       return false;
+  //     }
+  //   }
+  //   if (!saveData.act_perform_date) {
+  //     Toast.show({
+  //       time: 2,
+  //       text: t('Please_enter_perform_date'),
+  //       ...AlertMesg[0],
+  //     });
+  //     return false;
+  //   }
+  //   if (!saveData.latitude) {
+  //     Toast.show({
+  //       time: 2,
+  //       text: t('gpsalertdialogmessage'),
+  //       ...AlertMesg[0],
+  //     });
+  //     return false;
+  //   }
+  //   if (!cycleDtartDate && !isButtonDisabled) {
+  //     Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
+  //     return false;
+  //   }
+
+  //   if (!isGeoFence) {
+  //     Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
+
+  //     return;
+  //   }
+  //   if (!outofRangeCheck) {
+  //     Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+
+  //     return;
+  //   }
+  //   return true;
+  // };
   const validateForm = () => {
+    if (!saveData.user_id) {
+      Toast.show({
+        time: 2,
+        text: `${t('please_enter_farmer_name')}`,
+        ...AlertMesg[0],
+      });
+      return false;
+    }
     if (!saveData.plot_id) {
       Toast.show({
         time: 2,
-        text: t('pl_en_plot_name_first'),
+        text: `${t('pl_en_plot_name_first')}`,
         ...AlertMesg[0],
       });
       return false;
@@ -993,7 +1184,7 @@ const ActivityReportAWD = ({navigation}) => {
     if (!saveData.cycle_start_date) {
       Toast.show({
         time: 2,
-        text: t('please_select_sowing_date_first'),
+        text: `${t('please_select_sowing_date_first')}`,
         ...AlertMesg[0],
       });
       return false;
@@ -1001,19 +1192,17 @@ const ActivityReportAWD = ({navigation}) => {
     if (!saveData.growth_stage) {
       Toast.show({
         time: 2,
-        text: t('please_select_growth_stage'),
+        text: t('please_select_cultiveting_season_first'),
         ...AlertMesg[0],
       });
       return false;
     }
-    if (isButtonDisabled == false) {
-      Toast.show({
-        time: 2,
-        text: t('please_select_sowing_date_first'),
-        ...AlertMesg[0],
-      });
-      return false;
-    }
+    // if (isButtonDisabled == false) {
+    //     Toast.show({
+    //         time: 2, text: 'Please set cycle start date', ...AlertMesg[0]
+    //     })
+    //     return false;
+    // }
     if (saveData.act_pattern === 'schedule') {
       if (!saveData.act_ref_type) {
         Toast.show({
@@ -1026,13 +1215,12 @@ const ActivityReportAWD = ({navigation}) => {
       if (!saveData.act_ref) {
         Toast.show({
           time: 2,
-          text: t('Please_enter_activity'),
+          text: `${t('pls_enter_activity_date')}`,
           ...AlertMesg[0],
         });
         return false;
       }
     }
-
     if (saveData.field_type == 'add') {
       if (pipeDetails.length == 0) {
         Toast.show({
@@ -1052,10 +1240,7 @@ const ActivityReportAWD = ({navigation}) => {
         });
         return false;
       }
-      if (
-        selectedImagePipe?.firstItem == '' ||
-        selectedImagePipe?.secondItem == ''
-      ) {
+      if (pipeDetails.length == 0) {
         Toast.show({
           time: 2,
           text: t('Please enter pipe image'),
@@ -1075,7 +1260,7 @@ const ActivityReportAWD = ({navigation}) => {
     if (!saveData.latitude) {
       Toast.show({
         time: 2,
-        text: t('gpsalertdialogmessage'),
+        text: t('gps alert dialog message'),
         ...AlertMesg[0],
       });
       return false;
@@ -1084,17 +1269,17 @@ const ActivityReportAWD = ({navigation}) => {
       Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
       return false;
     }
-
     if (!isGeoFence) {
       Toast.show({text: 'Plot is not geofenced ', ...AlertMesg[0]});
-
+      // Alert.alert('You are out of range');
       return;
     }
     if (!outofRangeCheck) {
       Toast.show({text: 'You are out of range', ...AlertMesg[0]});
-
+      // Alert.alert('You are out of range');
       return;
     }
+
     return true;
   };
   const handleSave = async () => {
@@ -1281,7 +1466,9 @@ const ActivityReportAWD = ({navigation}) => {
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
-          navigation.navigate('FarmerActivityList', {action: 'addData'});
+          AnalyticsLogEvent('activity_report', 'activity_report');
+          navigation.popToTop();
+          navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -1300,14 +1487,14 @@ const ActivityReportAWD = ({navigation}) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-        navigation.navigate('FarmerActivityList', {action: 'addData'});
+        navigation.popToTop();
+        navigation.navigate('activityList', {action: 'addData'});
       }
     }
     setIsLoading(false);
   };
   const handleActivityType = useCallback(
     async item => {
-      console.error(item);
       try {
         let dataArray = [];
         var response;
@@ -1330,7 +1517,7 @@ const ActivityReportAWD = ({navigation}) => {
           //   CropName,
           //   item.value,
           // );
-          console.log(JSON.stringify(response.data));
+          // console.log(JSON.stringify(response.data));
           if (response?.status == 200) {
             await setItem(
               'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1409,6 +1596,8 @@ const ActivityReportAWD = ({navigation}) => {
               field_type: element?.activity?.field_type,
             });
           });
+          // console.log('dataArray', JSON.stringify(dataArray));
+
           if (isButtonDisabled) {
             setActivityInfoAll(dataArray);
           }
@@ -1452,6 +1641,11 @@ const ActivityReportAWD = ({navigation}) => {
           act_master_id: item?.act_master_id,
           field_type: item?.field_type || '',
         }));
+        if (item?.field_type == 'add') {
+          pipe_fieldType.current = 1;
+        } else {
+          pipe_fieldType.current = 0;
+        }
         setSelectedImagePipe(prev => ({
           ...prev,
           firstItem: '',
@@ -1823,7 +2017,14 @@ const ActivityReportAWD = ({navigation}) => {
 
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
-
+      // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
+      // console.log('field_type1233', pipe_fieldType.current);
+      if (pipe_fieldType.current === 1) {
+        const isPipeInstall = await checkPipeDistance(lat, lon);
+        if (!isPipeInstall) {
+          return;
+        }
+      }
       const options = {
         mediaType: 'photo',
         includeBase64: true,
@@ -1925,8 +2126,10 @@ const ActivityReportAWD = ({navigation}) => {
       cameraItem,
       setSelectedImagePipe,
       setModalVisibleMap,
+      pipeLatLong,
       replaceImgKey,
       TakePhotoFailed,
+      coords,
     ],
   );
   const TakePhotoFailed = (_index, imgIndex) => {

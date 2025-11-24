@@ -405,9 +405,9 @@ const SplashScreen = ({ navigation }) => {
               )}
 
               {/* Version Info */}
-              <Animated.View style={[styles.versionContainer, { opacity: fadeAnim }]}>
+              {/*<Animated.View style={[styles.versionContainer, { opacity: fadeAnim }]}>
                 <Text style={styles.versionText}>Version 1.0.0</Text>
-              </Animated.View>
+              </Animated.View>*/}
             </View>
            </LinearGradient> 
         </ImageBackground>

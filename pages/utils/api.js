@@ -3,10 +3,10 @@ import NetInfo from '@react-native-community/netinfo';
 import {Alert, NativeModules} from 'react-native';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
-import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import { AlertMesg } from '../Common/ToastAlert';
-import { getItem, removeItem } from '../../config/getDataFromStorage';
-import { resetTo } from './NavigationUtils';
+import {Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {AlertMesg} from '../Common/ToastAlert';
+import {getItem, removeItem} from '../../config/getDataFromStorage';
+import {resetTo} from './NavigationUtils';
 const STORAGE_KEYS = [
   'logoImageData',
   'loginUser_data',
@@ -127,7 +127,7 @@ const isInternetAvailable = async () => {
   return true;
 };
 
-const handleError = async (error) => {
+const handleError = async error => {
   if (axios.isCancel(error) || error.name === 'AbortError') {
     return {status: 499, data: {message: 'Request cancelled'}};
   }
@@ -138,17 +138,24 @@ const handleError = async (error) => {
       ...AlertMesg[0],
     });
     // Alert.alert('Timeout', 'The request took too long. Please try again.');
-    return { status: 408, data: { message: 'Request timed out' } };
+    return {status: 408, data: {message: 'Request timed out'}};
   }
-  if (error?.response?.status === 401) {
+  if (
+    error?.response?.status === 401 &&
+    error?.response?.data?.data?.code == 'TOKEN_EXPIRED'
+  ) {
     Toast.show({
       time: 2,
-      text: "Your service token got expire please login again.",
+      text: 'Your service token got expire please login again.',
       ...AlertMesg[0],
     });
     try {
       await delay(3000);
-      resetTo('Login', { locale: getItem('loginUser_data').lan_id ? getItem('loginUser_data').lan_id?.toString() : 1 });
+      resetTo('Login', {
+        locale: getItem('loginUser_data').lan_id
+          ? getItem('loginUser_data').lan_id?.toString()
+          : 1,
+      });
       await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
     } catch (error) {
       console.error('Error during logout:', error);
@@ -169,11 +176,11 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
-  console.log("url", url)
+  // console.log("url", url)
   if (!(await isInternetAvailable()))
     return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
-  console.log(url, extraHeaders)
+  // console.log(url, extraHeaders)
   try {
     return await instance.get(url, {
       headers: {...(token && {Authorization: token}), ...extraHeaders},
@@ -181,7 +188,8 @@ export const axiosGet = async (
     });
   } catch (error) {
     // Alert.alert(error.message)
-    throw handleError(error);
+    const cleanError = await handleError(error);
+    throw cleanError;
   }
 };
 
@@ -210,8 +218,9 @@ export const axiosPost = async (
       signal: controller.signal,
     });
   } catch (error) {
-    Alert.alert(error);
-    throw handleError(error);
+    console.error('axiosPost error:', error);
+    const cleanError = await handleError(error);
+    throw cleanError;
   }
 };
 
@@ -240,7 +249,9 @@ export const axiosPut = async (
       signal: controller.signal,
     });
   } catch (error) {
-    throw handleError(error);
+    console.error('axiosPost error:', error);
+    const cleanError = await handleError(error);
+    throw cleanError;
   }
 };
 

@@ -93,12 +93,17 @@ const FinancialInformation = () => {
     setLifeInsurance(!isLifeInsurance);
   };
   const onPageLoad = async () => {
-    const [currency_res] = await Promise.all([getItem('currency')]);
+    const [currency_res,storeFinancial_data_res] = await Promise.all([
+      getItem('currency'),
+      getItem('storeFinancial_data'),
+    ]);
+    if(storeFinancial_data_res){
+      setStoreFinancial(storeFinancial_data_res)
+    }
     setCurrencyt(currency_res);
   };
   useEffect(() => {
     if (isFocused) {
-      onPageLoad();
       if (typeof route.params != 'undefined') {
         if (route.params.data === 'remove') {
           if (remove == 'remove') {
@@ -107,18 +112,25 @@ const FinancialInformation = () => {
             setRemove('remove');
           }
           emptyData();
+          storeFinancial_data_delete();
         }
         if (typeof route.params.pagename != 'undefined') {
           setPath(route.params.pagename);
         } else {
           setPath('');
+          storeFinancial_data_delete();
         }
       } else {
         setPath('');
         setRemove('');
+        storeFinancial_data_delete();
       }
+      onPageLoad();
     }
   }, [isFocused]);
+    const storeFinancial_data_delete = async () => {
+    await setItem('storeFinancial_data')
+  }
   const emptyData = () => {
     setStoreFinancial({
       adharCard: '',

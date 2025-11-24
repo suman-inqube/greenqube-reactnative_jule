@@ -48,7 +48,7 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const {loginUser_data, t, Root, CustomHeader} = useContext(userCreateContext);
+  const {loginUser_data, t, Root, CustomHeader,AllFarmerList} = useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
@@ -62,6 +62,7 @@ const PlotList = () => {
         plotListApproval(dbname, lan_id, token, farmeruserID),
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
+        AllFarmerList(),
       ]);
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
       if (unitAreaRes?.status === 200)

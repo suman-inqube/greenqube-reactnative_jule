@@ -1,11 +1,11 @@
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const OPTIONS_CARBON = [
-  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
-  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
+  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
+  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
 ];
 const OPTIONS_CARBON_FARMER = [
-  {id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD'},
+  { id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD' },
   {
     id: 'Conventional',
     title: 'Non-Carbon',
@@ -13,8 +13,8 @@ const OPTIONS_CARBON_FARMER = [
   },
 ];
 const CARBON_TYPE = [
-  {label: 'Carbon', value: 'carbon_activity'},
-  {label: 'Non-Carbon ', value: 'user_activity'},
+  { label: 'Carbon', value: 'carbon_activity' },
+  { label: 'Non-Carbon ', value: 'user_activity' },
 ];
 const getActionsActivity = (t, styles, Colors) => [
   {
@@ -93,14 +93,109 @@ const getActionsMapView = (t, styles, Colors) => [
     icon: <MaterialIcons name="public" size={26} color="#ffffff" />,
   },
 ];
+// const getActionsPlot = (
+//   t,
+//   styles,
+//   Colors,
+//   isEnable = false,
+//   addPlot = false,
+//   activeTab
+// ) => {
+//   const actions = [];
+//   if (activeTab == 1) {
+//     if (!addPlot) {
+//       actions.push(
+//         {
+//           text: t('Add CO-Farmer'),
+//           name: 'coFarmer',
+//           position: 2,
+//           color: Colors.useGreen,
+//           textStyle: styles.actionText,
+//           textBackground: '#ffffffff',
+//           icon: require('../Common/images/co-farmer.png'),
+//         },
+//         {
+//           text: t('Add List CO-Farmer'),
+//           name: 'AddCoFarmerList',
+//           position: 2,
+//           color: Colors.useGreen,
+//           textStyle: styles.actionText,
+//           textBackground: '#ffffffff',
+//           icon: require('../Common/images/checklist.png'),
+//         },
+//         {
+//           text: t('List CO-Farmer'),
+//           name: 'coFarmerList',
+//           position: 2,
+//           color: Colors.useGreen,
+//           textStyle: styles.actionText,
+//           textBackground: '#ffffffff',
+//           icon: require('../Common/images/checklist.png'),
+//         }
+//       )
+//     }
+//   }
+//   if (isEnable || addPlot) {
+//     actions.push({
+//       text: t('MapView'),
+//       name: 'MapView',
+//       position: 2,
+//       color: Colors.useGreen,
+//       textStyle: styles.actionText,
+//       textBackground: '#ffffffff',
+//       icon: require('../Common/images/mapview.png'),
+//     });
+//   } else {
+//     actions.push({
+//       text: t('add_plot'),
+//       name: 'bt_add',
+//       position: 1,
+//       color: Colors.useGreen,
+//       textStyle: styles.actionText,
+//       textBackground: '#ffffffff',
+//       icon: require('../Common/images/plotting.png'),
+//     });
+//   }
+//   return actions;
+// };
+
+
 const getActionsPlot = (
   t,
   styles,
   Colors,
   isEnable = false,
   addPlot = false,
+  activeTab = "",
+  plotId = "",
+ statuslevel="",
+  co_farmer=0,
 ) => {
   const actions = [];
+  if (activeTab == 1 && plotId != "" && co_farmer==1) {
+    if (!addPlot) {
+      actions.push(
+        {
+          text: t('Add CO-Farmer'),
+          name: 'coFarmer',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/co-farmer.png'),
+        },
+         {
+          text: t('List CO-Farmer'),
+          name: 'coFarmerList',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/checklist.png'),
+        }
+      )
+    }
+  }
   if (isEnable || addPlot) {
     actions.push({
       text: t('MapView'),
@@ -124,7 +219,6 @@ const getActionsPlot = (
   }
   return actions;
 };
-
 const inputViewPast = (t, styles, Colors) => [
   {
     text: t('view_input_requested'),

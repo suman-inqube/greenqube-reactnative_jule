@@ -17,7 +17,7 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import {
   fetchDistrictAPI,
   fetchStateAPI,
@@ -29,19 +29,21 @@ import {
   useIsFocused,
   useFocusEffect,
 } from '@react-navigation/native';
-import {checkPhoneDigitAPI, phoneNoCheckAPI} from '../../../config/apiHere';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { checkPhoneDigitAPI, phoneNoCheckAPI } from '../../../config/apiHere';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import axios from 'axios';
 import config from '../../../config';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 const qs = require('qs');
 import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
-import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { axiosGet, axiosPut, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { removeItem } from '../../../config/getDataFromStorage';
 const PersonalInformation = () => {
   useSingleBackToNavigate('Dashboard');
   //GQR-65
@@ -99,8 +101,8 @@ const PersonalInformation = () => {
     cpassword: '',
   });
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-    {uri: '', name: '', type: '', fileName: '', imageType: 'address'},
-    {uri: '', name: '', type: '', fileName: '', imageType: 'identity'},
+    { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
+    { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
   ]);
   const [path, setPath] = useState('');
   const [regionaldatas, setregionaldatas] = useState({
@@ -162,44 +164,57 @@ const PersonalInformation = () => {
   };
   const onPageLoad = async () => {
     setIsLoading(true);
+    const saved = await getItem('storePersnolInfo_data');
+    if (saved) {
+      setFarmerData(prev => ({
+        ...prev,
+        ...saved,
+      }));
+      if (saved.identityProofIdentityPropf) {
+        setIdentityProofIdentityPropf(saved.identityProofIdentityPropf);
+      }
+
+      if (saved.userImg) {
+        setSelectedImage(saved.userImg.uri);
+      }
+    }
+
+    // 2. LOAD DEFAULT STATE, DISTRICT, BLOCK DATA
     const [state, district, block] = await Promise.all([
       getItem('state'),
       getItem('district'),
       getItem('block'),
     ]);
+
     setregionaldatas({
-      ...regionaldatas,
-      state: state,
-      district: district,
-      block: block,
+      state,
+      district,
+      block,
     });
-    //GQR-65
+
+    // 3. LOAD STATE API + CONTACT DIGIT API
     const {
       dbName,
       languageId,
-      token,
-      supervisorId,
-      company,
-      country,
-      languageConpany,
       country_id,
+      languageConpany,
     } = dbLanTokUsr;
-    //GQR-65
+
     const [checkPhoneNumberDigit] = await Promise.all([
-      axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({countryId: country_id}), '', {
+      axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({ countryId: country_id }), '', {
         information: `${languageConpany},${languageId}`,
         Accept: 'application/json',
       }),
-      // checkPhoneDigitAPI(country_id, languageConpany, languageId),
-
       getState(dbName, languageId),
     ]);
+
     if (checkPhoneNumberDigit?.status == 200) {
-      const {contact_no_digits} = checkPhoneNumberDigit?.data?.data;
-      setcontact_no_digits(contact_no_digits);
+      setcontact_no_digits(checkPhoneNumberDigit?.data?.data?.contact_no_digits);
     }
+
     setIsLoading(false);
   };
+
   useEffect(() => {
     if (isFocused) {
       if (typeof route.params != 'undefined') {
@@ -217,14 +232,19 @@ const PersonalInformation = () => {
           setPath(route.params.pagename);
         } else {
           setPath('');
+          storePersnolInfo_data_delete()
         }
       } else {
+        storePersnolInfo_data_delete()
         setPath('');
         setRemove('');
       }
       onPageLoad();
     }
   }, [isFocused, isOnline]);
+  const storePersnolInfo_data_delete = async () => {
+    await setItem('storePersnolInfo_data')
+  }
   useEffect(() => {
     setItem('pagename', '');
   }, []);
@@ -287,7 +307,7 @@ const PersonalInformation = () => {
           stateID: item.value,
         }),
         '',
-        {information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}`},
+        { information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}` },
       );
 
       // fetchDistrictAPI(
@@ -314,7 +334,7 @@ const PersonalInformation = () => {
             });
           }
         } else {
-          distric_list_arr.push({[item.value]: JSON.stringify(dataArray)});
+          distric_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
           fetchDistrict_local_data = distric_list_arr;
         }
         await setItem('fetchDistrictAPI', fetchDistrict_local_data);
@@ -357,7 +377,7 @@ const PersonalInformation = () => {
             districtID: item.value,
           }),
           '',
-          {information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}`},
+          { information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}` },
         );
 
         // fetchBlockAPI(
@@ -383,7 +403,7 @@ const PersonalInformation = () => {
             });
           }
         } else {
-          dlock_list_arr.push({[item.value]: JSON.stringify(dataArray)});
+          dlock_list_arr.push({ [item.value]: JSON.stringify(dataArray) });
           fetchBlockAPI_local_data = dlock_list_arr;
         }
         await setItem('fetchBlockAPI', fetchBlockAPI_local_data);
@@ -416,7 +436,7 @@ const PersonalInformation = () => {
   const checkPhone = async () => {
     if (isOnline) {
       const check_phone_digit_res = await axiosGet(
-        ROUTES.GET.CHECK_PHONE_DIGIT({countryId: dbLanTokUsr.country_id}),
+        ROUTES.GET.CHECK_PHONE_DIGIT({ countryId: dbLanTokUsr.country_id }),
         '',
         {
           information: `${dbLanTokUsr.languageConpany},${dbLanTokUsr.languageId}`,
@@ -456,7 +476,7 @@ const PersonalInformation = () => {
                   ...AlertMesg[0],
                 });
                 // phoneInputRef.current.focus();
-                setFarmerData({...farmerData, phone: ''});
+                setFarmerData({ ...farmerData, phone: '' });
               }
             } catch (error) {
               console.log(error);
@@ -465,7 +485,7 @@ const PersonalInformation = () => {
                 ...AlertMesg[0],
               });
               // phoneInputRef.current.focus();
-              setFarmerData({...farmerData, phone: ''});
+              setFarmerData({ ...farmerData, phone: '' });
             }
           } else {
             Toast.show({
@@ -474,7 +494,7 @@ const PersonalInformation = () => {
               ...AlertMesg[0],
             });
             Keyboard.dismiss();
-            setFarmerData({...farmerData, phone: ''});
+            setFarmerData({ ...farmerData, phone: '' });
           }
         }
       }
@@ -483,7 +503,7 @@ const PersonalInformation = () => {
   const handleNavigate = async () => {
     Keyboard.dismiss();
     if (farmerData.name == '') {
-      Toast.show({text: `${t('please_enter_valid_name')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_valid_name')}`, ...AlertMesg[0] });
     } else if (farmerData.phone == '') {
       Toast.show({
         text: `${t('please_enter_valid_mobile_no')}`,
@@ -495,29 +515,29 @@ const PersonalInformation = () => {
         ...AlertMesg[0],
       });
     } else if (farmerData.age == '') {
-      Toast.show({text: `${t('please_enter_birth_date')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
     } else if (farmerData.age < 18) {
-      Toast.show({text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0] });
     } else if (farmerData.state == '') {
-      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
     } else if (farmerData.district == '') {
-      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
     } else if (farmerData.block == '') {
-      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
     } else if (farmerData.password == '') {
-      Toast.show({text: `${t('enter_pass')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('enter_pass')}`, ...AlertMesg[0] });
     } else if (farmerData.cpassword == '') {
-      Toast.show({text: `${t('enter_conf_pass')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('enter_conf_pass')}`, ...AlertMesg[0] });
     } else if (farmerData.password != farmerData.cpassword) {
-      Toast.show({text: `${t('same_pass')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('same_pass')}`, ...AlertMesg[0] });
     } else {
-      const newfarmerData = {...farmerData, identityProofIdentityPropf};
+      const newfarmerData = { ...farmerData, identityProofIdentityPropf };
       if (path != '') {
         await setItem('storePersnolInfo_data', newfarmerData);
-        navigation.navigate(route.params.pagename, {data: remove});
+        navigation.navigate(route.params.pagename, { data: remove });
       } else {
         await setItem('storePersnolInfo_data', newfarmerData);
-        navigation.navigate('FinancialInformation', {data: remove});
+        navigation.navigate('FinancialInformation', { data: remove });
       }
     }
   };
@@ -527,32 +547,32 @@ const PersonalInformation = () => {
     return true; // disable normal behaviour
   }, [isFocused, navigation, path, route]);
   const handleAddDataName = useCallback(text => {
-    setFarmerData(prev => ({...prev, name: text}));
+    setFarmerData(prev => ({ ...prev, name: text }));
   }, []);
   const handleAddDataPhone = useCallback(text => {
     const numericValue = text.replace(/[^0-9]/g, '');
-    setFarmerData(prev => ({...prev, phone: numericValue}));
+    setFarmerData(prev => ({ ...prev, phone: numericValue }));
   }, []);
   const handleAddDataGender = useCallback((name, value) => {
-    setFarmerData(prev => ({...prev, [name]: value}));
+    setFarmerData(prev => ({ ...prev, [name]: value }));
   }, []);
   const handleAddDataUserType = useCallback((name, value) => {
-    setFarmerData(prev => ({...prev, [name]: value}));
+    setFarmerData(prev => ({ ...prev, [name]: value }));
   }, []);
   const handleAddDataAge = useCallback(text => {
-    setFarmerData(prev => ({...prev, age: text}));
+    setFarmerData(prev => ({ ...prev, age: text }));
   }, []);
   const handleAddDataAddress = useCallback(text => {
-    setFarmerData(prev => ({...prev, address: text}));
+    setFarmerData(prev => ({ ...prev, address: text }));
   }, []);
   const handleAddDataPin = useCallback(text => {
-    setFarmerData(prev => ({...prev, pin: text}));
+    setFarmerData(prev => ({ ...prev, pin: text }));
   }, []);
   const handleAddDataPass = useCallback(text => {
-    setFarmerData(prev => ({...prev, password: text}));
+    setFarmerData(prev => ({ ...prev, password: text }));
   }, []);
   const handleAddDataCPass = useCallback(text => {
-    setFarmerData(prev => ({...prev, cpassword: text}));
+    setFarmerData(prev => ({ ...prev, cpassword: text }));
   }, []);
 
   const renderCustomHeader = useMemo(
@@ -573,7 +593,7 @@ const PersonalInformation = () => {
           <View style={styles.mainContainer}>
             {renderCustomHeader}
             <KeyboardAvoidingView
-              style={{flex: 1}}
+              style={{ flex: 1 }}
               // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
               behavior={Platform.OS === 'ios' ? 'padding' : null}
               // behavior='position'
@@ -600,7 +620,7 @@ const PersonalInformation = () => {
                   </Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                  <View style={{flex: 1}}>
+                  <View style={{ flex: 1 }}>
                     <View style={styles.firatFormContainer}>
                       <View style={styles.profileImg}>
                         <ImagePlaceHolderCircle
@@ -644,7 +664,7 @@ const PersonalInformation = () => {
                             selected={farmerData.gender === '3'}
                           />
                         </View>
-                        <View style={{marginBottom: 15}}>
+                        <View style={{ marginBottom: 15 }}>
                           <Text style={styles.text}>
                             {t('far_reg_far_type')}
                           </Text>
@@ -749,9 +769,9 @@ const PersonalInformation = () => {
                           stateValue={identityProofIdentityPropf}
                           disable={true}
                           InputTextFormEdit={true}
-                          // photoDeletedValue={photoDeletedValue}
-                          // setPhotoDeletedValue={setPhotoDeletedValue}
-                          // loginUser_data={loginUser_data}
+                        // photoDeletedValue={photoDeletedValue}
+                        // setPhotoDeletedValue={setPhotoDeletedValue}
+                        // loginUser_data={loginUser_data}
                         />
                       </View>
                     </View>
@@ -788,7 +808,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontFamily: 'Poppins-Regular',
   },
-  mainContainer: {flex: 1, backgroundColor: Colors.background_light},
+  mainContainer: { flex: 1, backgroundColor: Colors.background_light },
   firatFormContainer: {
     backgroundColor: 'white',
     padding: 16,
@@ -805,12 +825,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   inputContainer: {},
-  inputContainer2: {paddingHorizontal: 16},
+  inputContainer2: { paddingHorizontal: 16 },
   profileImg: {
     zIndex: 2,
     elevation: 5, // For Android shadow
     shadowColor: '#000', // For iOS shadow
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     justifyContent: 'center',

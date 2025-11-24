@@ -162,7 +162,7 @@ const Login = ({route}) => {
       };
       try {
         setIsLoading(true);
-        let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata);
+        let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata, null,  false,  {})
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,
@@ -363,8 +363,8 @@ const Login = ({route}) => {
       } catch (error) {
         let errorMessage = 'Invalid login details. Please try again.';
         Toast.show({
-          // text: ${error?.data?.error?.errorMessage},
-          text: errorMessage,
+          text: `${error?.data?.error?.errorMessage}`,
+          // text: errorMessage,
           ...AlertMesg[0],
         });
         setIsLoading(false);
