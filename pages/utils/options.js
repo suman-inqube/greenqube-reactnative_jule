@@ -93,16 +93,86 @@ const getActionsMapView = (t, styles, Colors) => [
     icon: <MaterialIcons name="public" size={26} color="#ffffff" />,
   },
 ];
+// const getActionsPlot = (
+//   t,
+//   styles,
+//   Colors,
+//   isEnable = false,
+//   addPlot = false,
+//   activeTab
+// ) => {
+//   const actions = [];
+//   if (activeTab == 1) {
+//     if (!addPlot) {
+//       actions.push(
+//         {
+//           text: t('Add CO-Farmer'),
+//           name: 'coFarmer',
+//           position: 2,
+//           color: Colors.useGreen,
+//           textStyle: styles.actionText,
+//           textBackground: '#ffffffff',
+//           icon: require('../Common/images/co-farmer.png'),
+//         },
+//         {
+//           text: t('Add List CO-Farmer'),
+//           name: 'AddCoFarmerList',
+//           position: 2,
+//           color: Colors.useGreen,
+//           textStyle: styles.actionText,
+//           textBackground: '#ffffffff',
+//           icon: require('../Common/images/checklist.png'),
+//         },
+//         {
+//           text: t('List CO-Farmer'),
+//           name: 'coFarmerList',
+//           position: 2,
+//           color: Colors.useGreen,
+//           textStyle: styles.actionText,
+//           textBackground: '#ffffffff',
+//           icon: require('../Common/images/checklist.png'),
+//         }
+//       )
+//     }
+//   }
+//   if (isEnable || addPlot) {
+//     actions.push({
+//       text: t('MapView'),
+//       name: 'MapView',
+//       position: 2,
+//       color: Colors.useGreen,
+//       textStyle: styles.actionText,
+//       textBackground: '#ffffffff',
+//       icon: require('../Common/images/mapview.png'),
+//     });
+//   } else {
+//     actions.push({
+//       text: t('add_plot'),
+//       name: 'bt_add',
+//       position: 1,
+//       color: Colors.useGreen,
+//       textStyle: styles.actionText,
+//       textBackground: '#ffffffff',
+//       icon: require('../Common/images/plotting.png'),
+//     });
+//   }
+//   return actions;
+// };
+
+
 const getActionsPlot = (
   t,
   styles,
   Colors,
   isEnable = false,
   addPlot = false,
-  activeTab
+  activeTab = "",
+  plotId = "",
+ statuslevel="",
+  co_farmer=0,
 ) => {
   const actions = [];
-  if (activeTab == 1) {
+  if (activeTab == 1 && plotId != "" && co_farmer==1) {
     if (!addPlot) {
       actions.push(
         {
@@ -114,16 +184,7 @@ const getActionsPlot = (
           textBackground: '#ffffffff',
           icon: require('../Common/images/co-farmer.png'),
         },
-        {
-          text: t('Add List CO-Farmer'),
-          name: 'AddCoFarmerList',
-          position: 2,
-          color: Colors.useGreen,
-          textStyle: styles.actionText,
-          textBackground: '#ffffffff',
-          icon: require('../Common/images/checklist.png'),
-        },
-        {
+         {
           text: t('List CO-Farmer'),
           name: 'coFarmerList',
           position: 2,
@@ -158,7 +219,6 @@ const getActionsPlot = (
   }
   return actions;
 };
-
 const inputViewPast = (t, styles, Colors) => [
   {
     text: t('view_input_requested'),

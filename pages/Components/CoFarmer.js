@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useContext, useState } from "react";
 import {
     View,
     Text,
@@ -14,10 +14,16 @@ import {
 
 import DocumentPicker, { types, pick } from "@react-native-documents/picker";
 import AntDesign from "react-native-vector-icons/AntDesign";
+import Feather from "react-native-vector-icons/Feather";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import DropdownForm from "../Common/DropdownForm";
 import { Colors } from "../utils/Constants";
 import { Fonts } from "../utils/Constants";
-// Responsive height + width
+import { resizeImage } from "../utils/imageUtils";
+import ImagePlaceHolderCircle from "../Common/ImagePlaceHolderCircle";
+import RadioForm from "../Common/RadioForm";
+import DatePickerComp from "../Common/DatePickerComp";
+import { userCreateContext } from "../Context/usersCreateContext";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 function CoFarmerComponent({
@@ -27,173 +33,441 @@ function CoFarmerComponent({
     onCancel,
     onSave,
     unitAll,
-    unit_valueArr
+    unit_valueArr,
+    landAreaUnit
 }) {
-
-    const handleGovtIdPick = async () => {
+    const {
+        effective_dates,
+    } = useContext(userCreateContext);
+    const [newDate, setnewDate] = useState(new Date());
+    const [penCycleStart, setopenCycleStart] = useState(false);
+    const handleGovtIdPick = async (fieldName) => {
         try {
-            const result = await pick({
+            const [res] = await pick({
                 presentationStyle: "fullScreen",
                 type: [types.pdf, types.images],
             });
-            const file = result[0];
+            let fileUri = res.uri;
+            if (res.type?.startsWith('image/')) {
+                fileUri = await resizeImage(res.uri);
+            }
             setCoFarmerDetails(prev => ({
                 ...prev,
-                govtId: file.uri,
-                govtIdType: file.type,
-                gotIdName: file.name
+                [fieldName]: {
+                    uri: fileUri,
+                    name: res.name,
+                    fileName: res.name,
+                    type: res.type,
+                },
             }));
         } catch (err) {
             if (DocumentPicker.isCancel(err)) return;
             console.error("Picker Error:", err);
         }
     };
+    const handleAddDataGender = (text, number) => {
+        setCoFarmerDetails(prev => ({
+            ...prev,
+            ["gender"]: number,
+        }))
 
-    const isValid = coFarmerDetails.govtId && coFarmerDetails.phone;
+    }
+    const handleDatePicker = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        const dob = `${year}-${month}-${day}`;
+        setCoFarmerDetails(prev => ({
+            ...prev,
+            ["date_of_birth"]: dob,
+        }))
+    }
+    const isValid = coFarmerDetails.name;
 
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
+            style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
+            <DatePickerComp
+                openDate={penCycleStart}
+                newDate={newDate}
+                setOpenDate={setopenCycleStart}
+                handleDatePicker={handleDatePicker}
+            />
             <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={{ paddingBottom: 40 }}
+                contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.card}>
+                    {/* Header Section with Gradient Accent */}
+                    {/* <View style={styles.headerSection}>
+                        <View style={styles.headerGradient} />
+                        <Text style={styles.title}>{title}</Text>
+                        <Text style={styles.subtitle}>Fill in the farmer information below</Text>
+                    </View> */}
+                    {/* Profile Image Section */}
+                    <View style={styles.profileContainer}>
+                        <View style={styles.profileImageWrapper}>
+                            <ImagePlaceHolderCircle openImagePicker={() => handleGovtIdPick("profile")} selectedImage={coFarmerDetails?.profile?.uri} />
+                            {/* <View style={styles.verifiedBadge}>
+                                <Feather name="user-check" size={16} color="#fff" />
+                            </View> */}
+                        </View>
+                    </View>
 
-                    <Text style={styles.title}>{title}</Text>
-                    <Text style={styles.label}>Farmer Name</Text>
-                    <InputField
-                        placeholder="Enter Farmer Name"
-                        // keyboardType="numeric"
-                        keyboardType="default"
-                        // maxLength={10}
-                        value={coFarmerDetails.name}
-                        onChangeText={(text) =>
-                            setCoFarmerDetails(prev => ({
-                                ...prev,
-                                name: text,
-                            }))
-                        }
-                    />
-                    {/* Phone Number */}
-                    <Text style={styles.label}>Farmer's Phone No</Text>
-                    <InputField
-                        placeholder="Enter phone number"
-                        keyboardType="numeric"
-                        maxLength={10}
-                        value={coFarmerDetails.phone}
-                        onChangeText={(text) =>
-                            setCoFarmerDetails(prev => ({
-                                ...prev,
-                                phone: text.replace(/[^0-9]/g, ""),
-                            }))
-                        }
-                    />
-
-                    {/* Govt ID Upload */}
-                    <Text style={styles.label}>Govt ID Proof *</Text>
-
-                    <TouchableOpacity
-                        style={styles.uploadBox}
-                        onPress={handleGovtIdPick}
-                    >
-                        {coFarmerDetails.govtId ? (
-                            coFarmerDetails.govtIdType === "application/pdf" ? (
-                                <View style={styles.pdfBox}>
-                                    <AntDesign name="pdffile1" size={50} color="red" />
-                                    <Text style={styles.pdfText}>PDF Selected</Text>
-                                </View>
-                            ) : (
-                                <Image
-                                    source={{ uri: coFarmerDetails.govtId }}
-                                    style={styles.previewImage}
-                                    resizeMode="cover"
-                                />
-                            )
-                        ) : (
-                            <View style={styles.placeholderBox}>
-                                <AntDesign name="upload" size={42} color="#777" />
-                                <Text style={styles.uploadText}>Scan / Browse Document</Text>
+                    {/* Form Container */}
+                    <View style={styles.formContainer}>
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                {/* <Feather name="user" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Farmer Name</Text>
+                                <Text style={styles.required}>*</Text>
                             </View>
-                        )}
-                    </TouchableOpacity>
-
-                    {/* Land Area */}
-                    <Text style={styles.label}>Land Area (Optional)</Text>
-                    <InputField
-                        placeholder="Enter land area"
-                        keyboardType="numeric"
-                        value={coFarmerDetails.landArea}
-                        onChangeText={(text) =>
-                            setCoFarmerDetails(prev => ({
-                                ...prev,
-                                landArea: text.replace(/[^0-9.]/g, ""),
-                            }))
-                        }
-                    />
-
-                    {/* Land Unit */}
-                    {/* <Text style={styles.label}>Land Unit (Optional)</Text> */}
-                    {/* <InputField
-                        placeholder="Acre / Hectare / Sq Ft"
-                        value={coFarmerDetails.landUnit}
-                        onChangeText={(text) =>
-                            setCoFarmerDetails(prev => ({
-                                ...prev,
-                                convertedLandArea: text,
-                            }))
-                        }
-                    /> */}
-
-                    <View style={{ marginTop: 10 }}>
-                        <DropdownForm data={unitAll} label={'Land Unit (Optional)'} onChange={(item) => {
-                            let selectUnitValue = '';
-                            if (unit_valueArr != '') {
-                                JSON.parse(unit_valueArr).map((data, index) => {
-                                    if (item.value === data?.fid) {
-                                        selectUnitValue = data.unit_value;
+                            <View style={[styles.inputWrapper]}>
+                                <TextInput
+                                    placeholder="Enter farmer's full name"
+                                    value={coFarmerDetails.name}
+                                    onChangeText={(text) =>
+                                        setCoFarmerDetails(prev => ({
+                                            ...prev,
+                                            name: text,
+                                        }))
                                     }
-                                });
-                            }
-                            setCoFarmerDetails(prev => ({
-                                ...prev,
-                                convertedLandArea: `${Number(selectUnitValue) * Number(coFarmerDetails.landArea)}`,
-                                unit: item.label,
-                                unitValue: item.value
-                            }))
+                                    style={styles.input}
+                                    placeholderTextColor="#9ca3af"
+                                />
+                            </View>
+                        </View>
 
-                        }}
-                            val={coFarmerDetails.unit}
-                        />
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                {/* <Feather name="phone" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Phone Number</Text>
+                                <View style={styles.optionalBadge}>
+                                    <Text style={styles.optionalText}>Optional</Text>
+                                </View>
+                            </View>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    placeholder="Enter 10-digit mobile number"
+                                    keyboardType="numeric"
+                                    maxLength={10}
+                                    value={coFarmerDetails.phone}
+                                    onChangeText={(text) =>
+                                        setCoFarmerDetails(prev => ({
+                                            ...prev,
+                                            phone: text.replace(/[^0-9]/g, ""),
+                                        }))
+                                    }
+                                    style={styles.input}
+                                    placeholderTextColor="#9ca3af"
+                                />
+                            </View>
+                        </View>
+
+
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                {/* <Feather name="phone" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Age</Text>
+                                <View style={styles.optionalBadge}>
+                                    <Text style={styles.optionalText}>Optional</Text>
+                                </View>
+                            </View>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    placeholder="Enter Age"
+                                    keyboardType="numeric"
+                                    maxLength={10}
+                                    value={coFarmerDetails.date_of_birth}
+                                    onChangeText={(text) =>
+                                        setCoFarmerDetails(prev => ({
+                                            ...prev,
+                                            date_of_birth: text.replace(/[^0-9]/g, ""),
+                                        }))
+                                    }
+                                    style={styles.input}
+                                    placeholderTextColor="#9ca3af"
+                                />
+                            </View>
+                        </View>
+
+
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                {/* <Feather name="phone" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Aadhar Number</Text>
+                                <View style={styles.optionalBadge}>
+                                    <Text style={styles.optionalText}>Optional</Text>
+                                </View>
+                            </View>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    placeholder="Enter Aadhar Number"
+                                    keyboardType="numeric"
+                                    maxLength={12}
+                                    value={coFarmerDetails.aadhar_number}
+                                    onChangeText={(text) =>
+                                        setCoFarmerDetails(prev => ({
+                                            ...prev,
+                                            aadhar_number: text.replace(/[^0-9]/g, ""),
+                                        }))
+                                    }
+                                    style={styles.input}
+                                    placeholderTextColor="#9ca3af"
+                                />
+                            </View>
+                        </View>
+                        <View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
+                            <Text style={styles.label}>Gender</Text>
+                            <RadioForm
+                                label={'Male'}
+                                onSelect={() => handleAddDataGender('gender', '1')}
+                                selected={coFarmerDetails.gender === '1'}
+                            />
+                            <RadioForm
+                                label={'Female'}
+                                onSelect={() => handleAddDataGender('gender', '2')}
+                                selected={coFarmerDetails.gender === '2'}
+                            />
+                            <RadioForm
+                                label={'Others'}
+                                onSelect={() => handleAddDataGender('gender', '3')}
+                                selected={coFarmerDetails.gender === '3'}
+                            />
+                        </View>
+
+                        {/* Section Divider */}
+                        {/* <View style={styles.sectionDivider}>
+                            <View style={styles.dividerLine} />
+                            <View style={styles.dividerTextContainer}>
+                                <MaterialIcons name="verified-user" size={16} color="#10b981" />
+                                <Text style={styles.dividerText}>DOCUMENT VERIFICATION</Text>
+                            </View>
+                            <View style={styles.dividerLine} />
+                        </View> */}
+
+                        {/* Document Upload Info */}
+                        {/* <View style={styles.infoBox}>
+                            <Feather name="info" size={16} color="#3b82f6" />
+                            <Text style={styles.infoText}>Upload clear images or PDFs of government ID proofs</Text>
+                        </View> */}
+
+                        {/* Upload Cards */}
+                        <View style={styles.uploadRow}>
+                            {/* <TouchableOpacity
+                                style={styles.uploadCard}
+                                onPress={() => handleGovtIdPick("addressProof")}
+                                activeOpacity={0.7}
+                            >
+                                {coFarmerDetails.addressProof?.uri ? (
+                                    <View style={styles.uploadedContainer}>
+                                        {coFarmerDetails.addressProof.type === "image/jpeg" ? (
+                                            <>
+                                                <Image
+                                                    source={{ uri: coFarmerDetails.addressProof.uri }}
+                                                    style={styles.previewImage}
+                                                />
+                                                <View style={styles.imageOverlay}>
+                                                    <View style={styles.successBadge}>
+                                                        <Feather name="check" size={14} color="#fff" />
+                                                    </View>
+                                                </View>
+                                            </>
+                                        ) : (
+                                            <View style={styles.pdfContainer}>
+                                                <View style={styles.pdfIconCircle}>
+                                                    <AntDesign name="pdffile1" size={36} color="#ef4444" />
+                                                </View>
+                                                <Text style={styles.pdfText}>PDF Uploaded</Text>
+                                                <View style={styles.successBadge}>
+                                                    <Feather name="check" size={14} color="#fff" />
+                                                </View>
+                                            </View>
+                                        )}
+                                    </View>
+                                ) : (
+                                    <View style={styles.uploadPlaceholder}>
+                                        <View style={styles.uploadIconCircle}>
+                                            <Feather name="upload-cloud" size={28} color="#10b981" />
+                                        </View>
+                                        <Text style={styles.uploadTitle}>Address Proof</Text>
+                                        <Text style={styles.uploadSubtitle}>Tap to upload</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity> */}
+
+                            {/* ID Proof */}
+                            <TouchableOpacity
+                                style={styles.uploadCard}
+                                onPress={() => handleGovtIdPick("idProof")}
+                                activeOpacity={0.7}
+                            >
+                                {coFarmerDetails.idProof?.uri ? (
+                                    <View style={styles.uploadedContainer}>
+                                        {coFarmerDetails.idProof.type === "image/jpeg" ? (
+                                            <>
+                                                <Image
+                                                    source={{ uri: coFarmerDetails.idProof.uri }}
+                                                    style={styles.previewImage}
+                                                />
+                                                <View style={styles.imageOverlay}>
+                                                    <View style={styles.successBadge}>
+                                                        <Feather name="check" size={14} color="#fff" />
+                                                    </View>
+                                                </View>
+                                            </>
+                                        ) : (
+                                            <View style={styles.pdfContainer}>
+                                                <View style={styles.pdfIconCircle}>
+                                                    <AntDesign name="pdffile1" size={36} color="#ef4444" />
+                                                </View>
+                                                <Text style={styles.pdfText}>PDF Uploaded</Text>
+                                                <View style={styles.successBadge}>
+                                                    <Feather name="check" size={14} color="#fff" />
+                                                </View>
+                                            </View>
+                                        )}
+                                    </View>
+                                ) : (
+                                    <View style={styles.uploadPlaceholder}>
+                                        <View style={styles.uploadIconCircle}>
+                                            <Feather name="upload-cloud" size={28} color="#10b981" />
+                                        </View>
+                                        <Text style={styles.uploadTitle}>ID Proof</Text>
+                                        <Text style={styles.uploadSubtitle}>Tap to upload</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Section Divider */}
+                        {/* <View style={styles.sectionDivider}>
+                            <View style={styles.dividerLine} />
+                            <View style={styles.dividerTextContainer}>
+                                <MaterialIcons name="landscape" size={16} color="#10b981" />
+                                <Text style={styles.dividerText}>LAND INFORMATION</Text>
+                            </View>
+                            <View style={styles.dividerLine} />
+                        </View> */}
+
+                        {/* Land Area */}
+                        <View style={[styles.inputGroup, { marginTop: 12 }]}>
+                            <View style={styles.labelContainer}>
+                                {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Land Area</Text>
+                                <View style={styles.optionalBadge}>
+                                    <Text style={styles.optionalText}>Optional</Text>
+                                </View>
+                            </View>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    placeholder="Enter land area"
+                                    keyboardType="numeric"
+                                    value={coFarmerDetails.landArea}
+                                    onChangeText={(text) => {
+                                        setCoFarmerDetails(prev => {
+                                            const clean = text.replace(/[^0-9.]/g, "");
+                                            const unit = Number(prev?.UnitValueNum) || 0;
+                                            return {
+                                                ...prev,
+                                                landArea: clean,
+                                                convertedLandArea: String(unit * Number(clean)),
+                                            };
+                                        });
+                                    }}
+                                    style={styles.input}
+                                    placeholderTextColor="#9ca3af"
+                                />
+                            </View>
+                        </View>
+
+                        {/* Land Unit */}
+                        <View style={styles.inputGroup}>
+                            <View style={styles.labelContainer}>
+                                {/* <MaterialIcons name="square-foot" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Land Unit</Text>
+                                <View style={styles.optionalBadge}>
+                                    <Text style={styles.optionalText}>Optional</Text>
+                                </View>
+                            </View>
+                            <DropdownForm
+                                data={unitAll}
+                                onChange={(item) => {
+                                    let selectUnitValue = '';
+                                    let UnitValueNum = '';
+                                    if (unit_valueArr !== '') {
+                                        JSON.parse(unit_valueArr).map((data) => {
+                                            if (item.value === data?.fid) {
+                                                selectUnitValue = data.unit_value;
+                                                UnitValueNum = data.unit_value;
+                                            }
+                                        });
+                                    }
+                                    setCoFarmerDetails(prev => ({
+                                        ...prev,
+                                        convertedLandArea: `${Number(selectUnitValue) * Number(coFarmerDetails.landArea)}`,
+                                        unit: item.label,
+                                        unitValue: item.value,
+                                        UnitValueNum: UnitValueNum
+                                    }));
+                                }}
+                                val={coFarmerDetails.unit}
+                            />
+                        </View>
+
+                        {/* Converted Land Area */}
+                        <View style={[styles.inputGroup, { marginTop: -20 }]}>
+                            <View style={styles.labelContainer}>
+                                {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
+                                <Text style={styles.label}>Converted Land Area</Text>
+                                {landAreaUnit && (
+                                    <View style={styles.unitBadge}>
+                                        <Text style={styles.unitBadgeText}>{landAreaUnit}</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <View style={[styles.inputWrapper, styles.disabledInputWrapper]}>
+                                <TextInput
+                                    editable={false}
+                                    value={coFarmerDetails.convertedLandArea}
+                                    style={[styles.input, styles.disabledInput]}
+                                    placeholderTextColor="#9ca3af"
+                                />
+                                <View style={styles.lockIconContainer}>
+                                    <Feather name="lock" size={16} color="#9ca3af" />
+                                </View>
+                            </View>
+                        </View>
+
                     </View>
-                    {/* Documented Land Area */}
-                    <Text style={styles.label}>Documented Land Area (Auto)</Text>
-                    <InputField
-                        // placeholder={`${coFarmerDetails.convertedLandArea}`}
-                        editable={false}
-                        value={coFarmerDetails.convertedLandArea}
-                    />
 
-                    {/* Buttons */}
-                    <View style={styles.row}>
-                        <Button
-                            label="Cancel"
+                    {/* Action Buttons */}
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
                             onPress={onCancel}
-                            backgroundColor="#777"
-                        />
+                            style={styles.cancelButton}
+                            activeOpacity={0.8}
+                        >
+                            {/* <Feather name="x" size={20} color="#6b7280" /> */}
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
 
-                        <Button
-                            label="Save"
+                        <TouchableOpacity
                             onPress={onSave}
-                            backgroundColor="green"
                             disabled={!isValid}
-                            opacity={!isValid ? 0.4 : 1}
-                        />
+                            style={[
+                                styles.saveButton,
+                                !isValid && styles.disabledSaveButton
+                            ]}
+                            activeOpacity={0.8}
+                        >
+                            {/* <Feather name="check-circle" size={20} color="#fff" /> */}
+                            <Text style={styles.saveButtonText}>Save Farmer</Text>
+                        </TouchableOpacity>
                     </View>
-
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -203,134 +477,358 @@ function CoFarmerComponent({
 const CoFarmer = memo(CoFarmerComponent);
 export default CoFarmer;
 
-/* INPUT COMPONENT */
-const InputField = memo(
-    ({ placeholder, value, onChangeText, keyboardType, editable = true, maxLength = 50 }) => (
-        <TextInput
-            placeholder={placeholder}
-            value={value}
-            onChangeText={onChangeText}
-            editable={editable}
-            keyboardType={keyboardType}
-            maxLength={maxLength}
-            style={[styles.input, !editable && { backgroundColor: "#eee" }]}
-        />
-    )
-);
-
-/* BUTTON COMPONENT */
-const Button = memo(({ label, onPress, backgroundColor, disabled, opacity }) => (
-    <TouchableOpacity
-        onPress={onPress}
-        disabled={disabled}
-        style={[styles.btn, { backgroundColor, opacity }]}
-    >
-        <Text style={styles.btnText}>{label}</Text>
-    </TouchableOpacity>
-));
-
-/* STYLES */
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#f3f4f6",
+    },
+    scrollContent: {
+        // paddingVertical: 16,
+        // paddingHorizontal: 16,
+    },
     card: {
-        width: SCREEN_WIDTH * 0.94,    // FULL RESPONSIVE WIDTH
-        backgroundColor: "#fff",
-        borderRadius: 14,
-        padding: 20,
-        elevation: 5,
-        alignSelf: "center",
-        marginTop: 20,
+        backgroundColor: "#ffffff",
+        borderRadius: 20,
+        overflow: "hidden",
+        // elevation: 8,
+        // shadowColor: "#000",
+        // shadowOffset: { width: 0, height: 4 },
+        // shadowOpacity: 0.12,
+        // shadowRadius: 16,
     },
 
+    // Header
+    headerSection: {
+        paddingHorizontal: 24,
+        paddingTop: 20,
+        // paddingBottom: 20,
+        backgroundColor: "#ffffffff",
+        position: "relative",
+    },
+    headerGradient: {
+        // position: "absolute",
+        // top: 0,
+        // left: 0,
+        // right: 0,
+        // height: 5,
+        // backgroundColor: "#10b981",
+    },
     title: {
-        fontSize: 20,
-        fontWeight: "700",
-        marginBottom: 15,
+        fontSize: 26,
+        fontWeight: "800",
+        color: "#111827",
+        marginBottom: 6,
+        letterSpacing: 0.3,
     },
-
-    label: {
-        color: '#4e4e4e',
-        fontFamily: Fonts.Regular,
+    subtitle: {
         fontSize: 14,
-    },
-
-    input: {
-        width: "100%",
-        borderWidth: 0.5,
-        height: 45,
-        // borderColor: "#ccc",
-        borderColor: Colors.borderGreen,
-        borderRadius: 5,
-        padding: 10,
-        fontSize: 15,
-        marginBottom: 10,
-    },
-
-    /* ⭐ FULL WIDTH + RESPONSIVE HEIGHT UPLOAD BOX */
-    uploadBox: {
-        width: "100%",
-        // borderWidth: 1,
-        // borderColor: "#ccc",
-        borderRadius: 10,
-        padding: 12,
-        marginTop: 8,
-        backgroundColor: "#FAFAFA",
-        alignItems: "center",
-        justifyContent: "center",
-
-        height: SCREEN_HEIGHT * 0.20,
-        minHeight: 140,
-        maxHeight: 240,
-        borderColor: Colors.borderGreen,
-        borderRadius: 5,
-        borderWidth: 0.5,
-        marginBottom: 15,
-    },
-
-    placeholderBox: {
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    uploadText: {
-        color: "#666",
-        fontSize: 14,
+        color: "#6b7280",
         fontWeight: "500",
-        marginTop: 6,
     },
 
-    pdfBox: {
+    // Profile
+    profileContainer: {
         alignItems: "center",
+        marginTop: 10,
+        // paddingVertical: 28,
+        // backgroundColor: "#f8fdf9",
+    },
+    profileImageWrapper: {
+        position: "relative",
+    },
+    verifiedBadge: {
+        position: "absolute",
+        bottom: 2,
+        right: 2,
+        backgroundColor: "#10b981",
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 3,
+        borderColor: "#fff",
+        elevation: 4,
+        shadowColor: "#10b981",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+
+    // Form
+    formContainer: {
+        paddingHorizontal: 24,
+        paddingTop: 24,
+        paddingBottom: 8,
+    },
+    inputGroup: {
+        marginBottom: 22,
+    },
+    labelContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 10,
+        gap: 8,
+    },
+    label: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#374151",
+    },
+    required: {
+        color: "#ef4444",
+        fontSize: 16,
+        fontWeight: "700",
+    },
+    optionalBadge: {
+        backgroundColor: "#f3f4f6",
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 8,
+    },
+    optionalText: {
+        fontSize: 11,
+        color: "#9ca3af",
+        fontWeight: "600",
+    },
+    unitBadge: {
+        backgroundColor: "#d1fae5",
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        borderRadius: 8,
+    },
+    unitBadgeText: {
+        fontSize: 11,
+        color: "#059669",
+        fontWeight: "700",
+    },
+    inputWrapper: {
+        // borderWidth: 1.5,
+        // borderColor: "#e5e7eb",
+        // borderRadius: 14,
+        // backgroundColor: "#fff",
+        // position: "relative",
+    },
+    inputFocused: {
+        // borderColor: "#10b981",
+        // backgroundColor: "#f8fdf9",
+    },
+    input: {
+        height: 50,
+        paddingHorizontal: 16,
+        fontSize: 15,
+        color: "#111827",
+        fontWeight: "500",
+        borderWidth: 0.5,
+        borderColor: Colors.secondary,
+        borderRadius: 5
+    },
+    disabledInputWrapper: {
+        backgroundColor: "#f9fafb",
+        borderColor: "#e5e7eb",
+    },
+    disabledInput: {
+        color: "#6b7280",
+    },
+    lockIconContainer: {
+        position: "absolute",
+        right: 16,
+        top: 0,
+        bottom: 0,
         justifyContent: "center",
     },
 
-    pdfText: {
-        color: "#333",
-        fontSize: 14,
-        marginTop: 6,
+    // Section Divider
+    sectionDivider: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 28,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1.5,
+        backgroundColor: "#e5e7eb",
+    },
+    dividerTextContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 12,
+        gap: 6,
+    },
+    dividerText: {
+        fontSize: 11,
+        fontWeight: "700",
+        color: "#6b7280",
+        letterSpacing: 1,
     },
 
+    // Info Box
+    infoBox: {
+        flexDirection: "row",
+        backgroundColor: "#eff6ff",
+        padding: 14,
+        borderRadius: 12,
+        marginBottom: 20,
+        gap: 10,
+        borderLeftWidth: 4,
+        borderLeftColor: "#3b82f6",
+    },
+    infoText: {
+        flex: 1,
+        fontSize: 13,
+        color: "#1e40af",
+        fontWeight: "500",
+        lineHeight: 18,
+    },
+
+    // Upload
+    uploadRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        gap: 12,
+        marginBottom: 8,
+    },
+    uploadCard: {
+        flex: 1,
+        height: 160,
+        borderRadius: 16,
+        borderWidth: 2,
+        borderColor: "#d1d5db",
+        borderStyle: "dashed",
+        overflow: "hidden",
+        backgroundColor: "#fafafa",
+    },
+    uploadPlaceholder: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+    },
+    uploadIconCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#d1fae5",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 12,
+    },
+    uploadTitle: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#374151",
+        marginBottom: 4,
+    },
+    uploadSubtitle: {
+        fontSize: 12,
+        color: "#9ca3af",
+        fontWeight: "500",
+    },
+    uploadedContainer: {
+        flex: 1,
+        position: "relative",
+    },
     previewImage: {
         width: "100%",
         height: "100%",
-        borderRadius: 8,
+    },
+    imageOverlay: {
+        position: "absolute",
+        top: 12,
+        right: 12,
+    },
+    successBadge: {
+        backgroundColor: "#10b981",
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 3,
+        borderColor: "#fff",
+        elevation: 4,
+        shadowColor: "#10b981",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.4,
+        shadowRadius: 6,
+    },
+    pdfContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fef2f2",
+        padding: 16,
+        position: "relative",
+    },
+    pdfIconCircle: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 12,
+        elevation: 2,
+    },
+    pdfText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#991b1b",
     },
 
-    row: {
+    // Buttons
+    buttonContainer: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: 25,
-        marginBottom: 10,
+        paddingHorizontal: 24,
+        paddingVertical: 24,
+        gap: 12,
+        backgroundColor: "#f9fafb",
+        borderTopWidth: 1,
+        borderTopColor: "#e5e7eb",
     },
-
-    btn: {
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        borderRadius: 10,
+    cancelButton: {
+        flex: 1,
+        height: 56,
+        backgroundColor: "#f3f4f6",
+        borderRadius: 14,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        borderWidth: 1.5,
+        borderColor: "#d1d5db",
     },
-
-    btnText: {
-        color: "#fff",
-        fontWeight: "700",
+    cancelButtonText: {
         fontSize: 16,
+        fontWeight: "700",
+        color: "#6b7280",
     },
+    saveButton: {
+        flex: 1,
+        height: 56,
+        backgroundColor: "#10b981",
+        borderRadius: 14,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        elevation: 6,
+        shadowColor: "#10b981",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+    },
+    saveButtonText: {
+        fontSize: 16,
+        fontWeight: "700",
+        color: "#ffffff",
+    },
+    disabledSaveButton: {
+        backgroundColor: "#d1d5db",
+        elevation: 0,
+        shadowOpacity: 0,
+    },
+    labelContainer2: {
+
+    }
 });

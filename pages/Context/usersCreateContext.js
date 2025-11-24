@@ -22,6 +22,7 @@ import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
   showCarbonFlag,
+  DetailsCompany
 } from '../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../Common/ToastAlert';
@@ -37,6 +38,8 @@ import i18next from 'i18next';
 import { getNavigationBarHeight } from 'react-native-android-navbar-height';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import RNRestart from 'react-native-restart';
+import { axiosGet } from '../utils/api';
+import { ROUTES } from '../utils/Routes';
 
 const ImagePlaceHolderCircle = lazy(() =>
   import('../Common/ImagePlaceHolderCircle'),
@@ -255,7 +258,8 @@ const UserCreateContextProvider = props => {
       let farmer_response = [];
       let responsePlot = [];
       let resCarbonFlag = [];
-
+      let DetailsCompany_res = [];
+      let co_farmer = 0;
       const [
         loginUser_data,
         logoImageData,
@@ -269,12 +273,11 @@ const UserCreateContextProvider = props => {
         getItem('companyLanguage_data'),
         getNavigationBarHeight(),
       ]);
-
       setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id?.toString());
 
       if (netConnection && loginUser_data?.token) {
-        [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
+        [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] = await Promise.all([
           farmerByNameAPI(
             loginUser_data?.dbname,
             loginUser_data?.lan_id,
@@ -293,8 +296,16 @@ const UserCreateContextProvider = props => {
             loginUser_data?.lan_id,
             loginUser_data?.user_id,
           ),
+          // axiosGet(ROUTES.GET.DETAILS_COMPANY({ db_company_id: loginUser_data?.db_company_id }), loginUser_data?.token, {
+          //   information: `${loginUser_data?.dbname},1`,
+          // })
+          DetailsCompany(loginUser_data?.dbname,
+            1,
+            loginUser_data?.db_company_id,)
         ]);
-
+        if (DetailsCompany_res?.status == 200) {
+          co_farmer = DetailsCompany_res.data.data?.[0]?.co_farmer
+        }
         if (farmer_response?.status == 200) {
           await Promise.all([
             setItem('farmerByNameAPI', farmer_response),
@@ -340,6 +351,7 @@ const UserCreateContextProvider = props => {
           languageConpany: company,
           country_id,
           carbonFlag: option_value,
+          co_farmer
         });
         const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
