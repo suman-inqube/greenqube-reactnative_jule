@@ -81,7 +81,11 @@ const ListOfCoFarmer = ({
     isLoading,
     setIsLoading,
     status,
-    effective_dates
+    effective_dates,
+    setModalVisibleCoFarmer,
+    setCoFarmerDetails,
+    onEdit,
+    modalVisibleCoFarmer
 }) => {
     const [coFarmerList, setCoFarmerList] = useState([]);
     const [newDate, setnewDate] = useState(new Date());
@@ -95,30 +99,28 @@ const ListOfCoFarmer = ({
         idProof: null,
         age: ''
     });
-const getAge = (dob) => {
-    if (!dob) return ""; // or return null/0
-    const d = new Date(dob);
-    if (isNaN(d.getTime())) return ""; // invalid date → return empty
+    const getAge = (dob) => {
+        if (!dob) return ""; // or return null/0
+        const d = new Date(dob);
+        if (isNaN(d.getTime())) return ""; // invalid date → return empty
 
-    return new Date(Date.now() - d).getUTCFullYear() - 1970;
-};
+        return new Date(Date.now() - d).getUTCFullYear() - 1970;
+    };
 
     useEffect(() => {
         const onPageLoad = async () => {
             setIsLoading(true);
-
             try {
                 const response = await axiosGet(
                     ROUTES.GET.LIST_CO_FARMERS({ land_fid: plotId }),
                     token,
                     { information: `${dbname},${lan_id},${user_id}` }
                 );
-                console.log(JSON.stringify(response?.data?.data?.rows))
                 if (response?.status === 200) {
                     const resArr = response?.data?.data?.rows?.map((item) => ({
                         ...item,
                         CoFarmer: "",
-                         age: getAge(item?.coFInfo?.date_of_birth)
+                        age: getAge(item?.coFInfo?.date_of_birth),
                     }));
                     setCoFarmerList(resArr);
                 }
@@ -140,7 +142,22 @@ const getAge = (dob) => {
                     CoFarmer: i === index ? (!item.CoFarmer ? true : "") : "",
                 }))
             );
-
+            let idProof = null;
+            let addressProof = null;
+            for (const f of item.coFInfo?.agri_files) {
+                console.log(f)
+                if (f.term_type === "farmer_identity") idProof = {
+                    uri: f.file_path,
+                    name: f.name,
+                    type: f.file_ext,
+                };
+                else if (f.term_type === "farmer_address") addressProof = {
+                    uri: f.file_path,
+                    name: f.name,
+                    type: f.file_ext,
+                };
+                if (idProof && addressProof) break; // stop early
+            }
             setCoFarmer((prev) => ({
                 ...prev,
                 co_farmer_id: prev.co_farmer_id === co_farmer_id ? "" : co_farmer_id,
@@ -148,9 +165,9 @@ const getAge = (dob) => {
                 phoneNumber: prev.co_farmer_id === co_farmer_id ? "" : item?.coFInfo?.userType == 22 &&
                     (item?.coFInfo?.alternate_contact_num == null || item?.coFInfo?.alternate_contact_num == "")
                     ? "" : item?.coFInfo?.contactNumber ?? "",
-                addressProof: null,
-                idProof: null,
-                age: item?.age != 0 && item?.age != "NaN"? `${item?.age}` : "",
+                addressProof: addressProof,
+                idProof: idProof,
+                age: item?.age != 0 && item?.age != "NaN" ? `${item?.age}` : "",
             }));
         } else {
             Toast.show({
@@ -158,6 +175,53 @@ const getAge = (dob) => {
                 `,
                 ...{ ...AlertMesg[0], position: 'top' }
             });
+        }
+    }, [status]);
+
+
+    const onCheckCoFarmerEdit = useCallback((index, co_farmer_id, phoneNum, item) => {
+        const { coFInfo } = item || {}
+        try {
+            if (["PENDING", "REJECTED"].includes(status)) {
+                const details = {
+                    name: coFInfo?.userName,
+                    aadhar_number: coFInfo?.aadhar_number,
+                    date_of_birth: `${getAge(coFInfo?.date_of_birth)}`,
+                    gender: coFInfo?.gender,
+                    phone: coFInfo?.contactNumber,
+                    CoFarmer: "",
+                    addressProof: null,
+                    idProof: null,
+                    profile: null,
+                    type: "edit",
+                    co_farmer_id: coFInfo.user_id
+                };
+                const mapKeys = {
+                    farmer_address: "addressProof",
+                    farmer_identity: "idProof",
+                    farmer_profile: "profile",
+                };
+                coFInfo?.agri_files?.forEach(file => {
+                    const key = mapKeys[file.term_type];
+                    if (key) {
+                        details[key] = {
+                            uri: file.file_path,
+                            name: file.file_name,
+                            type: file.file_ext,
+                        };
+                    }
+                });
+                setCoFarmerDetails(details);
+                setModalVisibleCoFarmer(!modalVisibleCoFarmer);
+            } else {
+                Toast.show({
+                    text: `This is an approved plot. Farmer shuffling is not allowed
+                `,
+                    ...{ ...AlertMesg[0], position: 'top' }
+                });
+            }
+        } catch (error) {
+            console.error(error)
         }
     }, [status]);
 
@@ -316,7 +380,7 @@ const getAge = (dob) => {
                             <Feather name="users" size={48} color="#9ca3af" />
                         </View>
                         <Text style={styles.emptyTitle}>No Co-Farmers Yet</Text>
-                        <Text style={styles.emptyText}>Add co-farmers to manage your farm collaboratively</Text>
+                        {/* <Text style={styles.emptyText}>Add co-farmers to manage your farm collaboratively</Text> */}
                     </View>
                 ) : (
                     coFarmerList.map((item, index) => {
@@ -372,7 +436,30 @@ const getAge = (dob) => {
                                                 </View>
                                             )}
                                         </View>
-
+                                        {/* Edit Icon Button */}
+                                        <TouchableOpacity
+                                            style={styles.editButton}
+                                            onPress={() =>
+                                                onCheckCoFarmerEdit(
+                                                    index,
+                                                    item?.coFInfo?.user_id,
+                                                    item?.coFInfo?.contactNumber,
+                                                    item
+                                                )
+                                            }
+                                            activeOpacity={0.7}
+                                        >
+                                            <View style={[
+                                                styles.editIconContainer,
+                                                isSelected && styles.editIconContainerActive
+                                            ]}>
+                                                <Feather
+                                                    name="edit-2"
+                                                    size={18}
+                                                    color={isSelected ? "#10b981" : "#6b7280"}
+                                                />
+                                            </View>
+                                        </TouchableOpacity>
                                         {/* Toggle Switch */}
                                         <View style={styles.toggleContainer}>
                                             <View style={[
@@ -955,6 +1042,26 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 10,
         gap: 8,
+    },
+    editButton: {
+        // marginRight: 12,
+        position: 'absolute',
+        right: 70,
+        top: 15
+    },
+    editIconContainer: {
+        width: 30,
+        height: 30,
+        borderRadius: 20,
+        backgroundColor: "#f3f4f6",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+    },
+    editIconContainerActive: {
+        backgroundColor: "#d1fae5",
+        borderColor: "#10b981",
     },
 });
 

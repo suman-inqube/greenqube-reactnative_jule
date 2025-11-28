@@ -1,23 +1,31 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import {Image, StyleSheet, Text, View} from 'react-native';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import ButtonFormBottom from '../../Common/ButtonFormBottom';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { useRoute, useIsFocused } from '@react-navigation/native';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {useRoute, useIsFocused} from '@react-navigation/native';
 import {
   ActivityPipeImages,
   addActivityPipeImages,
 } from '../../../config/apiHere';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
-import Marker, { Position } from 'react-native-image-marker';
-import { launchCamera } from 'react-native-image-picker';
+import Marker, {Position} from 'react-native-image-marker';
+import {launchCamera} from 'react-native-image-picker';
 import CustomAlert from '../../Common/CustomAlert';
 import useLocationTracking from '../../Common/useLocationTracking';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { captureRef } from 'react-native-view-shot';
+import {captureRef} from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { showAIValidationError } from '../../utils/showAIValidationError';
-const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import {showAIValidationError} from '../../utils/showAIValidationError';
+import {isPointInPolygon} from 'geolib';
+import ActivityMap from '../../Common/ActivityMap';
+const FarmerInstrumentWiseActivityDetails = ({navigation}) => {
   const location = useLocationTracking();
   const {
     loginUser_data,
@@ -32,15 +40,16 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     ButtonFormBottom,
     logoImage,
     topBanner,
+    coords,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
 
   const route = useRoute();
   const isFocused = useIsFocused();
   const [pipeName, setpipeName] = useState('');
   const [addressProof, setAddressProof] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
-    { uri: '', name: '', type: '', fileName: '', id: '', pipe_id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
+    {uri: '', name: '', type: '', fileName: '', id: '', pipe_id: ''},
   ]);
   const [selectedImagePipe, setSelectedImagePipe] = useState({
     firstItem: '',
@@ -56,16 +65,41 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     firstItemType: '',
     secondItemType: '',
   });
-    const [tempImage, setTempImage] = useState(null);
-    const [tempText, setTempText] = useState('');
+  const [modalVisibleMap, setModalVisibleMap] = useState(false);
+  const [cameraItem, setCameraItem] = useState('');
+  const [plotPolygon, setPlotPolygon] = useState([]);
+  const [pipeLatLong, setPipeLatLong] = useState([]);
+  const [outofRange, setOutofRange] = useState(false);
+  const [outofRangeCheck, setOutofRangeCheck] = useState(false);
+
+  const [replaceImgKey, setReplaceImgKey] = useState({
+    arrayPosition: '',
+    imgPosition: '',
+  });
+  const [dafaultLatLon, setDefaultLatLon] = useState({
+    latitude: 22.2903935,
+    longitude: 87.8491339,
+    accuracy: 10,
+  });
+  const watermarkViewRef = useRef(null);
+
+  const [tempImage, setTempImage] = useState(null);
+  const [tempText, setTempText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const HandlerGoBack = () => {
     navigation.navigate('FarmerInstrumentWiseActivityView');
   };
-  const { params } = route;
+  const {params} = route;
   const onPageLoad = async () => {
     try {
+      const {latitude, longitude} = coords || {};
+      var latlong;
+      if (latitude == '' && longitude == '') {
+        latlong = await getHighAccuracyLocation();
+      }
+      const lat = latitude === '' ? latlong.latitude : latitude;
+      const lon = longitude === '' ? latlong.longitude : longitude;
       setIsLoading(true);
       const pipeRes = await ActivityPipeImages(
         token,
@@ -76,8 +110,40 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         params?.act_name_fid,
         params?.pipe_id,
       );
+      console.log('pipeRes', JSON.stringify(pipeRes));
       if (pipeRes?.status == 200) {
-        const { rows, count } = pipeRes?.data?.data;
+        const plotCoordinates = pipeRes?.data?.data?.plotLatLong?.rows?.map(
+          item => ({
+            latitude: parseFloat(item.latitude),
+            longitude: parseFloat(item.longitude),
+          }),
+        );
+        if (plotCoordinates && plotCoordinates.length > 0) {
+          setPlotPolygon(plotCoordinates);
+          const inside = isPointInPolygon(
+            {latitude: lat, longitude: lon},
+            plotCoordinates,
+          );
+          console.log('12122', inside);
+          if (inside) {
+            setOutofRange(true);
+            setOutofRangeCheck(true);
+          } else {
+            setOutofRange(false);
+            setOutofRangeCheck(false);
+          }
+        }
+        setPlotPolygon(plotCoordinates || []);
+        const pipeLocations =
+          pipeRes?.data?.data?.pipeData?.rows?.[0]?.pipeLatLong?.map(item => ({
+            latitude: item.latitude,
+            longitude: item.longitude,
+            name: pipeRes?.data?.data?.pipeData?.rows?.[0]?.pipe_name || 'Pipe',
+            color: '#000000', // You can customize this
+          }));
+        setPipeLatLong(pipeLocations || []);
+
+        const {rows, count} = pipeRes?.data?.data?.pipeData;
         if (count > 0) {
           rows.map(item => {
             if (item?.pipe_id === params?.pipe_id) {
@@ -109,7 +175,6 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
       }
       setIsLoading(false);
     } catch (error) {
-      console.log(error);
       setIsLoading(false);
     }
   };
@@ -149,11 +214,11 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
         token,
         formData,
       );
-      if(updateActivityPipeImages?.status === 400){
-        showAIValidationError(updateActivityPipeImages)
+      if (updateActivityPipeImages?.status === 400) {
+        showAIValidationError(updateActivityPipeImages);
       }
       if (updateActivityPipeImages?.status === 200) {
-        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
         setTimeout(() => {
           navigation.navigate('FarmerInstrumentWiseActivityView');
         }, 1500);
@@ -177,99 +242,160 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
     }
     setIsLoading(false);
   };
-  const openImagePickerPipe = cameraItem => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 800,
-      maxWidth: 800,
-    };
+  const openImagePickerPipe = useCallback(async cameraItem => {
+    setCameraItem(cameraItem);
+    setModalVisibleMap(true);
+  }, []);
 
-    launchCamera(options, async response => {
-      try {
-        if (!response) {
-          CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-          return;
-        }
-        if (response.didCancel) return;
-        if (response.errorCode) {
-          CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-          return;
-        }
-
-        const asset = response.assets?.[0];
-        if (!asset?.uri) {
-          CustomAlert('Error', 'No image captured', true, 'OK');
-          return;
-        }
-
-        // ✅ Handle location safely
-        let { latitude, longitude } = location || {};
-        if (!latitude || !longitude) {
-          const loc = await getHighAccuracyLocation();
-          latitude = loc?.latitude;
-          longitude = loc?.longitude;
-        }
-
-        const timestamp = Date.now();
-        const formattedTime = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).format(timestamp);
-
-        const watermarkText = `Lat: ${latitude?.toFixed(6)}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
-
-        // ✅ Step 1: Render watermark overlay
-        setTempImage(asset.uri);
-        setTempText(watermarkText);
-
-        // ✅ Step 2: Wait for the view to render, then capture it
-        setTimeout(async () => {
-          try {
-            const uri = await captureRef(watermarkViewRef, {
-              format: 'jpg',
-              quality: 1,
-            });
-
-            const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-            const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-
-            await RNFS.copyFile(uri, destPath);
-
-            // ✅ Step 3: Save image + coordinates
-            setSelectedImagePipe(prev => ({
-              ...prev,
-              [cameraItem]: `file://${destPath}`,
-              [`${cameraItem}Lat`]: latitude,
-              [`${cameraItem}id`]: '',
-              [`${cameraItem}Long`]: longitude,
-              [`${cameraItem}Name`]: fileName,
-              [`${cameraItem}Type`]: asset.type,
-            }));
-
-            setTempImage(null);
-            setTempText('');
-            console.log('✅ Watermarked image saved:', destPath);
-          } catch (error) {
-            console.log('Capture Error:', error);
-            setTempImage(null);
-            setTempText('');
-          }
-        }, 500);
-      } catch (error) {
-        console.log('Catch Error:', error);
-        CustomAlert('Catch Error', String(error), true, 'OK');
+  const TakePhoto = useCallback(async () => {
+    try {
+      // Get fresh location at the moment of taking photo
+      let currentLocation;
+      if (coords?.latitude && coords?.longitude) {
+        currentLocation = coords;
+      } else {
+        currentLocation = await getHighAccuracyLocation();
       }
-    });
-  };
+
+      const {latitude, longitude} = currentLocation;
+
+      console.log('Current location at photo time:', {latitude, longitude});
+      console.log('Plot polygon:', plotPolygon);
+
+      // Check if user is inside the plot
+      if (plotPolygon.length > 0) {
+        const inside = isPointInPolygon({latitude, longitude}, plotPolygon);
+
+        console.log('Is inside plot at photo time:', inside);
+
+        if (!inside) {
+          CustomAlert(
+            'Location Error',
+            'You must be inside the plot area to take photos. Current location is outside the plot boundaries.',
+            true,
+            'OK',
+          );
+          setModalVisibleMap(false);
+          return;
+        }
+      }
+
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
+
+      launchCamera(options, async response => {
+        try {
+          if (!response) {
+            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+            return;
+          }
+          if (response.didCancel) {
+            setModalVisibleMap(false);
+            return;
+          }
+          if (response.errorCode) {
+            CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+            return;
+          }
+
+          const asset = response.assets?.[0];
+          if (!asset?.uri) {
+            CustomAlert('Error', 'No image captured', true, 'OK');
+            return;
+          }
+
+          // ✅ Handle location safely
+          let {latitude, longitude} = location || {};
+          if (!latitude || !longitude) {
+            const loc = await getHighAccuracyLocation();
+            latitude = loc?.latitude;
+            longitude = loc?.longitude;
+          }
+
+          const timestamp = Date.now();
+          const formattedTime = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+
+          const watermarkText = `Lat: ${latitude?.toFixed(
+            6,
+          )}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
+
+          // ✅ Step 1: Render watermark overlay
+          setTempImage(asset.uri);
+          setTempText(watermarkText);
+
+          // ✅ Step 2: Wait for the view to render, then capture it
+          setTimeout(async () => {
+            try {
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 1,
+              });
+
+              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+              await RNFS.copyFile(uri, destPath);
+
+              // ✅ Step 3: Save image + coordinates
+              setSelectedImagePipe(prev => ({
+                ...prev,
+                [cameraItem]: `file://${destPath}`,
+                [`${cameraItem}Lat`]: latitude,
+                [`${cameraItem}id`]: '',
+                [`${cameraItem}Long`]: longitude,
+                [`${cameraItem}Name`]: fileName,
+                [`${cameraItem}Type`]: asset.type,
+              }));
+
+              setTempImage(null);
+              setTempText('');
+              setModalVisibleMap(false); // Close the map after taking photo
+              console.log('✅ Watermarked image saved:', destPath);
+            } catch (error) {
+              console.log('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 500);
+        } catch (error) {
+          console.log('Catch Error:', error);
+          CustomAlert('Catch Error', String(error), true, 'OK');
+        }
+      });
+    } catch (error) {
+      console.log('Error in TakePhoto:', error);
+      CustomAlert('Error', 'Failed to get location or open camera', true, 'OK');
+    }
+  }, [coords, plotPolygon, cameraItem]);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
+          {modalVisibleMap && (
+            <ActivityMap
+              modalVisibleMap={modalVisibleMap}
+              setModalVisibleMap={setModalVisibleMap}
+              plotPolygon={plotPolygon}
+              TakePhoto={TakePhoto}
+              location={coords || dafaultLatLon}
+              setOutOfRange={setOutofRange}
+              outofRange={outofRange}
+              pipeLatLong={pipeLatLong}
+              replaceImgKey={replaceImgKey}
+            />
+          )}
+
           {isLoading ? (
             <View style={styles.LoadingScreen}>
               <LoadingScreen />
@@ -314,14 +440,12 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
                 style={styles.watermarkView}
                 collapsable={false}>
                 <Image
-                  source={{ uri: tempImage }}
+                  source={{uri: tempImage}}
                   style={styles.watermarkImage}
                   resizeMode="cover"
                 />
                 <View style={styles.watermarkTextContainer}>
-                  <Text style={styles.watermarkText}>
-                    {tempText}
-                  </Text>
+                  <Text style={styles.watermarkText}>{tempText}</Text>
                 </View>
               </View>
             )}

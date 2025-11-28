@@ -142,7 +142,7 @@ const handleError = async (error) => {
     // Alert.alert('Timeout', 'The request took too long. Please try again.');
     return { status: 408, data: { message: 'Request timed out' } };
   }
-  if (error?.response?.status === 401 && error?.response?.data?.data?.code=="TOKEN_EXPIRED") {
+  if (error?.response?.status === 401 && error?.response?.data?.data?.code == "TOKEN_EXPIRED") {
     Toast.show({
       time: 2,
       text: "Your service token got expire please login again.",
@@ -183,7 +183,7 @@ export const axiosGet = async (
     });
   } catch (error) {
     // Alert.alert(error.message)
-     const cleanError = await handleError(error);
+    const cleanError = await handleError(error);
     throw cleanError;
   }
 };
@@ -244,7 +244,7 @@ export const axiosPut = async (
       signal: controller.signal,
     });
   } catch (error) {
-     console.error("axiosPost error:", error);
+    console.error("axiosPost error:", error);
     const cleanError = await handleError(error);
     throw cleanError;
   }

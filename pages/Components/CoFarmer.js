@@ -180,7 +180,7 @@ function CoFarmerComponent({
                                 <TextInput
                                     placeholder="Enter Age"
                                     keyboardType="numeric"
-                                    maxLength={10}
+                                    maxLength={2}
                                     value={coFarmerDetails.date_of_birth}
                                     onChangeText={(text) =>
                                         setCoFarmerDetails(prev => ({
@@ -193,7 +193,31 @@ function CoFarmerComponent({
                                 />
                             </View>
                         </View>
-
+                        {coFarmerDetails.type == "edit" ? <>
+                            <View style={styles.inputGroup}>
+                                <View style={styles.labelContainer}>
+                                    {/* <Feather name="phone" size={16} color="#10b981" /> */}
+                                    <Text style={styles.label}>Password</Text>
+                                    <View style={styles.optionalBadge}>
+                                        <Text style={styles.optionalText}>Optional</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.inputWrapper}>
+                                    <TextInput
+                                        placeholder="Password"
+                                        value={coFarmerDetails.password}
+                                        onChangeText={(text) =>
+                                            setCoFarmerDetails(prev => ({
+                                                ...prev,
+                                                password: text,
+                                            }))
+                                        }
+                                        style={styles.input}
+                                        placeholderTextColor="#9ca3af"
+                                    />
+                                </View>
+                            </View>
+                        </> : <></>}
 
                         <View style={styles.inputGroup}>
                             <View style={styles.labelContainer}>
@@ -354,94 +378,96 @@ function CoFarmerComponent({
                         </View> */}
 
                         {/* Land Area */}
-                        <View style={[styles.inputGroup, { marginTop: 12 }]}>
-                            <View style={styles.labelContainer}>
-                                {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
-                                <Text style={styles.label}>Land Area</Text>
-                                <View style={styles.optionalBadge}>
-                                    <Text style={styles.optionalText}>Optional</Text>
-                                </View>
-                            </View>
-                            <View style={styles.inputWrapper}>
-                                <TextInput
-                                    placeholder="Enter land area"
-                                    keyboardType="numeric"
-                                    value={coFarmerDetails.landArea}
-                                    onChangeText={(text) => {
-                                        setCoFarmerDetails(prev => {
-                                            const clean = text.replace(/[^0-9.]/g, "");
-                                            const unit = Number(prev?.UnitValueNum) || 0;
-                                            return {
-                                                ...prev,
-                                                landArea: clean,
-                                                convertedLandArea: String(unit * Number(clean)),
-                                            };
-                                        });
-                                    }}
-                                    style={styles.input}
-                                    placeholderTextColor="#9ca3af"
-                                />
-                            </View>
-                        </View>
-
-                        {/* Land Unit */}
-                        <View style={styles.inputGroup}>
-                            <View style={styles.labelContainer}>
-                                {/* <MaterialIcons name="square-foot" size={16} color="#10b981" /> */}
-                                <Text style={styles.label}>Land Unit</Text>
-                                <View style={styles.optionalBadge}>
-                                    <Text style={styles.optionalText}>Optional</Text>
-                                </View>
-                            </View>
-                            <DropdownForm
-                                data={unitAll}
-                                onChange={(item) => {
-                                    let selectUnitValue = '';
-                                    let UnitValueNum = '';
-                                    if (unit_valueArr !== '') {
-                                        JSON.parse(unit_valueArr).map((data) => {
-                                            if (item.value === data?.fid) {
-                                                selectUnitValue = data.unit_value;
-                                                UnitValueNum = data.unit_value;
-                                            }
-                                        });
-                                    }
-                                    setCoFarmerDetails(prev => ({
-                                        ...prev,
-                                        convertedLandArea: `${Number(selectUnitValue) * Number(coFarmerDetails.landArea)}`,
-                                        unit: item.label,
-                                        unitValue: item.value,
-                                        UnitValueNum: UnitValueNum
-                                    }));
-                                }}
-                                val={coFarmerDetails.unit}
-                            />
-                        </View>
-
-                        {/* Converted Land Area */}
-                        <View style={[styles.inputGroup, { marginTop: -20 }]}>
-                            <View style={styles.labelContainer}>
-                                {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
-                                <Text style={styles.label}>Converted Land Area</Text>
-                                {landAreaUnit && (
-                                    <View style={styles.unitBadge}>
-                                        <Text style={styles.unitBadgeText}>{landAreaUnit}</Text>
+                        {coFarmerDetails.type == "" ?
+                            <>
+                                <View style={[styles.inputGroup, { marginTop: 12 }]}>
+                                    <View style={styles.labelContainer}>
+                                        {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
+                                        <Text style={styles.label}>Land Area</Text>
+                                        <View style={styles.optionalBadge}>
+                                            <Text style={styles.optionalText}>Optional</Text>
+                                        </View>
                                     </View>
-                                )}
-                            </View>
-                            <View style={[styles.inputWrapper, styles.disabledInputWrapper]}>
-                                <TextInput
-                                    editable={false}
-                                    value={coFarmerDetails.convertedLandArea}
-                                    style={[styles.input, styles.disabledInput]}
-                                    placeholderTextColor="#9ca3af"
-                                />
-                                <View style={styles.lockIconContainer}>
-                                    <Feather name="lock" size={16} color="#9ca3af" />
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            placeholder="Enter land area"
+                                            keyboardType="numeric"
+                                            value={coFarmerDetails.landArea}
+                                            onChangeText={(text) => {
+                                                setCoFarmerDetails(prev => {
+                                                    const clean = text.replace(/[^0-9.]/g, "");
+                                                    const unit = Number(prev?.UnitValueNum) || 0;
+                                                    return {
+                                                        ...prev,
+                                                        landArea: clean,
+                                                        convertedLandArea: String(unit * Number(clean)),
+                                                    };
+                                                });
+                                            }}
+                                            style={styles.input}
+                                            placeholderTextColor="#9ca3af"
+                                        />
+                                    </View>
                                 </View>
-                            </View>
-                        </View>
 
+                                {/* Land Unit */}
+                                <View style={styles.inputGroup}>
+                                    <View style={styles.labelContainer}>
+                                        {/* <MaterialIcons name="square-foot" size={16} color="#10b981" /> */}
+                                        <Text style={styles.label}>Land Unit</Text>
+                                        <View style={styles.optionalBadge}>
+                                            <Text style={styles.optionalText}>Optional</Text>
+                                        </View>
+                                    </View>
+                                    <DropdownForm
+                                        data={unitAll}
+                                        onChange={(item) => {
+                                            let selectUnitValue = '';
+                                            let UnitValueNum = '';
+                                            if (unit_valueArr !== '') {
+                                                JSON.parse(unit_valueArr).map((data) => {
+                                                    if (item.value === data?.fid) {
+                                                        selectUnitValue = data.unit_value;
+                                                        UnitValueNum = data.unit_value;
+                                                    }
+                                                });
+                                            }
+                                            setCoFarmerDetails(prev => ({
+                                                ...prev,
+                                                convertedLandArea: `${Number(selectUnitValue) * Number(coFarmerDetails.landArea)}`,
+                                                unit: item.label,
+                                                unitValue: item.value,
+                                                UnitValueNum: UnitValueNum
+                                            }));
+                                        }}
+                                        val={coFarmerDetails.unit}
+                                    />
+                                </View>
+
+                                {/* Converted Land Area */}
+                                <View style={[styles.inputGroup, { marginTop: -20 }]}>
+                                    <View style={styles.labelContainer}>
+                                        {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
+                                        <Text style={styles.label}>Converted Land Area</Text>
+                                        {landAreaUnit && (
+                                            <View style={styles.unitBadge}>
+                                                <Text style={styles.unitBadgeText}>{landAreaUnit}</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                    <View style={[styles.inputWrapper, styles.disabledInputWrapper]}>
+                                        <TextInput
+                                            editable={false}
+                                            value={coFarmerDetails.convertedLandArea}
+                                            style={[styles.input, styles.disabledInput]}
+                                            placeholderTextColor="#9ca3af"
+                                        />
+                                        <View style={styles.lockIconContainer}>
+                                            <Feather name="lock" size={16} color="#9ca3af" />
+                                        </View>
+                                    </View>
+                                </View>
+                            </> : <></>}
                     </View>
 
                     {/* Action Buttons */}
@@ -465,7 +491,7 @@ function CoFarmerComponent({
                             activeOpacity={0.8}
                         >
                             {/* <Feather name="check-circle" size={20} color="#fff" /> */}
-                            <Text style={styles.saveButtonText}>Save Farmer</Text>
+                            <Text style={styles.saveButtonText}>{coFarmerDetails.type == "" ? "Save Farmer" : "Update Farmer"}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
