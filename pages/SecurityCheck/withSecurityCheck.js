@@ -7,16 +7,18 @@ const withSecurityCheck = (WrappedComponent) => {
     const [isSecure, setIsSecure] = useState(true);
     const [checked, setChecked] = useState(false);
     useEffect(() => {
-      if (__DEV__) {
+        if (__DEV__) {
         setChecked(true);
         return;
       }
       const handleAppStateChange = async (nextAppState) => {
-        if (nextAppState !== 'active') return;
         try {
-          const isRooted = JailMonkey.isJailBroken();
-          const isDevMode = await JailMonkey.isDevelopmentSettingsMode();
-          if (isRooted || isDevMode && !__DEV__) {
+          const [isRooted, isDevMode] = await Promise.all([
+            JailMonkey.isJailBroken(),
+            JailMonkey.isDevelopmentSettingsMode()
+          ]);
+
+          if (isRooted || isDevMode) {
             setIsSecure(false);
             Alert.alert(
               'Security Alert',

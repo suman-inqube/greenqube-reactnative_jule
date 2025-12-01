@@ -18,12 +18,6 @@ import {
   promptForEnableLocationIfNeeded,
 } from 'react-native-android-location-enabler';
 import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
-import {
-  farmerByNameAPI,
-  problemPlotAgainstFarmerAPI,
-  showCarbonFlag,
-  DetailsCompany
-} from '../../config/apiHere';
 import { useTranslation } from 'react-i18next';
 import { AlertMesg } from '../Common/ToastAlert';
 import {
@@ -40,10 +34,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import RNRestart from 'react-native-restart';
 import { axiosGet } from '../utils/api';
 import { ROUTES } from '../utils/Routes';
-
-const ImagePlaceHolderCircle = lazy(() =>
-  import('../Common/ImagePlaceHolderCircle'),
-);
+const ImagePlaceHolderCircle = lazy(() =>import('../Common/ImagePlaceHolderCircle'));
 const InputTextForm = lazy(() => import('../Common/InputTextForm'));
 const RadioForm = lazy(() => import('../Common/RadioForm'));
 const PasswordComp = lazy(() => import('../Common/PasswordComp'));
@@ -275,33 +266,13 @@ const UserCreateContextProvider = props => {
       ]);
       setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id?.toString());
-
       if (netConnection && loginUser_data?.token) {
+        const { dbname, lan_id, token, user_id, db_company_id } = loginUser_data || {};
         [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] = await Promise.all([
-          farmerByNameAPI(
-            loginUser_data?.dbname,
-            loginUser_data?.lan_id,
-            loginUser_data?.token,
-            loginUser_data?.user_id,
-          ),
-          problemPlotAgainstFarmerAPI(
-            loginUser_data?.dbname,
-            loginUser_data?.lan_id,
-            loginUser_data?.token,
-            loginUser_data?.user_id,
-          ),
-          showCarbonFlag(
-            loginUser_data?.token,
-            loginUser_data?.dbname,
-            loginUser_data?.lan_id,
-            loginUser_data?.user_id,
-          ),
-          // axiosGet(ROUTES.GET.DETAILS_COMPANY({ db_company_id: loginUser_data?.db_company_id }), loginUser_data?.token, {
-          //   information: `${loginUser_data?.dbname},1`,
-          // })
-          DetailsCompany(loginUser_data?.dbname,
-            1,
-            loginUser_data?.db_company_id,)
+          axiosGet(ROUTES.GET.LIST_USER({ user_id: user_id }), token, { information: `${dbname},${lan_id}` }),
+          axiosGet(ROUTES.GET.PLOT_AGAINST_FARMER({ user_id: user_id }), token, { information: `${dbname},${lan_id}` }),
+          axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, token, { information: `${dbname},${lan_id}` }),
+          axiosGet(ROUTES.GET.DETAILS_COMPANY(db_company_id), token, { information: `${dbname},1` }),
         ]);
         if (DetailsCompany_res?.status == 200) {
           co_farmer = DetailsCompany_res.data.data?.[0]?.co_farmer
@@ -323,7 +294,6 @@ const UserCreateContextProvider = props => {
           getItem('carbonFlag'),
         ]);
       }
-
       if (farmer_response?.status == 200) {
         let supervisorId = '';
         if (loginUser_data?.userType == 2) {
@@ -384,23 +354,17 @@ const UserCreateContextProvider = props => {
       console.error(error);
     }
   };
-
-  // ---------- INIT: Load Farmers ----------
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       AllFarmerList();
     });
     return () => task.cancel();
   }, [netConnection]);
-
-  // ---------- HELPERS ----------
   const effective_dates = item => {
     if (!item) return '';
     const dt = new Date(item);
     return dt.toISOString().split('T')[0];
   };
-
-  // ---------- PROVIDER VALUE ----------
   const contextValue = useMemo(
     () => ({
       dbLanTokUsr,

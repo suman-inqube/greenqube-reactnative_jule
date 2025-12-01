@@ -96,7 +96,7 @@ const Dashboard = ({navigation}) => {
     activitySchedule: [],
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigateToPages = useCallback(
     pageName => {
       if (isOnline) {

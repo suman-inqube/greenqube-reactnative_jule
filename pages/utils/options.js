@@ -168,11 +168,11 @@ const getActionsPlot = (
   addPlot = false,
   activeTab = "",
   plotId = "",
- statuslevel="",
-  co_farmer=0,
+  statuslevel = "",
+  co_farmer = 0,
 ) => {
   const actions = [];
-  if (activeTab == 1 && plotId != "" && co_farmer==1) {
+  if (activeTab == 1 && plotId != "" && co_farmer == 1) {
     if (!addPlot) {
       actions.push(
         {
@@ -184,7 +184,7 @@ const getActionsPlot = (
           textBackground: '#ffffffff',
           icon: require('../Common/images/co-farmer.png'),
         },
-         {
+        {
           text: t('List CO-Farmer'),
           name: 'coFarmerList',
           position: 2,
