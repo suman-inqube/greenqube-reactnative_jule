@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef,useMemo,useCallback } from 'react';
+import React, {useState, useEffect, useRef, useMemo, useCallback} from 'react';
 import {
   StyleSheet,
   View,
@@ -15,11 +15,11 @@ import MapView, {
   Callout,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import { getItem } from '../../../config/getDataFromStorage';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {getItem} from '../../../config/getDataFromStorage';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import Geolocation from '@react-native-community/geolocation';
-import { Colors } from '../../utils/Constants';
-import { Fonts } from '../../utils/Constants';
+import {Colors} from '../../utils/Constants';
+import {Fonts} from '../../utils/Constants';
 //  const GOOGLE_PLACES_API_KEY = 'AIzaSyBGTMfBKCZ9NJ57HX1NPm5hCnzK6_CYVD8';
 //  const GOOGLE_PLACES_API_KEY = 'AIzaSyCw8BW8Zb3DYtanHde65VY-lZfdrCIyFGw';
 // const GOOGLE_PLACES_API_KEY = 'AIzaSyARWleRgAXyLffwWi6Au5Y28dMgifrGzx4';
@@ -28,12 +28,12 @@ import { Fonts } from '../../utils/Constants';
 const GOOGLE_PLACES_API_KEY = 'AIzaSyDZUR2UHEteHVQgwiGA7XJNOV5lHe0r8m4';
 var screenWidth = Dimensions.get('window').width;
 import MultiActionButton from '../../Common/MultiActionButton';
-import { getDistance } from 'geolib';
+import {getDistance} from 'geolib';
 import * as geolib from 'geolib';
-import { isWithin20Meters } from '../../Common/calculateAreaFun';
-import { v4 as uuid } from 'uuid';
+import {isWithin20Meters} from '../../Common/calculateAreaFun';
+import {v4 as uuid} from 'uuid';
 import SuggestiveSearchInput from '../../Common/SuggestiveSearchInput';
-import { getMapLocation, } from '../../../config/apiHere';
+import {getMapLocation} from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 export default function Map({
@@ -54,21 +54,19 @@ export default function Map({
   statuslevel,
   type,
   baselatLong,
-   handleRegionChangeComplete,
-  isLoading
+  handleRegionChangeComplete,
+  isLoading,
 }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
   const [distanceThreshold, setDistanceThreshold] = useState(20);
-  const [marker, setMarker] = useState({ lat:0, lng: 0 });
+  const [marker, setMarker] = useState({lat: 0, lng: 0});
   const [value, setValue] = useState(null);
   const [selectedArea, setSelectedArea] = useState(0);
   const [coordinatesCurrent, setCoordinatesCurrent] = useState([]);
   const mapRef = useRef(null);
   const [isStable, setIsStable] = useState(false);
   // const [location, setLocation] = useState(null);
-
-
 
   useEffect(() => {
     const onPageLoad = async () => {
@@ -141,7 +139,7 @@ export default function Map({
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setSelectedArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+            geolib.getAreaOfPolygon(newPolygon),
         );
       } else {
         setSelectedArea(geolib.getAreaOfPolygon(newPolygon));
@@ -158,7 +156,7 @@ export default function Map({
   }, [editing, drawingReference]);
   const editingLocation = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     if (fusedLocation != null) {
       setDrawingReference({
         latitude: latitude,
@@ -193,27 +191,27 @@ export default function Map({
 
   const clearMapGetDistance = async event => {
     try {
-      if(statuslevel=="PENDING" || statuslevel=="REJECTED" )
-      if (type == 'livehoood') {
-        clearNewPolygon();
-      } else {
-        const dist = isWithin20Meters(drawingReference, location, 20);
-        if (location.length == 1) {
+      if (statuslevel == 'PENDING' || statuslevel == 'REJECTED')
+        if (type == 'livehoood') {
           clearNewPolygon();
         } else {
-          if (dist.length !== 0) {
-            // Call function to draw a polygon here
+          const dist = isWithin20Meters(drawingReference, location, 20);
+          if (location.length == 1) {
             clearNewPolygon();
           } else {
-            Alert.alert(
-              '❌ Out of Range',
-              'Plot location and current location not are same!.',
-              [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-              { cancelable: false },
-            );
+            if (dist.length !== 0) {
+              // Call function to draw a polygon here
+              clearNewPolygon();
+            } else {
+              Alert.alert(
+                '❌ Out of Range',
+                'Plot location and current location not are same!.',
+                [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+                {cancelable: false},
+              );
+            }
           }
         }
-      }
     } catch (error) {
       console.log('Error:', error);
     }
@@ -223,8 +221,8 @@ export default function Map({
       if (type == 'livehoood') {
         handleMapPress(event);
       } else {
-        const { latitude, longitude } = event.nativeEvent.coordinate;
-        const pressedPoint = { latitude, longitude };
+        const {latitude, longitude} = event.nativeEvent.coordinate;
+        const pressedPoint = {latitude, longitude};
         let reference;
         if (editing) {
           reference = drawingReference || currentLocation;
@@ -235,7 +233,7 @@ export default function Map({
           return;
         }
         if (newPolygon.length == 0) {
-          const distance = getDistance({ latitude, longitude }, reference);
+          const distance = getDistance({latitude, longitude}, reference);
           if (distance <= distanceThreshold) {
             handleMapPress(event);
           } else {
@@ -265,89 +263,85 @@ export default function Map({
     return suggestiveRes?.data?.features || []; // Adjust based on your response shape
   };
   const handleSelect = item => {
-    setMarker({ lat: item?.lat, lng: item?.lng })
-    animateToLocation(
-      item?.lat,
-      item?.lng,
-      
-    );
+    setMarker({lat: item?.lat, lng: item?.lng});
+    animateToLocation(item?.lat, item?.lng);
   };
-    const actions = useMemo(() => {
-      const baseActions = [
+  const actions = useMemo(() => {
+    const baseActions = [
+      {
+        text: editing ? 'Stop Editing' : 'Start Editing',
+        icon: require('../../Common/images/editing.png'),
+        name: 'toggleEdit',
+        position: 1,
+        color: Colors.useGreen,
+      },
+    ];
+
+    if (editing) {
+      baseActions.push(
         {
-          text: editing ? 'Stop Editing' : 'Start Editing',
-          icon: require('../../Common/images/editing.png'),
-          name: 'toggleEdit',
-          position: 1,
+          text: 'Finalize Polygon',
+          icon: require('../../Common/images/check.png'),
+          name: 'finalizePolygon',
+          position: 2,
           color: Colors.useGreen,
         },
-      ];
-  
-      if (editing) {
-        baseActions.push(
-          {
-            text: 'Finalize Polygon',
-            icon: require('../../Common/images/check.png'),
-            name: 'finalizePolygon',
-            position: 2,
-            color: Colors.useGreen,
-          },
-          {
-            text: 'Clear',
-            icon: require('../../Common/images/bin.png'),
-            name: 'clear',
-            position: 3,
-            color: Colors.useGreen,
-          },
-          {
-            text: 'Undo Mark',
-            icon: require('../../Common/images/undo.png'),
-            name: 'undoMark',
-            position: 4,
-            color: Colors.useGreen,
-          },
-        );
-      }
-  
-      return baseActions;
-    }, [editing]);
-      const handleActionPress = useCallback(
-        name => {
-          // if (!isMountedRef.current) return;
-    
-          switch (name) {
-            case 'toggleEdit':
-              setEditing(!editing);
-              break;
-            case 'finalizePolygon':
-              finalizePolygon();
-              break;
-            case 'clear':
-              clearMapGetDistance();
-              break;
-            case 'undoMark':
-              undoMark();
-              break;
-            case 'MapView':
-              setShowModal(prev => !prev);
-              break;
-            default:
-              console.log('Unhandled action:', name);
-          }
+        {
+          text: 'Clear',
+          icon: require('../../Common/images/bin.png'),
+          name: 'clear',
+          position: 3,
+          color: Colors.useGreen,
         },
-        [
-          editing,
-          setEditing,
-          finalizePolygon,
-          clearMapGetDistance,
-          undoMark,
-          setShowModal,
-        ],
+        {
+          text: 'Undo Mark',
+          icon: require('../../Common/images/undo.png'),
+          name: 'undoMark',
+          position: 4,
+          color: Colors.useGreen,
+        },
       );
+    }
+
+    return baseActions;
+  }, [editing]);
+  const handleActionPress = useCallback(
+    name => {
+      // if (!isMountedRef.current) return;
+
+      switch (name) {
+        case 'toggleEdit':
+          setEditing(!editing);
+          break;
+        case 'finalizePolygon':
+          finalizePolygon();
+          break;
+        case 'clear':
+          clearMapGetDistance();
+          break;
+        case 'undoMark':
+          undoMark();
+          break;
+        case 'MapView':
+          setShowModal(prev => !prev);
+          break;
+        default:
+          console.log('Unhandled action:', name);
+      }
+    },
+    [
+      editing,
+      setEditing,
+      finalizePolygon,
+      clearMapGetDistance,
+      undoMark,
+      setShowModal,
+    ],
+  );
   return (
     <>
       <View style={styles.container}>
-          {isLoading && (
+        {isLoading && (
           <View style={styles.loaderOverlay}>
             <LoadingScreen />
           </View>
@@ -365,7 +359,7 @@ export default function Map({
           style={styles.map}
           mapType="hybrid"
           provider={PROVIDER_GOOGLE}
-           onRegionChangeComplete={handleRegionChangeComplete}
+          onRegionChangeComplete={handleRegionChangeComplete}
           // region={currentLocation}
           // initialRegion={{
           //   latitude: currentLocation?.latitude || 22.2906, // Default if no location
@@ -391,6 +385,20 @@ export default function Map({
           zoomControlEnabled={true} // ✅ Enable zoom buttons (Android)
           pitchEnabled={true} // ✅ Allow 3D tilting
         >
+          {/* {currentLocation && (
+            <Marker
+              coordinate={{
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude,
+              }}
+              anchor={{x: 0.5, y: 0.5}}>
+              <Image
+                source={require('../../Common/images/calendar.png')}
+                style={{width: 35, height: 35}}
+                resizeMode="contain"
+              />
+            </Marker>
+          )} */}
           {polygons.map((polygon, index) => {
             if (polygon.length >= 3) {
               return (
@@ -463,17 +471,16 @@ export default function Map({
             onSelect={handleSelect}
           />
         </View>
-           <FloatingActionButton
-        position="right"
-        actions={actions}
-        color={Colors.useGreen}
-        overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{ vertical: 80, horizontal: 25 }}
-        onPressItem={handleActionPress}
-        openOnMount={editing}
-      />
+        <FloatingActionButton
+          position="right"
+          actions={actions}
+          color={Colors.useGreen}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{vertical: 80, horizontal: 25}}
+          onPressItem={handleActionPress}
+          openOnMount={editing}
+        />
       </View>
-
     </>
   );
 }
@@ -527,16 +534,16 @@ const styles = StyleSheet.create({
       top: 12,
       opacity: 0.7,
     },
-      loaderOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 999,
-  }
+    loaderOverlay: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'rgba(255,255,255,0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 999,
+    },
   },
 });

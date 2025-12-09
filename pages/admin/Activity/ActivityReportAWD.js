@@ -526,6 +526,12 @@ const ActivityReportAWD = ({navigation}) => {
               secondItemLat: '',
               secondItemLong: '',
             }));
+            setThirdImageSeparate({
+              thirdItem: '',
+              thirdItemLat: '',
+              thirdItemLong: '',
+              thirdItemfileName: '',
+            });
             setselectPipeList({
               ...selectPipeList,
               label: '',
@@ -1298,6 +1304,8 @@ const ActivityReportAWD = ({navigation}) => {
         return;
       }
 
+      console.log(' PipeDetails :', JSON.stringify(pipeDetails, null, 2));
+
       const formData = new FormData();
       formData.append('act_title', '');
       formData.append('type', 'carbon_activity');
@@ -1394,6 +1402,23 @@ const ActivityReportAWD = ({navigation}) => {
           });
         }
       }
+      if (thirdImageSeparate.thirdItem !== '') {
+        formData.append('farmer_photo', {
+          name: thirdImageSeparate.thirdItemfileName || 'farmer_photo.jpg',
+          type: 'image/jpeg',
+          uri: thirdImageSeparate.thirdItem,
+        });
+
+        // Also include farmer photo coordinates if backend needs them
+        formData.append(
+          'farmer_photo_latitude',
+          thirdImageSeparate.thirdItemLat,
+        );
+        formData.append(
+          'farmer_photo_longitude',
+          thirdImageSeparate.thirdItemLong,
+        );
+      }
       formData.append('act_desc', saveData.act_desc);
       formData.append('material_used', saveData.material_used);
       formData.append('water_used', saveData.water_used);
@@ -1465,6 +1490,10 @@ const ActivityReportAWD = ({navigation}) => {
           showAIValidationError(database_res);
           setIsLoading(false);
         }
+        console.log(
+          '✅ SUCCESS RESPONSE:',
+          JSON.stringify(database_res.data, null, 2),
+        );
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
@@ -1549,6 +1578,12 @@ const ActivityReportAWD = ({navigation}) => {
           secondItemLat: '',
           secondItemLong: '',
         }));
+        setThirdImageSeparate({
+          thirdItem: '',
+          thirdItemLat: '',
+          thirdItemLong: '',
+          thirdItemfileName: '',
+        });
         setselectPipeList({
           ...selectPipeList,
           label: '',
@@ -1655,6 +1690,12 @@ const ActivityReportAWD = ({navigation}) => {
           secondItemLat: '',
           secondItemLong: '',
         }));
+        setThirdImageSeparate({
+          thirdItem: '',
+          thirdItemLat: '',
+          thirdItemLong: '',
+          thirdItemfileName: '',
+        });
         setselectPipeList({
           ...selectPipeList,
           label: '',
@@ -1925,6 +1966,12 @@ const ActivityReportAWD = ({navigation}) => {
     secondItemLat: '',
     secondItemLong: '',
   });
+  const [thirdImageSeparate, setThirdImageSeparate] = useState({
+    thirdItem: '',
+    thirdItemLat: '',
+    thirdItemLong: '',
+    thirdItemfileName: '',
+  });
   const handleActivityPipeNumber = useCallback(text => {
     setPipeNumber(text);
   }, []);
@@ -1938,7 +1985,8 @@ const ActivityReportAWD = ({navigation}) => {
         });
       } else if (
         selectedImagePipe.firstItem == '' ||
-        selectedImagePipe.secondItem == ''
+        selectedImagePipe.secondItem == '' ||
+        thirdImageSeparate.thirdItem == ''
       ) {
         Toast.show({
           time: 2,
@@ -1965,9 +2013,17 @@ const ActivityReportAWD = ({navigation}) => {
                 lat: selectedImagePipe.secondItemLat,
                 lon: selectedImagePipe.secondItemLong,
               },
+              // {
+              //   imageURL: thirdImageSeparate.thirdItem,
+              //   imageName: thirdImageSeparate.thirdItemfileName,
+              //   status: '',
+              //   lat: thirdImageSeparate.thirdItemLat,
+              //   lon: thirdImageSeparate.thirdItemLong,
+              // },
             ],
           ],
         ]);
+
         setSelectedImagePipe(prev => ({
           ...prev,
           firstItem: '',
@@ -1976,13 +2032,20 @@ const ActivityReportAWD = ({navigation}) => {
           secondItem: '',
           secondItemLat: '',
           secondItemLong: '',
+
           firstItemfileName: '',
           secondItemfileName: '',
         }));
+        setThirdImageSeparate({
+          thirdItem: '',
+          thirdItemLat: '',
+          thirdItemLong: '',
+          thirdItemfileName: '',
+        });
         setPipeNumber('');
       }
     },
-    [pipeNumber, selectedImagePipe],
+    [pipeNumber, selectedImagePipe, thirdImageSeparate],
   );
 
   const openImagePickerPipe = useCallback(async item => {
@@ -2019,12 +2082,12 @@ const ActivityReportAWD = ({navigation}) => {
       const lon = longitude || latlong?.longitude || 0;
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
-      if (pipe_fieldType.current === 1) {
-        const isPipeInstall = await checkPipeDistance(lat, lon);
-        if (!isPipeInstall) {
-          return;
-        }
-      }
+      // if (pipe_fieldType.current === 1) {
+      //   const isPipeInstall = await checkPipeDistance(lat, lon);
+      //   if (!isPipeInstall) {
+      //     return;
+      //   }
+      // }
       const options = {
         mediaType: 'photo',
         includeBase64: true,
@@ -2032,7 +2095,8 @@ const ActivityReportAWD = ({navigation}) => {
         maxWidth: 800,
         includeExtra: true,
       };
-
+      console.log(' STARTING PHOTO PROCESS for:', cameraItem); // ADD THIS LINE
+      console.log(' Current Location - Lat:', lat, 'Lon:', lon); // ADD THIS LINE
       launchCamera(options, async response => {
         try {
           if (!response) {
@@ -2049,6 +2113,10 @@ const ActivityReportAWD = ({navigation}) => {
           }
 
           const asset = response.assets?.[0];
+          console.log('CAMERA RESPONSE for', cameraItem);
+          console.log('   Original URI:', asset?.uri);
+          console.log('   File Name:', asset?.fileName);
+          console.log('   File Size:', asset?.fileSize);
           if (!asset?.uri) {
             CustomAlert('Error', 'No image captured', true, 'OK');
             return;
@@ -2080,17 +2148,30 @@ const ActivityReportAWD = ({navigation}) => {
               const fileName = asset.fileName || `photo_${timestamp}.jpg`;
               const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
               await RNFS.copyFile(uri, destPath);
-
+              console.log('  IMAGE SAVED for', cameraItem);
+              console.log('   Final Path:', destPath);
+              console.log('   File Name:', fileName);
               setTempImage(null);
               setTempText('');
               if (replaceImgKey.arrayPosition === '') {
-                setSelectedImagePipe(prev => ({
-                  ...prev,
-                  [cameraItem]: `file://${destPath}`,
-                  [`${cameraItem}fileName`]: fileName,
-                  [`${cameraItem}Lat`]: lat,
-                  [`${cameraItem}Long`]: lon,
-                }));
+                if (cameraItem === 'thirdItem') {
+                  // Save third image to SEPARATE state
+                  setThirdImageSeparate(prev => ({
+                    ...prev,
+                    thirdItem: `file://${destPath}`,
+                    thirdItemfileName: fileName,
+                    thirdItemLat: lat,
+                    thirdItemLong: lon,
+                  }));
+                } else {
+                  setSelectedImagePipe(prev => ({
+                    ...prev,
+                    [cameraItem]: `file://${destPath}`,
+                    [`${cameraItem}fileName`]: fileName,
+                    [`${cameraItem}Lat`]: lat,
+                    [`${cameraItem}Long`]: lon,
+                  }));
+                }
               } else {
                 const {arrayPosition, imgPosition} = replaceImgKey;
                 setPipeDetails(prev => {
@@ -2479,7 +2560,11 @@ const ActivityReportAWD = ({navigation}) => {
                               </View>
                               <TakePhotoPipe
                                 openImagePicker={openImagePickerPipe}
-                                selectedImage={selectedImagePipe}
+                                selectedImage={{
+                                  firstItem: selectedImagePipe.firstItem,
+                                  secondItem: selectedImagePipe.secondItem,
+                                  thirdItem: thirdImageSeparate.thirdItem,
+                                }}
                                 title={t('Take a photo')}
                                 color="red"
                               />

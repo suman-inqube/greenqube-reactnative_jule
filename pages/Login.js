@@ -162,7 +162,13 @@ const Login = ({route}) => {
       };
       try {
         setIsLoading(true);
-        let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata, null,  false,  {})
+        let userIno = await axiosPost(
+          ROUTES.POST.LOGIN,
+          inputdata,
+          null,
+          false,
+          {},
+        );
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,

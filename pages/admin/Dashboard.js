@@ -96,7 +96,7 @@ const Dashboard = ({navigation}) => {
     activitySchedule: [],
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigateToPages = useCallback(
     pageName => {
       if (isOnline) {
@@ -281,12 +281,16 @@ const Dashboard = ({navigation}) => {
   }, [route?.params]);
 
   useEffect(() => {
-    if (route?.params?.action === 'plotStatusUpdated') {
-      // Toast.show({text: t('Updated'), ...AlertMesg[0]});
-
+    const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
-    }
-  }, [route?.params]);
+      startWatchingLocation();
+    });
+    return () => {
+      task.cancel();
+      stopWatchingLocation();
+    };
+  }, []);
+
 
   const exit = useCallback(() => {
     Alert.alert(
@@ -302,12 +306,7 @@ const Dashboard = ({navigation}) => {
   }, [t]);
 
   const CompanyWebsiteOpen = useCallback(() => {
-    if (
-      uiState.company_website &&
-      uiState.company_website !== '' &&
-      uiState.company_website != 'https://null' &&
-      uiState.company_website != 'null'
-    ) {
+    if (uiState.company_website && uiState.company_website !== '' && uiState.company_website !="https://null"&& uiState.company_website !="null") {
       Linking.openURL(uiState.company_website).catch(() => {
         Alert.alert('Cannot open website');
       });

@@ -119,7 +119,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
         params?.act_name_fid,
         params?.pipe_id,
       );
-      // console.log('pipeRes', JSON.stringify(pipeRes));
+      console.log('pipeRes', JSON.stringify(pipeRes));
       if (pipeRes?.status == 200) {
         const plotCoordinates = pipeRes?.data?.data?.plotLatLong?.rows?.map(
           item => ({
@@ -127,10 +127,13 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
             longitude: parseFloat(item.longitude),
           }),
         );
-        if (plotCoordinates.length != 0) {
+        if (plotCoordinates && plotCoordinates.length > 0) {
           setPlotPolygon(plotCoordinates);
-          const inside = isPointInPolygon({lat, lon}, plotCoordinates);
-          // console.log('12122', inside);
+          const inside = isPointInPolygon(
+            {latitude: lat, longitude: lon},
+            plotCoordinates,
+          );
+          console.log('12122', inside);
           if (inside) {
             setOutofRange(true);
             setOutofRangeCheck(true);
@@ -189,7 +192,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
   }, []);
   const handleImgUpdate = async () => {
     setIsLoading(true);
-    // console.log('selectedImagePipe', selectedImagePipe.firstItem);
+    console.log('selectedImagePipe', selectedImagePipe.firstItem);
     var imgCount = 0;
     const formData = new FormData();
     if (selectedImagePipe.firstItemid == '') {
@@ -260,108 +263,136 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
   }, []);
 
   const TakePhoto = useCallback(async () => {
-    const {latitude, longitude} = coords || {};
-    let latlong;
-    if (!latitude || !longitude) {
-      latlong = await getHighAccuracyLocation();
-    }
+    try {
+      // Get fresh location at the moment of taking photo
+      let currentLocation;
+      if (coords?.latitude && coords?.longitude) {
+        currentLocation = coords;
+      } else {
+        currentLocation = await getHighAccuracyLocation();
+      }
 
-    const lat = latitude || latlong?.latitude || 0;
-    const lon = longitude || latlong?.longitude || 0;
-    const options = {
-      mediaType: 'photo',
-      includeBase64: true,
-      maxHeight: 800,
-      maxWidth: 800,
-    };
+      const {latitude, longitude} = currentLocation;
 
-    launchCamera(options, async response => {
-      try {
-        if (!response) {
-          CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-          return;
-        }
-        if (response.didCancel) {
+      console.log('Current location at photo time:', {latitude, longitude});
+      console.log('Plot polygon:', plotPolygon);
+
+      // Check if user is inside the plot
+      if (plotPolygon.length > 0) {
+        const inside = isPointInPolygon({latitude, longitude}, plotPolygon);
+
+        console.log('Is inside plot at photo time:', inside);
+
+        if (!inside) {
+          CustomAlert(
+            'Location Error',
+            'You must be inside the plot area to take photos. Current location is outside the plot boundaries.',
+            true,
+            'OK',
+          );
           setModalVisibleMap(false);
           return;
         }
-        if (response.errorCode) {
-          CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-          return;
-        }
-
-        const asset = response.assets?.[0];
-        if (!asset?.uri) {
-          CustomAlert('Error', 'No image captured', true, 'OK');
-          return;
-        }
-
-        // ✅ Handle location safely
-        let {latitude, longitude} = location || {};
-        if (!latitude || !longitude) {
-          const loc = await getHighAccuracyLocation();
-          latitude = loc?.latitude;
-          longitude = loc?.longitude;
-        }
-
-        const timestamp = Date.now();
-        const formattedTime = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).format(timestamp);
-
-        const watermarkText = `Lat: ${latitude?.toFixed(
-          6,
-        )}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
-
-        // ✅ Step 1: Render watermark overlay
-        setTempImage(asset.uri);
-        setTempText(watermarkText);
-
-        // ✅ Step 2: Wait for the view to render, then capture it
-        setTimeout(async () => {
-          try {
-            const uri = await captureRef(watermarkViewRef, {
-              format: 'jpg',
-              quality: 1,
-            });
-
-            const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-            const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-
-            await RNFS.copyFile(uri, destPath);
-
-            // ✅ Step 3: Save image + coordinates
-            setSelectedImagePipe(prev => ({
-              ...prev,
-              [cameraItem]: `file://${destPath}`,
-              [`${cameraItem}Lat`]: latitude,
-              [`${cameraItem}id`]: '',
-              [`${cameraItem}Long`]: longitude,
-              [`${cameraItem}Name`]: fileName,
-              [`${cameraItem}Type`]: asset.type,
-            }));
-
-            setTempImage(null);
-            setTempText('');
-            setModalVisibleMap(false); // Close the map after taking photo
-            console.log('✅ Watermarked image saved:', destPath);
-          } catch (error) {
-            console.log('Capture Error:', error);
-            setTempImage(null);
-            setTempText('');
-          }
-        }, 500);
-      } catch (error) {
-        console.log('Catch Error:', error);
-        CustomAlert('Catch Error', String(error), true, 'OK');
       }
-    });
-  }, [location, cameraItem, pipeLatLong, coords]);
+
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
+
+      launchCamera(options, async response => {
+        try {
+          if (!response) {
+            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+            return;
+          }
+          if (response.didCancel) {
+            setModalVisibleMap(false);
+            return;
+          }
+          if (response.errorCode) {
+            CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+            return;
+          }
+
+          const asset = response.assets?.[0];
+          if (!asset?.uri) {
+            CustomAlert('Error', 'No image captured', true, 'OK');
+            return;
+          }
+
+          // ✅ Handle location safely
+          let {latitude, longitude} = location || {};
+          if (!latitude || !longitude) {
+            const loc = await getHighAccuracyLocation();
+            latitude = loc?.latitude;
+            longitude = loc?.longitude;
+          }
+
+          const timestamp = Date.now();
+          const formattedTime = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+
+          const watermarkText = `Lat: ${latitude?.toFixed(
+            6,
+          )}\nLon: ${longitude?.toFixed(6)}\n${formattedTime}`;
+
+          // ✅ Step 1: Render watermark overlay
+          setTempImage(asset.uri);
+          setTempText(watermarkText);
+
+          // ✅ Step 2: Wait for the view to render, then capture it
+          setTimeout(async () => {
+            try {
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 1,
+              });
+
+              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+              await RNFS.copyFile(uri, destPath);
+
+              // ✅ Step 3: Save image + coordinates
+              setSelectedImagePipe(prev => ({
+                ...prev,
+                [cameraItem]: `file://${destPath}`,
+                [`${cameraItem}Lat`]: latitude,
+                [`${cameraItem}id`]: '',
+                [`${cameraItem}Long`]: longitude,
+                [`${cameraItem}Name`]: fileName,
+                [`${cameraItem}Type`]: asset.type,
+              }));
+
+              setTempImage(null);
+              setTempText('');
+              setModalVisibleMap(false); // Close the map after taking photo
+              console.log('✅ Watermarked image saved:', destPath);
+            } catch (error) {
+              console.log('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 500);
+        } catch (error) {
+          console.log('Catch Error:', error);
+          CustomAlert('Catch Error', String(error), true, 'OK');
+        }
+      });
+    } catch (error) {
+      console.log('Error in TakePhoto:', error);
+      CustomAlert('Error', 'Failed to get location or open camera', true, 'OK');
+    }
+  }, [coords, plotPolygon, cameraItem]);
 
   // const openImagePickerPipe = useCallback(
   //   async cameraItem => {
@@ -467,7 +498,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
               setModalVisibleMap={setModalVisibleMap}
               plotPolygon={plotPolygon}
               TakePhoto={TakePhoto}
-              location={location || dafaultLatLon}
+              location={coords || dafaultLatLon}
               setOutOfRange={setOutofRange}
               outofRange={outofRange}
               pipeLatLong={pipeLatLong}

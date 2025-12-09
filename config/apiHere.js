@@ -3134,7 +3134,11 @@ export const addUserPipeActivity = async (
       pipe_count: pipe_count,
     },
   };
-
+  console.log(
+    `${config.BASE_URL}inputOutputRoute/addUserPipeActivity`,
+    inputData,
+    axiosHeaders,
+  );
   try {
     let response = await axios.post(
       `${config.BASE_URL}inputOutputRoute/addUserPipeActivity`,
