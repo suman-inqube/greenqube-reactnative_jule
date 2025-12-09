@@ -940,16 +940,29 @@ const ActivityReportAWD = ({navigation}) => {
           saveData.cu_rel_id,
           save_data,
         ),
-        activityScheduleAPI(
-          dbname,
-          lan_id,
+
+        axiosGet(
+          ROUTES.GET.ACTIVITY_SCHEDULE_API({
+            type: 'carbon_activity',
+            plotId: saveData.plot_id,
+            cropId: saveData.crop_name,
+            cu_rel_id: saveData.cu_rel_id,
+          }),
           token,
-          'carbon_activity',
-          saveData.plot_id,
-          saveData.crop_name,
-          saveData.cu_rel_id,
+          {information: `${dbname},${lan_id}`},
         ),
+        // activityScheduleAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   'carbon_activity',
+        //   saveData.plot_id,
+        //   saveData.crop_name,
+        //   saveData.cu_rel_id,
+        // ),
       ]);
+
+      console.log('activitySchedule1111', activitySchedule);
 
       if (activitySchedule.status == 200) {
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
@@ -1402,14 +1415,25 @@ const ActivityReportAWD = ({navigation}) => {
       var database_res;
       if (isOnline) {
         if (saveData.field_type == 'add') {
-          database_res = await addUserPipeActivity(
-            dbname,
-            lan_id,
-            token,
-            farmerID,
+          database_res = await axiosPost(
+            ROUTES.POST.ADD_USER_PIPE_ACTIVITY,
             formData,
-            pipeDetails.length,
+            token,
+            false,
+            {
+              information: `${dbname},${lan_id},${farmerID}`,
+              pipe_count: pipeDetails.length.toString(),
+            },
           );
+
+          // await  addUserPipeActivity(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   farmerID,
+          //   formData,
+          //   pipeDetails.length,
+          // );
         } else {
           if (coords != null) {
             const {latitude, longitude} = coords || {};
@@ -1417,15 +1441,28 @@ const ActivityReportAWD = ({navigation}) => {
               latitude,
               longitude,
             });
+            console.log('selectPipeList.latlongs', selectPipeList.latlongs);
+            console.log('latitude, longitude', latitude, longitude);
+            console.log('distances', distances);
             if (distances < 10) {
-              database_res = await addPrevPipeActivity(
-                dbname,
-                lan_id,
-                token,
-                farmerID,
+              database_res = await axiosPost(
+                ROUTES.POST.UPDATE_PIPE_ACTIVITY,
                 formData,
-                1,
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id},${farmerID}`,
+                  pipe_count: 1,
+                },
               );
+              // addPrevPipeActivity(
+              //   dbname,
+              //   lan_id,
+              //   token,
+              //   farmerID,
+              //   formData,
+              //   1,
+              // );
             } else {
               Toast.show({
                 text: t('You are not in your exact pipe location'),
@@ -2019,12 +2056,13 @@ const ActivityReportAWD = ({navigation}) => {
       const lon = longitude || latlong?.longitude || 0;
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
-      if (pipe_fieldType.current === 1) {
-        const isPipeInstall = await checkPipeDistance(lat, lon);
-        if (!isPipeInstall) {
-          return;
-        }
-      }
+
+      // if (pipe_fieldType.current === 1) {
+      //   const isPipeInstall = await checkPipeDistance(lat, lon);
+      //   if (!isPipeInstall) {
+      //     return;
+      //   }
+      // }
       const options = {
         mediaType: 'photo',
         includeBase64: true,
