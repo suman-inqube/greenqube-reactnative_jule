@@ -24,6 +24,8 @@ import ImagePlaceHolderCircle from "../Common/ImagePlaceHolderCircle";
 import RadioForm from "../Common/RadioForm";
 import DatePickerComp from "../Common/DatePickerComp";
 import { userCreateContext } from "../Context/usersCreateContext";
+import { formatToDDMMYYYY, getAgeLimitDates } from "../utils/helpers";
+import InputTextForm from "../Common/InputTextForm";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 function CoFarmerComponent({
@@ -36,9 +38,7 @@ function CoFarmerComponent({
     unit_valueArr,
     landAreaUnit
 }) {
-    const {
-        effective_dates,
-    } = useContext(userCreateContext);
+    const { minimumDate, maximumDate } = getAgeLimitDates();
     const [newDate, setnewDate] = useState(new Date());
     const [penCycleStart, setopenCycleStart] = useState(false);
     const handleGovtIdPick = async (fieldName) => {
@@ -73,18 +73,13 @@ function CoFarmerComponent({
 
     }
     const handleDatePicker = (date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-
-        const dob = `${year}-${month}-${day}`;
         setCoFarmerDetails(prev => ({
             ...prev,
-            ["date_of_birth"]: dob,
+            ["date_of_birth"]: formatToDDMMYYYY(date),
         }))
     }
     const isValid = coFarmerDetails.name;
-
+    // dd-mm-yyyy
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -95,6 +90,9 @@ function CoFarmerComponent({
                 newDate={newDate}
                 setOpenDate={setopenCycleStart}
                 handleDatePicker={handleDatePicker}
+                minimumDate={minimumDate}
+                maximumDate={maximumDate}
+                title="Select Date of Birth"
             />
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
@@ -171,26 +169,30 @@ function CoFarmerComponent({
                         <View style={styles.inputGroup}>
                             <View style={styles.labelContainer}>
                                 {/* <Feather name="phone" size={16} color="#10b981" /> */}
-                                <Text style={styles.label}>Age</Text>
+                                <Text style={styles.label}>Date of Birth</Text>
                                 <View style={styles.optionalBadge}>
                                     <Text style={styles.optionalText}>Optional</Text>
                                 </View>
                             </View>
-                            <View style={styles.inputWrapper}>
-                                <TextInput
-                                    placeholder="Enter Age"
-                                    keyboardType="numeric"
-                                    maxLength={2}
-                                    value={coFarmerDetails.date_of_birth}
-                                    onChangeText={(text) =>
-                                        setCoFarmerDetails(prev => ({
-                                            ...prev,
-                                            date_of_birth: text.replace(/[^0-9]/g, ""),
-                                        }))
-                                    }
-                                    style={styles.input}
-                                    placeholderTextColor="#9ca3af"
-                                />
+                            <View style={[styles.inputWrapper]}>
+                                <TouchableOpacity onPress={() => setopenCycleStart(!penCycleStart)}>
+                                    <TextInput
+                                         label=""
+                                        placeholder="DD/MM/YYYY"
+                                        // keyboardType="numeric"
+                                        // maxLength={2}
+                                        value={coFarmerDetails.date_of_birth}
+                                        // onChangeText={(text) =>
+                                        //     setCoFarmerDetails(prev => ({
+                                        //         ...prev,
+                                        //         date_of_birth: text.replace(/[^0-9]/g, ""),
+                                        //     }))
+                                        // }
+                                        style={[styles.input]}
+                                        editable={false}
+                                        placeholderTextColor="#9ca3af"
+                                    />
+                                </TouchableOpacity>
                             </View>
                         </View>
                         {coFarmerDetails.type == "edit" ? <>

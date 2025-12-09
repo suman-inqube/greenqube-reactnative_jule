@@ -8,6 +8,7 @@ import {
     ScrollView,
     Image,
     Animated,
+    Alert,
 } from "react-native";
 import React, { useEffect, useState, memo, useCallback, useRef } from "react";
 import { axiosGet, axiosPut } from "../utils/api";
@@ -26,6 +27,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Feather from "react-native-vector-icons/Feather";
 import { Colors } from "../utils/Constants";
 import DatePickerComp from "../Common/DatePickerComp";
+import { formatToDDMMYYYY, getAgeLimitDates } from "../utils/helpers";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Button = memo(({ label, onPress, disabled }) => {
@@ -87,6 +89,7 @@ const ListOfCoFarmer = ({
     onEdit,
     modalVisibleCoFarmer
 }) => {
+    const{ minimumDate, maximumDate }=getAgeLimitDates();
     const [coFarmerList, setCoFarmerList] = useState([]);
     const [newDate, setnewDate] = useState(new Date());
     const [penCycleStart, setopenCycleStart] = useState(false);
@@ -120,7 +123,7 @@ const ListOfCoFarmer = ({
                     const resArr = response?.data?.data?.rows?.map((item) => ({
                         ...item,
                         CoFarmer: "",
-                        age: getAge(item?.coFInfo?.date_of_birth),
+                        age: item?.coFInfo?.date_of_birth,
                     }));
                     setCoFarmerList(resArr);
                 }
@@ -186,9 +189,11 @@ const ListOfCoFarmer = ({
                 const details = {
                     name: coFInfo?.userName,
                     aadhar_number: coFInfo?.aadhar_number,
-                    date_of_birth: `${getAge(coFInfo?.date_of_birth)}`,
+                    date_of_birth: coFInfo?.date_of_birth,
                     gender: coFInfo?.gender,
-                    phone: coFInfo?.contactNumber,
+                    phone:  item?.coFInfo?.userType == 22 &&
+                    (item?.coFInfo?.alternate_contact_num == null || item?.coFInfo?.alternate_contact_num == "")
+                    ? "" : item?.coFInfo?.contactNumber ?? "",
                     CoFarmer: "",
                     addressProof: null,
                     idProof: null,
@@ -260,14 +265,7 @@ const ListOfCoFarmer = ({
             formdata.append("password", coFarmer.password);
             formdata.append("contactNumber", coFarmer.phoneNumber);
             if (coFarmer.age !== "") {
-                const currentDate = new Date();
-                const currentYear = currentDate.getFullYear();
-                const yearsToSubtract = coFarmer.age;
-                const day = currentDate.getDate();
-                const month = currentDate.getMonth() + 1;
-                const newYear = currentYear - yearsToSubtract;
-                const dob = `${newYear}-${month}-${day}`;
-                formdata.append("date_of_birth", dob);
+                formdata.append("date_of_birth", coFarmer.age);
             }
             if (coFarmer.addressProof) {
                 formdata.append("farmer_address", {
@@ -316,24 +314,9 @@ const ListOfCoFarmer = ({
     const handleDatePicker = (date) => {
         setCoFarmer(prev => ({
             ...prev,
-            ["age"]: date,
+            ["age"]: formatToDDMMYYYY(date),
         }))
     }
-    const today = new Date();
-
-    const minimumDate = new Date(       // Oldest allowed → 99 years old
-        today.getFullYear() - 99,
-        today.getMonth(),
-        today.getDate()
-    );
-
-    const maximumDate = new Date(       // Youngest allowed → 18 years old
-        today.getFullYear() - 18,
-        today.getMonth(),
-        today.getDate()
-    );
-
-
     return (
         <View style={styles.container}>
             <DatePickerComp
@@ -540,23 +523,26 @@ const ListOfCoFarmer = ({
 
                                         <View style={styles.inputWrapper}>
                                             <Text style={styles.inputLabel}>
-                                                Age
+                                                Date of Birth
                                                 {/* <Text style={styles.required}>*</Text> */}
                                             </Text>
                                             <View style={styles.inputContainer}>
                                                 {/* <MaterialIcons name="lock-outline" size={18} color="#9ca3af" style={styles.inputIcon} /> */}
-                                                <InputTextForm
-                                                    label=""
-                                                    placeholder="Age"
-                                                    onChangeText={(text) =>
-                                                        setCoFarmer((prev) => ({
-                                                            ...prev,
-                                                            age: text,
-                                                        }))
-                                                    }
-                                                    value={coFarmer.age}
-                                                    keyboardType="numeric"
-                                                />
+                                                <TouchableOpacity onPress={() => setopenCycleStart(!penCycleStart)}>
+                                                    <InputTextForm
+                                                        label=""
+                                                        placeholder="DD/MM/YYYY"
+                                                        onChangeText={(text) =>
+                                                            setCoFarmer((prev) => ({
+                                                                ...prev,
+                                                                age: text,
+                                                            }))
+                                                        }
+                                                        value={coFarmer.age}
+                                                        keyboardType="numeric"
+                                                        editable={false}
+                                                    />
+                                                </TouchableOpacity>
                                             </View>
                                         </View>
 

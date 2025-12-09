@@ -2123,22 +2123,12 @@ const LiveHood = ({
       //     land_unit: item.unitValue
       //   };
       // });
-      let dob = "";
-      if (coFarmerDetails.date_of_birth != "") {
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        const yearsToSubtract = coFarmerDetails.date_of_birth;
-        const day = currentDate.getDate();
-        const month = currentDate.getMonth() + 1;
-        const newYear = currentYear - yearsToSubtract;
-        dob = `${newYear}-${month}-${day}`;
-      }
       let addCoFarmerRes = ""
       if (coFarmerDetails?.type == "edit") {
         formdataCofarmers.append("co_farmer_id", coFarmerDetails.co_farmer_id);
         formdataCofarmers.append("userName", coFarmerDetails.name);
         formdataCofarmers.append("aadhar_number", coFarmerDetails.aadhar_number);
-        formdataCofarmers.append("date_of_birth", dob);
+        formdataCofarmers.append("date_of_birth", coFarmerDetails.date_of_birth);
         formdataCofarmers.append("gender", coFarmerDetails.gender);
         formdataCofarmers.append("contactNumber", coFarmerDetails.phone);
         if (coFarmerDetails.addressProof != null && coFarmerDetails.addressProof != "") {
@@ -2192,7 +2182,7 @@ const LiveHood = ({
             land_area: coFarmerDetails.landArea,
             land_unit: coFarmerDetails.unitValue,
             aadhar_number: coFarmerDetails.aadhar_number,
-            date_of_birth: dob,
+            date_of_birth: coFarmerDetails.date_of_birth,
             gender: coFarmerDetails.gender,
           }
         ]))
