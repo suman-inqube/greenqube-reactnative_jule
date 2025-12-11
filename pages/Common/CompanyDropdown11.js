@@ -1,15 +1,15 @@
-import React, {useState, useMemo, useRef} from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity,Dimensions
 } from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
-import {useTheme} from '@react-navigation/native';
+import { Dropdown } from 'react-native-element-dropdown';
+import { useTheme } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CompanyDropdown = ({
   color,
 
@@ -35,7 +35,7 @@ const CompanyDropdown = ({
   height = 50,
   searchPlaceholder = 'Search',
 }) => {
-  const {colors} = useTheme();
+  const { colors } = useTheme();
 
   const [searchText, setSearchText] = useState('');
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
@@ -99,82 +99,65 @@ const CompanyDropdown = ({
         }}>
         {label}
       </Text>
-      <View style={[styles.container]}>
-        <Dropdown
-          ref={dropdownRef}
-          data={filteredData}
-          style={[styles.dropdown, dropdownStyle]}
-          value={displayValue}
-          selectedText={selectedItem?.label || ''}
-          onChange={item => {
-            onChange(item); //
-          }}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          disable={disabled}
-          mode="modal"
-          placeholder={selectedItem?.label ?? ''}
-          search
-          searchPlaceholder="Search..."
-          labelField="label"
-          valueField="value"
-          maxHeight={300}
-          showsVerticalScrollIndicator={false}
-          keyboardAvoiding={true}
-          dropdownStyle={[
-            styles.dropdownStyle,
-            dropdownListStyle,
-            {width, height},
-          ]}
-          containerStyle={[
-            styles.containerStyle,
-            modalContainerStyle,
-            {
-              justifyContent: 'flex-start', // Align content to the top
-              alignItems: 'center', // Optional: center horizontally
-              // Add top padding (status bar / header spacing)
-              marginTop: 20,
-              marginBottom: 100,
-            },
-          ]}
-          placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
-          selectedTextStyle={[styles.selectedTextStyle, selectedTextStyle]}
-          inputSearchStyle={[styles.inputSearchStyle, inputSearchStyle]}
-          itemTextStyle={[styles.itemTextStyle, itemTextStyle]}
-          iconStyle={[styles.iconStyle, iconStyle]}
-          // activeColor={colors.primary + '20'} // Slightly transparent primary color
-          // renderInputSearch={() => (
-          //   <TextInput
-          //     style={[
-          //       styles.searchInputContainer,
-          //       searchInputStyle,
-          //       {backgroundColor: colors.card},
-          //     ]}
-          //     placeholder={placeholder}
-          //     placeholderTextColor={colors.text + '80'}
-          //     value={searchText}
-          //     onChangeText={setSearchText}
-          //     autoFocus={true}
-          //   />
-          // )}
-          onChangeText={setSearchText}
-          renderInputSearch={renderSearchInput}
-          renderItem={(item, selected) => (
-            <View
-              style={[
-                styles.itemContainer,
+      <Dropdown
+        ref={dropdownRef}
+        data={filteredData}
+        style={[styles.dropdown, dropdownStyle]}
+        value={displayValue}
+        selectedText={selectedItem?.label || ''}
+        onChange={item => {
+          onChange(item); //
+        }}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        disable={disabled}
+        mode="modal"
+        placeholder={selectedItem?.label ?? ''}
+        search
+        searchPlaceholder="Search..."
+        labelField="label"
+        valueField="value"
+        // maxHeight={300}
+        showsVerticalScrollIndicator={false}
+        keyboardAvoiding={true}
+        dropdownStyle={[
+          styles.dropdownStyle,
+          dropdownListStyle,
+          { width, height },
+        ]}
+        containerStyle={[
+          styles.containerStyle,
+          modalContainerStyle,
+          {
+            position: 'absolute',
+            top: SCREEN_HEIGHT/6
+            // left: '50%',
+            // transform: [{ translateX: -0.5 * 300 }, { translateY: -0.5 * 400 }],
+          },
+        ]}
 
-                selected && {backgroundColor: '#13743e'},
-              ]}>
-              <View style={styles.itemTextWrapper}>
-                <Text style={[styles.itemText, selected && {color: 'white'}]}>
-                  {item.label}
-                </Text>
-              </View>
+        placeholderStyle={[styles.placeholderStyle, placeholderStyle]}
+        selectedTextStyle={[styles.selectedTextStyle, selectedTextStyle]}
+        inputSearchStyle={[styles.inputSearchStyle, inputSearchStyle]}
+        itemTextStyle={[styles.itemTextStyle, itemTextStyle]}
+        iconStyle={[styles.iconStyle, iconStyle]}
+        onChangeText={setSearchText}
+        renderInputSearch={renderSearchInput}
+        renderItem={(item, selected) => (
+          <View
+            style={[
+              styles.itemContainer,
+
+              selected && { backgroundColor: '#13743e' },
+            ]}>
+            <View style={styles.itemTextWrapper}>
+              <Text style={[styles.itemText, selected && { color: 'white' }]}>
+                {item.label}
+              </Text>
             </View>
-          )}
-        />
-      </View>
+          </View>
+        )}
+      />
     </View>
   );
 };
