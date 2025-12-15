@@ -16,7 +16,8 @@ export const ROUTES = {
     // ADD_USER_PIPE_ACTIVITY: `inputOutputRoute/addUserPipeActivity`,
     // UPDATE_PIPE_ACTIVITY: `inputOutputRoute/updatePipeActivity`,
     ACTIVITY_SAVE: `inputOutputRoute/addUserActivity`,
-    SAVE_CO_FARMERS: `settingsRoute/saveCoFarmers`
+    SAVE_CO_FARMERS: `settingsRoute/saveCoFarmers`,
+    FARMER_SIGNUP_BY_AGENT:`agentRoute/farmerSignupByAgent`,
   },
 
   GET: {

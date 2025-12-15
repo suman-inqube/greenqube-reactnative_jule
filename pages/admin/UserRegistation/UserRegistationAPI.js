@@ -172,6 +172,7 @@ export const UserRegisterAPI = async (dbName, language, token, userId, inputData
             'information': `${dbName},${language},${userId}`,
             'Content-Type': 'multipart/form-data',
             'plot_count': plot_count,
+             timeout: 10000,   
         },
     };
     try {

@@ -137,7 +137,7 @@ const PersonalInformation = () => {
         setSelectedImage(imageUri);
       }
     });
-  }, []);
+  }, [farmerData]);
   const getState = async (dbName, languageID) => {
     var dataArray = [];
     if (isOnline) {

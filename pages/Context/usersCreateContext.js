@@ -240,7 +240,7 @@ const UserCreateContextProvider = props => {
   useEffect(() => {
     const cleanup = startWatchingLocation();
     return () => {
-      if (cleanup) cleanup();
+      if (typeof cleanup === 'function') cleanup();
       stopWatchingLocation();
     };
   }, []);

@@ -1800,7 +1800,7 @@ const LiveHood = ({
             turf.booleanOverlap(existingGeo, newGeo) ||
             turf.booleanWithin(newGeo, existingGeo)
           ) {
-            overlapFound = true;
+            // overlapFound = true;
           }
         });
         // setPolygons([newPolygon]);

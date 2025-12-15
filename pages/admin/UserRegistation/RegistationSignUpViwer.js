@@ -15,19 +15,20 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {UserRegisterAPI} from './UserRegistationAPI';
+import { UserRegisterAPI } from './UserRegistationAPI';
 import {
   useFocusEffect,
   useNavigation,
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-
+import { axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 const RegistationSignUpViwer = () => {
   //GQR-65
   const {
@@ -171,8 +172,8 @@ const RegistationSignUpViwer = () => {
         device_long: item.storeProduceInfo.IOTLatLong,
         land_convert_size:
           item.storeProduceInfo.sizevalue == '' ||
-          item.storeProduceInfo.sizevalue == undefined ||
-          item.storeProduceInfo.sizevalue == null
+            item.storeProduceInfo.sizevalue == undefined ||
+            item.storeProduceInfo.sizevalue == null
             ? item.storeProduceInfo.plotSize * 1
             : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
         latitude: item.location[0].latitude.toString(),
@@ -220,7 +221,7 @@ const RegistationSignUpViwer = () => {
       // farmer_details['latlong_data'] = JSON.stringify(latlongArr);
       const filteredFiles = storeProduceInfo[0].landProof.map((data, index) => {
         if (data.name != '') {
-          return {uri: data?.uri, type: data?.type, name: data?.name};
+          return { uri: data?.uri, type: data?.type, name: data?.name };
         }
       });
       const landProofData = storeProduceInfo.map(item => ({
@@ -243,7 +244,7 @@ const RegistationSignUpViwer = () => {
         storePersnolInfo.identityProofIdentityPropf[0]?.fileName != '' &&
         storePersnolInfo.identityProofIdentityPropf[0]?.fileName != ''
       ) {
-        const {uri, type, name} =
+        const { uri, type, name } =
           storePersnolInfo.identityProofIdentityPropf[0];
         formData.append('farmer_address', {
           uri: uri,
@@ -255,7 +256,7 @@ const RegistationSignUpViwer = () => {
         storePersnolInfo.identityProofIdentityPropf[1]?.fileName != '' &&
         storePersnolInfo.identityProofIdentityPropf[1]?.fileName != ''
       ) {
-        const {uri, type, name} =
+        const { uri, type, name } =
           storePersnolInfo.identityProofIdentityPropf[1];
         formData.append('farmer_identity', {
           uri: uri,
@@ -264,21 +265,28 @@ const RegistationSignUpViwer = () => {
         });
       }
       if (isOnline) {
-        const database_res = await UserRegisterAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          dbLanTokUsr.token,
-          dbLanTokUsr.supervisorId,
-          formData,
-          landProofData.length,
-        );
+        const database_res = await axiosPost(ROUTES.POST.FARMER_SIGNUP_BY_AGENT, formData,
+          dbLanTokUsr.token, false,
+          {
+            information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
+            'Content-Type': 'multipart/form-data',
+            'plot_count': landProofData.length,
+          })
+        // const database_res = await UserRegisterAPI(
+        //   dbLanTokUsr.dbName,
+        //   dbLanTokUsr.languageId,
+        //   dbLanTokUsr.token,
+        //   dbLanTokUsr.supervisorId,
+        //   formData,
+        //   landProofData.length,
+        // );
         if (database_res.status === 200) {
-          Toast.show({text: t('farmer_reg_successfully'), ...AlertMesg[0]});
+          Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
             navigation.dispatch({
               ...CommonActions.reset({
                 index: 0,
-                routes: [{name: 'AdminNavigation'}],
+                routes: [{ name: 'AdminNavigation' }],
               }),
             });
           }, 2000);
@@ -291,12 +299,12 @@ const RegistationSignUpViwer = () => {
         } else {
           await setItem('offlineUserRegistrationData', [formData]);
         }
-        Toast.show({text: t('farmer_reg_successfully'), ...AlertMesg[0]});
+        Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
         setTimeout(() => {
           navigation.dispatch({
             ...CommonActions.reset({
               index: 0,
-              routes: [{name: 'AdminNavigation'}],
+              routes: [{ name: 'AdminNavigation' }],
             }),
           });
         }, 2000);
@@ -340,7 +348,7 @@ const RegistationSignUpViwer = () => {
   useEffect(() => {
     onPageLoad();
   }, []);
-  const HandlerGoBack = () => {};
+  const HandlerGoBack = () => { };
   const renderCustomHeader = useMemo(
     () => (
       <CustomHeader
@@ -354,7 +362,7 @@ const RegistationSignUpViwer = () => {
   );
   return (
     <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1, backgroundColor: Colors.background_light}}>
+      <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
         <Root>
           {renderCustomHeader}
           {isLoading && (
@@ -363,7 +371,7 @@ const RegistationSignUpViwer = () => {
             </View>
           )}
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{paddingHorizontal: 20, marginTop: 20}}>
+            <View style={{ paddingHorizontal: 20, marginTop: 20 }}>
               <View
                 style={{
                   marginTop: 10,
@@ -381,7 +389,7 @@ const RegistationSignUpViwer = () => {
                 }}>
                 <TouchableOpacity onPress={togglestorePersnolInfo}>
                   <View style={styles.headerStyle}>
-                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                       <MaterialIcons
                         name="account-circle"
                         size={28}
@@ -419,9 +427,9 @@ const RegistationSignUpViwer = () => {
                     {storePersnolInfo ? (
                       storePersnolInfo ? (
                         // storePersnolInfo.block ?
-                        <View style={{marginTop: 20}}>
+                        <View style={{ marginTop: 20 }}>
                           <View style={styles.bodyContainer}>
-                            <View style={{alignItems: 'flex-end'}}>
+                            <View style={{ alignItems: 'flex-end' }}>
                               <TouchableOpacity
                                 onPress={() => {
                                   setItem('pagename', 'RegistationSignUpViwer');
@@ -431,7 +439,7 @@ const RegistationSignUpViwer = () => {
                                 }}>
                                 <Image
                                   source={require('../../Common/images/edit.png')}
-                                  style={{width: 25, height: 25}}
+                                  style={{ width: 25, height: 25 }}
                                 />
                               </TouchableOpacity>
                             </View>
@@ -515,7 +523,7 @@ const RegistationSignUpViwer = () => {
                 }}>
                 <TouchableOpacity onPress={togglestoreFinancial}>
                   <View style={styles.headerStyle}>
-                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                       <MaterialIcons
                         name="badge"
                         size={28}
@@ -526,7 +534,7 @@ const RegistationSignUpViwer = () => {
                     <Text
                       style={[
                         styles.toggleText,
-                        {fontFamily: 'Poppins-SemiBold'},
+                        { fontFamily: 'Poppins-SemiBold' },
                       ]}>
                       {isstoreFinancial
                         ? `${t('financial_information')}`
@@ -555,9 +563,9 @@ const RegistationSignUpViwer = () => {
                   <>
                     <View style={styles.divider} />
                     {storeFinancial ? (
-                      <View style={{marginTop: 20}}>
+                      <View style={{ marginTop: 20 }}>
                         <View style={styles.bodyContainer}>
-                          <View style={{alignItems: 'flex-end'}}>
+                          <View style={{ alignItems: 'flex-end' }}>
                             <TouchableOpacity
                               onPress={() => {
                                 setItem('pagename', 'RegistationSignUpViwer');
@@ -568,7 +576,7 @@ const RegistationSignUpViwer = () => {
                               }}>
                               <Image
                                 source={require('../../Common/images/edit.png')}
-                                style={{width: 25, height: 25}}
+                                style={{ width: 25, height: 25 }}
                               />
                             </TouchableOpacity>
                           </View>
@@ -739,7 +747,7 @@ const RegistationSignUpViwer = () => {
                 }}>
                 <TouchableOpacity onPress={togglestoreProduceInfo}>
                   <View style={styles.headerStyle}>
-                    <View style={{paddingLeft: 5, paddingTop: 2}}>
+                    <View style={{ paddingLeft: 5, paddingTop: 2 }}>
                       <MaterialIcons
                         name="article"
                         size={28}
@@ -778,7 +786,7 @@ const RegistationSignUpViwer = () => {
                       <View
                         style={[
                           // styles.bodyContainerMarginBottom,
-                          {marginTop: 20},
+                          { marginTop: 20 },
                         ]}>
                         {storeProduceInfo?.map((item, index) => {
                           const {
@@ -798,7 +806,7 @@ const RegistationSignUpViwer = () => {
                                 // borderRadius:8,
                               }}
                               key={index}>
-                              <View style={{alignItems: 'flex-end'}}>
+                              <View style={{ alignItems: 'flex-end' }}>
                                 <TouchableOpacity
                                   onPress={() => {
                                     setItem(
@@ -816,7 +824,7 @@ const RegistationSignUpViwer = () => {
                                   }}>
                                   <Image
                                     source={require('../../Common/images/edit.png')}
-                                    style={{width: 25, height: 25}}
+                                    style={{ width: 25, height: 25 }}
                                   />
                                 </TouchableOpacity>
                               </View>

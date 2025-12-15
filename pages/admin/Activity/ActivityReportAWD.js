@@ -1164,7 +1164,7 @@ const ActivityReportAWD = ({ navigation }) => {
   //   }
   //   return true;
   // };
- const validateForm = () => {
+  const validateForm = () => {
     if (!saveData.user_id) {
       Toast.show({
         time: 2,
@@ -1498,6 +1498,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const handleActivityType = useCallback(
     async item => {
       try {
+        aaaa
         let dataArray = [];
         var response;
         if (isOnline) {
@@ -1608,6 +1609,10 @@ const ActivityReportAWD = ({ navigation }) => {
           setActivityInfoAll([]);
         }
       } catch (error) {
+        Toast.show({
+          text: `${error.errorMessage}`,
+          ...AlertMesg[0],
+        });
         CrashlyticsRecordError(
           error,
           'ActivityReportAWD',
@@ -1620,6 +1625,13 @@ const ActivityReportAWD = ({ navigation }) => {
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
   const handleActivityInfo = useCallback(
     async item => {
+      console.log(ROUTES.GET.UNIQUE_PIPE_NAME({
+        plot_id: saveData.plot_id,
+        cu_rel_id: saveData.cu_rel_id,
+        act_name_fid: item?.act_master_id,
+      }),
+        token,
+        { information: `${dbname},${lan_id},${farmerID}` },)
       try {
         const act_to_date1 = item.end_date;
         const date1 = new Date(act_to_date1);
@@ -1760,7 +1772,7 @@ const ActivityReportAWD = ({ navigation }) => {
 
   const handleHarvested = async data => {
     if (data == 'Yes') {
-      navigation.navigate('activityList');
+      navigation.navigate('Dashboard');
     } else {
       navigation.navigate('Dashboard');
     }
