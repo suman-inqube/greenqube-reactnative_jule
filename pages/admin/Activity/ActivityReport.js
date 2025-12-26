@@ -327,7 +327,11 @@ const ActivityReport = ({navigation}) => {
         //   '',
         //   {information: `${dbname},${lan_id},${currentfarmerId}`},
         // );
-     var activityType_res = activityTypeAPI(dbname, lan_id, currentfarmerId);  
+        var activityType_res = await activityTypeAPI(
+          dbname,
+          lan_id,
+          currentfarmerId,
+        );
         await setItem('activityType' + currentfarmerId, activityType_res);
       } else {
         var activityType_res = await getItem('activityType' + currentfarmerId);
@@ -346,273 +350,267 @@ const ActivityReport = ({navigation}) => {
   const handlePlot = async relId => {
     const {latitude, longitude} = coords || {};
     setIsLoading(true);
-    if (isOnline) {
-      var response = await axiosGet(
-        ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
-          relID: relId.value,
-        }),
-        '',
-        {
-          information: `${dbname},${lan_id},${farmerID}`,
-        },
-      );
-      // produceAgainstPlotAPI(
-      //   dbname,
-      //   lan_id,
-      //   farmerID,
-      //   relId.value,
-      // );
-      await setItem('produceAgainstPlot' + farmerID + relId.value, response);
-    } else {
-      var response = await getItem(
-        'produceAgainstPlot' + farmerID + relId.value,
-      );
-    }
-    // const { latitude, longitude } = await getCurrentLocation() || {};
-
-    const latandlongArr =
-      response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
-        (_data, _index) => ({
-          longitude: _data.longitude,
-          latitude: _data.latitude,
-        }),
-      );
-    if (latandlongArr.length != 0) {
-      const is20Meters = isWithin20Meters(
-        {latitude, longitude},
-        latandlongArr,
-        20,
-      );
-      if (is20Meters.length != 0) {
-        console.log('User is inside the polygon.');
-        setOutofRange(false);
+    try {
+      if (isOnline) {
+        var response = await axiosGet(
+          ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+            relID: relId.value,
+          }),
+          '',
+          {
+            information: `${dbname},${lan_id},${farmerID}`,
+          },
+        );
+        // produceAgainstPlotAPI(
+        //   dbname,
+        //   lan_id,
+        //   farmerID,
+        //   relId.value,
+        // );
+        await setItem('produceAgainstPlot' + farmerID + relId.value, response);
       } else {
-        setOutofRange(true);
-        console.log('User is outside the polygon.');
+        var response = await getItem(
+          'produceAgainstPlot' + farmerID + relId.value,
+        );
       }
-    }
-    if (response) {
-      const dateString = response?.data?.data?.harvesting_date;
-      const harvesting_date = new Date(dateString);
-      const currentDate = new Date();
-      if (harvesting_date > currentDate) {
-        const data = response.data.data;
-        setShowingMenu(true);
-        data.crop_cycl_start_date == null ||
-        data.crop_cycl_start_date == '2004-02-29'
-          ? setIsButtonDisabled(false)
-          : setIsButtonDisabled(true);
-        let cycle_start_date =
+      // const { latitude, longitude } = await getCurrentLocation() || {};
+
+      const latandlongArr =
+        response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
+          (_data, _index) => ({
+            longitude: _data.longitude,
+            latitude: _data.latitude,
+          }),
+        );
+      if (latandlongArr.length != 0) {
+        const is20Meters = isWithin20Meters(
+          {latitude, longitude},
+          latandlongArr,
+          20,
+        );
+        if (is20Meters.length != 0) {
+          console.log('User is inside the polygon.');
+          setOutofRange(false);
+        } else {
+          setOutofRange(true);
+          console.log('User is outside the polygon.');
+        }
+      }
+      // console.log('123', response);
+      if (response) {
+        const dateString = response?.data?.data?.harvesting_date;
+        const harvesting_date = new Date(dateString);
+        const currentDate = new Date();
+        if (harvesting_date > currentDate) {
+          const data = response.data.data;
+          setShowingMenu(true);
           data.crop_cycl_start_date == null ||
           data.crop_cycl_start_date == '2004-02-29'
-            ? data.sowing_date
-            : data.crop_cycl_start_date;
-        setMinimumSelectedDate(new Date(cycle_start_date));
+            ? setIsButtonDisabled(false)
+            : setIsButtonDisabled(true);
+          let cycle_start_date =
+            data.crop_cycl_start_date == null ||
+            data.crop_cycl_start_date == '2004-02-29'
+              ? data.sowing_date
+              : data.crop_cycl_start_date;
+          setMinimumSelectedDate(new Date(cycle_start_date));
 
-        setNameVarityStartEnd({
-          ...nameVarityStartEnd,
-          name: data.crop_name.name,
-          varity: data.crop_variety.name,
-          cycleStarts: data.sowing_date,
-          cycleEnd: data.harvesting_date,
-        });
-        setSaveData({
-          ...saveData,
-          user_id: farmerID,
-          plot_id: relId.value,
-          plot_Name: relId.label,
-          crop_name: data.crop_name.fid,
-          crop_variety: data.crop_variety.fid,
-          cycle_start_date: cycle_start_date,
-          cu_rel_id: data.cu_rel_id,
-          cycle_start_date: cycle_start_date,
-          growth_stage: '',
-          act_ref_type: '',
-          act_to_date: '',
-          act_to_date_label: '',
-          act_start_date: '',
-          act_ref: '',
-          act_master_id: '',
-        });
-        setsinglePlot(response.data.data);
-        setCropType(data.crop_type.fid);
-        setCropName(data.crop_name.fid);
-        if (isOnline) {
-          // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
-          // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
+          setNameVarityStartEnd({
+            ...nameVarityStartEnd,
+            name: data.crop_name.name,
+            varity: data.crop_variety.name,
+            cycleStarts: data.sowing_date,
+            cycleEnd: data.harvesting_date,
+          });
+          setSaveData({
+            ...saveData,
+            user_id: farmerID,
+            plot_id: relId.value,
+            plot_Name: relId.label,
+            crop_name: data.crop_name.fid,
+            crop_variety: data.crop_variety.fid,
+            cycle_start_date: cycle_start_date,
+            cu_rel_id: data.cu_rel_id,
+            cycle_start_date: cycle_start_date,
+            growth_stage: '',
+            act_ref_type: '',
+            act_to_date: '',
+            act_to_date_label: '',
+            act_start_date: '',
+            act_ref: '',
+            act_master_id: '',
+          });
+          setsinglePlot(response.data.data);
+          setCropType(data.crop_type.fid);
+          setCropName(data.crop_name.fid);
+          if (isOnline) {
+            // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
+            // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
 
-          var [productionStage_res, activitySchedule] = await Promise.all([
-            axiosGet(
-              ROUTES.GET.PRODUCTION_STAGE({
-                languageID: lan_id,
-                cropTypeId: data.crop_type_id,
-                cropNameID: data.crop_name_id,
-              }),
-              '',
-              {information: `${dbname},${lan_id}`},
-            ),
-            // productionStageAPI(
-            //   dbname,
-            //   lan_id,
-            //   data.crop_type_id,
-            //   data.crop_name_id,
-            // ),
+            var [productionStage_res, activitySchedule] = await Promise.all([
+              axiosGet(
+                ROUTES.GET.PRODUCTION_STAGE({
+                  languageID: lan_id,
+                  cropTypeId: data.crop_type_id,
+                  cropNameID: data.crop_name_id,
+                }),
+                '',
+                {information: `${dbname},${lan_id}`},
+              ),
+              // productionStageAPI(
+              //   dbname,
+              //   lan_id,
+              //   data.crop_type_id,
+              //   data.crop_name_id,
+              // ),
+              axiosGet(
+                ROUTES.GET.ACTIVITY_SCHEDULE_API({
+                  type: 'user_activity',
+                  plotId: relId.value,
+                  cropId: data.crop_name_id,
+                  cu_rel_id: data.cu_rel_id,
+                }),
+                token,
+                {information: `${dbname},${lan_id}`},
+              ),
 
-            axiosGet(
-              ROUTES.GET.ACTIVITY_SCHEDULE_API({
-                type: 'user_activity',
-                plotId: relId.value,
-                cropId: data.crop_name_id,
-                cu_rel_id: data.cu_rel_id,
-              }),
-              token,
-              {information: `${dbname},${lan_id}`},
-            ),
+              // activityScheduleAPI(
+              //   dbname,
+              //   lan_id,
+              //   token,
+              //   'user_activity',
+              //   relId.value,
+              //   data.crop_name_id,
+              //   data.cu_rel_id,
+              // ),
 
-            // activityScheduleAPI(
-            //   dbname,
-            //   lan_id,
-            //   token,
-            //   'user_activity',
-            //   relId.value,
-            //   data.crop_name_id,
-            //   data.cu_rel_id,
-            // ),
-
-            //  setItem(
-            //    'productionStageAPI' +
-            //      data.crop_type_id +
-            //      data.crop_type_id,
-            //    productionStage_res,
-            //  ),
-            setLastAct(''),
-            setOverdueAct([]),
-            setUpcomingAct(''),
-          ]);
-        } else {
-          var productionStage_res = await getItem(
-            'productionStageAPI' + data.crop_type_id + data.crop_type_id,
-          );
-        }
-        if (productionStage_res) {
-          const dataArray = productionStage_res?.data?.data?.growth_stage.map(
-            data => ({
-              value: data.growth_stage.fid,
-              label: data.growth_stage.name,
-            }),
-          );
-          setproductionStageAll(dataArray);
-        }
-        if (activitySchedule.status == 200) {
-          if (
-            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-          ) {
-            var lastData =
-              activitySchedule.data.data.lastActivity.activityName
-                ?.categoryName +
-              ' (' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_start_date,
-              ) +
-              ' - ' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_to_date,
-              ) +
-              ')';
-            setLastAct(lastData);
+              //  setItem(
+              //    'productionStageAPI' +
+              //      data.crop_type_id +
+              //      data.crop_type_id,
+              //    productionStage_res,
+              //  ),
+              setLastAct(''),
+              setOverdueAct([]),
+              setUpcomingAct(''),
+            ]);
+          } else {
+            var productionStage_res = await getItem(
+              'productionStageAPI' + data.crop_type_id + data.crop_type_id,
+            );
           }
-          //  console.log('sch== ',activitySchedule.data.data);
-          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-            activitySchedule?.data?.data?.otherActivities.forEach(function (
-              element,
+          // console.log('ccc', productionStage_res);
+          if (productionStage_res) {
+            const dataArray = productionStage_res?.data?.data?.growth_stage.map(
+              data => ({
+                value: data.growth_stage.fid,
+                label: data.growth_stage.name,
+              }),
+            );
+            setproductionStageAll(dataArray);
+          }
+          // console.log('bbb', activitySchedule);
+          if (activitySchedule?.status == 200) {
+            if (
+              activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
             ) {
-              var overdueData;
-              if (element?.days_until_start < 0) {
-                overdueData =
-                  element.activityName?.categoryName +
-                  ' (' +
-                  formatDate(element?.activity_start_date) +
-                  ' - ' +
-                  formatDate(element?.activity_end_date) +
-                  ')';
-                setOverdueAct(prevItems => [...prevItems, overdueData]);
-              }
-            });
-
-            const upcomingActivity =
-              activitySchedule?.data?.data?.otherActivities?.find(
-                item => item.days_until_start >= 0,
-              );
-            // console.log(upcomingActivity.days_from);
-            if (upcomingActivity != undefined) {
-              const monthNames = [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-              ];
-              // const cycleDate =
-              //   cycleDtartDate == ''
-              //     ? saveData.cycle_start_date
-              //     : cycleDtartDate;
-              const cycleDate =
-                data.crop_cycl_start_date == null ||
-                data.crop_cycl_start_date == '2004-02-29'
-                  ? data.sowing_date
-                  : data.crop_cycl_start_date;
-              const sdate = new Date(cycleDate);
-              sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-              const smonth = monthNames[sdate.getMonth()];
-              const sday = sdate.getDate();
-              const syear = sdate.getFullYear();
-              const startDate = `${smonth} ${sday}, ${syear}`;
-              const edate = new Date(cycleDate);
-              edate.setDate(edate.getDate() + upcomingActivity.days_to);
-              const emonth = monthNames[edate.getMonth()];
-              const eday = edate.getDate();
-              const eyear = edate.getFullYear();
-              const endDate = `${emonth} ${eday}, ${eyear}`;
-              const startDateEndDate = `${startDate}-${endDate}`;
-
-              setUpcomingAct(
-                upcomingActivity?.activityName?.categoryName +
-                  ' (' +
-                  startDateEndDate +
-                  ')',
-              );
+              var lastData =
+                activitySchedule.data.data.lastActivity.activityName
+                  ?.categoryName +
+                ' (' +
+                formatDate(
+                  activitySchedule?.data?.data?.lastActivity?.act_start_date,
+                ) +
+                ' - ' +
+                formatDate(
+                  activitySchedule?.data?.data?.lastActivity?.act_to_date,
+                ) +
+                ')';
+              setLastAct(lastData);
             }
-            // const upcomingActivity =
-            //   activitySchedule?.data?.data?.otherActivities?.find(
-            //     item => item.days_until_start >= 0,
-            //   );
+            //  console.log('sch== ',activitySchedule.data.data);
+            if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+              activitySchedule?.data?.data?.otherActivities.forEach(function (
+                element,
+              ) {
+                var overdueData;
+                if (element?.days_until_start < 0) {
+                  overdueData =
+                    element.activityName?.categoryName +
+                    ' (' +
+                    formatDate(element?.activity_start_date) +
+                    ' - ' +
+                    formatDate(element?.activity_end_date) +
+                    ')';
+                  setOverdueAct(prevItems => [...prevItems, overdueData]);
+                }
+              });
 
-            // setUpcomingAct(upcomingActivity);
-            // console.log(upcomingActivity);
+              const upcomingActivity =
+                activitySchedule?.data?.data?.otherActivities?.find(
+                  item => item.days_until_start >= 0,
+                );
+              if (upcomingActivity != undefined) {
+                const monthNames = [
+                  'January',
+                  'February',
+                  'March',
+                  'April',
+                  'May',
+                  'June',
+                  'July',
+                  'August',
+                  'September',
+                  'October',
+                  'November',
+                  'December',
+                ];
+                const cycleDate =
+                  data.crop_cycl_start_date == null ||
+                  data.crop_cycl_start_date == '2004-02-29'
+                    ? data.sowing_date
+                    : data.crop_cycl_start_date;
+                const sdate = new Date(cycleDate);
+                sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
+                const smonth = monthNames[sdate.getMonth()];
+                const sday = sdate.getDate();
+                const syear = sdate.getFullYear();
+                const startDate = `${smonth} ${sday}, ${syear}`;
+                const edate = new Date(cycleDate);
+                edate.setDate(edate.getDate() + upcomingActivity.days_to);
+                const emonth = monthNames[edate.getMonth()];
+                const eday = edate.getDate();
+                const eyear = edate.getFullYear();
+                const endDate = `${emonth} ${eday}, ${eyear}`;
+                const startDateEndDate = `${startDate}-${endDate}`;
+                setUpcomingAct(
+                  upcomingActivity?.activityName?.categoryName +
+                    ' (' +
+                    startDateEndDate +
+                    ')',
+                );
+              }
+            }
           }
-          // setScheduleInfo({
-          //   ...scheduleInfo,
-          //   lastAct: '',
-          //   upcomingAct: '',
-          // });
+          setIsLoading(false);
+        } else {
+          setIsButtonDisabled(false);
+          // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
+          setSearchFarmerName('');
+          setSearchFarmerPhone('');
+          // setplotAll([])
+          setModalVisible(true);
+          // navigation.navigate('Dashboard');
         }
-        setIsLoading(false);
-      } else {
-        setIsButtonDisabled(false);
-        // MessageDialog({ title: 'Importent', message: 'Your previous crop has been harvested Please Add a Crop' })
-        setSearchFarmerName('');
-        setSearchFarmerPhone('');
-        // setplotAll([])
-        setModalVisible(true);
-        // navigation.navigate('Dashboard');
       }
+    } catch (error) {
+      console.log('error', error);
+      Toast.show({
+        text: `${error?.data?.error?.errorMessage}`,
+        // text: errorMessage,
+        ...AlertMesg[0],
+      });
+      setIsLoading(false);
     }
   };
 
@@ -925,25 +923,25 @@ const ActivityReport = ({navigation}) => {
         //   false,
         //   {information: `${dbname},${lan_id},${saveData.user_id}`},
         // );
-       const database_res = await activitySaveAPI(
+        const database_res = await activitySaveAPI(
           dbname,
           lan_id,
           token,
           saveData.user_id,
           formData,
         );
-        console.log('Save', database_res);
+        // console.log('Save', database_res);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
-           navigation.popToTop();
+          navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
             ...AlertMesg[0],
           });
-        }else{
-             Toast.show({
+        } else {
+          Toast.show({
             text: database_res?.data?.error?.errorMessage,
             ...AlertMesg[0],
           });
@@ -961,7 +959,7 @@ const ActivityReport = ({navigation}) => {
         } else {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
-         navigation.popToTop();
+        navigation.popToTop();
         navigation.navigate('activityList', {action: 'addData'});
       }
     }
@@ -1111,7 +1109,7 @@ const ActivityReport = ({navigation}) => {
   const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
-const onStartRecordFirstItem = async () => {
+  const onStartRecordFirstItem = async () => {
     try {
       const path = `${RNFS.DocumentDirectoryPath}/firstItem.mp3`;
       await RNFS.mkdir(RNFS.DocumentDirectoryPath);
@@ -1231,7 +1229,7 @@ const onStartRecordFirstItem = async () => {
   }, []);
 
   // ✅ CANCEL RECORD
-  const cancelRecord = async (item) => {
+  const cancelRecord = async item => {
     try {
       await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();

@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useCallback, memo} from 'react';
+import React, { useRef, useEffect, useCallback, memo, useMemo } from 'react';
 import {
   Animated,
   TouchableOpacity,
@@ -8,10 +8,12 @@ import {
   Dimensions,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import {Colors, Fonts} from '../utils/Constants';
-import {MENU_ITEMS} from '../utils/dashboardItems';
+import { Colors, Fonts } from '../utils/Constants';
+import { MENU_ITEMS } from '../utils/dashboardItems';
 import ModernMenuButton from './ModernMenuButton';
-const {width: SCREEN_WIDTH} = Dimensions.get('window');
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 const ModernUserCard = ({
   item,
   isExpanded,
@@ -20,110 +22,117 @@ const ModernUserCard = ({
   t,
   index,
   animationsEnabled,
-  expandedItem,
   setState,
   state,
 }) => {
-  const cardAnim = useRef(
-    new Animated.Value(animationsEnabled ? 0 : 1),
-  ).current;
+  // Animations -----------------------------
+  const cardAnim = useRef(new Animated.Value(animationsEnabled ? 0 : 1)).current;
   const expandAnim = useRef(new Animated.Value(0)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
 
+  // ---------- Entrance Animation ----------
   useEffect(() => {
-    const delay = index * 100;
     Animated.spring(cardAnim, {
       toValue: 1,
-      delay,
-      tension: 80,
-      friction: 8,
+      delay: index * 80,
+      tension: 70,
+      friction: 7,
       useNativeDriver: true,
     }).start();
   }, [index]);
 
+  // ---------- Expand Animation ----------
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(expandAnim, {
-        toValue: isExpanded ? 1 : 0,
-        duration: 300,
-        easing: Easing.bezier(0.4, 0.0, 0.2, 1),
-        useNativeDriver: false,
-      }),
-      Animated.timing(rotateAnim, {
-        toValue: isExpanded ? 1 : 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    Animated.timing(expandAnim, {
+      toValue: isExpanded ? 1 : 0,
+      duration: 260,
+      easing: Easing.bezier(0.4, 0.0, 0.2, 1),
+      useNativeDriver: false,
+    }).start();
   }, [isExpanded]);
 
+  // ---------- Memoized File Filter ----------
+  const profileImage = useMemo(() => {
+    const filtered = item?.agri_files?.filter(f => f.term_type === '1');
+    return filtered?.[0]?.file_path ?? null;
+  }, [item?.agri_files]);
+
+  // ---------- Memoized Plots Data ----------
+  const plotData = useMemo(() => {
+    return (
+      item.agri_land_user_rels?.map(data => ({
+        value: data.rel_id,
+        label: data.plot_no,
+      })) || []
+    );
+  }, [item.agri_land_user_rels]);
+
+  // ---------- Memoized MENU Buttons ----------
+  const menuButtons = useMemo(
+    () =>
+      MENU_ITEMS.map((menuItem, idx) => (
+        <ModernMenuButton
+          key={menuItem.key}
+          item={menuItem}
+          onPress={() => handleMenuPress(menuItem.key)}
+          t={t}
+          index={idx}
+          isExpanded={isExpanded}
+        />
+      )),
+    [t, isExpanded] // MENU_ITEMS static
+  );
+
+  // ---------- Callbacks ----------
   const handleMenuPress = useCallback(
     menuKey => {
-      const plotData =
-        item.agri_land_user_rels?.map(data => ({
-          value: data.rel_id,
-          label: data.plot_no,
-        })) || [];
-      const filePath = item.agri_files?.[0]?.file_path || '';
       onMenuPress(menuKey, {
         farmeruserID: item.user_id,
         agri_land_user_rels: plotData,
         userName: item.userName,
         contactNumber: item.contactNumber,
-        profileImage: filePath,
+        profileImage,
         gender: item.gender,
         farmer_type: item.farmer_type,
       });
     },
-    [item, onMenuPress],
+    [onMenuPress, plotData, item, profileImage]
   );
 
   const handleCardPress = useCallback(() => {
     onToggle(item.user_id);
-    setState(prev => ({...prev, onPageLoad: true}));
-  }, [onToggle, item.user_id, setState]);
+    setState(prev => ({ ...prev, onPageLoad: true }));
+  }, [item.user_id, onToggle, setState]);
 
+  // ---------- Card Enter Style ----------
   const cardStyle =
-    state.onPageLoad == false
-      ? [
-          styles.modernUserCard,
+    state.onPageLoad === false
+      ? {
+        opacity: cardAnim,
+        transform: [
+          { scale: cardAnim },
           {
-            opacity: cardAnim,
-            transform: [
-              {scale: cardAnim},
-              {
-                translateX: cardAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [SCREEN_WIDTH * 0.3, 0],
-                }),
-              },
-            ],
+            translateX: cardAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [SCREEN_WIDTH * 0.3, 0],
+            }),
           },
-        ]
-      : [styles.modernUserCard];
-  const filtered = item?.agri_files?.filter(data => data.term_type === '1');
+        ],
+      }
+      : null;
+
   return (
-    <Animated.View style={cardStyle}>
-      <TouchableOpacity
-        onPress={handleCardPress}
-        activeOpacity={0.95}
-        style={styles.cardTouchable}>
-        {/* Card Header */}
+    <Animated.View style={[styles.modernUserCard, cardStyle]}>
+      <TouchableOpacity onPress={handleCardPress} activeOpacity={0.9} style={styles.cardTouchable}>
+        {/* ---------- Header ---------- */}
         <View style={styles.cardHeader}>
           <View style={styles.userAvatar}>
-            {filtered.length > 0 ? (
+            {profileImage ? (
               <ImageForm
-                source={filtered[0].file_path}
+                source={profileImage}
                 width={60}
                 height={60}
                 resizeMode="cover"
                 borderRadius={30}
-                style={{
-                  backgroundColor: '#ccc',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                }}
               />
             ) : (
               <Text style={styles.avatarText}>
@@ -137,73 +146,41 @@ const ModernUserCard = ({
               {item.userName}
             </Text>
             <Text style={styles.phoneText}>{item.contactNumber}</Text>
-            <Text style={styles.dateText}>
-              {item.CreateDateTime?.substring(0, 10)}
-            </Text>
+            <Text style={styles.dateText}>{item.CreateDateTime?.substring(0, 10)}</Text>
           </View>
 
           <View style={styles.cardActions}>
             <View style={styles.plotsBadge}>
-              <Text style={styles.plotsCount}>
-                {item.agri_land_user_rels?.length || 0}
-              </Text>
+              <Text style={styles.plotsCount}>{item.agri_land_user_rels?.length || 0}</Text>
               <Text style={styles.plotsLabel}>{t('plots')}</Text>
             </View>
           </View>
         </View>
       </TouchableOpacity>
 
-      {/* Expandable menu */}
-      <View
+      {/* ---------- Expandable Menu ---------- */}
+      <Animated.View
         style={[
           styles.menuPositionContainer,
           {
-            height: isExpanded ? 120 : 0,
+            height: expandAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 120],
+            }),
+            opacity: expandAnim,
             borderTopWidth: isExpanded ? 1.5 : 0,
             borderColor: Colors.border,
-            borderStyle: 'dotted',
           },
         ]}>
-        <Animated.View
-          style={[
-            styles.modernMenuContainer,
-            {
-              opacity: expandAnim,
-              transform: [
-                {
-                  translateY: expandAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-120, 0],
-                  }),
-                },
-                {
-                  scaleY: expandAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.8, 1],
-                  }),
-                },
-              ],
-            },
-          ]}>
-          <View style={styles.modernMenuGrid}>
-            {MENU_ITEMS.map((menuItem, menuIndex) => (
-              <ModernMenuButton
-                key={menuItem.key}
-                item={menuItem}
-                onPress={handleMenuPress}
-                t={t}
-                index={menuIndex}
-                isExpanded={isExpanded}
-              />
-            ))}
-          </View>
-        </Animated.View>
-      </View>
+        <View style={styles.modernMenuContainer}>{menuButtons}</View>
+      </Animated.View>
     </Animated.View>
   );
 };
 
 export default memo(ModernUserCard);
+
+/* --------------------------------- STYLES --------------------------------- */
 
 const styles = {
   modernUserCard: {
@@ -217,7 +194,7 @@ const styles = {
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  cardTouchable: {padding: 0},
+  cardTouchable: { padding: 0 },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -238,16 +215,17 @@ const styles = {
     color: '#FFFFFF',
     fontFamily: Fonts.Bold,
   },
-  userDetails: {flex: 1},
+  userDetails: { flex: 1 },
   modernUserName: {
     fontSize: 16,
     color: Colors.text,
     marginBottom: 4,
     fontFamily: Fonts.Medium,
   },
-  phoneText: {fontSize: 14, color: Colors.lightText, fontFamily: Fonts.Medium},
-  dateText: {fontSize: 12, color: Colors.lightText, fontFamily: Fonts.Medium},
-  cardActions: {alignItems: 'center'},
+  phoneText: { fontSize: 14, color: Colors.lightText, fontFamily: Fonts.Medium },
+  dateText: { fontSize: 12, color: Colors.lightText, fontFamily: Fonts.Medium },
+  cardActions: { alignItems: 'center' },
+
   plotsBadge: {
     flexDirection: 'row',
     backgroundColor: '#E8F5E8',
@@ -255,8 +233,8 @@ const styles = {
     paddingVertical: 4,
     paddingHorizontal: 12,
     alignItems: 'center',
-    justifyContent: 'center',
   },
+
   plotsCount: {
     fontSize: 15,
     color: Colors.borderGreen,
@@ -268,15 +246,16 @@ const styles = {
     color: Colors.borderGreen,
     fontFamily: Fonts.Medium,
   },
+
   menuPositionContainer: {
     overflow: 'hidden',
     backgroundColor: Colors.background,
   },
-  modernMenuContainer: {height: 120, backgroundColor: Colors.background},
-  modernMenuGrid: {
-    flexDirection: 'row',
+  modernMenuContainer: {
+    height: 120,
     paddingHorizontal: 20,
     paddingVertical: 16,
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
 };

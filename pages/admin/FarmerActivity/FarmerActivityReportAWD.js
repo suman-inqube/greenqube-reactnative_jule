@@ -1591,12 +1591,12 @@ const FarmerActivityReportAWD = ({navigation}) => {
 
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
-      if (pipe_fieldType.current === 1) {
-        const isPipeInstall = await checkPipeDistance(lat, lon);
-        if (!isPipeInstall) {
-          return;
-        }
-      }
+      // if (pipe_fieldType.current === 1) {
+      //   const isPipeInstall = await checkPipeDistance(lat, lon);
+      //   if (!isPipeInstall) {
+      //     return;
+      //   }
+      // }
 
       const options = {
         mediaType: 'photo',

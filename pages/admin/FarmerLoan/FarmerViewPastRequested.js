@@ -175,6 +175,7 @@ const FarmerLoanViewPastRequested = ({setActiveBtn}) => {
       '',
       '',
     );
+    console.log('response', response);
     if (response?.status == 200) {
       setLoanList(response?.data?.data?.rows);
       setLoanListRaw(response?.data?.data?.rows);

@@ -104,6 +104,7 @@ const LiveHood = ({
     coords,
     startWatchingLocation,
     stopWatchingLocation,
+    dbLanTokUsr,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-65
@@ -248,9 +249,15 @@ const LiveHood = ({
     name: '',
     phone: '',
     CoFarmer: '',
-    govtId: '',
-    govtIdType: '',
-    gotIdName: '',
+    addressProof: null,
+    idProof: null,
+    profile: null,
+    gender: '1',
+    aadhar_number: '',
+    age: '',
+    type: '',
+    co_farmer_id: '',
+    password: '',
   });
   const [conFarmerList, setConFarmerList] = useState([]);
   const [outofRange, setOutofRange] = useState(false);
@@ -1167,7 +1174,6 @@ const LiveHood = ({
         {information: `${dbname},${lan_id}`},
       );
       // landRouteApi(dbname, lan_id, type);
-
       if (landType_res?.status == 200) {
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
@@ -1444,7 +1450,6 @@ const LiveHood = ({
         setIsLoading(true);
         const formDataPlotImg = new FormData();
         const formdata = new FormData();
-        const formdataCofarmers = new FormData();
         formdata.append('plot_no', farmerData.plot_Site_Name);
         formdata.append('terrain_type_id', farmerData.terrainTypeValue);
         formdata.append('lan_type_id', farmerData.landTypeValue);
@@ -1588,35 +1593,7 @@ const LiveHood = ({
             dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
           }
           let save_data = qs.stringify(dataToSend);
-          const coFarmerArr = conFarmerList.map((item, index) => {
-            formdataCofarmers.append(`farmer_identity_${index + 1}`, {
-              uri: item.govtId,
-              type: item.govtIdType,
-              name: item.gotIdName,
-            });
-            return {
-              userName: item.name,
-              contactNumber: item.phone,
-              land_area: item.landArea,
-              land_unit: item.unitValue,
-            };
-          });
-          formdataCofarmers.append('owner_of', user_id);
-          formdataCofarmers.append('createdBy', user_id);
-          formdataCofarmers.append('land_fid', plotId);
-          formdataCofarmers.append('cof_data', JSON.stringify(coFarmerArr));
-          const addCoFarmerRes = await axiosPost(
-            ROUTES.POST.SAVE_CO_FARMERS,
-            formdataCofarmers,
-            token,
-            false,
-            {
-              information: dbname,
-              lan_id,
-              user_id,
-              cof_count: conFarmerList.length,
-            },
-          );
+
           let updateLandCropdetails_res = {};
           updateLandCropdetails_res = await axiosPut(
             ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
@@ -1857,7 +1834,7 @@ const LiveHood = ({
             turf.booleanOverlap(existingGeo, newGeo) ||
             turf.booleanWithin(newGeo, existingGeo)
           ) {
-            overlapFound = true;
+            // overlapFound = true;
           }
         });
         // setPolygons([newPolygon]);
@@ -2154,24 +2131,182 @@ const LiveHood = ({
     [farmerData.land_size],
   );
   const [editIndex, setEditIndex] = useState(null);
-  const handleAddCoFarmer = () => {
-    if (editIndex !== null) {
-      const updatedList = [...conFarmerList];
-      updatedList[editIndex] = coFarmerDetails;
-      setConFarmerList(updatedList);
+  const handleAddCoFarmer = async () => {
+    try {
+      setIsLoading(true);
+      console.log('dataa', coFarmerDetails);
+      if (editIndex !== null) {
+        const updatedList = [...conFarmerList];
+        updatedList[editIndex] = coFarmerDetails;
+        setConFarmerList(updatedList);
+        setEditIndex(null);
+      } else {
+        setConFarmerList([...conFarmerList, coFarmerDetails]);
+      }
+      const formdataCofarmers = new FormData();
+      // const coFarmerArr = conFarmerList.map((item, index) => {
+      //   // formdataCofarmers.append(
+      //   //   `farmer_identity_${index + 1}`,
+      //   //   {
+      //   //     uri: item.govtId,
+      //   //     type: item.govtIdType,
+      //   //     name: item.gotIdName
+      //   //   }
+      //   // );
+      //   return {
+      //     userName: item.name,
+      //     contactNumber: item.phone,
+      //     land_area: item.landArea,
+      //     land_unit: item.unitValue
+      //   };
+      // });
+      let addCoFarmerRes = '';
+      let date_of_birth_ddmmyyyy = '';
+      if (coFarmerDetails.age && coFarmerDetails.age !== '') {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const yearsToSubtract = parseInt(coFarmerDetails.age) || 0;
+        const day = currentDate.getDate();
+        const month = currentDate.getMonth() + 1;
+        const newYear = currentYear - yearsToSubtract;
+
+        // Format as DD/MM/YYYY (pad with zeros if needed)
+        const formattedDay = day < 10 ? `0${day}` : day;
+        const formattedMonth = month < 10 ? `0${month}` : month;
+        date_of_birth_ddmmyyyy = `${formattedDay}/${formattedMonth}/${newYear}`;
+      }
+
+      if (coFarmerDetails?.type == 'edit') {
+        formdataCofarmers.append('co_farmer_id', coFarmerDetails.co_farmer_id);
+        formdataCofarmers.append('userName', coFarmerDetails.name);
+        formdataCofarmers.append(
+          'aadhar_number',
+          coFarmerDetails.aadhar_number,
+        );
+
+        // Convert age to DD/MM/YYYY format
+
+        // Then use it in formData
+        if (date_of_birth_ddmmyyyy) {
+          formdataCofarmers.append('date_of_birth', date_of_birth_ddmmyyyy);
+        }
+        formdataCofarmers.append('gender', coFarmerDetails.gender);
+        formdataCofarmers.append('contactNumber', coFarmerDetails.phone);
+        if (
+          coFarmerDetails.addressProof != null &&
+          coFarmerDetails.addressProof != ''
+        ) {
+          formdataCofarmers.append(`farmer_address`, {
+            uri: coFarmerDetails.addressProof?.uri,
+            name: coFarmerDetails.addressProof?.name,
+            type: coFarmerDetails.addressProof?.type,
+          });
+        }
+        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
+          formdataCofarmers.append(`farmer_identity`, {
+            uri: coFarmerDetails.idProof?.uri,
+            name: coFarmerDetails.idProof?.name,
+            type: coFarmerDetails.idProof?.type,
+          });
+        }
+        if (coFarmerDetails.profile != null && coFarmerDetails.profile != '') {
+          formdataCofarmers.append(`farmer_profile`, {
+            uri: coFarmerDetails.profile?.uri,
+            name: coFarmerDetails.profile?.name,
+            type: coFarmerDetails.profile?.type,
+          });
+        }
+        formdataCofarmers.append('password', coFarmerDetails.password);
+        addCoFarmerRes = await axiosPut(
+          ROUTES.PUT.EDIT_CO_FARMER,
+          formdataCofarmers,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${user_id}`},
+        );
+      } else {
+        formdataCofarmers.append('owner_of', farmeruserID);
+        formdataCofarmers.append('createdBy', user_id);
+        formdataCofarmers.append('land_fid', plotId);
+        formdataCofarmers.append(
+          'cof_data',
+          JSON.stringify([
+            {
+              userName: coFarmerDetails.name,
+              contactNumber: coFarmerDetails.phone,
+              land_area: coFarmerDetails.landArea,
+              land_unit: coFarmerDetails.unitValue,
+              aadhar_number: coFarmerDetails.aadhar_number,
+              date_of_birth: date_of_birth_ddmmyyyy,
+              gender: coFarmerDetails.gender,
+            },
+          ]),
+        );
+        if (
+          coFarmerDetails.addressProof != null &&
+          coFarmerDetails.addressProof != ''
+        ) {
+          formdataCofarmers.append(`farmer_address_1`, {
+            uri: coFarmerDetails.addressProof?.uri,
+            name: coFarmerDetails.addressProof?.name,
+            type: coFarmerDetails.addressProof?.type,
+          });
+        }
+        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
+          formdataCofarmers.append(`farmer_identity_1`, {
+            uri: coFarmerDetails.idProof?.uri,
+            name: coFarmerDetails.idProof?.name,
+            type: coFarmerDetails.idProof?.type,
+          });
+        }
+        if (coFarmerDetails.profile != null && coFarmerDetails.profile != '') {
+          formdataCofarmers.append(`farmer_profile_1`, {
+            uri: coFarmerDetails.profile?.uri,
+            name: coFarmerDetails.profile?.name,
+            type: coFarmerDetails.profile?.type,
+          });
+        }
+        addCoFarmerRes = await axiosPost(
+          ROUTES.POST.SAVE_CO_FARMERS,
+          formdataCofarmers,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+            cof_count: '1',
+          },
+        );
+      }
+      setCoFarmerDetails({
+        name: '',
+        phone: '',
+        addressProof: null,
+        idProof: null,
+        profile: null,
+        gender: '1',
+        type: '',
+        co_farmer_id: '',
+        password: '',
+      });
       setEditIndex(null);
-    } else {
-      setConFarmerList([...conFarmerList, coFarmerDetails]);
+      setModalVisibleCoFarmer(false);
+      setListOfModalVisibleCoFarmer(false);
+      console.log('sub', addCoFarmerRes);
+      if (addCoFarmerRes?.status == 200) {
+        Toast.show({
+          text: 'Data submitted successfully',
+          ...{...AlertMesg[0], position: 'top'},
+        });
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('A', error);
+      Toast.show({
+        text: `${error?.data?.error?.errorMessage}`,
+        ...{...AlertMesg[0], position: 'top'},
+      });
     }
-    setCoFarmerDetails({
-      name: '',
-      phone: '',
-      govtId: '',
-      govtIdType: '',
-      gotIdName: '',
-    });
-    setEditIndex(null);
-    setModalVisibleCoFarmer(false);
   };
 
   const handleEdit = (_data, _index) => {
@@ -2236,35 +2371,62 @@ const LiveHood = ({
           setOpenDate={setopenCycleEnd}
           handleDatePicker={handleDatePicker2}
         />
-        <Modal visible={modalVisibleCoFarmer} transparent animationType="fade">
-          <View style={styles.overlay}>
-            <CoFarmer
-              title="CO-Farmer"
-              coFarmerDetails={coFarmerDetails}
-              setCoFarmerDetails={setCoFarmerDetails}
-              onCancel={() => {
-                setCoFarmerDetails({
-                  name: '',
-                  phone: '',
-                  govtId: '',
-                  govtIdType: '',
-                  gotIdName: '',
-                });
-                setModalVisibleCoFarmer(false);
-              }}
-              onSave={() => {
-                handleAddCoFarmer();
-              }}
-              unitAll={unitAll}
-              unit_valueArr={farmerData.unit_valueArr}
-            />
+        <Modal
+          visible={modalVisibleCoFarmer}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setModalVisibleCoFarmer(!modalVisibleCoFarmer)}>
+          {/* <View style={styles.overlay}> */}
+          <View style={styles.overlayLisCoFarmer}>
+            <View style={styles.modalBox}>
+              <CoFarmer
+                title="CO-Farmer"
+                coFarmerDetails={coFarmerDetails}
+                setCoFarmerDetails={setCoFarmerDetails}
+                onCancel={() => {
+                  setCoFarmerDetails({
+                    name: '',
+                    phone: '',
+                    addressProof: null,
+                    idProof: null,
+                    profile: null,
+                    gender: '1',
+                    type: '',
+                    co_farmer_id: '',
+                    password: '',
+                  });
+                  setModalVisibleCoFarmer(!modalVisibleCoFarmer);
+                }}
+                onSave={() => {
+                  handleAddCoFarmer();
+                }}
+                unitAll={unitAll}
+                unit_valueArr={farmerData.unit_valueArr}
+                landAreaUnit={landAreaUnit?.[0]?.unit_name}
+                effective_dates={effective_dates}
+              />
+            </View>
           </View>
+          {/* </View> */}
         </Modal>
         <Modal
           visible={ListOFmodalVisibleCoFarmer}
           transparent
           animationType="fade"
-          onRequestClose={() => setListOfModalVisibleCoFarmer(false)}>
+          onRequestClose={() => {
+            setListOfModalVisibleCoFarmer(!ListOFmodalVisibleCoFarmer),
+              setCoFarmerDetails({
+                name: '',
+                phone: '',
+                addressProof: null,
+                idProof: null,
+                profile: null,
+                gender: '1',
+                type: '',
+                co_farmer_id: '',
+                password: '',
+              });
+          }}>
           <View style={styles.overlayLisCoFarmer}>
             <View style={styles.modalBox}>
               <ListOfCoFarmer
@@ -2276,15 +2438,22 @@ const LiveHood = ({
                 plotId={plotId}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
+                status={statuslevel.label}
+                effective_dates={effective_dates}
+                setModalVisibleCoFarmer={setModalVisibleCoFarmer}
+                modalVisibleCoFarmer={modalVisibleCoFarmer}
+                setCoFarmerDetails={setCoFarmerDetails}
               />
             </View>
           </View>
         </Modal>
-        <Modal
+        {/* <Modal
           visible={ListOFmodalVisibleCoFarmerAdd}
           transparent
           animationType="fade"
-          onRequestClose={() => setListOfModalVisibleCoFarmerAdd(false)}>
+          onRequestClose={() =>
+            setListOfModalVisibleCoFarmerAdd(!ListOFmodalVisibleCoFarmerAdd)
+          }>
           <View style={styles.overlayLisCoFarmer}>
             <View style={styles.modalBox}>
               <CoFarmerList
@@ -2292,10 +2461,11 @@ const LiveHood = ({
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 handleCoFarmerCheck={handleCoFarmerCheck}
+                effective_dates={effective_dates}
               />
             </View>
           </View>
-        </Modal>
+        </Modal> */}
         {isLoading ? (
           <View style={styles.LoadingScreen}>
             <LoadingScreen />
@@ -2916,6 +3086,9 @@ const LiveHood = ({
             plotEdit,
             addPlot,
             activeTab,
+            plotId,
+            statuslevel.label,
+            dbLanTokUsr?.co_farmer,
           )}
           color={Colors.useGreen}
           onPressItem={name => {
@@ -3227,12 +3400,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalBox: {
-    width: '90%',
-    maxHeight: SCREEN_HEIGHT * 0.7,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    // padding: 10,
-    borderRadius: 16,
+    // width: '90%',
+    // // maxHeight: SCREEN_HEIGHT * 0.7,
+    // backgroundColor: '#fff',
+    // borderRadius: 12,
+    // // padding: 10,
+    // borderRadius: 16
+
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT / 1.3,
+    // backgroundColor: "#be1414ff",
+    borderRadius: 14,
+    overflow: 'hidden',
   },
   card: {
     flexDirection: 'row',
