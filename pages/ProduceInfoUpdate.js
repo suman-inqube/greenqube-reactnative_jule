@@ -9,37 +9,37 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import Logo from './Common/Logo';
 import ButtonForm from './Common/ButtonForm';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
 import axios from 'axios';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
-import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
-import { isNotEmpty } from './Common/ValidationFunctions';
+import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
+import {isNotEmpty} from './Common/ValidationFunctions';
 import MessageDialog from './Common/MessageDialog';
-import { useFocusEffect } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
+import {useFocusEffect} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
-import { Root, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import { AlertMesg } from './Common/ToastAlert';
+import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {AlertMesg} from './Common/ToastAlert';
 import Map from './admin/Map';
 import * as geolib from 'geolib';
-import { Colors, Fonts } from './utils/Constants';
+import {Colors, Fonts} from './utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { getActionsMapView } from './utils/options';
+import {getActionsMapView} from './utils/options';
 import FloatingActionButton from './Components/FloatingActionButton';
 import {
   convertedArrayLatLong,
   calculateAreaFun,
   calculatePolygonArea,
 } from './Common/calculateAreaFun';
-import DocumentPicker, { types } from '@react-native-documents/picker';
+import DocumentPicker, {types} from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
 import {
   LandUnitArea,
@@ -47,13 +47,14 @@ import {
   nearestLatLong,
 } from '../config/apiHere';
 import * as turf from '@turf/turf';
-import { ROUTES } from './utils/Routes';
-import { axiosGet } from './utils/api';
+import {ROUTES} from './utils/Routes';
+import {axiosGet} from './utils/api';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 const ProduceInfoUpdate = () => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
   const route = useRoute();
-  const { pagename, arrayIndex } = route.params;
+  const {pagename, arrayIndex} = route.params;
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
@@ -89,12 +90,12 @@ const ProduceInfoUpdate = () => {
     ConvertedreportedLandsize: 0,
   });
   const [landProof, setLandProof] = useState([
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
-    { uri: '', name: '', type: '', fileName: '' },
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
+    {uri: '', name: '', type: '', fileName: ''},
   ]);
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -228,11 +229,11 @@ const ProduceInfoUpdate = () => {
           // axios.get(prodctionSeasionAPI, axiosConfig1),
           axiosGet(
             ROUTES.GET.PRODUCE_SEASON({
-              from_date: "",
+              from_date: '',
             }),
             '',
             {
-              information: `${dbName},${lanID}`
+              information: `${dbName},${lanID}`,
             },
           ),
           axios.get(config.landunitAPI, axiosConfig),
@@ -274,11 +275,13 @@ const ProduceInfoUpdate = () => {
         }
 
         if (prodctionSeasion_res.data.data) {
-          prodctionSeasionArray = prodctionSeasion_res?.data?.data?.rows?.map(data => ({
-            value: data.season_info.fid,
-            label: `${data.season_info.name} (${data.year})`,
-            sd_id: data.sd_id,
-          }));
+          prodctionSeasionArray = prodctionSeasion_res?.data?.data?.rows?.map(
+            data => ({
+              value: data.season_info.fid,
+              label: `${data.season_info.name} (${data.year})`,
+              sd_id: data.sd_id,
+            }),
+          );
         }
         if (landUnit_res.data.data.count > 0) {
           landUnit_res.data.data.rows.forEach(element => {
@@ -335,13 +338,13 @@ const ProduceInfoUpdate = () => {
       setproductionProcessData(productionProcessArray);
       setproduceProductionUnitData(produceProductionUnitArray);
     } catch (error) {
-      console.error(error)
+      console.error(error);
       CrashlyticsRecordError(error.response);
     }
   };
 
   const HandlelivehoodType = async livelihoodType => {
-    setstoreProduceInfo({ ...storeProduceInfo, livelihoodType: livelihoodType });
+    setstoreProduceInfo({...storeProduceInfo, livelihoodType: livelihoodType});
     produceNameDataList(livelihoodType, lanID, dbName);
   };
 
@@ -422,7 +425,7 @@ const ProduceInfoUpdate = () => {
   };
 
   const HandleproduceName = async produceName => {
-    setstoreProduceInfo({ ...storeProduceInfo, produceName: produceName });
+    setstoreProduceInfo({...storeProduceInfo, produceName: produceName});
     produceVarientyDataList(produceName, lanID, dbName);
   };
 
@@ -506,20 +509,24 @@ const ProduceInfoUpdate = () => {
     }
   };
 
-  const handlecycleStart = async (item) => {
+  const handlecycleStart = async item => {
     try {
       const dt = new Date(item);
       const x = dt.toISOString().split('T');
       const x1 = x[0].split('-');
       const cycleStarts = x1[0] + '-' + x1[1] + '-' + x1[2];
-      setstoreProduceInfo({ ...storeProduceInfo, cycleStarts: cycleStarts, prodctionSeasion: "" });
+      setstoreProduceInfo({
+        ...storeProduceInfo,
+        cycleStarts: cycleStarts,
+        prodctionSeasion: '',
+      });
       const seasonData = await axiosGet(
         ROUTES.GET.PRODUCE_SEASON({
           from_date: cycleStarts,
         }),
         '',
         {
-          information: `${dbName},${lanID}`
+          information: `${dbName},${lanID}`,
         },
       );
       if (seasonData?.status === 200) {
@@ -531,10 +538,13 @@ const ProduceInfoUpdate = () => {
         setprodctionSeasionData(seasonDataArr);
       } else {
         setprodctionSeasionData([]);
-        Toast.show({ text: seasonData?.data?.error?.errorMessage, ...AlertMesg[0] });
+        Toast.show({
+          text: seasonData?.data?.error?.errorMessage,
+          ...AlertMesg[0],
+        });
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
   };
 
@@ -543,7 +553,7 @@ const ProduceInfoUpdate = () => {
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
+    setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
   };
   const handleLandUnit = async item => {
     let landUnitSize;
@@ -576,15 +586,15 @@ const ProduceInfoUpdate = () => {
         Alert.alert(
           'Deviation',
           'The deviation between reported area and google area is not within 5%',
-          [{ text: 'OK', onPress: () => console.log(area) }],
-          { cancelable: false },
+          [{text: 'OK', onPress: () => console.log(area)}],
+          {cancelable: false},
         );
         return;
       }
     }
     const locationEmpty = location.filter(item => item.latitude !== '');
     if (storeProduceInfo.plotSize == '') {
-      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
     } else if (!storeProduceInfo.productionProcess.value) {
       Toast.show({
         time: 3,
@@ -620,13 +630,13 @@ const ProduceInfoUpdate = () => {
       storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
       storeProduceInfoInArray[arrayIndex].location = location;
       await setItem('storeProduceInfo_data', storeProduceInfoInArray);
-      navigation.navigate(pagename, { pagename: '' });
+      navigation.navigate(pagename, {pagename: ''});
     }
   };
 
   const onPageLoad = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     let groupedData;
     const [
       storeSignup_data,
@@ -661,7 +671,7 @@ const ProduceInfoUpdate = () => {
       }
     }
     if (LandUnitArea_res?.status == 200) {
-      const { count, rows } = LandUnitArea_res?.data?.data || {};
+      const {count, rows} = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
         setLandAreaUnit(rows);
       } else {
@@ -669,7 +679,7 @@ const ProduceInfoUpdate = () => {
       }
     }
     if (LandUnitsquare_metre_res?.status == 200) {
-      const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+      const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
         setLandUnitsquareMetre(rows);
       } else {
@@ -753,7 +763,7 @@ const ProduceInfoUpdate = () => {
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
     const values = [...location];
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     if (
       fusedLocation != null &&
       longitude.toString().length == 10 &&
@@ -761,7 +771,7 @@ const ProduceInfoUpdate = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = { latitude: latitude, longitude: longitude };
+      values[index] = {latitude: latitude, longitude: longitude};
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
@@ -770,7 +780,7 @@ const ProduceInfoUpdate = () => {
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
+              geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
           );
           setstoreProduceInfo({
             ...storeProduceInfo,
@@ -807,7 +817,7 @@ const ProduceInfoUpdate = () => {
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({ latitude: '', longitude: '' }),
+        (val, idx) => ({latitude: '', longitude: ''}),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -815,7 +825,7 @@ const ProduceInfoUpdate = () => {
       setNewPolygon([]);
     } else {
       setNewPolygon([]);
-      setLocation([...location, { latitude: '', longitude: '' }]);
+      setLocation([...location, {latitude: '', longitude: ''}]);
     }
   };
   // GRQ-1130
@@ -826,8 +836,8 @@ const ProduceInfoUpdate = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, { latitude, longitude }]);
+    const {latitude, longitude} = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, {latitude, longitude}]);
   };
   // GRQ-1132
   const finalizePolygon = () => {
@@ -844,7 +854,7 @@ const ProduceInfoUpdate = () => {
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-          geolib.getAreaOfPolygon(newPolygon),
+            geolib.getAreaOfPolygon(newPolygon),
         );
         setstoreProduceInfo({
           ...storeProduceInfo,
@@ -868,7 +878,7 @@ const ProduceInfoUpdate = () => {
     setLocationType('polygon_tap');
   };
   const clearNewPolygon = () => {
-    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
+    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
     setNewPolygon([]);
     setPolygons(nearPolSet);
     setArea(0);
@@ -892,7 +902,7 @@ const ProduceInfoUpdate = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -927,7 +937,7 @@ const ProduceInfoUpdate = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const { latitude, longitude } = fusedLocation;
+    const {latitude, longitude} = fusedLocation;
     setstoreProduceInfo({
       ...storeProduceInfo,
       IOTLatlat: latitude,
@@ -937,7 +947,7 @@ const ProduceInfoUpdate = () => {
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
   const handleRegionChangeComplete = async newRegion => {
-    const { latitude, longitude } = newRegion;
+    const {latitude, longitude} = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -976,133 +986,153 @@ const ProduceInfoUpdate = () => {
     }, 3000);
   };
   return (
-    <Root>
-      {/* <ForegroundLocationService /> */}
-      <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
-      <View style={styles.mainContainer}>
-        <View
-          style={{
-            // height: 100,
-            backgroundColor: Colors.green,
-            borderBottomLeftRadius: 25,
-            borderBottomRightRadius: 25,
-            justifyContent: 'center',
-          }}>
-          <View style={styles.headersContainer}>
-            <Text style={styles.headersTitle}>
-              {t('reg_land_crop_information')}
-            </Text>
-          </View>
-        </View>
-        <ScrollView>
-          <View style={styles.formContainer}>
-            {/* <Logo iheight={100} iwidth={100} /> */}
-            <View style={styles.firatFormContainer}>
-              <View style={{ alignItems: 'center' }}>
-                <Image
-                  source={require('../pages/Common/images/logo.png')}
-                  style={styles.logo}
-                />
+    <SafeAreaProvider>
+      <SafeAreaView
+        style={{flex: 1, backgroundColor: '#1d3122'}}
+        edges={['top', 'right', 'bottom', 'left']}>
+        <Root>
+          {/* <ForegroundLocationService /> */}
+          <StatusBar barStyle="light-content" backgroundColor={'#003c04'} />
+          <View style={styles.mainContainer}>
+            <View
+              style={{
+                // height: 100,
+                backgroundColor: Colors.green,
+                borderBottomLeftRadius: 25,
+                borderBottomRightRadius: 25,
+                justifyContent: 'flex-end',
+                paddingTop: 30,
+              }}>
+              <View style={styles.headersContainer}>
+                <Text style={styles.headersTitle}>
+                  {t('reg_land_crop_information')}
+                </Text>
               </View>
-              <View style={{ paddingHorizontal: 10 }}>
-                <InputTextForm
-                  label={t('pre_plot_name')}
-                  color="black"
-                  onChangeText={item =>
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      plotSiteName: item,
-                    })
-                  }
-                  value={storeProduceInfo.plotSiteName}
-                />
-                <InputTextForm
-                  label={t('daag_no')}
-                  onChangeText={item =>
-                    setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
-                  }
-                  value={storeProduceInfo.daagNo}
-                />
-                <InputTextForm
-                  label={t('khatian_no')}
-                  onChangeText={item =>
-                    setstoreProduceInfo({ ...storeProduceInfo, khatianNo: item })
-                  }
-                  value={storeProduceInfo.khatianNo}
-                />
-                <InputTextForm
-                  label={t('no_of_plants')}
-                  onChangeText={item =>
-                    setstoreProduceInfo({ ...storeProduceInfo, noOfPlants: item })
-                  }
-                  value={storeProduceInfo.noOfPlants}
-                />
-                <DropdownForm
-                  label={t('addland_terrain_type')}
-                  color="black"
-                  data={terrainTypeData}
-                  onChange={item =>
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      terrainType: item,
-                    })
-                  }
-                  val={storeProduceInfo.terrainType.label}
-                />
-                <DropdownForm
-                  label={t('addland_soil_type')}
-                  color="black"
-                  data={landTypeData}
-                  onChange={item => {
-                    setstoreProduceInfo({ ...storeProduceInfo, landType: item });
-                  }}
-                  val={storeProduceInfo.landType.label}
-                />
-                <DropdownForm
-                  label={t('select_soil_type')}
-                  color="black"
-                  data={soilTypeData}
-                  onChange={item => {
-                    setstoreProduceInfo({ ...storeProduceInfo, soilType: item });
-                  }}
-                  val={storeProduceInfo.soilType.label}
-                />
-                <InputTextForm
-                  label={t('addland_landsize')}
-                  onChangeText={item =>
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      plotSize: item,
-                      ConvertedreportedLandsize:
-                        Number(storeProduceInfo?.sizevalue) * Number(item),
-                      // , cycleEnds: ""
-                    })
-                  }
-                  value={storeProduceInfo.plotSize}
-                />
-                <DropdownForm
-                  label={t('addland_unit')}
-                  color="black"
-                  data={landUnitData}
-                  onChange={item => handleLandUnit(item)}
-                  val={storeProduceInfo.landUnitName}
-                />
-                {!isNaN(Number(storeProduceInfo?.ConvertedreportedLandsize)) &&
-                  storeProduceInfo?.ConvertedreportedLandsize !== 0 &&
-                  area != null && (
-                    <InputTextForm
-                      label={
-                        t('Converted reported Land size ') +
-                        `${landAreaUnit?.[0]?.defined_unit_value
-                          ? `(${landAreaUnit?.[0]?.unit_name})`
-                          : '(Square meter)'
-                        }`
-                      }
-                      value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
-                      editable={false}
+            </View>
+            <ScrollView>
+              <View style={styles.formContainer}>
+                {/* <Logo iheight={100} iwidth={100} /> */}
+                <View style={styles.firatFormContainer}>
+                  <View style={{alignItems: 'center'}}>
+                    <Image
+                      source={require('../pages/Common/images/logo.png')}
+                      style={styles.logo}
                     />
-                  )}
-                {/* <View style={styles.idcontainer}>
+                  </View>
+                  <View style={{paddingHorizontal: 10}}>
+                    <InputTextForm
+                      label={t('pre_plot_name')}
+                      color="black"
+                      onChangeText={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          plotSiteName: item,
+                        })
+                      }
+                      value={storeProduceInfo.plotSiteName}
+                    />
+                    <InputTextForm
+                      label={t('daag_no')}
+                      onChangeText={item =>
+                        setstoreProduceInfo({...storeProduceInfo, daagNo: item})
+                      }
+                      value={storeProduceInfo.daagNo}
+                    />
+                    <InputTextForm
+                      label={t('khatian_no')}
+                      onChangeText={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          khatianNo: item,
+                        })
+                      }
+                      value={storeProduceInfo.khatianNo}
+                    />
+                    <InputTextForm
+                      label={t('no_of_plants')}
+                      onChangeText={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          noOfPlants: item,
+                        })
+                      }
+                      value={storeProduceInfo.noOfPlants}
+                    />
+                    <DropdownForm
+                      label={t('addland_terrain_type')}
+                      color="black"
+                      data={terrainTypeData}
+                      onChange={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          terrainType: item,
+                        })
+                      }
+                      val={storeProduceInfo.terrainType.label}
+                    />
+                    <DropdownForm
+                      label={t('addland_soil_type')}
+                      color="black"
+                      data={landTypeData}
+                      onChange={item => {
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          landType: item,
+                        });
+                      }}
+                      val={storeProduceInfo.landType.label}
+                    />
+                    <DropdownForm
+                      label={t('select_soil_type')}
+                      color="black"
+                      data={soilTypeData}
+                      onChange={item => {
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          soilType: item,
+                        });
+                      }}
+                      val={storeProduceInfo.soilType.label}
+                    />
+                    <InputTextForm
+                      label={t('addland_landsize')}
+                      onChangeText={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          plotSize: item,
+                          ConvertedreportedLandsize:
+                            Number(storeProduceInfo?.sizevalue) * Number(item),
+                          // , cycleEnds: ""
+                        })
+                      }
+                      value={storeProduceInfo.plotSize}
+                    />
+                    <DropdownForm
+                      label={t('addland_unit')}
+                      color="black"
+                      data={landUnitData}
+                      onChange={item => handleLandUnit(item)}
+                      val={storeProduceInfo.landUnitName}
+                    />
+                    {!isNaN(
+                      Number(storeProduceInfo?.ConvertedreportedLandsize),
+                    ) &&
+                      storeProduceInfo?.ConvertedreportedLandsize !== 0 &&
+                      area != null && (
+                        <InputTextForm
+                          label={
+                            t('Converted reported Land size ') +
+                            `${
+                              landAreaUnit?.[0]?.defined_unit_value
+                                ? `(${landAreaUnit?.[0]?.unit_name})`
+                                : '(Square meter)'
+                            }`
+                          }
+                          value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
+                          editable={false}
+                        />
+                      )}
+                    {/* <View style={styles.idcontainer}>
             <Text style={styles.title}>{t('land_records')}</Text>
             <View style={styles.idItemContainer}>
               {landProof &&
@@ -1124,7 +1154,7 @@ const ProduceInfoUpdate = () => {
                 })}
             </View>
           </View> */}
-                {/* <ProofAndIdentityPropfComp
+                    {/* <ProofAndIdentityPropfComp
             identityProofIdentityPropf={landProof}
             t={t}
             title={t('address_proof')}
@@ -1132,60 +1162,63 @@ const ProduceInfoUpdate = () => {
             handleDocumentSelectionRemove={handleDocumentSelectionRemove}
           /> */}
 
-                <View style={{ marginTop: 10 }}>
-                  <InputTextForm
-                    label={t('Enter IOT Device Id')}
-                    onChangeText={item =>
-                      setstoreProduceInfo({ ...storeProduceInfo, IOTId: item })
-                    }
-                    value={storeProduceInfo.IOTId}
-                  />
-                </View>
-
-                <View style={styles.locationContainer}>
-                  <View style={styles.locationHeader}>
-                    <Text style={styles.locationTitle}>
-                      {t('Geo tag IOT Device')}
-                    </Text>
-
-                    <TouchableOpacity
-                      onPress={() => handleCurrentLatLongIOT()}
-                      style={styles.locationStatusInactive}>
-                      <MaterialIcons
-                        name="location-on"
-                        size={20}
-                        color="#F44336"
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('Enter IOT Device Id')}
+                        onChangeText={item =>
+                          setstoreProduceInfo({
+                            ...storeProduceInfo,
+                            IOTId: item,
+                          })
+                        }
+                        value={storeProduceInfo.IOTId}
                       />
-                      <Text style={styles.locationStatusText}>
-                        {t('tap_to_tag')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.coordinatesContainer}>
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('lat')}: {storeProduceInfo.IOTLatlat}
-                      </Text>
                     </View>
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('long')}:{storeProduceInfo.IOTLatLong}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
 
-                {/* <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
+                    <View style={styles.locationContainer}>
+                      <View style={styles.locationHeader}>
+                        <Text style={styles.locationTitle}>
+                          {t('Geo tag IOT Device')}
+                        </Text>
+
+                        <TouchableOpacity
+                          onPress={() => handleCurrentLatLongIOT()}
+                          style={styles.locationStatusInactive}>
+                          <MaterialIcons
+                            name="location-on"
+                            size={20}
+                            color="#F44336"
+                          />
+                          <Text style={styles.locationStatusText}>
+                            {t('tap_to_tag')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.coordinatesContainer}>
+                        <View style={styles.coordinateItem}>
+                          <MaterialIcons
+                            name="pin-drop"
+                            size={16}
+                            color="#2196F3"
+                          />
+                          <Text style={styles.coordinateText}>
+                            {t('lat')}: {storeProduceInfo.IOTLatlat}
+                          </Text>
+                        </View>
+                        <View style={styles.coordinateItem}>
+                          <MaterialIcons
+                            name="pin-drop"
+                            size={16}
+                            color="#2196F3"
+                          />
+                          <Text style={styles.coordinateText}>
+                            {t('long')}:{storeProduceInfo.IOTLatLong}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
                   <View style={styles.latlongContainer}>
                     <Text style={styles.title}>
                       {storeProduceInfo.IOTLatlat}
@@ -1202,41 +1235,42 @@ const ProduceInfoUpdate = () => {
                     />
                   </View>
                 </TouchableOpacity> */}
-                <ProofAndIdentityPropfComp
-                  identityProofIdentityPropf={landProof}
-                  t={t}
-                  title={t('address_proof')}
-                  setStateValue={setLandProof}
-                  stateValue={landProof}
-                  disable={true}
-                  InputTextFormEdit={true}
-                // photoDeletedValue={photoDeletedValue}
-                // setPhotoDeletedValue={setPhotoDeletedValue}
-                // loginUser_data={loginUser_data}
-                />
-                {/* basudev  */}
-                {area != 0 && (
-                  <InputTextForm
-                    label={
-                      t('Calculated Map Area ') +
-                      '(' +
-                      `${landAreaUnit?.[0]?.defined_unit_value
-                        ? landAreaUnit?.[0]?.unit_name
-                        : 'Square meter'
-                      }` +
-                      ')'
-                    }
-                    value={area.toString()}
-                    editable={false}
-                  />
-                )}
-                <View style={styles.labelContainer}>
-                  <Text style={styles.sectionTitle}>
-                    {t('plot_location_points')}
-                  </Text>
-                </View>
-                {renderLocationTags()}
-                {/* {location &&
+                    <ProofAndIdentityPropfComp
+                      identityProofIdentityPropf={landProof}
+                      t={t}
+                      title={t('address_proof')}
+                      setStateValue={setLandProof}
+                      stateValue={landProof}
+                      disable={true}
+                      InputTextFormEdit={true}
+                      // photoDeletedValue={photoDeletedValue}
+                      // setPhotoDeletedValue={setPhotoDeletedValue}
+                      // loginUser_data={loginUser_data}
+                    />
+                    {/* basudev  */}
+                    {area != 0 && (
+                      <InputTextForm
+                        label={
+                          t('Calculated Map Area ') +
+                          '(' +
+                          `${
+                            landAreaUnit?.[0]?.defined_unit_value
+                              ? landAreaUnit?.[0]?.unit_name
+                              : 'Square meter'
+                          }` +
+                          ')'
+                        }
+                        value={area.toString()}
+                        editable={false}
+                      />
+                    )}
+                    <View style={styles.labelContainer}>
+                      <Text style={styles.sectionTitle}>
+                        {t('plot_location_points')}
+                      </Text>
+                    </View>
+                    {renderLocationTags()}
+                    {/* {location &&
                   location.map((data, index) => {
                     return (
                       // GRQ-1134
@@ -1271,232 +1305,237 @@ const ProduceInfoUpdate = () => {
                       </TouchableOpacity>
                     );
                   })} */}
-                <DropdownForm
-                  label={t('addcrop_croptype')}
-                  color="black"
-                  data={livelihoodTypeData}
-                  onChange={item => HandlelivehoodType(item)}
-                  val={storeProduceInfo.livelihoodType.label}
-                />
-                <DropdownForm
-                  label={t('select_crop_name')}
-                  color="black"
-                  data={produceNameData}
-                  onChange={item => HandleproduceName(item)}
-                  val={storeProduceInfo.produceName.label}
-                />
-                <DropdownForm
-                  label={t('select_crop_variety')}
-                  color="black"
-                  data={produceVarietyData}
-                  onChange={item => {
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      produceVariety: item,
-                    });
-                  }}
-                  val={storeProduceInfo.produceVariety.label}
-                />
-                <DropdownForm
-                  label={t('production_system')}
-                  color="black"
-                  data={productionProcessData}
-                  onChange={item => {
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      productionProcess: item,
-                    });
-                  }}
-                  val={storeProduceInfo.productionProcess.label}
-                />
-                <InputTextForm
-                  label={t('expected_yield')}
-                  color="black"
-                  onChangeText={item =>
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      expectedProduction: item,
-                    })
-                  }
-                  value={storeProduceInfo.expectedProduction}
-                />
-                <DropdownForm
-                  label={t('select_unit')}
-                  color="black"
-                  data={produceProductionUnitData}
-                  onChange={item => {
-                    setstoreProduceInfo({
-                      ...storeProduceInfo,
-                      produceProductionUnit: item,
-                    });
-                  }}
-                  val={storeProduceInfo.produceProductionUnit.label}
-                />
+                    <DropdownForm
+                      label={t('addcrop_croptype')}
+                      color="black"
+                      data={livelihoodTypeData}
+                      onChange={item => HandlelivehoodType(item)}
+                      val={storeProduceInfo.livelihoodType.label}
+                    />
+                    <DropdownForm
+                      label={t('select_crop_name')}
+                      color="black"
+                      data={produceNameData}
+                      onChange={item => HandleproduceName(item)}
+                      val={storeProduceInfo.produceName.label}
+                    />
+                    <DropdownForm
+                      label={t('select_crop_variety')}
+                      color="black"
+                      data={produceVarietyData}
+                      onChange={item => {
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          produceVariety: item,
+                        });
+                      }}
+                      val={storeProduceInfo.produceVariety.label}
+                    />
+                    <DropdownForm
+                      label={t('production_system')}
+                      color="black"
+                      data={productionProcessData}
+                      onChange={item => {
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          productionProcess: item,
+                        });
+                      }}
+                      val={storeProduceInfo.productionProcess.label}
+                    />
+                    <InputTextForm
+                      label={t('expected_yield')}
+                      color="black"
+                      onChangeText={item =>
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          expectedProduction: item,
+                        })
+                      }
+                      value={storeProduceInfo.expectedProduction}
+                    />
+                    <DropdownForm
+                      label={t('select_unit')}
+                      color="black"
+                      data={produceProductionUnitData}
+                      onChange={item => {
+                        setstoreProduceInfo({
+                          ...storeProduceInfo,
+                          produceProductionUnit: item,
+                        });
+                      }}
+                      val={storeProduceInfo.produceProductionUnit.label}
+                    />
 
-                <View style={{ marginVertical: 10 }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginBottom: 5,
-                    }}>
-                    <Text
-                      style={{
-                        marginBottom: 5,
-                        marginLeft: 5,
-                        fontFamily: 'Poppins-Regular',
-                        fontSize: 15,
-                        color: '#4e4e4e',
-                      }}>
-                      Cycle Starts
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'red',
-                        fontFamily: Fonts.Medium,
-                        fontSize: 16,
-                      }}>
-                      *
-                    </Text>
-                  </View>
-                  <View style={styles.passwordMainContainer}>
-                    <View style={styles.passwordContainer}>
-                      <Text
-                        style={styles.inputTextStyle}
-                        onPress={() => setOpencycleStarts(true)}>
-                        {storeProduceInfo.cycleStarts}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => setOpencycleStarts(true)}>
-                        <ImageForm
-                          source={require('./Common/images/date.png')}
-                          resizeMode="cover"
-                          height={30}
-                          width={30}
-                        />
-                      </TouchableOpacity>
-                      <DatePicker
-                        modal
-                        mode="date"
-                        open={opencycleStarts}
-                        date={newdate}
-                        onConfirm={item => {
-                          handlecycleStart(item);
-                          setOpencycleStarts(false);
+                    <View style={{marginVertical: 10}}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginBottom: 5,
+                        }}>
+                        <Text
+                          style={{
+                            marginBottom: 5,
+                            marginLeft: 5,
+                            fontFamily: 'Poppins-Regular',
+                            fontSize: 15,
+                            color: '#4e4e4e',
+                          }}>
+                          Cycle Starts
+                        </Text>
+                        <Text
+                          style={{
+                            color: 'red',
+                            fontFamily: Fonts.Medium,
+                            fontSize: 16,
+                          }}>
+                          *
+                        </Text>
+                      </View>
+                      <View style={styles.passwordMainContainer}>
+                        <View style={styles.passwordContainer}>
+                          <Text
+                            style={styles.inputTextStyle}
+                            onPress={() => setOpencycleStarts(true)}>
+                            {storeProduceInfo.cycleStarts}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() => setOpencycleStarts(true)}>
+                            <ImageForm
+                              source={require('./Common/images/date.png')}
+                              resizeMode="cover"
+                              height={30}
+                              width={30}
+                            />
+                          </TouchableOpacity>
+                          <DatePicker
+                            modal
+                            mode="date"
+                            open={opencycleStarts}
+                            date={newdate}
+                            onConfirm={item => {
+                              handlecycleStart(item);
+                              setOpencycleStarts(false);
+                            }}
+                            onCancel={() => {
+                              setOpencycleStarts(false);
+                            }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                    <View style={{marginTop: 10}}>
+                      <DropdownForm
+                        label={t('addcrop_cultivating_season')}
+                        required={true}
+                        data={prodctionSeasionData}
+                        onChange={item => {
+                          setstoreProduceInfo({
+                            ...storeProduceInfo,
+                            prodctionSeasion: item,
+                          });
                         }}
-                        onCancel={() => {
-                          setOpencycleStarts(false);
-                        }}
+                        val={storeProduceInfo.prodctionSeasion.label}
                       />
                     </View>
-                  </View>
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  <DropdownForm
-                    label={t('addcrop_cultivating_season')}
-                    required={true}
-                    data={prodctionSeasionData}
-                    onChange={item => {
-                      setstoreProduceInfo({
-                        ...storeProduceInfo,
-                        prodctionSeasion: item,
-                      });
-                    }}
-                    val={storeProduceInfo.prodctionSeasion.label}
-                  />
-                </View>
-                <View style={{ marginVertical: 10 }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginBottom: 5,
-                    }}>
-                    <Text
-                      style={{
-                        marginBottom: 5,
-                        marginLeft: 5,
-                        fontFamily: 'Poppins-Regular',
-                        fontSize: 15,
-                        color: '#4e4e4e',
-                      }}>
-                      Cycle Ends
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'red',
-                        fontFamily: Fonts.Medium,
-                        fontSize: 16,
-                      }}>
-                      *
-                    </Text>
-                  </View>
-                  <View style={styles.passwordMainContainer}>
-                    <View style={styles.passwordContainer}>
-                      <Text
-                        style={styles.inputTextStyle}
-                        onPress={() => setOpencycleEnds(true)}>
-                        {storeProduceInfo.cycleEnds}
-                      </Text>
-                      <TouchableOpacity onPress={() => setOpencycleEnds(true)}>
-                        <ImageForm
-                          source={require('./Common/images/date.png')}
-                          resizeMode="cover"
-                          height={30}
-                          width={30}
-                        />
-                      </TouchableOpacity>
-                      <DatePicker
-                        modal
-                        mode="date"
-                        open={opencycleEnds}
-                        date={
-                          storeProduceInfo.cycleEnds == ''
-                            ? newdate
-                            : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleEnds,
-                              ).getFullYear()}-${new Date(
-                                storeProduceInfo.cycleEnds,
-                              ).getMonth() + 1
-                              }-${new Date(
-                                storeProduceInfo.cycleEnds,
-                              ).getDate() + 1
-                              }`,
-                            )
-                        }
-                        minimumDate={
-                          storeProduceInfo.cycleEnds == ''
-                            ? ''
-                            : new Date(
-                              `${new Date(
-                                storeProduceInfo.cycleEnds,
-                              ).getFullYear()}-${new Date(
-                                storeProduceInfo.cycleEnds,
-                              ).getMonth() + 1
-                              }-${new Date(
-                                storeProduceInfo.cycleEnds,
-                              ).getDate() + 1
-                              }`,
-                            )
-                        }
-                        onConfirm={item => {
-                          handlecycleEnd(item);
-                          setOpencycleEnds(false);
-                        }}
-                        onCancel={() => {
-                          setOpencycleEnds(false);
-                        }}
-                      />
+                    <View style={{marginVertical: 10}}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginBottom: 5,
+                        }}>
+                        <Text
+                          style={{
+                            marginBottom: 5,
+                            marginLeft: 5,
+                            fontFamily: 'Poppins-Regular',
+                            fontSize: 15,
+                            color: '#4e4e4e',
+                          }}>
+                          Cycle Ends
+                        </Text>
+                        <Text
+                          style={{
+                            color: 'red',
+                            fontFamily: Fonts.Medium,
+                            fontSize: 16,
+                          }}>
+                          *
+                        </Text>
+                      </View>
+                      <View style={styles.passwordMainContainer}>
+                        <View style={styles.passwordContainer}>
+                          <Text
+                            style={styles.inputTextStyle}
+                            onPress={() => setOpencycleEnds(true)}>
+                            {storeProduceInfo.cycleEnds}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() => setOpencycleEnds(true)}>
+                            <ImageForm
+                              source={require('./Common/images/date.png')}
+                              resizeMode="cover"
+                              height={30}
+                              width={30}
+                            />
+                          </TouchableOpacity>
+                          <DatePicker
+                            modal
+                            mode="date"
+                            open={opencycleEnds}
+                            date={
+                              storeProduceInfo.cycleEnds == ''
+                                ? newdate
+                                : new Date(
+                                    `${new Date(
+                                      storeProduceInfo.cycleEnds,
+                                    ).getFullYear()}-${
+                                      new Date(
+                                        storeProduceInfo.cycleEnds,
+                                      ).getMonth() + 1
+                                    }-${
+                                      new Date(
+                                        storeProduceInfo.cycleEnds,
+                                      ).getDate() + 1
+                                    }`,
+                                  )
+                            }
+                            minimumDate={
+                              storeProduceInfo.cycleEnds == ''
+                                ? ''
+                                : new Date(
+                                    `${new Date(
+                                      storeProduceInfo.cycleEnds,
+                                    ).getFullYear()}-${
+                                      new Date(
+                                        storeProduceInfo.cycleEnds,
+                                      ).getMonth() + 1
+                                    }-${
+                                      new Date(
+                                        storeProduceInfo.cycleEnds,
+                                      ).getDate() + 1
+                                    }`,
+                                  )
+                            }
+                            onConfirm={item => {
+                              handlecycleEnd(item);
+                              setOpencycleEnds(false);
+                            }}
+                            onCancel={() => {
+                              setOpencycleEnds(false);
+                            }}
+                          />
+                        </View>
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
-          </View>
-        </ScrollView>
+            </ScrollView>
 
-        {/* <TouchableOpacity
+            {/* <TouchableOpacity
         style={styles.locationAddMoreContainer}
         onPress={() => addMoreLocation()}>
         <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
@@ -1504,16 +1543,16 @@ const ProduceInfoUpdate = () => {
         </Text>
       </TouchableOpacity> */}
 
-        <FloatingActionButton
-          position="right"
-          actions={getActionsMapView(t, styles, Colors)}
-          color={Colors.useGreen}
-          onPressItem={() => setShowModal(!showModal)}
-          showBackground={true}
-          overlayColor="rgba(22, 17, 17, 0.35)"
-          distanceToEdge={{ vertical: 80, horizontal: 25 }}
-        />
-        {/* <TouchableOpacity
+            <FloatingActionButton
+              position="right"
+              actions={getActionsMapView(t, styles, Colors)}
+              color={Colors.useGreen}
+              onPressItem={() => setShowModal(!showModal)}
+              showBackground={true}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{vertical: 80, horizontal: 25}}
+            />
+            {/* <TouchableOpacity
           style={[styles.locationAddMoreContainer, {bottom: 250}]}
           onPress={() => setShowModal(!showModal)}>
           <Text style={[styles.title, {color: '#FFF', marginRight: 20}]}>
@@ -1521,47 +1560,49 @@ const ProduceInfoUpdate = () => {
           </Text>
         </TouchableOpacity> */}
 
-        <ButtonForm
-          label={t('save')}
-          onPress={() => handleSave('SignUpViwer')}
-          loading={isLoading}
-          iconName="check-circle"
-          iconColor="#fff"
-          iconSize={25}
-        />
-      </View>
-      {showModal && (
-        <Modal
-          animationIn="slideInLeft"
-          animationOut="slideOutRight"
-          animationInTiming={500}
-          animationOutTiming={750}
-          isVisible={showModal}
-          useNativeDriver={true}
-          onBackButtonPress={() => {
-            setShowModal(!showModal);
-          }}>
-          <Map
-            polygons={polygons}
-            newPolygon={newPolygon}
-            setEditing={setEditing}
-            editing={editing}
-            handleMapPress={handleMapPress}
-            finalizePolygon={finalizePolygon}
-            clearNewPolygon={clearNewPolygon}
-            setShowModal={setShowModal}
-            undoMark={undoMark}
-            landAreaUnit={landAreaUnit}
-            landUnitsquareMetre={landUnitsquareMetre}
-            area={area}
-            //basudev
-            location={location}
-            handleRegionChangeComplete={handleRegionChangeComplete}
-            isLoading={isLoading}
-          />
-        </Modal>
-      )}
-    </Root>
+            <ButtonForm
+              label={t('save')}
+              onPress={() => handleSave('SignUpViwer')}
+              loading={isLoading}
+              iconName="check-circle"
+              iconColor="#fff"
+              iconSize={25}
+            />
+          </View>
+          {showModal && (
+            <Modal
+              animationIn="slideInLeft"
+              animationOut="slideOutRight"
+              animationInTiming={500}
+              animationOutTiming={750}
+              isVisible={showModal}
+              useNativeDriver={true}
+              onBackButtonPress={() => {
+                setShowModal(!showModal);
+              }}>
+              <Map
+                polygons={polygons}
+                newPolygon={newPolygon}
+                setEditing={setEditing}
+                editing={editing}
+                handleMapPress={handleMapPress}
+                finalizePolygon={finalizePolygon}
+                clearNewPolygon={clearNewPolygon}
+                setShowModal={setShowModal}
+                undoMark={undoMark}
+                landAreaUnit={landAreaUnit}
+                landUnitsquareMetre={landUnitsquareMetre}
+                area={area}
+                //basudev
+                location={location}
+                handleRegionChangeComplete={handleRegionChangeComplete}
+                isLoading={isLoading}
+              />
+            </Modal>
+          )}
+        </Root>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
@@ -1581,7 +1622,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-SemiBold',
   },
-  mainContainer: { flex: 1, backgroundColor: 'white' },
+  mainContainer: {flex: 1, backgroundColor: 'white'},
 
   formContainer: {
     // backgroundColor: Colors.background, // marginTop: 30,

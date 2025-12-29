@@ -3027,6 +3027,7 @@ export const plotListApproval = async (dbname, lan_id, token, farmerID) => {
     //  console.log("plot112",(response));
     return response;
   } catch (error) {
+    console.log('api error -', error);
     CrashlyticsRecordError(error.response);
     return console.log(error.response);
   }

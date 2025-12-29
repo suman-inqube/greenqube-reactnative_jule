@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach to Hermes application - Android",
+      "name": "Debug Android (Infinix)",
       "type": "reactnativedirect",
-      "request": "attach",
+      "request": "launch",
+      "platform": "android",
       "cwd": "${workspaceFolder}",
-      "port": 8081,
       "sourceMaps": true
     }
   ]

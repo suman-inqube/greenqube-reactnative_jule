@@ -10,8 +10,8 @@ const commonAxios = async () => {
   const {ConfigModule} = NativeModules;
 
   try {
-    // const baseURL = 'http://134.209.155.11:4003/';
-    const baseURL = 'https://mygreenqube.com:4003/';
+    const baseURL = 'http://134.209.155.11:4003/';
+    // const baseURL = "https://mygreenqube.com:4003/";
 
     const encKey = 'greenQube_96740_64428';
 
