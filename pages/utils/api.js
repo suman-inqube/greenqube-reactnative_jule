@@ -22,8 +22,8 @@ const STORAGE_KEYS = [
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 3000;
 const instance = axios.create({
-  // baseURL: 'https://mygreenqube.com:4003/',
-  baseURL: 'http://134.209.155.11:4003/',
+   baseURL: 'https://mygreenqube.com:4003/',
+  // baseURL: 'http://134.209.155.11:4003/',
   timeout: 10000,
 });
 instance.interceptors.request.use(config => {
@@ -171,7 +171,7 @@ export const axiosGet = async (
   extraHeaders = {},
   abortController = null,
 ) => {
-  // console.log("url", url)
+   console.log("url", url)
   if (!(await isInternetAvailable()))
     return Promise.reject({ status: 0, data: { message: 'No internet' } });
   const controller = abortController || new AbortController();

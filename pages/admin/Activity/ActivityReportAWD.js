@@ -1498,7 +1498,6 @@ const ActivityReportAWD = ({ navigation }) => {
   const handleActivityType = useCallback(
     async item => {
       try {
-        aaaa
         let dataArray = [];
         var response;
         if (isOnline) {

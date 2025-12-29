@@ -327,7 +327,11 @@ const ActivityReport = ({navigation}) => {
         //   '',
         //   {information: `${dbname},${lan_id},${currentfarmerId}`},
         // );
-        var activityType_res = activityTypeAPI(dbname, lan_id, currentfarmerId);
+        var activityType_res = await activityTypeAPI(
+          dbname,
+          lan_id,
+          currentfarmerId,
+        );
         await setItem('activityType' + currentfarmerId, activityType_res);
       } else {
         var activityType_res = await getItem('activityType' + currentfarmerId);
