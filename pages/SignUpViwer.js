@@ -308,8 +308,12 @@ const SignUpViwer = () => {
           });
         });
       }
-      console.log(formData);
+      console.log('data', formData);
       if (netConnection) {
+        console.log(
+          'save',
+          signupSaveAPI(formData, dbname, language, landProofData.length),
+        );
         const database_res = await signupSaveAPI(
           formData,
           dbname,

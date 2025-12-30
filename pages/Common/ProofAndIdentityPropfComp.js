@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, {memo, useCallback, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,16 +7,17 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
 // import DocumentPicker, { types } from '@react-native-documents/picker';
-import DocumentPicker, { types,pick } from '@react-native-documents/picker';
-import { createPdf } from 'react-native-images-to-pdf';
+import DocumentPicker, {types, pick} from '@react-native-documents/picker';
+import {createPdf} from 'react-native-images-to-pdf';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import LoadingScreen from './LoadingScreen';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const PDF_SIZE_LIMIT = 3;
 const ProofAndIdentityPropfComp = ({
   stateValue,
@@ -27,6 +28,7 @@ const ProofAndIdentityPropfComp = ({
   marginBottom = 0,
   status_level,
   InputTextFormEdit,
+  allowAddMore,
 }) => {
   const [loading, setLoading] = useState(false);
   const logFileSize = async (uri, label = '') => {
@@ -35,12 +37,17 @@ const ProofAndIdentityPropfComp = ({
       const stat = await RNFS.stat(path);
       const sizeInMB = (stat.size / (1024 * 1024)).toFixed(2);
       console.log(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`);
-      alert(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`)
+      alert(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`);
     } catch (err) {
       console.warn(`Could not get file size for ${label}:`, err.message);
     }
   };
-  const resizeImage = async (uri, width = 1200, height = 1600, quality = 85) => {
+  const resizeImage = async (
+    uri,
+    width = 1200,
+    height = 1600,
+    quality = 85,
+  ) => {
     try {
       const resized = await ImageResizer.createResizedImage(
         uri,
@@ -88,7 +95,7 @@ const ProofAndIdentityPropfComp = ({
         };
         setStateValue(values);
       } catch (err) {
-        console.error(err)
+        console.error(err);
         if (!DocumentPicker.isCancel(err)) {
           console.error('Document selection error:', err);
         }
@@ -113,7 +120,7 @@ const ProofAndIdentityPropfComp = ({
         'Confirm Deletion',
         'Are you sure you want to delete this document?',
         [
-          { text: 'Cancel', style: 'cancel' },
+          {text: 'Cancel', style: 'cancel'},
           {
             text: 'Delete',
             style: 'destructive',
@@ -147,7 +154,7 @@ const ProofAndIdentityPropfComp = ({
     const fileName = `document_${Date.now()}_compressed.pdf`;
     const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
     return await createPdf({
-      pages: resized.map(uri => ({ imagePath: uri })),
+      pages: resized.map(uri => ({imagePath: uri})),
       outputPath,
     });
   };
@@ -155,12 +162,12 @@ const ProofAndIdentityPropfComp = ({
     async (imageType, index) => {
       setLoading(true);
       try {
-        const { scannedImages, status } = await DocumentScanner.scanDocument({
-           letUserAdjustCrop: false,
-        maxNumDocuments: 1,
-        noAutoEnhance: false,
-        croppedImageQuality: 0.9,   // control quality
-        croppedImageMaxSize: 1600,  // limit size
+        const {scannedImages, status} = await DocumentScanner.scanDocument({
+          letUserAdjustCrop: false,
+          maxNumDocuments: 1,
+          noAutoEnhance: false,
+          croppedImageQuality: 0.9, // control quality
+          croppedImageMaxSize: 1600, // limit size
         });
         if (status !== 'success' || !scannedImages?.length) return;
         const resized = await Promise.all(
@@ -169,7 +176,7 @@ const ProofAndIdentityPropfComp = ({
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
         let pdfPath = await createPdf({
-          pages: resized.map(uri => ({ imagePath: uri })),
+          pages: resized.map(uri => ({imagePath: uri})),
           outputPath,
         });
         pdfPath = await compressIfNeeded(pdfPath, scannedImages);
@@ -193,6 +200,20 @@ const ProofAndIdentityPropfComp = ({
     },
     [stateValue, photoDeletedValue],
   );
+
+  const addMoreImageBox = () => {
+    setStateValue(prev => [
+      ...prev,
+      {
+        uri: '',
+        name: '',
+        type: '',
+        fileName: '',
+        id: '',
+      },
+    ]);
+  };
+
   const openFile = async uri => {
     try {
       await FileViewer.open(uri);
@@ -206,7 +227,7 @@ const ProofAndIdentityPropfComp = ({
     try {
       const exists = await RNFS.exists(filePath);
       if (exists) return FileViewer.open(filePath);
-      const dl = await RNFS.downloadFile({ fromUrl: fileUrl, toFile: filePath })
+      const dl = await RNFS.downloadFile({fromUrl: fileUrl, toFile: filePath})
         .promise;
       if (dl.statusCode === 200) {
         await FileViewer.open(filePath);
@@ -217,7 +238,7 @@ const ProofAndIdentityPropfComp = ({
       Alert.alert('File error', err.message);
     }
   };
-  const ActionSheet = ({ data, index, spSheet }) => {
+  const ActionSheet = ({data, index, spSheet}) => {
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
       if (!fileUrl) return;
@@ -261,7 +282,7 @@ const ProofAndIdentityPropfComp = ({
   };
   return (
     <View style={styles.idContainer}>
-      <Text style={[styles.title, { fontSize: 14, marginBottom: 10 }]}>
+      <Text style={[styles.title, {fontSize: 14, marginBottom: 10}]}>
         {title}
       </Text>
       {loading && (
@@ -285,31 +306,48 @@ const ProofAndIdentityPropfComp = ({
                 height: 230,
               })
             }>
-            <View style={{ borderWidth: 1, borderColor: '#FFF' }}>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: '#c6c6c68b',
+                borderStyle: 'dotted',
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignSelf: 'center',
+                borderRadius: 8,
+                marginTop: 5,
+                backgroundColor: '#ffffffff',
+              }}>
               <Text style={styles.itemLabel} numberOfLines={1}>
                 {data?.imageType === 'address'
                   ? 'Address Proof'
                   : data?.imageType === 'identity'
-                    ? 'Identity Proof'
-                    : ''}
+                  ? 'Identity Proof'
+                  : ''}
               </Text>
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
 
-              {data?.uri ? (
-                data?.type === 'application/pdf' ? (
-                  <Image
-                    source={require('./images/pdf.png')}
-                    style={styles.idImage}
-                  />
+                  marginHorizontal: 5,
+                }}>
+                {data?.uri ? (
+                  data?.type === 'application/pdf' ? (
+                    <Image
+                      source={require('./images/pdf1.png')}
+                      style={styles.idImage}
+                    />
+                  ) : (
+                    <Image source={{uri: data.uri}} style={styles.idImage} />
+                  )
                 ) : (
-                  <Image source={{ uri: data.uri }} style={styles.idImage} />
-                )
-              ) : (
-                <Image
-                  source={require('./images/document.png')}
-                  style={styles.idImage}
-                />
-              )}
-
+                  <Image
+                    source={require('./images/upload-file.png')}
+                    style={styles.idImageUp}
+                  />
+                )}
+              </View>
               {data?.uri &&
                 !['address', 'identity'].includes(data?.imageType) &&
                 status_level !== 'APPROVED' && (
@@ -318,10 +356,12 @@ const ProofAndIdentityPropfComp = ({
                       onHandleDocumentSelectionRemove(index, status_level)
                     }
                     style={styles.deleteIcon}>
-                    <Image
-                      source={require('./images/cross50.png')}
-                      style={{ width: 20, height: 20 }}
-                    />
+                    <View style={{marginTop: 15}}>
+                      {/* Replace the Image with Material Icon in red circle */}
+                      <View style={styles.deleteIconContainer}>
+                        <MaterialIcons name="close" size={15} color="#FFFFFF" />
+                      </View>
+                    </View>
                   </TouchableOpacity>
                 )}
             </View>
@@ -330,11 +370,24 @@ const ProofAndIdentityPropfComp = ({
             </Text>
           </TouchableOpacity>
         ))}
+        {allowAddMore && (
+          <TouchableOpacity
+            style={styles.addButtonWrapper}
+            onPress={addMoreImageBox}
+            activeOpacity={0.8}>
+            <View style={styles.buttonBackground}>
+              <View style={styles.greenCircle}>
+                <Text style={styles.plusIcon}>＋</Text>
+              </View>
+              <Text style={styles.buttonLabel}>Add more</Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
 };
-const ActionButton = ({ label, icon, onPress }) => (
+const ActionButton = ({label, icon, onPress}) => (
   <TouchableOpacity style={styles.actionButton} onPress={onPress}>
     <Image source={icon} style={styles.actionIcon} />
     <Text numberOfLines={1} style={styles.title}>
@@ -353,34 +406,84 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderStyle: 'dotted',
   },
-  idItemContainer: { flexDirection: 'row', flexWrap: 'wrap' },
+  idItemContainer: {flexDirection: 'row', flexWrap: 'wrap'},
   idItem: {
     width: '30%',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
     height: 100,
+    marginTop: 10,
   },
-  idImage: { width: 60, height: 60, borderRadius: 5 },
-  itemLabel: { fontSize: 12, color: '#000', textAlign: 'center' },
-  fileName: { fontSize: 12, color: '#000', marginTop: 4 },
-  deleteIcon: { position: 'absolute', top: -10, right: -5 },
-  title: { color: '#000', fontFamily: Fonts.Regular },
+  addButtonWrapper: {
+    width: '30%',
+
+    padding: 10,
+  },
+  buttonBackground: {
+    flex: 1,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+  },
+  greenCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 22,
+    backgroundColor: Colors.useGreen,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  plusIcon: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: '500',
+  },
+  buttonLabel: {
+    fontSize: 11,
+    color: '#666',
+    fontFamily: Fonts.Regular,
+    textAlign: 'center',
+  },
+  idImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    marginBottom: 15,
+  },
+  idImageUp: {
+    width: 50,
+    height: 50,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    marginBottom: 15,
+  },
+  itemLabel: {fontSize: 12, color: '#605f5fff', textAlign: 'center', margin: 5},
+  fileName: {fontSize: 12, color: '#4c4a4aff', marginTop: 4},
+  deleteIcon: {position: 'absolute', top: -10, right: -5},
+  title: {color: '#000', fontFamily: Fonts.Regular},
   loaderBackdrop: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   },
-  loaderContainer: { backgroundColor: '#FFF', padding: 15, alignItems: 'center' },
-  loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
+  loaderContainer: {backgroundColor: '#FFF', padding: 15, alignItems: 'center'},
+  loaderText: {marginTop: 10, fontSize: 14, color: '#333'},
   sheetTitle: {
     textAlign: 'center',
     fontSize: 18,
     fontFamily: Fonts.SemiBold,
     marginBottom: 10,
   },
-  sheetRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  sheetRow: {flexDirection: 'row', justifyContent: 'space-around'},
   actionButton: {
     backgroundColor: '#DFE8EF',
     width: 70,
@@ -389,5 +492,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionIcon: { width: 30, height: 30 },
+  actionIcon: {width: 30, height: 30},
+  deleteIconContainer: {
+    width: 20,
+    height: 20,
+    borderRadius: 11,
+    backgroundColor: '#FF5252', // Bright red
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    zIndex: 10,
+  },
 });

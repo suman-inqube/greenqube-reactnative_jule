@@ -147,12 +147,19 @@ const PlotStatusUpdate = () => {
     ConvertedreportedLandsize: 0,
     crop_cycl_start_date: '',
   });
+  const emptyLandDoc = () => ({
+    uri: '',
+    name: '',
+    type: '',
+    fileName: '',
+    id: '',
+  });
   const [addressProof, setAddressProof] = useState([
-    {uri: '', name: '', type: '', fileName: '', id: ''},
-    {uri: '', name: '', type: '', fileName: '', id: ''},
-    {uri: '', name: '', type: '', fileName: '', id: ''},
-    {uri: '', name: '', type: '', fileName: '', id: ''},
-    {uri: '', name: '', type: '', fileName: '', id: ''},
+    emptyLandDoc(),
+    emptyLandDoc(),
+    emptyLandDoc(),
+    emptyLandDoc(),
+    emptyLandDoc(),
   ]);
   const [photoDeletedValue, setPhotoDeletedValue] = useState([]);
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
@@ -498,7 +505,7 @@ const PlotStatusUpdate = () => {
       // console.log('getPlotDoc', getPlotDoc?.data?.data?.rows[0]);
       const {count} = getPlotDoc?.data?.data;
       const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
-      const values = [...addressProof];
+      // const values = [...addressProof];
       const carbonCertificateValues = [...carboncertificate];
       const filteredPlotImages = plot_img.filter(
         item => item.term_type === 'plot_image',
@@ -524,19 +531,42 @@ const PlotStatusUpdate = () => {
           id: filteredSignature[filteredSignature.length - 1]?.file_id,
         });
       }
-      addressProof.map((_data, _index) => {
-        if (filteredPlotImages[_index] !== undefined && count > 0) {
-          values[_index] = {
-            uri: filteredPlotImages[_index]?.file_path,
-            name: filteredPlotImages[_index]?.file_name,
-            type: filteredPlotImages[_index]?.file_ext,
-            fileName: filteredPlotImages[_index]?.file_name,
-            id: filteredPlotImages[_index]?.file_id,
-          };
-        } else {
-          values[_index] = {uri: '', name: '', type: '', fileName: '', id: ''};
+      // addressProof.map((_data, _index) => {
+      //   if (filteredPlotImages[_index] !== undefined && count > 0) {
+      //     values[_index] = {
+      //       uri: filteredPlotImages[_index]?.file_path,
+      //       name: filteredPlotImages[_index]?.file_name,
+      //       type: filteredPlotImages[_index]?.file_ext,
+      //       fileName: filteredPlotImages[_index]?.file_name,
+      //       id: filteredPlotImages[_index]?.file_id,
+      //     };
+      //   } else {
+      //     values[_index] = {uri: '', name: '', type: '', fileName: '', id: ''};
+      //   }
+      // });
+      const plotImagesFromApi = filteredPlotImages.map(item => ({
+        uri: item.file_path,
+        name: item.file_name,
+        type: item.file_ext,
+        fileName: item.file_name,
+        id: item.file_id,
+      }));
+
+      const MIN_BOX = 5;
+
+      if (plotImagesFromApi.length < MIN_BOX) {
+        const emptyCount = MIN_BOX - plotImagesFromApi.length;
+        for (let i = 0; i < emptyCount; i++) {
+          plotImagesFromApi.push({
+            uri: '',
+            name: '',
+            type: '',
+            fileName: '',
+            id: '',
+          });
         }
-      });
+      }
+
       carboncertificate.map((_data, _index) => {
         if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
           carbonCertificateValues[_index] = {
@@ -563,7 +593,7 @@ const PlotStatusUpdate = () => {
         }
       });
       setCarboncertificate(carbonCertificateValues);
-      setAddressProof(values);
+      setAddressProof(plotImagesFromApi);
       setIdentityProofIdentityPropf([
         {
           uri: filterLandUserImgsAddress?.[0]?.file_path || '',
@@ -2216,6 +2246,7 @@ const PlotStatusUpdate = () => {
                       : true
                   }
                   InputTextFormEdit={InputTextFormEdit}
+                  allowAddMore={true}
                 />
                 <View style={{marginTop: 15}}>
                   <ProofAndIdentityPropfComp

@@ -689,7 +689,28 @@ const ProduceInfoUpdate = () => {
     setdbName(dbName);
     setlanID(languageID);
     allAPIHere(dbName, languageID);
-    setLandProof(storeProduceInfo_data?.[arrayIndex]?.landProof);
+    const MIN_LAND_DOC = 5;
+
+    const emptyLandDoc = () => ({
+      uri: '',
+      name: '',
+      type: '',
+      fileName: '',
+      id: '',
+    });
+
+    const apiDocs = storeProduceInfo_data?.[arrayIndex]?.landProof || [];
+
+    let updatedDocs = [...apiDocs];
+
+    if (updatedDocs.length < MIN_LAND_DOC) {
+      const emptyCount = MIN_LAND_DOC - updatedDocs.length;
+      for (let i = 0; i < emptyCount; i++) {
+        updatedDocs.push(emptyLandDoc());
+      }
+    }
+
+    setLandProof(updatedDocs);
     let produceVarietyArray = [];
     if (produceVariety) {
       produceVariety.crop_variety.forEach(element => {
@@ -1243,6 +1264,7 @@ const ProduceInfoUpdate = () => {
                       stateValue={landProof}
                       disable={true}
                       InputTextFormEdit={true}
+                      allowAddMore={true}
                       // photoDeletedValue={photoDeletedValue}
                       // setPhotoDeletedValue={setPhotoDeletedValue}
                       // loginUser_data={loginUser_data}
