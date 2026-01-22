@@ -370,6 +370,7 @@ const LiveHood = ({
 
         productionProcessAPI(dbname, lan_id),
       ]);
+      console.log('nearestLatLong_res', nearestLatLong_res);
       if (nearestLatLong_res?.status === 200) {
         const {data} = nearestLatLong_res.data;
         if (data?.length > 0) {
@@ -410,6 +411,9 @@ const LiveHood = ({
       });
       console.error(error);
       CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
+    } finally {
+      // 🔒 Guaranteed loader cleanup
+      setIsLoading(false);
     }
   }, [coords]);
 
@@ -649,6 +653,7 @@ const LiveHood = ({
               } else {
                 setArea(data.land_info?.google_area);
               }
+              console.log('abc', data?.season_date_fid);
               setFarmerData(prev => ({
                 ...prev,
                 createdBy: user_id,
@@ -825,6 +830,7 @@ const LiveHood = ({
             }));
           setLivelihoodType(livelihoodTypeArr);
         }
+        console.log('getSeasonDateRes', getSeasonDateRes);
         if (getSeasonDateRes?.status == 200) {
           const getSeasonDateResArr = getSeasonDateRes?.data?.data?.rows?.map(
             data => ({
@@ -1619,6 +1625,11 @@ const LiveHood = ({
             device_lat: farmerData.IOTLatlat,
             device_long: farmerData.IOTLatLong,
           };
+          console.log('dataToSend', dataToSend);
+          console.log('dataToSend', dataToSend.season_date_fid);
+
+          console.log('dataToSend', dataToSend.crop_season_id);
+
           if (cusCropCyclStartDate) {
             dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
           }
@@ -1705,6 +1716,7 @@ const LiveHood = ({
               token,
               formdatauploadFarmerIdAdd,
             );
+            console.log('resOocUpdate', resOocUpdate?.status);
             if (resOocUpdate?.status != 200) {
               Toast.show({
                 text: resOocUpdate?.data?.error?.errorMessage,
@@ -1757,13 +1769,18 @@ const LiveHood = ({
         }
       }
     } catch (error) {
+      setIsLoading(false);
+
       Toast.show({
         text: `${error?.data?.error?.errorMessage}`,
         // text: errorMessage,
         ...AlertMesg[0],
       });
-      setIsLoading(false);
+
       console.error(error);
+    } finally {
+      // 🔒 Guaranteed loader cleanup
+      setIsLoading(false);
     }
   }, [
     farmerData,
@@ -2610,6 +2627,7 @@ const LiveHood = ({
                   required={true}
                   value={farmerData.land_size}
                   onChangeText={handleAddUserDataland_size}
+                  keyboardType="number-pad"
                   // editable={InputTextFormEdit}
                   editable={
                     statuslevel.label == 'APPROVED' ||

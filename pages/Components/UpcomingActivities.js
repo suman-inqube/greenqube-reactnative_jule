@@ -120,7 +120,13 @@ const UpcomingActivities = ({
       <View style={styles.activityItem}>
         <View style={styles.activityIndicator} />
         <View style={styles.activityDetails}>
-          <Text style={styles.activityTitle}> {item.activityName}</Text>
+          <Text
+            style={styles.activityTitle}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {' '}
+            {item.activityName}
+          </Text>
 
           {/* <View style={styles.activityMeta}> */}
           <View style={styles.nameRow}>
@@ -152,7 +158,7 @@ const UpcomingActivities = ({
   );
   // const currentActivities =
   //   activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
-  console.log(uiState)
+  console.log(uiState);
   return (
     <ScrollView>
       <View style={styles.mainProfileContainer}>

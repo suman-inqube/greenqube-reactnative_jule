@@ -151,6 +151,7 @@ const Login = ({route}) => {
       getItem('fcmToken'),
       getItem('rememberData'),
     ]);
+    console.log('storeLoginUser.company', storeLoginUser.company);
     if (validateForm()) {
       const inputdata = {
         FcmUserToken: fcmToken_res,
@@ -169,6 +170,7 @@ const Login = ({route}) => {
           false,
           {},
         );
+        console.log('userIno', userIno);
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,
@@ -188,12 +190,20 @@ const Login = ({route}) => {
             user_id,
             token,
           } = loginUserdata;
-          const details_company_res = await DetailsCompany(
+          const details_company_res = await // axiosGet(
+          //   ROUTES.GET.DETAILS_COMPANY({
+          //     db_company_id: loginUserdata?.db_company_id,
+          //   }),
+          //   '',
+          //   {information: `${loginUserdata?.dbname},${1}`},
+          // );
+
+          DetailsCompany(
             loginUserdata?.dbname,
             1,
             loginUserdata?.db_company_id,
           );
-
+          console.log('details_company_res', details_company_res);
           if (details_company_res?.status == 200) {
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
@@ -367,6 +377,7 @@ const Login = ({route}) => {
           console.log(userIno);
         }
       } catch (error) {
+        console.log('eee', error);
         let errorMessage = 'Invalid login details. Please try again.';
         Toast.show({
           text: `${error?.data?.error?.errorMessage}`,
@@ -401,6 +412,14 @@ const Login = ({route}) => {
       setCompanyLanguage(companyLanguage_data);
       const {country_id, company, language} = companyLanguage_data;
       checkPhoneNumber(country_id, company, language);
+      console.log(
+        ' companyLanguage_data.company_id',
+        companyLanguage_data.company_id,
+      );
+      console.log(
+        ' companyLanguage_data.company_name',
+        companyLanguage_data.company_name,
+      );
       if (companyFirstEntry == 1) {
         setStoreLoginUser({
           ...storeLoginUser,
@@ -439,6 +458,7 @@ const Login = ({route}) => {
         }
       }
     }
+    console.log('company_res', company_res);
     if (company_res.status == 200) {
       let companyArray = [];
       company_res?.data?.data?.map((data, index) => {

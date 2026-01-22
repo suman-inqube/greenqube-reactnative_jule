@@ -1578,7 +1578,7 @@ export const signupSaveAPI = async (
   } catch (error) {
     // CrashlyticsRecordError(error.response);
     // console.log(error.response);
-    // console.log(error);
+    console.log(error);
     // console.log(error?.response?.data);
     return error.response;
   }
@@ -2630,6 +2630,7 @@ export const DetailsCompany = async (dbName, lan_id, db_company_id) => {
       information: `${dbName},${lan_id}`,
     },
   };
+  console.log('config.BASE_URL', config.BASE_URL);
   try {
     let response = await axios.get(
       `${config.BASE_URL}locationRoute/detailsCompany/${db_company_id}`,
@@ -3491,7 +3492,7 @@ export const uploadFarmerIdAdd = async (
 
     return response;
   } catch (error) {
-    console.log('error11=', error.response);
+    console.log('error11=', error);
     return error.response;
   }
 };

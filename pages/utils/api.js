@@ -187,6 +187,11 @@ export const axiosGet = async (
       signal: controller.signal,
     });
   } catch (error) {
+    console.log('url', url);
+    console.log('h', {
+      headers: {...(token && {Authorization: token}), ...extraHeaders},
+      signal: controller.signal,
+    });
     // Alert.alert(error.message)
     const cleanError = await handleError(error);
     throw cleanError;
@@ -218,6 +223,7 @@ export const axiosPost = async (
       signal: controller.signal,
     });
   } catch (error) {
+    console.log('URL-', url);
     console.error('axiosPost error:', error);
     const cleanError = await handleError(error);
     throw cleanError;

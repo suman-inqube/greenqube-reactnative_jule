@@ -2185,6 +2185,7 @@ const PlotStatusUpdate = () => {
                           ? false
                           : true
                       }
+                      keyboardType="number-pad"
                     />
                   </View>
                   <View style={{width: '45%'}}>

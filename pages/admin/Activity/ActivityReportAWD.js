@@ -615,6 +615,8 @@ const ActivityReportAWD = ({navigation}) => {
                 }));
               setProductionStageAll(dataArray);
             }
+
+            console.log('AWD_ACTIVITY', activitySchedule);
             if (activitySchedule.status == 200) {
               setIsLoading(false);
               if (

@@ -315,8 +315,10 @@ const ProofAndIdentityPropfComp = ({
                 alignItems: 'center',
                 alignSelf: 'center',
                 borderRadius: 8,
-                marginTop: 5,
+                marginTop: 15,
                 backgroundColor: '#ffffffff',
+                width: '80%',
+                padding: 20,
               }}>
               <Text style={styles.itemLabel} numberOfLines={1}>
                 {data?.imageType === 'address'
@@ -365,9 +367,11 @@ const ProofAndIdentityPropfComp = ({
                   </TouchableOpacity>
                 )}
             </View>
-            <Text style={styles.fileName} numberOfLines={1}>
-              {data?.name || data.file_name}
-            </Text>
+            <View style={{marginBottom: 10}}>
+              <Text style={styles.fileName} numberOfLines={1}>
+                {data?.name || data.file_name}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
         {allowAddMore && (
@@ -406,14 +410,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderStyle: 'dotted',
   },
-  idItemContainer: {flexDirection: 'row', flexWrap: 'wrap'},
+  idItemContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    // backgroundColor: 'black',
+    // alignItems: 'center',
+    justifyContent: 'center',
+  },
   idItem: {
     width: '30%',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
     height: 100,
-    marginTop: 10,
+    marginBottom: 15,
+    // backgroundColor: 'red',
   },
   addButtonWrapper: {
     width: '30%',

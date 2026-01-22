@@ -181,6 +181,7 @@ function ActivityList({navigation}) {
                   ? carbonType.value
                   : carbonTypeParams,
               userID: '',
+              agent_id: user_id,
               search_key:
                 search_key_type && search_key_type !== 'carbon'
                   ? search_key_val
@@ -198,6 +199,7 @@ function ActivityList({navigation}) {
             token,
             {information: `${dbname},${lan_id},${user_id}`},
           );
+          console.log('response', response);
           if (response?.status == 200) {
             await setItem('activityList', response);
           }

@@ -389,7 +389,16 @@ const FarmerLiveHood = ({
       }
       setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
+      Toast.show({
+        text: JSON.stringify(error),
+        ...AlertMesg[0],
+      });
+      console.error(error);
       CrashlyticsRecordError(error.response);
+    } finally {
+      // 🔒 Guaranteed loader cleanup
+      setIsLoading(false);
     }
   };
   const handleBackPress = () => {
@@ -1257,6 +1266,10 @@ const FarmerLiveHood = ({
         text: error,
         ...AlertMesg[0],
       });
+      setIsLoading(false);
+    } finally {
+      // 🔒 Guaranteed loader cleanup
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -2251,6 +2264,7 @@ const FarmerLiveHood = ({
                     ? false
                     : true
                 }
+                keyboardType="number-pad"
               />
             </View>
             <View style={{width: '45%'}}>

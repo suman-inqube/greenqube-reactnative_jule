@@ -1127,6 +1127,7 @@ const ProduceInfoUpdate = () => {
                         })
                       }
                       value={storeProduceInfo.plotSize}
+                      keyboardType="number-pad"
                     />
                     <DropdownForm
                       label={t('addland_unit')}

@@ -71,6 +71,8 @@ const PlotList = () => {
       if (unitSqRes?.status === 200)
         setLandUnitsquareMetre(unitSqRes?.data?.data?.rows || []);
     } catch (err) {
+      setIsLoading(false);
+
       console.error(err);
     } finally {
       setIsLoading(false);

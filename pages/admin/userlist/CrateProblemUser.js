@@ -235,7 +235,6 @@ const CrateProblemUser = ({navigation}) => {
         //   response?.data?.data?.crop_name_id,
         // );
 
-
         if (productionStage_res) {
           const dataArray = [];
           productionStage_res.data.data.growth_stage.forEach(element => {
@@ -467,7 +466,7 @@ const CrateProblemUser = ({navigation}) => {
         }));
         setProblemTypeAll(dataArray);
       }
-  
+
       if (severity_res?.status == 200) {
         const dataArray = severity_res?.data?.data?.rows.map(element => ({
           value: element.fid,
@@ -484,6 +483,8 @@ const CrateProblemUser = ({navigation}) => {
         setFarmerData(dataArray);
       }
     } catch (error) {
+      setIsLoading(false);
+
       console.log(error);
     }
     setIsLoading(false);

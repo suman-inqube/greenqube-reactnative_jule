@@ -6,6 +6,7 @@ import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {useNavigation} from '@react-navigation/native';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import TabBar from '../../Components/TabBar';
 
 const {width} = Dimensions.get('window');
 
@@ -26,42 +27,48 @@ const FarmerPendingActivity = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [activeTab, setActiveTab] = useState('carbon');
 
   // Fetch activity schedule data
-  useEffect(() => {
-    const fetchActivitySchedule = async () => {
-      if (!token || !user_id) return;
 
-      setLoading(true);
-      try {
-        const response = await axiosGet(
-          ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-            type: 'carbon_activity',
-            farmer_id: user_id,
-          }),
-          token,
-          {
-            information: `${dbname},${lan_id},${user_id}`,
-          },
-        );
+  const onPageLoad = async () => {
+    if (!token || !user_id) return;
 
-        if (response?.status === 200) {
-          // Use the correct data structure from API response
-          const data = response?.data?.data?.data || [];
-          setActivityList(Array.isArray(data) ? data : []);
+    setLoading(true);
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+          type: activeTab === 'carbon' ? 'carbon_activity' : 'user_activity',
+          farmer_id: user_id,
+        }),
+        token,
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+        },
+      );
 
-          // If your API supports pagination, set total pages
-          // setTotalPages(Math.ceil(response?.data?.count / 20));
-        }
-      } catch (error) {
-        console.error('Error fetching activity schedule:', error);
-      } finally {
-        setLoading(false);
+      if (response?.status === 200) {
+        // Use the correct data structure from API response
+        const data = response?.data?.data?.data || [];
+        setActivityList(Array.isArray(data) ? data : []);
+
+        // If your API supports pagination, set total pages
+        // setTotalPages(Math.ceil(response?.data?.count / 20));
+      } else {
+        setActivityList([]);
       }
-    };
-
-    fetchActivitySchedule();
-  }, [token, dbname, lan_id, user_id, page]);
+    } catch (error) {
+      console.error('Error fetching activity schedule:', error);
+      setActivityList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    onPageLoad('', '', '', '');
+  }, [activeTab]);
+  //   fetchActivitySchedule();
+  // }, [token, dbname, lan_id, user_id, page]);
 
   // Render each activity item
   const renderActivityItem = ({item, index}) => {
@@ -157,9 +164,7 @@ const FarmerPendingActivity = () => {
   // Render empty state
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>
-        {t('no_upcoming_activities') || 'No upcoming activities found'}
-      </Text>
+      <Text style={styles.emptyText}>{'No pending activities found'}</Text>
     </View>
   );
   onBackPress(() => {
@@ -168,15 +173,23 @@ const FarmerPendingActivity = () => {
   });
   const HandlerGoBack = () => navigation.navigate('FarmerDashboard');
 
-  const renderCustomHeader = useMemo(
-    () => <CustomHeader t={t} />,
-    [],
-  );
+  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
         {renderCustomHeader}
         <View style={styles.container}>
+          <TabBar
+            tabs={['Carbon', 'Non-Carbon']}
+            activeTab={activeTab === 'carbon' ? 0 : 1}
+            onTabPress={index => {
+              setActiveTab(index === 0 ? 'carbon' : 'non-carbon');
+            }}
+            indicatorColor={Colors.useGreen}
+            height={60}
+            backgroundColor={Colors.background}
+            colors={Colors.primary}
+          />
           {loading ? (
             <View style={styles.loadingContainer}>
               <Text>Loading...</Text>

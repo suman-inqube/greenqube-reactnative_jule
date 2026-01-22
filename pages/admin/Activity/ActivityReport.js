@@ -509,7 +509,7 @@ const ActivityReport = ({navigation}) => {
             );
             setproductionStageAll(dataArray);
           }
-          // console.log('bbb', activitySchedule);
+          console.log('Non_ACTIVITY', activitySchedule);
           if (activitySchedule?.status == 200) {
             if (
               activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
