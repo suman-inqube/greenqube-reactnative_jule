@@ -9,6 +9,7 @@ import {
   Image,
   Animated,
   Alert,
+  TextInput,
 } from 'react-native';
 import React, {
   useEffect,
@@ -38,6 +39,7 @@ import {formatToDDMMYYYY, getAgeLimitDates} from '../utils/helpers';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 import PaginationNav from '../../pages/Components/PaginationNav';
 import {userCreateContext} from '../../pages/Context/usersCreateContext';
+
 
 const Button = memo(({label, onPress, disabled}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -96,7 +98,7 @@ const ListOfCoFarmer = ({
   onEdit,
   modalVisibleCoFarmer,
 }) => {
-  const {t} = useContext(userCreateContext);
+  const {t, LoadingScreen} = useContext(userCreateContext);
   const {minimumDate, maximumDate} = getAgeLimitDates();
   const [coFarmerList, setCoFarmerList] = useState([]);
   const [newDate, setnewDate] = useState(new Date());
@@ -113,32 +115,43 @@ const ListOfCoFarmer = ({
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchText, setSearchText] = useState('');isSubmit;
+  const [isSubmit, setIsSubmit] = useState(false);
+  
   const getAge = dob => {
     if (!dob) return ''; // or return null/0
     const d = new Date(dob);
     if (isNaN(d.getTime())) return ''; // invalid date → return empty
 
     return new Date(Date.now() - d).getUTCFullYear() - 1970;
+    
   };
+
   useEffect(() => {
     const onPageLoad = async () => {
       setIsLoading(true);
       try {
-        // console.log(plotId, token, {
-        //   information: `${dbname},${lan_id},${user_id}`,
-        // });
         const response = await axiosGet(
-          ROUTES.GET.LIST_CO_FARMERS({land_fid: plotId, pageNo: page}),
+          ROUTES.GET.LIST_CO_FARMERS({
+            land_fid: plotId,
+            pageNo: page,
+            searchKey: searchText || '',
+          }),
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
+console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
         if (response?.status === 200) {
+
+          console.log('ee=', JSON.stringify(response?.data?.data));
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
+
           const resArr = response?.data?.data?.rows?.map(item => ({
             ...item,
             CoFarmer: '',
             age: item?.coFInfo?.date_of_birth,
           }));
+
           setCoFarmerList(resArr);
         }
       } catch (error) {
@@ -149,7 +162,37 @@ const ListOfCoFarmer = ({
     };
 
     onPageLoad();
-  }, [page]);
+  }, [page, searchText]);
+  // useEffect(() => {
+  //   const onPageLoad = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       // console.log(plotId, token, {
+  //       //   information: `${dbname},${lan_id},${user_id}`,
+  //       // });
+  //       const response = await axiosGet(
+  //         ROUTES.GET.LIST_CO_FARMERS({land_fid: plotId, pageNo: page}),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       );
+  //       if (response?.status === 200) {
+  //         setTotalPages(Math.ceil(response?.data?.data.count / 10));
+  //         const resArr = response?.data?.data?.rows?.map(item => ({
+  //           ...item,
+  //           CoFarmer: '',
+  //           age: item?.coFInfo?.date_of_birth,
+  //         }));
+  //         setCoFarmerList(resArr);
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   onPageLoad();
+  // }, [page]);
 
   // useEffect(() => {
   //     const onPageLoad = async () => {
@@ -359,6 +402,8 @@ const ListOfCoFarmer = ({
 
   const onSave = useCallback(async () => {
     try {
+      console.log("")
+      setIsSubmit(true);
       const formdata = new FormData();
       formdata.append('rel_id', plotId);
       formdata.append('main_farmer_id', farmeruserID);
@@ -382,7 +427,7 @@ const ListOfCoFarmer = ({
           type: coFarmer.idProof.type,
         });
       }
-
+console.log('formdata==', JSON.stringify(formdata));
       const updateOwnerShipRes = await axiosPut(
         ROUTES.PUT.UP_DATE_OWNER_SHIP,
         formdata,
@@ -390,17 +435,25 @@ const ListOfCoFarmer = ({
         false,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-
+console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
       if (updateOwnerShipRes?.status == 200) {
+        setIsSubmit(false);
         Toast.show({
           text: 'Data submitted successfully',
           ...{...AlertMesg[0], position: 'top'},
         });
         navigation.popToTop();
         navigation.navigate('userList');
+        Toast.show({
+          text: 'Data submitted successfully',
+          ...{...AlertMesg[0], position: 'top'},
+        });
+         Alert.alert('Data submitted successfully');
       }
     } catch (error) {
-      Alert.alert(`${error?.data?.error?.errorMessage}`);
+      setIsSubmit(false);
+      // console.log('errorMessage==', JSON.stringify(error));
+      Alert.alert(`${error?.data?.error?.errorMessage?.message}`);
       // Toast.show({
       //   text: `${error?.data?.error?.errorMessage}`,
       //   ...{...AlertMesg[0], position: 'top'},
@@ -437,6 +490,18 @@ const ListOfCoFarmer = ({
   const onPrevPage = () => {
     if (hasPrev) setPage(prev => prev - 1);
   };
+  const onSearchChange = text => {
+    setSearchText(text);
+    setPage(1); // reset to first page
+  };
+  const filteredCoFarmerList = coFarmerList.filter(item => {
+    const name = item?.coFInfo?.userName?.toLowerCase() || '';
+    const phone = item?.coFInfo?.contactNumber || '';
+
+    return (
+      name.includes(searchText.toLowerCase()) || phone.includes(searchText)
+    );
+  });
   return (
     <View style={styles.container}>
       <DatePickerComp
@@ -448,6 +513,11 @@ const ListOfCoFarmer = ({
         maximumDate={maximumDate}
         title="Select Date of Birth"
       />
+      {isSubmit ? (
+                <View style={styles.LoadingScreen}>
+                  <LoadingScreen />
+                </View>
+              ) : null}
 
       {/* Header with Gradient */}
       <LinearGradient
@@ -466,7 +536,21 @@ const ListOfCoFarmer = ({
         </View>
       </LinearGradient>
 
+      <View style={styles.searchContainer}>
+        <Feather name="search" size={18} color="#585858" />
+        <TextInput
+          placeholder="Search by name"
+          placeholderTextColor="#585858" // optional
+          value={searchText}
+          onChangeText={onSearchChange}
+          // onChangeText={text => setSearchText(text)}
+          style={styles.searchInput}
+          keyboardType="default"
+        />
+      </View>
+
       <ScrollView
+        keyboardShouldPersistTaps="always"
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
@@ -794,6 +878,25 @@ const ListOfCoFarmer = ({
 };
 
 const styles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+    marginHorizontal: 16,
+    marginVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+
+  searchInput: {
+    flex: 1,
+    paddingLeft: 10,
+    fontSize: 14,
+    color: '#585858',
+    backgroundColor: 'transparent',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
@@ -1223,6 +1326,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#374151',
+  },
+  LoadingScreen: {
+    position: 'absolute',
+    top: '52%',
+    left: '45%',
+    zIndex: 9999,
   },
 });
 

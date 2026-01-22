@@ -12,6 +12,7 @@ import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {useNavigation} from '@react-navigation/native';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import TabBar from '../../Components/TabBar';
 
 const {width} = Dimensions.get('window');
 
@@ -42,7 +43,7 @@ const PendingActivity = () => {
   const [searchFarmerName, setSearchFarmerName] = useState('');
   // const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
   const [fromDate, setFromDate] = useState('');
-
+  const [activeTab, setActiveTab] = useState('carbon');
   const filterOptionShow = useCallback(async () => {
     const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
@@ -101,30 +102,31 @@ const PendingActivity = () => {
     try {
       const response = await axiosGet(
         ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-          type: 'carbon_activity',
+          type: activeTab === 'carbon' ? 'carbon_activity' : 'user_activity',
           supervisor_id: user_id,
           farmer_id: farmer_id,
         }),
         token,
-        {
-          information: `${dbname},${lan_id},${user_id}`,
-        },
+        {information: `${dbname},${lan_id},${user_id}`},
       );
 
       if (response?.status === 200) {
-        // Use the correct data structure from API response
         const data = response?.data?.data?.data || [];
         setActivityList(Array.isArray(data) ? data : []);
+      } else {
+        setActivityList([]);
       }
     } catch (error) {
-      console.error('Error fetching activity schedule:', error);
+      console.error('Error fetching pending activities:', error);
+      setActivityList([]);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     onPageLoad('', '', '', '');
-  }, []);
+  }, [activeTab]);
 
   // Render each activity item
   const renderActivityItem = ({item, index}) => {
@@ -165,15 +167,23 @@ const PendingActivity = () => {
                 overdueActivities.map((activity, activityIndex) => (
                   <View key={activityIndex} style={styles.activityDetail}>
                     <View style={styles.nameRow}>
-                      <Text style={styles.activityName}>
-                        •{' '}
-                        {activity?.activityName?.categoryName ||
-                          'Unknown Activity'}
-                      </Text>
-                      <Text style={styles.daysUntil}>
-                        {/* because api is sending nagetive value of days_until_start, we are multiplying by -1 */}
-                        {activity?.days_until_start * -1 || 0} {t('days to go')}
-                      </Text>
+                      <View style={styles.nameContainer}>
+                        <Text
+                          style={styles.activityName}
+                          numberOfLines={2}
+                          ellipsizeMode="tail">
+                          •{' '}
+                          {activity?.activityName?.categoryName ||
+                            'Unknown Activity'}
+                        </Text>
+                      </View>
+                      <View style={styles.daysContainer}>
+                        <Text style={styles.daysUntil}>
+                          {/* because api is sending nagetive value of days_until_start, we are multiplying by -1 */}
+                          {activity?.days_until_start * -1 || 0}{' '}
+                          {t('days to go')}
+                        </Text>
+                      </View>
                     </View>
                     {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
@@ -214,7 +224,7 @@ const PendingActivity = () => {
                   </View>
                 ))
               ) : (
-                <Text style={styles.noActivities}>No upcoming activities</Text>
+                <Text style={styles.noActivities}>No Pending activities</Text>
               )}
             </View>
           </View>
@@ -228,9 +238,7 @@ const PendingActivity = () => {
   // Render empty state
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>
-        {t('no_upcoming_activities') || 'No upcoming activities found'}
-      </Text>
+      <Text style={styles.emptyText}>{'No Pending activities found'}</Text>
     </View>
   );
   onBackPress(() => {
@@ -256,6 +264,17 @@ const PendingActivity = () => {
       <Root>
         {renderCustomHeader}
         <View style={styles.container}>
+          <TabBar
+            tabs={['Carbon', 'Non-Carbon']}
+            activeTab={activeTab === 'carbon' ? 0 : 1}
+            onTabPress={index => {
+              setActiveTab(index === 0 ? 'carbon' : 'non-carbon');
+            }}
+            indicatorColor={Colors.useGreen}
+            height={60}
+            backgroundColor={Colors.background}
+            colors={Colors.primary}
+          />
           {loading ? (
             <View style={styles.loadingContainer}>
               <Text>Loading...</Text>
@@ -404,6 +423,15 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 2,
   },
+  nameContainer: {
+    flex: 1, // takes remaining space
+    paddingRight: 8, // spacing from right text
+  },
+
+  daysContainer: {
+    flexShrink: 0, // prevent shrinking
+    alignItems: 'flex-end',
+  },
   daysUntil: {
     fontSize: 14,
     fontFamily: 'Poppins-SemiBold',
@@ -413,7 +441,7 @@ const styles = StyleSheet.create({
   noActivities: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
-    color: '#999',
+    color: '#0f0f0f',
     fontStyle: 'italic',
     textAlign: 'center',
     padding: 10,

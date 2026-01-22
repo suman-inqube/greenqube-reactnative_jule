@@ -174,6 +174,8 @@ const Information = ({sendDataToParent, farmerID}) => {
     }
   };
   const getDistrict = async (dbname, lan_id, stateID) => {
+
+   
     const response = await axiosGet(
       ROUTES.GET.DISTRICT_API({
         stateID: stateID,
@@ -182,6 +184,8 @@ const Information = ({sendDataToParent, farmerID}) => {
       {information: `${dbname},${lan_id}`},
     );
     // fetchDistrictAPI(dbname, lan_id, stateID);
+
+     console.log('admin333=', response);
 
     if (response?.status === 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
@@ -200,6 +204,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       {information: `${dbname},${lan_id}`},
     );
     // fetchBlockAPI(dbname, lan_id, districtID);
+    console.log('admin4444=', response);
     if (response?.status == 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -243,8 +248,149 @@ const Information = ({sendDataToParent, farmerID}) => {
   const handleEffectFrom = useCallback(async item => {
     setFarmerData(prev => ({...prev, effective_from: effective_dates(item)}));
   }, []);
-  const onPageLoad = async () => {
-    setIsLoading(true);
+  // const onPageLoad = async () => {
+  //   setIsLoading(true);
+  //   const [userListData, state, district, block, curr] = await Promise.all([
+  //     getItem('userListData'),
+  //     getItem('state'),
+  //     getItem('district'),
+  //     getItem('block'),
+  //     getItem('currency'),
+  //   ]);
+  //   if (loginUser_data) {
+  //     setcurrency(curr);
+  //     console.log("admin1")
+  //     const {dbname, lan_id, token, user_id} = loginUser_data;
+  //     setregionaldatas(prev => ({
+  //       ...prev,
+  //       state: state,
+  //       district: district,
+  //       block: block,
+  //     }));
+  //     if (userListData) {
+  //       console.log('admin2');
+  //       const farmerFound = userListData?.find(
+  //         user => user.user_id === farmeruserID,
+  //       );
+  //       if (farmerFound) {
+  //         console.log('admin3');
+  //         const dob = new Date(farmerFound.date_of_birth);
+  //         const currentDate = new Date();
+  //         const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
+  //         console.log(
+  //           'admin4',
+  //           JSON.stringify(farmerFound)
+  //         );
+  //         if (farmerFound?.agri_user_addresses[0]?.agri_district) {
+  //           await Promise.all([
+  //             getDistrict(
+  //               dbname,
+  //               lan_id,
+  //               farmerFound.agri_user_addresses[0]?.agri_state?.fid,
+  //             ),
+  //             getBlock(
+  //               dbname,
+  //               lan_id,
+  //               farmerFound.agri_user_addresses[0]?.agri_district?.fid,
+  //             ),
+  //           ]);
+  //         }
+
+  //         if (farmerFound.agri_files[0] != undefined) {
+  //           const filteredFilesProfile = farmerFound.agri_files.filter(
+  //             file => file.term_type === '1',
+  //           );
+  //           setSelectedImage(filteredFilesProfile[0]?.file_path);
+  //           const identityProofIdentityPropfValue = [
+  //             ...identityProofIdentityPropf,
+  //           ];
+  //           const values_adress = [...identityProofIdentityPropf];
+
+  //           // Update address proof in the same object
+  //           farmerFound.agri_files
+  //             .filter(file => file.term_type === 'farmer_address')
+  //             .map(_file => {
+  //               values_adress[0] = {
+  //                 ...values_adress[0], // Keep other properties intact
+  //                 uri: _file.file_path,
+  //                 name: _file.file_name,
+  //                 type: _file.file_ext,
+  //                 imageType: 'address', // Update the specific property
+  //                 fileName: _file.file_name,
+  //                 file_id: _file.file_id,
+  //                 id: _file.file_id,
+  //               };
+  //             });
+
+  //           // Update identity proof in the same object
+  //           farmerFound.agri_files
+  //             .filter(file => file.term_type === 'farmer_identity')
+  //             .map(_file => {
+  //               values_adress[1] = {
+  //                 ...values_adress[1], // Keep other properties intact
+  //                 uri: _file.file_path,
+  //                 name: _file.file_name,
+  //                 type: _file.file_ext,
+  //                 imageType: 'identity', // Update the specific property
+  //                 fileName: _file.file_name,
+  //                 file_id: _file.file_id,
+  //                 id: _file.file_id,
+  //               };
+  //             });
+
+  //           // Update the state with modified objects
+  //           setIdentityProofIdentityPropf(values_adress);
+  //         }
+  //         console.log('admin4');
+  //         setFarmerData(prev => ({
+  //           ...prev,
+  //           userName: farmerFound?.userName,
+  //           contactNumber: farmerFound?.contactNumber,
+  //           gender: farmerFound?.gender,
+  //           farmer_type: farmerFound?.farmer_type,
+  //           date_of_birth: farmerFound?.date_of_birth,
+  //           age: yearsDiff.toString(),
+  //           country: farmerFound?.agri_user_addresses[0]?.country,
+  //           state: farmerFound?.agri_user_addresses[0]?.agri_state?.fid,
+  //           stateName:
+  //             farmerFound?.agri_user_addresses[0]?.agri_state?.state_name,
+  //           district: farmerFound?.agri_user_addresses[0]?.agri_district?.fid,
+  //           districtName:
+  //             farmerFound?.agri_user_addresses[0]?.agri_district?.district_name,
+  //           block: farmerFound?.agri_user_addresses[0]?.agri_subdivision?.fid,
+  //           blockName:
+  //             farmerFound?.agri_user_addresses[0]?.agri_subdivision
+  //               ?.subdiv_name,
+  //           aadhar_number: farmerFound?.aadhar_number,
+  //           pan_number: farmerFound?.pan_number,
+  //           voter_card_number: farmerFound?.voter_card_number,
+  //           kcc_number: farmerFound?.kcc_number,
+  //           user_bank_account_holder: farmerFound?.user_bank_account_holder,
+  //           user_bank_account_name: farmerFound?.user_bank_account_name,
+  //           user_bank_branch_name: farmerFound?.user_bank_branch_name,
+  //           user_bank_account_number: farmerFound?.user_bank_account_number,
+  //           user_bank_ifsc_code: farmerFound?.user_bank_ifsc_code,
+  //           pension_authority: farmerFound?.pension_details?.pension_authority,
+  //           pension_account_no:
+  //             farmerFound?.pension_details?.pension_account_no,
+  //           effective_from: farmerFound?.pension_details?.effective_from,
+  //           pension_amount: farmerFound?.pension_details?.pension_amount,
+  //           frequency: farmerFound?.pension_details?.frequency,
+  //           company_name: farmerFound?.lic_details?.company_name,
+  //           policy_no: farmerFound?.lic_details?.policy_no,
+  //           sum_insured: farmerFound?.lic_details?.sum_insured,
+  //         }));
+  //       }
+  //       console.log('admin5');
+  //       getState(dbname, lan_id);
+  //     }
+  //   }
+  //   setIsLoading(false);
+  // };
+
+const onPageLoad = async () => {
+  setIsLoading(true);
+  try {
     const [userListData, state, district, block, curr] = await Promise.all([
       getItem('userListData'),
       getItem('state'),
@@ -372,8 +518,18 @@ const Information = ({sendDataToParent, farmerID}) => {
       }
     }
     setIsLoading(false);
-  };
+  } catch (error) {
+    console.log('onPageLoad error12', error);
+    setIsLoading(false);
 
+    Toast?.show({
+      text:
+        error?.response?.data?.error?.errorMessage || 'Something went wrong',
+      ...AlertMesg?.[0],
+    });
+  }
+};
+  
   useEffect(() => {
     onPageLoad();
   }, []);
@@ -499,6 +655,8 @@ const Information = ({sendDataToParent, farmerID}) => {
         let formDataDelete = qs.stringify({
           file_delete_ids: photoDeletedValue.toString(),
         });
+
+        console.log('save==', JSON.stringify(formData));
         const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
           axiosPut(
             ROUTES.PUT.USER_PROFILE_UPDATE({
@@ -552,6 +710,7 @@ const Information = ({sendDataToParent, farmerID}) => {
         }
         setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.log(error);
       }
     }

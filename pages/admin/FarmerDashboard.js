@@ -170,6 +170,264 @@ const FarmerDashboard = ({navigation}) => {
       }
     }
   };
+  // const onPageLoad = async () => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     const [
+  //       userNameData,
+  //       profileImgData,
+  //       bottomBannerData,
+  //       loginUser_data,
+  //       company_website,
+  //       logoImageData,
+  //       topBannerData,
+  //     ] = await Promise.all([
+  //       getItem('userNameData'),
+  //       getItem('profileImgData'),
+  //       getItem('bottomBannerData'),
+  //       // getItem('topBannerData'),
+  //       getItem('loginUser_data'),
+  //       getItem('company_website'),
+
+  //       getItem('logoImageData'),
+  //       getItem('topBannerData'),
+  //       Permission.requestMultiple([
+  //         PERMISSIONS_TYPE.microphone,
+  //         PERMISSIONS_TYPE.fineLocation,
+  //       ]),
+  //       AllFarmerList(),
+  //     ]);
+
+  //     const {dbname, lan_id, token, agri_user_addresses, user_id} =
+  //       loginUser_data || {};
+  //     const [
+  //       USER_ACTIVITY,
+  //       FARMER_USEFULL_INFO_LIST,
+  //       ALL_ACTIVITY_SCHEDULE_RES,
+  //     ] = await Promise.all([
+  //       axiosGet(
+  //         ROUTES.GET.USER_ACTIVITY({
+  //           pageNO: 1,
+  //           carbonType: '',
+  //           userID: user_id,
+  //           searchItem: '',
+  //           from_date: '',
+  //           to_date: '',
+  //         }),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       ),
+  //       axiosGet(
+  //         ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+  //           userId: user_id,
+  //           userType: 'farmer',
+  //           post: 'general_info',
+  //           state_id: agri_user_addresses[0].agri_state.fid,
+  //           district_id: agri_user_addresses[0].agri_district.fid,
+  //           subdiv_id: agri_user_addresses[0].agri_subdivision.fid,
+  //           newCropId: '',
+  //         }),
+  //         '',
+  //         {information: `${dbname},${lan_id}`},
+  //       ),
+
+  //       axiosGet(
+  //         ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+  //           type: 'carbon_activity',
+  //           // type: 'user_activity',
+  //           farmer_id: user_id,
+  //         }),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       ),
+  //     ]);
+  //     const logoImgToSet = logoImage || logoImageData || null;
+  //     const topBannerToSet = topBanner || topBannerData || null;
+  //     setUiState(prev => ({
+  //       ...prev,
+  //       bottomBanner: bottomBannerData,
+  //       userName: userNameData,
+  //       profileImg: profileImgData,
+  //       company_website: company_website || prev.company_website,
+  //       logoImg: logoImgToSet,
+  //       topBannerImg: topBannerToSet,
+  //     }));
+  //     let latestActivities = [];
+  //     let usefulInfoList = [];
+  //     // let activityScheduleData = [];
+  //     if (FARMER_USEFULL_INFO_LIST?.status === 200) {
+  //       usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
+  //     }
+
+  //     if (USER_ACTIVITY?.status === 200) {
+  //       latestActivities = USER_ACTIVITY.data?.data?.rows || [];
+  //     }
+  //     console.log('ALL_ACTIVITY_SCHEDULE_RES', ALL_ACTIVITY_SCHEDULE_RES);
+  //     let activityScheduleData = [];
+  //     let carbonActivities = [];
+
+  //     if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
+  //       carbonActivities =
+  //         ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data ||
+  //         ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows ||
+  //         [];
+  //     }
+
+  //     // ---- check if carbon has data ----
+  //     let hasCarbonActivity = false;
+
+  //     for (let i = 0; i < carbonActivities.length; i++) {
+  //       if (
+  //         (carbonActivities[i]?.upcomingActivities?.length || 0) > 0 ||
+  //         (carbonActivities[i]?.overdueActivities?.length || 0) > 0
+  //       ) {
+  //         hasCarbonActivity = true;
+  //         break;
+  //       }
+  //     }
+
+  //     // ---- fetch NON-CARBON activity (user_activity) ----
+  //     const NON_CARBON_RES = await axiosGet(
+  //       ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+  //         type: 'user_activity',
+  //         farmer_id: user_id,
+  //       }),
+  //       token,
+  //       {information: `${dbname},${lan_id},${user_id}`},
+  //     );
+
+  //     let nonCarbonActivities = [];
+
+  //     if (NON_CARBON_RES?.status === 200) {
+  //       nonCarbonActivities =
+  //         NON_CARBON_RES.data?.data?.data ||
+  //         NON_CARBON_RES.data?.data?.rows ||
+  //         [];
+  //     }
+
+  //     // ---- merge both (EXACT SUPERVISOR LOGIC) ----
+  //     activityScheduleData = [...carbonActivities, ...nonCarbonActivities];
+
+  //     setActivitySchedule(activityScheduleData);
+  //     setDataState({
+  //       latestActivities,
+  //       usefulInfoList,
+  //     });
+  //   } catch (error) {
+  //     console.error('aaaa', error);
+  //   }
+  //   setIsLoading(false);
+  // };
+  // const onPageLoad = async () => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     const [
+  //       userNameData,
+  //       profileImgData,
+  //       bottomBannerData,
+  //       loginUser_data,
+  //       company_website,
+  //       logoImageData,
+  //       topBannerData,
+  //     ] = await Promise.all([
+  //       getItem('userNameData'),
+  //       getItem('profileImgData'),
+  //       getItem('bottomBannerData'),
+  //       // getItem('topBannerData'),
+  //       getItem('loginUser_data'),
+  //       getItem('company_website'),
+
+  //       getItem('logoImageData'),
+  //       getItem('topBannerData'),
+  //       Permission.requestMultiple([
+  //         PERMISSIONS_TYPE.microphone,
+  //         PERMISSIONS_TYPE.fineLocation,
+  //       ]),
+  //       AllFarmerList(),
+  //     ]);
+
+  //     const {dbname, lan_id, token, agri_user_addresses, user_id} =
+  //       loginUser_data || {};
+  //     const [
+  //       USER_ACTIVITY,
+  //       FARMER_USEFULL_INFO_LIST,
+  //       ALL_ACTIVITY_SCHEDULE_RES,
+  //     ] = await Promise.all([
+  //       axiosGet(
+  //         ROUTES.GET.USER_ACTIVITY({
+  //           pageNO: 1,
+  //           carbonType: '',
+  //           userID: user_id,
+  //           searchItem: '',
+  //           from_date: '',
+  //           to_date: '',
+  //         }),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       ),
+  //       axiosGet(
+  //         ROUTES.GET.FARMER_USEFULL_INFO_LIST({
+  //           userId: user_id,
+  //           userType: 'farmer',
+  //           post: 'general_info',
+  //           state_id: agri_user_addresses[0].agri_state.fid,
+  //           district_id: agri_user_addresses[0].agri_district.fid,
+  //           subdiv_id: agri_user_addresses[0].agri_subdivision.fid,
+  //           newCropId: '',
+  //         }),
+  //         '',
+  //         {information: `${dbname},${lan_id}`},
+  //       ),
+
+  //       axiosGet(
+  //         ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+  //           type: 'carbon_activity',
+  //           farmer_id: user_id,
+  //         }),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       ),
+  //     ]);
+  //     const logoImgToSet = logoImage || logoImageData || null;
+  //     const topBannerToSet = topBanner || topBannerData || null;
+  //     setUiState(prev => ({
+  //       ...prev,
+  //       bottomBanner: bottomBannerData,
+  //       userName: userNameData,
+  //       profileImg: profileImgData,
+  //       company_website: company_website || prev.company_website,
+  //       logoImg: logoImgToSet,
+  //       topBannerImg: topBannerToSet,
+  //     }));
+  //     let latestActivities = [];
+  //     let usefulInfoList = [];
+  //     let activityScheduleData = [];
+  //     if (FARMER_USEFULL_INFO_LIST?.status === 200) {
+  //       usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
+  //     }
+
+  //     if (USER_ACTIVITY?.status === 200) {
+  //       latestActivities = USER_ACTIVITY.data?.data?.rows || [];
+  //     }
+  //     if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
+  //       activityScheduleData =
+  //         ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data ||
+  //         ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows ||
+  //         [];
+  //       setActivitySchedule(activityScheduleData);
+  //     }
+  //     setDataState({
+  //       latestActivities,
+  //       usefulInfoList,
+  //     });
+  //   } catch (error) {
+  //     console.error('aaaa', error);
+  //   }
+  //   setIsLoading(false);
+  // };
+  
   const onPageLoad = async () => {
     setIsLoading(true);
 
@@ -235,6 +493,7 @@ const FarmerDashboard = ({navigation}) => {
         axiosGet(
           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
             type: 'carbon_activity',
+            // type: 'user_activity',
             farmer_id: user_id,
           }),
           token,
@@ -254,7 +513,7 @@ const FarmerDashboard = ({navigation}) => {
       }));
       let latestActivities = [];
       let usefulInfoList = [];
-      let activityScheduleData = [];
+      // let activityScheduleData = [];
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.data?.rows || [];
       }
@@ -262,21 +521,71 @@ const FarmerDashboard = ({navigation}) => {
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }
+      console.log('ALL_ACTIVITY_SCHEDULE_RES', ALL_ACTIVITY_SCHEDULE_RES);
+      let activityScheduleData = [];
+      let carbonActivities = [];
+
       if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-        activityScheduleData =
+        carbonActivities =
           ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data ||
           ALL_ACTIVITY_SCHEDULE_RES.data?.data?.rows ||
           [];
-        setActivitySchedule(activityScheduleData);
       }
+
+      // ---- check if carbon has data ----
+      let hasCarbonActivity = false;
+
+      for (let i = 0; i < carbonActivities.length; i++) {
+        if (
+          (carbonActivities[i]?.upcomingActivities?.length || 0) > 0 ||
+          (carbonActivities[i]?.overdueActivities?.length || 0) > 0
+        ) {
+          hasCarbonActivity = true;
+          break;
+        }
+      }
+
+      // ---- fetch NON-CARBON activity (user_activity) ----
+      const NON_CARBON_RES = await axiosGet(
+        ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+          type: 'user_activity',
+          farmer_id: user_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id},${user_id}`},
+      );
+
+      let nonCarbonActivities = [];
+
+      if (NON_CARBON_RES?.status === 200) {
+        nonCarbonActivities =
+          NON_CARBON_RES.data?.data?.data ||
+          NON_CARBON_RES.data?.data?.rows ||
+          [];
+      }
+
+      // ---- merge both (EXACT SUPERVISOR LOGIC) ----
+      activityScheduleData = [...carbonActivities, ...nonCarbonActivities];
+
+      setActivitySchedule(activityScheduleData);
       setDataState({
         latestActivities,
         usefulInfoList,
       });
     } catch (error) {
-      console.error('aaaa', error);
+      console.log('onPageLoad error', error);
+      setIsLoading(false);
+
+      // 👈 EXACT old behaviour
+      Toast?.show({
+        text:
+          error?.response?.data?.error?.errorMessage || 'Something went wrong',
+        ...AlertMesg?.[0],
+      });
+    } finally {
+      // 🔒 Guaranteed loader cleanup
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {

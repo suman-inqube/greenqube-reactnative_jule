@@ -8,7 +8,7 @@ import {Image} from 'react-native';
 import CryptoJS from 'crypto-js';
 import {NativeModules} from 'react-native';
 
-const timeoutConfig = {timeout: 5000};
+const timeoutConfig = {timeout: 10000};
 const getApiConfig = async () => {
   const {ConfigModule} = NativeModules;
   try {
@@ -1568,6 +1568,13 @@ export const signupSaveAPI = async (
       plot_count: plot_count,
     },
   };
+   console.log(
+     'hed',
+     `${dbname},${language}`,
+     plot_count,
+     `${config.BASE_URL}farmerRoute/selfFarmerSignup`,
+     inputData,
+   );
   try {
     let response = await axios.post(
       `${config.BASE_URL}farmerRoute/selfFarmerSignup`,
@@ -1577,9 +1584,9 @@ export const signupSaveAPI = async (
     return response;
   } catch (error) {
     // CrashlyticsRecordError(error.response);
-    // console.log(error.response);
-    // console.log(error);
-    // console.log(error?.response?.data);
+    console.log(error.response);
+    console.log(error);
+    console.log(error?.response?.data);
     return error.response;
   }
 };
@@ -2095,6 +2102,7 @@ export const AddLandCropDetailsAPI = async (
       formData,
       axiosHeaders,
     );
+    console.log('${config.BASE_URL}landRoute/multiLatLong==', response);
     return response;
   } catch (error) {
     CrashlyticsRecordError(error.response, '', 'AddLandCropDetailsAPI');
@@ -2999,39 +3007,168 @@ export const nearestLatLong = async (
     return error.response;
   }
 };
+// export const plotListApproval = async (dbname, lan_id, token, farmerID) => {
+
+//   console.log('plot112444', farmerID);
+//   // const axiosHeaders = {
+//   //   headers: {
+//   //     authorization: `${token}`,
+//   //     information: `${dbname},${lan_id}`,
+//   //     'Content-Type': 'multipart/form-data',
+//   //   },
+//   //   // body:formDataPlotImg
+//   // };
+//   try {
+//     // let response = await axios.get(
+//     //   `${config.BASE_URL}landRoute/userLandCropList/${farmerID}`,
+//     //   { ...axiosHeaders, ...timeoutConfig },
+//     // );
+//     console.log(
+//       `${token}`,
+//         `${dbname},${lan_id}`,
+//     );
+//     const instance = await getAxiosInstance();
+//     let response = await instance.get(
+//       `${config.BASE_URL}landRoute/userLandCropList_e/${farmerID}`,
+//       {
+//         headers: {
+//           authorization: `${token}`,
+//           information: `${dbname},${lan_id}`,
+//         },
+//         ...timeoutConfig,
+//       },
+//     );
+//       console.log("plot112==",(response));
+//     return response;
+//   } catch (error) {
+//     CrashlyticsRecordError(error.response);
+//     return console.log(error.response);
+//   }
+// };
+
+
 export const plotListApproval = async (dbname, lan_id, token, farmerID) => {
-  const axiosHeaders = {
-    headers: {
-      authorization: `${token}`,
-      information: `${dbname},${lan_id}`,
-      'Content-Type': 'multipart/form-data',
-    },
-    // body:formDataPlotImg
-  };
   try {
-    // let response = await axios.get(
-    //   `${config.BASE_URL}landRoute/userLandCropList/${farmerID}`,
-    //   { ...axiosHeaders, ...timeoutConfig },
-    // );
+    console.log('API Request Params:', {
+      dbname,
+      lan_id,
+      farmerID,
+      tokenLength: token?.length,
+      baseURL: config.BASE_URL,
+    });
+
+    // Validate inputs
+    if (!dbname || !lan_id || !token || !farmerID) {
+      console.error('Missing required parameters');
+      return {
+        status: 400,
+        data: [],
+        message: 'Missing required parameters',
+      };
+    }
+
+    // Create headers object
+    const headers = {
+      Authorization: `${token}`,
+      Information: `${dbname},${lan_id}`,
+      'Content-Type': 'application/json', // Change from multipart/form-data for GET request
+    };
+
+    console.log('Request Headers:', headers);
+
+    // Get axios instance
     const instance = await getAxiosInstance();
-    let response = await instance.get(
-      `${config.BASE_URL}landRoute/userLandCropList_e/${farmerID}`,
-      {
-        headers: {
-          authorization: `${token}`,
-          information: `${dbname},${lan_id}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      },
-    );
-    //  console.log("plot112",(response));
-    return response;
+
+    // Add timeout configuration
+    const timeoutConfig = {
+      timeout: 30000, // 30 seconds timeout
+      timeoutErrorMessage: 'Request timeout',
+    };
+
+    // Make the request
+    const url = `${config.BASE_URL}landRoute/userLandCropList_e/${farmerID}`;
+    console.log('Request URL:', url);
+
+    const response = await instance.get(url, {
+      headers,
+      ...timeoutConfig,
+    });
+
+    console.log('API Response Success:', {
+      status: response?.status,
+      statusText: response?.statusText,
+      dataLength: Array.isArray(response?.data)
+        ? response?.data?.length
+        : 'Not an array',
+      dataType: typeof response?.data,
+      data: response?.data,
+    });
+
+    // Handle different response structures
+    let plotData = [];
+
+    if (Array.isArray(response?.data)) {
+      plotData = response.data;
+    } else if (response?.data?.data && Array.isArray(response.data.data)) {
+      plotData = response.data.data;
+    } else if (response?.data?.rows && Array.isArray(response.data.rows)) {
+      plotData = response.data.rows;
+    } else if (response?.data) {
+      // Try to extract data from nested structure
+      const nestedData = response.data;
+      if (typeof nestedData === 'object') {
+        // Look for array properties
+        const arrayKeys = Object.keys(nestedData).filter(key =>
+          Array.isArray(nestedData[key]),
+        );
+        if (arrayKeys.length > 0) {
+          plotData = nestedData[arrayKeys[0]];
+        }
+      }
+    }
+
+    return {
+      status: response?.status || 200,
+      data: plotData,
+      message: 'Success',
+      rawResponse: response?.data, // Keep for debugging
+    };
   } catch (error) {
-    CrashlyticsRecordError(error.response);
-    return console.log(error.response);
+    console.error('API Error Details:', {
+      message: error.message,
+      code: error.code,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+      },
+      isAxiosError: error.isAxiosError,
+      response: error.response
+        ? {
+            status: error.response.status,
+            data: error.response.data,
+            headers: error.response.headers,
+          }
+        : 'No response',
+      request: error.request
+        ? 'Request made but no response'
+        : 'No request made',
+    });
+
+    // Record error to crashlytics if available
+    if (CrashlyticsRecordError) {
+      CrashlyticsRecordError(error);
+    }
+
+    // Return structured error response
+    return {
+      status: error.response?.status || 500,
+      data: [],
+      message: error.message || 'Network Error',
+      isNetworkError: !error.response && error.message === 'Network Error',
+    };
   }
 };
-
 export const activityTypeAPIAWD = async (dbName, languageID, farmerID) => {
   const axiosHeaders = {
     headers: {
@@ -3388,6 +3525,7 @@ export const uploadFarmerIdAdd = async (
       'Content-Type': 'multipart/form-data',
     },
   };
+
   try {
     let response = await axios.put(
       `${config.BASE_URL}settingsRoute/uploadFarmerIdAdd`,
@@ -3397,7 +3535,7 @@ export const uploadFarmerIdAdd = async (
 
     return response;
   } catch (error) {
-    console.log('error11=', error.response);
+    console.log('error11=', error);
     return error.response;
   }
 };

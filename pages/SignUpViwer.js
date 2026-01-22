@@ -159,19 +159,26 @@ const SignUpViwer = () => {
           item.storeProduceInfo.terrainType &&
           item.storeProduceInfo.terrainType.value,
         lan_type_id:
-          item.storeProduceInfo.landType && item.storeProduceInfo.landType.value,
+          item.storeProduceInfo.landType &&
+          item.storeProduceInfo.landType.value,
         soil_type_id:
-          item.storeProduceInfo.soilType && item.storeProduceInfo.soilType.value,
+          item.storeProduceInfo.soilType &&
+          item.storeProduceInfo.soilType.value,
         land_unit_id: item.storeProduceInfo.landUnit,
         land_size: item.storeProduceInfo.plotSize,
-        google_area: item.storeProduceInfo.google_area,
+        google_area:
+          item.storeProduceInfo.google_area == '' ||
+          item.storeProduceInfo.google_area == undefined ||
+          item.storeProduceInfo.google_area == null
+            ? 0
+            : item.storeProduceInfo.google_area,
         device_no: item.storeProduceInfo.IOTId,
         device_lat: item.storeProduceInfo.IOTLatlat,
         device_long: item.storeProduceInfo.IOTLatLong,
         land_convert_size:
           item.storeProduceInfo.sizevalue == '' ||
-            item.storeProduceInfo.sizevalue == undefined ||
-            item.storeProduceInfo.sizevalue == null
+          item.storeProduceInfo.sizevalue == undefined ||
+          item.storeProduceInfo.sizevalue == null
             ? item.storeProduceInfo.plotSize * 1
             : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
         latitude: item.location[0].latitude.toString(),
@@ -187,6 +194,8 @@ const SignUpViwer = () => {
         crop_season_id:
           item.storeProduceInfo.prodctionSeasion &&
           item.storeProduceInfo.prodctionSeasion.value,
+        season_date_fid:
+          item.storeProduceInfo.prodctionSeasionSdId,
         crop_type_id:
           item.storeProduceInfo.livelihoodType &&
           item.storeProduceInfo.livelihoodType.value,

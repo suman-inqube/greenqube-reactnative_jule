@@ -58,6 +58,7 @@ const PlotList = () => {
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
+      console.log('plot112', farmeruserID);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
         plotListApproval(dbname, lan_id, token, farmeruserID),
         LandUnitArea(dbname, lan_id, token),
@@ -148,6 +149,7 @@ const PlotList = () => {
                 initialNumToRender={5}
                 windowSize={5}
                 removeClippedSubviews={true}
+                
               />
             </View>
             <View style={styles.page}>

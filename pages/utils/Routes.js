@@ -86,11 +86,12 @@ export const ROUTES = {
       pageNO = 1,
       carbonType = '',
       userID = '',
+      supervisorId = '',
       search_key = '',
       from_date = '',
       to_date = '',
     }) =>
-      `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&agent_id=&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
+      `inputOutputRoute/listUserActivity_v2/1/${pageNO}/2?type=${carbonType}&user_id=${userID}&agent_id=${supervisorId}&crop_type=&crop_name=&crop_variety=&search_key=${search_key}&sowing_date=${from_date}&harvesting_date=${to_date}`,
 
     QUESTION_ROUTE: ({
       pageNo = 1,
@@ -312,8 +313,13 @@ export const ROUTES = {
     SUPERVISOR_DATA_LIST: ({company_id = ''}) =>
       `agentRoute/listAgentByCompanyID/${company_id}`,
 
-    PRODUCE_SEASON: ({from_date = '', to_date = ''}) =>
-      `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
+    // PRODUCE_SEASON: ({from_date = '', to_date = ''}) =>
+    //   `cropRoute/getSeasonDate?from_date=${from_date}&to_date=${to_date}`,
+
+    PRODUCE_SEASON: ({crop_name_fid = '', sd_id = ''}) =>
+      `cropRoute/getSeasonDate?crop_name_fid=${crop_name_fid}&sd_id=${sd_id}`,
+
+    // Get--/cropRoute/getSeasonDate?crop_name_fid=77eed63c-4afb-4e9a-991f-3ec7c354b0d1&season_fid=94ef09a9-d9e2-445c-9798-1de2a7951660
 
     ALL_ACTIVITY_SCHEDULE: ({type = '', supervisor_id = '', farmer_id = ''}) =>
       `settingsRoute/allActivitySchedule?type=${type}&supervisor_id=${supervisor_id}&farmer_id=${farmer_id}`,
@@ -327,12 +333,12 @@ export const ROUTES = {
       farmer_mobile = '',
     }) =>
       `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
-    LIST_CO_FARMERS: ({land_fid, pageNo=''}) =>
+    LIST_CO_FARMERS: ({land_fid, pageNo = '', searchKey = ''}) =>
       // console.log(
       //   'rr',
       //   pageNo,
       // ),
-      `settingsRoute/listCoFarmers/1/${pageNo}/2?land_fid=${land_fid}`,
+      `settingsRoute/listCoFarmers/1/${pageNo}/2?search_key=${searchKey}&land_fid=${land_fid}`,
   },
 
   PUT: {

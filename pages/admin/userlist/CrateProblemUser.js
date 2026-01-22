@@ -484,6 +484,7 @@ const CrateProblemUser = ({navigation}) => {
         setFarmerData(dataArray);
       }
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
     }
     setIsLoading(false);

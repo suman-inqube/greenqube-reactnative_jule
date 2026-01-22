@@ -317,6 +317,15 @@ const RegistationSignUpViwer = () => {
         text: error,
         ...AlertMesg[0],
       });
+      Toast.show({text: "Something went wrong", ...AlertMesg[0]});
+      setTimeout(() => {
+        navigation.dispatch({
+          ...CommonActions.reset({
+            index: 0,
+            routes: [{name: 'AdminNavigation'}],
+          }),
+        });
+      }, 2000);
       console.log(error);
     }
     setIsLoading(false);

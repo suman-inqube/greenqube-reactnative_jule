@@ -22,9 +22,9 @@ const STORAGE_KEYS = [
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 3000;
 const instance = axios.create({
-   baseURL: 'https://mygreenqube.com:4003/',
-  // baseURL: 'http://134.209.155.11:4003/',
-  timeout: 10000,
+    //  baseURL: 'https://mygreenqube.com:4003/',
+   baseURL: 'http://134.209.155.11:4003/',
+  timeout: 50000,
 });
 instance.interceptors.request.use(config => {
   config.metadata = { startTime: new Date().getTime() };
@@ -130,6 +130,7 @@ const isInternetAvailable = async () => {
 };
 
 const handleError = async (error) => {
+  console.log('error566=', error);
   if (axios.isCancel(error) || error.name === 'AbortError') {
     return { status: 499, data: { message: 'Request cancelled' } };
   }
@@ -141,6 +142,14 @@ const handleError = async (error) => {
     });
     // Alert.alert('Timeout', 'The request took too long. Please try again.');
     return { status: 408, data: { message: 'Request timed out' } };
+  }
+  if (
+    error?.response?.status === 400) {
+      // console.log('re66==',error.response.data);
+    return {
+      status: error.response.status || 500,
+      data: error.response.data || {message: 'Unknown error'},
+    };
   }
   if (error?.response?.status === 401 && error?.response?.data?.data?.code == "TOKEN_EXPIRED") {
     Toast.show({
@@ -196,6 +205,8 @@ export const axiosPost = async (
   extraHeaders = {},
   abortController = null,
 ) => {
+   console.log('url', url);
+     console.log('body', body);
   if (!(await isInternetAvailable()))
     return Promise.reject({ status: 0, data: { message: 'No internet' } });
   const controller = abortController || new AbortController();
@@ -227,6 +238,7 @@ export const axiosPut = async (
   extraHeaders = {},
   abortController = null,
 ) => {
+  console.log('axiosPost error12:', url, token, extraHeaders);
   if (!(await isInternetAvailable()))
     return Promise.reject({ status: 0, data: { message: 'No internet' } });
   const controller = abortController || new AbortController();
@@ -235,6 +247,7 @@ export const axiosPut = async (
   else if (isUrlEncoded) contentType = 'application/x-www-form-urlencoded';
   const payload = isUrlEncoded ? qs.stringify(body) : body;
   try {
+    console.log('contentType', contentType);
     return await instance.put(url, payload, {
       headers: {
         'Content-Type': contentType,
@@ -244,12 +257,69 @@ export const axiosPut = async (
       signal: controller.signal,
     });
   } catch (error) {
-    console.error("axiosPost error:", error);
+  
     const cleanError = await handleError(error);
     throw cleanError;
   }
 };
+// export const axiosPut = async (
+//   url,
+//   body,
+//   token = null,
+//   isUrlEncoded = false,
+//   extraHeaders = {},
+//   abortController = null,
+// ) => {
+//   if (!(await isInternetAvailable())) {
+//     return Promise.reject({
+//       status: 0,
+//       message: 'No internet',
+//     });
+//   }
 
+//   const controller = abortController || new AbortController();
+
+//   const isForm = isFormData(body);
+//   const payload = isUrlEncoded ? qs.stringify(body) : body;
+
+//   // ✅ IMPORTANT: DO NOT set multipart content-type manually
+//   const headers = {
+//     ...(token && {Authorization: token}),
+//     ...extraHeaders,
+//   };
+
+//   if (!isForm) {
+//     headers['Content-Type'] = isUrlEncoded
+//       ? 'application/x-www-form-urlencoded'
+//       : 'application/json';
+//   }
+
+//   try {
+//     return await instance.put(url, payload, {
+//       headers,
+//       signal: controller.signal,
+//     });
+//   } catch (error) {
+//     console.error('Axios PUT error:', error);
+
+//     // ✅ You will now receive 422 here
+//     if (error.response) {
+//       console.log('STATUS:', error.response.status);
+//       console.log('DATA:', error.response.data);
+//     }
+
+//     throw {
+//       status: error?.response?.status || 0,
+//       code: error.code,
+//       message:
+//         error?.response?.data?.error?.errorMessage?.message ||
+//         error?.response?.data?.message ||
+//         error.message ||
+//         'Request failed',
+//       raw: error,
+//     };
+//   }
+// };
 export const axiosDelete = async (
   url,
   token = null,
@@ -289,7 +359,7 @@ export const axiosPatch = async (
       signal: controller.signal,
       onUploadProgress: e => {
         const percent = Math.round((e.loaded * 100) / e.total);
-        console.log(`Upload Progress: ${percent}%`);
+        // console.log(`Upload Progress: ${percent}%`);
       },
     });
   } catch (error) {
