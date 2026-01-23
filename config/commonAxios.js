@@ -2,34 +2,32 @@ import axios from 'axios';
 import {getItem} from './getDataFromStorage';
 import CryptoJS from 'crypto-js';
 import {NativeModules} from 'react-native';
- 
+
 // const secretKey = 'greenQube_96740_64428'; // Must match encryption key
 let instance;
 
 const commonAxios = async () => {
-const {ConfigModule} = NativeModules;
+  const {ConfigModule} = NativeModules;
 
   try {
-    // const baseURL = "http://134.209.155.11:4003/";
-           const baseURL = 'https://mygreenqube.com:4003/';
-     
-     const encKey = "greenQube_96740_64428";
+    const baseURL = 'http://134.209.155.11:4003/';
+    //  const baseURL = 'https://mygreenqube.com:4003/';
+
+    const encKey = 'greenQube_96740_64428';
 
     instance = axios.create({
-      baseURL: baseURL,  // use dynamic URL
+      baseURL: baseURL, // use dynamic URL
       timeout: 5000,
     });
 
-    
     instance.interceptors.response.use(
-   response => {
-    try {
-       console.log('BASE_URL22', baseURL);
-    console.log('check12', encKey);
-      const encrypted = findField(response?.data, 'respo');
-       const ivHex = findField(response?.data, 'eid');
-      if (encrypted != undefined) {
-
+      response => {
+        try {
+          console.log('BASE_URL22', baseURL);
+          console.log('check12', encKey);
+          const encrypted = findField(response?.data, 'respo');
+          const ivHex = findField(response?.data, 'eid');
+          if (encrypted != undefined) {
             const keyBytes = CryptoJS.SHA256(encKey);
             const ivBytes = CryptoJS.enc.Hex.parse(ivHex);
 
@@ -37,15 +35,11 @@ const {ConfigModule} = NativeModules;
               ciphertext: CryptoJS.enc.Hex.parse(encrypted),
             });
 
-            const decrypted = CryptoJS.AES.decrypt(
-              cipherParams,
-              keyBytes,
-              {
-                iv: ivBytes,
-                mode: CryptoJS.mode.CBC,
-                padding: CryptoJS.pad.Pkcs7,
-              },
-            );
+            const decrypted = CryptoJS.AES.decrypt(cipherParams, keyBytes, {
+              iv: ivBytes,
+              mode: CryptoJS.mode.CBC,
+              padding: CryptoJS.pad.Pkcs7,
+            });
 
             const parsed = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
             const resultJson = {
@@ -53,19 +47,17 @@ const {ConfigModule} = NativeModules;
               status: 200,
             };
             console.log('check13');
-             return resultJson;
-
-        
-      }else{
-         response.data = response?.data;
-      }
-    } catch (err) {
-      console.error('Decryption failed:', err);
-    }
-     return response;
-  },
-  error => Promise.reject(error),
-);
+            return resultJson;
+          } else {
+            response.data = response?.data;
+          }
+        } catch (err) {
+          console.error('Decryption failed:', err);
+        }
+        return response;
+      },
+      error => Promise.reject(error),
+    );
   } catch (error) {
     console.error('Error creating Axios instance:', error);
     throw error;
@@ -84,7 +76,5 @@ const {ConfigModule} = NativeModules;
     }
     return undefined;
   }
-}
+};
 export default commonAxios;
-
-
