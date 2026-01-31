@@ -40,7 +40,6 @@ const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 import PaginationNav from '../../pages/Components/PaginationNav';
 import {userCreateContext} from '../../pages/Context/usersCreateContext';
 
-
 const Button = memo(({label, onPress, disabled}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -110,21 +109,22 @@ const ListOfCoFarmer = ({
     phoneNumber: '',
     addressProof: null,
     idProof: null,
+    profile: null,
     age: '',
   });
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchText, setSearchText] = useState('');isSubmit;
+  const [searchText, setSearchText] = useState('');
+  isSubmit;
   const [isSubmit, setIsSubmit] = useState(false);
-  
+
   const getAge = dob => {
     if (!dob) return ''; // or return null/0
     const d = new Date(dob);
     if (isNaN(d.getTime())) return ''; // invalid date → return empty
 
     return new Date(Date.now() - d).getUTCFullYear() - 1970;
-    
   };
 
   useEffect(() => {
@@ -140,18 +140,13 @@ const ListOfCoFarmer = ({
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
-console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
         if (response?.status === 200) {
-
-          console.log('ee=', JSON.stringify(response?.data?.data));
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
-
           const resArr = response?.data?.data?.rows?.map(item => ({
             ...item,
-            CoFarmer: '',
-            age: item?.coFInfo?.date_of_birth,
+            // CoFarmer: '',
+            age: '',
           }));
-
           setCoFarmerList(resArr);
         }
       } catch (error) {
@@ -277,6 +272,7 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
         );
         let idProof = null;
         let addressProof = null;
+        let profile = null;
         for (const f of item.coFInfo?.agri_files) {
           console.log(f);
           if (f.term_type === 'farmer_identity')
@@ -287,6 +283,12 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
             };
           else if (f.term_type === 'farmer_address')
             addressProof = {
+              uri: f.file_path,
+              name: f.name,
+              type: f.file_ext,
+            };
+          else if (f.term_type === '1')
+            profile = {
               uri: f.file_path,
               name: f.name,
               type: f.file_ext,
@@ -307,6 +309,7 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
               : item?.coFInfo?.contactNumber ?? '',
           addressProof: addressProof,
           idProof: idProof,
+          profile: profile,
           age: item?.age != 0 && item?.age != 'NaN' ? `${item?.age}` : '',
         }));
       } else {
@@ -346,10 +349,17 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
           const mapKeys = {
             farmer_address: 'addressProof',
             farmer_identity: 'idProof',
-            farmer_profile: 'profile',
+            farmer_profile: '1',
           };
           coFInfo?.agri_files?.forEach(file => {
             const key = mapKeys[file.term_type];
+            if (file.term_type === '1') {
+              details['profile'] = {
+                uri: file.file_path,
+                name: file.file_name,
+                type: file.file_ext,
+              };
+            }
             if (key) {
               details[key] = {
                 uri: file.file_path,
@@ -402,7 +412,7 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
 
   const onSave = useCallback(async () => {
     try {
-      console.log("")
+      console.log('');
       setIsSubmit(true);
       const formdata = new FormData();
       formdata.append('rel_id', plotId);
@@ -427,7 +437,7 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
           type: coFarmer.idProof.type,
         });
       }
-console.log('formdata==', JSON.stringify(formdata));
+      console.log('formdata==', JSON.stringify(formdata));
       const updateOwnerShipRes = await axiosPut(
         ROUTES.PUT.UP_DATE_OWNER_SHIP,
         formdata,
@@ -435,7 +445,9 @@ console.log('formdata==', JSON.stringify(formdata));
         false,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
+      console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
+      console.log('updateOwnerShipRes1111==', updateOwnerShipRes);
+
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
         Toast.show({
@@ -448,12 +460,15 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
           text: 'Data submitted successfully',
           ...{...AlertMesg[0], position: 'top'},
         });
-         Alert.alert('Data submitted successfully');
+        Alert.alert('Data submitted successfully');
       }
     } catch (error) {
       setIsSubmit(false);
-      // console.log('errorMessage==', JSON.stringify(error));
-      Alert.alert(`${error?.data?.error?.errorMessage?.message}`);
+      console.log(
+        'errorMessage==',
+        JSON.stringify(error?.data?.error?.errorMessage),
+      );
+      Alert.alert(`${error?.data?.error?.errorMessage}`);
       // Toast.show({
       //   text: `${error?.data?.error?.errorMessage}`,
       //   ...{...AlertMesg[0], position: 'top'},
@@ -514,10 +529,10 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
         title="Select Date of Birth"
       />
       {isSubmit ? (
-                <View style={styles.LoadingScreen}>
-                  <LoadingScreen />
-                </View>
-              ) : null}
+        <View style={styles.LoadingScreen}>
+          <LoadingScreen />
+        </View>
+      ) : null}
 
       {/* Header with Gradient */}
       <LinearGradient
@@ -609,7 +624,7 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
 
                     {/* Info Container */}
                     <View style={styles.infoContainer}>
-                      <Text style={styles.name}>{item?.coFInfo?.userName}</Text>
+                      <Text style={styles.name} >{item?.coFInfo?.userName}</Text>
                       {!hasPhone ? (
                         <View style={styles.phoneRow}>
                           <Feather name="phone" size={14} color="#6b7280" />
@@ -624,7 +639,7 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
                       )}
                     </View>
                     {/* Edit Icon Button */}
-                    {/* <TouchableOpacity
+                    <TouchableOpacity
                       style={styles.editButton}
                       onPress={() =>
                         onCheckCoFarmerEdit(
@@ -646,7 +661,7 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
                           color={isSelected ? '#10b981' : '#6b7280'}
                         />
                       </View>
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                     {/* Toggle Switch */}
                     <View style={styles.toggleContainer}>
                       <View
@@ -997,7 +1012,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 16,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 4,
@@ -1017,12 +1032,12 @@ const styles = StyleSheet.create({
   },
   // Avatar
   avatar: {
-    width: 56,
-    height: 56,
+    width: 42,
+    height: 42,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 8,
   },
   avatarText: {
     fontSize: 24,
@@ -1038,7 +1053,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: '700',
     color: '#111827',
     fontFamily: Fonts.Bold,
@@ -1285,8 +1300,8 @@ const styles = StyleSheet.create({
   editButton: {
     // marginRight: 12,
     position: 'absolute',
-    right: 70,
-    top: 15,
+    right: 60,
+    top: 11,
   },
   editIconContainer: {
     width: 30,

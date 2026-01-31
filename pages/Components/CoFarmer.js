@@ -195,10 +195,10 @@ function CoFarmerComponent({
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        {coFarmerDetails.type == "edit" ? <>
+                        {/* {coFarmerDetails.type == "edit" ? <>
                             <View style={styles.inputGroup}>
                                 <View style={styles.labelContainer}>
-                                    {/* <Feather name="phone" size={16} color="#10b981" /> */}
+
                                     <Text style={styles.label}>Password</Text>
                                     <View style={styles.optionalBadge}>
                                         <Text style={styles.optionalText}>Optional</Text>
@@ -219,9 +219,9 @@ function CoFarmerComponent({
                                     />
                                 </View>
                             </View>
-                        </> : <></>}
+                        </> : <></>} */}
 
-                        <View style={styles.inputGroup}>
+                        {coFarmerDetails.type ==""?<View style={styles.inputGroup}>
                             <View style={styles.labelContainer}>
                                 {/* <Feather name="phone" size={16} color="#10b981" /> */}
                                 <Text style={styles.label}>Aadhar Number</Text>
@@ -245,8 +245,8 @@ function CoFarmerComponent({
                                     placeholderTextColor="#9ca3af"
                                 />
                             </View>
-                        </View>
-                        <View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
+                        </View>:<></>}
+                        {coFarmerDetails.type ==""?<View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
                             <Text style={styles.label}>Gender</Text>
                             <RadioForm
                                 label={'Male'}
@@ -263,7 +263,8 @@ function CoFarmerComponent({
                                 onSelect={() => handleAddDataGender('gender', '3')}
                                 selected={coFarmerDetails.gender === '3'}
                             />
-                        </View>
+                        </View>:<></>}
+                        
 
                         {/* Section Divider */}
                         {/* <View style={styles.sectionDivider}>

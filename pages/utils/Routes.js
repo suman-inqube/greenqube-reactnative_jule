@@ -349,7 +349,7 @@ export const ROUTES = {
 
     UPLOAD_FARMER_ID_ADD: () => `settingsRoute/uploadFarmerIdAdd`,
     UP_DATE_OWNER_SHIP: `settingsRoute/updateOwnership`,
-    EDIT_CO_FARMER: `settingsRoute/editCofarmer`,
+    EDIT_CO_FARMER: `settingsRoute/editCofarmer`    
   },
 
   DELETE: {
