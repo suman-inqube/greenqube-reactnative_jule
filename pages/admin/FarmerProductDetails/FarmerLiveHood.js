@@ -60,7 +60,7 @@ import {ROUTES} from '../../utils/Routes';
 import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import {ProductionSeasonAndApi} from '../../../config/apiHere';
 import {AddLandCropDetailsAPI} from '../../../config/apiHere';
-import { formatISODateWithSuffix } from '../../Common/CommonFunction';
+import {formatISODateWithSuffix} from '../../Common/CommonFunction';
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -96,9 +96,9 @@ const FarmerLiveHood = ({
   } = useContext(userCreateContext);
 
   const [maxStartDate, setMaxStartDate] = useState(new Date());
-    const [minStartDate, setMinStartDate] = useState(new Date());
-    const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
-    const [minHarvestDate, setMinHarvestDate] = useState(new Date());
+  const [minStartDate, setMinStartDate] = useState(new Date());
+  const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
+  const [minHarvestDate, setMinHarvestDate] = useState(new Date());
   const {dbname, lan_id, token, user_id, owner, carbonFlag} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
@@ -462,8 +462,13 @@ const FarmerLiveHood = ({
     setHarvested(data);
     setEdit('');
     if (data === 'same produce') {
-      setFarmerData({...farmerData,  productionSeason: '',
-        productionSeasonValue: '',cycleStartDate: '', cycleEndDate: ''});
+      setFarmerData({
+        ...farmerData,
+        productionSeason: '',
+        productionSeasonValue: '',
+        cycleStartDate: '',
+        cycleEndDate: '',
+      });
     } else {
       setFarmerData({
         ...farmerData,
@@ -609,48 +614,52 @@ const FarmerLiveHood = ({
       }
     }
   };
-  const handleAddDataproductionSeason = useCallback( async item => {
-    setFarmerData(prev => ({
-      ...prev,
-      productionSeason: item.label,
-      productionSeasonValue: item.value,
-      productionSeasonSdId: item.sd_id,
-      productionSeasonYear: item.year,
-      
-      // livelihoodType: '',
-      // livelihoodTypeValue: '',
-      // produceName: '',
-      // produceNameValue: '',
-      // produceVariety: '',
-      // produceVarietyValue: '',
-      // productionProcess: '',
-      // productionProcessValue: '',
-    }));
-    const seasonData = await axiosGet(
-      ROUTES.GET.PRODUCE_SEASON({
-        // crop_name_fid: item.value,
-        crop_name_fid: farmerData.produceNameValue,
-        sd_id: item.sd_id,
-      }),
-      '',
-      {
-        information: `${dbname},${lan_id},${user_id}`,
-        Authorization: `${token}`,
-      },
-    );
-          console.log("frdate==",JSON.stringify(seasonData?.data?.data?.rows))
-          if (seasonData?.data?.data?.rows?.length > 0) {
-      const row = seasonData?.data?.data?.rows[0];
-    
-       setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
-       setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
-       setMinHarvestDate(row?.harvest_sdate ? new Date(row.harvest_sdate) : null);
-       setMaxHarvestDate(row?.harvest_edate ? new Date(row.harvest_edate) : null);
-    
-    
-    
-          }
-  }, [farmerData.produceNameValue]);
+  const handleAddDataproductionSeason = useCallback(
+    async item => {
+      setFarmerData(prev => ({
+        ...prev,
+        productionSeason: item.label,
+        productionSeasonValue: item.value,
+        productionSeasonSdId: item.sd_id,
+        productionSeasonYear: item.year,
+
+        // livelihoodType: '',
+        // livelihoodTypeValue: '',
+        // produceName: '',
+        // produceNameValue: '',
+        // produceVariety: '',
+        // produceVarietyValue: '',
+        // productionProcess: '',
+        // productionProcessValue: '',
+      }));
+      const seasonData = await axiosGet(
+        ROUTES.GET.PRODUCE_SEASON({
+          // crop_name_fid: item.value,
+          crop_name_fid: farmerData.produceNameValue,
+          sd_id: item.sd_id,
+        }),
+        '',
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+          Authorization: `${token}`,
+        },
+      );
+      console.log('frdate==', JSON.stringify(seasonData?.data?.data?.rows));
+      if (seasonData?.data?.data?.rows?.length > 0) {
+        const row = seasonData?.data?.data?.rows[0];
+
+        setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
+        setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
+        setMinHarvestDate(
+          row?.harvest_sdate ? new Date(row.harvest_sdate) : null,
+        );
+        setMaxHarvestDate(
+          row?.harvest_edate ? new Date(row.harvest_edate) : null,
+        );
+      }
+    },
+    [farmerData.produceNameValue],
+  );
   const handleAddDatalivelihoodType = async item => {
     setFarmerData(prev => ({
       ...prev,
@@ -671,7 +680,7 @@ const FarmerLiveHood = ({
       produceVariety: '',
       produceVarietyValue: '',
     }));
-console.log("tttt")
+    console.log('tttt');
     const seasonData = await axiosGet(
       ROUTES.GET.PRODUCE_SEASON({
         crop_name_fid: item.value,
@@ -683,25 +692,25 @@ console.log("tttt")
         Authorization: `${token}`,
       },
     );
-        setFarmerData(prev => ({
-          ...prev,
-          productionSeason: '',
-          productionSeasonValue: '',
-          productionSeasonSdId: '',
-          productionSeasonYear: '',
-        }));
-        let prodctionSeasionArray = [];
-        if (seasonData?.status === 200) {
-          console.log(JSON.stringify(seasonData?.data?.data))
-          prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
-            value: data.season_info.fid,
-            label: `${data.season_info.name} (${data.year})`,
-            sd_id: data.sd_id, // NEW FIELD - stores season detail ID
-            year: data.year,
-            originalName: data.season_info.name,
-          }));
-        }
-setProductionSeason(prodctionSeasionArray);
+    setFarmerData(prev => ({
+      ...prev,
+      productionSeason: '',
+      productionSeasonValue: '',
+      productionSeasonSdId: '',
+      productionSeasonYear: '',
+    }));
+    let prodctionSeasionArray = [];
+    if (seasonData?.status === 200) {
+      console.log(JSON.stringify(seasonData?.data?.data));
+      prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
+        value: data.season_info.fid,
+        label: `${data.season_info.name} (${data.year})`,
+        sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+        year: data.year,
+        originalName: data.season_info.name,
+      }));
+    }
+    setProductionSeason(prodctionSeasionArray);
 
     // if (name === 'produceName') {
     produceNameAPI(dbname, lan_id, farmerData.livelihoodTypeValue, item.value);
@@ -951,6 +960,51 @@ setProductionSeason(prodctionSeasionArray);
           }
         }
       }
+
+      // latest code 5% area----
+      // if (area != null && area != undefined && area != '' && area != 0) {
+      //   const reportedArea = farmerData?.ConvertedreportedLandsize;
+      //   const googleArea = area;
+
+      //   if (reportedArea < googleArea) {
+      //     const deviation =
+      //       (Math.abs(reportedArea - googleArea) /
+      //         ((reportedArea + googleArea) / 2)) *
+      //       100;
+      //     if (
+      //       ![
+      //         'APPROVED',
+      //         'CARBON_DOCUMENTS_SUBMITTED',
+      //         'CARBON_DOCUMENTS_APPROVED',
+      //         'CARBON_DOCUMENTS_REJECTED',
+      //       ].includes(statuslevel.label)
+      //     ) {
+      //       if (deviation > 5) {
+      //         Alert.alert(
+      //           'Deviation',
+      //           'The deviation between reported area and google area is not within 5%',
+      //           [
+      //             {
+      //               text: 'OK',
+      //               onPress: () =>
+      //                 console.log(
+      //                   'Area deviation (%) →',
+      //                   deviation.toFixed(2),
+      //                   '| Reported:',
+      //                   reportedArea,
+      //                   '| Google:',
+      //                   googleArea,
+      //                 ),
+      //             },
+      //           ],
+      //           {cancelable: false},
+      //         );
+      //         setIsLoading(false);
+      //         return;
+      //       }
+      //     }
+      //   }
+      // }
 
       location.map((data, index) => {
         if (data?.latitude != '' && data?.latitude != undefined) {
@@ -1514,7 +1568,7 @@ setProductionSeason(prodctionSeasionArray);
       if (cropAndPlotDetails?.status === 200) {
         // if (cropAndPlotDetails.data.data.count != 0) {
         const data = cropAndPlotDetails?.data?.data;
-        plotSiteUserLandDetails.map(async(dataLandDetails, index) => {
+        plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
           if (dataLandDetails?.rel_id == findData.value) {
             if (
               dataLandDetails?.status_level == 'APPROVED' ||
@@ -1614,18 +1668,20 @@ setProductionSeason(prodctionSeasionArray);
                 Authorization: `${token}`,
               },
             );
-                      let prodctionSeasionArray = [];
-                if (seasonData?.status === 200) {
-                  console.log(JSON.stringify(seasonData?.data?.data))
-                  prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
-                    value: data.season_info.fid,
-                    label: `${data.season_info.name} (${data.year})`,
-                    sd_id: data.sd_id, // NEW FIELD - stores season detail ID
-                    year: data.year,
-                    originalName: data.season_info.name,
-                  }));
-                }
-                setProductionSeason(prodctionSeasionArray);
+            let prodctionSeasionArray = [];
+            if (seasonData?.status === 200) {
+              console.log(JSON.stringify(seasonData?.data?.data));
+              prodctionSeasionArray = seasonData?.data?.data?.rows?.map(
+                data => ({
+                  value: data.season_info.fid,
+                  label: `${data.season_info.name} (${data.year})`,
+                  sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+                  year: data.year,
+                  originalName: data.season_info.name,
+                }),
+              );
+            }
+            setProductionSeason(prodctionSeasionArray);
             return;
           }
         });
@@ -2183,24 +2239,28 @@ setProductionSeason(prodctionSeasionArray);
   return (
     <MyErrorBoundary>
       <DatePickerComp
-                openDate={penCycleStart}
-                newDate={minStartDate}
-                setOpenDate={setopenCycleStart}
-                handleDatePicker={handleDatePicker}
-                minimumDate={minStartDate}
-                maximumDate={maxStartDate}
-                // title={`${minStartDate}`}
-                 title={`Select Date Range from (${formatISODateWithSuffix(minStartDate)} - ${formatISODateWithSuffix(maxStartDate)})`}
-              />
-              <DatePickerComp
-                openDate={penCycleEnd}
-                newDate={minHarvestDate}
-                minimumDate={minHarvestDate}
-                maximumDate={maxHarvestDate}
-                 setOpenDate={setopenCycleEnd}
-                handleDatePicker={handleDatePicker2}
-                title={`Select Date Range from (${formatISODateWithSuffix(minHarvestDate)} - ${formatISODateWithSuffix(maxHarvestDate)})`}
-              />
+        openDate={penCycleStart}
+        newDate={minStartDate}
+        setOpenDate={setopenCycleStart}
+        handleDatePicker={handleDatePicker}
+        minimumDate={minStartDate}
+        maximumDate={maxStartDate}
+        // title={`${minStartDate}`}
+        title={`Select Date Range from (${formatISODateWithSuffix(
+          minStartDate,
+        )} - ${formatISODateWithSuffix(maxStartDate)})`}
+      />
+      <DatePickerComp
+        openDate={penCycleEnd}
+        newDate={minHarvestDate}
+        minimumDate={minHarvestDate}
+        maximumDate={maxHarvestDate}
+        setOpenDate={setopenCycleEnd}
+        handleDatePicker={handleDatePicker2}
+        title={`Select Date Range from (${formatISODateWithSuffix(
+          minHarvestDate,
+        )} - ${formatISODateWithSuffix(maxHarvestDate)})`}
+      />
       {isLoading ? (
         <View style={styles.LoadingScreen}>
           <LoadingScreen />
@@ -2649,7 +2709,7 @@ setProductionSeason(prodctionSeasionArray);
             </View>
           </View>
 
-           <View style={{marginTop:5}}>
+          <View style={{marginTop: 5}}>
             <DropdownForm
               label={t('addcrop_select_cultivating_season')}
               required={true}
@@ -2695,7 +2755,7 @@ setProductionSeason(prodctionSeasionArray);
               />
             </View>
           </TouchableOpacity>
-         
+
           <TouchableOpacity
             onPress={() =>
               harvested != '' || userData == 'addUserData' || addPlot == true

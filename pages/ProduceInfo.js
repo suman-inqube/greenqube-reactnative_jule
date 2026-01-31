@@ -504,19 +504,19 @@ const ProduceInfo = () => {
     }
   };
   const HandleproduceName = async produceName => {
-    console.log("rerere")
+    console.log('rerere');
     setstoreProduceInfo({
       ...storeProduceInfo,
       produceName: produceName,
       produceVariety: '',
-      prodctionSeasion:'',
+      prodctionSeasion: '',
       prodctionSeasionSdId: '',
       prodctionSeasionValue: '',
       cycleEnds: '',
       cycleStarts: '',
     });
-     
-     produceVarientyDataList(produceName, lanID, dbName);
+
+    produceVarientyDataList(produceName, lanID, dbName);
     const seasonData = await axiosGet(
       ROUTES.GET.PRODUCE_SEASON({
         crop_name_fid: produceName.value,
@@ -527,10 +527,9 @@ const ProduceInfo = () => {
         information: `${dbName},${lanID},${supervisorId}`,
       },
     );
-     console.log('frdate==', `${dbName},${lanID},${supervisorId}`);
-    
+    console.log('frdate==', `${dbName},${lanID},${supervisorId}`);
+
     if (seasonData?.status === 200) {
-      
       // const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
       //   value: data.season_info.fid,
       //   label: `${data.season_info.name} (${data.year})`,
@@ -552,12 +551,10 @@ const ProduceInfo = () => {
         ...AlertMesg[0],
       });
     }
-   
   };
 
   const handelChangeAddCrop = useCallback(
     async item => {
-  
       setstoreProduceInfo(prev => ({
         ...prev,
         prodctionSeasion: item,
@@ -565,7 +562,6 @@ const ProduceInfo = () => {
         prodctionSeasionValue: item.value,
         cycleEnds: '',
         cycleStarts: '',
-       
       }));
       console.log('fate==');
       const seasonData = await axiosGet(
@@ -580,7 +576,7 @@ const ProduceInfo = () => {
           // Authorization: `${token}`,
         },
       );
-     
+
       if (seasonData?.data?.data?.rows?.length > 0) {
         const row = seasonData?.data?.data?.rows[0];
 
@@ -853,7 +849,7 @@ const ProduceInfo = () => {
       landUnit: '',
       prodctionSeasion: '',
       prodctionSeasionSdId: '',
-      prodctionSeasionValue:'',
+      prodctionSeasionValue: '',
       livelihoodType: '',
       produceName: '',
       produceVariety: '',
@@ -889,6 +885,41 @@ const ProduceInfo = () => {
         return;
       }
     }
+
+    // latest code 5%---
+    // if (area != null && area != undefined && area != '' && area != 0) {
+    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+    //   const googleArea = area;
+    //   if (reportedArea < googleArea) {
+    //     const deviation =
+    //       (Math.abs(reportedArea - googleArea) /
+    //         ((reportedArea + googleArea) / 2)) *
+    //       100;
+    //     if (deviation > 5) {
+    //       Alert.alert(
+    //         'Deviation',
+    //         'The deviation between reported area and google area is not within 5%',
+    //         [
+    //           {
+    //             text: 'OK',
+    //             onPress: () =>
+    //               console.log(
+    //                 'Area deviation 1 (%) →',
+    //                 deviation.toFixed(2),
+    //                 '| Reported:',
+    //                 reportedArea,
+    //                 '| Google:',
+    //                 googleArea,
+    //               ),
+    //           },
+    //         ],
+    //         {cancelable: false},
+    //       );
+    //       setIsLoading(false);
+    //       return;
+    //     }
+    //   }
+    // }
     if (validationData()) {
       const newData = [...storeProduceInfoInArray, storeProduceInfo];
       setstoreProduceInfoInArray(newData);
@@ -935,6 +966,42 @@ const ProduceInfo = () => {
         return;
       }
     }
+
+    //latest code 5%--
+    // if (area != null && area != undefined && area != '' && area != 0) {
+    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+    //   const googleArea = area;
+    //   if (reportedArea < googleArea) {
+    //     const deviation =
+    //       (Math.abs(reportedArea - googleArea) /
+    //         ((reportedArea + googleArea) / 2)) *
+    //       100;
+    //     if (deviation > 5) {
+    //       setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+    //       Alert.alert(
+    //         'Deviation',
+    //         'The deviation between reported area and google area is not within 5%',
+    //         [
+    //           {
+    //             text: 'OK',
+    //             onPress: () =>
+    //               console.log(
+    //                 'Area deviation 2 (%) →',
+    //                 deviation.toFixed(2),
+    //                 '| Reported:',
+    //                 reportedArea,
+    //                 '| Google:',
+    //                 googleArea,
+    //               ),
+    //           },
+    //         ],
+    //         {cancelable: false},
+    //       );
+    //       setIsLoading(false);
+    //       return;
+    //     }
+    //   }
+    // }
     if (defaultLand == true) {
       if (convertionLUState == false) {
         if (storeProduceInfoInArray.length > 0) {
@@ -1053,6 +1120,41 @@ const ProduceInfo = () => {
         return;
       }
     }
+
+    // latest code 5%--
+    // if (area != null && area != undefined && area != '' && area != 0) {
+    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+    //   const googleArea = area;
+    //   if (reportedArea < googleArea) {
+    //     const deviation =
+    //       (Math.abs(reportedArea - googleArea) /
+    //         ((reportedArea + googleArea) / 2)) *
+    //       100;
+    //     if (deviation > 5) {
+    //       Alert.alert(
+    //         'Deviation',
+    //         'The deviation between reported area and google area is not within 5%',
+    //         [
+    //           {
+    //             text: 'OK',
+    //             onPress: () =>
+    //               console.log(
+    //                 'Area deviation 3 (%) →',
+    //                 deviation.toFixed(2),
+    //                 '| Reported:',
+    //                 reportedArea,
+    //                 '| Google:',
+    //                 googleArea,
+    //               ),
+    //           },
+    //         ],
+    //         {cancelable: false},
+    //       );
+    //       setIsLoading(false);
+    //       return;
+    //     }
+    //   }
+    // }
     if (storeProduceInfo.cycleStarts !== '') {
       if (validationData()) {
         if (storeProduceInfoInArray.length < 3) {

@@ -77,10 +77,11 @@ const ProofAndIdentityPropfComp = ({
           type: [types.pdf, types.images],
         });
         let fileUri = res.uri;
-
+        console.log('test', fileUri, res.name, res.name, res.type);
         if (res.type?.startsWith('image/')) {
           fileUri = await resizeImage(res.uri);
         }
+
         const values = [...stateValue];
         markPhotoDeleted(index, values);
         values[index] = {
@@ -239,6 +240,7 @@ const ProofAndIdentityPropfComp = ({
     }
   };
   const ActionSheet = ({data, index, spSheet}) => {
+    // Alert.alert('Test-1');
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
       if (!fileUrl) return;

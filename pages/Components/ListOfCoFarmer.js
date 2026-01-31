@@ -40,7 +40,6 @@ const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 import PaginationNav from '../../pages/Components/PaginationNav';
 import {userCreateContext} from '../../pages/Context/usersCreateContext';
 
-
 const Button = memo(({label, onPress, disabled}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -115,16 +114,16 @@ const ListOfCoFarmer = ({
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchText, setSearchText] = useState('');isSubmit;
+  const [searchText, setSearchText] = useState('');
+  isSubmit;
   const [isSubmit, setIsSubmit] = useState(false);
-  
+
   const getAge = dob => {
     if (!dob) return ''; // or return null/0
     const d = new Date(dob);
     if (isNaN(d.getTime())) return ''; // invalid date → return empty
 
     return new Date(Date.now() - d).getUTCFullYear() - 1970;
-    
   };
 
   useEffect(() => {
@@ -140,16 +139,14 @@ const ListOfCoFarmer = ({
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
-console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
-        if (response?.status === 200) {
 
-          console.log('ee=', JSON.stringify(response?.data?.data));
+        if (response?.status === 200) {
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
 
           const resArr = response?.data?.data?.rows?.map(item => ({
             ...item,
-            CoFarmer: '',
-            age: item?.coFInfo?.date_of_birth,
+            // CoFarmer: '',
+            age: '',
           }));
 
           setCoFarmerList(resArr);
@@ -343,6 +340,7 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
             type: 'edit',
             co_farmer_id: coFInfo.user_id,
           };
+
           const mapKeys = {
             farmer_address: 'addressProof',
             farmer_identity: 'idProof',
@@ -402,7 +400,6 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
 
   const onSave = useCallback(async () => {
     try {
-      console.log("")
       setIsSubmit(true);
       const formdata = new FormData();
       formdata.append('rel_id', plotId);
@@ -427,7 +424,7 @@ console.log('ee=', `${dbname},${lan_id},${user_id}`, 'eer=', token);
           type: coFarmer.idProof.type,
         });
       }
-console.log('formdata==', JSON.stringify(formdata));
+
       const updateOwnerShipRes = await axiosPut(
         ROUTES.PUT.UP_DATE_OWNER_SHIP,
         formdata,
@@ -435,7 +432,7 @@ console.log('formdata==', JSON.stringify(formdata));
         false,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
+
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
         Toast.show({
@@ -448,12 +445,12 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
           text: 'Data submitted successfully',
           ...{...AlertMesg[0], position: 'top'},
         });
-         Alert.alert('Data submitted successfully');
+        Alert.alert('Data submitted successfully');
       }
     } catch (error) {
       setIsSubmit(false);
-      // console.log('errorMessage==', JSON.stringify(error));
-      Alert.alert(`${error?.data?.error?.errorMessage?.message}`);
+
+      Alert.alert(`${error?.data?.error?.errorMessage}`);
       // Toast.show({
       //   text: `${error?.data?.error?.errorMessage}`,
       //   ...{...AlertMesg[0], position: 'top'},
@@ -514,10 +511,10 @@ console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
         title="Select Date of Birth"
       />
       {isSubmit ? (
-                <View style={styles.LoadingScreen}>
-                  <LoadingScreen />
-                </View>
-              ) : null}
+        <View style={styles.LoadingScreen}>
+          <LoadingScreen />
+        </View>
+      ) : null}
 
       {/* Header with Gradient */}
       <LinearGradient

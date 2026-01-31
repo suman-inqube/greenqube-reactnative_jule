@@ -30,6 +30,9 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import {addIdAddressImgs, onlyUpdateIdAddrFile} from '../../../config/apiHere';
 import {deletePlotImageAPI} from '../Loan/LoanAPI';
 import {Colors} from '../../utils/Constants';
+import MyErrorBoundary from '../../Common/MyErrorBoundary';
+import {SafeAreaView} from 'react-native-safe-area-context';
+
 const qs = require('qs');
 import DatePickerField from '../../Common/DatePickerField';
 import DatePickerComp from '../../Common/DatePickerComp';
@@ -174,8 +177,6 @@ const Information = ({sendDataToParent, farmerID}) => {
     }
   };
   const getDistrict = async (dbname, lan_id, stateID) => {
-
-   
     const response = await axiosGet(
       ROUTES.GET.DISTRICT_API({
         stateID: stateID,
@@ -185,7 +186,7 @@ const Information = ({sendDataToParent, farmerID}) => {
     );
     // fetchDistrictAPI(dbname, lan_id, stateID);
 
-     console.log('admin333=', response);
+    console.log('admin333=', response);
 
     if (response?.status === 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
@@ -388,148 +389,150 @@ const Information = ({sendDataToParent, farmerID}) => {
   //   setIsLoading(false);
   // };
 
-const onPageLoad = async () => {
-  setIsLoading(true);
-  try {
-    const [userListData, state, district, block, curr] = await Promise.all([
-      getItem('userListData'),
-      getItem('state'),
-      getItem('district'),
-      getItem('block'),
-      getItem('currency'),
-    ]);
-    if (loginUser_data) {
-      setcurrency(curr);
-      const {dbname, lan_id, token, user_id} = loginUser_data;
-      setregionaldatas(prev => ({
-        ...prev,
-        state: state,
-        district: district,
-        block: block,
-      }));
-      if (userListData) {
-        const farmerFound = userListData?.find(
-          user => user.user_id === farmeruserID,
-        );
-        if (farmerFound) {
-          const dob = new Date(farmerFound.date_of_birth);
-          const currentDate = new Date();
-          const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
-          if (farmerFound.agri_user_addresses[0].agri_district) {
-            await Promise.all([
-              getDistrict(
-                dbname,
-                lan_id,
-                farmerFound.agri_user_addresses[0]?.agri_state?.fid,
-              ),
-              getBlock(
-                dbname,
-                lan_id,
-                farmerFound.agri_user_addresses[0]?.agri_district?.fid,
-              ),
-            ]);
+  const onPageLoad = async () => {
+    setIsLoading(true);
+    try {
+      const [userListData, state, district, block, curr] = await Promise.all([
+        getItem('userListData'),
+        getItem('state'),
+        getItem('district'),
+        getItem('block'),
+        getItem('currency'),
+      ]);
+      if (loginUser_data) {
+        setcurrency(curr);
+        const {dbname, lan_id, token, user_id} = loginUser_data;
+        setregionaldatas(prev => ({
+          ...prev,
+          state: state,
+          district: district,
+          block: block,
+        }));
+        if (userListData) {
+          const farmerFound = userListData?.find(
+            user => user.user_id === farmeruserID,
+          );
+          if (farmerFound) {
+            const dob = new Date(farmerFound.date_of_birth);
+            const currentDate = new Date();
+            const yearsDiff = currentDate.getFullYear() - dob.getFullYear();
+            if (farmerFound.agri_user_addresses[0].agri_district) {
+              await Promise.all([
+                getDistrict(
+                  dbname,
+                  lan_id,
+                  farmerFound.agri_user_addresses[0]?.agri_state?.fid,
+                ),
+                getBlock(
+                  dbname,
+                  lan_id,
+                  farmerFound.agri_user_addresses[0]?.agri_district?.fid,
+                ),
+              ]);
+            }
+
+            if (farmerFound.agri_files[0] != undefined) {
+              const filteredFilesProfile = farmerFound.agri_files.filter(
+                file => file.term_type === '1',
+              );
+              setSelectedImage(filteredFilesProfile[0]?.file_path);
+              const identityProofIdentityPropfValue = [
+                ...identityProofIdentityPropf,
+              ];
+              const values_adress = [...identityProofIdentityPropf];
+
+              // Update address proof in the same object
+              farmerFound.agri_files
+                .filter(file => file.term_type === 'farmer_address')
+                .map(_file => {
+                  values_adress[0] = {
+                    ...values_adress[0], // Keep other properties intact
+                    uri: _file.file_path,
+                    name: _file.file_name,
+                    type: _file.file_ext,
+                    imageType: 'address', // Update the specific property
+                    fileName: _file.file_name,
+                    file_id: _file.file_id,
+                    id: _file.file_id,
+                  };
+                });
+
+              // Update identity proof in the same object
+              farmerFound.agri_files
+                .filter(file => file.term_type === 'farmer_identity')
+                .map(_file => {
+                  values_adress[1] = {
+                    ...values_adress[1], // Keep other properties intact
+                    uri: _file.file_path,
+                    name: _file.file_name,
+                    type: _file.file_ext,
+                    imageType: 'identity', // Update the specific property
+                    fileName: _file.file_name,
+                    file_id: _file.file_id,
+                    id: _file.file_id,
+                  };
+                });
+
+              // Update the state with modified objects
+              setIdentityProofIdentityPropf(values_adress);
+            }
+            setFarmerData(prev => ({
+              ...prev,
+              userName: farmerFound?.userName,
+              contactNumber: farmerFound?.contactNumber,
+              gender: farmerFound?.gender,
+              farmer_type: farmerFound?.farmer_type,
+              date_of_birth: farmerFound?.date_of_birth,
+              age: yearsDiff.toString(),
+              country: farmerFound?.agri_user_addresses[0]?.country,
+              state: farmerFound?.agri_user_addresses[0]?.agri_state?.fid,
+              stateName:
+                farmerFound?.agri_user_addresses[0]?.agri_state?.state_name,
+              district: farmerFound?.agri_user_addresses[0]?.agri_district?.fid,
+              districtName:
+                farmerFound?.agri_user_addresses[0]?.agri_district
+                  ?.district_name,
+              block: farmerFound?.agri_user_addresses[0]?.agri_subdivision?.fid,
+              blockName:
+                farmerFound?.agri_user_addresses[0]?.agri_subdivision
+                  ?.subdiv_name,
+              aadhar_number: farmerFound?.aadhar_number,
+              pan_number: farmerFound?.pan_number,
+              voter_card_number: farmerFound?.voter_card_number,
+              kcc_number: farmerFound?.kcc_number,
+              user_bank_account_holder: farmerFound?.user_bank_account_holder,
+              user_bank_account_name: farmerFound?.user_bank_account_name,
+              user_bank_branch_name: farmerFound?.user_bank_branch_name,
+              user_bank_account_number: farmerFound?.user_bank_account_number,
+              user_bank_ifsc_code: farmerFound?.user_bank_ifsc_code,
+              pension_authority:
+                farmerFound?.pension_details?.pension_authority,
+              pension_account_no:
+                farmerFound?.pension_details?.pension_account_no,
+              effective_from: farmerFound?.pension_details?.effective_from,
+              pension_amount: farmerFound?.pension_details?.pension_amount,
+              frequency: farmerFound?.pension_details?.frequency,
+              company_name: farmerFound?.lic_details?.company_name,
+              policy_no: farmerFound?.lic_details?.policy_no,
+              sum_insured: farmerFound?.lic_details?.sum_insured,
+            }));
           }
-
-          if (farmerFound.agri_files[0] != undefined) {
-            const filteredFilesProfile = farmerFound.agri_files.filter(
-              file => file.term_type === '1',
-            );
-            setSelectedImage(filteredFilesProfile[0]?.file_path);
-            const identityProofIdentityPropfValue = [
-              ...identityProofIdentityPropf,
-            ];
-            const values_adress = [...identityProofIdentityPropf];
-
-            // Update address proof in the same object
-            farmerFound.agri_files
-              .filter(file => file.term_type === 'farmer_address')
-              .map(_file => {
-                values_adress[0] = {
-                  ...values_adress[0], // Keep other properties intact
-                  uri: _file.file_path,
-                  name: _file.file_name,
-                  type: _file.file_ext,
-                  imageType: 'address', // Update the specific property
-                  fileName: _file.file_name,
-                  file_id: _file.file_id,
-                  id: _file.file_id,
-                };
-              });
-
-            // Update identity proof in the same object
-            farmerFound.agri_files
-              .filter(file => file.term_type === 'farmer_identity')
-              .map(_file => {
-                values_adress[1] = {
-                  ...values_adress[1], // Keep other properties intact
-                  uri: _file.file_path,
-                  name: _file.file_name,
-                  type: _file.file_ext,
-                  imageType: 'identity', // Update the specific property
-                  fileName: _file.file_name,
-                  file_id: _file.file_id,
-                  id: _file.file_id,
-                };
-              });
-
-            // Update the state with modified objects
-            setIdentityProofIdentityPropf(values_adress);
-          }
-          setFarmerData(prev => ({
-            ...prev,
-            userName: farmerFound?.userName,
-            contactNumber: farmerFound?.contactNumber,
-            gender: farmerFound?.gender,
-            farmer_type: farmerFound?.farmer_type,
-            date_of_birth: farmerFound?.date_of_birth,
-            age: yearsDiff.toString(),
-            country: farmerFound?.agri_user_addresses[0]?.country,
-            state: farmerFound?.agri_user_addresses[0]?.agri_state?.fid,
-            stateName:
-              farmerFound?.agri_user_addresses[0]?.agri_state?.state_name,
-            district: farmerFound?.agri_user_addresses[0]?.agri_district?.fid,
-            districtName:
-              farmerFound?.agri_user_addresses[0]?.agri_district?.district_name,
-            block: farmerFound?.agri_user_addresses[0]?.agri_subdivision?.fid,
-            blockName:
-              farmerFound?.agri_user_addresses[0]?.agri_subdivision
-                ?.subdiv_name,
-            aadhar_number: farmerFound?.aadhar_number,
-            pan_number: farmerFound?.pan_number,
-            voter_card_number: farmerFound?.voter_card_number,
-            kcc_number: farmerFound?.kcc_number,
-            user_bank_account_holder: farmerFound?.user_bank_account_holder,
-            user_bank_account_name: farmerFound?.user_bank_account_name,
-            user_bank_branch_name: farmerFound?.user_bank_branch_name,
-            user_bank_account_number: farmerFound?.user_bank_account_number,
-            user_bank_ifsc_code: farmerFound?.user_bank_ifsc_code,
-            pension_authority: farmerFound?.pension_details?.pension_authority,
-            pension_account_no:
-              farmerFound?.pension_details?.pension_account_no,
-            effective_from: farmerFound?.pension_details?.effective_from,
-            pension_amount: farmerFound?.pension_details?.pension_amount,
-            frequency: farmerFound?.pension_details?.frequency,
-            company_name: farmerFound?.lic_details?.company_name,
-            policy_no: farmerFound?.lic_details?.policy_no,
-            sum_insured: farmerFound?.lic_details?.sum_insured,
-          }));
+          getState(dbname, lan_id);
         }
-        getState(dbname, lan_id);
       }
-    }
-    setIsLoading(false);
-  } catch (error) {
-    console.log('onPageLoad error12', error);
-    setIsLoading(false);
+      setIsLoading(false);
+    } catch (error) {
+      console.log('onPageLoad error12', error);
+      setIsLoading(false);
 
-    Toast?.show({
-      text:
-        error?.response?.data?.error?.errorMessage || 'Something went wrong',
-      ...AlertMesg?.[0],
-    });
-  }
-};
-  
+      Toast?.show({
+        text:
+          error?.response?.data?.error?.errorMessage || 'Something went wrong',
+        ...AlertMesg?.[0],
+      });
+    }
+  };
+
   useEffect(() => {
     onPageLoad();
   }, []);
@@ -853,336 +856,348 @@ const onPageLoad = async () => {
     [],
   );
   return (
-    <FarmerDrawerScreenWrapper1>
+    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
       <Root>
-        {renderCustomHeader}
-        <DatePickerComp
-          openDate={open}
-          newDate={newdate}
-          setOpenDate={setOpen}
-          handleDatePicker={handleEffectFrom}
-          title={t('effective_from')}
-        />
-        {isLoading ? (
-          <View style={styles.LoadingScreen}>
-            <LoadingScreen />
-          </View>
-        ) : null}
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View
-            style={{backgroundColor: Colors.background, flex: 1, padding: 16}}>
-            <View style={{alignItems: 'center'}}>
-              <ImagePlaceHolderCircle
-                openImagePicker={openImagePicker}
-                selectedImage={selectedImage}
-              />
+        <MyErrorBoundary>
+          {renderCustomHeader}
+          <DatePickerComp
+            openDate={open}
+            newDate={newdate}
+            setOpenDate={setOpen}
+            handleDatePicker={handleEffectFrom}
+            title={t('effective_from')}
+          />
+          {isLoading ? (
+            <View style={styles.LoadingScreen}>
+              <LoadingScreen />
             </View>
-            <InputTextForm
-              label={t('name')}
-              required={true}
-              value={farmerData.userName == '' ? userName : farmerData.userName}
-              onChangeText={handleUserNameChange}
-              editable={false}
-            />
-            <InputTextForm
-              label={t('new_reg_phone_number')}
-              required={true}
-              value={
-                farmerData.contactNumber == ''
-                  ? contactNumber
-                  : farmerData.contactNumber
-              }
-              editable={false}
-            />
-            <View>
-              <Text style={{fontSize: 16, color: '#000'}}>
-                {t('farmer_reg_gnd')}
-              </Text>
-              <RadioForm
-                label={t('farmer_reg_male')}
-                selected={
-                  farmerData.gender == ''
-                    ? gender === '1'
-                    : farmerData.gender == '1'
-                }
-                onSelect={() => setFarmerData({...farmerData, gender: '1'})}
-              />
-              <RadioForm
-                label={t('farmer_reg_female')}
-                selected={
-                  farmerData.gender == ''
-                    ? gender === '2'
-                    : farmerData.gender == '2'
-                }
-                onSelect={() => setFarmerData({...farmerData, gender: '2'})}
-              />
-            </View>
-            <View style={{marginBottom: 15}}>
-              <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
-                {t('far_reg_far_type')}
-              </Text>
-              <RadioForm
-                label={t('grower')}
-                selected={
-                  farmerData.farmer_type == ''
-                    ? farmer_type == '1'
-                    : farmerData.farmer_type === '1'
-                }
-                onSelect={() =>
-                  setFarmerData({...farmerData, farmer_type: '1'})
-                }
-              />
-              <RadioForm
-                label={t('small_holder')}
-                selected={
-                  farmerData.farmer_type == ''
-                    ? farmer_type == '2'
-                    : farmerData.farmer_type === '2'
-                }
-                onSelect={() =>
-                  setFarmerData({...farmerData, farmer_type: '2'})
-                }
-              />
-              <RadioForm
-                label={t('farm_worker')}
-                selected={
-                  farmerData.farmer_type == ''
-                    ? farmer_type == '3'
-                    : farmerData.farmer_type === '3'
-                }
-                onSelect={() =>
-                  setFarmerData({...farmerData, farmer_type: '3'})
-                }
-              />
-            </View>
-            <InputTextForm
-              label={t('age')}
-              value={farmerData.age ?? farmerData.age}
-              keyboardType="numeric"
-              editable={false}
-            />
-            <DropdownForm
-              label={
-                regionaldatas.state == ''
-                  ? t('pre_state_division_zone')
-                  : t(`${regionaldatas.state}`)
-              }
-              data={stateAll}
-              onChange={handleState}
-              val={farmerData.stateName}
-            />
-            <DropdownForm
-              label={
-                regionaldatas.state == ''
-                  ? t('pre_district_county')
-                  : t(`${regionaldatas.district}`)
-              }
-              data={districtAll}
-              onChange={handleDistrict}
-              val={farmerData.districtName}
-            />
-            <DropdownForm
-              label={
-                regionaldatas.block == ''
-                  ? t('select_block_sub_county_upzila')
-                  : t(`${regionaldatas.block}`)
-              }
-              data={blockAll}
-              onChange={item => {
-                setFarmerData(prev => ({
-                  ...prev,
-                  block: item.value,
-                  blockName: item.label,
-                }));
-              }}
-              val={farmerData.blockName}
-            />
-
-            <ProofAndIdentityPropfComp
-              identityProofIdentityPropf={identityProofIdentityPropf}
-              t={t}
-              title={t('address_proofAndIdentityPropf')}
-              setStateValue={setIdentityProofIdentityPropf}
-              stateValue={identityProofIdentityPropf}
-              photoDeletedValue={photoDeletedValue}
-              setPhotoDeletedValue={setPhotoDeletedValue}
-              loginUser_data={loginUser_data}
-              disable={true}
-              InputTextFormEdit={true}
-            />
-
+          ) : null}
+          <ScrollView showsVerticalScrollIndicator={false}>
             <View
               style={{
-                borderWidth: 1,
-                borderColor: Colors.border,
-                borderRadius: 8,
-                marginTop: 10,
+                backgroundColor: Colors.background,
+                flex: 1,
+                padding: 16,
               }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
-                  <Text style={styles.title}>
-                    {t('different_identity_number')}
-                  </Text>
-                  <View style={{marginTop: 10}}>
+              <View style={{alignItems: 'center'}}>
+                <ImagePlaceHolderCircle
+                  openImagePicker={openImagePicker}
+                  selectedImage={selectedImage}
+                />
+              </View>
+              <InputTextForm
+                label={t('name')}
+                required={true}
+                value={
+                  farmerData.userName == '' ? userName : farmerData.userName
+                }
+                onChangeText={handleUserNameChange}
+                editable={false}
+              />
+              <InputTextForm
+                label={t('new_reg_phone_number')}
+                required={true}
+                value={
+                  farmerData.contactNumber == ''
+                    ? contactNumber
+                    : farmerData.contactNumber
+                }
+                editable={false}
+              />
+              <View>
+                <Text style={{fontSize: 16, color: '#000'}}>
+                  {t('farmer_reg_gnd')}
+                </Text>
+                <RadioForm
+                  label={t('farmer_reg_male')}
+                  selected={
+                    farmerData.gender == ''
+                      ? gender === '1'
+                      : farmerData.gender == '1'
+                  }
+                  onSelect={() => setFarmerData({...farmerData, gender: '1'})}
+                />
+                <RadioForm
+                  label={t('farmer_reg_female')}
+                  selected={
+                    farmerData.gender == ''
+                      ? gender === '2'
+                      : farmerData.gender == '2'
+                  }
+                  onSelect={() => setFarmerData({...farmerData, gender: '2'})}
+                />
+              </View>
+              <View style={{marginBottom: 15}}>
+                <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
+                  {t('far_reg_far_type')}
+                </Text>
+                <RadioForm
+                  label={t('grower')}
+                  selected={
+                    farmerData.farmer_type == ''
+                      ? farmer_type == '1'
+                      : farmerData.farmer_type === '1'
+                  }
+                  onSelect={() =>
+                    setFarmerData({...farmerData, farmer_type: '1'})
+                  }
+                />
+                <RadioForm
+                  label={t('small_holder')}
+                  selected={
+                    farmerData.farmer_type == ''
+                      ? farmer_type == '2'
+                      : farmerData.farmer_type === '2'
+                  }
+                  onSelect={() =>
+                    setFarmerData({...farmerData, farmer_type: '2'})
+                  }
+                />
+                <RadioForm
+                  label={t('farm_worker')}
+                  selected={
+                    farmerData.farmer_type == ''
+                      ? farmer_type == '3'
+                      : farmerData.farmer_type === '3'
+                  }
+                  onSelect={() =>
+                    setFarmerData({...farmerData, farmer_type: '3'})
+                  }
+                />
+              </View>
+              <InputTextForm
+                label={t('age')}
+                value={farmerData.age ?? farmerData.age}
+                keyboardType="numeric"
+                editable={false}
+              />
+              <DropdownForm
+                label={
+                  regionaldatas.state == ''
+                    ? t('pre_state_division_zone')
+                    : t(`${regionaldatas.state}`)
+                }
+                data={stateAll}
+                onChange={handleState}
+                val={farmerData.stateName}
+              />
+              <DropdownForm
+                label={
+                  regionaldatas.state == ''
+                    ? t('pre_district_county')
+                    : t(`${regionaldatas.district}`)
+                }
+                data={districtAll}
+                onChange={handleDistrict}
+                val={farmerData.districtName}
+              />
+              <DropdownForm
+                label={
+                  regionaldatas.block == ''
+                    ? t('select_block_sub_county_upzila')
+                    : t(`${regionaldatas.block}`)
+                }
+                data={blockAll}
+                onChange={item => {
+                  setFarmerData(prev => ({
+                    ...prev,
+                    block: item.value,
+                    blockName: item.label,
+                  }));
+                }}
+                val={farmerData.blockName}
+              />
+
+              <ProofAndIdentityPropfComp
+                identityProofIdentityPropf={identityProofIdentityPropf}
+                t={t}
+                title={t('address_proofAndIdentityPropf')}
+                setStateValue={setIdentityProofIdentityPropf}
+                stateValue={identityProofIdentityPropf}
+                photoDeletedValue={photoDeletedValue}
+                setPhotoDeletedValue={setPhotoDeletedValue}
+                loginUser_data={loginUser_data}
+                disable={true}
+                InputTextFormEdit={true}
+              />
+
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border,
+                  borderRadius: 8,
+                  marginTop: 10,
+                }}>
+                <View style={{marginTop: 20, marginHorizontal: 15}}>
+                  <>
+                    <Text style={styles.title}>
+                      {t('different_identity_number')}
+                    </Text>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('adhar_no')}
+                        onChangeText={handleAadharNumberChange}
+                        keyboardType="numeric"
+                        value={farmerData.aadhar_number}
+                      />
+                    </View>
                     <InputTextForm
-                      label={t('adhar_no')}
-                      onChangeText={handleAadharNumberChange}
+                      label={t('pan_no')}
+                      value={farmerData.pan_number}
+                      onChangeText={handlePanNumberChange}
+                    />
+                    <InputTextForm
+                      label={t('voter_card_no')}
+                      value={farmerData.voter_card_number}
+                      onChangeText={handleVoterCardChange}
+                    />
+                    <InputTextForm
+                      label={t('kcc_no')}
+                      onChangeText={handleKccNoChange}
+                      value={farmerData.kcc_number}
+                    />
+                  </>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border,
+                  borderRadius: 8,
+                  marginTop: 10,
+                }}>
+                <View style={{marginTop: 20, marginHorizontal: 15}}>
+                  <>
+                    <Text style={styles.title}>
+                      {t('bank_account_details')}
+                    </Text>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('account_holder_name')}
+                        onChangeText={handleUserBankAccountHolderChange}
+                        value={farmerData.user_bank_account_holder}
+                      />
+                    </View>
+                    <InputTextForm
+                      label={t('farmer_reg_bankifsc')}
+                      onChangeText={handleUserBankAccountNameChange}
+                      value={farmerData.user_bank_account_name}
+                    />
+
+                    <InputTextForm
+                      label={t('branch_name')}
+                      onChangeText={handleUserBankBranchNameChange}
+                      value={farmerData.user_bank_branch_name}
+                    />
+
+                    <InputTextForm
+                      label={t('bank_account')}
+                      onChangeText={handleUserBankAccountNumberChange}
+                      value={farmerData.user_bank_account_number}
                       keyboardType="numeric"
-                      value={farmerData.aadhar_number}
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('pan_no')}
-                    value={farmerData.pan_number}
-                    onChangeText={handlePanNumberChange}
-                  />
-                  <InputTextForm
-                    label={t('voter_card_no')}
-                    value={farmerData.voter_card_number}
-                    onChangeText={handleVoterCardChange}
-                  />
-                  <InputTextForm
-                    label={t('kcc_no')}
-                    onChangeText={handleKccNoChange}
-                    value={farmerData.kcc_number}
-                  />
-                </>
-              </View>
-            </View>
 
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: Colors.border,
-                borderRadius: 8,
-                marginTop: 10,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
-                  <Text style={styles.title}>{t('bank_account_details')}</Text>
-                  <View style={{marginTop: 10}}>
                     <InputTextForm
-                      label={t('account_holder_name')}
-                      onChangeText={handleUserBankAccountHolderChange}
-                      value={farmerData.user_bank_account_holder}
+                      label={t('ifsc_no')}
+                      onChangeText={handleUserBankIfscCodeChange}
+                      value={farmerData.user_bank_ifsc_code}
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('farmer_reg_bankifsc')}
-                    onChangeText={handleUserBankAccountNameChange}
-                    value={farmerData.user_bank_account_name}
-                  />
-
-                  <InputTextForm
-                    label={t('branch_name')}
-                    onChangeText={handleUserBankBranchNameChange}
-                    value={farmerData.user_bank_branch_name}
-                  />
-
-                  <InputTextForm
-                    label={t('bank_account')}
-                    onChangeText={handleUserBankAccountNumberChange}
-                    value={farmerData.user_bank_account_number}
-                    keyboardType="numeric"
-                  />
-
-                  <InputTextForm
-                    label={t('ifsc_no')}
-                    onChangeText={handleUserBankIfscCodeChange}
-                    value={farmerData.user_bank_ifsc_code}
-                  />
-                </>
+                  </>
+                </View>
               </View>
-            </View>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: Colors.border,
-                borderRadius: 8,
-                marginTop: 10,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
-                  <Text style={styles.title}>{t('pension_details')}</Text>
-                  <View style={{marginTop: 10}}>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border,
+                  borderRadius: 8,
+                  marginTop: 10,
+                }}>
+                <View style={{marginTop: 20, marginHorizontal: 15}}>
+                  <>
+                    <Text style={styles.title}>{t('pension_details')}</Text>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('pension_providing_authority')}
+                        onChangeText={handlePensionAuthorityChange}
+                        value={farmerData.pension_authority}
+                      />
+                    </View>
+
                     <InputTextForm
-                      label={t('pension_providing_authority')}
-                      onChangeText={handlePensionAuthorityChange}
-                      value={farmerData.pension_authority}
+                      label={t('pension_account_number')}
+                      onChangeText={handlePensionAccountNumberChange}
+                      value={farmerData.pension_account_no}
+                      keyboardType="numeric"
                     />
-                  </View>
+                    <DatePickerField
+                      labelColor={Colors.black}
+                      label={t('effective_from')}
+                      value={farmerData.effective_from}
+                      onPress={handleEffectFromField}
+                    />
 
-                  <InputTextForm
-                    label={t('pension_account_number')}
-                    onChangeText={handlePensionAccountNumberChange}
-                    value={farmerData.pension_account_no}
-                    keyboardType="numeric"
-                  />
-                  <DatePickerField
-                    labelColor={Colors.black}
-                    label={t('effective_from')}
-                    value={farmerData.effective_from}
-                    onPress={handleEffectFromField}
-                  />
-
-                  <InputTextForm
-                    label={t('pension_amount_currency') + '(' + currency + ')'}
-                    onChangeText={handlePensionAmountChange}
-                    value={farmerData.pension_amount}
-                    keyboardType="numeric"
-                  />
-                  <DropdownForm
-                    label={t('per_month_quarter_year')}
-                    data={config.pensionParMonthData}
-                    onChangeText={handleFrequencyChange}
-                    val={farmerData.frequency}
-                  />
-                </>
-              </View>
-            </View>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: Colors.border,
-                borderRadius: 8,
-                marginTop: 10,
-              }}>
-              <View style={{marginTop: 20, marginHorizontal: 15}}>
-                <>
-                  <Text style={styles.title}>
-                    {t('life_insurance_details')}
-                  </Text>
-                  <View style={{marginTop: 10}}>
                     <InputTextForm
-                      label={t('lic_name_of_company')}
-                      onChangeText={handleCompanyNameChange}
-                      value={farmerData.company_name}
+                      label={
+                        t('pension_amount_currency') + '(' + currency + ')'
+                      }
+                      onChangeText={handlePensionAmountChange}
+                      value={farmerData.pension_amount}
+                      keyboardType="numeric"
                     />
-                  </View>
-                  <InputTextForm
-                    label={t('policy_number')}
-                    onChangeText={handlePolicyNumberChange}
-                    value={farmerData.policy_no}
-                    keyboardType="numeric"
-                  />
-                  <InputTextForm
-                    label={t('sum_insured_currency') + '(' + currency + ')'}
-                    onChangeText={handleSumInsuredChange}
-                    value={farmerData.sum_insured}
-                    keyboardType="numeric"
-                  />
-                </>
+                    <DropdownForm
+                      label={t('per_month_quarter_year')}
+                      data={config.pensionParMonthData}
+                      onChangeText={handleFrequencyChange}
+                      val={farmerData.frequency}
+                    />
+                  </>
+                </View>
+              </View>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border,
+                  borderRadius: 8,
+                  marginTop: 10,
+                }}>
+                <View style={{marginTop: 20, marginHorizontal: 15}}>
+                  <>
+                    <Text style={styles.title}>
+                      {t('life_insurance_details')}
+                    </Text>
+                    <View style={{marginTop: 10}}>
+                      <InputTextForm
+                        label={t('lic_name_of_company')}
+                        onChangeText={handleCompanyNameChange}
+                        value={farmerData.company_name}
+                      />
+                    </View>
+                    <InputTextForm
+                      label={t('policy_number')}
+                      onChangeText={handlePolicyNumberChange}
+                      value={farmerData.policy_no}
+                      keyboardType="numeric"
+                    />
+                    <InputTextForm
+                      label={t('sum_insured_currency') + '(' + currency + ')'}
+                      onChangeText={handleSumInsuredChange}
+                      value={farmerData.sum_insured}
+                      keyboardType="numeric"
+                    />
+                  </>
+                </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
-        <ButtonForm
-          label={t('submit')}
-          onPress={() => handleUserListUpdate()}
-          loading={isLoading}
-        />
+          </ScrollView>
+          <ButtonForm
+            label={t('submit')}
+            onPress={() => handleUserListUpdate()}
+            loading={isLoading}
+          />
+        </MyErrorBoundary>
       </Root>
-    </FarmerDrawerScreenWrapper1>
+    </SafeAreaView>
   );
 };
 

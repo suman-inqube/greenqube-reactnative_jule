@@ -34,7 +34,7 @@ import {
   landRouteApi,
   uploadFarmerIdAdd,
 } from '../../../config/apiHere';
-import { formatISODateWithSuffix } from '../../Common/CommonFunction';
+import {formatISODateWithSuffix} from '../../Common/CommonFunction';
 import {
   addPlotImageAPI,
   getPlotDocAPI,
@@ -475,23 +475,23 @@ const LiveHood = ({
               information: `${dbname},${lan_id}`,
             },
           ),
-        //   axiosGet(
-        //     ROUTES.GET.PRODUCE_SEASON({
-        //      crop_name_fid: farmerData.produceNameValue,
-        // season_fid:item.value,
-        //     }),
-        //     '',
-        //     {
-        //       information: `${dbname},${lan_id},${user_id}`,
-        //       Authorization: `${token}`,
-        //     },
-        //   ),
+          //   axiosGet(
+          //     ROUTES.GET.PRODUCE_SEASON({
+          //      crop_name_fid: farmerData.produceNameValue,
+          // season_fid:item.value,
+          //     }),
+          //     '',
+          //     {
+          //       information: `${dbname},${lan_id},${user_id}`,
+          //       Authorization: `${token}`,
+          //     },
+          //   ),
         ]);
         setPlotId(findData.value);
         // console.log('getPlotDoc');
         if (getPlotDoc?.status == 200) {
           const {count} = getPlotDoc?.data?.data;
-           console.log('item==', getPlotDoc?.data?.data);
+
           const {plot_img, landUserImgs} =
             getPlotDoc?.data?.data?.rows[0] || {};
           // const values = [...addressProof];
@@ -542,7 +542,6 @@ const LiveHood = ({
           //   }
           // });
 
-          
           const plotImagesFromApi = filteredPlotImages.map(item => ({
             uri: item.file_path,
             name: item.file_name,
@@ -657,7 +656,7 @@ const LiveHood = ({
               } else {
                 setArea(data.land_info?.google_area);
               }
-              
+
               setFarmerData(prev => ({
                 ...prev,
                 createdBy: user_id,
@@ -709,30 +708,31 @@ const LiveHood = ({
                   Number(dataLandDetails?.land_unit?.defined_unit_value) *
                   Number(dataLandDetails?.land_size),
               }));
-const seasonData = await axiosGet(
-  ROUTES.GET.PRODUCE_SEASON({
-    crop_name_fid: data?.crop_name?.fid,
-    sd_id: '',
-  }),
-  '',
-  {
-    information: `${dbname},${lan_id},${user_id}`,
-    Authorization: `${token}`,
-  },
-);
-          let prodctionSeasionArray = [];
-    if (seasonData?.status === 200) {
-      console.log(JSON.stringify(seasonData?.data?.data))
-      prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
-        value: data.season_info.fid,
-        label: `${data.season_info.name} (${data.year})`,
-        sd_id: data.sd_id, // NEW FIELD - stores season detail ID
-        year: data.year,
-        originalName: data.season_info.name,
-      }));
-    }
-    setProductionSeason(prodctionSeasionArray);
-               
+              const seasonData = await axiosGet(
+                ROUTES.GET.PRODUCE_SEASON({
+                  crop_name_fid: data?.crop_name?.fid,
+                  sd_id: '',
+                }),
+                '',
+                {
+                  information: `${dbname},${lan_id},${user_id}`,
+                  Authorization: `${token}`,
+                },
+              );
+              let prodctionSeasionArray = [];
+              if (seasonData?.status === 200) {
+                prodctionSeasionArray = seasonData?.data?.data?.rows?.map(
+                  data => ({
+                    value: data.season_info.fid,
+                    label: `${data.season_info.name} (${data.year})`,
+                    sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+                    year: data.year,
+                    originalName: data.season_info.name,
+                  }),
+                );
+              }
+              setProductionSeason(prodctionSeasionArray);
+
               return;
             }
           });
@@ -885,8 +885,6 @@ const seasonData = await axiosGet(
             }
           }
         }
-
-        
       } catch (error) {
         setIsLoading(false);
         Toast.show({
@@ -1126,50 +1124,53 @@ const seasonData = await axiosGet(
     }
   }, []);
 
-  const handleAddDataproductionSeason = useCallback(async item => {
-    setFarmerData(prev => ({
-      ...prev,
-      productionSeason: item.label,
-      productionSeasonValue: item.value,
-      productionSeasonSdId: item.sd_id,
-      productionSeasonYear: item.year,
-      cycleStartDate:'',
-      cycleEndDate:'',
-      
-      // livelihoodType: '',
-      // livelihoodTypeValue: '',
-      // produceName: '',
-      // produceNameValue: '',
-      // produceVariety: '',
-      // produceVarietyValue: '',
-      // productionProcess: '',
-      // productionProcessValue: '',
-    }));
-    const seasonData = await axiosGet(
-      ROUTES.GET.PRODUCE_SEASON({
-        // crop_name_fid: item.value,
-        crop_name_fid: farmerData.produceNameValue,
-        sd_id: item.sd_id,
-      }),
-      '',
-      {
-        information: `${dbname},${lan_id},${user_id}`,
-        Authorization: `${token}`,
-      },
-    );
-      console.log("frdate==",JSON.stringify(seasonData?.data?.data?.rows))
+  const handleAddDataproductionSeason = useCallback(
+    async item => {
+      setFarmerData(prev => ({
+        ...prev,
+        productionSeason: item.label,
+        productionSeasonValue: item.value,
+        productionSeasonSdId: item.sd_id,
+        productionSeasonYear: item.year,
+        cycleStartDate: '',
+        cycleEndDate: '',
+
+        // livelihoodType: '',
+        // livelihoodTypeValue: '',
+        // produceName: '',
+        // produceNameValue: '',
+        // produceVariety: '',
+        // produceVarietyValue: '',
+        // productionProcess: '',
+        // productionProcessValue: '',
+      }));
+      const seasonData = await axiosGet(
+        ROUTES.GET.PRODUCE_SEASON({
+          // crop_name_fid: item.value,
+          crop_name_fid: farmerData.produceNameValue,
+          sd_id: item.sd_id,
+        }),
+        '',
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+          Authorization: `${token}`,
+        },
+      );
       if (seasonData?.data?.data?.rows?.length > 0) {
-  const row = seasonData?.data?.data?.rows[0];
+        const row = seasonData?.data?.data?.rows[0];
 
-   setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
-   setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
-   setMinHarvestDate(row?.harvest_sdate ? new Date(row.harvest_sdate) : null);
-   setMaxHarvestDate(row?.harvest_edate ? new Date(row.harvest_edate) : null);
-
-
-
+        setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
+        setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
+        setMinHarvestDate(
+          row?.harvest_sdate ? new Date(row.harvest_sdate) : null,
+        );
+        setMaxHarvestDate(
+          row?.harvest_edate ? new Date(row.harvest_edate) : null,
+        );
       }
-  }, [farmerData.produceNameValue]);
+    },
+    [farmerData.produceNameValue],
+  );
   const handleAddDatalivelihoodType = useCallback(async item => {
     setFarmerData(prev => ({
       ...prev,
@@ -1180,7 +1181,7 @@ const seasonData = await axiosGet(
       produceVariety: '',
       produceVarietyValue: '',
     }));
-    
+
     livelihoodTypeAPI(dbname, lan_id, item.value, '');
   }, []);
   const handleAddDataproduceName = useCallback(
@@ -1204,25 +1205,24 @@ const seasonData = await axiosGet(
           Authorization: `${token}`,
         },
       );
-    setFarmerData(prev => ({
-      ...prev,
-      productionSeason: '',
-      productionSeasonValue: '',
-      productionSeasonSdId: '',
-      productionSeasonYear: '',
-    }));
-    let prodctionSeasionArray = [];
-    if (seasonData?.status === 200) {
-      console.log(JSON.stringify(seasonData?.data?.data))
-      prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
-        value: data.season_info.fid,
-        label: `${data.season_info.name} (${data.year})`,
-        sd_id: data.sd_id, // NEW FIELD - stores season detail ID
-        year: data.year,
-        originalName: data.season_info.name,
+      setFarmerData(prev => ({
+        ...prev,
+        productionSeason: '',
+        productionSeasonValue: '',
+        productionSeasonSdId: '',
+        productionSeasonYear: '',
       }));
-    }
-    setProductionSeason(prodctionSeasionArray);
+      let prodctionSeasionArray = [];
+      if (seasonData?.status === 200) {
+        prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
+          value: data.season_info.fid,
+          label: `${data.season_info.name} (${data.year})`,
+          sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+          year: data.year,
+          originalName: data.season_info.name,
+        }));
+      }
+      setProductionSeason(prodctionSeasionArray);
       produceNameAPI(
         dbname,
         lan_id,
@@ -1455,7 +1455,7 @@ const seasonData = await axiosGet(
         );
         const minDistance = Math.min(...distances);
       }
-      // area
+
       if (area != null && area != undefined && area != '' && area != 0) {
         const deviation =
           (Math.abs(farmerData?.ConvertedreportedLandsize - area) /
@@ -1483,6 +1483,53 @@ const seasonData = await axiosGet(
         } else {
         }
       }
+
+      // latest code 5% area
+      // if (area != null && area != undefined && area != '' && area != 0) {
+      //   const reportedArea = farmerData?.ConvertedreportedLandsize;
+      //   const googleArea = area;
+
+      //   if (reportedArea < googleArea) {
+      //     const deviation =
+      //       (Math.abs(reportedArea - googleArea) /
+      //         ((reportedArea + googleArea) / 2)) *
+      //       100;
+
+      //     if (
+      //       ![
+      //         'APPROVED',
+      //         'CARBON_DOCUMENTS_SUBMITTED',
+      //         'CARBON_DOCUMENTS_APPROVED',
+      //         'CARBON_DOCUMENTS_REJECTED',
+      //       ].includes(statuslevel.label)
+      //     ) {
+      //       if (deviation > 5) {
+      //         Alert.alert(
+      //           'Deviation',
+      //           'The deviation between reported area and google area is not within 5%',
+      //           [
+      //             {
+      //               text: 'OK',
+      //               onPress: () =>
+      //                 console.log(
+      //                   'Area deviation (%) →',
+      //                   deviation.toFixed(2),
+      //                   '| Reported:',
+      //                   reportedArea,
+      //                   '| Google:',
+      //                   googleArea,
+      //                 ),
+      //             },
+      //           ],
+      //           {cancelable: false},
+      //         );
+      //         setIsLoading(false);
+      //         return;
+      //       }
+      //     }
+      //   }
+      // }
+
       location.map((data, index) => {
         if (data?.latitude != '' && data?.latitude != undefined) {
           locationArry.push('latitude');
@@ -1550,9 +1597,7 @@ const seasonData = await axiosGet(
           text: `${t('please_select_cultiveting_season_first')}`,
           ...AlertMesg[0],
         });
-      } 
-      
-      else if (farmerData.cycleStartDate == '') {
+      } else if (farmerData.cycleStartDate == '') {
         Toast.show({text: 'Please Select Planting Date', ...AlertMesg[0]});
       } else if (farmerData.cycleEndDate == '') {
         Toast.show({text: `${t('select_enddate_first')}`, ...AlertMesg[0]});
@@ -1799,8 +1844,6 @@ const seasonData = await axiosGet(
             formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
             formdatauploadFarmerIdAdd.append('user_id', farmeruserID);
 
-            console.log("formdatauploadFarmerIdAdd", JSON.stringify(formdatauploadFarmerIdAdd))
-
             const resOocUpdate = await uploadFarmerIdAdd(
               dbname,
               lan_id,
@@ -1967,7 +2010,7 @@ const seasonData = await axiosGet(
             turf.booleanOverlap(existingGeo, newGeo) ||
             turf.booleanWithin(newGeo, existingGeo)
           ) {
-            // overlapFound = true;
+            overlapFound = true;
           }
         });
         // setPolygons([newPolygon]);
@@ -2026,7 +2069,7 @@ const seasonData = await axiosGet(
       } else {
         if (statuslevel.label != 'APPROVED') {
           setNewPolygon([]);
-      
+
           setPolygons(nearPolSet);
           removesetLocation();
           const value = [...nearPolSet];
@@ -2046,7 +2089,7 @@ const seasonData = await axiosGet(
               (item, index) => item === sortedArr2[index],
             );
           };
-         
+
           if (isEqualUnordered(convertedCoordinates, value[value?.length])) {
             value.pop();
             setArea(0);
@@ -2054,7 +2097,6 @@ const seasonData = await axiosGet(
           if (location?.length > 1) {
             setPolygons(value);
           }
-         
         }
       }
     } catch (error) {
@@ -2423,7 +2465,7 @@ const seasonData = await axiosGet(
       setEditIndex(null);
       setModalVisibleCoFarmer(false);
       setListOfModalVisibleCoFarmer(false);
-      
+
       if (addCoFarmerRes?.status == 200) {
         Toast.show({
           text: 'Data submitted successfully',
@@ -2433,7 +2475,7 @@ const seasonData = await axiosGet(
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      console.error('A', error);
+
       Toast.show({
         text: `${error?.data?.error?.errorMessage}`,
         ...{...AlertMesg[0], position: 'top'},
@@ -2452,31 +2494,31 @@ const seasonData = await axiosGet(
     setConFarmerList(newList);
   };
 
-// const formatISODateWithSuffix = (isoString) => {
-//   if (!isoString) return '';
+  // const formatISODateWithSuffix = (isoString) => {
+  //   if (!isoString) return '';
 
-//   const date = new Date(isoString);
+  //   const date = new Date(isoString);
 
-//   const day = date.getUTCDate(); // use UTC to avoid timezone shift
-//   const month = date.toLocaleString('en-US', {
-//     month: 'short',
-//     timeZone: 'UTC',
-//   });
-//   const year = date.getUTCFullYear();
+  //   const day = date.getUTCDate(); // use UTC to avoid timezone shift
+  //   const month = date.toLocaleString('en-US', {
+  //     month: 'short',
+  //     timeZone: 'UTC',
+  //   });
+  //   const year = date.getUTCFullYear();
 
-//   const suffix =
-//     day > 3 && day < 21
-//       ? 'th'
-//       : day % 10 === 1
-//       ? 'st'
-//       : day % 10 === 2
-//       ? 'nd'
-//       : day % 10 === 3
-//       ? 'rd'
-//       : 'th';
+  //   const suffix =
+  //     day > 3 && day < 21
+  //       ? 'th'
+  //       : day % 10 === 1
+  //       ? 'st'
+  //       : day % 10 === 2
+  //       ? 'nd'
+  //       : day % 10 === 3
+  //       ? 'rd'
+  //       : 'th';
 
-//   return `${day}${suffix} ${month}, ${year}`;
-// };
+  //   return `${day}${suffix} ${month}, ${year}`;
+  // };
   const handleCoFarmerCheck = (value, label, index) => {
     setConFarmerList(prev =>
       prev.map((item, i) => {
@@ -2538,16 +2580,20 @@ const seasonData = await axiosGet(
           minimumDate={minStartDate}
           maximumDate={maxStartDate}
           // title={`${minStartDate}`}
-           title={`Select Date Range from (${formatISODateWithSuffix(minStartDate)} - ${formatISODateWithSuffix(maxStartDate)})`}
+          title={`Select Date Range from (${formatISODateWithSuffix(
+            minStartDate,
+          )} - ${formatISODateWithSuffix(maxStartDate)})`}
         />
         <DatePickerComp
           openDate={penCycleEnd}
           newDate={minHarvestDate}
           minimumDate={minHarvestDate}
           maximumDate={maxHarvestDate}
-           setOpenDate={setopenCycleEnd}
+          setOpenDate={setopenCycleEnd}
           handleDatePicker={handleDatePicker2}
-          title={`Select Date Range from (${formatISODateWithSuffix(minHarvestDate)} - ${formatISODateWithSuffix(maxHarvestDate)})`}
+          title={`Select Date Range from (${formatISODateWithSuffix(
+            minHarvestDate,
+          )} - ${formatISODateWithSuffix(maxHarvestDate)})`}
         />
         <Modal
           visible={modalVisibleCoFarmer}

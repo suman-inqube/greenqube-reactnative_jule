@@ -1344,7 +1344,7 @@ const PlotStatusUpdate = () => {
       );
       const minDistance = Math.min(...distances);
     }
-    // area
+
     if (area != null && area != undefined && area != '' && area != 0) {
       const deviation =
         (Math.abs(farmerData?.ConvertedreportedLandsize - area) /
@@ -1383,6 +1383,43 @@ const PlotStatusUpdate = () => {
         console.log('ess==', farmerData?.ConvertedreportedLandsize, deviation);
       }
     }
+
+    // latest code 5% area----
+    // if (area != null && area != undefined && area != '' && area != 0) {
+    //   const reportedArea = farmerData?.ConvertedreportedLandsize;
+    //   const googleArea = area;
+    //   if (reportedArea < googleArea) {
+    //     const deviation =
+    //       (Math.abs(reportedArea - googleArea) /
+    //         ((reportedArea + googleArea) / 2)) *
+    //       100;
+    //     if (
+    //       ![
+    //         'APPROVED',
+    //         'CARBON_DOCUMENTS_SUBMITTED',
+    //         'CARBON_DOCUMENTS_APPROVED',
+    //         'CARBON_DOCUMENTS_REJECTED',
+    //       ].includes(statuslevel.label)
+    //     ) {
+    //       if (deviation > 5) {
+    //         Alert.alert(
+    //           'Deviation',
+    //           'The deviation between reported area and google area is not within 5%',
+    //           [{text: 'OK', onPress: () => console.log(area)}],
+    //           {cancelable: false},
+    //         );
+    //         setIsLoading(false);
+    //         return;
+    //       }
+    //     } else {
+    //       console.log(
+    //         'ess==',
+    //         farmerData?.ConvertedreportedLandsize,
+    //         deviation,
+    //       );
+    //     }
+    //   }
+    // }
     location.map((data, index) => {
       if (data?.latitude != '' && data?.latitude != undefined) {
         locationArry.push('latitude');
@@ -1660,7 +1697,7 @@ const PlotStatusUpdate = () => {
           );
           if (resOocUpdate?.status == 200) {
             Toast.show({
-              text: "hoyeche",
+              text: 'hoyeche',
               ...AlertMesg[0],
             });
           }
@@ -2598,7 +2635,7 @@ const PlotStatusUpdate = () => {
                   </View>
                 </View>
 
-                 <View style={{marginTop: 5}}>
+                <View style={{marginTop: 5}}>
                   <DropdownForm
                     label={t('addcrop_select_cultivating_season')}
                     requred={true}
@@ -2652,7 +2689,7 @@ const PlotStatusUpdate = () => {
                     />
                   </View>
                 </TouchableOpacity>
-               
+
                 <TouchableOpacity
                   onPress={() =>
                     harvested != '' || userData == 'addUserData'

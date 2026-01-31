@@ -216,7 +216,7 @@ const ProduceInfoUpdate = () => {
     var landUnitArray = [];
     var productionProcessArray = [];
     var produceProductionUnitArray = [];
-       console.log('hhhdhdh', produceName);
+    console.log('hhhdhdh', produceName);
     try {
       if (netConnection) {
         const [
@@ -248,8 +248,6 @@ const ProduceInfoUpdate = () => {
           axios.get(config.productionProcessAPI, axiosConfig),
           axios.get(config.produceProductionUnitAPI, axiosConfig),
         ]);
-
-     
 
         if (soilType_res.data.data.count > 0) {
           soilType_res.data.data.rows.forEach(element => {
@@ -436,93 +434,94 @@ const ProduceInfoUpdate = () => {
     }
   };
 
-   const handelChangeAddCrop = useCallback(
-      async item => {
-        setstoreProduceInfo(prev => ({
-          ...prev,
-          prodctionSeasion: item,
-          prodctionSeasionSdId: item.sd_id,
-          prodctionSeasionValue: item.value,
-          cycleEnds:'',
-          cycleStarts:'',
-          // livelihoodType: '',
-          // livelihoodTypeValue: '',
-          // produceName: '',
-          // produceNameValue: '',
-          // produceVariety: '',
-          // produceVarietyValue: '',
-        }));
-        console.log('fate==');
-        const seasonData = await axiosGet(
-          ROUTES.GET.PRODUCE_SEASON({
-            // crop_name_fid: item.value,
-            crop_name_fid: storeProduceInfo.produceName.value,
-            sd_id: item.sd_id,
-          }),
-          '',
-          {
-            information: `${dbName},${lanID}`,
-            // Authorization: `${token}`,
-          },
+  const handelChangeAddCrop = useCallback(
+    async item => {
+      setstoreProduceInfo(prev => ({
+        ...prev,
+        prodctionSeasion: item,
+        prodctionSeasionSdId: item.sd_id,
+        prodctionSeasionValue: item.value,
+        cycleEnds: '',
+        cycleStarts: '',
+        // livelihoodType: '',
+        // livelihoodTypeValue: '',
+        // produceName: '',
+        // produceNameValue: '',
+        // produceVariety: '',
+        // produceVarietyValue: '',
+      }));
+      console.log('fate==');
+      const seasonData = await axiosGet(
+        ROUTES.GET.PRODUCE_SEASON({
+          // crop_name_fid: item.value,
+          crop_name_fid: storeProduceInfo.produceName.value,
+          sd_id: item.sd_id,
+        }),
+        '',
+        {
+          information: `${dbName},${lanID}`,
+          // Authorization: `${token}`,
+        },
+      );
+      console.log('frdate==', JSON.stringify(seasonData?.data?.data?.rows));
+      if (seasonData?.data?.data?.rows?.length > 0) {
+        const row = seasonData?.data?.data?.rows[0];
+
+        setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
+        setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
+        setMinHarvestDate(
+          row?.harvest_sdate ? new Date(row.harvest_sdate) : null,
         );
-        console.log('frdate==', JSON.stringify(seasonData?.data?.data?.rows));
-        if (seasonData?.data?.data?.rows?.length > 0) {
-          const row = seasonData?.data?.data?.rows[0];
-  
-          setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
-          setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
-          setMinHarvestDate(
-            row?.harvest_sdate ? new Date(row.harvest_sdate) : null,
-          );
-          setMaxHarvestDate(
-            row?.harvest_edate ? new Date(row.harvest_edate) : null,
-          );
-        }
-      },
-      [storeProduceInfo.produceName.value],
-    );
+        setMaxHarvestDate(
+          row?.harvest_edate ? new Date(row.harvest_edate) : null,
+        );
+      }
+    },
+    [storeProduceInfo.produceName.value],
+  );
 
   const HandleproduceName = async produceName => {
-    setstoreProduceInfo({...storeProduceInfo,
-       produceName: produceName,
-       prodctionSeasion: '',
+    setstoreProduceInfo({
+      ...storeProduceInfo,
+      produceName: produceName,
+      prodctionSeasion: '',
       prodctionSeasionSdId: '',
       prodctionSeasionValue: '',
       cycleEnds: '',
       cycleStarts: '',
     });
 
-     const seasonData = await axiosGet(
-       ROUTES.GET.PRODUCE_SEASON({
-         crop_name_fid: produceName.value,
-         sd_id: '',
-       }),
-       '',
-       {
-         information: `${dbName},${lanID}`,
-       },
-     );
-        if (seasonData?.status === 200) {
-          // const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
-          //   value: data.season_info.fid,
-          //   label: `${data.season_info.name} (${data.year})`,
-          //   sd_id: data.sd_id,
-          // }));
-          const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
-            value: data.season_info.fid,
-            label: `${data.season_info.name} (${data.year})`,
-            sd_id: data.sd_id, // NEW FIELD - stores season detail ID
-            year: data.year,
-            originalName: data.season_info.name,
-          }));
-          setprodctionSeasionData(seasonDataArr);
-        } else {
-          setprodctionSeasionData([]);
-          Toast.show({
-            text: seasonData?.data?.error?.errorMessage,
-            ...AlertMesg[0],
-          });
-        }
+    const seasonData = await axiosGet(
+      ROUTES.GET.PRODUCE_SEASON({
+        crop_name_fid: produceName.value,
+        sd_id: '',
+      }),
+      '',
+      {
+        information: `${dbName},${lanID}`,
+      },
+    );
+    if (seasonData?.status === 200) {
+      // const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
+      //   value: data.season_info.fid,
+      //   label: `${data.season_info.name} (${data.year})`,
+      //   sd_id: data.sd_id,
+      // }));
+      const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
+        value: data.season_info.fid,
+        label: `${data.season_info.name} (${data.year})`,
+        sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+        year: data.year,
+        originalName: data.season_info.name,
+      }));
+      setprodctionSeasionData(seasonDataArr);
+    } else {
+      setprodctionSeasionData([]);
+      Toast.show({
+        text: seasonData?.data?.error?.errorMessage,
+        ...AlertMesg[0],
+      });
+    }
     produceVarientyDataList(produceName, lanID, dbName);
   };
 
@@ -688,6 +687,41 @@ const ProduceInfoUpdate = () => {
         return;
       }
     }
+
+    //latest code 5%--
+    // if (area != null && area != undefined && area != '' && area != 0) {
+    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+    //   const googleArea = area;
+    //   if (reportedArea < googleArea) {
+    //     const deviation =
+    //       (Math.abs(reportedArea - googleArea) /
+    //         ((reportedArea + googleArea) / 2)) *
+    //       100;
+    //     if (deviation > 5) {
+    //       // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
+    //       Alert.alert(
+    //         'Deviation',
+    //         'The deviation between reported area and google area is not within 5%',
+    //         [
+    //           {
+    //             text: 'OK',
+    //             onPress: () =>
+    //               console.log(
+    //                 'Area deviation (%) →',
+    //                 deviation.toFixed(2),
+    //                 '| Reported:',
+    //                 reportedArea,
+    //                 '| Google:',
+    //                 googleArea,
+    //               ),
+    //           },
+    //         ],
+    //         {cancelable: false},
+    //       );
+    //       return;
+    //     }
+    //   }
+    // }
     const locationEmpty = location.filter(item => item.latitude !== '');
     if (storeProduceInfo.plotSize == '') {
       Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
@@ -874,34 +908,36 @@ const ProduceInfoUpdate = () => {
           dbName,
         );
       }
-       if (
-         storeProduceInfo_data[arrayIndex].storeProduceInfo.maximumStartDate &&
-         storeProduceInfo_data[arrayIndex].storeProduceInfo.prodctionSeasion
-       ) {
-         setMinStartDate(
-           new Date(
-             storeProduceInfo_data[
-               arrayIndex
-             ].storeProduceInfo.minimumStartDate,
-           ),
-         );
-         setMaxStartDate(new Date(storeProduceInfo_data[arrayIndex].storeProduceInfo.maximumStartDate));
-         setMinHarvestDate(
-           new Date(
-             storeProduceInfo_data[
-               arrayIndex
-             ].storeProduceInfo.minimumHarvestDate,
-           ),
-         );
-         setMaxHarvestDate(
-           new Date(
-             storeProduceInfo_data[
-               arrayIndex
-             ].storeProduceInfo.maximumHarvestDate,
-           ),
-         );
+      if (
+        storeProduceInfo_data[arrayIndex].storeProduceInfo.maximumStartDate &&
+        storeProduceInfo_data[arrayIndex].storeProduceInfo.prodctionSeasion
+      ) {
+        setMinStartDate(
+          new Date(
+            storeProduceInfo_data[arrayIndex].storeProduceInfo.minimumStartDate,
+          ),
+        );
+        setMaxStartDate(
+          new Date(
+            storeProduceInfo_data[arrayIndex].storeProduceInfo.maximumStartDate,
+          ),
+        );
+        setMinHarvestDate(
+          new Date(
+            storeProduceInfo_data[
+              arrayIndex
+            ].storeProduceInfo.minimumHarvestDate,
+          ),
+        );
+        setMaxHarvestDate(
+          new Date(
+            storeProduceInfo_data[
+              arrayIndex
+            ].storeProduceInfo.maximumHarvestDate,
+          ),
+        );
         //  console.log('storeProduceInfo_data', storeProduceInfo_data);
-       }
+      }
     }
   };
 
