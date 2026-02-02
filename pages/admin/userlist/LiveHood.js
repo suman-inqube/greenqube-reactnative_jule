@@ -2361,9 +2361,10 @@ const LiveHood = ({
         // Convert age to DD/MM/YYYY format
 
         // Then use it in formData
-        if (date_of_birth_ddmmyyyy) {
-          formdataCofarmers.append('date_of_birth', date_of_birth_ddmmyyyy);
-        }
+        formdataCofarmers.append(
+          'date_of_birth',
+          coFarmerDetails.date_of_birth,
+        );
         formdataCofarmers.append('gender', coFarmerDetails.gender);
         formdataCofarmers.append('contactNumber', coFarmerDetails.phone);
         if (
@@ -2411,7 +2412,7 @@ const LiveHood = ({
               land_area: coFarmerDetails.landArea,
               land_unit: coFarmerDetails.unitValue,
               aadhar_number: coFarmerDetails.aadhar_number,
-              date_of_birth: date_of_birth_ddmmyyyy,
+              date_of_birth: coFarmerDetails.date_of_birth,
               gender: coFarmerDetails.gender,
             },
           ]),
