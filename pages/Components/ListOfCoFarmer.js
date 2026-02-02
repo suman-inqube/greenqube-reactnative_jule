@@ -39,7 +39,8 @@ import {formatToDDMMYYYY, getAgeLimitDates} from '../utils/helpers';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 import PaginationNav from '../../pages/Components/PaginationNav';
 import {userCreateContext} from '../../pages/Context/usersCreateContext';
-
+import FileViewer from 'react-native-file-viewer';
+import RNFS from 'react-native-fs';
 const Button = memo(({label, onPress, disabled}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -109,6 +110,7 @@ const ListOfCoFarmer = ({
     phoneNumber: '',
     addressProof: null,
     idProof: null,
+    profile: null,
     age: '',
   });
 
@@ -139,16 +141,13 @@ const ListOfCoFarmer = ({
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
-
         if (response?.status === 200) {
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
-
           const resArr = response?.data?.data?.rows?.map(item => ({
             ...item,
             // CoFarmer: '',
             age: '',
           }));
-
           setCoFarmerList(resArr);
         }
       } catch (error) {
@@ -274,6 +273,7 @@ const ListOfCoFarmer = ({
         );
         let idProof = null;
         let addressProof = null;
+        let profile = null;
         for (const f of item.coFInfo?.agri_files) {
           console.log(f);
           if (f.term_type === 'farmer_identity')
@@ -284,6 +284,12 @@ const ListOfCoFarmer = ({
             };
           else if (f.term_type === 'farmer_address')
             addressProof = {
+              uri: f.file_path,
+              name: f.name,
+              type: f.file_ext,
+            };
+          else if (f.term_type === '1')
+            profile = {
               uri: f.file_path,
               name: f.name,
               type: f.file_ext,
@@ -304,6 +310,7 @@ const ListOfCoFarmer = ({
               : item?.coFInfo?.contactNumber ?? '',
           addressProof: addressProof,
           idProof: idProof,
+          profile: profile,
           age: item?.age != 0 && item?.age != 'NaN' ? `${item?.age}` : '',
         }));
       } else {
@@ -340,14 +347,20 @@ const ListOfCoFarmer = ({
             type: 'edit',
             co_farmer_id: coFInfo.user_id,
           };
-
           const mapKeys = {
             farmer_address: 'addressProof',
             farmer_identity: 'idProof',
-            farmer_profile: 'profile',
+            farmer_profile: '1',
           };
           coFInfo?.agri_files?.forEach(file => {
             const key = mapKeys[file.term_type];
+            if (file.term_type === '1') {
+              details['profile'] = {
+                uri: file.file_path,
+                name: file.file_name,
+                type: file.file_ext,
+              };
+            }
             if (key) {
               details[key] = {
                 uri: file.file_path,
@@ -400,6 +413,7 @@ const ListOfCoFarmer = ({
 
   const onSave = useCallback(async () => {
     try {
+      console.log('');
       setIsSubmit(true);
       const formdata = new FormData();
       formdata.append('rel_id', plotId);
@@ -424,7 +438,7 @@ const ListOfCoFarmer = ({
           type: coFarmer.idProof.type,
         });
       }
-
+      console.log('formdata==', JSON.stringify(formdata));
       const updateOwnerShipRes = await axiosPut(
         ROUTES.PUT.UP_DATE_OWNER_SHIP,
         formdata,
@@ -432,6 +446,8 @@ const ListOfCoFarmer = ({
         false,
         {information: `${dbname},${lan_id},${user_id}`},
       );
+      console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
+      console.log('updateOwnerShipRes1111==', updateOwnerShipRes);
 
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
@@ -449,7 +465,10 @@ const ListOfCoFarmer = ({
       }
     } catch (error) {
       setIsSubmit(false);
-
+      console.log(
+        'errorMessage==',
+        JSON.stringify(error?.data?.error?.errorMessage),
+      );
       Alert.alert(`${error?.data?.error?.errorMessage}`);
       // Toast.show({
       //   text: `${error?.data?.error?.errorMessage}`,
@@ -606,7 +625,7 @@ const ListOfCoFarmer = ({
 
                     {/* Info Container */}
                     <View style={styles.infoContainer}>
-                      <Text style={styles.name}>{item?.coFInfo?.userName}</Text>
+                      <Text style={styles.name} >{item?.coFInfo?.userName}</Text>
                       {!hasPhone ? (
                         <View style={styles.phoneRow}>
                           <Feather name="phone" size={14} color="#6b7280" />
@@ -621,7 +640,7 @@ const ListOfCoFarmer = ({
                       )}
                     </View>
                     {/* Edit Icon Button */}
-                    {/* <TouchableOpacity
+                    <TouchableOpacity
                       style={styles.editButton}
                       onPress={() =>
                         onCheckCoFarmerEdit(
@@ -643,7 +662,7 @@ const ListOfCoFarmer = ({
                           color={isSelected ? '#10b981' : '#6b7280'}
                         />
                       </View>
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                     {/* Toggle Switch */}
                     <View style={styles.toggleContainer}>
                       <View
@@ -994,7 +1013,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 16,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 4,
@@ -1014,12 +1033,12 @@ const styles = StyleSheet.create({
   },
   // Avatar
   avatar: {
-    width: 56,
-    height: 56,
+    width: 42,
+    height: 42,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 8,
   },
   avatarText: {
     fontSize: 24,
@@ -1035,7 +1054,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: '700',
     color: '#111827',
     fontFamily: Fonts.Bold,
@@ -1282,8 +1301,8 @@ const styles = StyleSheet.create({
   editButton: {
     // marginRight: 12,
     position: 'absolute',
-    right: 70,
-    top: 15,
+    right: 60,
+    top: 11,
   },
   editIconContainer: {
     width: 30,
