@@ -814,58 +814,58 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const saveInObject = async () => {
-    if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation =
-        (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
-          ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
-        100;
-      if (deviation >= -5 && deviation <= 5) {
-      } else {
-        Alert.alert(
-          'Deviation',
-          'The deviation between reported area and google area is not within 5%',
-          [{text: 'OK', onPress: () => console.log(area)}],
-          {cancelable: false},
-        );
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    // latest code 5%---
     // if (area != null && area != undefined && area != '' && area != 0) {
-    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
-    //   const googleArea = area;
-    //   if (reportedArea < googleArea) {
-    //     const deviation =
-    //       (Math.abs(reportedArea - googleArea) /
-    //         ((reportedArea + googleArea) / 2)) *
-    //       100;
-    //     if (deviation > 5) {
-    //       Alert.alert(
-    //         'Deviation',
-    //         'The deviation between reported area and google area is not within 5%',
-    //         [
-    //           {
-    //             text: 'OK',
-    //             onPress: () =>
-    //               console.log(
-    //                 'Area deviation (%) →',
-    //                 deviation.toFixed(2),
-    //                 '| Reported:',
-    //                 reportedArea,
-    //                 '| Google:',
-    //                 googleArea,
-    //               ),
-    //           },
-    //         ],
-    //         {cancelable: false},
-    //       );
-    //       setIsLoading(false);
-    //       return;
-    //     }
+    //   const deviation =
+    //     (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
+    //       ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
+    //     100;
+    //   if (deviation >= -5 && deviation <= 5) {
+    //   } else {
+    //     Alert.alert(
+    //       'Deviation',
+    //       'The deviation between reported area and google area is not within 5%',
+    //       [{text: 'OK', onPress: () => console.log(area)}],
+    //       {cancelable: false},
+    //     );
+    //     setIsLoading(false);
+    //     return;
     //   }
     // }
+
+    // latest code 5%---
+    if (area != null && area != undefined && area != '' && area != 0) {
+      const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+      const googleArea = area;
+      if (reportedArea < googleArea) {
+        const deviation =
+          (Math.abs(reportedArea - googleArea) /
+            ((reportedArea + googleArea) / 2)) *
+          100;
+        if (deviation > 5) {
+          Alert.alert(
+            'Deviation',
+            'The deviation between reported area and google area is not within 5%',
+            [
+              {
+                text: 'OK',
+                onPress: () =>
+                  console.log(
+                    'Area deviation (%) →',
+                    deviation.toFixed(2),
+                    '| Reported:',
+                    reportedArea,
+                    '| Google:',
+                    googleArea,
+                  ),
+              },
+            ],
+            {cancelable: false},
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
+    }
     if (validationData()) {
       if (route.params.arrayIndex == undefined) {
         const newData = [
@@ -1094,59 +1094,59 @@ const PlotSiteProduceInformation = () => {
   const handleSave = async () => {
     Keyboard.dismiss();
 
-    if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation =
-        (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
-          ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
-        100;
-      if (deviation >= -5 && deviation <= 5) {
-      } else {
-        setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
-        Alert.alert(
-          'Deviation',
-          'The deviation between reported area and google area is not within 5%',
-          [{text: 'OK', onPress: () => console.log(area)}],
-          {cancelable: false},
-        );
-        setIsLoading(false);
-        return;
-      }
-    }
-    // latest code 5%--
     // if (area != null && area != undefined && area != '' && area != 0) {
-    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
-    //   const googleArea = area;
-    //   if (reportedArea < googleArea) {
-    //     const deviation =
-    //       (Math.abs(reportedArea - googleArea) /
-    //         ((reportedArea + googleArea) / 2)) *
-    //       100;
-    //     if (deviation > 5) {
-    //       setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
-    //       Alert.alert(
-    //         'Deviation',
-    //         'The deviation between reported area and google area is not within 5%',
-    //         [
-    //           {
-    //             text: 'OK',
-    //             onPress: () =>
-    //               console.log(
-    //                 'Area deviation (%) →',
-    //                 deviation.toFixed(2),
-    //                 '| Reported:',
-    //                 reportedArea,
-    //                 '| Google:',
-    //                 googleArea,
-    //               ),
-    //           },
-    //         ],
-    //         {cancelable: false},
-    //       );
-    //       setIsLoading(false);
-    //       return;
-    //     }
+    //   const deviation =
+    //     (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
+    //       ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
+    //     100;
+    //   if (deviation >= -5 && deviation <= 5) {
+    //   } else {
+    //     setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+    //     Alert.alert(
+    //       'Deviation',
+    //       'The deviation between reported area and google area is not within 5%',
+    //       [{text: 'OK', onPress: () => console.log(area)}],
+    //       {cancelable: false},
+    //     );
+    //     setIsLoading(false);
+    //     return;
     //   }
     // }
+    // latest code 5%--
+    if (area != null && area != undefined && area != '' && area != 0) {
+      const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+      const googleArea = area;
+      if (reportedArea < googleArea) {
+        const deviation =
+          (Math.abs(reportedArea - googleArea) /
+            ((reportedArea + googleArea) / 2)) *
+          100;
+        if (deviation > 5) {
+          setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+          Alert.alert(
+            'Deviation',
+            'The deviation between reported area and google area is not within 5%',
+            [
+              {
+                text: 'OK',
+                onPress: () =>
+                  console.log(
+                    'Area deviation (%) →',
+                    deviation.toFixed(2),
+                    '| Reported:',
+                    reportedArea,
+                    '| Google:',
+                    googleArea,
+                  ),
+              },
+            ],
+            {cancelable: false},
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
+    }
     if (defaultLand == true) {
       if (
         typeof route.params != 'undefined' &&

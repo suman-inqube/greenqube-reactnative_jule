@@ -1345,81 +1345,81 @@ const PlotStatusUpdate = () => {
       const minDistance = Math.min(...distances);
     }
 
-    if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation =
-        (Math.abs(farmerData?.ConvertedreportedLandsize - area) /
-          ((farmerData?.ConvertedreportedLandsize + area) / 2)) *
-        100;
-      if (
-        ![
-          'APPROVED',
-          'CARBON_DOCUMENTS_SUBMITTED',
-          'CARBON_DOCUMENTS_APPROVED',
-          'CARBON_DOCUMENTS_REJECTED',
-        ].includes(statuslevel.label)
-      ) {
-        if (deviation >= -5 && deviation <= 5) {
-          console.log(
-            'deviation ==',
-            farmerData?.ConvertedreportedLandsize,
-            deviation,
-          );
-        } else {
-          console.log(
-            'deviation1212 ==',
-            farmerData?.ConvertedreportedLandsize,
-            deviation,
-          );
-          Alert.alert(
-            'Deviation',
-            'The deviation between reported area and google area is not within 5%',
-            [{text: 'OK', onPress: () => console.log(area)}],
-            {cancelable: false},
-          );
-          setIsLoading(false);
-          return;
-        }
-      } else {
-        console.log('ess==', farmerData?.ConvertedreportedLandsize, deviation);
-      }
-    }
-
-    // latest code 5% area----
     // if (area != null && area != undefined && area != '' && area != 0) {
-    //   const reportedArea = farmerData?.ConvertedreportedLandsize;
-    //   const googleArea = area;
-    //   if (reportedArea < googleArea) {
-    //     const deviation =
-    //       (Math.abs(reportedArea - googleArea) /
-    //         ((reportedArea + googleArea) / 2)) *
-    //       100;
-    //     if (
-    //       ![
-    //         'APPROVED',
-    //         'CARBON_DOCUMENTS_SUBMITTED',
-    //         'CARBON_DOCUMENTS_APPROVED',
-    //         'CARBON_DOCUMENTS_REJECTED',
-    //       ].includes(statuslevel.label)
-    //     ) {
-    //       if (deviation > 5) {
-    //         Alert.alert(
-    //           'Deviation',
-    //           'The deviation between reported area and google area is not within 5%',
-    //           [{text: 'OK', onPress: () => console.log(area)}],
-    //           {cancelable: false},
-    //         );
-    //         setIsLoading(false);
-    //         return;
-    //       }
-    //     } else {
+    //   const deviation =
+    //     (Math.abs(farmerData?.ConvertedreportedLandsize - area) /
+    //       ((farmerData?.ConvertedreportedLandsize + area) / 2)) *
+    //     100;
+    //   if (
+    //     ![
+    //       'APPROVED',
+    //       'CARBON_DOCUMENTS_SUBMITTED',
+    //       'CARBON_DOCUMENTS_APPROVED',
+    //       'CARBON_DOCUMENTS_REJECTED',
+    //     ].includes(statuslevel.label)
+    //   ) {
+    //     if (deviation >= -5 && deviation <= 5) {
     //       console.log(
-    //         'ess==',
+    //         'deviation ==',
     //         farmerData?.ConvertedreportedLandsize,
     //         deviation,
     //       );
+    //     } else {
+    //       console.log(
+    //         'deviation1212 ==',
+    //         farmerData?.ConvertedreportedLandsize,
+    //         deviation,
+    //       );
+    //       Alert.alert(
+    //         'Deviation',
+    //         'The deviation between reported area and google area is not within 5%',
+    //         [{text: 'OK', onPress: () => console.log(area)}],
+    //         {cancelable: false},
+    //       );
+    //       setIsLoading(false);
+    //       return;
     //     }
+    //   } else {
+    //     console.log('ess==', farmerData?.ConvertedreportedLandsize, deviation);
     //   }
     // }
+
+    // latest code 5% area----
+    if (area != null && area != undefined && area != '' && area != 0) {
+      const reportedArea = farmerData?.ConvertedreportedLandsize;
+      const googleArea = area;
+      if (reportedArea < googleArea) {
+        const deviation =
+          (Math.abs(reportedArea - googleArea) /
+            ((reportedArea + googleArea) / 2)) *
+          100;
+        if (
+          ![
+            'APPROVED',
+            'CARBON_DOCUMENTS_SUBMITTED',
+            'CARBON_DOCUMENTS_APPROVED',
+            'CARBON_DOCUMENTS_REJECTED',
+          ].includes(statuslevel.label)
+        ) {
+          if (deviation > 5) {
+            Alert.alert(
+              'Deviation',
+              'The deviation between reported area and google area is not within 5%',
+              [{text: 'OK', onPress: () => console.log(area)}],
+              {cancelable: false},
+            );
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          console.log(
+            'ess==',
+            farmerData?.ConvertedreportedLandsize,
+            deviation,
+          );
+        }
+      }
+    }
     location.map((data, index) => {
       if (data?.latitude != '' && data?.latitude != undefined) {
         locationArry.push('latitude');

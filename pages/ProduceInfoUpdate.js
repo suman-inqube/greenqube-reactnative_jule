@@ -670,58 +670,58 @@ const ProduceInfoUpdate = () => {
   };
 
   const handleSave = async () => {
-    if (area != null && area != undefined && area != '' && area != 0) {
-      const deviation =
-        (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
-          ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
-        100;
-      if (deviation >= -5 && deviation <= 5) {
-      } else {
-        // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
-        Alert.alert(
-          'Deviation',
-          'The deviation between reported area and google area is not within 5%',
-          [{text: 'OK', onPress: () => console.log(area)}],
-          {cancelable: false},
-        );
-        return;
-      }
-    }
-
-    //latest code 5%--
     // if (area != null && area != undefined && area != '' && area != 0) {
-    //   const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
-    //   const googleArea = area;
-    //   if (reportedArea < googleArea) {
-    //     const deviation =
-    //       (Math.abs(reportedArea - googleArea) /
-    //         ((reportedArea + googleArea) / 2)) *
-    //       100;
-    //     if (deviation > 5) {
-    //       // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
-    //       Alert.alert(
-    //         'Deviation',
-    //         'The deviation between reported area and google area is not within 5%',
-    //         [
-    //           {
-    //             text: 'OK',
-    //             onPress: () =>
-    //               console.log(
-    //                 'Area deviation (%) →',
-    //                 deviation.toFixed(2),
-    //                 '| Reported:',
-    //                 reportedArea,
-    //                 '| Google:',
-    //                 googleArea,
-    //               ),
-    //           },
-    //         ],
-    //         {cancelable: false},
-    //       );
-    //       return;
-    //     }
+    //   const deviation =
+    //     (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
+    //       ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
+    //     100;
+    //   if (deviation >= -5 && deviation <= 5) {
+    //   } else {
+    //     // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
+    //     Alert.alert(
+    //       'Deviation',
+    //       'The deviation between reported area and google area is not within 5%',
+    //       [{text: 'OK', onPress: () => console.log(area)}],
+    //       {cancelable: false},
+    //     );
+    //     return;
     //   }
     // }
+
+    //latest code 5%--
+    if (area != null && area != undefined && area != '' && area != 0) {
+      const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
+      const googleArea = area;
+      if (reportedArea < googleArea) {
+        const deviation =
+          (Math.abs(reportedArea - googleArea) /
+            ((reportedArea + googleArea) / 2)) *
+          100;
+        if (deviation > 5) {
+          // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
+          Alert.alert(
+            'Deviation',
+            'The deviation between reported area and google area is not within 5%',
+            [
+              {
+                text: 'OK',
+                onPress: () =>
+                  console.log(
+                    'Area deviation (%) →',
+                    deviation.toFixed(2),
+                    '| Reported:',
+                    reportedArea,
+                    '| Google:',
+                    googleArea,
+                  ),
+              },
+            ],
+            {cancelable: false},
+          );
+          return;
+        }
+      }
+    }
     const locationEmpty = location.filter(item => item.latitude !== '');
     if (storeProduceInfo.plotSize == '') {
       Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
