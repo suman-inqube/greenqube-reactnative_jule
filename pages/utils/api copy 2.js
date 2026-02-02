@@ -1,15 +1,15 @@
 import axios from 'axios';
 import NetInfo from '@react-native-community/netinfo';
-import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import {Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
-import { AlertMesg } from '../Common/ToastAlert';
+import {AlertMesg} from '../Common/ToastAlert';
 
 // ================================
 // ⚙️ Configuration
 // ================================
-const BASE_URL = 'https://mygreenqube.com:4003/';
-//  const BASE_URL = 'http://134.209.155.11:4003/';
+// const BASE_URL = 'https://mygreenqube.com:4003/';
+const BASE_URL = 'http://134.209.155.11:4003/';
 const TIMEOUT = 10000;
 const SLOW_THRESHOLD = 3000;
 const ENC_KEY = 'greenQube_96740_64428';
@@ -26,7 +26,7 @@ const instance = axios.create({
 // 🕒 Request Timer Setup
 // ================================
 instance.interceptors.request.use(config => {
-  config.metadata = { startTime: new Date().getTime() };
+  config.metadata = {startTime: new Date().getTime()};
   return config;
 });
 
@@ -64,7 +64,7 @@ instance.interceptors.response.use(
           padding: CryptoJS.pad.Pkcs7,
         });
         const parsed = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
-        return { data: parsed, status: 200 };
+        return {data: parsed, status: 200};
       }
     } catch (err) {
       console.error('Decryption failed:', err);
@@ -72,7 +72,7 @@ instance.interceptors.response.use(
 
     return response;
   },
-  error => handleError(error)
+  error => handleError(error),
 );
 
 // ================================
@@ -80,7 +80,8 @@ instance.interceptors.response.use(
 // ================================
 function findField(obj, keyToFind) {
   if (obj === null || typeof obj !== 'object') return undefined;
-  if (Object.prototype.hasOwnProperty.call(obj, keyToFind)) return obj[keyToFind];
+  if (Object.prototype.hasOwnProperty.call(obj, keyToFind))
+    return obj[keyToFind];
   for (let key in obj) {
     if (typeof obj[key] === 'object') {
       const result = findField(obj[key], keyToFind);
@@ -109,7 +110,7 @@ const isInternetAvailable = async () => {
 // ================================
 // ⚠️ Centralized Error Handler
 // ================================
-const handleError = (error,url) => {
+const handleError = (error, url) => {
   let message = 'Something went wrong. Please try again.';
   let status = 500;
   if (axios.isCancel(error) || error.name === 'AbortError') {
@@ -121,14 +122,17 @@ const handleError = (error,url) => {
   } else if (error.response) {
     status = error.response.status || 500;
     const data = error.response.data || {};
-    if (status === 401) message = data.message+url || 'Session expired. Please log in again.';
-    else if (status === 404) message = data.message+url || 'Requested resource not found.';
-    else if (status >= 500) message = data.message+url || 'Server is unavailable right now.';
+    if (status === 401)
+      message = data.message + url || 'Session expired. Please log in again.';
+    else if (status === 404)
+      message = data.message + url || 'Requested resource not found.';
+    else if (status >= 500)
+      message = data.message + url || 'Server is unavailable right now.';
     else message = data.message || 'Unexpected error occurred.';
   } else {
     message = 'Network error. Please check your connection.';
   }
-console.error(message)
+  console.error(message);
 
   Toast.show({
     time: 2,
@@ -136,7 +140,7 @@ console.error(message)
     ...AlertMesg[0],
   });
 
-  return Promise.reject({ status, data: { message } });
+  return Promise.reject({status, data: {message}});
 };
 
 // ================================
@@ -147,22 +151,36 @@ const isFormData = data => data instanceof FormData;
 // ================================
 // 🌍 API Methods
 // ================================
-export const axiosGet = async (url, token = null, extraHeaders = {}, abortController = null) => {
-  if (!(await isInternetAvailable())) return Promise.reject({ status: 0, data: { message: 'No internet' } });
+export const axiosGet = async (
+  url,
+  token = null,
+  extraHeaders = {},
+  abortController = null,
+) => {
+  if (!(await isInternetAvailable()))
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   try {
     const response = await instance.get(url, {
-      headers: { ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {...(token && {Authorization: token}), ...extraHeaders},
       signal: controller.signal,
     });
     return response;
   } catch (error) {
-    return handleError(error,url);
+    return handleError(error, url);
   }
 };
 
-export const axiosPost = async (url, body, token = null, isUrlEncoded = false, extraHeaders = {}, abortController = null) => {
-  if (!(await isInternetAvailable())) return Promise.reject({ status: 0, data: { message: 'No internet' } });
+export const axiosPost = async (
+  url,
+  body,
+  token = null,
+  isUrlEncoded = false,
+  extraHeaders = {},
+  abortController = null,
+) => {
+  if (!(await isInternetAvailable()))
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   let contentType = 'application/json';
   if (isFormData(body)) contentType = 'multipart/form-data';
@@ -171,7 +189,11 @@ export const axiosPost = async (url, body, token = null, isUrlEncoded = false, e
 
   try {
     const response = await instance.post(url, payload, {
-      headers: { 'Content-Type': contentType, ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {
+        'Content-Type': contentType,
+        ...(token && {Authorization: token}),
+        ...extraHeaders,
+      },
       signal: controller.signal,
     });
 
@@ -190,8 +212,16 @@ export const axiosPost = async (url, body, token = null, isUrlEncoded = false, e
   }
 };
 
-export const axiosPut = async (url, body, token = null, isUrlEncoded = false, extraHeaders = {}, abortController = null) => {
-  if (!(await isInternetAvailable())) return Promise.reject({ status: 0, data: { message: 'No internet' } });
+export const axiosPut = async (
+  url,
+  body,
+  token = null,
+  isUrlEncoded = false,
+  extraHeaders = {},
+  abortController = null,
+) => {
+  if (!(await isInternetAvailable()))
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   let contentType = 'application/json';
   if (isFormData(body)) contentType = 'multipart/form-data';
@@ -200,7 +230,11 @@ export const axiosPut = async (url, body, token = null, isUrlEncoded = false, ex
 
   try {
     return await instance.put(url, payload, {
-      headers: { 'Content-Type': contentType, ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {
+        'Content-Type': contentType,
+        ...(token && {Authorization: token}),
+        ...extraHeaders,
+      },
       signal: controller.signal,
     });
   } catch (error) {
@@ -208,12 +242,18 @@ export const axiosPut = async (url, body, token = null, isUrlEncoded = false, ex
   }
 };
 
-export const axiosDelete = async (url, token = null, extraHeaders = {}, abortController = null) => {
-  if (!(await isInternetAvailable())) return Promise.reject({ status: 0, data: { message: 'No internet' } });
+export const axiosDelete = async (
+  url,
+  token = null,
+  extraHeaders = {},
+  abortController = null,
+) => {
+  if (!(await isInternetAvailable()))
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   try {
     return await instance.delete(url, {
-      headers: { ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {...(token && {Authorization: token}), ...extraHeaders},
       signal: controller.signal,
     });
   } catch (error) {
@@ -221,12 +261,23 @@ export const axiosDelete = async (url, token = null, extraHeaders = {}, abortCon
   }
 };
 
-export const axiosPatch = async (url, body, token = null, extraHeaders = {}, abortController = null) => {
-  if (!(await isInternetAvailable())) return Promise.reject({ status: 0, data: { message: 'No internet' } });
+export const axiosPatch = async (
+  url,
+  body,
+  token = null,
+  extraHeaders = {},
+  abortController = null,
+) => {
+  if (!(await isInternetAvailable()))
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
   try {
     return await instance.patch(url, body, {
-      headers: { 'Content-Type': 'multipart/form-data', ...(token && { Authorization: token }), ...extraHeaders },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...(token && {Authorization: token}),
+        ...extraHeaders,
+      },
       signal: controller.signal,
       onUploadProgress: e => {
         const percent = Math.round((e.loaded * 100) / e.total);
