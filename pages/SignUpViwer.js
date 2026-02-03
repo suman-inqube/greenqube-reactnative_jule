@@ -185,6 +185,8 @@ const SignUpViwer = () => {
         longitude: item.location[0].longitude.toString(),
         daag_no: item.storeProduceInfo.daagNo,
         khatian_no: item.storeProduceInfo.khatianNo,
+        jl_no: item.storeProduceInfo.jl_no,
+        mouja: item.storeProduceInfo.mouja,
         plant_number: item.storeProduceInfo.noOfPlants,
         agri_land_user_latlongs: item.location.filter(
           item => item.latitude !== '',

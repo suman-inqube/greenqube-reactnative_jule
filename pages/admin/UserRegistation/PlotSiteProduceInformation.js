@@ -88,7 +88,10 @@ const PlotSiteProduceInformation = () => {
     effective_dates,
     coords,
     isOnline,
+    loginUser_data,
   } = useContext(userCreateContext);
+  //GQR-65
+  const {carbonFlag} = loginUser_data;
   //GQR-65
   useSingleBackToNavigate('FinancialInformation');
   const route = useRoute();
@@ -101,6 +104,8 @@ const PlotSiteProduceInformation = () => {
     daagNo: '',
     khatianNo: '',
     noOfPlants: '',
+    jlNo: '',
+    moujaName: '',
     terrainType: '',
     landType: '',
     soilType: '',
@@ -583,6 +588,8 @@ const PlotSiteProduceInformation = () => {
       daagNo: '',
       khatianNo: '',
       noOfPlants: '',
+      jlNo: '',
+      moujaName: '',
       terrainType: '',
       landType: '',
       soilType: '',
@@ -1062,6 +1069,8 @@ const PlotSiteProduceInformation = () => {
       daagNo: '',
       khatianNo: '',
       noOfPlants: '',
+      jlNo: '',
+      moujaName: '',
       terrainType: '',
       landType: '',
       soilType: '',
@@ -1449,6 +1458,18 @@ const PlotSiteProduceInformation = () => {
       noOfPlants: text,
     }));
   }, []);
+  const handelJLNo = useCallback(text => {
+    setstoreProduceInfo(prev => ({
+      ...prev,
+      jlNo: text,
+    }));
+  }, []);
+  const handelMoujaName = useCallback(text => {
+    setstoreProduceInfo(prev => ({
+      ...prev,
+      moujaName: text,
+    }));
+  }, []);
   const handelTerrainType = useCallback(item => {
     setstoreProduceInfo(prev => ({
       ...prev,
@@ -1614,6 +1635,24 @@ const PlotSiteProduceInformation = () => {
                   onChangeText={handelNoOfPlants}
                   value={storeProduceInfo.noOfPlants}
                 />
+                {carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('JL No')}
+                    onChangeText={handelJLNo}
+                    value={storeProduceInfo.jlNo}
+                  />
+                ) : (
+                  <></>
+                )}
+                {carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('Mouja Name')}
+                    onChangeText={handelMoujaName}
+                    value={storeProduceInfo.moujaName}
+                  />
+                ) : (
+                  <></>
+                )}
                 <DropdownForm
                   label={t('select_terrain_type')}
                   required={true}

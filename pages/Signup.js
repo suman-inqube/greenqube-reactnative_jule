@@ -175,6 +175,12 @@ const Signup = () => {
   };
   const companyHandle = async company => {
     setstoreSignup({...storeSignup, company: company, supervisor: ''});
+    const resCarbonFlag = await axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, '', {
+      information: `${company.dbname},1`,
+    });
+  const {option_value} = resCarbonFlag?.data?.data || {};
+  await setItem('carbon_status', option_value);
+    console.log('resCarbonFlag=', resCarbonFlag);
     supervisorDataList(company.value);
   };
   let supervisorDataList = async company_id => {
@@ -183,6 +189,7 @@ const Signup = () => {
       let supervisory_ofline_list_arr = [];
       let supervisory_ofline_list = await getItem('supervisoryDataListAPI');
       if (netConnection) {
+        
         let supervisor_res = await axiosGet(
           ROUTES.GET.SUPERVISOR_DATA_LIST({
             company_id: company_id,

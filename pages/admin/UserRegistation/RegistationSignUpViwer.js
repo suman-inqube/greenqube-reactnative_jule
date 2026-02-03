@@ -172,8 +172,8 @@ const RegistationSignUpViwer = () => {
         device_long: item.storeProduceInfo.IOTLatLong,
         land_convert_size:
           item.storeProduceInfo.sizevalue == '' ||
-            item.storeProduceInfo.sizevalue == undefined ||
-            item.storeProduceInfo.sizevalue == null
+          item.storeProduceInfo.sizevalue == undefined ||
+          item.storeProduceInfo.sizevalue == null
             ? item.storeProduceInfo.plotSize * 1
             : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
         latitude: item.location[0].latitude.toString(),
@@ -181,6 +181,8 @@ const RegistationSignUpViwer = () => {
         daag_no: item.storeProduceInfo.daagNo,
         khatian_no: item.storeProduceInfo.khatianNo,
         plant_number: item.storeProduceInfo.noOfPlants,
+        jl_no: item.storeProduceInfo.jlNo,
+        mouja: item.storeProduceInfo.moujaName,
         agri_land_user_latlongs: item.location.filter(
           item => item.latitude !== '',
         ),

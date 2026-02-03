@@ -177,6 +177,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
+   const [minDateGap, setMinDateGap] = useState();
+    const [lastPerfromedDate, setLastPerfromedDate] = useState('');
   const [upcomingAct, setUpcomingAct] = useState('');
   const [scheduleInfo, setScheduleInfo] = useState({
     lastAct: '',
@@ -1257,6 +1259,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
             'activityInfo' + farmerID + CropType + CropName + item.value,
             response,
           );
+           setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
         } else {
           var response = await getItem(
             'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1288,6 +1291,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           latlongs: {},
         });
         if (response.data.data.count > 0) {
+
           response.data.data.rows.forEach(element => {
             const monthNames = [
               'January',
@@ -1383,6 +1387,12 @@ const FarmerActivityReportAWD = ({navigation}) => {
       latlongs: {},
     });
 
+     setIsAfterToday(true);
+     setMinDateAct(true);
+     const tenDaysAgo = new Date();
+     tenDaysAgo.setDate(today.getDate() - 10);
+     setLastPerfromedDate(tenDaysAgo);
+
     const PipeListDetailsRes = await getUniquePipeNames(
       dbname,
       lan_id,
@@ -1397,6 +1407,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
         (_data, _index) => ({
           value: _data.pipe_pid,
           label: _data.pipe_name,
+          lastActivityPerfromDate: _data?.lastActivityInfo?.act_perform_date,
           latlongs: _data?.latlongs?.[0] || {},
         }),
       );
@@ -1703,10 +1714,58 @@ const FarmerActivityReportAWD = ({navigation}) => {
     setModalVisibleMap(true);
   };
 
-  const handleActivityPipe = useCallback(_item => {
-    const {pipeFiles, pipeLatLong, label, value, latlongs} = _item || {};
-    setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
-  }, []);
+  const handleActivityPipe = useCallback(
+    _item => {
+      const {
+        pipeFiles,
+        pipeLatLong,
+        label,
+        value,
+        latlongs,
+        lastActivityPerfromDate,
+      } = _item || {};
+      const isNotEmpty = value =>
+        value !== null && value !== undefined && String(value).trim() !== '';
+      console.log('lastActivityPerfromDate==', lastActivityPerfromDate);
+      if (isNotEmpty(lastActivityPerfromDate)) {
+        const compareDate = new Date(lastActivityPerfromDate);
+        compareDate.setDate(compareDate.getDate() + minDateGap);
+
+        const today = new Date();
+        const afterToday = compareDate > today;
+
+        setLastPerfromedDate(compareDate);
+        console.log(
+          '2026-02-04 is TODAY',
+          isAfterToday,
+          minDateGap,
+          compareDate,
+          today,
+        );
+        if (compareDate > today) {
+          console.log('2026-02-04 is not TODAY', compareDate);
+          Toast.show({
+            time: 3,
+            text: `This activity only submit after ${compareDate}`,
+            ...AlertMesg[0],
+          });
+          setMinDateAct(false);
+          setIsAfterToday(false);
+        } else {
+          setMinDateAct(true);
+          setIsAfterToday(true);
+          console.log('2026-02-04 is TODAY', compareDate);
+        }
+      } else {
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(today.getDate() - 10);
+
+        setLastPerfromedDate(tenDaysAgo);
+      }
+      setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
+    },
+    [minDateGap, selectPipeList],
+  );
   const handlegrowth_stage = useCallback(growth_stage => {
     setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);
@@ -1758,9 +1817,17 @@ const FarmerActivityReportAWD = ({navigation}) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
-                minimumDate={tenDaysAgo}
+                minimumDate={lastPerfromedDate}
                 maximumDate={today}
               />
+              {/* <DatePickerComp
+                openDate={activityPreDate}
+                newDate={newFromDate}
+                setOpenDate={setActivityPreDate}
+                handleDatePicker={handleDatePicker2}
+                minimumDate={tenDaysAgo}
+                maximumDate={today}
+              /> */}
               {modalVisibleRecordFirstItem ? (
                 <SoundRecord
                   modalVisibleRecord={modalVisibleRecordFirstItem}
@@ -2157,6 +2224,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                         <Text style={styles.requiredStar}> *</Text>
                       </View>
                       <TouchableOpacity
+                        disabled={!isAfterToday}
                         style={styles.activityPerFromDate}
                         onPress={() => setActivityPreDate(true)}>
                         <Text style={styles.title}>{activityPreFormDate}</Text>

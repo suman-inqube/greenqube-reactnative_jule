@@ -2343,6 +2343,26 @@ const FarmerLiveHood = ({
             onChangeText={handleAddUserDataPlanNumber}
             editable={InputTextFormEdit}
           />
+             {carbonFlag == true ? (
+             <InputTextForm
+              label={t('JL No')}
+              value={farmerData.jl_no}
+              onChangeText={handleAddUserDataJLNo}
+              editable={InputTextFormEdit}
+            />
+            ) : (
+                  <></>
+                )}
+             {carbonFlag == true ? (
+            <InputTextForm
+              label={t('Mouja Name')}
+              value={farmerData.mouja}
+              onChangeText={handleAddUserDataMouja}
+              editable={InputTextFormEdit}
+            />
+            ) : (
+                  <></>
+                )}
 
           <DropdownForm
             label={t('select_terrain_type')}
@@ -2533,7 +2553,7 @@ const FarmerLiveHood = ({
                 }`
               }
               value={area.toString()}
-              onChangeText={text => handleAddUserData('daag_no', text)}
+              // onChangeText={text => handleAddUserData('daag_no', text)}
               editable={false}
             />
           )}

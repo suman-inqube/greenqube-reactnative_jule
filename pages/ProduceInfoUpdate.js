@@ -66,6 +66,8 @@ const ProduceInfoUpdate = () => {
     daagNo: '',
     khatianNo: '',
     noOfPlants: '',
+    jl_no: '',
+    mouja: '',
     terrainType: '',
     landType: '',
     soilType: '',
@@ -123,6 +125,7 @@ const ProduceInfoUpdate = () => {
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
   const [minHarvestDate, setMinHarvestDate] = useState(new Date());
+   const [carbonFlag, setCarbonStatus] = useState(false);
   const renderLocationTags = () => {
     return location.map((data, index) => (
       <View key={index} style={styles.locationContainer}>
@@ -773,12 +776,15 @@ const ProduceInfoUpdate = () => {
       storePersnolInfo_data,
       storeProduceInfo_data,
       produceVariety,
+      carbonStatus,
     ] = await Promise.all([
       getItem('storeSignup_data'),
       getItem('storePersnolInfo_data'),
       getItem('storeProduceInfo_data'),
       getItem('produceVariety'),
+       getItem('carbon_status'),
     ]);
+    setCarbonStatus(carbonStatus);
     const dbName = storeSignup_data.company.dbname;
     const languageID = storePersnolInfo_data.language.value;
     console.log('s==', JSON.stringify(storeSignup_data.company.dbname));
@@ -1234,6 +1240,34 @@ const ProduceInfoUpdate = () => {
                       }
                       value={storeProduceInfo.khatianNo}
                     />
+                    {carbonFlag == true ? (
+                                        <InputTextForm
+                                          label={t('JL No')}
+                                          onChangeText={item =>
+                                            setstoreProduceInfo({
+                                              ...storeProduceInfo,
+                                              jl_no: item,
+                                            })
+                                          }
+                                          value={storeProduceInfo.jl_no}
+                                        />
+                                      ) : (
+                                        <></>
+                                      )}
+                                      {carbonFlag == true ? (
+                                        <InputTextForm
+                                          label={t('Mouja Name')}
+                                          onChangeText={item =>
+                                            setstoreProduceInfo({
+                                              ...storeProduceInfo,
+                                              mouja: item,
+                                            })
+                                          }
+                                          value={storeProduceInfo.mouja}
+                                        />
+                                      ) : (
+                                        <></>
+                                      )}
                     <InputTextForm
                       label={t('no_of_plants')}
                       onChangeText={item =>

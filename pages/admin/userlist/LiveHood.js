@@ -130,6 +130,8 @@ const LiveHood = ({
     daag_no: '',
     khatian_no: '',
     plant_number: '',
+    jl_no: '',
+    mouja: '',
     land_size: '',
     plot_Site: '',
     plot_Site_Name: '',
@@ -618,6 +620,8 @@ const LiveHood = ({
           ]);
         }
         if (cropAndPlotDetails?.status === 200) {
+
+          console.log("cropAndPlotDetails==",cropAndPlotDetails?.data?.data)
           const data = cropAndPlotDetails?.data?.data || {};
           plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
             if (dataLandDetails?.rel_id == findData.value) {
@@ -666,6 +670,8 @@ const LiveHood = ({
                 daag_no: dataLandDetails?.daag_no,
                 khatian_no: dataLandDetails?.khatian_no,
                 plant_number: dataLandDetails?.plant_number,
+                jl_no: dataLandDetails?.jl_no,
+                mouja: dataLandDetails?.mouja,
                 land_size: dataLandDetails?.land_size,
                 plot_Site: findData?.value,
                 plot_Site_Name: findData?.label,
@@ -945,6 +951,8 @@ const LiveHood = ({
       daag_no: '',
       khatian_no: '',
       plant_number: '',
+      jl_no: '',
+      mouja: '',
       land_size: '',
       plot_Site: '',
       plot_Site_Name: '',
@@ -1644,6 +1652,8 @@ const LiveHood = ({
         formdata.append('daag_no', farmerData.daag_no);
         formdata.append('khatian_no', farmerData.khatian_no);
         formdata.append('plant_number', farmerData.plant_number);
+        formdata.append('jl_no', farmerData.jl_no);
+        formdata.append('mouja', farmerData.mouja);
         formdata.append('certified_seed', 'No');
         formdata.append('have_land_title', 'No');
         formdata.append('production_system', farmerData.productionProcessValue);
@@ -1732,6 +1742,8 @@ const LiveHood = ({
             daag_no: farmerData.daag_no,
             khatian_no: farmerData.khatian_no,
             plant_number: farmerData.plant_number,
+            jl_no: farmerData.jl_no,
+            mouja: farmerData.mouja,
             terrain_type_id: farmerData.terrainTypeValue,
             lan_type_id: farmerData.landTypeValue,
             soil_type_id: farmerData.soilTypeValue,
@@ -2015,13 +2027,13 @@ const LiveHood = ({
         });
         // setPolygons([newPolygon]);
         //basudev
-        if (!overlapFound) {
+        // if (!overlapFound) {
           setPolygons([...nearPolSet, newPolygon]);
           setNewPolygon([]);
           setLocation(newPolygon);
           setEditing(false);
           setShowModal(false);
-          // setArea(calculateAreaFun(newPolygon));
+
           setFarmerData(prev => ({
             ...prev,
             google_area: geolib.getAreaOfPolygon(newPolygon),
@@ -2034,14 +2046,14 @@ const LiveHood = ({
           } else {
             setArea(geolib.getAreaOfPolygon(newPolygon));
           }
-        } else {
-          Alert.alert(
-            'Overlap Detected',
-            'Coordinates are overlapping',
-            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-            {cancelable: false},
-          );
-        }
+        // } else {
+        //   Alert.alert(
+        //     'Overlap Detected',
+        //     'Coordinates are overlapping',
+        //     [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        //     {cancelable: false},
+        //   );
+        // }
       } else {
         // setArea(0);
         Alert.alert(
@@ -2254,6 +2266,12 @@ const LiveHood = ({
   }, []);
   const handleAddUserDataPlanNumber = useCallback(text => {
     setFarmerData(prev => ({...prev, ['plant_number']: text}));
+  }, []);
+  const handleAddUserDataJLNo = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['jl_no']: text}));
+  }, []);
+  const handleAddUserDataMouja = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['mouja']: text}));
   }, []);
   const handleAddDataTerrainType = useCallback(item => {
     const {label, value} = item;
@@ -2762,6 +2780,7 @@ const LiveHood = ({
               onChangeText={handleAddUserDataDaag}
               editable={InputTextFormEdit}
             />
+            
             <InputTextForm
               label={t('khatian_no')}
               value={farmerData.khatian_no}
@@ -2774,6 +2793,27 @@ const LiveHood = ({
               onChangeText={handleAddUserDataPlanNumber}
               editable={InputTextFormEdit}
             />
+
+                 {carbonFlag == true ? (
+             <InputTextForm
+              label={t('JL No')}
+              value={farmerData.jl_no}
+              onChangeText={handleAddUserDataJLNo}
+              editable={InputTextFormEdit}
+            />
+            ) : (
+                  <></>
+                )}
+             {carbonFlag == true ? (
+            <InputTextForm
+              label={t('Mouja Name')}
+              value={farmerData.mouja}
+              onChangeText={handleAddUserDataMouja}
+              editable={InputTextFormEdit}
+            />
+            ) : (
+                  <></>
+                )}
             <DropdownForm
               label={t('select_terrain_type')}
               required={true}
@@ -2846,7 +2886,6 @@ const LiveHood = ({
                   }`
                 }
                 value={farmerData?.ConvertedreportedLandsize.toString()}
-                // onChangeText={text => handleAddUserData('daag_no', text)}
                 editable={false}
               />
             )}
@@ -2922,7 +2961,6 @@ const LiveHood = ({
                   }`
                 }
                 value={area.toString()}
-                // onChangeText={text => handleAddUserData('daag_no', text)}
                 editable={false}
               />
             )}
@@ -2938,7 +2976,6 @@ const LiveHood = ({
                   }`
                 }
                 value={area.toString()}
-                onChangeText={text => handleAddUserData('daag_no', text)}
                 editable={false}
               />
             )} */}

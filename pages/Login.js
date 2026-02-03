@@ -385,6 +385,7 @@ const Login = ({ route }) => {
         // requestUserPermission(),
         // notificationListener(),
         Permission.requestMultiple([
+          PERMISSIONS_TYPE.camera,
           PERMISSIONS_TYPE.microphone,
           PERMISSIONS_TYPE.fineLocation,
           PERMISSIONS_TYPE.notifications,
