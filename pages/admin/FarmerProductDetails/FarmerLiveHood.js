@@ -113,6 +113,8 @@ const FarmerLiveHood = ({
     daag_no: '',
     khatian_no: '',
     plant_number: '',
+     jl_no: '',
+    mouja: '',
     land_size: '',
     plot_Site: '',
     plot_Site_Name: '',
@@ -415,6 +417,8 @@ const FarmerLiveHood = ({
       daag_no: '',
       khatian_no: '',
       plant_number: '',
+       jl_no: '',
+    mouja: '',
       land_size: '',
       plot_Site: '',
       plot_Site_Name: '',
@@ -1118,6 +1122,8 @@ const FarmerLiveHood = ({
         formdata.append('daag_no', farmerData.daag_no);
         formdata.append('khatian_no', farmerData.khatian_no);
         formdata.append('plant_number', farmerData.plant_number);
+        formdata.append('jl_no', farmerData.jl_no);
+        formdata.append('mouja', farmerData.mouja);
         formdata.append('certified_seed', 'No');
         formdata.append('have_land_title', 'No');
         formdata.append('production_system', farmerData.productionProcessValue);
@@ -1205,6 +1211,8 @@ const FarmerLiveHood = ({
             daag_no: farmerData.daag_no,
             khatian_no: farmerData.khatian_no,
             plant_number: farmerData.plant_number,
+            jl_no: farmerData.jl_no,
+            mouja: farmerData.mouja,
             terrain_type_id: farmerData.terrainTypeValue,
             lan_type_id: farmerData.landTypeValue,
             soil_type_id: farmerData.soilTypeValue,
@@ -1615,6 +1623,8 @@ const FarmerLiveHood = ({
               daag_no: dataLandDetails?.daag_no,
               khatian_no: dataLandDetails?.khatian_no,
               plant_number: dataLandDetails?.plant_number,
+              jl_no: dataLandDetails?.jl_no,
+              mouja: dataLandDetails?.mouja,
               land_size: dataLandDetails?.land_size,
               plot_Site: findData.value,
               plot_Site_Name: findData.label,
@@ -1881,6 +1891,12 @@ const FarmerLiveHood = ({
   const handleAddUserDataPlanNumber = useCallback(text => {
     setFarmerData(prev => ({...prev, ['plant_number']: text}));
   }, []);
+   const handleAddUserDataJLNo = useCallback(text => {
+      setFarmerData(prev => ({...prev, ['jl_no']: text}));
+    }, []);
+    const handleAddUserDataMouja = useCallback(text => {
+      setFarmerData(prev => ({...prev, ['mouja']: text}));
+    }, []);
   const handleAddDataTerrainType = useCallback(item => {
     const {label, value} = item;
     setFarmerData(prev => ({
@@ -2343,6 +2359,26 @@ const FarmerLiveHood = ({
             onChangeText={handleAddUserDataPlanNumber}
             editable={InputTextFormEdit}
           />
+             {carbonFlag == true ? (
+             <InputTextForm
+              label={t('JL No')}
+              value={farmerData.jl_no}
+              onChangeText={handleAddUserDataJLNo}
+              editable={InputTextFormEdit}
+            />
+            ) : (
+                  <></>
+                )}
+             {carbonFlag == true ? (
+            <InputTextForm
+              label={t('Mouja Name')}
+              value={farmerData.mouja}
+              onChangeText={handleAddUserDataMouja}
+              editable={InputTextFormEdit}
+            />
+            ) : (
+                  <></>
+                )}
 
           <DropdownForm
             label={t('select_terrain_type')}
@@ -2533,7 +2569,7 @@ const FarmerLiveHood = ({
                 }`
               }
               value={area.toString()}
-              onChangeText={text => handleAddUserData('daag_no', text)}
+              // onChangeText={text => handleAddUserData('daag_no', text)}
               editable={false}
             />
           )}

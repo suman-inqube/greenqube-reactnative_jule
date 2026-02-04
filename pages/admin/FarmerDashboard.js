@@ -451,6 +451,7 @@ const FarmerDashboard = ({navigation}) => {
         getItem('logoImageData'),
         getItem('topBannerData'),
         Permission.requestMultiple([
+          PERMISSIONS_TYPE.camera,
           PERMISSIONS_TYPE.microphone,
           PERMISSIONS_TYPE.fineLocation,
         ]),

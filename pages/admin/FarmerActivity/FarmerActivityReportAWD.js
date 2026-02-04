@@ -97,6 +97,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
   } = useContext(userCreateContext);
   var watchId, watchIdSaveData;
   const {dbname, lan_id, token, user_id} = loginUser_data;
+    const [isAfterToday, setIsAfterToday] = useState(false);
   const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
@@ -177,6 +178,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
+   const [minDateGap, setMinDateGap] = useState();
+    const [lastPerfromedDate, setLastPerfromedDate] = useState('');
   const [upcomingAct, setUpcomingAct] = useState('');
   const [scheduleInfo, setScheduleInfo] = useState({
     lastAct: '',
@@ -1257,6 +1260,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
             'activityInfo' + farmerID + CropType + CropName + item.value,
             response,
           );
+           setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
         } else {
           var response = await getItem(
             'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1288,6 +1292,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           latlongs: {},
         });
         if (response.data.data.count > 0) {
+
           response.data.data.rows.forEach(element => {
             const monthNames = [
               'January',
@@ -1346,73 +1351,82 @@ const FarmerActivityReportAWD = ({navigation}) => {
     [CropType, CropName, isButtonDisabled],
   );
 
-  const handleActivityInfo = useCallback(async item => {
-    const act_to_date1 = item.end_date;
-    const date1 = new Date(act_to_date1);
-    const year1 = date1.getFullYear();
-    const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
-    const day1 = date1.getDate().toString().padStart(2, '0');
-    const act_to_date = `${year1}-${month1}-${day1}`;
+  const handleActivityInfo = useCallback(
+    async item => {
+      const act_to_date1 = item.end_date;
+      const date1 = new Date(act_to_date1);
+      const year1 = date1.getFullYear();
+      const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
+      const day1 = date1.getDate().toString().padStart(2, '0');
+      const act_to_date = `${year1}-${month1}-${day1}`;
 
-    const act_start_date1 = item.start_date;
-    ``;
-    const date2 = new Date(act_start_date1);
-    const year2 = date2.getFullYear();
-    const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
-    const day2 = date2.getDate().toString().padStart(2, '0');
-    const act_start_date = `${year2}-${month2}-${day2}`;
-    setSaveData(prev => ({
-      ...prev,
-      // act_to_date: item.end_date,
-      act_to_date: act_to_date,
-      // act_start_date: item.start_date,
-      act_start_date: act_start_date,
-      act_ref: item.value,
-      act_master_id: item?.act_master_id,
-      field_type: item?.field_type || '',
-    }));
-    if (item?.field_type == 'add') {
-      pipe_fieldType.current = 1;
-    } else {
-      pipe_fieldType.current = 0;
-    }
-    setselectPipeList({
-      ...selectPipeList,
-      label: '',
-      value: '',
-      latlongs: {},
-    });
-
-    const PipeListDetailsRes = await getUniquePipeNames(
-      dbname,
-      lan_id,
-      token,
-      farmerID,
-      saveData.plot_id,
-      item?.act_master_id,
-      saveData?.cu_rel_id,
-    );
-    if (PipeListDetailsRes?.status == 200) {
-      const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
-        (_data, _index) => ({
-          value: _data.pipe_pid,
-          label: _data.pipe_name,
-          latlongs: _data?.latlongs?.[0] || {},
-        }),
-      );
-      setPipeListDetailsResArr(pipeDetailsArr);
-      if (PipeListDetailsRes?.data?.data?.length == 0) {
-        Keyboard.dismiss();
-        Toast.show({
-          time: 2,
-          text: `${t('No pipe found in ' + item.label)}`,
-          ...AlertMesg[0],
-        });
+      const act_start_date1 = item.start_date;
+      const date2 = new Date(act_start_date1);
+      const year2 = date2.getFullYear();
+      const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+      const day2 = date2.getDate().toString().padStart(2, '0');
+      const act_start_date = `${year2}-${month2}-${day2}`;
+      setSaveData(prev => ({
+        ...prev,
+        // act_to_date: item.end_date,
+        act_to_date: act_to_date,
+        // act_start_date: item.start_date,
+        act_start_date: act_start_date,
+        act_ref: item.value,
+        act_master_id: item?.act_master_id,
+        field_type: item?.field_type || '',
+      }));
+      if (item?.field_type == 'add') {
+        pipe_fieldType.current = 1;
+      } else {
+        pipe_fieldType.current = 0;
       }
-    } else {
-      setPipeListDetailsResArr([]);
-    }
-  }, []);
+      setselectPipeList({
+        ...selectPipeList,
+        label: '',
+        value: '',
+        latlongs: {},
+      });
+      console.log('uu11=');
+       setIsAfterToday(true);
+       const tenDaysAgo = new Date();
+       tenDaysAgo.setDate(today.getDate() - 10);
+       setLastPerfromedDate(tenDaysAgo);
+
+      const PipeListDetailsRes = await getUniquePipeNames(
+        dbname,
+        lan_id,
+        token,
+        farmerID,
+        saveData.plot_id,
+        item?.act_master_id,
+        saveData?.cu_rel_id,
+      );
+      if (PipeListDetailsRes?.status == 200) {
+        console.log('uu=', PipeListDetailsRes?.data?.data);
+        const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
+          (_data, _index) => ({
+            value: _data.pipe_pid,
+            label: _data.pipe_name,
+            lastActivityPerfromDate: _data?.lastActivityInfo?.act_perform_date,
+            latlongs: _data?.latlongs?.[0] || {},
+          }),
+        );
+        setPipeListDetailsResArr(pipeDetailsArr);
+        if (PipeListDetailsRes?.data?.data?.length == 0) {
+          Keyboard.dismiss();
+          Toast.show({
+            time: 2,
+            text: `${t('No pipe found in ' + item.label)}`,
+            ...AlertMesg[0],
+          });
+        }
+      } else {
+        setPipeListDetailsResArr([]);
+      }
+    },
+    [saveData.plot_id, saveData.cu_rel_id],
+  );
   const requestLivePermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -1703,10 +1717,58 @@ const FarmerActivityReportAWD = ({navigation}) => {
     setModalVisibleMap(true);
   };
 
-  const handleActivityPipe = useCallback(_item => {
-    const {pipeFiles, pipeLatLong, label, value, latlongs} = _item || {};
-    setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
-  }, []);
+  const handleActivityPipe = useCallback(
+    _item => {
+      const {
+        pipeFiles,
+        pipeLatLong,
+        label,
+        value,
+        latlongs,
+        lastActivityPerfromDate,
+      } = _item || {};
+      const isNotEmpty = value =>
+        value !== null && value !== undefined && String(value).trim() !== '';
+      console.log('lastActivityPerfromDate==', lastActivityPerfromDate);
+      if (isNotEmpty(lastActivityPerfromDate)) {
+        const compareDate = new Date(lastActivityPerfromDate);
+        compareDate.setDate(compareDate.getDate() + minDateGap);
+
+        const today = new Date();
+        const afterToday = compareDate > today;
+
+        setLastPerfromedDate(compareDate);
+        console.log(
+          '2026-02-04 is TODAY',
+          isAfterToday,
+          minDateGap,
+          compareDate,
+          today,
+        );
+        if (compareDate > today) {
+          console.log('2026-02-04 is not TODAY', compareDate);
+          Toast.show({
+            time: 3,
+            text: `This activity only submit after ${compareDate}`,
+            ...AlertMesg[0],
+          });
+          
+          setIsAfterToday(false);
+        } else {
+          
+          setIsAfterToday(true);
+          console.log('2026-02-04 is TODAY', compareDate);
+        }
+      } else {
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(today.getDate() - 10);
+
+        setLastPerfromedDate(tenDaysAgo);
+      }
+      setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
+    },
+    [minDateGap, selectPipeList],
+  );
   const handlegrowth_stage = useCallback(growth_stage => {
     setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);
@@ -1758,9 +1820,17 @@ const FarmerActivityReportAWD = ({navigation}) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
-                minimumDate={tenDaysAgo}
+                minimumDate={lastPerfromedDate}
                 maximumDate={today}
               />
+              {/* <DatePickerComp
+                openDate={activityPreDate}
+                newDate={newFromDate}
+                setOpenDate={setActivityPreDate}
+                handleDatePicker={handleDatePicker2}
+                minimumDate={tenDaysAgo}
+                maximumDate={today}
+              /> */}
               {modalVisibleRecordFirstItem ? (
                 <SoundRecord
                   modalVisibleRecord={modalVisibleRecordFirstItem}
@@ -2157,6 +2227,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                         <Text style={styles.requiredStar}> *</Text>
                       </View>
                       <TouchableOpacity
+                        disabled={!isAfterToday}
                         style={styles.activityPerFromDate}
                         onPress={() => setActivityPreDate(true)}>
                         <Text style={styles.title}>{activityPreFormDate}</Text>

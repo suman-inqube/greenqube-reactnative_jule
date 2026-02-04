@@ -111,6 +111,8 @@ const PlotStatusUpdate = () => {
     daag_no: '',
     khatian_no: '',
     plant_number: '',
+    jl_no: '',
+    mouja: '',
     land_size: '',
     plot_Site: '',
     plot_Site_Name: '',
@@ -670,6 +672,8 @@ const PlotStatusUpdate = () => {
             daag_no: dataLandDetails?.daag_no,
             khatian_no: dataLandDetails?.khatian_no,
             plant_number: dataLandDetails?.plant_number,
+            jl_no: dataLandDetails?.jl_no,
+            mouja: dataLandDetails?.mouja,
             land_size: dataLandDetails?.land_size,
             plot_Site: findData?.value,
             plot_Site_Name: findData?.label,
@@ -904,6 +908,8 @@ const PlotStatusUpdate = () => {
       daag_no: '',
       khatian_no: '',
       plant_number: '',
+      jl_no: '',
+      mouja: '',
       land_size: '',
       plot_Site: '',
       plot_Site_Name: '',
@@ -1526,6 +1532,8 @@ const PlotStatusUpdate = () => {
       formdata.append('daag_no', farmerData.daag_no);
       formdata.append('khatian_no', farmerData.khatian_no);
       formdata.append('plant_number', farmerData.plant_number);
+      formdata.append('jl_no', farmerData.jl_no);
+      formdata.append('mouja', farmerData.mouja);
       formdata.append('certified_seed', 'No');
       formdata.append('have_land_title', 'No');
       formdata.append('production_system', farmerData.productionProcessValue);
@@ -1593,6 +1601,8 @@ const PlotStatusUpdate = () => {
           daag_no: farmerData.daag_no,
           khatian_no: farmerData.khatian_no,
           plant_number: farmerData.plant_number,
+          jl_no: farmerData.jl_no,
+          mouja: farmerData.mouja,
           terrain_type_id: farmerData.terrainTypeValue,
           season_date_fid: farmerData.productionSeasonSdId,
           lan_type_id: farmerData.landTypeValue,
@@ -2180,6 +2190,26 @@ const PlotStatusUpdate = () => {
                   onChangeText={text => handleAddUserData('plant_number', text)}
                   editable={InputTextFormEdit}
                 />
+                 {carbonFlag == true ? (
+                 <InputTextForm
+                  label={t('JL No')}
+                  value={farmerData.jl_no}
+                  onChangeText={text => handleAddUserData('jl_no', text)}
+                  editable={InputTextFormEdit}
+                />
+                ) : (
+                  <></>
+                )}
+                 {carbonFlag == true ? (
+                <InputTextForm
+                  label={t('Mouja Name')}
+                  value={farmerData.mouja}
+                  onChangeText={text => handleAddUserData('mouja', text)}
+                  editable={InputTextFormEdit}
+                />
+                ) : (
+                  <></>
+                )}
                 <DropdownForm
                   label={t('select_terrain_type')}
                   requred={true}
@@ -2263,7 +2293,6 @@ const PlotStatusUpdate = () => {
                       }`
                     }
                     value={farmerData?.ConvertedreportedLandsize.toString()}
-                    // onChangeText={text => handleAddUserData('daag_no', text)}
                     editable={false}
                   />
                 )}
@@ -2335,7 +2364,6 @@ const PlotStatusUpdate = () => {
                         }`
                       }
                       value={area.toString()}
-                      onChangeText={text => handleAddUserData('daag_no', text)}
                       editable={false}
                     />
                   </>
