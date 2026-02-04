@@ -9,7 +9,7 @@ import {
   Image,
   Animated,
   Alert,
-  TextInput,Modal
+  TextInput,
 } from 'react-native';
 import React, {
   useEffect,
@@ -19,13 +19,6 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-// import {launchCamera} from 'react-native-image-picker';
-// import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {
-  Camera,
-  useCameraDevice,
-  useCodeScanner,
-} from 'react-native-vision-camera';
 import {axiosGet, axiosPut} from '../utils/api';
 import {ROUTES} from '../utils/Routes';
 import CheckBoxComp from '../Common/CheckBoxComp';
@@ -124,7 +117,6 @@ const ListOfCoFarmer = ({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchText, setSearchText] = useState('');
-  isSubmit;
   const [isSubmit, setIsSubmit] = useState(false);
 
   const getAge = dob => {
@@ -148,12 +140,13 @@ const ListOfCoFarmer = ({
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
+        console.log('age', response);
         if (response?.status === 200) {
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
           const resArr = response?.data?.data?.rows?.map(item => ({
             ...item,
             // CoFarmer: '',
-            age: '',
+            age: item?.coFInfo?.date_of_birth ?? '',
           }));
           setCoFarmerList(resArr);
         }
@@ -166,14 +159,108 @@ const ListOfCoFarmer = ({
 
     onPageLoad();
   }, [page, searchText]);
- useEffect(() => {
-   (async () => {
-     const permission = await Camera.requestCameraPermission();
-     if (permission !== 'granted') {
-       Alert.alert(permission);
-     }
-   })();
- }, []);
+  // useEffect(() => {
+  //   const onPageLoad = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       // console.log(plotId, token, {
+  //       //   information: `${dbname},${lan_id},${user_id}`,
+  //       // });
+  //       const response = await axiosGet(
+  //         ROUTES.GET.LIST_CO_FARMERS({land_fid: plotId, pageNo: page}),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       );
+  //       if (response?.status === 200) {
+  //         setTotalPages(Math.ceil(response?.data?.data.count / 10));
+  //         const resArr = response?.data?.data?.rows?.map(item => ({
+  //           ...item,
+  //           CoFarmer: '',
+  //           age: item?.coFInfo?.date_of_birth,
+  //         }));
+  //         setCoFarmerList(resArr);
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   onPageLoad();
+  // }, [page]);
+
+  // useEffect(() => {
+  //     const onPageLoad = async () => {
+  //         setIsLoading(true);
+  //         try {
+  //             const response = await axiosGet(
+  //                 ROUTES.GET.LIST_CO_FARMERS({ land_fid: plotId }),
+  //                 token,
+  //                 { information: `${dbname},${lan_id},${user_id}` }
+  //             );
+  //             if (response?.status === 200) {
+  //                 const resArr = response?.data?.data?.rows?.map((item) => ({
+  //                     ...item,
+  //                     CoFarmer: "",
+  //                     age: item?.coFInfo?.date_of_birth,
+  //                 }));
+  //                 setCoFarmerList(resArr);
+  //             }
+  //         } catch (error) {
+  //             console.error(error);
+  //         } finally {
+  //             setIsLoading(false);
+  //         }
+  //     };
+
+  //     onPageLoad();
+  // }, []);
+  // useEffect(() => {
+  //   fetchCoFarmers(page);
+  // }, [page, fetchCoFarmers]);
+
+  // const fetchCoFarmers = useCallback(
+  //   async (pageNo) => {
+  //     setIsLoading(true);
+  //     try {
+
+  //         console.log(pageNo, 'pageNo');
+  //       const response = await axiosGet(
+  //         ROUTES.GET.LIST_CO_FARMERS({
+  //           land_fid: plotId,
+  //           page: pageNo,
+  //         }),
+  //         token,
+  //         {information: `${dbname},${lan_id},${user_id}`},
+  //       );
+
+  //       if (response?.status === 200) {
+  //         const rows = response?.data?.data?.rows || [];
+  //         const meta = response?.data?.data?.meta; // if backend sends meta
+
+  //         const resArr = rows.map(item => ({
+  //           ...item,
+  //           CoFarmer: '',
+  //           age: item?.coFInfo?.date_of_birth,
+  //         }));
+
+  //         setCoFarmerList(resArr);
+
+  //         // pagination flags
+  //         setHasPrev(pageNo > 1);
+  //         setHasNext(
+  //          true
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   },
+  //   [plotId, token, dbname, lan_id, user_id,page, limit],
+  // );
 
   const onCheckCoFarmer = useCallback(
     (index, co_farmer_id, phoneNum, item) => {
@@ -298,66 +385,31 @@ const ListOfCoFarmer = ({
     [status],
   );
 
-  // const pickFile = useCallback(async fieldName => {
-  //   try {
-  //     const [res] = await pick({
-  //       presentationStyle: 'fullScreen',
-  //       type: [types.pdf, types.images],
-  //     });
-  //     let fileUri = res.uri;
-  //     if (res.type?.startsWith('image/')) {
-  //       fileUri = await resizeImage(res.uri);
-  //     }
-  //     if (res) {
-  //       setCoFarmer(prev => ({
-  //         ...prev,
-  //         [fieldName]: {
-  //           uri: fileUri,
-  //           name: res.name,
-  //           fileName: res.name,
-  //           type: res.type,
-  //         },
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.log('Pick error:', error);
-  //   }
-  // }, []);
-
   const pickFile = useCallback(async fieldName => {
     try {
       const [res] = await pick({
         presentationStyle: 'fullScreen',
-        type: ['image/jpeg', 'image/jpg'], // ✅ only jpeg/jpg
+        type: [types.pdf, types.images],
       });
-
-      // 🔒 Extra safety check
-      if (!res?.type || !['image/jpeg', 'image/jpg'].includes(res.type)) {
-        Alert.alert('Invalid file', 'Please select a JPG or JPEG image only');
-        return;
-      }
-
       let fileUri = res.uri;
-
-      // resize only images (now guaranteed jpeg)
-      fileUri = await resizeImage(fileUri);
-
-      setCoFarmer(prev => ({
-        ...prev,
-        [fieldName]: {
-          uri: fileUri,
-          name: res.name,
-          fileName: res.name,
-          type: res.type,
-        },
-      }));
-    } catch (error) {
-      if (!DocumentPicker.isCancel(error)) {
-        console.log('Pick error:', error);
+      if (res.type?.startsWith('image/')) {
+        fileUri = await resizeImage(res.uri);
       }
+      if (res) {
+        setCoFarmer(prev => ({
+          ...prev,
+          [fieldName]: {
+            uri: fileUri,
+            name: res.name,
+            fileName: res.name,
+            type: res.type,
+          },
+        }));
+      }
+    } catch (error) {
+      console.log('Pick error:', error);
     }
   }, []);
-
 
   const onSave = useCallback(async () => {
     try {
@@ -468,60 +520,6 @@ const ListOfCoFarmer = ({
   });
   return (
     <View style={styles.container}>
-      <Modal
-        visible={cameraVisible}
-        animationType="slide"
-        onRequestClose={() => setCameraVisible(false)}>
-        <View style={{flex: 1, backgroundColor: 'black'}}>
-          {device && (
-            <Camera
-              ref={cameraRef}
-              style={StyleSheet.absoluteFill}
-              device={device}
-              isActive={cameraVisible}
-              photo
-              onInitialized={() => setCameraReady(true)}
-            />
-          )}
-
-          <View style={styles.focusOverlay}>
-            <View style={styles.focusBox} />
-          </View>
-
-          {/* Capture Button */}
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 40,
-              alignSelf: 'center',
-            }}>
-            <TouchableOpacity
-              onPress={takePhoto}
-              disabled={!cameraReady}
-              style={{
-                width: 70,
-                height: 70,
-                borderRadius: 35,
-                backgroundColor: '#fff',
-                borderWidth: 6,
-                borderColor: '#10b981',
-              }}
-            />
-          </View>
-
-          {/* Close */}
-          <TouchableOpacity
-            onPress={() => setCameraVisible(false)}
-            style={{
-              position: 'absolute',
-              top: 40,
-              left: 20,
-            }}>
-            <AntDesign name="close" size={30} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
       <DatePickerComp
         openDate={penCycleStart}
         newDate={newDate}
@@ -549,6 +547,7 @@ const ListOfCoFarmer = ({
           </View>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Co-Farmers</Text>
+            {/* <Text style={styles.headerSubtitle}>Select a co-farmer to switch ownership</Text> */}
           </View>
         </View>
       </LinearGradient>
@@ -557,9 +556,10 @@ const ListOfCoFarmer = ({
         <Feather name="search" size={18} color="#585858" />
         <TextInput
           placeholder="Search by name"
-          placeholderTextColor="#585858"
+          placeholderTextColor="#585858" // optional
           value={searchText}
           onChangeText={onSearchChange}
+          // onChangeText={text => setSearchText(text)}
           style={styles.searchInput}
           keyboardType="default"
         />
@@ -581,6 +581,7 @@ const ListOfCoFarmer = ({
               <Feather name="users" size={48} color="#9ca3af" />
             </View>
             <Text style={styles.emptyTitle}>No Co-Farmers Yet</Text>
+            {/* <Text style={styles.emptyText}>Add co-farmers to manage your farm collaboratively</Text> */}
           </View>
         ) : (
           coFarmerList.map((item, index) => {
@@ -592,6 +593,7 @@ const ListOfCoFarmer = ({
 
             return (
               <View key={index} style={styles.itemContainer}>
+                {/* Farmer Card */}
                 <TouchableOpacity
                   onPress={() =>
                     onCheckCoFarmer(
@@ -604,6 +606,7 @@ const ListOfCoFarmer = ({
                   activeOpacity={0.9}>
                   <View
                     style={[styles.card, isSelected && styles.cardSelected]}>
+                    {/* Avatar Circle */}
                     <LinearGradient
                       colors={
                         isSelected
@@ -620,8 +623,9 @@ const ListOfCoFarmer = ({
                       </Text>
                     </LinearGradient>
 
+                    {/* Info Container */}
                     <View style={styles.infoContainer}>
-                      <Text style={styles.name} >{item?.coFInfo?.userName}</Text>
+                      <Text style={styles.name}>{item?.coFInfo?.userName}</Text>
                       {!hasPhone ? (
                         <View style={styles.phoneRow}>
                           <Feather name="phone" size={14} color="#6b7280" />
@@ -630,7 +634,9 @@ const ListOfCoFarmer = ({
                           </Text>
                         </View>
                       ) : (
-                        <View style={styles.badge}></View>
+                        <View style={styles.badge}>
+                          {/* <Text style={styles.badgeText}>Phone Required</Text> */}
+                        </View>
                       )}
                     </View>
                     {/* Edit Icon Button */}
@@ -681,11 +687,23 @@ const ListOfCoFarmer = ({
                   </View>
                 </TouchableOpacity>
 
+                {/* Expanded Form */}
                 {isSelected && (
                   <View style={styles.formContainer}>
+                    {/* Form Header */}
+                    {/* <View style={styles.formHeader}>
+                                            <MaterialIcons name="lock-outline" size={20} color="#10b981" />
+                                            <Text style={styles.formHeaderText}>Verification Details</Text>
+                                        </View> */}
+
+                    {/* Phone Number Input */}
                     <View style={styles.inputWrapper}>
-                      <Text style={styles.inputLabel}>Phone Number</Text>
+                      <Text style={styles.inputLabel}>
+                        Phone Number
+                        {/* <Text style={styles.required}>*</Text> */}
+                      </Text>
                       <View style={styles.inputContainer}>
+                        {/* <Feather name="phone" size={18} color="#9ca3af" style={styles.inputIcon} /> */}
                         <InputTextForm
                           label=""
                           placeholder="Enter 10-digit phone number"
@@ -702,9 +720,14 @@ const ListOfCoFarmer = ({
                       </View>
                     </View>
 
+                    {/* Password Input */}
                     <View style={styles.inputWrapper}>
-                      <Text style={styles.inputLabel}>Password</Text>
+                      <Text style={styles.inputLabel}>
+                        Password
+                        {/* <Text style={styles.required}>*</Text> */}
+                      </Text>
                       <View style={styles.inputContainer}>
+                        {/* <MaterialIcons name="lock-outline" size={18} color="#9ca3af" style={styles.inputIcon} /> */}
                         <InputTextForm
                           label=""
                           placeholder="Enter secure password"
@@ -721,8 +744,12 @@ const ListOfCoFarmer = ({
                     </View>
 
                     <View style={styles.inputWrapper}>
-                      <Text style={styles.inputLabel}>Date of Birth</Text>
+                      <Text style={styles.inputLabel}>
+                        Date of Birth
+                        {/* <Text style={styles.required}>*</Text> */}
+                      </Text>
                       <View style={styles.inputContainer}>
+                        {/* <MaterialIcons name="lock-outline" size={18} color="#9ca3af" style={styles.inputIcon} /> */}
                         <TouchableOpacity
                           onPress={() => setopenCycleStart(!penCycleStart)}>
                           <InputTextForm
@@ -742,48 +769,111 @@ const ListOfCoFarmer = ({
                       </View>
                     </View>
 
+                    {/* Document Upload Section */}
                     <View style={styles.uploadSection}>
                       <Text style={styles.uploadSectionTitle}>
-                        Identity Image
+                        Document Verification
                       </Text>
                       <View style={styles.uploadRow}>
-                        <View style={styles.uploadPlaceholder}>
-                          <TouchableOpacity
-                            style={[
-                              styles.uploadBox,
-                              coFarmer.idProof?.uri && styles.uploadBoxFilled,
-                            ]}
-                            activeOpacity={0.7}
-                            onPress={openCameraAndCapture}>
-                            {coFarmer.idProof != null ? (
-                              <Image
-                                source={{
-                                  uri: coFarmer.idProof.uri,
-                                }}
-                                style={styles.previewImg}
-                                resizeMode="cover"
-                              />
-                            ) : (
-                              <View style={styles.uploadPlaceholder}>
-                                <View style={styles.uploadIconCircle}>
+                        {/* <TouchableOpacity
+                                                    style={[
+                                                        styles.uploadBox,
+                                                        coFarmer.addressProof && styles.uploadBoxFilled
+                                                    ]}
+                                                    onPress={() => pickFile("addressProof")}
+                                                    activeOpacity={0.7}
+                                                >
+                                                    {coFarmer.addressProof?.uri ? (
+                                                        <>
+                                                            {coFarmer.addressProof.type === "image/jpeg" ? (
+                                                                <Image
+                                                                    source={{ uri: coFarmer.addressProof.uri }}
+                                                                    style={styles.previewImg}
+                                                                    resizeMode="cover"
+                                                                />
+                                                            ) : (
+                                                                <View style={styles.pdfContainer}>
+                                                                    <MaterialIcons name="picture-as-pdf" size={32} color="#ef4444" />
+                                                                    <Text style={styles.pdfText}>PDF Uploaded</Text>
+                                                                </View>
+                                                            )}
+                                                            <View style={styles.uploadBadge}>
+                                                                <AntDesign name="checkcircle" size={16} color="#10b981" />
+                                                            </View>
+                                                        </>
+                                                    ) : (
+                                                        <View style={styles.uploadPlaceholder}>
+                                                            <View style={styles.uploadIconCircle}>
+                                                                <MaterialIcons name="cloud-upload" size={24} color="#10b981" />
+                                                            </View>
+                                                            <Text style={styles.uploadTitle}>Address Proof</Text>
+                                                            <Text style={styles.uploadSubtitle}>Tap to upload</Text>
+                                                        </View>
+                                                    )}
+                                                </TouchableOpacity> */}
+                        <TouchableOpacity
+                          style={[
+                            styles.uploadBox,
+                            coFarmer.idProof && styles.uploadBoxFilled,
+                          ]}
+                          onPress={() => pickFile('idProof')}
+                          activeOpacity={0.7}>
+                          {coFarmer.idProof?.uri ? (
+                            <>
+                              {coFarmer.idProof.type === 'image/jpeg' ? (
+                                <Image
+                                  source={{
+                                    uri: coFarmer.idProof.uri,
+                                  }}
+                                  style={styles.previewImg}
+                                  resizeMode="cover"
+                                />
+                              ) : (
+                                <View style={styles.pdfContainer}>
                                   <MaterialIcons
-                                    name="cloud-upload"
-                                    size={24}
-                                    color="#10b981"
+                                    name="picture-as-pdf"
+                                    size={32}
+                                    color="#ef4444"
                                   />
+                                  <Text style={styles.pdfText}>
+                                    PDF Uploaded
+                                  </Text>
                                 </View>
-                                <Text style={styles.uploadTitle}>ID Proof</Text>
-                                <Text style={styles.uploadSubtitle}>
-                                  Tap to upload
-                                </Text>
+                              )}
+                              <View style={styles.uploadBadge}>
+                                <AntDesign
+                                  name="checkcircle"
+                                  size={16}
+                                  color="#10b981"
+                                />
                               </View>
-                            )}
-                          </TouchableOpacity>
-                        </View>
+                            </>
+                          ) : (
+                            <View style={styles.uploadPlaceholder}>
+                              <View style={styles.uploadIconCircle}>
+                                <MaterialIcons
+                                  name="cloud-upload"
+                                  size={24}
+                                  color="#10b981"
+                                />
+                              </View>
+                              <Text style={styles.uploadTitle}>ID Proof</Text>
+                              <Text style={styles.uploadSubtitle}>
+                                Tap to upload
+                              </Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
                       </View>
                     </View>
 
-                    <Button label={'Save'} onPress={onSave} />
+                    {/* Submit Button */}
+                    <Button
+                      // label={isFormValid ? "Submit & Switch Ownership" : "Complete All Fields"}
+                      label={'Save'}
+                      onPress={onSave}
+                      // disabled={!isFormValid}
+                    />
                   </View>
                 )}
               </View>
@@ -791,7 +881,6 @@ const ListOfCoFarmer = ({
           })
         )}
       </ScrollView>
-
       <PaginationNav
         isLoading={isLoading}
         page={page}
@@ -1105,8 +1194,7 @@ const styles = StyleSheet.create({
   },
   uploadBox: {
     flex: 1,
-    height: 120,
-    width: 120,
+    height: 140,
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#d1d5db',
@@ -1260,32 +1348,6 @@ const styles = StyleSheet.create({
     top: '52%',
     left: '45%',
     zIndex: 9999,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
-  },
-  imageModal: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    maxHeight: '70%',
-  },
-  focusOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  focusBox: {
-    width: '80%',
-    height: 220,
-    borderWidth: 2,
-    borderColor: '#10b981',
-    borderRadius: 12,
-    backgroundColor: 'transparent',
   },
 });
 

@@ -97,6 +97,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
   } = useContext(userCreateContext);
   var watchId, watchIdSaveData;
   const {dbname, lan_id, token, user_id} = loginUser_data;
+    const [isAfterToday, setIsAfterToday] = useState(false);
   const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
@@ -1350,80 +1351,82 @@ const FarmerActivityReportAWD = ({navigation}) => {
     [CropType, CropName, isButtonDisabled],
   );
 
-  const handleActivityInfo = useCallback(async item => {
-    const act_to_date1 = item.end_date;
-    const date1 = new Date(act_to_date1);
-    const year1 = date1.getFullYear();
-    const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
-    const day1 = date1.getDate().toString().padStart(2, '0');
-    const act_to_date = `${year1}-${month1}-${day1}`;
+  const handleActivityInfo = useCallback(
+    async item => {
+      const act_to_date1 = item.end_date;
+      const date1 = new Date(act_to_date1);
+      const year1 = date1.getFullYear();
+      const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
+      const day1 = date1.getDate().toString().padStart(2, '0');
+      const act_to_date = `${year1}-${month1}-${day1}`;
 
-    const act_start_date1 = item.start_date;
-    ``;
-    const date2 = new Date(act_start_date1);
-    const year2 = date2.getFullYear();
-    const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
-    const day2 = date2.getDate().toString().padStart(2, '0');
-    const act_start_date = `${year2}-${month2}-${day2}`;
-    setSaveData(prev => ({
-      ...prev,
-      // act_to_date: item.end_date,
-      act_to_date: act_to_date,
-      // act_start_date: item.start_date,
-      act_start_date: act_start_date,
-      act_ref: item.value,
-      act_master_id: item?.act_master_id,
-      field_type: item?.field_type || '',
-    }));
-    if (item?.field_type == 'add') {
-      pipe_fieldType.current = 1;
-    } else {
-      pipe_fieldType.current = 0;
-    }
-    setselectPipeList({
-      ...selectPipeList,
-      label: '',
-      value: '',
-      latlongs: {},
-    });
-
-     setIsAfterToday(true);
-     setMinDateAct(true);
-     const tenDaysAgo = new Date();
-     tenDaysAgo.setDate(today.getDate() - 10);
-     setLastPerfromedDate(tenDaysAgo);
-
-    const PipeListDetailsRes = await getUniquePipeNames(
-      dbname,
-      lan_id,
-      token,
-      farmerID,
-      saveData.plot_id,
-      item?.act_master_id,
-      saveData?.cu_rel_id,
-    );
-    if (PipeListDetailsRes?.status == 200) {
-      const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
-        (_data, _index) => ({
-          value: _data.pipe_pid,
-          label: _data.pipe_name,
-          lastActivityPerfromDate: _data?.lastActivityInfo?.act_perform_date,
-          latlongs: _data?.latlongs?.[0] || {},
-        }),
-      );
-      setPipeListDetailsResArr(pipeDetailsArr);
-      if (PipeListDetailsRes?.data?.data?.length == 0) {
-        Keyboard.dismiss();
-        Toast.show({
-          time: 2,
-          text: `${t('No pipe found in ' + item.label)}`,
-          ...AlertMesg[0],
-        });
+      const act_start_date1 = item.start_date;
+      const date2 = new Date(act_start_date1);
+      const year2 = date2.getFullYear();
+      const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+      const day2 = date2.getDate().toString().padStart(2, '0');
+      const act_start_date = `${year2}-${month2}-${day2}`;
+      setSaveData(prev => ({
+        ...prev,
+        // act_to_date: item.end_date,
+        act_to_date: act_to_date,
+        // act_start_date: item.start_date,
+        act_start_date: act_start_date,
+        act_ref: item.value,
+        act_master_id: item?.act_master_id,
+        field_type: item?.field_type || '',
+      }));
+      if (item?.field_type == 'add') {
+        pipe_fieldType.current = 1;
+      } else {
+        pipe_fieldType.current = 0;
       }
-    } else {
-      setPipeListDetailsResArr([]);
-    }
-  }, []);
+      setselectPipeList({
+        ...selectPipeList,
+        label: '',
+        value: '',
+        latlongs: {},
+      });
+      console.log('uu11=');
+       setIsAfterToday(true);
+       const tenDaysAgo = new Date();
+       tenDaysAgo.setDate(today.getDate() - 10);
+       setLastPerfromedDate(tenDaysAgo);
+
+      const PipeListDetailsRes = await getUniquePipeNames(
+        dbname,
+        lan_id,
+        token,
+        farmerID,
+        saveData.plot_id,
+        item?.act_master_id,
+        saveData?.cu_rel_id,
+      );
+      if (PipeListDetailsRes?.status == 200) {
+        console.log('uu=', PipeListDetailsRes?.data?.data);
+        const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
+          (_data, _index) => ({
+            value: _data.pipe_pid,
+            label: _data.pipe_name,
+            lastActivityPerfromDate: _data?.lastActivityInfo?.act_perform_date,
+            latlongs: _data?.latlongs?.[0] || {},
+          }),
+        );
+        setPipeListDetailsResArr(pipeDetailsArr);
+        if (PipeListDetailsRes?.data?.data?.length == 0) {
+          Keyboard.dismiss();
+          Toast.show({
+            time: 2,
+            text: `${t('No pipe found in ' + item.label)}`,
+            ...AlertMesg[0],
+          });
+        }
+      } else {
+        setPipeListDetailsResArr([]);
+      }
+    },
+    [saveData.plot_id, saveData.cu_rel_id],
+  );
   const requestLivePermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -1749,10 +1752,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
             text: `This activity only submit after ${compareDate}`,
             ...AlertMesg[0],
           });
-          setMinDateAct(false);
+          
           setIsAfterToday(false);
         } else {
-          setMinDateAct(true);
+          
           setIsAfterToday(true);
           console.log('2026-02-04 is TODAY', compareDate);
         }
