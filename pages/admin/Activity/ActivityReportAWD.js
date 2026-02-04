@@ -13,7 +13,7 @@ import {
   Linking,
   InteractionManager,
 } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {
   useEffect,
@@ -21,8 +21,9 @@ import React, {
   useCallback,
   useContext,
   useRef,
+  useMemo,
 } from 'react';
-import { launchCamera } from 'react-native-image-picker';
+import {launchCamera} from 'react-native-image-picker';
 import {
   inputOutputRoutePipeImagesLatLong,
   activityInfoAPI,
@@ -42,7 +43,7 @@ import {
   problemProduceAgainstPlotAPI,
   problemProductionStageAPI,
 } from '../../../config/apiHere';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
@@ -56,26 +57,26 @@ const audioRecorderPlayer =
     : AudioRecorderPlayer;
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AnalyticsLogEvent } from '../../Analytics';
-import { isPointInPolygon, getDistance } from 'geolib';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {AnalyticsLogEvent} from '../../Analytics';
+import {isPointInPolygon, getDistance} from 'geolib';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import ActivityMap from '../../Common/ActivityMap';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import { Colors, Fronts } from '../../utils/Constants';
+import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { use } from 'i18next';
-import { axiosGet, axiosPost } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
-import { captureRef } from 'react-native-view-shot';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { showAIValidationError } from '../../utils/showAIValidationError';
+import {use} from 'i18next';
+import {axiosGet, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
+import {captureRef} from 'react-native-view-shot';
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import {showAIValidationError} from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
-import { isWithin20Meters } from '../../Common/calculateAreaFun';
-const ActivityReportAWD = ({ navigation }) => {
+import {isWithin20Meters} from '../../Common/calculateAreaFun';
+const ActivityReportAWD = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -100,9 +101,10 @@ const ActivityReportAWD = ({ navigation }) => {
     coords,
     farmerData,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
   //GQR-67
+  const [isAfterToday, setIsAfterToday] = useState(false);
   const today = new Date();
 
   // 7 days ago
@@ -222,7 +224,12 @@ const ActivityReportAWD = ({ navigation }) => {
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
+  const [minDateAct, setMinDateAct] = useState(true);
+  const [minDateGap, setMinDateGap] = useState();
+  const [lastPerfromedDate, setLastPerfromedDate] = useState('');
+  const [newPerFromDate, setNewPerFromDate] = useState('');
   const [upcomingAct, setUpcomingAct] = useState('');
+
   const [scheduleInfo, setScheduleInfo] = useState({
     lastAct: '',
     upcomingAct: '',
@@ -241,10 +248,21 @@ const ActivityReportAWD = ({ navigation }) => {
   //     console.log('error', error);
   //   }
   // };
+
+  const minimumActivityDate = useMemo(() => {
+    if (!minDateGap) return null;
+
+    // const date = new Date();
+    const date = new Date(lastPerfromedDate);
+
+    date.setDate(date.getDate() + minDateGap);
+    // date.setDate(date.getDate() - minDateGap);
+    return date;
+  }, [minDateGap]);
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
       // Get fresh coordinates each time this function is called
-      const { latitude, longitude } = coords || {};
+      const {latitude, longitude} = coords || {};
       let freshLatLong;
 
       if (!latitude || !longitude) {
@@ -274,15 +292,15 @@ const ActivityReportAWD = ({ navigation }) => {
 
       for (const existingPipe of allPipes) {
         const distance = getDistance(
-          { latitude: lat, longitude: lon },
-          { latitude: existingPipe.latitude, longitude: existingPipe.longitude },
+          {latitude: lat, longitude: lon},
+          {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
         );
 
         if (distance < 20) {
           Alert.alert(
             'Too Close!',
             `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-            [{ text: 'OK', style: 'cancel' }],
+            [{text: 'OK', style: 'cancel'}],
           );
           return false;
         }
@@ -316,14 +334,15 @@ const ActivityReportAWD = ({ navigation }) => {
     setCycleStartDate(effective_date);
   };
   const handleDatePicker2 = item => {
+    setNewPerFromDate(item);
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({ ...saveData, act_perform_date: effective_date });
+    setSaveData({...saveData, act_perform_date: effective_date});
   };
   const handleResultSelect = useCallback(
     async item => {
       setIsLoading(true);
-      const { label: name, value: currentfarmerId, phone } = item || {};
+      const {label: name, value: currentfarmerId, phone} = item || {};
       // setSearchFarmerPhone(phone);
       // setSelectedName(name);
       // setSearchFarmerName(name);
@@ -336,7 +355,7 @@ const ActivityReportAWD = ({ navigation }) => {
         phone,
       }));
       setFarmerID(currentfarmerId);
-      setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
+      setSaveData({...saveData, plot_id: '', plot_Name: ''});
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
         name: '',
@@ -351,7 +370,7 @@ const ActivityReportAWD = ({ navigation }) => {
             farmerID: currentfarmerId,
           }),
           token,
-          { information: `${dbname},${lan_id}` },
+          {information: `${dbname},${lan_id}`},
         );
         // plotAgainstFarmerAPI(
         //   dbname,
@@ -373,7 +392,7 @@ const ActivityReportAWD = ({ navigation }) => {
           var activityType_res = await axiosGet(
             ROUTES.GET.ACTIVITY_TYPE_AWD(),
             '',
-            { information: `${dbname},${lan_id},${currentfarmerId}` },
+            {information: `${dbname},${lan_id},${currentfarmerId}`},
           );
           // activityTypeAPIAWD(
           //   dbname,
@@ -402,7 +421,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const handlePlot = useCallback(
     async relId => {
       try {
-        const { latitude, longitude } = coords || {};
+        const {latitude, longitude} = coords || {};
         var latlong;
         if (latitude == '' && longitude == '') {
           latlong = await getHighAccuracyLocation();
@@ -447,7 +466,7 @@ const ActivityReportAWD = ({ navigation }) => {
                   text: 'OK',
                 },
               ],
-              { cancelable: false },
+              {cancelable: false},
             );
           }
           const latandlongArr =
@@ -459,7 +478,7 @@ const ActivityReportAWD = ({ navigation }) => {
             );
           if (latandlongArr.length != 0) {
             setPlotPolygon(latandlongArr);
-            const inside = isPointInPolygon({ lat, lon }, latandlongArr);
+            const inside = isPointInPolygon({lat, lon}, latandlongArr);
             if (inside) {
               setOutofRange(true);
               setOutofRangeCheck(true);
@@ -475,12 +494,12 @@ const ActivityReportAWD = ({ navigation }) => {
             const data = response?.data?.data;
             setShowingMenu(true);
             data.crop_cycl_start_date == null ||
-              data.crop_cycl_start_date == '2004-02-29'
+            data.crop_cycl_start_date == '2004-02-29'
               ? setIsButtonDisabled(false)
               : setIsButtonDisabled(true);
             let cycle_start_date =
               data.crop_cycl_start_date == null ||
-                data.crop_cycl_start_date == '2004-02-29'
+              data.crop_cycl_start_date == '2004-02-29'
                 ? data.sowing_date
                 : data.crop_cycl_start_date;
             setMinimumSelectableDate(new Date(cycle_start_date));
@@ -542,7 +561,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       cropNameID: data.crop_name_id,
                     }),
                     '',
-                    { information: `${dbname},${lan_id}` },
+                    {information: `${dbname},${lan_id}`},
                   ),
                   // productionStageAPI(
                   //   dbname,
@@ -559,7 +578,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       cu_rel_id: data.cu_rel_id,
                     }),
                     token,
-                    { information: `${dbname},${lan_id}` },
+                    {information: `${dbname},${lan_id}`},
                   ),
                   // activityScheduleAPI(
                   //   dbname,
@@ -578,7 +597,7 @@ const ActivityReportAWD = ({ navigation }) => {
                       cu_rel_id: data.cu_rel_id,
                     }),
                     '',
-                    { information: `${dbname},${lan_id},${farmerID}` },
+                    {information: `${dbname},${lan_id},${farmerID}`},
                   ),
                   // inputOutputRoutePipeImagesLatLong(
                   //   dbname,
@@ -611,6 +630,10 @@ const ActivityReportAWD = ({ navigation }) => {
             }
             if (activitySchedule.status == 200) {
               setIsLoading(false);
+              console.log(
+                'Last Activity=',
+                JSON.stringify(activitySchedule?.data?.data),
+              );
               if (
                 activitySchedule?.data?.data?.lastActivity !==
                 'No Last Activity'
@@ -628,6 +651,12 @@ const ActivityReportAWD = ({ navigation }) => {
                   ) +
                   ')';
                 setLastAct(lastData);
+                // setLastPerfromedDate(
+                //   activitySchedule?.data?.data?.lastActivity?.act_perform_date,
+                // );
+                // checkDate(
+                //   activitySchedule?.data?.data?.lastActivity?.act_perform_date,
+                // );
               }
               if (activitySchedule?.data?.data?.otherActivities.length > 0) {
                 activitySchedule?.data?.data?.otherActivities.forEach(function (
@@ -670,7 +699,7 @@ const ActivityReportAWD = ({ navigation }) => {
                   //     : cycleDtartDate;
                   const cycleDate =
                     data.crop_cycl_start_date == null ||
-                      data.crop_cycl_start_date == '2004-02-29'
+                    data.crop_cycl_start_date == '2004-02-29'
                       ? data.sowing_date
                       : data.crop_cycl_start_date;
                   const sdate = new Date(cycleDate);
@@ -689,9 +718,9 @@ const ActivityReportAWD = ({ navigation }) => {
 
                   setUpcomingAct(
                     upcomingActivity?.activityName?.categoryName +
-                    ' (' +
-                    startDateEndDate +
-                    ')',
+                      ' (' +
+                      startDateEndDate +
+                      ')',
                   );
                 }
               }
@@ -744,6 +773,35 @@ const ActivityReportAWD = ({ navigation }) => {
     },
     [farmerID],
   );
+
+  const checkDate = minDateGap => {
+    const today = new Date();
+
+    // subtract 10 days from today minDateGap
+    const tenDaysBefore = new Date(today);
+    tenDaysBefore.setDate(today.getDate() - 10);
+
+    // given date string
+    const compareDate = new Date(lastPerfromedDate);
+
+    compareDate.setDate(compareDate.getDate() + minDateGap);
+
+    if (tenDaysBefore > compareDate) {
+      tenDaysAgo.setDate(compareDate);
+      console.log(
+        'Today - 10 days is GREATER than 2026-02-02',
+        compareDate,
+        tenDaysBefore,
+      );
+    } else {
+      tenDaysAgo.setDate(compareDate);
+      console.log(
+        'Today - 10 days is NOT greater than 2026-02-02',
+        compareDate,
+        tenDaysBefore,
+      );
+    }
+  };
 
   const formatDate = dateString => {
     const date = new Date(dateString);
@@ -950,8 +1008,15 @@ const ActivityReportAWD = ({ navigation }) => {
           saveData.cu_rel_id,
         ),
       ]);
-
+      console.log(
+        'Last Activity=',
+        JSON.stringify(activitySchedule?.data?.data),
+      );
       if (activitySchedule.status == 200) {
+        console.log(
+          'Last Activity=',
+          JSON.stringify(activitySchedule?.data?.data),
+        );
         if (activitySchedule?.data?.data?.lastActivity !== 'No Last Activity') {
           var lastData =
             activitySchedule?.data?.data?.lastActivity?.activityName
@@ -1031,9 +1096,9 @@ const ActivityReportAWD = ({ navigation }) => {
 
             setUpcomingAct(
               upcomingActivity?.activityName?.categoryName +
-              ' (' +
-              startDateEndDate +
-              ')',
+                ' (' +
+                startDateEndDate +
+                ')',
             );
           }
           // console.log(
@@ -1240,9 +1305,7 @@ const ActivityReportAWD = ({ navigation }) => {
         });
         return false;
       }
-      if (
-        pipeDetails.length == 0
-      ) {
+      if (pipeDetails.length == 0) {
         Toast.show({
           time: 2,
           text: t('Please enter pipe image'),
@@ -1268,16 +1331,16 @@ const ActivityReportAWD = ({ navigation }) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
+      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
       return false;
     }
     if (!isGeoFence) {
-      Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
+      Toast.show({text: 'Plot is not geofenced ', ...AlertMesg[0]});
       // Alert.alert('You are out of range');
       return;
     }
     if (!outofRangeCheck) {
-      Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+      Toast.show({text: 'You are out of range', ...AlertMesg[0]});
       // Alert.alert('You are out of range');
       return;
     }
@@ -1386,7 +1449,7 @@ const ActivityReportAWD = ({ navigation }) => {
             });
           });
           const pipe_data = [
-            { pipe_id: selectPipeList.value, latlong: pipe_lattlong },
+            {pipe_id: selectPipeList.value, latlong: pipe_lattlong},
           ];
           if (pipe_lattlong.length != 0) {
             formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
@@ -1414,7 +1477,7 @@ const ActivityReportAWD = ({ navigation }) => {
           );
         } else {
           if (coords != null) {
-            const { latitude, longitude } = coords || {};
+            const {latitude, longitude} = coords || {};
             const distances = getDistance(selectPipeList.latlongs, {
               latitude,
               longitude,
@@ -1435,7 +1498,7 @@ const ActivityReportAWD = ({ navigation }) => {
               });
             }
           } else {
-            Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+            Toast.show({text: t('Location not found'), ...AlertMesg[0]});
           }
         }
         if (database_res?.status === 400) {
@@ -1470,7 +1533,7 @@ const ActivityReportAWD = ({ navigation }) => {
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
-          navigation.navigate('activityList', { action: 'addData' });
+          navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -1490,7 +1553,7 @@ const ActivityReportAWD = ({ navigation }) => {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
         navigation.popToTop();
-        navigation.navigate('activityList', { action: 'addData' });
+        navigation.navigate('activityList', {action: 'addData'});
       }
     }
     setIsLoading(false);
@@ -1508,7 +1571,7 @@ const ActivityReportAWD = ({ navigation }) => {
               actTypeID: item.value,
             }),
             token,
-            { information: `${dbname},${lan_id},${farmerID}` },
+            {information: `${dbname},${lan_id},${farmerID}`},
           );
           //  response =await activityInfoAPI(
           //   dbname,
@@ -1519,8 +1582,14 @@ const ActivityReportAWD = ({ navigation }) => {
           //   CropName,
           //   item.value,
           // );
-          // console.log(JSON.stringify(response.data));
+          console.log(
+            'activityInfo',
+            JSON.stringify(response?.data?.data?.rows[0]?.activity?.min_gap),
+          );
           if (response?.status == 200) {
+            setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
+            // checkDate(response?.data?.data?.rows[0]?.activity?.min_gap)
+
             await setItem(
               'activityInfo' + farmerID + CropType + CropName + item.value,
               response,
@@ -1624,13 +1693,22 @@ const ActivityReportAWD = ({ navigation }) => {
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
   const handleActivityInfo = useCallback(
     async item => {
-      console.log(ROUTES.GET.UNIQUE_PIPE_NAME({
-        plot_id: saveData.plot_id,
-        cu_rel_id: saveData.cu_rel_id,
-        act_name_fid: item?.act_master_id,
-      }),
+      console.log(
+        ROUTES.GET.UNIQUE_PIPE_NAME({
+          plot_id: saveData.plot_id,
+          cu_rel_id: saveData.cu_rel_id,
+          act_name_fid: item?.act_master_id,
+        }),
         token,
-        { information: `${dbname},${lan_id},${farmerID}` },)
+        {information: `${dbname},${lan_id},${farmerID}`},
+      );
+      setIsAfterToday(true);
+      setMinDateAct(true);
+        const tenDaysAgo = new Date();
+        tenDaysAgo.setDate(today.getDate() - 10);
+      setLastPerfromedDate(
+                  tenDaysAgo
+                );
       try {
         const act_to_date1 = item.end_date;
         const date1 = new Date(act_to_date1);
@@ -1681,7 +1759,7 @@ const ActivityReportAWD = ({ navigation }) => {
             act_name_fid: item?.act_master_id,
           }),
           token,
-          { information: `${dbname},${lan_id},${farmerID}` },
+          {information: `${dbname},${lan_id},${farmerID}`},
         );
         // getUniquePipeNames(
         //   dbname,
@@ -1693,10 +1771,16 @@ const ActivityReportAWD = ({ navigation }) => {
         //   saveData.cu_rel_id,
         // );
         if (PipeListDetailsRes?.status == 200) {
+          console.log(
+            'pipe data=',
+            JSON.stringify(PipeListDetailsRes?.data?.data),
+          );
           const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
             (_data, _index) => ({
               value: _data.pipe_pid,
               label: _data.pipe_name,
+              lastActivityPerfromDate:
+                _data?.lastActivityInfo?.act_perform_date,
               latlongs: _data?.latlongs?.[0] || {},
             }),
           );
@@ -1728,20 +1812,68 @@ const ActivityReportAWD = ({ navigation }) => {
     value: '',
     latlongs: {},
   });
-  const handleActivityPipe = useCallback(_item => {
-    const { pipeFiles, pipeLatLong, label, value, latlongs } = _item || {};
-    setselectPipeList({ ...selectPipeList, label, value, latlongs: latlongs });
-  }, []);
+  const handleActivityPipe = useCallback(
+    _item => {
+      const {
+        pipeFiles,
+        pipeLatLong,
+        label,
+        value,
+        latlongs,
+        lastActivityPerfromDate,
+      } = _item || {};
+      const isNotEmpty = value =>
+  value !== null &&
+  value !== undefined &&
+  String(value).trim() !== '';
+       console.log("lastActivityPerfromDate==",lastActivityPerfromDate)
+      if (isNotEmpty(lastActivityPerfromDate)) {
+        const compareDate = new Date(lastActivityPerfromDate);
+        compareDate.setDate(compareDate.getDate() + minDateGap);
+
+        const today = new Date();
+        const afterToday = compareDate > today;
+
+       setLastPerfromedDate(
+                  compareDate
+                );
+        console.log('2026-02-04 is TODAY', isAfterToday,minDateGap, compareDate, today);
+        if (compareDate > today) {
+          console.log('2026-02-04 is not TODAY', compareDate);
+          Toast.show({
+            time: 3,
+            text: `This activity only submit after ${compareDate}`,
+            ...AlertMesg[0],
+          });
+          setMinDateAct(false);
+           setIsAfterToday(false);
+        } else {
+          setMinDateAct(true);
+           setIsAfterToday(true);
+          console.log('2026-02-04 is TODAY', compareDate);
+        }
+      }else{
+        const tenDaysAgo = new Date();
+  tenDaysAgo.setDate(today.getDate() - 10);
+
+        setLastPerfromedDate(
+                  tenDaysAgo
+                );
+      }
+      setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
+    },
+    [minDateGap, selectPipeList],
+  );
   const onPageLoad = async () => {
     try {
-      const { latitude, longitude } = coords || {};
+      const {latitude, longitude} = coords || {};
       var latlong;
       if (latitude == '' && longitude == '') {
         latlong = await getHighAccuracyLocation();
       }
       const lat = latitude === '' ? latlong.latitude : latitude;
       const lon = longitude === '' ? latlong.longitude : longitude;
-      setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
+      setDefaultLatLon({latitude: lat, longitude: lon, accuracy: 10});
       setSaveData(prev => ({
         ...prev,
         act_pattern: 'schedule',
@@ -1760,6 +1892,13 @@ const ActivityReportAWD = ({ navigation }) => {
 
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
+      if (
+        minimumActivityDate &&
+        newFromDate &&
+        new Date(newFromDate) < minimumActivityDate
+      ) {
+        setNewPerFromDate(minimumActivityDate);
+      }
       onPageLoad();
       // startWatchingLocation();
     });
@@ -1767,7 +1906,7 @@ const ActivityReportAWD = ({ navigation }) => {
       task.cancel();
       // stopWatchingLocation();
     };
-  }, []);
+  }, [minimumActivityDate]);
 
   const handleHarvested = async data => {
     if (data == 'Yes') {
@@ -1858,7 +1997,7 @@ const ActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
+      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1871,7 +2010,7 @@ const ActivityReportAWD = ({ navigation }) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
+      setSoundRecordThirdItem({isLoggingIn: false, result: result});
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -1962,7 +2101,7 @@ const ActivityReportAWD = ({ navigation }) => {
         setPipeDetails([
           ...pipeDetails,
           [
-            { pipe_name: pipeNumber },
+            {pipe_name: pipeNumber},
             [
               {
                 imageURL: selectedImagePipe.firstItem,
@@ -2022,7 +2161,7 @@ const ActivityReportAWD = ({ navigation }) => {
   const watermarkViewRef = useRef(null);
   const TakePhoto = useCallback(
     async replaceImgKey => {
-      const { latitude, longitude } = coords || {};
+      const {latitude, longitude} = coords || {};
       let latlong;
       if (!latitude || !longitude) {
         latlong = await getHighAccuracyLocation();
@@ -2105,7 +2244,7 @@ const ActivityReportAWD = ({ navigation }) => {
                   [`${cameraItem}Long`]: lon,
                 }));
               } else {
-                const { arrayPosition, imgPosition } = replaceImgKey;
+                const {arrayPosition, imgPosition} = replaceImgKey;
                 setPipeDetails(prev => {
                   const updated = JSON.parse(JSON.stringify(prev));
                   const currentImage = updated[arrayPosition][1][imgPosition];
@@ -2153,19 +2292,19 @@ const ActivityReportAWD = ({ navigation }) => {
     setModalVisibleMap(true);
   };
   const handlegrowth_stage = useCallback(growth_stage => {
-    setSaveData(prev => ({ ...prev, growth_stage: growth_stage.value }));
+    setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);
   const handleact_desc = useCallback(act_desc => {
-    setSaveData(prev => ({ ...prev, act_desc: act_desc }));
+    setSaveData(prev => ({...prev, act_desc: act_desc}));
   }, []);
   const handlematerial_used = useCallback(material_used => {
-    setSaveData(prev => ({ ...prev, material_used: material_used }));
+    setSaveData(prev => ({...prev, material_used: material_used}));
   }, []);
   const handlewater_used = useCallback(water_used => {
-    setSaveData(prev => ({ ...prev, water_used: water_used }));
+    setSaveData(prev => ({...prev, water_used: water_used}));
   }, []);
   const handlepower_used = useCallback(power_used => {
-    setSaveData(prev => ({ ...prev, power_used: power_used }));
+    setSaveData(prev => ({...prev, power_used: power_used}));
   }, []);
   const pipeEdit = _index => {
     const values = [...pipeDetails];
@@ -2208,9 +2347,17 @@ const ActivityReportAWD = ({ navigation }) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
-                minimumDate={tenDaysAgo}
+                minimumDate={lastPerfromedDate}
                 maximumDate={today}
               />
+              {/* <DatePickerComp
+                openDate={activityPreDate}
+                newDate={newFromDate}
+                setOpenDate={setActivityPreDate}
+                handleDatePicker={handleDatePicker2}
+                minimumDate={checkDate(minDateGap)}
+                maximumDate={today}
+              /> */}
               {modalVisibleRecordFirstItem ? (
                 <SoundRecord
                   modalVisibleRecord={modalVisibleRecordFirstItem}
@@ -2313,7 +2460,7 @@ const ActivityReportAWD = ({ navigation }) => {
                     onChange={handlegrowth_stage}
                     val={saveData.growth_stage}
                   />
-                  <View style={{ marginBottom: 15 }}>
+                  <View style={{marginBottom: 15}}>
                     <Text style={styles.title}>
                       {t('pick_crop_cycle_start_date')}
                     </Text>
@@ -2322,7 +2469,7 @@ const ActivityReportAWD = ({ navigation }) => {
                         style={styles.cycleContainerDate}
                         disabled={isButtonDisabled}
                         onPress={() => srtCycleStartDate(true)}>
-                        <View style={{ width: '80%' }}>
+                        <View style={{width: '80%'}}>
                           <Text style={styles.title}>
                             {cycleDtartDate == ''
                               ? saveData.cycle_start_date
@@ -2331,7 +2478,7 @@ const ActivityReportAWD = ({ navigation }) => {
                         </View>
                         <Image
                           source={require('../../Common/images/calendar.png')}
-                          style={{ width: 20, height: 20 }}
+                          style={{width: 20, height: 20}}
                         />
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -2348,7 +2495,7 @@ const ActivityReportAWD = ({ navigation }) => {
                         <Text
                           style={[
                             styles.titleDate,
-                            { color: isButtonDisabled ? '#000' : '#FFF' },
+                            {color: isButtonDisabled ? '#000' : '#FFF'},
                           ]}>
                           {t('set_the_crop_cycle_start_date')}
                         </Text>
@@ -2387,30 +2534,10 @@ const ActivityReportAWD = ({ navigation }) => {
                         </View>
                       ) : null}
 
-                      {upcomingAct ? (
-                        <View style={styles.plotSiteContainer}>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.label}>Upcoming activity</Text>
-                            <View style={styles.bulletPointContainer}>
-                              <Text style={styles.bulletPoint}>•</Text>
-                              <Text style={[styles.value1, styles.leftAlign]}>
-                                {/* {upcomingAct?.activityName?.categoryName +
-                            ' (' +
-                            formatDate(upcomingAct?.activity_start_date) +
-                            ' - ' +
-                            formatDate(upcomingAct?.activity_end_date) +
-                            ')'} */}
-                                {upcomingAct}
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      ) : null}
-
                       {overdueAct.length > 0 ? (
                         <View style={styles.plotSiteContainer}>
                           <View style={styles.detailRow}>
-                            <Text style={styles.label}>Overdue Activities</Text>
+                            <Text style={styles.label}>Due Activities</Text>
                             {overdueAct.map((act, index) => (
                               <View
                                 key={index}
@@ -2419,12 +2546,6 @@ const ActivityReportAWD = ({ navigation }) => {
                                 <Text
                                   key={index}
                                   style={[styles.value1, styles.leftAlign]}>
-                                  {/* {act?.activityName?.categoryName +
-                              ' (' +
-                              formatDate(act?.activity_start_date) +
-                              ' - ' +
-                              formatDate(act?.activity_end_date) +
-                              ')'} */}
                                   {act}
                                 </Text>
                               </View>
@@ -2432,6 +2553,21 @@ const ActivityReportAWD = ({ navigation }) => {
                           </View>
                         </View>
                       ) : null}
+
+                      {upcomingAct ? (
+                        <View style={styles.plotSiteContainer}>
+                          <View style={styles.detailRow}>
+                            <Text style={styles.label}>Upcoming activity</Text>
+                            <View style={styles.bulletPointContainer}>
+                              <Text style={styles.bulletPoint}>•</Text>
+                              <Text style={[styles.value1, styles.leftAlign]}>
+                                {upcomingAct}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      ) : null}
+
                       {saveData.field_type != '' &&
                         // activityPattern
                         saveData.field_type != null && (
@@ -2478,7 +2614,7 @@ const ActivityReportAWD = ({ navigation }) => {
                                     style={styles.watermarkView}
                                     collapsable={false}>
                                     <Image
-                                      source={{ uri: tempImage }}
+                                      source={{uri: tempImage}}
                                       style={styles.watermarkImage}
                                       resizeMode="cover"
                                     />
@@ -2508,7 +2644,7 @@ const ActivityReportAWD = ({ navigation }) => {
                                   onPress={() =>
                                     addMorePipe(saveData.field_type)
                                   }>
-                                  <Text style={{ color: '#FFF' }}>
+                                  <Text style={{color: '#FFF'}}>
                                     Save and Add Instrument
                                   </Text>
                                 </TouchableOpacity>
@@ -2526,47 +2662,12 @@ const ActivityReportAWD = ({ navigation }) => {
                                     onPress={() =>
                                       addMorePipe(saveData.field_type)
                                     }>
-                                    <Text style={{ color: '#FFF' }}>
+                                    <Text style={{color: '#FFF'}}>
                                       Save and Update Instrument
                                     </Text>
                                   </TouchableOpacity>
                                 )}
-                              {/* <View style={{ marginTop: 10 }}>
-                                {pipeDetails.map((_data, _index) => (
-                                  <TouchableOpacity
-                                    style={{
-                                      backgroundColor: '#fff',
-                                      padding: 20,
-                                      margin: 10,
-                                      borderRadius: 5,
-                                      elevation: 2, // <-- Only works on Android
-                                      flexDirection: 'row',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                    }}
-                                    key={_index}>
-                                    <>
-                                      <Text
-                                        style={{
-                                          color: '#000',
-                                          fontSize: 12,
-                                          paddingHorizontal: 10,
-                                        }}>
-                                        {_data.pipe_name}
-                                      </Text>
-                                    </>
-                                    <TouchableOpacity
-                                      onPress={() =>
-                                        handleRemovedpipeDetails(_index)
-                                      }>
-                                      <Image
-                                        source={require('../../Common/images/cross.png')}
-                                        style={{width: 20, height: 20}}
-                                      />
-                                    </TouchableOpacity>
-                                  </TouchableOpacity>
-                                ))}
-                              </View> */}
+
                               <PipeDetailsCard
                                 pipeDetails={pipeDetails}
                                 pipeEdit={pipeEdit}
@@ -2579,8 +2680,8 @@ const ActivityReportAWD = ({ navigation }) => {
                   ) : (
                     ''
                   )}
-                  <View style={{ marginBottom: 15, marginTop: 10 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{marginBottom: 15, marginTop: 10}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <Text
                         style={{
                           fontFamily: 'Poppins-Regular',
@@ -2592,12 +2693,17 @@ const ActivityReportAWD = ({ navigation }) => {
                       <Text style={styles.requiredStar}> *</Text>
                     </View>
                     <TouchableOpacity
+                      disabled={!isAfterToday}
                       style={styles.activityPerFromDate}
-                      onPress={() => setActivityPreDate(true)}>
+                      onPress={() => {
+                       
+                          setActivityPreDate(true);
+                        
+                      }}>
                       <Text style={styles.title}>{activityPreFormDate}</Text>
                       <Image
                         source={require('../../Common/images/calendar.png')}
-                        style={{ width: 20, height: 20 }}
+                        style={{width: 20, height: 20}}
                       />
                     </TouchableOpacity>
                   </View>
@@ -2736,7 +2842,7 @@ const styles = StyleSheet.create({
     borderLeftColor: Colors.borderGreen,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

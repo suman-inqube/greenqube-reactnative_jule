@@ -117,7 +117,6 @@ const ListOfCoFarmer = ({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchText, setSearchText] = useState('');
-  isSubmit;
   const [isSubmit, setIsSubmit] = useState(false);
 
   const getAge = dob => {
@@ -141,12 +140,13 @@ const ListOfCoFarmer = ({
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
+        console.log('age', response);
         if (response?.status === 200) {
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
           const resArr = response?.data?.data?.rows?.map(item => ({
             ...item,
             // CoFarmer: '',
-            age: '',
+            age: item?.coFInfo?.date_of_birth ?? '',
           }));
           setCoFarmerList(resArr);
         }
@@ -625,7 +625,7 @@ const ListOfCoFarmer = ({
 
                     {/* Info Container */}
                     <View style={styles.infoContainer}>
-                      <Text style={styles.name} >{item?.coFInfo?.userName}</Text>
+                      <Text style={styles.name}>{item?.coFInfo?.userName}</Text>
                       {!hasPhone ? (
                         <View style={styles.phoneRow}>
                           <Feather name="phone" size={14} color="#6b7280" />
