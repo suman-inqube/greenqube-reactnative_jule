@@ -20,7 +20,7 @@ const STORAGE_KEYS = [
   'company_website',
 ];
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-const SLOW_THRESHOLD = 3000;
+const SLOW_THRESHOLD = 10000;
 const instance = axios.create({
   // baseURL: 'https://mygreenqube.com:4003/',
   baseURL: 'http://134.209.155.11:4003/',
@@ -138,11 +138,9 @@ const handleError = async error => {
       text: `The request took too long. Please try again.`,
       ...AlertMesg[0],
     });
-    // Alert.alert('Timeout', 'The request took too long. Please try again.');
     return {status: 408, data: {message: 'Request timed out'}};
   }
   if (error?.response?.status === 400) {
-    // console.log('re66==',error.response.data);
     return {
       status: error.response.status || 500,
       data: error.response.data || {message: 'Unknown error'},
@@ -229,6 +227,46 @@ export const axiosPost = async (
     });
   } catch (error) {
     console.error('axiosPost error:', error);
+    const cleanError = await handleError(error);
+    throw cleanError;
+  }
+};
+
+export const axiosPostSelf = async (
+  url,
+  body,
+  token = null,
+  isUrlEncoded = false,
+  extraHeaders = {},
+  abortController = null,
+) => {
+  if (!(await isInternetAvailable()))
+    return Promise.reject({status: 0, data: {message: 'No internet'}});
+
+  const controller = abortController || new AbortController();
+  const isForm = body instanceof FormData;
+  const payload = isUrlEncoded ? qs.stringify(body) : body;
+
+  const headers = {
+    ...(token && {Authorization: token}),
+    ...extraHeaders,
+  };
+
+  // ✅ DO NOT set Content-Type for FormData
+  if (!isForm) {
+    headers['Content-Type'] = isUrlEncoded
+      ? 'application/x-www-form-urlencoded'
+      : 'application/json';
+  }
+
+  // logCurl({url, method: 'POST', headers, body: payload});
+
+  try {
+    return await instance.post(url, payload, {
+      headers,
+      signal: controller.signal,
+    });
+  } catch (error) {
     const cleanError = await handleError(error);
     throw cleanError;
   }

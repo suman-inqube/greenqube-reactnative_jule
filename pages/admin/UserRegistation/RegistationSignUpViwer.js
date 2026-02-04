@@ -27,7 +27,7 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { axiosPost } from '../../utils/api';
+import {axiosPost, axiosPostSelf} from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 const RegistationSignUpViwer = () => {
   //GQR-65
@@ -213,7 +213,6 @@ const RegistationSignUpViwer = () => {
       farmer_details['agri_land_user_rels'] = agri_land_user_rels;
       farmer_details['crop_details'] = crop_details;
       farmer_details['agri_ponds'] = agri_ponds;
-      farmer_details['agri_ponds'] = agri_ponds;
       data_farmer_details['farmer_details'] = farmer_details;
       formData.append('data', JSON.stringify([data_farmer_details]));
       if (storePersnolInfo.userImg.name != undefined) {
@@ -267,21 +266,18 @@ const RegistationSignUpViwer = () => {
         });
       }
       if (isOnline) {
-        const database_res = await axiosPost(ROUTES.POST.FARMER_SIGNUP_BY_AGENT, formData,
-          dbLanTokUsr.token, false,
+        console.log('from==', formData);
+        const database_res = await axiosPostSelf(
+          ROUTES.POST.FARMER_SIGNUP_BY_AGENT,
+          formData,
+          dbLanTokUsr.token,
+          false,
           {
             information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
             'Content-Type': 'multipart/form-data',
-            'plot_count': landProofData.length,
-          })
-        // const database_res = await UserRegisterAPI(
-        //   dbLanTokUsr.dbName,
-        //   dbLanTokUsr.languageId,
-        //   dbLanTokUsr.token,
-        //   dbLanTokUsr.supervisorId,
-        //   formData,
-        //   landProofData.length,
-        // );
+            plot_count: landProofData.length,
+          },
+        );
         if (database_res.status === 200) {
           Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
           setTimeout(() => {

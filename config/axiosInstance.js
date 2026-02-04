@@ -32,7 +32,7 @@ export const getAxiosInstance = async () => {
     axiosInstance = axios.create({
          baseURL:'http://134.209.155.11:4003/',
             // baseURL:'https://mygreenqube.com:4003/',
-      timeout: 5000,
+      timeout: 50000,
     });
 
     axiosInstance.interceptors.response.use(

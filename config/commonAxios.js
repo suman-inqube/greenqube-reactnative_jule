@@ -17,7 +17,7 @@ const commonAxios = async () => {
 
     instance = axios.create({
       baseURL: baseURL, // use dynamic URL
-      timeout: 5000,
+      timeout: 50000,
     });
 
     instance.interceptors.response.use(
