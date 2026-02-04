@@ -292,6 +292,8 @@ const RegistationSignUpViwer = () => {
               }),
             });
           }, 2000);
+        }else{
+          
         }
       } else {
         let offlineDataArr = await getItem('offlineUserRegistrationData');

@@ -27,8 +27,8 @@ const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
                   'Plot Name',
                   'Reported Land Area',
                   'Converted Land Area',
-                  'Crop Name',
-                  'Crop Variety',
+                  'Produce Name',
+                  'Produce Variety',
                   'Cycle Start Date',
                   'Cycle End Date',
                 ].map((label, idx) => (

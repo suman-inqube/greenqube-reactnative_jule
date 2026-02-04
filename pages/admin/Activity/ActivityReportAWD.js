@@ -1840,9 +1840,14 @@ const ActivityReportAWD = ({navigation}) => {
         console.log('2026-02-04 is TODAY', isAfterToday,minDateGap, compareDate, today);
         if (compareDate > today) {
           console.log('2026-02-04 is not TODAY', compareDate);
+          const formattedDate = compareDate.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
           Toast.show({
             time: 3,
-            text: `This activity only submit after ${compareDate}`,
+            text: `Selected activity cannot be submitted before  ${formattedDate}`,
             ...AlertMesg[0],
           });
           setMinDateAct(false);
