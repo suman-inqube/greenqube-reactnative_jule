@@ -696,7 +696,7 @@ const ListOfCoFarmer = ({
                                             <Text style={styles.formHeaderText}>Verification Details</Text>
                                         </View> */}
 
-                    {/* Phone Number Input */}
+                   
                     <View style={styles.inputWrapper}>
                       <Text style={styles.inputLabel}>
                         Phone Number
