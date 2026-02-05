@@ -30,8 +30,8 @@ export const getAxiosInstance = async () => {
     const encKey = 'greenQube_96740_64428';
 
     axiosInstance = axios.create({
-        //  baseURL:'http://134.209.155.11:4003/',
-            baseURL:'https://mygreenqube.com:4003/',
+         baseURL:'http://134.209.155.11:4003/',
+            // baseURL:'https://mygreenqube.com:4003/',
       timeout: 50000,
     });
 
