@@ -253,18 +253,17 @@ const PlotSiteProduceInformation = () => {
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
     // const { latitude, longitude } = coords;
-    const {latitude, longitude} = await getHighAccuracyLocation();
-
-    let groupedData;
-    var terraintypeArray = [];
-    var landTypeArray = [];
-    var soilTypeArray = [];
-    var landUnitArray = [];
-    // var prodctionSeasionArray = [];
-    var livelihoodTypeArray = [];
-    var productionProcessArray = [];
-    var produceProductionUnitArray = [];
-    if (isOnline) {
+    try {
+      const {latitude, longitude} = await getHighAccuracyLocation();
+      let groupedData;
+      var terraintypeArray = [];
+      var landTypeArray = [];
+      var soilTypeArray = [];
+      var landUnitArray = [];
+      // var prodctionSeasionArray = [];
+      var livelihoodTypeArray = [];
+      var productionProcessArray = [];
+      var produceProductionUnitArray = [];
       var [
         nearestLatLong_res,
         tterrainType_res,
@@ -278,43 +277,41 @@ const PlotSiteProduceInformation = () => {
         LandUnitArea_res,
         LandUnitsquare_metre_res,
       ] = await Promise.all([
-        // axiosPost(
-        //   ROUTES.POST.NEAREST_LATLONG,
-        //   {
-        //     latitude: latitude,
-        //     longitude: longitude,
-        //     distance: 200,
-        //     data_limit: 100,
-        //   },
-        //   token,
-        //   false,
-        //   {
-        //     information: `${dbName},${languageId}`,
-        //   },
-        // ),
-        nearestLatLong(dbName, languageId, token, latitude, longitude),
+        isOnline==true
+          ? axiosPost(
+              ROUTES.POST.NEAREST_LATLONG,
+              {
+                latitude,
+                longitude,
+                distance: 200,
+                data_limit: 100,
+              },
+              token,
+              false,
+              {
+                information: `${dbName},${languageId}`,
+              },
+            )
+          : Promise.resolve({
+              status: 200,
+              data: {
+                data: [],
+              },
+            }),
+        // nearestLatLong(dbName, languageId, token, latitude, longitude),
 
         axiosGet(ROUTES.GET.TERRAIN_TYPE(), '', {
           information: `${dbName},${languageId}`,
         }),
-        // TterrainTypeAPI(dbName, languageId),
-
         axiosGet(ROUTES.GET.LAND_TYPE(), '', {
           information: `${dbName},${languageId}`,
         }),
-
-        // landTypeAPI(dbName, languageId),
-
         axiosGet(ROUTES.GET.SOIL_TYPE(), '', {
           information: `${dbName},${languageId}`,
         }),
-
-        // soilTypeAPI(dbName, languageId),
-
         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), '', {
           information: `${dbName},${languageId}`,
         }),
-        // landUnitAPI(dbName, languageId),
         axiosGet(
           ROUTES.GET.PRODUCTION_SEASON_REG({
             languageId: languageId,
@@ -324,29 +321,22 @@ const PlotSiteProduceInformation = () => {
             information: `${dbName},${languageId}`,
           },
         ),
-        // ProducceSeasionAPI(dbName, languageId),
-
-        livelihoodTypeAPI(dbName, languageId),
-
+        // livelihoodTypeAPI(dbName, languageId),
+        axiosGet(ROUTES.GET.PRODUCTION_SEASON_REG({languageId}), '', {
+          information: `${dbName},${languageId}`,
+        }),
         axiosGet(ROUTES.GET.PRODUCTION_PROCESS(), '', {
           information: `${dbName},${languageId}`,
         }),
-        // ProductionProcessDataAPI(dbName, languageId),
-
         axiosGet(ROUTES.GET.PRODUCTION_UNIT(), '', {
           information: `${dbName},${languageId}`,
         }),
-        // ProduceProductionUnitDataAPI(dbName, languageId),
-
         axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, {
           information: `${dbName},${languageId}`,
         }),
-        // LandUnitArea(dbName, languageId, token),
-
         axiosGet(ROUTES.GET.LAND_UNIT_SQUARE(), token, {
           information: `${dbName},${languageId}`,
         }),
-        // LandUnitsquare_metre(dbName, languageId, token),
       ]);
       setreferencelatLong({latitude, longitude});
       if (nearestLatLong_res.status == 200) {
@@ -403,21 +393,11 @@ const PlotSiteProduceInformation = () => {
           sizevalue: data.unit_value,
         }));
       }
-
-      // if (producceSeasion_res?.status === 200) {
-      //   prodctionSeasionArray =
-      //     producceSeasion_res?.data?.data?.crop_season?.map(data => ({
-      //       value: data.fid,
-      //       label: data.name,
-      //     }));
-      // }
-
       if (livelihoodType_res?.status === 200) {
         livelihoodTypeArray = livelihoodType_res?.data?.data?.crop_type?.map(
           data => ({value: data.fid, label: data.name}),
         );
       }
-
       if (productionProcessData_res?.status === 200) {
         productionProcessArray =
           productionProcessData_res?.data?.data?.rows?.map(data => ({
@@ -433,61 +413,32 @@ const PlotSiteProduceInformation = () => {
             label: data.unit_name,
           }));
       }
-      //GQR-65
-      await Promise.all([
-        setItem('terraintypeArray', terraintypeArray),
-        setItem('landTypeArray', landTypeArray),
-        setItem('soilTypeArray', soilTypeArray),
-        setItem('landUnitArray', landUnitArray),
-        setItem('prodctionSeasionArray', prodctionSeasionArray),
-        setItem('livelihoodTypeArray', livelihoodTypeArray),
-        setItem('productionProcessArray', productionProcessArray),
-        setItem('produceProductionUnitArray', produceProductionUnitArray),
-      ]);
-    } else {
-      var [
-        terraintypeArray,
-        landTypeArray,
-        soilTypeArray,
-        landUnitArray,
-        prodctionSeasionArray,
-        livelihoodTypeArray,
-        productionProcessArray,
-        produceProductionUnitArray,
-      ] = await Promise.all([
-        getItem('terraintypeArray'),
-        getItem('landTypeArray'),
-        getItem('soilTypeArray'),
-        getItem('landUnitArray'),
-        getItem('prodctionSeasionArray'),
-        getItem('livelihoodTypeArray'),
-        getItem('productionProcessArray'),
-        getItem('produceProductionUnitArray'),
-      ]);
-    }
-    if (terraintypeArray) {
-      setterrainTypeData(terraintypeArray);
-    }
-    if (landTypeArray) {
-      setlandTypeData(landTypeArray);
-    }
-    if (soilTypeArray) {
-      setsoilTypeData(soilTypeArray);
-    }
-    if (landUnitArray) {
-      setlandUnitData(landUnitArray);
-    }
-    if (prodctionSeasionArray) {
-      setprodctionSeasionData(prodctionSeasionArray);
-    }
-    if (livelihoodTypeArray) {
-      setlivelihoodTypeData(livelihoodTypeArray);
-    }
-    if (productionProcessArray) {
-      setproductionProcessData(productionProcessArray);
-    }
-    if (produceProductionUnitArray) {
-      setproduceProductionUnitData(produceProductionUnitArray);
+      if (terraintypeArray) {
+        setterrainTypeData(terraintypeArray);
+      }
+      if (landTypeArray) {
+        setlandTypeData(landTypeArray);
+      }
+      if (soilTypeArray) {
+        setsoilTypeData(soilTypeArray);
+      }
+      if (landUnitArray) {
+        setlandUnitData(landUnitArray);
+      }
+      if (prodctionSeasionArray) {
+        setprodctionSeasionData(prodctionSeasionArray);
+      }
+      if (livelihoodTypeArray) {
+        setlivelihoodTypeData(livelihoodTypeArray);
+      }
+      if (productionProcessArray) {
+        setproductionProcessData(productionProcessArray);
+      }
+      if (produceProductionUnitArray) {
+        setproduceProductionUnitData(produceProductionUnitArray);
+      }
+    } catch (error) {
+      alert(error);
     }
   };
   useEffect(() => {
@@ -628,7 +579,6 @@ const PlotSiteProduceInformation = () => {
   }, []);
   const produceNameDataList = async (dbName, language_id, livelihoodType) => {
     let produceNameArray = [];
-    if (isOnline) {
       const produceNameAPI = await axiosGet(
         ROUTES.GET.PRODUCE_NAME_LIST({
           languag: language_id,
@@ -651,14 +601,12 @@ const PlotSiteProduceInformation = () => {
           label: data.crop_name.name,
         }));
       }
-      await setItem('produceNameAPI', produceNameArray);
-    } else {
-      produceNameArray = await getItem('produceNameAPI');
-    }
+
     setproduceNameData(produceNameArray);
   };
   const HandleproduceName = useCallback(
     async produceName => {
+      alert("aaaa")
       setstoreProduceInfo(prev => ({
         ...prev,
         produceName: produceName.label,
@@ -675,7 +623,6 @@ const PlotSiteProduceInformation = () => {
         storeProduceInfo.livelihoodType,
         produceName.value,
       );
-      console.log('fdjfdj');
       const seasonData = await axiosGet(
         ROUTES.GET.PRODUCE_SEASON({
           crop_name_fid: produceName.value,
@@ -687,27 +634,8 @@ const PlotSiteProduceInformation = () => {
           Authorization: `${token}`,
         },
       );
-      // setFarmerData(prev => ({
-      //   ...prev,
-      //   productionSeason: '',
-      //   productionSeasonValue: '',
-      //   productionSeasonSdId: '',
-      //   productionSeasonYear: '',
-      // }));
       let prodctionSeasionArray = [];
-      //        if (seasonData?.status === 200) {
-      //   prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
-      //     value: data.season_info.fid,
-      //     label: `${data.season_info.name} (${data.year})`,
-      //     sd_id: data.sd_id,
-      //   }));
-      // }
-      // if (prodctionSeasionArray) {
-      //   setprodctionSeasionData(prodctionSeasionArray);
-
-      // }
       if (seasonData?.status === 200) {
-        console.log(JSON.stringify(seasonData?.data?.data));
         prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
           value: data.season_info.fid,
           label: `${data.season_info.name} (${data.year})`,
@@ -754,7 +682,8 @@ const PlotSiteProduceInformation = () => {
     produceName,
   ) => {
     let produceVarietyArray = [];
-    if (isOnline) {
+    // let produceVariety_res =await axiosGet(ROUTES.GET.PRODUCTION_SEASON_REG({languageId:languageID,crop_type_id:livelihoodType,
+    //   crop_name_id = '',}))
       let produceVariety_res = await produceVarietyAPI(
         dbName,
         languageID,
@@ -769,10 +698,6 @@ const PlotSiteProduceInformation = () => {
           }),
         );
       }
-      await setItem('produceVarietyArray', produceVarietyArray);
-    } else {
-      produceVarietyArray = await getItem('produceVarietyArray');
-    }
     setproduceVarietyData(produceVarietyArray);
   };
   const handlecycleStart = async item => {

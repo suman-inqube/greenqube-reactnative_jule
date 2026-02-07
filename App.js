@@ -33,12 +33,12 @@ import {navigationRef} from './pages/utils/NavigationUtils';
 const Stack = createNativeStackNavigator();
 // import { Provider as PaperProvider } from 'react-native-paper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {useBackgroundSync} from './pages/utils/useBackgroundSync';
 const App = withSecurityCheck(() => {
   const routeNameRef = useRef();
   const {loginUser_data} = useContext(userCreateContext) || {};
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
-
-
+  useBackgroundSync();
 
   // useEffect(() => {
   //   const unsubscribe = navigationRef.addListener('state', () => {
@@ -72,7 +72,7 @@ const App = withSecurityCheck(() => {
           onStateChange={async () => {
             const previousRouteName = routeNameRef.current;
             const currentRouteName = navigationRef.getCurrentRoute().name;
-console.log("currentRouteName",currentRouteName)
+            console.log('currentRouteName', currentRouteName);
             if (previousRouteName !== currentRouteName) {
               switch (currentRouteName) {
                 case 'FarmerFarmIncomeExpenseList':
@@ -212,7 +212,7 @@ console.log("currentRouteName",currentRouteName)
     </SafeAreaProvider>
     // </PaperProvider>
   );
-})
+});
 
 export default App;
 

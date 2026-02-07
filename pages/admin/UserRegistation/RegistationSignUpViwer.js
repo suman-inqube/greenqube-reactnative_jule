@@ -299,6 +299,13 @@ const RegistationSignUpViwer = () => {
         } else {
           await setItem('offlineUserRegistrationData', [formData]);
         }
+        const database_res = await axiosPost(ROUTES.POST.FARMER_SIGNUP_BY_AGENT, formData,
+          dbLanTokUsr.token, false,
+          {
+            information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
+            'Content-Type': 'multipart/form-data',
+            'plot_count': landProofData.length,
+          })
         Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
         setTimeout(() => {
           navigation.dispatch({

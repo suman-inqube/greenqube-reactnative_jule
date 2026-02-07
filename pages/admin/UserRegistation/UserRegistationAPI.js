@@ -92,6 +92,7 @@ export const livelihoodTypeAPI = async (dbName, language) => {
     };
     try {
         const prodctionSeasionAPI = config.prodctionSeasionAPI1 + language + config.prodctionSeasionAPI2;
+        console.log("prodctionSeasionAPI",prodctionSeasionAPI)
         let response = await axios.get(prodctionSeasionAPI, axiosHeaders);
         return response;
     } catch (error) {
@@ -124,6 +125,8 @@ export const produceVarietyAPI = async (dbName, languag, livelihoodType, produce
     };
     try {
         const produceVarietyAPI = config.produceVarietyAPI1 + languag + config.produceVarietyAPI2 + livelihoodType + config.produceVarietyAPI3 + produceName;
+        
+        console.log("produceVarietyAPI",produceVarietyAPI)
         let response = await axios.get(produceVarietyAPI, axiosHeaders);
         return response;
     } catch (error) {
