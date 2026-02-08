@@ -1,11 +1,11 @@
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const OPTIONS_CARBON = [
-  { id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD' },
-  { id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport' },
+  {id: 'AWD', title: 'Carbon', navigation: 'ActivityReportAWD'},
+  {id: 'Conventional', title: 'Non-Carbon', navigation: 'activityReport'},
 ];
 const OPTIONS_CARBON_FARMER = [
-  { id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD' },
+  {id: 'AWD', title: 'Carbon', navigation: 'FarmerActivityReportAWD'},
   {
     id: 'Conventional',
     title: 'Non-Carbon',
@@ -13,8 +13,8 @@ const OPTIONS_CARBON_FARMER = [
   },
 ];
 const CARBON_TYPE = [
-  { label: 'Carbon', value: 'carbon_activity' },
-  { label: 'Non-Carbon ', value: 'user_activity' },
+  {label: 'Carbon', value: 'carbon_activity'},
+  {label: 'Non-Carbon ', value: 'user_activity'},
 ];
 const getActionsActivity = (t, styles, Colors) => [
   {
@@ -159,20 +159,19 @@ const getActionsMapView = (t, styles, Colors) => [
 //   return actions;
 // };
 
-
 const getActionsPlot = (
   t,
   styles,
   Colors,
   isEnable = false,
   addPlot = false,
-  activeTab = "",
-  plotId = "",
-  statuslevel = "",
+  activeTab = '',
+  plotId = '',
+  statuslevel = '',
   co_farmer = 0,
 ) => {
   const actions = [];
-  if (activeTab == 1 && plotId != "" && co_farmer == 1) {
+  if (activeTab == 1 && plotId != '' && co_farmer == 1) {
     if (!addPlot) {
       actions.push(
         {
@@ -192,9 +191,20 @@ const getActionsPlot = (
           textStyle: styles.actionText,
           textBackground: '#ffffffff',
           icon: require('../Common/images/checklist.png'),
-        }
-      )
+        },
+      );
     }
+  }
+  if (activeTab == 1 && plotId != '') {
+    actions.push({
+      text: t('Activity'),
+      name: 'activity',
+      position: 4,
+      color: Colors.useGreen,
+      textStyle: styles.actionText,
+      textBackground: '#ffffffff',
+      icon: require('../Common/images/activity.png'),
+    });
   }
   if (isEnable || addPlot) {
     actions.push({
@@ -219,6 +229,7 @@ const getActionsPlot = (
   }
   return actions;
 };
+
 const inputViewPast = (t, styles, Colors) => [
   {
     text: t('view_input_requested'),

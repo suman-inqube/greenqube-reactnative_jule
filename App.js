@@ -38,8 +38,6 @@ const App = withSecurityCheck(() => {
   const {loginUser_data} = useContext(userCreateContext) || {};
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
 
-
-
   // useEffect(() => {
   //   const unsubscribe = navigationRef.addListener('state', () => {
   //     if (navigationRef.isReady()) {
@@ -72,7 +70,7 @@ const App = withSecurityCheck(() => {
           onStateChange={async () => {
             const previousRouteName = routeNameRef.current;
             const currentRouteName = navigationRef.getCurrentRoute().name;
-console.log("currentRouteName",currentRouteName)
+            console.log('currentRouteName', currentRouteName);
             if (previousRouteName !== currentRouteName) {
               switch (currentRouteName) {
                 case 'FarmerFarmIncomeExpenseList':
@@ -212,7 +210,7 @@ console.log("currentRouteName",currentRouteName)
     </SafeAreaProvider>
     // </PaperProvider>
   );
-})
+});
 
 export default App;
 

@@ -65,6 +65,7 @@
     "react-native-images-to-pdf": "^0.2.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-maps": "^1.18.0",
+    "react-native-maps-super-cluster": "^1.6.0",
     "react-native-nitro-modules": "^0.29.6",
     "react-native-permissions": "^5.4.2",
     "react-native-reanimated": "^3.19.1",

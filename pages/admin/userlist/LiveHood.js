@@ -77,6 +77,7 @@ import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import CoFarmer from '../../Components/CoFarmer';
 import CoFarmerList from '../../../Components/CoFarmerList';
 import ListOfCoFarmer from '../../Components/ListOfCoFarmer';
+import ActivityPlotWise from './ActivityPlotWise';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 const LiveHood = ({
   sendDataToParent,
@@ -620,8 +621,7 @@ const LiveHood = ({
           ]);
         }
         if (cropAndPlotDetails?.status === 200) {
-
-          console.log("cropAndPlotDetails==",cropAndPlotDetails?.data?.data)
+          console.log('cropAndPlotDetails==', cropAndPlotDetails?.data?.data);
           const data = cropAndPlotDetails?.data?.data || {};
           plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
             if (dataLandDetails?.rel_id == findData.value) {
@@ -2028,24 +2028,24 @@ const LiveHood = ({
         // setPolygons([newPolygon]);
         //basudev
         // if (!overlapFound) {
-          setPolygons([...nearPolSet, newPolygon]);
-          setNewPolygon([]);
-          setLocation(newPolygon);
-          setEditing(false);
-          setShowModal(false);
+        setPolygons([...nearPolSet, newPolygon]);
+        setNewPolygon([]);
+        setLocation(newPolygon);
+        setEditing(false);
+        setShowModal(false);
 
-          setFarmerData(prev => ({
-            ...prev,
-            google_area: geolib.getAreaOfPolygon(newPolygon),
-          }));
-          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-            setArea(
-              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                geolib.getAreaOfPolygon(newPolygon),
-            );
-          } else {
-            setArea(geolib.getAreaOfPolygon(newPolygon));
-          }
+        setFarmerData(prev => ({
+          ...prev,
+          google_area: geolib.getAreaOfPolygon(newPolygon),
+        }));
+        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+          setArea(
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(newPolygon),
+          );
+        } else {
+          setArea(geolib.getAreaOfPolygon(newPolygon));
+        }
         // } else {
         //   Alert.alert(
         //     'Overlap Detected',
@@ -2780,7 +2780,7 @@ const LiveHood = ({
               onChangeText={handleAddUserDataDaag}
               editable={InputTextFormEdit}
             />
-            
+
             <InputTextForm
               label={t('khatian_no')}
               value={farmerData.khatian_no}
@@ -2794,26 +2794,26 @@ const LiveHood = ({
               editable={InputTextFormEdit}
             />
 
-                 {carbonFlag == true ? (
-             <InputTextForm
-              label={t('JL No')}
-              value={farmerData.jl_no}
-              onChangeText={handleAddUserDataJLNo}
-              editable={InputTextFormEdit}
-            />
+            {carbonFlag == true ? (
+              <InputTextForm
+                label={t('JL No')}
+                value={farmerData.jl_no}
+                onChangeText={handleAddUserDataJLNo}
+                editable={InputTextFormEdit}
+              />
             ) : (
-                  <></>
-                )}
-             {carbonFlag == true ? (
-            <InputTextForm
-              label={t('Mouja Name')}
-              value={farmerData.mouja}
-              onChangeText={handleAddUserDataMouja}
-              editable={InputTextFormEdit}
-            />
+              <></>
+            )}
+            {carbonFlag == true ? (
+              <InputTextForm
+                label={t('Mouja Name')}
+                value={farmerData.mouja}
+                onChangeText={handleAddUserDataMouja}
+                editable={InputTextFormEdit}
+              />
             ) : (
-                  <></>
-                )}
+              <></>
+            )}
             <DropdownForm
               label={t('select_terrain_type')}
               required={true}
@@ -3366,6 +3366,12 @@ const LiveHood = ({
               setListOfModalVisibleCoFarmer(prev => !prev);
             } else if (name == 'AddCoFarmerList') {
               setListOfModalVisibleCoFarmerAdd(prev => !prev);
+            } else if (name == 'activity') {
+              navigation.navigate('ActivityPlotWise', {
+                plotId: farmerData.land_rel_id, // plot-wise key
+                farmeruserID: farmeruserID,
+                plotName: farmerData.plot_Site_Name,
+              });
             } else {
               handleUserData();
             }

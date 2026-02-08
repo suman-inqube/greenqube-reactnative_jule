@@ -48,7 +48,8 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const {loginUser_data, t, Root, CustomHeader,AllFarmerList} = useContext(userCreateContext);
+  const {loginUser_data, t, Root, CustomHeader, AllFarmerList} =
+    useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
@@ -65,6 +66,7 @@ const PlotList = () => {
         LandUnitsquare_metre(dbname, lan_id, token),
         AllFarmerList(),
       ]);
+      console.log('plotsRes', plotsRes);
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
       if (unitAreaRes?.status === 200)
         setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
@@ -149,7 +151,6 @@ const PlotList = () => {
                 initialNumToRender={5}
                 windowSize={5}
                 removeClippedSubviews={true}
-                
               />
             </View>
             <View style={styles.page}>

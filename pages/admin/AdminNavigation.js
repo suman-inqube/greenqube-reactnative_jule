@@ -1,8 +1,8 @@
-import React, { Suspense, lazy } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import React, {Suspense, lazy} from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
-import { Colors } from '../utils/Constants';
+import {Colors} from '../utils/Constants';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +16,7 @@ const ActivityReportAWD = lazy(() => import('./Activity/ActivityReportAWD'));
 const ForgotPassword = lazy(() => import('./userlist/ForgetPassword'));
 const Information = lazy(() => import('./userlist/Information'));
 const LiveHood = lazy(() => import('./userlist/LiveHood'));
+const ActivityPlotWise = lazy(() => import('./userlist/ActivityPlotWise'));
 const PlotList = lazy(() => import('./userlist/PlotList'));
 const CrateProblemUser = lazy(() => import('./userlist/CrateProblemUser'));
 const InputList = lazy(() => import('./Inputs/InputList'));
@@ -92,7 +93,7 @@ function AdminStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: 'transparent' },
+        contentStyle: {backgroundColor: 'transparent'},
 
         // 🔄 Screen transition
         animation: 'slide_from_bottom', // others: 'fade', 'slide_from_left', 'slide_from_bottom', 'simple_push'
@@ -117,7 +118,7 @@ function AdminStack() {
         },
 
         // 🎬 Custom transition interpolator (advanced)
-        cardStyleInterpolator: ({ current, layouts }) => ({
+        cardStyleInterpolator: ({current, layouts}) => ({
           cardStyle: {
             transform: [
               {
@@ -175,6 +176,8 @@ function AdminStack() {
       <Stack.Screen name="password" component={ForgotPassword} />
       <Stack.Screen name="information" component={Information} />
       <Stack.Screen name="livehood" component={PlotList} />
+      <Stack.Screen name="ActivityPlotWise" component={ActivityPlotWise} />
+
       <Stack.Screen name="CrateProblemUser" component={CrateProblemUser} />
       <Stack.Screen name="InsuranceEnquiry" component={InsuranceEnquiry} />
       <Stack.Screen
@@ -250,13 +253,13 @@ const AdminNavigation = () => {
       borderBottomColor: '#baffa0',
       marginHorizontal: 20,
     },
-    drawerLabelStyle: { marginLeft: -20 },
+    drawerLabelStyle: {marginLeft: -20},
     drawerStyle: {
       backgroundColor: Colors.drawer,
       width: '65%',
       marginLeft: -0.2,
     },
-    sceneContainerStyle: { backgroundColor: Colors.drawer, zIndex: 100 },
+    sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
   };
   return (
     <Drawer.Navigator
@@ -265,7 +268,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}
-        options={{ title: 'Admin Dashboard' }}
+        options={{title: 'Admin Dashboard'}}
       />
     </Drawer.Navigator>
   );
