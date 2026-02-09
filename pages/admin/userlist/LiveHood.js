@@ -104,7 +104,7 @@ const LiveHood = ({
     coords,
     startWatchingLocation,
     stopWatchingLocation,
-    dbLanTokUsr,
+    dbLanTokUsr,isOnline
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-65
@@ -3372,6 +3372,7 @@ const LiveHood = ({
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
               coords={dafaultLatLon}
+              isOnline={isOnline}
             />
           </Modal>
         )}

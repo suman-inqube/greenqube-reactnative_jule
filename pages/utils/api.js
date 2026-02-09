@@ -138,7 +138,7 @@ export const axiosGet = async (
       data: {message: 'No internet & no cache'},
     });
   }
-
+console.log(url)
   try {
     const response = await instance.get(url, {
       headers: {...(token && {Authorization: token}), ...extraHeaders},

@@ -253,7 +253,6 @@ const PlotSiteProduceInformation = () => {
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
     // const { latitude, longitude } = coords;
-    try {
       const {latitude, longitude} = await getHighAccuracyLocation();
       let groupedData;
       var terraintypeArray = [];
@@ -277,7 +276,7 @@ const PlotSiteProduceInformation = () => {
         LandUnitArea_res,
         LandUnitsquare_metre_res,
       ] = await Promise.all([
-        isOnline==true
+        isOnline == true
           ? axiosPost(
               ROUTES.POST.NEAREST_LATLONG,
               {
@@ -437,9 +436,7 @@ const PlotSiteProduceInformation = () => {
       if (produceProductionUnitArray) {
         setproduceProductionUnitData(produceProductionUnitArray);
       }
-    } catch (error) {
-      alert(error);
-    }
+
   };
   useEffect(() => {
     if (isFocused) {
@@ -579,34 +576,33 @@ const PlotSiteProduceInformation = () => {
   }, []);
   const produceNameDataList = async (dbName, language_id, livelihoodType) => {
     let produceNameArray = [];
-      const produceNameAPI = await axiosGet(
-        ROUTES.GET.PRODUCE_NAME_LIST({
-          languag: language_id,
-          livelihoodType: livelihoodType.value,
-        }),
-        '',
-        {
-          information: `${dbName},${language_id}`,
-          Accept: 'application/json',
-        },
-      );
-      // produceNameDataListAPI(
-      //   dbName,
-      //   language_id,
-      //   livelihoodType.value,
-      // );
-      if (produceNameAPI?.status === 200) {
-        produceNameArray = produceNameAPI?.data?.data?.crop_name?.map(data => ({
-          value: data.crop_name.fid,
-          label: data.crop_name.name,
-        }));
-      }
+    const produceNameAPI = await axiosGet(
+      ROUTES.GET.PRODUCE_NAME_LIST({
+        languag: language_id,
+        livelihoodType: livelihoodType.value,
+      }),
+      '',
+      {
+        information: `${dbName},${language_id}`,
+        Accept: 'application/json',
+      },
+    );
+    // produceNameDataListAPI(
+    //   dbName,
+    //   language_id,
+    //   livelihoodType.value,
+    // );
+    if (produceNameAPI?.status === 200) {
+      produceNameArray = produceNameAPI?.data?.data?.crop_name?.map(data => ({
+        value: data.crop_name.fid,
+        label: data.crop_name.name,
+      }));
+    }
 
     setproduceNameData(produceNameArray);
   };
   const HandleproduceName = useCallback(
     async produceName => {
-      alert("aaaa")
       setstoreProduceInfo(prev => ({
         ...prev,
         produceName: produceName.label,
@@ -682,22 +678,21 @@ const PlotSiteProduceInformation = () => {
     produceName,
   ) => {
     let produceVarietyArray = [];
-    // let produceVariety_res =await axiosGet(ROUTES.GET.PRODUCTION_SEASON_REG({languageId:languageID,crop_type_id:livelihoodType,
-    //   crop_name_id = '',}))
-      let produceVariety_res = await produceVarietyAPI(
-        dbName,
-        languageID,
-        livelihoodType,
-        produceName,
+      let produceVariety_res = await axiosGet(
+        `cropRoute/getCropRelationDropdown/1?&crop_type_id=${livelihoodType}&crop_name_id=${produceName}`,
+        token,
+        {
+          information: `${dbName},${languageId}`,
+        },
       );
-      if (produceVariety_res?.status == 200) {
-        produceVarietyArray = produceVariety_res?.data?.data?.crop_variety?.map(
-          data => ({
-            value: data.crop_variety.fid,
-            label: data.crop_variety.name,
-          }),
-        );
-      }
+    if (produceVariety_res?.status == 200) {
+      produceVarietyArray = produceVariety_res?.data?.data?.crop_variety?.map(
+        data => ({
+          value: data.crop_variety.fid,
+          label: data.crop_variety.name,
+        }),
+      );
+    }
     setproduceVarietyData(produceVarietyArray);
   };
   const handlecycleStart = async item => {
