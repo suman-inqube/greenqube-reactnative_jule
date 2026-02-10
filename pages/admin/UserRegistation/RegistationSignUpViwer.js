@@ -27,7 +27,7 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {axiosPost, axiosPostSelf} from '../../utils/api';
+import { axiosPost } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 const RegistationSignUpViwer = () => {
   //GQR-65
@@ -172,8 +172,8 @@ const RegistationSignUpViwer = () => {
         device_long: item.storeProduceInfo.IOTLatLong,
         land_convert_size:
           item.storeProduceInfo.sizevalue == '' ||
-          item.storeProduceInfo.sizevalue == undefined ||
-          item.storeProduceInfo.sizevalue == null
+            item.storeProduceInfo.sizevalue == undefined ||
+            item.storeProduceInfo.sizevalue == null
             ? item.storeProduceInfo.plotSize * 1
             : item.storeProduceInfo.plotSize * item.storeProduceInfo.sizevalue,
         latitude: item.location[0].latitude.toString(),
@@ -181,8 +181,6 @@ const RegistationSignUpViwer = () => {
         daag_no: item.storeProduceInfo.daagNo,
         khatian_no: item.storeProduceInfo.khatianNo,
         plant_number: item.storeProduceInfo.noOfPlants,
-        jl_no: item.storeProduceInfo.jlNo,
-        mouja: item.storeProduceInfo.moujaName,
         agri_land_user_latlongs: item.location.filter(
           item => item.latitude !== '',
         ),
@@ -212,6 +210,7 @@ const RegistationSignUpViwer = () => {
       farmer_details['lic_details'] = lic_details;
       farmer_details['agri_land_user_rels'] = agri_land_user_rels;
       farmer_details['crop_details'] = crop_details;
+      farmer_details['agri_ponds'] = agri_ponds;
       farmer_details['agri_ponds'] = agri_ponds;
       data_farmer_details['farmer_details'] = farmer_details;
       formData.append('data', JSON.stringify([data_farmer_details]));
@@ -266,18 +265,21 @@ const RegistationSignUpViwer = () => {
         });
       }
       if (isOnline) {
-        console.log('from==', formData);
-        const database_res = await axiosPostSelf(
-          ROUTES.POST.FARMER_SIGNUP_BY_AGENT,
-          formData,
-          dbLanTokUsr.token,
-          false,
+        const database_res = await axiosPost(ROUTES.POST.FARMER_SIGNUP_BY_AGENT, formData,
+          dbLanTokUsr.token, false,
           {
             information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
             'Content-Type': 'multipart/form-data',
-            plot_count: landProofData.length,
-          },
-        );
+            'plot_count': landProofData.length,
+          })
+        // const database_res = await UserRegisterAPI(
+        //   dbLanTokUsr.dbName,
+        //   dbLanTokUsr.languageId,
+        //   dbLanTokUsr.token,
+        //   dbLanTokUsr.supervisorId,
+        //   formData,
+        //   landProofData.length,
+        // );
         if (database_res.status === 200) {
           Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
@@ -288,8 +290,6 @@ const RegistationSignUpViwer = () => {
               }),
             });
           }, 2000);
-        }else{
-          
         }
       } else {
         let offlineDataArr = await getItem('offlineUserRegistrationData');
@@ -299,6 +299,13 @@ const RegistationSignUpViwer = () => {
         } else {
           await setItem('offlineUserRegistrationData', [formData]);
         }
+        const database_res = await axiosPost(ROUTES.POST.FARMER_SIGNUP_BY_AGENT, formData,
+          dbLanTokUsr.token, false,
+          {
+            information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
+            'Content-Type': 'multipart/form-data',
+            'plot_count': landProofData.length,
+          })
         Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
         setTimeout(() => {
           navigation.dispatch({
