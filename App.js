@@ -33,7 +33,7 @@ import {navigationRef} from './pages/utils/NavigationUtils';
 const Stack = createNativeStackNavigator();
 // import { Provider as PaperProvider } from 'react-native-paper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-// import {useBackgroundSync} from './pages/utils/useBackgroundSync';
+import {useBackgroundSync} from './pages/utils/useBackgroundSync';
 const App = withSecurityCheck(() => {
   const routeNameRef = useRef();
   const {loginUser_data} = useContext(userCreateContext) || {};

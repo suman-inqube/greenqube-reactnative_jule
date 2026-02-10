@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
 import { Colors } from '../utils/Constants';
+import Offline from './Offline';
 
 const Stack = createNativeStackNavigator();
 
@@ -229,6 +230,7 @@ function AdminStack() {
         name="InstrumentWiseActivityDetails"
         component={InstrumentWiseActivityDetails}
       />
+      <Stack.Screen name="Offline" component={Offline} />
     </Stack.Navigator>
   );
 }

@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, BackHandler, AppState, View, Text, Linking } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Alert, BackHandler, AppState, View, Text, Linking} from 'react-native';
 import JailMonkey from 'jail-monkey';
 import VersionCheck from 'react-native-version-check';
-const withSecurityCheck = (WrappedComponent) => {
-  return (props) => {
+import NetInfo from '@react-native-community/netinfo';
+const withSecurityCheck = WrappedComponent => {
+  return props => {
     const [isSecure, setIsSecure] = useState(true);
     const [checked, setChecked] = useState(false);
     useEffect(() => {
-        if (__DEV__) {
-        setChecked(true);
-        return;
-      }
-      const handleAppStateChange = async (nextAppState) => {
+      //   if (__DEV__) {
+      //   setChecked(true);
+      //   return;
+      // }
+      const handleAppStateChange = async nextAppState => {
         try {
           const [isRooted, isDevMode] = await Promise.all([
             JailMonkey.isJailBroken(),
-            JailMonkey.isDevelopmentSettingsMode()
+            JailMonkey.isDevelopmentSettingsMode(),
           ]);
 
-          if (isRooted || isDevMode) {
+          if (isRooted || (isDevMode && !__DEV__)) {
             setIsSecure(false);
             Alert.alert(
               'Security Alert',
@@ -35,19 +36,36 @@ const withSecurityCheck = (WrappedComponent) => {
                   },
                 },
               ],
-              { cancelable: false }
+              {cancelable: false},
             );
             return;
           } else {
-            const latestVersion = await VersionCheck.getLatestVersion({ provider: 'playStore', packageName: 'com.inqube.greenqube', ignoreErrors: true });
-            const currentVersion = VersionCheck.getCurrentVersion();
-            if (latestVersion != currentVersion) {
-              Alert.alert(
-                'Update Required', 'A new version of the app is available. Please update to continue using the app.',
-                [{ text: 'Update Now', onPress: () => { Linking.openURL('https://play.google.com/store/apps/details?id=com.inqube.greenqube') } }],
-                // { cancelable: false },
-              );
-              return;
+            const net = await NetInfo.fetch();
+            if (net.isConnected && !__DEV__) {
+              const latestVersion = await VersionCheck.getLatestVersion({
+                provider: 'playStore',
+                packageName: 'com.inqube.greenqube',
+                ignoreErrors: true,
+              });
+              const currentVersion = VersionCheck.getCurrentVersion();
+              if (latestVersion != currentVersion) {
+                Alert.alert(
+                  'Update Required',
+                  'A new version of the app is available. Please update to continue using the app.',
+                  [
+                    {
+                      text: 'Update Now',
+                      onPress: () => {
+                        Linking.openURL(
+                          'https://play.google.com/store/apps/details?id=com.inqube.greenqube',
+                        );
+                      },
+                    },
+                  ],
+                  // { cancelable: false },
+                );
+                return;
+              }
             }
           }
           setIsSecure(true);
@@ -57,13 +75,16 @@ const withSecurityCheck = (WrappedComponent) => {
         }
         setChecked(true);
       };
-      const subscription = AppState.addEventListener('change', handleAppStateChange);
+      const subscription = AppState.addEventListener(
+        'change',
+        handleAppStateChange,
+      );
       handleAppStateChange('active');
       return () => subscription.remove();
     }, []);
     if (!checked) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Text>Checking security...</Text>
         </View>
       );

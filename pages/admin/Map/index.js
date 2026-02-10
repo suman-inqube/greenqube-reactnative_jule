@@ -178,8 +178,8 @@ export default function Map({
           {
             latitude,
             longitude,
-            latitudeDelta: delta,
-            longitudeDelta: delta,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
           },
           1200,
         );
@@ -379,7 +379,7 @@ export default function Map({
       });
     }
     return baseActions;
-  }, [editing,isOffline]);
+  }, [editing, isOffline]);
   const handleActionPress = useCallback(
     name => {
       // if (!isMountedRef.current) return;
@@ -459,97 +459,109 @@ export default function Map({
       return `${totalSizeKB.toFixed(0)} KB`;
     }
   };
- const downloadOfflineTiles = async () => {
-  if (isOffline) {
-    Alert.alert('Offline', 'Please connect to internet to download map.');
-    return;
-  }
+  const downloadOfflineTiles = async () => {
+    console.log(TILE_DIR,SATELLITE_DIR);
+    if (isOffline) {
+      Alert.alert('Offline', 'Please connect to internet to download map.');
+      return;
+    }
 
-  const bbox = {
-    maxLat: region.latitude + region.latitudeDelta / 2,
-    minLat: region.latitude - region.latitudeDelta / 2,
-    minLon: region.longitude - region.longitudeDelta / 2,
-    maxLon: region.longitude + region.longitudeDelta / 2,
-  };
+    const bbox = {
+      maxLat: region.latitude + region.latitudeDelta / 2,
+      minLat: region.latitude - region.latitudeDelta / 2,
+      minLon: region.longitude - region.longitudeDelta / 2,
+      maxLon: region.longitude + region.longitudeDelta / 2,
+    };
 
-  const minZoom = 12;
-  const maxZoom = 18;
-  const total = calculateTilesCount(bbox, minZoom, maxZoom);
-  const estimatedSize = calculateDownloadSize(total, useSatelliteOffline);
+    const minZoom = 12;
+    const maxZoom = 20;
+    const total = calculateTilesCount(bbox, minZoom, maxZoom);
+    if (total > 200) {
+      Alert.alert(
+        'Download Limit Exceeded',
+        `You selected ${total} tiles.\n\n` +
+          `The maximum allowed is 200 tiles.\n` +
+          `Please zoom in or select a smaller area.`,
+        [{text: 'OK'}],
+      );
+      return;
+    } else {
+      const estimatedSize = calculateDownloadSize(total, useSatelliteOffline);
 
-  Alert.alert(
-    'Download Offline Map',
-    `Download ${total} tiles (${estimatedSize})?\n` +
-    `Type: ${useSatelliteOffline ? 'Satellite' : 'Standard'}`,
-    [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Download',
-        onPress: async () => {
-          setIsDownloading(true);
-          setDownloadProgress(0);
-          setTotalTilesToDownload(total);
+      Alert.alert(
+        'Download Offline Map',
+        `Download ${total} tiles (${estimatedSize})?\n` +
+          `Type: ${useSatelliteOffline ? 'Satellite' : 'Standard'}`,
+        [
+          {text: 'Cancel', style: 'cancel'},
+          {
+            text: 'Download',
+            onPress: async () => {
+              setIsDownloading(true);
+              setDownloadProgress(0);
+              setTotalTilesToDownload(total);
 
-          let count = 0;
-          const provider = useSatelliteOffline
-            ? TILE_PROVIDERS.satellite
-            : TILE_PROVIDERS.standard;
-          const baseDir = useSatelliteOffline ? SATELLITE_DIR : TILE_DIR;
-          const ext = provider.extension;
+              let count = 0;
+              const provider = useSatelliteOffline
+                ? TILE_PROVIDERS.satellite
+                : TILE_PROVIDERS.standard;
+              const baseDir = useSatelliteOffline ? SATELLITE_DIR : TILE_DIR;
+              const ext = provider.extension;
 
-          try {
-            await RNFS.mkdir(baseDir, { recursive: true });
-            
-            for (let z = minZoom; z <= maxZoom; z++) {
-              const tl = getTileXYZ(bbox.maxLat, bbox.minLon, z);
-              const br = getTileXYZ(bbox.minLat, bbox.maxLon, z);
+              try {
+                await RNFS.mkdir(baseDir, {recursive: true});
 
-              for (let x = tl.x; x <= br.x; x++) {
-                const folder = `${baseDir}/${z}/${x}`;
-                await RNFS.mkdir(folder, { recursive: true });
-                
-                for (let y = tl.y; y <= br.y; y++) {
-                  const file = `${folder}/${y}.${ext}`;
-                  const url = provider.url
-                    .replace('{z}', z)
-                    .replace('{x}', x)
-                    .replace('{y}', y);
+                for (let z = minZoom; z <= maxZoom; z++) {
+                  const tl = getTileXYZ(bbox.maxLat, bbox.minLon, z);
+                  const br = getTileXYZ(bbox.minLat, bbox.maxLon, z);
 
-                  if (!(await RNFS.exists(file))) {
-                    try {
-                      await RNFS.downloadFile({
-                        fromUrl: url,
-                        toFile: file,
-                        headers: {'User-Agent': 'MyApp/1.0'},
-                      }).promise;
-                    } catch (error) {
-                      console.warn(`Failed ${z}/${x}/${y}`);
+                  for (let x = tl.x; x <= br.x; x++) {
+                    const folder = `${baseDir}/${z}/${x}`;
+                    await RNFS.mkdir(folder, {recursive: true});
+
+                    for (let y = tl.y; y <= br.y; y++) {
+                      const file = `${folder}/${y}.${ext}`;
+                      const url = provider.url
+                        .replace('{z}', z)
+                        .replace('{x}', x)
+                        .replace('{y}', y);
+
+                      if (!(await RNFS.exists(file))) {
+                        try {
+                          await RNFS.downloadFile({
+                            fromUrl: url,
+                            toFile: file,
+                            headers: {'User-Agent': 'MyApp/1.0'},
+                          }).promise;
+                        } catch (error) {
+                          console.warn(`Failed ${z}/${x}/${y}`);
+                        }
+                      }
+
+                      count++;
+                      setDownloadProgress(count);
+                      await sleep(350);
                     }
                   }
-
-                  count++;
-                  setDownloadProgress(count);
-                  await sleep(350);
                 }
-              }
-            }
 
-            await checkOfflineTiles();
-            Alert.alert(
-              'Success',
-              `Downloaded ${count} tiles successfully!`,
-              [{ text: 'OK' }]
-            );
-          } catch (err) {
-            Alert.alert('Error', 'Download failed: ' + err.message);
-          } finally {
-            setIsDownloading(false);
-          }
-        }
-      }
-    ]
-  );
-};
+                await checkOfflineTiles();
+                Alert.alert(
+                  'Success',
+                  `Downloaded ${count} tiles successfully!`,
+                  [{text: 'OK'}],
+                );
+              } catch (err) {
+                Alert.alert('Error', 'Download failed: ' + err.message);
+              } finally {
+                setIsDownloading(false);
+              }
+            },
+          },
+        ],
+      );
+    }
+  };
 
   const checkOfflineTiles = async () => {
     try {
@@ -665,7 +677,7 @@ export default function Map({
           followsUserLocation={true}
           showsCompass={true}
           compassOffset={{x: 20, y: 20}}
-          minZoomLevel={12}
+          // minZoomLevel={10}
           scrollEnabled={true}
           showsScale={true}
           zoomTapEnabled={true}
@@ -677,8 +689,8 @@ export default function Map({
           zoomEnabled
           zoomControlEnabled={true} // ✅ Enable zoom buttons (Android)
           pitchEnabled={true} // ✅ Allow 3D tilting
-          // minZoomLevel={10}
-          maxZoomLevel={18}
+          // minZoomLevel={12}
+          // maxZoomLevel={20}
           // zoomEnabled={true}
           // zoomControlEnabled={true}
           // rotateEnabled={false}

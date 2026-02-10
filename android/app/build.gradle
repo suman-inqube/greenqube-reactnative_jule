@@ -82,8 +82,8 @@ android {
         applicationId "com.inqube.greenqube"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-          versionCode 119
-          versionName "11.9"
+          versionCode 121
+          versionName "12.1"
          ndk {
             abiFilters "armeabi-v7a","arm64-v8a","x86","x86_64"
         }

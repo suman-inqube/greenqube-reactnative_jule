@@ -46,7 +46,6 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
-import { useBackgroundSync } from '../utils/useBackgroundSync';
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
   const isFocused = useIsFocused();
@@ -674,7 +673,6 @@ const Dashboard = ({navigation}) => {
   //     });
   //   }
   // }, [loginUser_data]);
-        useBackgroundSync();
   const onPageLoad = useCallback(async () => {
     if (!loginUser_data) return;
 
