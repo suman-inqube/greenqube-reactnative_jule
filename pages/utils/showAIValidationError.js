@@ -6,6 +6,7 @@ export const showAIValidationError = (response) => {
 
   if (!errorData) {
     Toast.show({
+      time: 4,
       text: 'Unknown error occurred.',
       ...AlertMesg[0],
     });
@@ -28,9 +29,11 @@ export const showAIValidationError = (response) => {
     toastMessage += '\n\n• ' + reasonTexts;
   }
 
-  Toast.show({
-    text: toastMessage,
-    // timing: 14000,
-    ...AlertMesg[0],
-  });
+  // Toast.show({
+  //   text: toastMessage,
+  //   autoHide: false,
+  // });
+
+  // setTimeout(() => Toast.hide(), 10000);
+   return toastMessage;
 };

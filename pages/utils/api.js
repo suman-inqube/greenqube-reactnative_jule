@@ -128,7 +128,15 @@ const isInternetAvailable = async () => {
 };
 
 const handleError = async error => {
-  console.log('error566=', error);
+  console.log('error5664444=', error?.response?.status);
+
+   if (error?.response?.status === 409) {
+     console.log('error', error?.response?.status);
+     return {
+       status: error.response.status || 409,
+       data: error.response.data || {message: 'Unknown error'},
+     };
+   }
   if (axios.isCancel(error) || error.name === 'AbortError') {
     return {status: 499, data: {message: 'Request cancelled'}};
   }
@@ -146,6 +154,7 @@ const handleError = async error => {
       data: error.response.data || {message: 'Unknown error'},
     };
   }
+  
   if (
     error?.response?.status === 401 &&
     error?.response?.data?.data?.code == 'TOKEN_EXPIRED'

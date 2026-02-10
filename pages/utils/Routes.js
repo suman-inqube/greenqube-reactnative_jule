@@ -339,6 +339,9 @@ export const ROUTES = {
       //   pageNo,
       // ),
       `settingsRoute/listCoFarmers/1/${pageNo}/2?search_key=${searchKey}&land_fid=${land_fid}`,
+
+    UNIQUE_SCAN_CODE: ({unique_id = ''}) =>
+      `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new`,
   },
 
   PUT: {

@@ -76,6 +76,9 @@ import {showAIValidationError} from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
 import {isWithin20Meters} from '../../Common/calculateAreaFun';
+import ScannerModal from '../../Common/ScannerModal';
+import {Camera} from 'react-native-vision-camera';
+import {getItem, removeItem} from '../../../config/getDataFromStorage';
 const ActivityReportAWD = ({navigation}) => {
   //GQR-67
   const {
@@ -140,7 +143,9 @@ const ActivityReportAWD = ({navigation}) => {
   const [newFromDate, setnewFromDate] = useState(new Date());
   const [cycleStartDate, srtCycleStartDate] = useState(false);
   const [activityPreDate, setActivityPreDate] = useState(false);
+  const [scan, setScan] = useState(false);
   const [cycleDtartDate, setCycleStartDate] = useState('');
+  const [pipeQR, setPipeQR] = useState(1);
   const [activityInfoReadio, setactivityInfoReadio] = useState({
     activityPreFormDate: 'regular',
   });
@@ -234,6 +239,7 @@ const ActivityReportAWD = ({navigation}) => {
     lastAct: '',
     upcomingAct: '',
   });
+
   const pipe_fieldType = useRef(2);
   // const checkPipeDistance = (currentLat, currentLon) => {
   //   try {
@@ -421,6 +427,7 @@ const ActivityReportAWD = ({navigation}) => {
   const handlePlot = useCallback(
     async relId => {
       try {
+       
         const {latitude, longitude} = coords || {};
         var latlong;
         if (latitude == '' && longitude == '') {
@@ -1502,7 +1509,9 @@ const ActivityReportAWD = ({navigation}) => {
           }
         }
         if (database_res?.status === 400) {
-          showAIValidationError(database_res);
+           setPipeDetails([]);
+
+          // showAIValidationError(database_res);
           const cleanFileName = name => name.replace(/^\d+-/, '');
           const failedNamesSet =
             database_res?.data?.error?.errorMessage?.failed.map(i =>
@@ -1527,14 +1536,24 @@ const ActivityReportAWD = ({navigation}) => {
             });
           });
           setPipeDetails(updatedPipeDetails);
-          showAIValidationError(database_res);
+          const msg = showAIValidationError(database_res);
+          Toast.show({
+                time: 10,
+                text: msg,
+                ...AlertMesg[0],
+              });
+
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
+           setPipeDetails([]);
+
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
+           setPipeDetails([]);
+
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
             ...AlertMesg[0],
@@ -1704,11 +1723,9 @@ const ActivityReportAWD = ({navigation}) => {
       );
       setIsAfterToday(true);
       setMinDateAct(true);
-        const tenDaysAgo = new Date();
-        tenDaysAgo.setDate(today.getDate() - 10);
-      setLastPerfromedDate(
-                  tenDaysAgo
-                );
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(today.getDate() - 10);
+      setLastPerfromedDate(tenDaysAgo);
       try {
         const act_to_date1 = item.end_date;
         const date1 = new Date(act_to_date1);
@@ -1812,7 +1829,7 @@ const ActivityReportAWD = ({navigation}) => {
     value: '',
     latlongs: {},
   });
-  const handleActivityPipe = useCallback(
+  const handleActivityPipeManual = useCallback(
     _item => {
       const {
         pipeFiles,
@@ -1823,10 +1840,8 @@ const ActivityReportAWD = ({navigation}) => {
         lastActivityPerfromDate,
       } = _item || {};
       const isNotEmpty = value =>
-  value !== null &&
-  value !== undefined &&
-  String(value).trim() !== '';
-       console.log("lastActivityPerfromDate==",lastActivityPerfromDate)
+        value !== null && value !== undefined && String(value).trim() !== '';
+      console.log('lastActivityPerfromDate==', lastActivityPerfromDate);
       if (isNotEmpty(lastActivityPerfromDate)) {
         const compareDate = new Date(lastActivityPerfromDate);
         compareDate.setDate(compareDate.getDate() + minDateGap);
@@ -1834,43 +1849,166 @@ const ActivityReportAWD = ({navigation}) => {
         const today = new Date();
         const afterToday = compareDate > today;
 
-       setLastPerfromedDate(
-                  compareDate
-                );
-        console.log('2026-02-04 is TODAY', isAfterToday,minDateGap, compareDate, today);
+        setLastPerfromedDate(compareDate);
+        console.log(
+          '2026-02-04 is TODAY',
+          isAfterToday,
+          minDateGap,
+          compareDate,
+          today,
+        );
         if (compareDate > today) {
           console.log('2026-02-04 is not TODAY', compareDate);
           const formattedDate = compareDate.toLocaleDateString('en-GB', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          });
           Toast.show({
             time: 3,
             text: `Selected activity cannot be submitted before  ${formattedDate}`,
             ...AlertMesg[0],
           });
           setMinDateAct(false);
-           setIsAfterToday(false);
+          setIsAfterToday(false);
         } else {
           setMinDateAct(true);
-           setIsAfterToday(true);
+          setIsAfterToday(true);
           console.log('2026-02-04 is TODAY', compareDate);
         }
-      }else{
+      } else {
         const tenDaysAgo = new Date();
-  tenDaysAgo.setDate(today.getDate() - 10);
+        tenDaysAgo.setDate(today.getDate() - 10);
 
-        setLastPerfromedDate(
-                  tenDaysAgo
-                );
+        setLastPerfromedDate(tenDaysAgo);
       }
       setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
     },
     [minDateGap, selectPipeList],
   );
+
+  const handleActivityPipe = async scannedValue => {
+    if (!scannedValue) return;
+    if (saveData.field_type == 'add') {
+
+      try{
+        const scanedData = await axiosGet(
+          ROUTES.GET.UNIQUE_SCAN_CODE({
+            unique_id: scannedValue,
+          }),
+          token,
+          {information: `${dbname},${lan_id},${farmerID}`},
+        );
+         if (scanedData?.status == 200) {
+          
+          setPipeNumber(scannedValue);
+         
+        }else if (scanedData?.status == 409) {
+           console.log(
+            'pipe data555=',
+            JSON.stringify(scanedData),
+          );
+         Toast.show({
+              time: 3,
+              text: `QR Code is already registered with activity pipe.`,
+              ...AlertMesg[0],
+            });
+         
+        }
+      }catch (error){
+ console.log(
+            'pipe data555=',
+            JSON.stringify(error),
+          );
+         Toast.show({
+              time: 3,
+              text: `QR Code is already registered with activity pipe.`,
+              ...AlertMesg[0],
+            });
+         
+        
+
+      }
+
+        
+
+
+      // setPipeNumber(scannedValue);
+    } else {
+      const matchedPipe = PipeListDetailsArr.find(
+        item =>
+          item?.label?.toString().trim().toLowerCase() ===
+          scannedValue.toString().trim().toLowerCase(),
+      );
+
+      if (matchedPipe) {
+       
+
+        const isNotEmpty = value =>
+          value !== null && value !== undefined && String(value).trim() !== '';
+        if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
+          const compareDate = new Date(matchedPipe.lastActivityPerfromDate);
+          compareDate.setDate(compareDate.getDate() + minDateGap);
+
+          const today = new Date();
+          const afterToday = compareDate > today;
+
+          setLastPerfromedDate(compareDate);
+          console.log(
+            '2026-02-04 is TODAY',
+            isAfterToday,
+            minDateGap,
+            compareDate,
+            today,
+          );
+          if (compareDate > today) {
+            console.log('2026-02-04 is not TODAY', compareDate);
+            const formattedDate = compareDate.toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            });
+            Toast.show({
+              time: 3,
+              text: `Selected activity cannot be submitted before  ${formattedDate}`,
+              ...AlertMesg[0],
+            });
+            setMinDateAct(false);
+            setIsAfterToday(false);
+          } else {
+            setMinDateAct(true);
+            setIsAfterToday(true);
+            console.log('2026-02-04 is TODAY', compareDate);
+          }
+        } else {
+          const tenDaysAgo = new Date();
+          tenDaysAgo.setDate(today.getDate() - 10);
+
+          setLastPerfromedDate(tenDaysAgo);
+        }
+        setselectPipeList({
+          ...selectPipeList,
+          value: matchedPipe.value,
+          label: matchedPipe.label,
+          latlongs: matchedPipe.latlongs,
+          lastActivityPerfromDate: matchedPipe.lastActivityPerfromDate,
+        });
+      } else {
+        // ❌ Not found
+        console.warn('Pipe not found:', scannedValue);
+
+        Alert.alert(
+          'Invalid Instrument',
+          'Scanned instrument is not available in the plot',
+        );
+      }
+    }
+  };
   const onPageLoad = async () => {
     try {
+       const QRFlag = await getItem('pipeQR');
+        setPipeQR(QRFlag);
+        console.log('QRFlag==',getItem('pipeQR'));
       const {latitude, longitude} = coords || {};
       var latlong;
       if (latitude == '' && longitude == '') {
@@ -1896,14 +2034,11 @@ const ActivityReportAWD = ({navigation}) => {
   };
 
   useEffect(() => {
+    (async () => {
+      const status = await Camera.requestCameraPermission();
+      console.log('Camera permission:', status);
+    })();
     const task = InteractionManager.runAfterInteractions(() => {
-      if (
-        minimumActivityDate &&
-        newFromDate &&
-        new Date(newFromDate) < minimumActivityDate
-      ) {
-        setNewPerFromDate(minimumActivityDate);
-      }
       onPageLoad();
       // startWatchingLocation();
     });
@@ -1911,7 +2046,7 @@ const ActivityReportAWD = ({navigation}) => {
       task.cancel();
       // stopWatchingLocation();
     };
-  }, [minimumActivityDate]);
+  }, []);
 
   const handleHarvested = async data => {
     if (data == 'Yes') {
@@ -2340,6 +2475,12 @@ const ActivityReportAWD = ({navigation}) => {
                 logoImage={logoImage}
                 topBanner={topBanner}
               />
+              {scan && (
+                <ScannerModal
+                  onScan={value => handleActivityPipe(value)}
+                  onClose={() => setScan(false)}
+                />
+              )}
               <DatePickerComp
                 openDate={cycleStartDate}
                 newDate={newFromDate}
@@ -2596,7 +2737,58 @@ const ActivityReportAWD = ({navigation}) => {
                               {t('Enter Pipe Detail')}
                             </Text>
                             <View>
-                              {saveData.field_type == 'add' ? (
+                              { pipeQR == 1 ?(
+                                saveData.field_type == 'add' ? (
+                                <View style={{marginVertical: 30, height: 45}}>
+                                  <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={styles.pipeInputScan}
+                                    onPress={() => {
+                                      setScan(true);
+                                    }}>
+                                    <View style={styles.inputWrapper}>
+                                      <InputTextForm
+                                        label={t('Enter Instrument Name')}
+                                        editable={false}
+                                        required={true}
+                                        value={pipeNumber}
+                                      />
+                                    </View>
+
+                                    <Image
+                                      source={require('../../Common/images/scan.png')}
+                                      style={styles.icon}
+                                      resizeMode="contain"
+                                    />
+                                  </TouchableOpacity>
+                                </View>
+                              ) : (
+                                <View style={{marginVertical: 30, height: 45}}>
+                                  <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={styles.pipeInputScan}
+                                    onPress={() => {
+                                      setScan(true);
+                                    }}>
+                                    <View style={styles.inputWrapper}>
+                                      <InputTextForm
+                                        label={t('Enter Instrument Name')}
+                                        editable={false}
+                                        required={true}
+                                        value={selectPipeList.label}
+                                      />
+                                    </View>
+
+                                    <Image
+                                      source={require('../../Common/images/scan.png')}
+                                      style={styles.icon}
+                                      resizeMode="contain"
+                                    />
+                                  </TouchableOpacity>
+                                </View>
+                              )):(
+
+                                saveData.field_type == 'add' ? (
                                 <InputTextForm
                                   label={t('Enter Instrument Name')}
                                   required={true}
@@ -2608,9 +2800,11 @@ const ActivityReportAWD = ({navigation}) => {
                                   label={t('Instrument')}
                                   required={true}
                                   data={PipeListDetailsArr}
-                                  onChange={handleActivityPipe}
+                                  onChange={handleActivityPipeManual}
                                   val={selectPipeList.label}
                                 />
+                              )
+
                               )}
                               <View style={styles.hiddenContainer}>
                                 {tempImage && (
@@ -2701,9 +2895,7 @@ const ActivityReportAWD = ({navigation}) => {
                       disabled={!isAfterToday}
                       style={styles.activityPerFromDate}
                       onPress={() => {
-                       
-                          setActivityPreDate(true);
-                        
+                        setActivityPreDate(true);
                       }}>
                       <Text style={styles.title}>{activityPreFormDate}</Text>
                       <Image
@@ -2821,6 +3013,27 @@ const styles = StyleSheet.create({
     color: '#000000',
     //  borderColor: '#d1d5db',
     borderColor: Colors.borderGreen,
+  },
+  pipeInputScan: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingRight: 10,
+    height: 45,
+    backgroundColor: '#fff',
+  },
+
+  inputWrapper: {
+    flex: 1, // takes remaining space
+    justifyContent: 'center',
+  },
+
+  icon: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
   },
   flatlistcontainer: {
     marginVertical: 10,

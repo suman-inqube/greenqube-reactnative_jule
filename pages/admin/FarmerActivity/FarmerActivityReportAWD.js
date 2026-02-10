@@ -69,6 +69,10 @@ import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import {showAIValidationError} from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
+import ScannerModal from '../../Common/ScannerModal';
+import {ROUTES} from '../../utils/Routes';
+import {Camera} from 'react-native-vision-camera';
+import {getItem, removeItem} from '../../../config/getDataFromStorage';
 const FarmerActivityReportAWD = ({navigation}) => {
   const today = new Date();
   const tenDaysAgo = new Date();
@@ -227,6 +231,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
     value: '',
     latlongs: {},
   });
+  const [scan, setScan] = useState(false);
+  const [pipeQR, setPipeQR] = useState(1);
   const pipe_fieldType = useRef(2);
   // const checkPipeDistance = (currentLat, currentLon) => {
   //   try {
@@ -292,14 +298,14 @@ const FarmerActivityReportAWD = ({navigation}) => {
         //   )} meters`,
         // );
 
-        if (distance < 20) {
-          Alert.alert(
-            'Too Close!',
-            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-            [{text: 'OK', style: 'cancel'}],
-          );
-          return false;
-        }
+        // if (distance < 20) {
+        //   Alert.alert(
+        //     'Too Close!',
+        //     `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+        //     [{text: 'OK', style: 'cancel'}],
+        //   );
+        //   return false;
+        // }
       }
 
       // console.log('No pipes within 20 meters');
@@ -948,17 +954,17 @@ const FarmerActivityReportAWD = ({navigation}) => {
         });
         return false;
       }
-      if (
-        selectedImagePipe?.firstItem == '' ||
-        selectedImagePipe?.secondItem == ''
-      ) {
-        Toast.show({
-          time: 2,
-          text: t('Please enter pipe image'),
-          ...AlertMesg[0],
-        });
-        return false;
-      }
+      // if (
+      //   selectedImagePipe?.firstItem == '' ||
+      //   selectedImagePipe?.secondItem == ''
+      // ) {
+      //   Toast.show({
+      //     time: 2,
+      //     text: t('Please enter pipe image'),
+      //     ...AlertMesg[0],
+      //   });
+      //   return false;
+      // }
     }
     if (!saveData.act_perform_date) {
       Toast.show({
@@ -1189,7 +1195,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
           }
         }
         if (database_res?.status === 400) {
-          showAIValidationError(database_res);
+          setPipeDetails([]);
+          // showAIValidationError(database_res);
           const cleanFileName = name => name.replace(/^\d+-/, '');
           const failedNamesSet =
             database_res?.data?.error?.errorMessage?.failed.map(i =>
@@ -1213,17 +1220,27 @@ const FarmerActivityReportAWD = ({navigation}) => {
             });
           });
           setPipeDetails(updatedPipeDetails);
-          showAIValidationError(database_res);
+          // showAIValidationError(database_res);
+          const msg = showAIValidationError(database_res);
+          Toast.show({
+            time: 10,
+            text: msg,
+            ...AlertMesg[0],
+          });
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
+          setPipeDetails([]);
           navigation.navigate('FarmerActivityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
+          setPipeDetails([]);
           Toast.show({
+            time: 4,
             text: database_res?.data?.error?.errorMessage,
             ...AlertMesg[0],
           });
         }
+        setPipeDetails([]);
       } else {
         let timeStamp = Date.now();
         await setItem('off' + timeStamp, formData);
@@ -1449,6 +1466,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
   };
   const onPageLoad = async () => {
     // requestLivePermission();
+    const QRFlag = await getItem('pipeQR');
+    setPipeQR(QRFlag);
+    console.log('QRFlag==', getItem('pipeQR'));
     const {latitude, longitude} = coords || {};
     var latlong;
     if (latitude == '' && longitude == '') {
@@ -1717,7 +1737,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
     setModalVisibleMap(true);
   };
 
-  const handleActivityPipe = useCallback(
+  const handleActivityPipeManual = useCallback(
     _item => {
       const {
         pipeFiles,
@@ -1757,10 +1777,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
             text: `Selected activity cannot be submitted before  ${formattedDate}`,
             ...AlertMesg[0],
           });
-          
+
           setIsAfterToday(false);
         } else {
-          
           setIsAfterToday(true);
           console.log('2026-02-04 is TODAY', compareDate);
         }
@@ -1774,6 +1793,123 @@ const FarmerActivityReportAWD = ({navigation}) => {
     },
     [minDateGap, selectPipeList],
   );
+
+  const handleActivityPipe = async scannedValue => {
+      if (!scannedValue) return;
+      if (saveData.field_type == 'add') {
+  
+        try{
+          const scanedData = await axiosGet(
+            ROUTES.GET.UNIQUE_SCAN_CODE({
+              unique_id: scannedValue,
+            }),
+            token,
+            {information: `${dbname},${lan_id},${farmerID}`},
+          );
+           if (scanedData?.status == 200) {
+            
+            setPipeNumber(scannedValue);
+           
+          }else if (scanedData?.status == 409) {
+             console.log(
+              'pipe data555=',
+              JSON.stringify(scanedData),
+            );
+           Toast.show({
+                time: 3,
+                text: `QR Code is already registered with activity pipe.`,
+                ...AlertMesg[0],
+              });
+           
+          }
+        }catch (error){
+   console.log(
+              'pipe data555=',
+              JSON.stringify(error),
+            );
+           Toast.show({
+                time: 3,
+                text: `QR Code is already registered with activity pipe.`,
+                ...AlertMesg[0],
+              });
+           
+          
+  
+        }
+  
+          
+  
+  
+        // setPipeNumber(scannedValue);
+      } else {
+        const matchedPipe = PipeListDetailsArr.find(
+          item =>
+            item?.label?.toString().trim().toLowerCase() ===
+            scannedValue.toString().trim().toLowerCase(),
+        );
+  
+        if (matchedPipe) {
+         
+  
+          const isNotEmpty = value =>
+            value !== null && value !== undefined && String(value).trim() !== '';
+          if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
+            const compareDate = new Date(matchedPipe.lastActivityPerfromDate);
+            compareDate.setDate(compareDate.getDate() + minDateGap);
+  
+            const today = new Date();
+            const afterToday = compareDate > today;
+  
+            setLastPerfromedDate(compareDate);
+            console.log(
+              '2026-02-04 is TODAY',
+              isAfterToday,
+              minDateGap,
+              compareDate,
+              today,
+            );
+            if (compareDate > today) {
+              console.log('2026-02-04 is not TODAY', compareDate);
+              const formattedDate = compareDate.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              });
+              Toast.show({
+                time: 3,
+                text: `Selected activity cannot be submitted before  ${formattedDate}`,
+                ...AlertMesg[0],
+              });
+            
+              setIsAfterToday(false);
+            } else {
+              setIsAfterToday(true);
+              console.log('2026-02-04 is TODAY', compareDate);
+            }
+          } else {
+            const tenDaysAgo = new Date();
+            tenDaysAgo.setDate(today.getDate() - 10);
+  
+            setLastPerfromedDate(tenDaysAgo);
+          }
+          setselectPipeList({
+            ...selectPipeList,
+            value: matchedPipe.value,
+            label: matchedPipe.label,
+            latlongs: matchedPipe.latlongs,
+            lastActivityPerfromDate: matchedPipe.lastActivityPerfromDate,
+          });
+        } else {
+          // ❌ Not found
+          console.warn('Pipe not found:', scannedValue);
+  
+          Alert.alert(
+            'Invalid Instrument',
+            'Scanned instrument is not available in the plot',
+          );
+        }
+      }
+    };
   const handlegrowth_stage = useCallback(growth_stage => {
     setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);
@@ -1813,6 +1949,12 @@ const FarmerActivityReportAWD = ({navigation}) => {
                 logoImage={logoImage}
                 topBanner={topBanner}
               />
+              {scan && (
+                <ScannerModal
+                  onScan={value => handleActivityPipe(value)}
+                  onClose={() => setScan(false)}
+                />
+              )}
               <DatePickerComp
                 openDate={cycleStartDate}
                 newDate={newFromDate}
@@ -2091,7 +2233,65 @@ const FarmerActivityReportAWD = ({navigation}) => {
                                     paddingHorizontal: 10,
                                     marginTop: 10,
                                   }}>
-                                  {saveData.field_type == 'add' ? (
+                                  {pipeQR == 1 ? (
+                                    saveData.field_type == 'add' ? (
+                                      <View
+                                        style={{
+                                          marginVertical: 30,
+                                          height: 45,
+                                        }}>
+                                        <TouchableOpacity
+                                          activeOpacity={0.8}
+                                          style={styles.pipeInputScan}
+                                          onPress={() => {
+                                            setScan(true);
+                                          }}>
+                                          <View style={styles.inputWrapper}>
+                                            <InputTextForm
+                                              label={t('Enter Instrument Name')}
+                                              editable={false}
+                                              required={true}
+                                              value={pipeNumber}
+                                            />
+                                          </View>
+
+                                          <Image
+                                            source={require('../../Common/images/scan.png')}
+                                            style={styles.icon}
+                                            resizeMode="contain"
+                                          />
+                                        </TouchableOpacity>
+                                      </View>
+                                    ) : (
+                                      <View
+                                        style={{
+                                         
+                                          height: 45,
+                                        }}>
+                                        <TouchableOpacity
+                                          activeOpacity={0.8}
+                                          style={styles.pipeInputScan}
+                                          onPress={() => {
+                                            setScan(true);
+                                          }}>
+                                          <View style={styles.inputWrapper}>
+                                            <InputTextForm
+                                              label={t('Enter Instrument Name')}
+                                              editable={false}
+                                              required={true}
+                                              value={selectPipeList.label}
+                                            />
+                                          </View>
+
+                                          <Image
+                                            source={require('../../Common/images/scan.png')}
+                                            style={styles.icon}
+                                            resizeMode="contain"
+                                          />
+                                        </TouchableOpacity>
+                                      </View>
+                                    )
+                                  ) : saveData.field_type == 'add' ? (
                                     <InputTextForm
                                       label={t('Enter Instrument Name')}
                                       required={true}
@@ -2103,7 +2303,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                                       label={t('Instrument')}
                                       required={true}
                                       data={PipeListDetailsArr}
-                                      onChange={handleActivityPipe}
+                                      onChange={handleActivityPipeManual}
                                       val={selectPipeList.label}
                                     />
                                   )}
@@ -2591,5 +2791,25 @@ const styles = StyleSheet.create({
   },
   galleryWrapper: {
     marginTop: 20,
+  },
+  pipeInputScan: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingRight: 10,
+    height: 45,
+    backgroundColor: '#fff',
+  },
+
+  inputWrapper: {
+    flex: 1, // takes remaining space
+    justifyContent: 'center',
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
   },
 });

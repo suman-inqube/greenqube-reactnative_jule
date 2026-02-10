@@ -188,12 +188,20 @@ const Login = ({ route }) => {
             loginUserdata?.db_company_id,
           );
 
+          console.log('details_company_res', JSON.stringify(details_company_res));
+          console.log(
+            'pipeQR',
+           details_company_res?.data?.data[0]?.pipe_qr_code
+          );
+
           if (details_company_res?.status == 200) {
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
               agri_calculator:
                 details_company_res?.data?.data[0]?.agri_calculator,
             });
+              await setItem('pipeQR', details_company_res?.data?.data[0]?.pipe_qr_code
+              );
           }
           // db_name:dbname, company_id:value, agri_company.country_id:country_id
           await Promise.all([
