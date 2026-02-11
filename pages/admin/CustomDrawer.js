@@ -204,35 +204,7 @@ const CustomDrawer = memo(({ state }) => {
         // isExpandable: true,
         // isExpanded: expandedMenus.farmAccount,
         onPress: () => navigateToPages('FarmIncomeExpenseList'),
-        // onPress: () => handleMenuExpand(MENU_TYPES.FARM_ACCOUNT),
-        // expandIconMarginRight: 30,
-        // subItems: [
-        //   // {
-        //   //   iconName: 'currency-rupee',
-        //   //   title: t('farm_income_amp_expense'),
-        //   //   onPress: () => navigateToPages('FarmIncomeExpenseList'),
-        //   // },
-        //   {
-        //     iconName: 'real-estate-agent',
-        //     title: t('L_view_loan_nrequested'),
-        //     onPress: () => navigateToPages('LoanViewPastRequested'),
-        //   },
-        //   {
-        //     iconName: 'assignment-add',
-        //     title: t('loan_request_n'),
-        //     onPress: () => navigateToPages('LoanRequest'),
-        //   },
-        //   {
-        //     iconName: 'security',
-        //     title: t('Insu_enquiry_detail'),
-        //     onPress: () => navigateToPages('InsuranceViewPastRequested'),
-        //   },
-        //   {
-        //     iconName: 'maps-ugc',
-        //     title: t('request_for_ninsurance'),
-        //     onPress: () => navigateToPages('RequestForInsurance'),
-        //   },
-        // ],
+       
       },
       {
         id: 'finance',
@@ -278,6 +250,12 @@ const CustomDrawer = memo(({ state }) => {
         iconName: 'local-activity',
         title: t('instrument_Wise_Activity_View'),
         onPress: () => navigateToPages('InstrumentWiseActivityView'),
+      },
+      {
+        id: 'Offline',
+        iconName: 'local-activity',
+        title: t('Offline'),
+        onPress: () => navigateToPages('Offline'),
       },
       {
         id: 'logout',
