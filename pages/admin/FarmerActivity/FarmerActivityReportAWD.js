@@ -73,6 +73,7 @@ import ScannerModal from '../../Common/ScannerModal';
 import {ROUTES} from '../../utils/Routes';
 import {Camera} from 'react-native-vision-camera';
 import {getItem, removeItem} from '../../../config/getDataFromStorage';
+import {axiosGet, axiosPost} from '../../utils/api';
 const FarmerActivityReportAWD = ({navigation}) => {
   const today = new Date();
   const tenDaysAgo = new Date();
@@ -298,14 +299,14 @@ const FarmerActivityReportAWD = ({navigation}) => {
         //   )} meters`,
         // );
 
-        // if (distance < 20) {
-        //   Alert.alert(
-        //     'Too Close!',
-        //     `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-        //     [{text: 'OK', style: 'cancel'}],
-        //   );
-        //   return false;
-        // }
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{text: 'OK', style: 'cancel'}],
+          );
+          return false;
+        }
       }
 
       // console.log('No pipes within 20 meters');
@@ -1805,6 +1806,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
             }),
             token,
             {information: `${dbname},${lan_id},${farmerID}`},
+            '',
+            'pipeQrDetails',
           );
            if (scanedData?.status == 200) {
             
@@ -2265,7 +2268,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                                     ) : (
                                       <View
                                         style={{
-                                         
+                                          marginVertical: 30,
                                           height: 45,
                                         }}>
                                         <TouchableOpacity

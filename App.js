@@ -1,21 +1,15 @@
-import React, {useRef, useContext, useState, useEffect, lazy} from 'react';
+import React, {useRef, useContext, lazy} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import 'react-native-gesture-handler';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {
-  AppState,
-  Alert,
-  BackHandler,
-  View,
-  ImageBackground,
-  StyleSheet,
-} from 'react-native';
-// import analytics from '@react-native-firebase/analytics';
+import {StyleSheet} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import SplashScreen from './SplashScreen';
 import AdminNavigation from './pages/admin/AdminNavigation';
 import FarmerNavigation from './pages/admin/FarmerNavigation';
+
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const SignUpViwer = lazy(() => import('./pages/SignUpViwer'));
@@ -25,55 +19,42 @@ const Financial = lazy(() => import('./pages/Financial'));
 const FinancialUpdate = lazy(() => import('./pages/FinancialUpdate'));
 const ProduceInfo = lazy(() => import('./pages/ProduceInfo'));
 const ProduceInfoUpdate = lazy(() => import('./pages/ProduceInfoUpdate'));
+
 import withSecurityCheck from './pages/SecurityCheck/withSecurityCheck';
 import {userCreateContext} from './pages/Context/usersCreateContext';
 import {addModuleForView} from './config/apiHere';
 import './ignoreWarnings';
 import {navigationRef} from './pages/utils/NavigationUtils';
+
 const Stack = createNativeStackNavigator();
-// import { Provider as PaperProvider } from 'react-native-paper';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-const App = withSecurityCheck(() => {
+
+/* ============================= */
+/*          MAIN CONTENT         */
+/* ============================= */
+
+function AppContent() {
   const routeNameRef = useRef();
   const {loginUser_data} = useContext(userCreateContext) || {};
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
 
-
-
-  // useEffect(() => {
-  //   const unsubscribe = navigationRef.addListener('state', () => {
-  //     if (navigationRef.isReady()) {
-  //       const state = navigationRef.getRootState();
-  //       console.log('🔍 Full Navigation Tree:', JSON.stringify(state, null, 2));
-
-  //       const currentRoute = navigationRef.getCurrentRoute();
-  //       const currentRouteName = currentRoute?.name;
-  //       const previousRouteName = routeNameRef.current;
-
-  //       if (previousRouteName !== currentRouteName) {
-  //         console.log('📍 Route changed:', previousRouteName, '➡️', currentRouteName);
-  //       }
-
-  //       routeNameRef.current = currentRouteName;
-  //     }
-  //   });
-
-  //   return unsubscribe;
-  // }, [navigationRef]);
   return (
-    // <PaperProvider>
     <SafeAreaProvider>
       <GestureHandlerRootView style={{flex: 1}}>
         <NavigationContainer
           ref={navigationRef}
           onReady={() => {
-            routeNameRef.current = navigationRef.getCurrentRoute().name;
+            routeNameRef.current = navigationRef.getCurrentRoute()?.name;
           }}
-          onStateChange={async () => {
+          onStateChange={() => {
             const previousRouteName = routeNameRef.current;
-            const currentRouteName = navigationRef.getCurrentRoute().name;
-console.log("currentRouteName",currentRouteName)
-            if (previousRouteName !== currentRouteName) {
+            const currentRouteName = navigationRef.getCurrentRoute()?.name;
+
+            if (
+              previousRouteName !== currentRouteName &&
+              dbname &&
+              token &&
+              user_id
+            ) {
               switch (currentRouteName) {
                 case 'FarmerFarmIncomeExpenseList':
                   addModuleForView(
@@ -87,6 +68,7 @@ console.log("currentRouteName",currentRouteName)
                     1,
                   );
                   break;
+
                 case 'FarmerLoan':
                   addModuleForView(
                     dbname,
@@ -99,6 +81,7 @@ console.log("currentRouteName",currentRouteName)
                     1,
                   );
                   break;
+
                 case 'FarmerInsuranceEnquiry':
                   addModuleForView(
                     dbname,
@@ -111,6 +94,7 @@ console.log("currentRouteName",currentRouteName)
                     1,
                   );
                   break;
+
                 case 'PackageOfPractices':
                   addModuleForView(
                     dbname,
@@ -123,98 +107,54 @@ console.log("currentRouteName",currentRouteName)
                     1,
                   );
                   break;
+
                 default:
                   break;
               }
-
-              // await Promise.all([
-              //   analytics().logScreenView({
-              //     screen_name: currentRouteName,
-              //     screen_class: currentRouteName,
-              //   }),
-              //   analytics().logEvent(currentRouteName, {
-              //     screen_name: currentRouteName,
-              //     activity_name: currentRouteName,
-              //     user_id: user_id,
-              //     timestamp: new Date().toISOString(),
-              //   }),
-              // ]);
             }
 
             routeNameRef.current = currentRouteName;
           }}>
           <Stack.Navigator
             initialRouteName="SplashScreen"
-            screenOptions={{headerShown: false, lazy: true}}>
-            <Stack.Screen
-              name="SplashScreen"
-              component={SplashScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="Login"
-              component={Login}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="Signup"
-              component={Signup}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="SignUpViwer"
-              component={SignUpViwer}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="Persnol"
-              component={Persnol}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="PersnolUpdate"
-              component={PersnolUpdate}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="Financial"
-              component={Financial}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="FinancialUpdate"
-              component={FinancialUpdate}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="ProduceInfo"
-              component={ProduceInfo}
-              options={{headerShown: false}}
-            />
+            screenOptions={{headerShown: false}}>
+            <Stack.Screen name="SplashScreen" component={SplashScreen} />
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+            <Stack.Screen name="SignUpViwer" component={SignUpViwer} />
+            <Stack.Screen name="Persnol" component={Persnol} />
+            <Stack.Screen name="PersnolUpdate" component={PersnolUpdate} />
+            <Stack.Screen name="Financial" component={Financial} />
+            <Stack.Screen name="FinancialUpdate" component={FinancialUpdate} />
+            <Stack.Screen name="ProduceInfo" component={ProduceInfo} />
             <Stack.Screen
               name="ProduceInfoUpdate"
               component={ProduceInfoUpdate}
-              options={{headerShown: false}}
             />
-            <Stack.Screen
-              name="AdminNavigation"
-              component={AdminNavigation}
-              options={{headerShown: false}}
-            />
+            <Stack.Screen name="AdminNavigation" component={AdminNavigation} />
             <Stack.Screen
               name="FarmerNavigation"
               component={FarmerNavigation}
-              options={{headerShown: false}}
             />
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>
     </SafeAreaProvider>
-    // </PaperProvider>
   );
-})
+}
+
+/* ============================= */
+/*        SECURITY WRAPPER       */
+/* ============================= */
+
+const App = withSecurityCheck(AppContent);
 
 export default App;
+
+/* ============================= */
+/*            STYLES             */
+/* ============================= */
+
 
 const styles = StyleSheet.create({
   backgroundImage: {

@@ -80,6 +80,8 @@ import ScannerModal from '../../Common/ScannerModal';
 import {Camera} from 'react-native-vision-camera';
 import {getItem, removeItem} from '../../../config/getDataFromStorage';
 const ActivityReportAWD = ({navigation}) => {
+  const isScanningRef = useRef(false);
+  const lastScannedRef = useRef(null);
   //GQR-67
   const {
     loginUser_data,
@@ -145,7 +147,7 @@ const ActivityReportAWD = ({navigation}) => {
   const [activityPreDate, setActivityPreDate] = useState(false);
   const [scan, setScan] = useState(false);
   const [cycleDtartDate, setCycleStartDate] = useState('');
-  const [pipeQR, setPipeQR] = useState(1);
+  const [pipeQR, setPipeQR] = useState(0);
   const [activityInfoReadio, setactivityInfoReadio] = useState({
     activityPreFormDate: 'regular',
   });
@@ -427,7 +429,6 @@ const ActivityReportAWD = ({navigation}) => {
   const handlePlot = useCallback(
     async relId => {
       try {
-       
         const {latitude, longitude} = coords || {};
         var latlong;
         if (latitude == '' && longitude == '') {
@@ -1490,14 +1491,14 @@ const ActivityReportAWD = ({navigation}) => {
               longitude,
             });
             if (distances < 10) {
-              database_res = await addPrevPipeActivity(
-                dbname,
-                lan_id,
-                token,
-                farmerID,
-                formData,
-                1,
-              );
+            database_res = await addPrevPipeActivity(
+              dbname,
+              lan_id,
+              token,
+              farmerID,
+              formData,
+              1,
+            );
             } else {
               Toast.show({
                 text: t('You are not in your exact pipe location'),
@@ -1509,7 +1510,7 @@ const ActivityReportAWD = ({navigation}) => {
           }
         }
         if (database_res?.status === 400) {
-           setPipeDetails([]);
+          setPipeDetails([]);
 
           // showAIValidationError(database_res);
           const cleanFileName = name => name.replace(/^\d+-/, '');
@@ -1538,21 +1539,21 @@ const ActivityReportAWD = ({navigation}) => {
           setPipeDetails(updatedPipeDetails);
           const msg = showAIValidationError(database_res);
           Toast.show({
-                time: 10,
-                text: msg,
-                ...AlertMesg[0],
-              });
+            time: 10,
+            text: msg,
+            ...AlertMesg[0],
+          });
 
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
-           setPipeDetails([]);
+          setPipeDetails([]);
 
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
-           setPipeDetails([]);
+          setPipeDetails([]);
 
           Toast.show({
             text: database_res?.data?.error?.errorMessage,
@@ -1889,51 +1890,49 @@ const ActivityReportAWD = ({navigation}) => {
 
   const handleActivityPipe = async scannedValue => {
     if (!scannedValue) return;
-    if (saveData.field_type == 'add') {
+     setPipeNumber('');
 
-      try{
+    if (saveData.field_type == 'add') {
+      if (isScanningRef.current) return;
+      if (lastScannedRef.current === scannedValue) return;
+
+      isScanningRef.current = true;
+      lastScannedRef.current = scannedValue;
+
+      try {
+
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
             unique_id: scannedValue,
           }),
           token,
           {information: `${dbname},${lan_id},${farmerID}`},
+          '','pipeQrDetails'
         );
-         if (scanedData?.status == 200) {
-          
+         console.log('pi value111=', JSON.stringify(scanedData));
+        if (scanedData?.status == 200) {
           setPipeNumber(scannedValue);
-         
-        }else if (scanedData?.status == 409) {
-           console.log(
-            'pipe data555=',
-            JSON.stringify(scanedData),
-          );
-         Toast.show({
-              time: 3,
-              text: `QR Code is already registered with activity pipe.`,
-              ...AlertMesg[0],
-            });
-         
+        } else if (scanedData?.status == 409) {
+          console.log('pipe data555=', JSON.stringify(scanedData));
+          Toast.show({
+            time: 3,
+            text: `QR Code is already registered with activity pipe.`,
+            ...AlertMesg[0],
+          });
         }
-      }catch (error){
- console.log(
-            'pipe data555=',
-            JSON.stringify(error),
-          );
-         Toast.show({
-              time: 3,
-              text: `QR Code is already registered with activity pipe.`,
-              ...AlertMesg[0],
-            });
-         
-        
-
+      } catch (error) {
+        console.log('pipe error=', JSON.stringify(error));
+        Toast.show({
+          time: 3,
+          text: `QR Code is already registered with activity pipe.`,
+          ...AlertMesg[0],
+        });
+      } finally {
+        // 🔓 allow next scan after delay
+        setTimeout(() => {
+          isScanningRef.current = false;
+        }, 1500);
       }
-
-        
-
-
-      // setPipeNumber(scannedValue);
     } else {
       const matchedPipe = PipeListDetailsArr.find(
         item =>
@@ -1942,8 +1941,6 @@ const ActivityReportAWD = ({navigation}) => {
       );
 
       if (matchedPipe) {
-       
-
         const isNotEmpty = value =>
           value !== null && value !== undefined && String(value).trim() !== '';
         if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
@@ -2006,9 +2003,9 @@ const ActivityReportAWD = ({navigation}) => {
   };
   const onPageLoad = async () => {
     try {
-       const QRFlag = await getItem('pipeQR');
-        setPipeQR(QRFlag);
-        console.log('QRFlag==',getItem('pipeQR'));
+      const QRFlag = await getItem('pipeQR');
+      setPipeQR(QRFlag);
+      console.log('QRFlag==', getItem('pipeQR'));
       const {latitude, longitude} = coords || {};
       var latlong;
       if (latitude == '' && longitude == '') {
@@ -2737,58 +2734,59 @@ const ActivityReportAWD = ({navigation}) => {
                               {t('Enter Pipe Detail')}
                             </Text>
                             <View>
-                              { pipeQR == 1 ?(
+                              {pipeQR == 1 ? (
                                 saveData.field_type == 'add' ? (
-                                <View style={{marginVertical: 30, height: 45}}>
-                                  <TouchableOpacity
-                                    activeOpacity={0.8}
-                                    style={styles.pipeInputScan}
-                                    onPress={() => {
-                                      setScan(true);
-                                    }}>
-                                    <View style={styles.inputWrapper}>
-                                      <InputTextForm
-                                        label={t('Enter Instrument Name')}
-                                        editable={false}
-                                        required={true}
-                                        value={pipeNumber}
+                                  <View
+                                    style={{marginVertical: 30, height: 45}}>
+                                    <TouchableOpacity
+                                      activeOpacity={0.8}
+                                      style={styles.pipeInputScan}
+                                      onPress={() => {
+                                        setScan(true);
+                                      }}>
+                                      <View style={styles.inputWrapper}>
+                                        <InputTextForm
+                                          label={t('Enter Instrument Name')}
+                                          editable={false}
+                                          required={true}
+                                          value={pipeNumber}
+                                        />
+                                      </View>
+
+                                      <Image
+                                        source={require('../../Common/images/scan.png')}
+                                        style={styles.icon}
+                                        resizeMode="contain"
                                       />
-                                    </View>
+                                    </TouchableOpacity>
+                                  </View>
+                                ) : (
+                                  <View
+                                    style={{marginVertical: 30, height: 45}}>
+                                    <TouchableOpacity
+                                      activeOpacity={0.8}
+                                      style={styles.pipeInputScan}
+                                      onPress={() => {
+                                        setScan(true);
+                                      }}>
+                                      <View style={styles.inputWrapper}>
+                                        <InputTextForm
+                                          label={t('Enter Instrument Name')}
+                                          editable={false}
+                                          required={true}
+                                          value={selectPipeList.label}
+                                        />
+                                      </View>
 
-                                    <Image
-                                      source={require('../../Common/images/scan.png')}
-                                      style={styles.icon}
-                                      resizeMode="contain"
-                                    />
-                                  </TouchableOpacity>
-                                </View>
-                              ) : (
-                                <View style={{marginVertical: 30, height: 45}}>
-                                  <TouchableOpacity
-                                    activeOpacity={0.8}
-                                    style={styles.pipeInputScan}
-                                    onPress={() => {
-                                      setScan(true);
-                                    }}>
-                                    <View style={styles.inputWrapper}>
-                                      <InputTextForm
-                                        label={t('Enter Instrument Name')}
-                                        editable={false}
-                                        required={true}
-                                        value={selectPipeList.label}
+                                      <Image
+                                        source={require('../../Common/images/scan.png')}
+                                        style={styles.icon}
+                                        resizeMode="contain"
                                       />
-                                    </View>
-
-                                    <Image
-                                      source={require('../../Common/images/scan.png')}
-                                      style={styles.icon}
-                                      resizeMode="contain"
-                                    />
-                                  </TouchableOpacity>
-                                </View>
-                              )):(
-
-                                saveData.field_type == 'add' ? (
+                                    </TouchableOpacity>
+                                  </View>
+                                )
+                              ) : saveData.field_type == 'add' ? (
                                 <InputTextForm
                                   label={t('Enter Instrument Name')}
                                   required={true}
@@ -2803,8 +2801,6 @@ const ActivityReportAWD = ({navigation}) => {
                                   onChange={handleActivityPipeManual}
                                   val={selectPipeList.label}
                                 />
-                              )
-
                               )}
                               <View style={styles.hiddenContainer}>
                                 {tempImage && (

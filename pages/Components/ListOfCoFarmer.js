@@ -438,7 +438,7 @@ const ListOfCoFarmer = ({
           type: coFarmer.idProof.type,
         });
       }
-      console.log('formdata==', JSON.stringify(formdata));
+      // console.log('formdata==', JSON.stringify(formdata));
       const updateOwnerShipRes = await axiosPut(
         ROUTES.PUT.UP_DATE_OWNER_SHIP,
         formdata,
@@ -446,8 +446,6 @@ const ListOfCoFarmer = ({
         false,
         {information: `${dbname},${lan_id},${user_id}`},
       );
-      console.log('updateOwnerShipRes==', JSON.stringify(updateOwnerShipRes));
-      console.log('updateOwnerShipRes1111==', updateOwnerShipRes);
 
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
@@ -467,14 +465,9 @@ const ListOfCoFarmer = ({
       setIsSubmit(false);
       console.log(
         'errorMessage==',
-        JSON.stringify(error?.data?.error?.errorMessage),
+        JSON.stringify(error),
       );
       Alert.alert(`${error?.data?.error?.errorMessage}`);
-      // Toast.show({
-      //   text: `${error?.data?.error?.errorMessage}`,
-      //   ...{...AlertMesg[0], position: 'top'},
-      // });
-      // console.error(error);
     }
   }, [
     coFarmer,

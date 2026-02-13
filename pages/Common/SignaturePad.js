@@ -42,11 +42,11 @@ const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
       setShowModal(false);
       return;
     }
-    if (
-      statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
-      statuslevel == 'CARBON_DOCUMENTS_APPROVED'
-    )
-      return;
+    // if (
+    //   statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
+    //   statuslevel == 'CARBON_DOCUMENTS_APPROVED'
+    // )
+    //   return;
     // Alert.alert("You cannot change the signature after submitting the documents");
     const base64Image = sig?.startsWith('data:image')
       ? sig
@@ -68,11 +68,11 @@ const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
   };
 
   const handleClear = () => {
-    if (
-      statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
-      statuslevel == 'CARBON_DOCUMENTS_APPROVED'
-    )
-      return;
+    // if (
+    //   statuslevel == 'CARBON_DOCUMENTS_SUBMITTED' ||
+    //   statuslevel == 'CARBON_DOCUMENTS_APPROVED'
+    // )
+    //   return;
     signatureRef.current.clearSignature();
     setSignature(null);
     setSignatureBase64(null);
@@ -181,8 +181,8 @@ const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
             />
           </View>
 
-          {statuslevel == 'CARBON_DOCUMENTS_REJECTED' ||
-          statuslevel == 'APPROVED' ? (
+          {/* {statuslevel == 'CARBON_DOCUMENTS_REJECTED' ||
+          statuslevel == 'APPROVED' ? ( */}
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={styles.clearButton}
@@ -195,9 +195,9 @@ const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
                 <Text style={styles.buttonText}>Confirm</Text>
               </TouchableOpacity>
             </View>
-          ) : (
+          {/* ) : (
             <></>
-          )}
+          )} */}
         </SafeAreaView>
       </Modal>
     </SafeAreaView>

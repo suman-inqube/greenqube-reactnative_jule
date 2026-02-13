@@ -1,98 +1,141 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {Alert, BackHandler, AppState, View, Text, Linking} from 'react-native';
 import JailMonkey from 'jail-monkey';
-import VersionCheck from 'react-native-version-check';
 import NetInfo from '@react-native-community/netinfo';
-const withSecurityCheck = WrappedComponent => {
-  return props => {
-    const [isSecure, setIsSecure] = useState(true);
-    const [checked, setChecked] = useState(false);
-    useEffect(() => {
-      //   if (__DEV__) {
-      //   setChecked(true);
-      //   return;
-      // }
-      const handleAppStateChange = async nextAppState => {
-        try {
-          const [isRooted, isDevMode] = await Promise.all([
-            JailMonkey.isJailBroken(),
-            JailMonkey.isDevelopmentSettingsMode(),
-          ]);
+import VersionCheck from 'react-native-version-check';
 
-          if (isRooted || (isDevMode && !__DEV__)) {
-            setIsSecure(false);
+const PLAY_STORE_URL =
+  'https://play.google.com/store/apps/details?id=com.inqube.greenqube';
+
+const withSecurityCheck = WrappedComponent => {
+  return function SecurityWrapper(props) {
+    const [isChecking, setIsChecking] = useState(true);
+    const [isSecure, setIsSecure] = useState(true);
+
+    const appStateRef = useRef(AppState.currentState);
+    const alertShownRef = useRef(false);
+
+    // 🔴 Exit app safely
+    const exitApp = () => {
+      setTimeout(() => BackHandler.exitApp(), 500);
+    };
+
+    // 🔐 CRITICAL SECURITY CHECK (BLOCKING)
+    const runSecurityCheck = async () => {
+      try {
+        const [isRooted, isDevMode] = await Promise.all([
+          JailMonkey.isJailBroken(),
+          JailMonkey.isDevelopmentSettingsMode(),
+        ]);
+
+        if (isRooted || (isDevMode && !__DEV__)) {
+          setIsSecure(false);
+
+          if (!alertShownRef.current) {
+            alertShownRef.current = true;
+
             Alert.alert(
               'Security Alert',
               isRooted
                 ? 'This device is rooted. The app will now exit.'
-                : 'We have Detected that you have Enabled Developer Options. Please Disable Developer Options to continue.',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    setTimeout(() => {
-                      BackHandler.exitApp();
-                    }, 800);
-                  },
-                },
-              ],
+                : 'Developer Options detected. Please disable it to continue.',
+              [{text: 'OK', onPress: exitApp}],
               {cancelable: false},
             );
-            return;
-          } else {
-            const net = await NetInfo.fetch();
-            if (net.isConnected && !__DEV__) {
-              const latestVersion = await VersionCheck.getLatestVersion({
-                provider: 'playStore',
-                packageName: 'com.inqube.greenqube',
-                ignoreErrors: true,
-              });
-              const currentVersion = VersionCheck.getCurrentVersion();
-              if (latestVersion != currentVersion) {
-                Alert.alert(
-                  'Update Required',
-                  'A new version of the app is available. Please update to continue using the app.',
-                  [
-                    {
-                      text: 'Update Now',
-                      onPress: () => {
-                        Linking.openURL(
-                          'https://play.google.com/store/apps/details?id=com.inqube.greenqube',
-                        );
-                      },
-                    },
-                  ],
-                  // { cancelable: false },
-                );
-                return;
-              }
-            }
           }
+        } else {
           setIsSecure(true);
-        } catch (error) {
-          console.error('Security check failed:', error);
-          setIsSecure(false);
         }
-        setChecked(true);
-      };
-      const subscription = AppState.addEventListener(
-        'change',
-        handleAppStateChange,
-      );
-      handleAppStateChange('active');
+      } catch (error) {
+        console.warn('Security check failed:', error);
+        setIsSecure(true); // ✅ Fail-safe for consumer apps
+      } finally {
+        setIsChecking(false); // 🔑 Always release loader
+      }
+    };
+
+    // 🔄 BACKGROUND VERSION CHECK (NON-BLOCKING)
+    const runVersionCheck = async () => {
+      try {
+        const net = await NetInfo.fetch();
+        if (!net.isConnected || __DEV__) return;
+
+        const latestVersion = await VersionCheck.getLatestVersion({
+          provider: 'playStore',
+          packageName: 'com.inqube.greenqube',
+          ignoreErrors: true,
+        });
+
+        const currentVersion = VersionCheck.getCurrentVersion();
+
+        if (latestVersion && latestVersion !== currentVersion) {
+          Alert.alert(
+            'Update Available',
+            'A new version is available. Please update to continue.',
+            [
+              {
+                text: 'Update Now',
+                onPress: () => Linking.openURL(PLAY_STORE_URL),
+              },
+              {text: 'Later', style: 'cancel'},
+            ],
+          );
+        }
+      } catch (err) {
+        console.warn('Version check skipped:', err);
+      }
+    };
+
+    // 🚀 Run once on app start
+    useEffect(() => {
+      runSecurityCheck();
+    }, []);
+
+    // 🔁 Run again when app comes to foreground
+    useEffect(() => {
+      const subscription = AppState.addEventListener('change', nextState => {
+        if (
+          appStateRef.current.match(/inactive|background/) &&
+          nextState === 'active'
+        ) {
+          alertShownRef.current = false;
+          runSecurityCheck();
+        }
+        appStateRef.current = nextState;
+      });
+
       return () => subscription.remove();
     }, []);
-    if (!checked) {
+
+    // ⏳ Version check after app loads
+    useEffect(() => {
+      if (!isChecking && isSecure) {
+        setTimeout(runVersionCheck, 1200);
+      }
+    }, [isChecking, isSecure]);
+
+    // 🌀 Loading UI (VERY SHORT)
+    if (isChecking) {
       return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
           <Text>Checking security...</Text>
         </View>
       );
     }
+
+    // 🚫 Block unsafe devices
     if (!isSecure) {
       return null;
     }
+
+    // ✅ Render app
     return <WrappedComponent {...props} />;
   };
 };
+
 export default withSecurityCheck;

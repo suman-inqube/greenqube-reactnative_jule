@@ -251,12 +251,12 @@ const CustomDrawer = memo(({ state }) => {
         title: t('instrument_Wise_Activity_View'),
         onPress: () => navigateToPages('InstrumentWiseActivityView'),
       },
-      {
-        id: 'Offline',
-        iconName: 'local-activity',
-        title: t('Offline'),
-        onPress: () => navigateToPages('Offline'),
-      },
+      // {
+      //   id: 'Offline',
+      //   iconName: 'local-activity',
+      //   title: t('Offline'),
+      //   onPress: () => navigateToPages('Offline'),
+      // },
       {
         id: 'logout',
         iconName: 'logout',

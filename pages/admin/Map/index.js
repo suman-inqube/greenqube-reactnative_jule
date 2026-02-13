@@ -369,15 +369,15 @@ export default function Map({
         },
       );
     }
-    if (!isOffline) {
-      baseActions.push({
-        text: isDownloading ? 'Downloading...' : 'Download Map',
-        icon: <Icon name="cloud-download" size={24} color="#fff" />,
-        name: 'downloadMap',
-        position: 6,
-        color: Colors.useGreen,
-      });
-    }
+    // if (!isOffline) {
+    //   baseActions.push({
+    //     text: isDownloading ? 'Downloading...' : 'Download Map',
+    //     icon: <Icon name="cloud-download" size={24} color="#fff" />,
+    //     name: 'downloadMap',
+    //     position: 6,
+    //     color: Colors.useGreen,
+    //   });
+    // }
     return baseActions;
   }, [editing, isOffline]);
   const handleActionPress = useCallback(

@@ -28,7 +28,7 @@ export default function QRBarcodeScanner({onScanned}) {
       if (codes.length > 0) {
         const value = codes[0]?.value;
         if (!value) return;
-console.log('value==', value);
+// console.log('value==', value);
         setScannedValue(value);
         onScanned?.(value);
       }
