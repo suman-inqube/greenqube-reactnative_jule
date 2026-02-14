@@ -35,6 +35,15 @@ import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+
+// Import or Create a CropData component if you have one,
+// otherwise using a placeholder View below.
+const CropDataPlaceholder = () => (
+  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+    <Text style={{fontFamily: Fonts.Medium}}>Crop Data Content Goes Here</Text>
+  </View>
+);
+
 const PlotList = () => {
   const route = useRoute();
   const {farmeruserID} = route.params;
@@ -48,17 +57,19 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const {loginUser_data, t, Root, CustomHeader,AllFarmerList} = useContext(userCreateContext);
+  const {loginUser_data, t, Root, CustomHeader, AllFarmerList} =
+    useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
+
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
     setDataProps(data);
     scrollRef.current?.scrollTo({x: index * width, animated: true});
   }, []);
+
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log('plot112', farmeruserID);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
         plotListApproval(dbname, lan_id, token, farmeruserID),
         LandUnitArea(dbname, lan_id, token),
@@ -77,7 +88,8 @@ const PlotList = () => {
       setAddPlot(false);
       setDataProps({});
     }
-  }, [activeTab]);
+  }, [farmeruserID, dbname, lan_id, token]); // Added dependencies for stability
+
   useEffect(() => {
     if (activeTab === 0) {
       const task = InteractionManager.runAfterInteractions(() => {
@@ -85,10 +97,11 @@ const PlotList = () => {
       });
       return () => task.cancel();
     }
+
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        if (activeTab === 1) {
+        if (activeTab > 0) {
           onTabPress(0);
           return true;
         }
@@ -96,15 +109,20 @@ const PlotList = () => {
       },
     );
     return () => backHandler.remove();
-  }, [activeTab]);
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
+  }, [activeTab, onPageLoad, onTabPress]);
+
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} />,
+    [t, CustomHeader],
+  );
+
   return (
     <Root>
       <FarmerDrawerScreenWrapper1>
         <View style={styles.container}>
           {renderCustomHeader}
           <TabBar
-            tabs={['Plot Status', 'Plot Add and Edit']}
+            tabs={['Plot List', 'Plot Data', 'Crop Data']}
             activeTab={activeTab}
             onTabPress={ix => onTabPress(ix)}
             indicatorColor={Colors.useGreen}
@@ -126,6 +144,7 @@ const PlotList = () => {
             onMomentumScrollEnd={e =>
               setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))
             }>
+            {/* Tab 0: Plot List */}
             <View style={styles.page}>
               <FlatList
                 data={isLoading ? Array.from({length: 5}) : plotList}
@@ -149,9 +168,10 @@ const PlotList = () => {
                 initialNumToRender={5}
                 windowSize={5}
                 removeClippedSubviews={true}
-                
               />
             </View>
+
+            {/* Tab 1: Plot Data */}
             <View style={styles.page}>
               {activeTab === 1 && (
                 <LiveHood
@@ -164,24 +184,33 @@ const PlotList = () => {
                 />
               )}
             </View>
+
+            {/* Tab 2: Crop Data */}
+            <View style={styles.page}>
+             
+            </View>
           </ScrollView>
+
           {activeTab === 0 && (
-            <>
-              <FloatingActionButton
-                position="right"
-                actions={getActionsPlot(t, styles, Colors)}
-                color={Colors.useGreen}
-                onPressItem={() => onTabPress(1, {}) || setAddPlot(true)}
-                overlayColor="rgba(22, 17, 17, 0.35)"
-                distanceToEdge={{vertical: 80, horizontal: 25}}
-              />
-            </>
+            <FloatingActionButton
+              position="right"
+              actions={getActionsPlot(t, styles, Colors)}
+              color={Colors.useGreen}
+              onPressItem={() => {
+                onTabPress(1, {});
+                setAddPlot(true);
+              }}
+              overlayColor="rgba(22, 17, 17, 0.35)"
+              distanceToEdge={{vertical: 80, horizontal: 25}}
+            />
           )}
         </View>
       </FarmerDrawerScreenWrapper1>
     </Root>
   );
 };
+
+// ... keep existing styles unchanged ...
 const styles = StyleSheet.create({
   container: {flex: 1},
   tabBar: {
