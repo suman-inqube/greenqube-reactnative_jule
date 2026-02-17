@@ -20,11 +20,6 @@ import React, {
   useMemo,
 } from 'react';
 import {useRoute, useNavigation} from '@react-navigation/native';
-import {
-  plotListApproval,
-  LandUnitArea,
-  LandUnitsquare_metre,
-} from '../../../config/apiHere';
 import LiveHood from './LiveHood';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {getActionsPlot} from '../../utils/options';
@@ -35,6 +30,8 @@ import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 const PlotList = () => {
   const route = useRoute();
   const {farmeruserID} = route.params;
@@ -58,11 +55,16 @@ const PlotList = () => {
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log('plot112', farmeruserID);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
-        plotListApproval(dbname, lan_id, token, farmeruserID),
-        LandUnitArea(dbname, lan_id, token),
-        LandUnitsquare_metre(dbname, lan_id, token),
+        axiosGet(`landRoute/userLandCropList_e/${farmeruserID}`,token,{
+          Information: `${dbname},${lan_id}`,
+        }),
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA(),token,{
+          Information: `${dbname},${lan_id}`,
+        }),
+        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE(),token,{
+          Information: `${dbname},${lan_id}`,
+        }),
         AllFarmerList(),
       ]);
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);

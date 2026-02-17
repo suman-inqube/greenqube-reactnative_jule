@@ -37,7 +37,7 @@ const configureExceptionHandlers = (setFatalError) => {
     RNRestart.Restart();
   };
 
-  setJSExceptionHandler(jsExceptionHandler, true);
+  setJSExceptionHandler(jsExceptionHandler, false);
   setNativeExceptionHandler(nativeExceptionHandler);
 
   isExceptionHandlerConfigured = true;

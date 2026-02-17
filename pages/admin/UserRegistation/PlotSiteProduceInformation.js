@@ -247,7 +247,7 @@ const PlotSiteProduceInformation = () => {
     return Object.values(grouped);
   };
   //GQR-65
-  const {dbName, languageId, token, supervisorId, company, country} =
+  const {dbName, languageId, token, supervisorId, company, country,offline_mode} =
     dbLanTokUsr;
   //GQR-65
   var prodctionSeasionArray = [];
@@ -631,6 +631,7 @@ const PlotSiteProduceInformation = () => {
         },
       );
       let prodctionSeasionArray = [];
+      console.error(seasonData?.data?.data?.rows)
       if (seasonData?.status === 200) {
         prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
           value: data.season_info.fid,
@@ -1982,6 +1983,7 @@ const PlotSiteProduceInformation = () => {
               type="livehoood"
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
+              offline_mode={offline_mode}
             />
           </Modal>
         )}

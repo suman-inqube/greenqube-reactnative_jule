@@ -2080,6 +2080,41 @@ export const UpdateLandCropdetailsAPI = async (
     return error.response;
   }
 };
+const logCurl = ({ url, method, headers, body }) => {
+  let curl = `curl -X ${method} 'http://134.209.155.11:4003/${url}'`;
+
+  // 1. Format Headers
+  Object.entries(headers || {}).forEach(([key, value]) => {
+    curl += ` \\\n  -H '${key}: ${value}'`;
+  });
+
+  // 2. Format Body
+  if (body) {
+    if (body instanceof FormData) {
+      // Handle FormData (Multipart)
+      body._parts.forEach(([key, value]) => {
+        if (typeof value === 'object' && value?.uri) {
+          // It's a file/image
+          curl += ` \\\n  -F '${key}=@${value.uri}'`;
+        } else {
+          // It's a text field
+          curl += ` \\\n  -F '${key}=${value}'`;
+        }
+      });
+    } else if (typeof body === 'string' && body.includes('=')) {
+      // Handle x-www-form-urlencoded (already stringified by qs)
+      curl += ` \\\n  --data '${body}'`;
+    } else {
+      // Handle standard JSON
+      const jsonBody = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
+      curl += ` \\\n  --data '${jsonBody}'`;
+    }
+  }
+
+  console.log('\n🚀 ====== CURL REQUEST ======\n');
+  console.log(curl);
+  console.log('\n==============================\n');
+};
 export const AddLandCropDetailsAPI = async (
   dbName,
   language,
@@ -2095,7 +2130,7 @@ export const AddLandCropDetailsAPI = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-
+console.log(JSON.stringify(formData))
   try {
     let response = await axios.post(
       `${config.BASE_URL}landRoute/multiLatLong`,

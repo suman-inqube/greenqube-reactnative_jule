@@ -99,6 +99,7 @@ const Dashboard = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigateToPages = useCallback(
     pageName => {
+        navigation.navigate(pageName);
       if (isOnline) {
         if (pageName === 'PersonalInformation') {
           if (uiState.convertionLUState === false) {

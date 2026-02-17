@@ -85,6 +85,7 @@ export default function Map({
   baselatLong,
   handleRegionChangeComplete,
   isLoading,
+  offline_mode = 0,
 }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
@@ -369,7 +370,7 @@ export default function Map({
         },
       );
     }
-    if (!isOffline) {
+    if (!isOffline && offline_mode == 1) {
       baseActions.push({
         text: isDownloading ? 'Downloading...' : 'Download Map',
         icon: <Icon name="cloud-download" size={24} color="#fff" />,
@@ -460,7 +461,7 @@ export default function Map({
     }
   };
   const downloadOfflineTiles = async () => {
-    console.log(TILE_DIR,SATELLITE_DIR);
+    console.log(TILE_DIR, SATELLITE_DIR);
     if (isOffline) {
       Alert.alert('Offline', 'Please connect to internet to download map.');
       return;
@@ -658,6 +659,7 @@ export default function Map({
           style={styles.map}
           provider={isOffline ? undefined : PROVIDER_GOOGLE}
           mapType={isOffline ? MAP_TYPES.NONE : 'hybrid'}
+          userLocationPriority="high"
           // region={region}
           // mapType="hybrid"
           // provider={PROVIDER_GOOGLE}

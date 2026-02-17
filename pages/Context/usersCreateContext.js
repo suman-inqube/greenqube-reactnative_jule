@@ -251,6 +251,7 @@ const UserCreateContextProvider = props => {
       let resCarbonFlag = [];
       let DetailsCompany_res = [];
       let co_farmer = 0;
+      let offline_mode = 0;
       const [
         loginUser_data,
         logoImageData,
@@ -276,6 +277,7 @@ const UserCreateContextProvider = props => {
         ]);
         if (DetailsCompany_res?.status == 200) {
           co_farmer = DetailsCompany_res.data.data?.[0]?.co_farmer
+          offline_mode=DetailsCompany_res.data.data?.[0]?.offline_mode
         }
         if (farmer_response?.status == 200) {
           await Promise.all([
@@ -321,7 +323,8 @@ const UserCreateContextProvider = props => {
           languageConpany: company,
           country_id,
           carbonFlag: option_value,
-          co_farmer
+          co_farmer,
+          offline_mode
         });
         const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,

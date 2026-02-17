@@ -70,106 +70,214 @@ const Offline = () => {
       Alert.alert('Error', 'API failed. Will retry later.');
     }
   };
-  const renderCustomHeader = useMemo(() => <CustomHeader  />, []);
+  const renderCustomHeader = useMemo(() => <CustomHeader />, []);
+  // const renderItem = ({item, index}) => {
+  //   const payload =
+  //     item?.body?.data != undefined ? JSON.parse(item?.body?.data) : item?.body;
+  //   const url = item.url.split('/').pop();
+  //   let plot_name="";
+  //   if (url == 'multiLatLong') {
+  //      plot_name = 'aaaaaaaaaaa';
+  //   }
+  //   console.log(JSON.stringify(payload), url);
+  //   console.log('*****', url == 'multiLatLong',plot_name);
+  //   const itemAnim = new Animated.Value(0);
+
+  //   Animated.spring(itemAnim, {
+  //     toValue: 1,
+  //     friction: 8,
+  //     tension: 40,
+  //     useNativeDriver: true,
+  //   }).start();
+
+  //   return (
+  //     <Animated.View
+  //       style={[
+  //         styles.card,
+  //         {
+  //           opacity: itemAnim,
+  //           transform: [
+  //             {
+  //               translateY: itemAnim.interpolate({
+  //                 inputRange: [0, 1],
+  //                 outputRange: [50, 0],
+  //               }),
+  //             },
+  //           ],
+  //         },
+  //       ]}>
+  //       {/* Header Section */}
+  //       <View style={styles.cardHeader}>
+  //         <View style={styles.indexBadge}>
+  //           <Text style={styles.indexText}>#{index + 1}</Text>
+  //         </View>
+  //         <View style={styles.methodBadge}>
+  //           <Text style={styles.methodText}>{item.method}</Text>
+  //         </View>
+  //       </View>
+
+  //       {/* Farmer Info Section */}
+  //       {/* <View style={styles.farmerSection}>
+  //         <View style={styles.avatarCircle}>
+  //           <Text style={styles.avatarText}>
+  //             {payload[0].farmer_details.userName.charAt(0).toUpperCase()}
+  //           </Text>
+  //         </View>
+  //         <View style={styles.farmerInfo}>
+  //           <Text style={styles.farmerName}>
+  //             {payload[0].farmer_details.userName}
+  //           </Text>
+  //           <Text style={styles.farmerPhone}>
+  //             📞 {payload[0].farmer_details.contactNumber}
+  //           </Text>
+  //         </View>
+  //       </View> */}
+
+  //       {/* Details Section */}
+  //       <View style={styles.detailsSection}>
+  //         <View style={styles.detailRow}>
+  //           <View style={styles.iconCircle}>
+  //             <Text style={styles.iconText}>🌳</Text>
+  //           </View>
+  //           <View style={styles.detailContent}>
+  //             <Text style={styles.detailLabel}>Plot Number</Text>
+  //             <Text style={styles.detailValue}>
+  //               {url == 'multiLatLong'
+  //                 ? payload?.plot_no
+  //                 : 'payload?.[0]?.farmer_details?.agri_land_user_rels?.[0]?.plot_no' ||
+  //                   'N/A'}
+  //               {plot_name}
+  //             </Text>
+  //           </View>
+  //         </View>
+
+  //         {/* <View style={styles.detailRow}>
+  //           <View style={styles.iconCircle}>
+  //             <Text style={styles.iconText}>🔗</Text>
+  //           </View>
+  //           <View style={styles.detailContent}>
+  //             <Text style={styles.detailLabel}>API Endpoint</Text>
+  //             <Text style={styles.detailValue} numberOfLines={1}>
+  //               {item.url.split('/').pop()}
+  //             </Text>
+  //           </View>
+  //         </View> */}
+  //       </View>
+
+  //       {/* Submit Button */}
+  //       <TouchableOpacity
+  //         style={styles.submitButton}
+  //         onPress={() => submitItem(item, index)}
+  //         activeOpacity={0.8}>
+  //         <View style={styles.buttonContent}>
+  //           <Text style={styles.submitText}>Sync Data</Text>
+  //           <Text style={styles.arrowIcon}>→</Text>
+  //         </View>
+  //       </TouchableOpacity>
+  //     </Animated.View>
+  //   );
+  // };
+
   const renderItem = ({item, index}) => {
-    const payload = JSON.parse(item.body.data);
-    const itemAnim = new Animated.Value(0);
+  const payload =
+    item?.body?.data != undefined ? JSON.parse(item?.body?.data) : item?.body;
+  const url = item.url.split('/').pop();
+  
+  let displayValue = '';
+  let plot_name = '';
+  
+  console.log(url)
+  if (url == 'multiLatLong') {
+    displayValue = `${payload?.plot_no || 'N/A'}`;
+  } else {
+    // Handle other URL types
+    displayValue = payload?.[0]?.farmer_details?.agri_land_user_rels?.[0]?.plot_no || 'N/A';
+  }
+  
+  // console.log(JSON.stringify(payload), url);
+  // console.log('*****', url == 'multiLatLong', plot_name);
+  
+  const itemAnim = new Animated.Value(0);
 
-    Animated.spring(itemAnim, {
-      toValue: 1,
-      friction: 8,
-      tension: 40,
-      useNativeDriver: true,
-    }).start();
-
-    return (
-      <Animated.View
-        style={[
-          styles.card,
-          {
-            opacity: itemAnim,
-            transform: [
-              {
-                translateY: itemAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [50, 0],
-                }),
-              },
-            ],
-          },
-        ]}>
-        {/* Header Section */}
-        <View style={styles.cardHeader}>
-          <View style={styles.indexBadge}>
-            <Text style={styles.indexText}>#{index + 1}</Text>
-          </View>
-          <View style={styles.methodBadge}>
-            <Text style={styles.methodText}>{item.method}</Text>
-          </View>
-        </View>
-
-        {/* Farmer Info Section */}
-        <View style={styles.farmerSection}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>
-              {payload[0].farmer_details.userName.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-          <View style={styles.farmerInfo}>
-            <Text style={styles.farmerName}>
-              {payload[0].farmer_details.userName}
-            </Text>
-            <Text style={styles.farmerPhone}>
-              📞 {payload[0].farmer_details.contactNumber}
-            </Text>
-          </View>
-        </View>
-
-        {/* Details Section */}
-        <View style={styles.detailsSection}>
-          <View style={styles.detailRow}>
-            <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>🌳</Text>
-            </View>
-            <View style={styles.detailContent}>
-              <Text style={styles.detailLabel}>Plot Number</Text>
-              <Text style={styles.detailValue}>
-                {payload[0].farmer_details?.agri_land_user_rels?.[0]?.plot_no ||
-                  'N/A'}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.detailRow}>
-            <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>🔗</Text>
-            </View>
-            <View style={styles.detailContent}>
-              <Text style={styles.detailLabel}>API Endpoint</Text>
-              <Text style={styles.detailValue} numberOfLines={1}>
-                {item.url.split('/').pop()}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Submit Button */}
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={() => submitItem(item, index)}
-          activeOpacity={0.8}>
-          <View style={styles.buttonContent}>
-            <Text style={styles.submitText}>Sync Data</Text>
-            <Text style={styles.arrowIcon}>→</Text>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
+  Animated.spring(itemAnim, {
+    toValue: 1,
+    friction: 8,
+    tension: 40,
+    useNativeDriver: true,
+  }).start();
 
   return (
+    url!=undefined && url!="addPlotImgs" && url !="nearestPlots" ?
+    <Animated.View
+      style={[
+        styles.card,
+        {
+          opacity: itemAnim,
+          transform: [
+            {
+              translateY: itemAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0],
+              }),
+            },
+          ],
+        },
+      ]}>
+      {/* Header Section */}
+      <View style={styles.cardHeader}>
+        <View style={styles.indexBadge}>
+          <Text style={styles.indexText}>#{index + 1}</Text>
+        </View>
+        <View style={styles.methodBadge}>
+          <Text style={styles.methodText}>{item.method}</Text>
+        </View>
+      </View>
+
+      {/* Details Section */}
+      <View style={styles.detailsSection}>
+        <View style={styles.detailRow}>
+          <View style={styles.iconCircle}>
+            <Text style={styles.iconText}>🌳</Text>
+          </View>
+          <View style={styles.detailContent}>
+            <Text style={styles.detailLabel}>Plot Number</Text>
+            <Text style={styles.detailValue}>
+              {displayValue}
+            </Text>
+          </View>
+        </View>
+
+        {/* Add URL info if needed */}
+        {/* <View style={styles.detailRow}>
+          <View style={styles.iconCircle}>
+            <Text style={styles.iconText}>🔗</Text>
+          </View>
+          <View style={styles.detailContent}>
+            <Text style={styles.detailLabel}>API Endpoint</Text>
+            <Text style={styles.detailValue} numberOfLines={1}>
+              {url}
+            </Text>
+          </View>
+        </View> */}
+      </View>
+
+      {/* Submit Button */}
+      <TouchableOpacity
+        style={styles.submitButton}
+        onPress={() => submitItem(item, index)}
+        activeOpacity={0.8}>
+        <View style={styles.buttonContent}>
+          <Text style={styles.submitText}>Sync Data</Text>
+          <Text style={styles.arrowIcon}>→</Text>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+    :<></>
+  );
+};
+  return (
     <View style={styles.container}>
-    {renderCustomHeader}
+      {renderCustomHeader}
       {/* Header */}
       <Animated.View style={[styles.headerContainer, {opacity: fadeAnim}]}>
         <View style={styles.headerTop}>
@@ -192,9 +300,7 @@ const Offline = () => {
             <Text style={styles.emptyIcon}>✓</Text>
           </View>
           <Text style={styles.emptyTitle}>All Caught Up!</Text>
-          <Text style={styles.emptySubtitle}>
-            No pending data to sync
-          </Text>
+          <Text style={styles.emptySubtitle}>No pending data to sync</Text>
         </Animated.View>
       ) : (
         <FlatList

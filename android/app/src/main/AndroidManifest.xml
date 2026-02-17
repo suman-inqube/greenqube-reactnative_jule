@@ -22,7 +22,7 @@ xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> -->
     <permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:protectionLevel="signature" />
     <permission android:name="android.permission.ACCESS_FINE_LOCATION"  android:protectionLevel="signature"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

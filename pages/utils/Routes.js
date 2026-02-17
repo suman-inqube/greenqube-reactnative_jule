@@ -18,6 +18,7 @@ export const ROUTES = {
     ACTIVITY_SAVE: `inputOutputRoute/addUserActivity`,
     SAVE_CO_FARMERS: `settingsRoute/saveCoFarmers`,
     FARMER_SIGNUP_BY_AGENT: `agentRoute/farmerSignupByAgent`,
+    ADD_PLOTI_MGS:`landRoute/addPlotImgs`
   },
 
   GET: {

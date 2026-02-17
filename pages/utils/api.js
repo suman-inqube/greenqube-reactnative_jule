@@ -26,7 +26,9 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 3000;
 
 const instance = axios.create({
-  baseURL: 'http://134.209.155.11:4003/',
+  // baseURL: 'http://134.209.155.11:4003/',
+            baseURL:'https://mygreenqube.com:4003/',
+
   timeout: 50000,
 });
 
@@ -129,7 +131,7 @@ export const axiosGet = async (
 ) => {
   const cacheKey = `GET_${url}`;
   const online = await isInternetAvailable(true);
-
+console.error(url)
   if (!online) {
     const cached = cacheManager.getCache(cacheKey);
     if (cached) return {data: cached, status: 200, fromCache: true};
@@ -186,7 +188,7 @@ export const axiosPost = async (
     ...extraHeaders,
   };
 
-  // logCurl({url, method: 'POST', headers, body: payload});
+  logCurl({url, method: 'POST', headers, body: payload});
 
   try {
     return await instance.post(url, payload, {
