@@ -39,21 +39,31 @@ const ActivityPlotWise = () => {
   const navigation = useNavigation();
 
   const renderItem = ({item}) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.title}>{item.title}</Text>
-        <View
-          style={[
-            styles.statusBadge,
-            item.status === 'Approved' ? styles.doneBadge : styles.pendingBadge,
-          ]}>
-          <Text style={styles.statusText}>{item.status}</Text>
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        navigation.navigate('activityDetail', {
+          ...item, // 🔥 pass whole activity object
+        })
+      }>
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.title}>{item.title}</Text>
+          <View
+            style={[
+              styles.statusBadge,
+              item.status === 'Approved'
+                ? styles.doneBadge
+                : styles.pendingBadge,
+            ]}>
+            <Text style={styles.statusText}>{item.status}</Text>
+          </View>
         </View>
-      </View>
 
-      <Text style={styles.date}>{item.date}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-    </View>
+        <Text style={styles.date}>{item.date}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (

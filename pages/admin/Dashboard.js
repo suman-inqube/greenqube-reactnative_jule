@@ -833,6 +833,7 @@ const Dashboard = ({navigation}) => {
         token,
         {information: `${dbname},${lan_id},${user_id}`},
       );
+      console.log('activitySchedule', activitySchedule);
       if (NON_CARBON_RES?.status === 200) {
         activitySchedule = NON_CARBON_RES.data?.data?.data || [];
 

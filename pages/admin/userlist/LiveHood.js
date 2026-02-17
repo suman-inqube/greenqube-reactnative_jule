@@ -401,6 +401,7 @@ const LiveHood = ({
         setLandAreaUnit(count > 0 ? rows : []);
         setDefaultLand(rows.some(el => el.defined_unit_value?.length > 0));
       }
+      console.log('landUnitSquare_res', landUnitSquare_res);
       if (landUnitSquare_res?.status === 200) {
         const {count, rows = []} = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);

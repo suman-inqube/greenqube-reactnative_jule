@@ -1,6 +1,7 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import {NativeModules} from 'react-native';
+import {BASE_URL, ENCRYPTION_KEY} from '../config/environment';
 
 let axiosInstance = null;
 
@@ -28,10 +29,14 @@ export const getAxiosInstance = async () => {
   try {
     // const baseURL = await ConfigModule.getBaseURL();
     const encKey = 'greenQube_96740_64428';
+    // const EncpKey = ENCRYPTION_KEY || 'greenQube_96740_64428';
+
+    // const encKey = CryptoJS.SHA256(EncpKey);
 
     axiosInstance = axios.create({
+      baseURL: BASE_URL,
       // baseURL: 'http://134.209.155.11:4003/',
-      baseURL: 'https://mygreenqube.com:4003/',
+      // baseURL: 'https://mygreenqube.com:4003/',
       timeout: 50000,
     });
 

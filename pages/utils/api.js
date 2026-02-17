@@ -7,6 +7,8 @@ import {Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
 import {AlertMesg} from '../Common/ToastAlert';
 import {getItem, removeItem} from '../../config/getDataFromStorage';
 import {resetTo} from './NavigationUtils';
+import {BASE_URL, ENCRYPTION_KEY} from '../../config/environment';
+
 const STORAGE_KEYS = [
   'logoImageData',
   'loginUser_data',
@@ -22,7 +24,8 @@ const STORAGE_KEYS = [
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 10000;
 const instance = axios.create({
-  baseURL: 'https://mygreenqube.com:4003/',
+  baseURL: BASE_URL,
+  // baseURL: 'https://mygreenqube.com:4003/',
   // baseURL: 'http://134.209.155.11:4003/',
   timeout: 50000,
 });
@@ -31,9 +34,12 @@ instance.interceptors.request.use(config => {
   return config;
 });
 (async () => {
+  console.log('ENC', ENCRYPTION_KEY);
   try {
     // const { ConfigModule } = NativeModules;
     const encKey = 'greenQube_96740_64428';
+    // const EncpKey = ENCRYPTION_KEY || 'greenQube_96740_64428';
+    // const encKey = CryptoJS.SHA256(EncpKey);
 
     instance.interceptors.response.use(
       response => {
@@ -183,6 +189,8 @@ export const axiosGet = async (
   abortController = null,
 ) => {
   console.log('url', url);
+  console.log('BASE_URL', BASE_URL);
+
   if (!(await isInternetAvailable()))
     return Promise.reject({status: 0, data: {message: 'No internet'}});
   const controller = abortController || new AbortController();
