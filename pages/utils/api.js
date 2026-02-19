@@ -8,7 +8,7 @@ import {AlertMesg} from '../Common/ToastAlert';
 import {getItem, removeItem} from '../../config/getDataFromStorage';
 import {resetTo} from './NavigationUtils';
 import {cacheManager} from './mmkvStorage';
-
+import {BASE_URL, ENCRYPTION_KEY} from '../../config/environment';
 const STORAGE_KEYS = [
   'logoImageData',
   'loginUser_data',
@@ -26,9 +26,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 3000;
 
 const instance = axios.create({
-  // baseURL: 'http://134.209.155.11:4003/',
-            baseURL:'https://mygreenqube.com:4003/',
-
+  baseURL: BASE_URL,
   timeout: 50000,
 });
 
@@ -131,7 +129,6 @@ export const axiosGet = async (
 ) => {
   const cacheKey = `GET_${url}`;
   const online = await isInternetAvailable(true);
-console.error(url)
   if (!online) {
     const cached = cacheManager.getCache(cacheKey);
     if (cached) return {data: cached, status: 200, fromCache: true};
@@ -210,13 +207,22 @@ export const axiosPut = async (
   abortController = null,
 ) => {
   const online = await isInternetAvailable(true);
+   const headers = {
+    'Content-Type': isFormData(body)
+      ? 'multipart/form-data'
+      : isUrlEncoded
+      ? 'application/x-www-form-urlencoded'
+      : 'application/json',
+    ...(token && {Authorization: token}),
+    ...extraHeaders,
+  };
   if (!online) {
     cacheManager.addToQueue({
       url,
       body,
       token,
       isUrlEncoded,
-      extraHeaders,
+      headers,
       method: 'PUT',
     });
     return {data: {message: 'Queued Locally'}, status: 202, isOffline: true};
@@ -224,7 +230,7 @@ export const axiosPut = async (
   const payload = isUrlEncoded ? qs.stringify(body) : body;
   try {
     return await instance.put(url, payload, {
-      headers: {...(token && {Authorization: token}), ...extraHeaders},
+      headers: headers,
       signal: abortController?.signal,
     });
   } catch (error) {

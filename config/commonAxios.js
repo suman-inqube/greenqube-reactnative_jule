@@ -2,6 +2,7 @@ import axios from 'axios';
 import {getItem} from './getDataFromStorage';
 import CryptoJS from 'crypto-js';
 import {NativeModules} from 'react-native';
+import {BASE_URL} from './environment';
 
 // const secretKey = 'greenQube_96740_64428'; // Must match encryption key
 let instance;
@@ -10,10 +11,8 @@ const commonAxios = async () => {
   const {ConfigModule} = NativeModules;
 
   try {
-    const baseURL = "http://134.209.155.11:4003/";
-          //  const baseURL = 'https://mygreenqube.com:4003/';
-     
-     const encKey = "greenQube_96740_64428";
+    const baseURL = BASE_URL;
+    const encKey = 'greenQube_96740_64428';
 
     instance = axios.create({
       baseURL: baseURL, // use dynamic URL
@@ -23,8 +22,6 @@ const commonAxios = async () => {
     instance.interceptors.response.use(
       response => {
         try {
-          console.log('BASE_URL22', baseURL);
-          console.log('check12', encKey);
           const encrypted = findField(response?.data, 'respo');
           const ivHex = findField(response?.data, 'eid');
           if (encrypted != undefined) {

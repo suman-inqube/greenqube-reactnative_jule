@@ -117,13 +117,13 @@ const CustomDrawer = memo(({state}) => {
     }
   }, [isOnline, navigation, navigateToPages]);
   const navigateToPages = pageName => {
-      if (isOnline) {
-        navigation.navigate('AdminNavigation', {
-          screen: 'AdminStack',
-          params: {screen: pageName},
-        });
-      }
+    if (isOnline) {
+      navigation.navigate('AdminNavigation', {
+        screen: 'AdminStack',
+        params: {screen: pageName},
+      });
     }
+  };
 
   //   const navigateToPages = useCallback(
   //   pageName => {
@@ -136,7 +136,6 @@ const CustomDrawer = memo(({state}) => {
   //   },
   //   [isOnline, navigation],
   // );
-  
 
   const handleMenuExpand = useCallback(menuName => {
     setExpandedMenus(prev => ({
@@ -178,28 +177,6 @@ const CustomDrawer = memo(({state}) => {
           },
         ],
       },
-      // {
-      //   id: 'business',
-      //   iconName: 'business',
-      //   title: t('traceability'),
-      //   // isExpandable: true,
-      //   // isExpanded: expandedMenus.business,
-      //   onPress: () => navigateToPages('Business'),
-      //   // expandIconMarginRight: 30,
-      //   // subItems: [
-      //   //   // {
-      //   //   //   iconName: 'business-center',
-      //   //   //   title: t('traceability'),
-      //   //   //   onPress: () => navigateToPages('Business'),
-      //   //   // },
-      //   //   {
-      //   //     iconName: 'receipt',
-      //   //     title: t('daily_sales_report'),
-      //   //     onPress: () => navigateToPages('DailySalesReport'),
-      //   //   },
-      //   // ],
-      // },
-
       {
         id: 'DailySalesReport',
         iconName: 'receipt',
@@ -211,8 +188,6 @@ const CustomDrawer = memo(({state}) => {
         id: 'farmAccount',
         iconName: 'account-balance',
         title: t('farm_income_amp_expense'),
-        // isExpandable: true,
-        // isExpanded: expandedMenus.farmAccount,
         onPress: () => navigateToPages('FarmIncomeExpenseList'),
       },
       {
@@ -221,7 +196,6 @@ const CustomDrawer = memo(({state}) => {
         title: t('Finance'),
         isExpandable: true,
         isExpanded: expandedMenus.finance,
-        // onPress: () => navigateToPages('FarmIncomeExpenseList'),
         onPress: () => handleMenuExpand(MENU_TYPES.FINANCE),
         expandIconMarginRight: 30,
         subItems: [
@@ -260,23 +234,16 @@ const CustomDrawer = memo(({state}) => {
         title: t('instrument_Wise_Activity_View'),
         onPress: () => navigateToPages('InstrumentWiseActivityView'),
       },
-
-      // {
-      //   id: 'Offline',
-      //   iconName: 'local-activity',
-      //   title: t('Offline'),
-      //   onPress: () => navigateToPages('Offline'),
-      // },
-      // ...(dbLanTokUsr?.offline_mode === 0
-      //   ? [
+      ...(dbLanTokUsr?.offline_mode == 1
+        ? [
             {
               id: 'Offline',
               iconName: 'local-activity',
               title: t('Offline'),
               onPress: () => navigateToPages('Offline'),
             },
-          // ]
-        // : []),
+          ]
+        : []),
       {
         id: 'logout',
         iconName: 'logout',

@@ -343,6 +343,9 @@ export const ROUTES = {
 
     UNIQUE_SCAN_CODE: ({unique_id = ''}) =>
       `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new`,
+
+    USERLANDLIST_E:({farmer_id=''})=>`landRoute/userLandList_e/${farmer_id}`,
+    LANDACTIVECROP_E:({rel_id=''})=>`landRoute/landActiveCrop_e?land_rel_id=${rel_id}`
   },
 
   PUT: {

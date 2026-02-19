@@ -1,19 +1,19 @@
-import React, {memo} from 'react';
+import React, {memo,useState} from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {Colors, Fonts} from '../utils/Constants';
 import CollapsibleCard from '../Common/CollapsibleCard';
 import StatusBadge from './StatusBadge';
 
-const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
+const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit,apiCall,index}) => {
   const convertedArea = (
     Number(landUnitsquareMetre?.[0]?.defined_unit_value || 0) *
     Number(item?.google_area || 0)
   ).toFixed(2);
-
   return (
     <TouchableOpacity onPress={onPress}>
       <CollapsibleCard
         width="100%"
+        apiCall={()=>apiCall(item,index)}
         header={
           <Text style={[styles.text, {fontSize: 18, color: Colors.text}]}>
             {item?.plot_no}
@@ -47,16 +47,16 @@ const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
                   {landAreaUnit?.[0]?.name}
                 </Text>
                 <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.crop_name?.name}
+                  : {item?.plot_crops?.[0]?.crop_name?.name}
                 </Text>
                 <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.crop_variety?.name}
+                  : {item?.plot_crops?.[0]?.crop_variety?.name}
                 </Text>
                 <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.sowing_date?.substring(0, 10)}
+                  : {item?.plot_crops?.[0]?.sowing_date?.substring(0, 10)}
                 </Text>
                 <Text style={styles.label}>
-                  : {item?.plot_crops[0]?.harvesting_date?.substring(0, 10)}
+                  : {item?.plot_crops?.[0]?.harvesting_date?.substring(0, 10)}
                 </Text>
               </View>
             </View>

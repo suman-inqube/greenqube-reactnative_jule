@@ -11,7 +11,7 @@ import {
 import {Colors} from '../utils/Constants';
 import LinearGradient from 'react-native-linear-gradient';
 
-const CollapsibleCard = ({header, content, footer, width = '100%'}) => {
+const CollapsibleCard = ({header, content, footer, width = '100%',apiCall}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
   const animatedHeight = useRef(new Animated.Value(0)).current;
@@ -39,6 +39,7 @@ const CollapsibleCard = ({header, content, footer, width = '100%'}) => {
         useNativeDriver: false,
       }),
     ]).start(() => setIsExpanded(!isExpanded));
+    apiCall?.();
   };
 
   const rotate = rotateAnim.interpolate({

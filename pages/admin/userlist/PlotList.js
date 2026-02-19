@@ -30,8 +30,9 @@ import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
+import LoadingScreen from '../../Common/LoadingScreen';
 const PlotList = () => {
   const route = useRoute();
   const {farmeruserID} = route.params;
@@ -41,11 +42,14 @@ const PlotList = () => {
   const [plotList, setPlotList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadinglandActiveCrop, setIsLoadinglandActiveCrop] = useState(false);
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [landAreaUnit, setLandAreaUnit] = useState([]);
+
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const {loginUser_data, t, Root, CustomHeader,AllFarmerList} = useContext(userCreateContext);
+  const {loginUser_data, t, Root, CustomHeader, AllFarmerList} =
+    useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
@@ -55,18 +59,31 @@ const PlotList = () => {
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
-        axiosGet(`landRoute/userLandCropList_e/${farmeruserID}`,token,{
-          Information: `${dbname},${lan_id}`,
-        }),
-        axiosGet(ROUTES.GET.LAND_UNIT_AREA(),token,{
-          Information: `${dbname},${lan_id}`,
-        }),
-        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE(),token,{
-          Information: `${dbname},${lan_id}`,
-        }),
-        AllFarmerList(),
-      ]);
+      const [plotsRes, unitAreaRes, unitSqRes, plot_detils] = await Promise.all(
+        [
+          axiosGet(
+            ROUTES.GET.USERLANDLIST_E({farmer_id: farmeruserID}),
+            token,
+            {
+              Information: `${dbname},${lan_id}`,
+            },
+          ),
+          axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, {
+            Information: `${dbname},${lan_id}`,
+          }),
+          axiosGet(ROUTES.GET.LAND_UNIT_SQUARE(), token, {
+            Information: `${dbname},${lan_id}`,
+          }),
+          // axiosGet(
+          //   'landRoute/landActiveCrop_e?land_rel_id=0a1ac44b-8a2b-4a5c-8d91-bcee5b067e02',
+          //   token,
+          //   {
+          //     Information: `${dbname},${lan_id}`,
+          //   },
+          // ),
+          // AllFarmerList(),
+        ],
+      );
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
       if (unitAreaRes?.status === 200)
         setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
@@ -100,6 +117,48 @@ const PlotList = () => {
     return () => backHandler.remove();
   }, [activeTab]);
   const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, []);
+  const landActiveCrop = async (item, index) => {
+    setIsLoadinglandActiveCrop(true);
+    try {
+      const res = await axiosGet(
+        ROUTES.GET.LANDACTIVECROP_E({rel_id:item.rel_id}),
+        token,
+        {
+          Information: `${dbname},${lan_id}`,
+        },
+      );
+      if (res.status == 200) {
+        setIsLoadinglandActiveCrop(false);
+        const {
+          harvesting_date,
+          crop_name: {name: cropName} = {},
+          crop_variety: {name: varietyName} = {},
+          sowing_date,
+        } = res.data?.[0] || {};
+        setPlotList(prev => {
+          const copy = [...prev];
+          copy[index] = {
+            ...copy[index],
+            plot_crops: [
+              {
+                crop_name: {name: cropName},
+                crop_variety: {name: varietyName},
+                sowing_date: sowing_date,
+                harvesting_date: harvesting_date,
+              },
+            ],
+          };
+
+          return copy;
+        });
+      }
+    } catch (error) {
+      setIsLoadinglandActiveCrop(false);
+      console.error(error);
+    } finally {
+      setIsLoadinglandActiveCrop(false);
+    }
+  };
   return (
     <Root>
       <FarmerDrawerScreenWrapper1>
@@ -114,6 +173,11 @@ const PlotList = () => {
             backgroundColor={Colors.background}
             colors={Colors.primary}
           />
+          {isLoadinglandActiveCrop ? (
+            <View style={styles.LoadingScreen}>
+              <LoadingScreen />
+            </View>
+          ) : null}
           <ScrollView
             ref={scrollRef}
             horizontal
@@ -140,9 +204,11 @@ const PlotList = () => {
                   ) : (
                     <PlotCard
                       item={item}
+                      index={index}
                       onPress={() => onTabPress(1, item)}
                       landUnitsquareMetre={landUnitsquareMetre}
                       landAreaUnit={landAreaUnit}
+                      apiCall={landActiveCrop}
                     />
                   )
                 }
@@ -151,7 +217,6 @@ const PlotList = () => {
                 initialNumToRender={5}
                 windowSize={5}
                 removeClippedSubviews={true}
-                
               />
             </View>
             <View style={styles.page}>
